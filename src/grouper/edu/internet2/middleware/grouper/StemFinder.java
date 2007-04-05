@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.39 2007-03-28 16:27:46 blair Exp $
+ * @version $Id: StemFinder.java,v 1.40 2007-04-05 14:28:28 blair Exp $
  */
 public class StemFinder {
 
@@ -55,7 +55,7 @@ public class StemFinder {
       name = Stem.ROOT_INT;
     }
     Stem ns = new Stem();
-    ns.setDTO( HibernateStemDAO.findByName(name) );
+    ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByName(name) );
     ns.setSession(s);
     return ns;
   } // public static Stem findByName(s, name)
@@ -105,7 +105,7 @@ public class StemFinder {
   {
     GrouperSession.validate(s);
     Stem ns = new Stem();
-    ns.setDTO( HibernateStemDAO.findByUuid(uuid) );
+    ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
     ns.setSession(s);
     return ns;
   } // public static Stem findByUuid(s, uuid)
@@ -120,7 +120,7 @@ public class StemFinder {
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
-    Iterator  it    = HibernateStemDAO.findAllByApproximateDisplayExtension(val).iterator();
+    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension(val).iterator();
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
@@ -137,7 +137,7 @@ public class StemFinder {
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
-    Iterator  it    = HibernateStemDAO.findAllByApproximateDisplayName(val).iterator();
+    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayName(val).iterator();
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
@@ -154,7 +154,7 @@ public class StemFinder {
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
-    Iterator  it    = HibernateStemDAO.findAllByApproximateExtension(val).iterator();
+    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateExtension(val).iterator();
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
@@ -171,7 +171,7 @@ public class StemFinder {
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
-    Iterator  it    = HibernateStemDAO.findAllByApproximateName(val).iterator();
+    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateName(val).iterator();
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
@@ -188,7 +188,7 @@ public class StemFinder {
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
-    Iterator  it    = HibernateStemDAO.findAllByApproximateNameAny(val).iterator();
+    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(val).iterator();
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
@@ -205,7 +205,7 @@ public class StemFinder {
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
-    Iterator  it    = HibernateStemDAO.findAllByCreatedAfter(d).iterator();
+    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByCreatedAfter(d).iterator();
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
@@ -222,7 +222,7 @@ public class StemFinder {
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
-    Iterator  it    = HibernateStemDAO.findAllByCreatedBefore(d).iterator();
+    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByCreatedBefore(d).iterator();
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
@@ -240,7 +240,7 @@ public class StemFinder {
     if (name.equals(Stem.ROOT_EXT)) {
       name = Stem.ROOT_INT;
     }
-    return HibernateStemDAO.findByName(name);
+    return GrouperDAOFactory.getFactory().getStem().findByName(name);
   } // protected static StemDTO internal_findByName(name)
 
   // @since   1.2.0
@@ -257,9 +257,10 @@ public class StemFinder {
     if ( Stem.ROOT_EXT.equals( child.getName() ) ) {
       return false; // child stem is the root stem.  bail out immediately.
     }
+    StemDAO dao     = GrouperDAOFactory.getFactory().getStem();
     StemDTO _parent = null;
     try {
-      _parent = HibernateStemDAO.findByUuid( child.getDTO().getParentUuid() );
+      _parent = dao.findByUuid( child.getDTO().getParentUuid() );
       while (_parent != null) {
         if ( _parent.getUuid().equals( ns.getUuid() ) ) {
           return true;
@@ -267,7 +268,7 @@ public class StemFinder {
         if ( Stem.ROOT_EXT.equals( _parent.getName() ) ) {
           return false; // _parent is root.  don't bother searching further.
         }
-        _parent = HibernateStemDAO.findByUuid( _parent.getParentUuid() );
+        _parent = dao.findByUuid( _parent.getParentUuid() );
       }
     }
     catch (StemNotFoundException eNSNF) {

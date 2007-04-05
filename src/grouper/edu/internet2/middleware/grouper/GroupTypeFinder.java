@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.24 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.25 2007-04-05 14:28:28 blair Exp $
  */
 public class GroupTypeFinder {
   
@@ -167,7 +167,7 @@ public class GroupTypeFinder {
   {
     try {
       Set       types = new LinkedHashSet();
-      Iterator  it    = HibernateGroupTypeDAO.findAll().iterator();
+      Iterator  it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
       while (it.hasNext()) {
         GroupType type = new GroupType();
         type.setDTO( (GroupTypeDTO) it.next() );

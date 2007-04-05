@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.148 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: Group.java,v 1.149 2007-04-05 14:28:28 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -128,7 +128,7 @@ public class Group extends GrouperAPI implements Owner {
 
       MemberOf mof = new MemberOf();
       mof.addComposite( this.getSession(), this, c );
-      HibernateMembershipDAO.update(mof);
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
       EventLog.groupAddComposite( this.getSession(), c, mof, sw );
       Composite.internal_update(this);
       sw.stop();
@@ -262,7 +262,7 @@ public class Group extends GrouperAPI implements Owner {
 
       this.internal_setModified();
 
-      HibernateGroupDAO.addType(this, type);
+      GrouperDAOFactory.getFactory().getGroup().addType(this, type);
       sw.stop();
       EventLog.info(
         this.getSession(),
@@ -436,7 +436,7 @@ public class Group extends GrouperAPI implements Owner {
       );
       //deletes.add(this);            // ... And add the group last for good luck    
       String name = this.getName(); // Preserve name for logging
-      HibernateGroupDAO.delete( this.getDTO(), deletes );
+      GrouperDAOFactory.getFactory().getGroup().delete( this.getDTO(), deletes );
       //HibernateGroupDAO.delete(deletes);
       sw.stop();
       EventLog.info(this.getSession(), M.GROUP_DEL + U.internal_q(name), sw);
@@ -548,12 +548,11 @@ public class Group extends GrouperAPI implements Owner {
       if ( !this.hasComposite() ) {
         throw new MemberDeleteException(E.GROUP_DCFC); 
       }
-      CompositeDTO  dto = HibernateCompositeDAO.findAsOwner( this.getDTO() );
-      Composite     c   = new Composite();
-      c.setDTO(dto);
-      MemberOf      mof = new MemberOf();
+      Composite c   = new Composite();
+      c.setDTO( GrouperDAOFactory.getFactory().getComposite().findAsOwner( this.getDTO() ) );
+      MemberOf  mof = new MemberOf();
       mof.deleteComposite( this.getSession(), this, c );
-      HibernateMembershipDAO.update(mof);
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
       EventLog.groupDelComposite( this.getSession(), c, mof, sw );
       Composite.internal_update(this);
       sw.stop();
@@ -639,7 +638,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     MemberOf  mof = Membership.internal_delImmediateMembership( this.getSession(), this, subj, f );
     try {
-      HibernateMembershipDAO.update(mof);
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
     }
     catch (GrouperDAOException eDAO) {
       throw new MemberDeleteException( eDAO.getMessage(), eDAO );
@@ -697,7 +696,7 @@ public class Group extends GrouperAPI implements Owner {
 
       this.internal_setModified();
 
-      HibernateGroupDAO.deleteType(this, type);
+      GrouperDAOFactory.getFactory().getGroup().deleteType(this, type);
       sw.stop();
       EventLog.info(
         this.getSession(),
@@ -865,7 +864,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     try {
       // when called from "GrouperSubject" there is no attached session
-      MemberDTO _m = HibernateMemberDAO.findByUuid( this.getDTO().getCreatorUuid() );
+      MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getDTO().getCreatorUuid() );
       this.stateCache.put(
         KEY_CREATOR, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
@@ -1204,7 +1203,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     return new LinkedHashSet( 
       PrivilegeResolver.internal_canViewMemberships( 
-        this.getSession(), HibernateMembershipDAO.findAllByOwnerAndField( this.getUuid(), f )
+        this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( this.getUuid(), f )
       )
     );
   } // public Set getMemberships(f)
@@ -1244,7 +1243,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     try {
       // when called from "GrouperSubject" there is no attached session
-      MemberDTO _m = HibernateMemberDAO.findByUuid( this.getDTO().getModifierUuid() );
+      MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getDTO().getModifierUuid() );
       this.stateCache.put(
         KEY_MODIFIER, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
@@ -1356,7 +1355,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     try {
       Stem parent = new Stem();
-      parent.setDTO( HibernateStemDAO.findByUuid(uuid) );
+      parent.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
       parent.setSession( this.getSession() );
       return parent;
     }
@@ -1562,7 +1561,7 @@ public class Group extends GrouperAPI implements Owner {
    */
   public boolean hasComposite() {
     try {
-      HibernateCompositeDAO.findAsOwner( this.getDTO() );
+      GrouperDAOFactory.getFactory().getComposite().findAsOwner( this.getDTO() );
       return true;
     }
     catch (CompositeNotFoundException eCNF) {
@@ -1854,7 +1853,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if group is a factor in a composite membership.
    */
   public boolean isComposite() {
-    if ( HibernateCompositeDAO.findAsFactor( this.getDTO() ).size() > 0 ) {
+    if ( GrouperDAOFactory.getFactory().getComposite().findAsFactor( this.getDTO() ).size() > 0 ) {
       return true;
     }
     return false;
@@ -2116,7 +2115,7 @@ public class Group extends GrouperAPI implements Owner {
     try {
       GrouperSession.validate( this.getSession() );
       Member m = new Member();
-      m.setDTO( HibernateMemberDAO.findBySubject( this.toSubject() ) );
+      m.setDTO( GrouperDAOFactory.getFactory().getMember().findBySubject( this.toSubject() ) );
       m.setSession( this.getSession() );
       this.stateCache.put(KEY_MEMBER, m);
       return m;

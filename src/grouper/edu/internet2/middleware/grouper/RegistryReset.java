@@ -25,7 +25,7 @@ package edu.internet2.middleware.grouper;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.44 2007-03-16 19:46:17 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.45 2007-04-05 14:28:28 blair Exp $
  */
 public class RegistryReset {
 
@@ -101,20 +101,22 @@ public class RegistryReset {
     }
   } // protected static void internal_resetRegistryAndAddTestSubjects()
 
+
   // PRIVATE INSTANCE METHODS //
   private void _addSubjects()   
     throws  GrouperException
   {
     for (int i=0; i<10; i++) {
-      String  id    = "test.subject." + i;
-      String  name  = "my name is " + id;
-      RegistrySubjectDTO  _subj = new RegistrySubjectDTO();
-      _subj.setId(id);
-      _subj.setName(name);
-      _subj.setType(SUBJ_TYPE);
-      HibernateRegistrySubjectDAO.create(_subj);
+      String id   = "test.subject." + i;
+      String name = "my name is " + id;
+      HibernateRegistrySubjectDAO.create(
+        new RegistrySubjectDTO()
+          .setId(id)
+          .setName(name)
+          .setType(SUBJ_TYPE)
+      );
     }
-  } // private void _addSubjects()
+  } 
 
   private void _abort(String msg) 
     throws  GrouperRuntimeException
@@ -126,7 +128,7 @@ public class RegistryReset {
   private void _emptyTables() 
     throws  GrouperException
   {
-    HibernateRegistryDAO.resetRegistry();
+    GrouperDAOFactory.getFactory().getRegistry().reset();
     // Now update the cached types + fields
     GroupTypeFinder.internal_updateKnownTypes();
     FieldFinder.internal_updateKnownFields();

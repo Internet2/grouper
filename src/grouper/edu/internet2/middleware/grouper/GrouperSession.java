@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.55 2007-03-29 19:05:29 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.56 2007-04-05 14:28:28 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -70,9 +70,10 @@ public class GrouperSession extends GrouperAPI {
       GrouperSessionDTO _s  = new GrouperSessionDTO()
         .setMemberUuid( m.getUuid() )
         .setStartTime( new Date() )
-        .setSessionUuid( GrouperUuid.internal_getUuid() )
-        .setSubject(subject);
-      s.setDTO( _s.setId( HibernateGrouperSessionDAO.create(_s) ) );
+        .setSubject(subject)
+        .setUuid( GrouperUuid.internal_getUuid() )
+        ;
+      s.setDTO( _s.setId( GrouperDAOFactory.getFactory().getGrouperSession().create(_s) ) );
 
       sw.stop();
       EventLog.info( s.toString(), M.S_START, sw );
@@ -143,7 +144,7 @@ public class GrouperSession extends GrouperAPI {
     }
     try {
       Member m = new Member();
-      m.setDTO( HibernateMemberDAO.findByUuid( this.getDTO().getMemberUuid() ) );
+      m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this.getDTO().getMemberUuid() ) );
       m.setSession(this);
       this.stateCache.put(KEY_MEMBER, m);
       return m;
@@ -174,7 +175,7 @@ public class GrouperSession extends GrouperAPI {
    * @return  The session id.
    */
   public String getSessionId() {
-    return this.getDTO().getSessionUuid();
+    return this.getDTO().getUuid();
   } // public String getSessionId()
 
   /**
@@ -224,7 +225,7 @@ public class GrouperSession extends GrouperAPI {
       StopWatch sw    = new StopWatch();
       sw.start();
       long      start = this.getStartTime().getTime();
-      HibernateGrouperSessionDAO.delete( this.getDTO() );
+      GrouperDAOFactory.getFactory().getGrouperSession().delete( this.getDTO() );
       sw.stop();
       Date      now   = new Date();
       long      dur   = now.getTime() - start;
@@ -236,7 +237,7 @@ public class GrouperSession extends GrouperAPI {
 
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append( "session_id",   this.getDTO().getSessionUuid()                                 )
+      .append( "session_id",   this.getDTO().getUuid()                                        )
       .append( "subject_id",   U.internal_q( this.getDTO().getSubject().getId() )             )
       .append( "subject_type", U.internal_q( this.getDTO().getSubject().getType().getName() ) )
       .toString();
@@ -253,7 +254,7 @@ public class GrouperSession extends GrouperAPI {
     if (v.isInvalid()) {
       throw new IllegalStateException(E.SV_M);
     }
-    v = NotNullValidator.validate( this.getDTO().getSessionUuid() );  
+    v = NotNullValidator.validate( this.getDTO().getUuid() );  
     if (v.isInvalid()) {
       throw new IllegalStateException(E.SV_I);
     }

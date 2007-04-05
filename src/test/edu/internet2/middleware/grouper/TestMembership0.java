@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership0.java,v 1.6 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestMembership0.java,v 1.7 2007-04-05 14:28:28 blair Exp $
  */
 public class TestMembership0 extends GrouperTest {
 
@@ -64,7 +64,7 @@ public class TestMembership0 extends GrouperTest {
         expUUID = ms.getUuid();
       }
       Membership ms0 = new Membership();
-      ms0.setDTO( HibernateMembershipDAO.findByUuid(expUUID) );
+      ms0.setDTO( GrouperDAOFactory.getFactory().getMembership().findByUuid(expUUID) );
       ms0.setSession(r.rs);
       Assert.assertEquals("ms0", expMS, ms0);
 

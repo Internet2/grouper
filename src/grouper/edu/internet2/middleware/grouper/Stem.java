@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.115 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: Stem.java,v 1.116 2007-04-05 14:28:28 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -171,7 +171,7 @@ public class Stem extends GrouperAPI implements Owner {
   public Set getChildGroups() {
     Subject   subj    = this.getSession().getSubject();
     Set       groups  = new LinkedHashSet();
-    Iterator  it      = HibernateStemDAO.findAllChildGroups(this).iterator();
+    Iterator  it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(this).iterator();
     while (it.hasNext()) {
       Group child = new Group();
       child.setDTO( (GroupDTO) it.next() );
@@ -193,7 +193,7 @@ public class Stem extends GrouperAPI implements Owner {
    */
   public Set getChildStems() {
     Set       stems = new LinkedHashSet();
-    Iterator  it    = HibernateStemDAO.findAllChildStems(this).iterator();
+    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllChildStems(this).iterator();
     while (it.hasNext()) {
       Stem child = new Stem();
       child.setDTO( (StemDTO) it.next() );
@@ -429,7 +429,7 @@ public class Stem extends GrouperAPI implements Owner {
       throw new StemNotFoundException();
     }
     Stem parent = new Stem();
-    parent.setDTO( HibernateStemDAO.findByUuid(uuid) );
+    parent.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
     parent.setSession( this.getSession() );
     return parent;
   } // public Stem getParentStem()
@@ -703,7 +703,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      HibernateStemDAO.renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_DE) );
+      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_DE) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -770,7 +770,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      HibernateStemDAO.renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_E) );
+      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_E) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set extension: " + eDAO.getMessage(), eDAO );
@@ -801,18 +801,18 @@ public class Stem extends GrouperAPI implements Owner {
     throws  GrouperRuntimeException
   {
     try {
-      StemDTO dto = new StemDTO();
-      dto.setCreatorUuid( s.getMember().getUuid() );
-      dto.setCreateTime( new Date().getTime() );
-      dto.setDisplayExtension(ROOT_INT);
-      dto.setDisplayName(ROOT_INT);
-      dto.setExtension(ROOT_INT);
-      dto.setName(ROOT_INT);
-      dto.setUuid( GrouperUuid.internal_getUuid() );
-      
-      dto.setId( HibernateStemDAO.createRootStem(dto) );
+      StemDTO _ns = new StemDTO()
+        .setCreatorUuid( s.getMember().getUuid() )
+        .setCreateTime( new Date().getTime() )
+        .setDisplayExtension(ROOT_INT)
+        .setDisplayName(ROOT_INT)
+        .setExtension(ROOT_INT)
+        .setName(ROOT_INT)
+        .setUuid( GrouperUuid.internal_getUuid() )
+        ;
+      _ns.setId( GrouperDAOFactory.getFactory().getStem().createRootStem(_ns) );
       Stem root = new Stem();
-      root.setDTO(dto);
+      root.setDTO(_ns);
       root.setSession(s);
       return root;
     }
@@ -880,21 +880,23 @@ public class Stem extends GrouperAPI implements Owner {
       // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
       //               for existence in the dao as well.
       if (uuid == null) {
-        _m.setMemberUuid( GrouperUuid.internal_getUuid() ); // assign a new uuid
+        _m.setUuid( GrouperUuid.internal_getUuid() ); // assign a new uuid
       }
       else {
         try {
           // member already exists.  use existing uuid.
-          _m.setMemberUuid( HibernateMemberDAO.findBySubject(subj).getMemberUuid() );
+          _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj).getUuid() );
         }
         catch (MemberNotFoundException eMNF) {
           // couldn't find member.  assign new uuid.
-          _m.setMemberUuid( GrouperUuid.internal_getUuid() ); 
+          _m.setUuid( GrouperUuid.internal_getUuid() ); 
         }
       }
 
       Group child = new Group();
-      child.setDTO( _g.setId( HibernateStemDAO.createChildGroup( this.getDTO(), _g, _m ) ) );
+      child.setDTO( 
+        _g.setId( GrouperDAOFactory.getFactory().getStem().createChildGroup( this.getDTO(), _g, _m ) ) 
+      );
       child.setSession( this.getSession() );
         
       sw.stop();
@@ -928,24 +930,25 @@ public class Stem extends GrouperAPI implements Owner {
       throw new StemAddException( v.getErrorMessage() );
     }
     try {
-      StemDTO dto = new StemDTO();
-      dto.setCreatorUuid( this.getSession().getMember().getUuid() );
-      dto.setCreateTime( new Date().getTime() );
-      dto.setDisplayExtension(dExtn);
-      dto.setDisplayName( U.internal_constructName( this.getDisplayName(), dExtn ) );
-      dto.setExtension(extn);
-      dto.setName( U.internal_constructName( this.getName(), extn ) );
-      dto.setParentUuid( this.getDTO().getUuid() );
+      StemDTO _ns = new StemDTO()
+        .setCreatorUuid( this.getSession().getMember().getUuid() )
+        .setCreateTime( new Date().getTime() )
+        .setDisplayExtension(dExtn)
+        .setDisplayName( U.internal_constructName( this.getDisplayName(), dExtn ) )
+        .setExtension(extn)
+        .setName( U.internal_constructName( this.getName(), extn ) )
+        .setParentUuid( this.getDTO().getUuid() )
+        ;
       if (uuid == null) {
-        dto.setUuid( GrouperUuid.internal_getUuid() );
+        _ns.setUuid( GrouperUuid.internal_getUuid() );
       }
       else {
-        dto.setUuid(uuid);
+        _ns.setUuid(uuid);
       }
+      _ns.setId( GrouperDAOFactory.getFactory().getStem().createChildStem( this.getDTO(), _ns ) );
 
-      dto.setId( HibernateStemDAO.createChildStem( this.getDTO(), dto ) );
       Stem child = new Stem();
-      child.setDTO(dto);
+      child.setDTO(_ns);
       child.setSession( this.getSession() );
 
       sw.stop();
@@ -1066,7 +1069,7 @@ public class Stem extends GrouperAPI implements Owner {
     Map       attrs;
     GroupDTO  child;
     Set       groups  = new LinkedHashSet();
-    Iterator  it      = HibernateStemDAO.findAllChildGroups(this).iterator();
+    Iterator  it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(this).iterator();
     while (it.hasNext()) {
       child = (GroupDTO) it.next();
       attrs = child.getAttributes();
@@ -1110,7 +1113,7 @@ public class Stem extends GrouperAPI implements Owner {
     throws  IllegalStateException
   {
     Set       children  = new LinkedHashSet();
-    Iterator  it        = HibernateStemDAO.findAllChildStems(this).iterator();
+    Iterator  it        = GrouperDAOFactory.getFactory().getStem().findAllChildStems(this).iterator();
     while (it.hasNext()) {
       Stem child = new Stem();
       child.setDTO( (StemDTO) it.next() );

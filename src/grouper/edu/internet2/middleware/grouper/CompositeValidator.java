@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.12 2007-03-09 19:28:21 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.13 2007-04-05 14:28:28 blair Exp $
  * @since   1.0
  */
 class CompositeValidator extends GrouperValidator {
@@ -82,14 +82,15 @@ class CompositeValidator extends GrouperValidator {
     }
     else {  
       // validate that owner and factors are existing groups
+      GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
       try {
-        if      ( !HibernateGroupDAO.exists( _c.getFactorOwnerUuid() ) )  {
+        if      ( !dao.exists( _c.getFactorOwnerUuid() ) ) {
           v.setErrorMessage(INVALID_FACTOROWNER);
         }
-        else if ( !HibernateGroupDAO.exists( _c.getLeftFactorUuid() ) )   {
+        else if ( !dao.exists( _c.getLeftFactorUuid() ) ) {
           v.setErrorMessage(INVALID_LEFTFACTOR);
         }
-        else if ( !HibernateGroupDAO.exists( _c.getRightFactorUuid() ) )  {
+        else if ( !dao.exists( _c.getRightFactorUuid() ) ) {
           v.setErrorMessage(INVALID_RIGHTFACTOR);
         }
         else {

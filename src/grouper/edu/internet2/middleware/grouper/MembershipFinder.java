@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.81 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.82 2007-04-05 14:28:28 blair Exp $
  */
 public class MembershipFinder {
   
@@ -58,7 +58,11 @@ public class MembershipFinder {
       Field       f   = Group.getDefaultList();
       Member      m   = MemberFinder.findBySubject(s, subj);
       Membership  ms  = new Membership();
-      ms.setDTO( HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( g.getUuid(), m.getUuid(), f, Membership.COMPOSITE ) );
+      ms.setDTO( 
+        GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
+          g.getUuid(), m.getUuid(), f, Membership.COMPOSITE
+        ) 
+      );
       ms.setSession(s);
       PrivilegeResolver.internal_canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
@@ -105,7 +109,7 @@ public class MembershipFinder {
       Member m = MemberFinder.findBySubject(s, subj);
       try {
         PrivilegeResolver.internal_canPrivDispatch( s, g, s.getSubject(), f.getReadPriv() );
-        Iterator  it    = HibernateMembershipDAO.findAllEffective(
+        Iterator  it    = GrouperDAOFactory.getFactory().getMembership().findAllEffective(
           g.getUuid(), m.getUuid(), f, via.getUuid(), depth
         ).iterator();
         Membership eff;
@@ -151,7 +155,11 @@ public class MembershipFinder {
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
       Membership  ms  = new Membership();
-      ms.setDTO( HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( g.getUuid(), m.getUuid(), f, Membership.IMMEDIATE ) );
+      ms.setDTO( 
+        GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
+          g.getUuid(), m.getUuid(), f, Membership.IMMEDIATE 
+        ) 
+      );
       ms.setSession(s);
       PrivilegeResolver.internal_canPrivDispatch(
         s, ms.getGroup(), s.getSubject(), f.getReadPriv()
@@ -177,7 +185,7 @@ public class MembershipFinder {
   protected static Set internal_findAllChildrenNoPriv(MembershipDTO dto) {
     Set           children  = new LinkedHashSet();
     MembershipDTO child;
-    Iterator      it        = HibernateMembershipDAO.findAllChildMemberships(dto).iterator();
+    Iterator      it        = GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships(dto).iterator();
     while (it.hasNext()) {
       child = (MembershipDTO) it.next();
       children.addAll( internal_findAllChildrenNoPriv(child) );
@@ -193,8 +201,9 @@ public class MembershipFinder {
   )  
     throws  SchemaException 
   {
+    MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
     Set           mships  = new LinkedHashSet();
-    Iterator      it      = HibernateMembershipDAO.findAllByMemberAndVia( dto.getMemberUuid(), dto.getOwnerUuid() ).iterator();
+    Iterator      it      = dao.findAllByMemberAndVia( dto.getMemberUuid(), dto.getOwnerUuid() ).iterator();
     Iterator      childIt;
     MembershipDTO _eff;
     MembershipDTO _child;
@@ -204,7 +213,7 @@ public class MembershipFinder {
       while (childIt.hasNext()) {
         _child = (MembershipDTO) childIt.next();
         mships.addAll(
-          HibernateMembershipDAO.findAllEffective(
+          dao.findAllEffective(
             _eff.getOwnerUuid(), _child.getMemberUuid(), FieldFinder.find( _eff.getListName() ), 
             _child.getViaUuid(), _eff.getDepth() + _child.getDepth()    
           )
@@ -222,7 +231,7 @@ public class MembershipFinder {
     GrouperSession.validate(s);
     Set       members = new LinkedHashSet();
     Iterator  it      = PrivilegeResolver.internal_canViewMemberships(
-      s, HibernateMembershipDAO.findAllByOwnerAndField( g.getUuid(), f )
+      s, GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( g.getUuid(), f )
     ).iterator();
     try {
       while (it.hasNext()) {
@@ -244,7 +253,7 @@ public class MembershipFinder {
     GrouperSession.validate(s);
     Set       subjs = new LinkedHashSet();
     Iterator  it    = PrivilegeResolver.internal_canViewMemberships(
-      s, HibernateMembershipDAO.findAllByOwnerAndField( o.getUuid(), f )
+      s, GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( o.getUuid(), f )
     ).iterator();
     try {
       while (it.hasNext()) {
@@ -269,14 +278,15 @@ public class MembershipFinder {
      // @filtered  false
      // @session   true 
     GrouperSession.validate(s);
+    MemberDAO     dao   = GrouperDAOFactory.getFactory().getMember();
     MemberDTO     _m;
     MembershipDTO ms;
     Set           subjs = new LinkedHashSet();
-    Iterator      it    = HibernateMembershipDAO.findAllByOwnerAndField( o.getUuid(), f ).iterator();
+    Iterator      it    = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( o.getUuid(), f ).iterator();
     while (it.hasNext()) {
       ms = (MembershipDTO) it.next();
       try {
-        _m = HibernateMemberDAO.findByUuid( ms.getMemberUuid() );
+        _m = dao.findByUuid( ms.getMemberUuid() );
         subjs.add( SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() ) );
       }
       catch (Exception e) {
@@ -314,7 +324,7 @@ public class MembershipFinder {
     // @session   true
     Set         mships  = new LinkedHashSet();
     Membership  ms;
-    Iterator    it      = HibernateMembershipDAO.findAllByCreatedAfter(d, f).iterator();
+    Iterator    it      = GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(d, f).iterator();
     while (it.hasNext()) {
       ms = new Membership();
       ms.setDTO( (MembershipDTO) it.next() );
@@ -332,7 +342,7 @@ public class MembershipFinder {
     // @session   true
     Set         mships  = new LinkedHashSet();
     Membership  ms;
-    Iterator    it      = HibernateMembershipDAO.findAllByCreatedBefore(d, f).iterator();
+    Iterator    it      = GrouperDAOFactory.getFactory().getMembership().findAllByCreatedBefore(d, f).iterator();
     while (it.hasNext()) {
       ms = new Membership();
       ms.setDTO( (MembershipDTO) it.next() );
@@ -348,7 +358,7 @@ public class MembershipFinder {
      // @session   true
     GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewMemberships(
-      s, HibernateMembershipDAO.findAllByOwnerAndFieldAndType(o.getUuid(), f, type)
+      s, GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndFieldAndType(o.getUuid(), f, type)
     );
   } // protected static Set internal_findAllByOwnerAndFieldAndType(s, o, f, type)
 
@@ -361,7 +371,7 @@ public class MembershipFinder {
     // @session   true
     GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewMemberships( 
-      s, HibernateMembershipDAO.findAllEffectiveByMemberAndField( m.getUuid(), f ) 
+      s, GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByMemberAndField( m.getUuid(), f ) 
     );
   } // protected static Set internal_findAllEffectiveByMemberAndField(s, m, f)
 
@@ -372,7 +382,8 @@ public class MembershipFinder {
   {
     // @filtered  false
     // @session   false
-    return HibernateMembershipDAO.findAllEffectiveByOwnerAndMemberAndField( o.getUuid(), m.getUuid(), f );
+    // TODO 20070404 KILL!
+    return GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByOwnerAndMemberAndField( o.getUuid(), m.getUuid(), f );
   } // protected static Set internal_findAllEffectiveByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
@@ -381,7 +392,7 @@ public class MembershipFinder {
     // @session   true
     GrouperSession.validate(s);
     return PrivilegeResolver.internal_canViewMemberships( 
-      s, HibernateMembershipDAO.findAllImmediateByMemberAndField( m.getUuid(), f ) 
+      s, GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField( m.getUuid(), f ) 
     );
   } // protected static Set internal_findAllImmediateByMemberAndField(s, m, f)
 
@@ -390,10 +401,11 @@ public class MembershipFinder {
      // @filtered  true
      // @session   true
     GrouperSession.validate(s);
-    Set mships = new LinkedHashSet();
-    mships.addAll( HibernateMembershipDAO.findMembershipsByMemberAndField( m.getUuid(), f ) );
+    MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
+    Set           mships  = new LinkedHashSet();
+    mships.addAll( dao.findMembershipsByMemberAndField( m.getUuid(), f ) );
     if ( !m.equals( MemberFinder.internal_findAllMember() ) ) {
-      mships.addAll( HibernateMembershipDAO.findMembershipsByMemberAndField( MemberFinder.internal_findAllMember().getUuid(), f ) );
+      mships.addAll( dao.findMembershipsByMemberAndField( MemberFinder.internal_findAllMember().getUuid(), f ) );
     }
     return PrivilegeResolver.internal_canViewMemberships(s, mships);
   } // protected static Set internal_findMemberships(s, m, f)

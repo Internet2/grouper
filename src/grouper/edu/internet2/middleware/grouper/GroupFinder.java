@@ -24,7 +24,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.41 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.42 2007-04-05 14:28:28 blair Exp $
  */
 public class GroupFinder {
 
@@ -68,7 +68,7 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null value");
     }
-    GroupDTO dto = HibernateGroupDAO.findByAttribute(attr, val);
+    GroupDTO dto = GrouperDAOFactory.getFactory().getGroup().findByAttribute(attr, val);
     if (dto != null) {
       Group g = new Group();
       g.setDTO(dto);
@@ -100,7 +100,7 @@ public class GroupFinder {
   {
     GrouperSession.validate(s);
     Group g = new Group();
-    g.setDTO( HibernateGroupDAO.findByName(name) );
+    g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByName(name) );
     g.setSession(s);
     if (RootPrivilegeResolver.internal_canVIEW(g, s.getSubject())) {
       return g;
@@ -137,7 +137,9 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null type");
     }
-    Set groups = PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByType(type) );
+    Set groups = PrivilegeResolver.internal_canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByType(type)
+    );
     if (groups.size() == 1) {
       return (Group) new ArrayList(groups).get(0);
     }
@@ -164,7 +166,7 @@ public class GroupFinder {
   {
     GrouperSession.validate(s);
     Group g = new Group();
-    g.setDTO( HibernateGroupDAO.findByUuid(uuid) );
+    g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
     g.setSession(s);
     if (RootPrivilegeResolver.internal_canVIEW(g, s.getSubject())) {
       return g;
@@ -180,66 +182,73 @@ public class GroupFinder {
   protected static Set internal_findAllByAnyApproximateAttr(GrouperSession s, String val) 
     throws  QueryException
   {
-    // @filtered  true
-    // @session   true
+    // TODO 20070405 KILL!
     GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByAnyApproximateAttr(val) );
+    return PrivilegeResolver.internal_canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByAnyApproximateAttr(val)
+    );
   } // protected static Set internal_findAllByAnyApproximateAttr(s, val)
 
   // @since   1.2.0
   protected static Set internal_findAllByApproximateAttr(GrouperSession s, String attr, String val) 
     throws  QueryException
   {
-    // @filtered  true
-    // @session   true
+    // TODO 20070405 KILL!
     GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByApproximateAttr(attr, val) );
+    return PrivilegeResolver.internal_canViewGroups( 
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAttr(attr, val) 
+    );
   } // protected static Set internal_findAllByApproximateAttr(s, attr, val)
 
   // @since   1.2.0
   protected static Set internal_findAllByApproximateName(GrouperSession s, String name) 
     throws  QueryException
   {
-    // @filtered  true
-    // @session   true
+    // TODO 20070405 KILL!
     GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByApproximateName(name) );
+    return PrivilegeResolver.internal_canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName(name)
+    );
   } // protected static Set internal_findAllByApproximateName(s, name)
 
   // @since   1.2.0
   protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d) 
     throws QueryException 
   {
-    // @filtered  true
-    // @session   true
-    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByCreatedAfter(d) );
+    // TODO 20070405 KILL!
+    return PrivilegeResolver.internal_canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByCreatedAfter(d)
+    );
   } // protected static Set internal_findAllByCreatedAfter(s, d)
     
   // @since   1.2.0
   protected static Set internal_findAllByCreatedBefore(GrouperSession s, Date d) 
     throws QueryException 
   {
-    // @filtered  true
-    // @session   true
-    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByCreatedBefore(d) );
+    // TODO 20070405 KILL!
+    return PrivilegeResolver.internal_canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByCreatedBefore(d) 
+    );
   } // protected static Set internal_findAllByCreatedBefore(s, d)
     
   // @since   1.2.0
   protected static Set internal_findAllByModifiedAfter(GrouperSession s, Date d) 
     throws QueryException 
   {
-    // @filtered  true
-    // @session   true
-    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByModifiedAfter(d) );
+    // TODO 20070405 KILL! 
+    return PrivilegeResolver.internal_canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByModifiedAfter(d)
+    );
   } // protected static Set internal_findAllByModifiedAfter(s, d)
     
   // @since   1.2.0
   protected static Set internal_findAllByModifiedBefore(GrouperSession s, Date d) 
     throws QueryException 
   {
-    // @filtered  true
-    // @session   true
-    return PrivilegeResolver.internal_canViewGroups( s, HibernateGroupDAO.findAllByModifiedBefore(d) );
+    // TODO 20070405 KILL!
+    return PrivilegeResolver.internal_canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByModifiedBefore(d)
+    );
   } // protected static Set internal_findAllByModifiedBefore(s, d)
     
 } // public class GroupFinder

@@ -27,23 +27,23 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.4 2007-03-14 19:54:08 blair Exp $
+ * @version $Id: MembershipDTO.java,v 1.5 2007-04-05 14:28:28 blair Exp $
  */
 class MembershipDTO extends BaseGrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
-  private long    createTime      = new Date().getTime();           // reasonable default
+  private long    createTime  = new Date().getTime();           // reasonable default
   private String  creatorUUID;
-  private int     depth           = 0;                              // reasonable default
+  private int     depth       = 0;                              // reasonable default
   private String  id;
   private String  listName;
   private String  listType;
   private String  memberUUID;
   private String  ownerUUID;
-  private String  parentUUID      = null;                           // reasonable default
-  private String  type            = Membership.IMMEDIATE;           // reasonable default
-  private String  membershipUUID  = GrouperUuid.internal_getUuid(); // reasonable default
-  private String  viaUUID         = null;                           // reasonable default
+  private String  parentUUID  = null;                           // reasonable default
+  private String  type        = Membership.IMMEDIATE;           // reasonable default
+  private String  uuid        = GrouperUuid.internal_getUuid(); // reasonable default
+  private String  viaUUID     = null;                           // reasonable default
 
 
   // PUBLIC INSTANCE METHODS //
@@ -60,13 +60,13 @@ class MembershipDTO extends BaseGrouperDTO {
     }
     MembershipDTO that = (MembershipDTO) other;
     return new EqualsBuilder()
-      .append( this.getDepth(),          that.getDepth()          )
-      .append( this.getListName(),       that.getListName()       )
-      .append( this.getListType(),       that.getListType()       )
-      .append( this.getMemberUuid(),     that.getMemberUuid()     )
-      .append( this.getMembershipUuid(), that.getMembershipUuid() )
-      .append( this.getOwnerUuid(),      that.getOwnerUuid()      )
-      .append( this.getViaUuid(),        that.getViaUuid()        )
+      .append( this.getDepth(),      that.getDepth()      )
+      .append( this.getListName(),   that.getListName()   )
+      .append( this.getListType(),   that.getListType()   )
+      .append( this.getMemberUuid(), that.getMemberUuid() )
+      .append( this.getUuid(),       that.getUuid()       )
+      .append( this.getOwnerUuid(),  that.getOwnerUuid()  )
+      .append( this.getViaUuid(),    that.getViaUuid()    )
       .isEquals();
   } // public boolean equals(other)
 
@@ -75,13 +75,13 @@ class MembershipDTO extends BaseGrouperDTO {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getDepth()          )
-      .append( this.getListName()       )
-      .append( this.getListType()       )
-      .append( this.getMemberUuid()     )
-      .append( this.getMembershipUuid() )
-      .append( this.getOwnerUuid()      )
-      .append( this.getViaUuid()        )
+      .append( this.getDepth()      )
+      .append( this.getListName()   )
+      .append( this.getListType()   )
+      .append( this.getMemberUuid() )
+      .append( this.getUuid()       )
+      .append( this.getOwnerUuid()  )
+      .append( this.getViaUuid()    )
       .toHashCode();
   } // public int hashCode()
 
@@ -90,18 +90,18 @@ class MembershipDTO extends BaseGrouperDTO {
    */
   public String toString() {
     return new ToStringBuilder(this)
-      .append( "createTime",      this.getCreateTime()      )
-      .append( "creatorUuid",     this.getCreatorUuid()     )
-      .append( "depth",           this.getDepth()           )
-      .append( "id",              this.getId()              )
-      .append( "listName",        this.getListName()        )
-      .append( "listType",        this.getListType()        )
-      .append( "memberUuid",      this.getMemberUuid()      )
-      .append( "ownerUuid",       this.getOwnerUuid()       )
-      .append( "parentUuid",      this.getParentUuid()      )
-      .append( "type",            this.getType()            )
-      .append( "membershipUuid",  this.getMembershipUuid()  )
-      .append( "viaUuid",         this.getViaUuid()         )
+      .append( "createTime",  this.getCreateTime()  )
+      .append( "creatorUuid", this.getCreatorUuid() )
+      .append( "depth",       this.getDepth()       )
+      .append( "id",          this.getId()          )
+      .append( "listName",    this.getListName()    )
+      .append( "listType",    this.getListType()    )
+      .append( "memberUuid",  this.getMemberUuid()  )
+      .append( "ownerUuid",   this.getOwnerUuid()   )
+      .append( "parentUuid",  this.getParentUuid()  )
+      .append( "type",        this.getType()        )
+      .append( "uuid",        this.getUuid()        )
+      .append( "viaUuid",     this.getViaUuid()     )
       .toString();
   } // public String toString()
 
@@ -121,20 +121,20 @@ class MembershipDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected static MembershipDTO getDTO(HibernateMembershipDAO dao) {
-    MembershipDTO dto = new MembershipDTO();
-    dto.setCreateTime( dao.getCreateTime() );
-    dto.setCreatorUuid( dao.getCreatorUuid() );
-    dto.setDepth( dao.getDepth() );
-    dto.setId( dao.getId() );
-    dto.setListName( dao.getListName() );
-    dto.setListType( dao.getListType() );
-    dto.setMemberUuid( dao.getMemberUuid() );
-    dto.setOwnerUuid( dao.getOwnerUuid() );
-    dto.setParentUuid( dao.getParentUuid() );
-    dto.setType( dao.getType() );
-    dto.setMembershipUuid( dao.getMembershipUuid() );
-    dto.setViaUuid( dao.getViaUuid() );
-    return dto;
+    return new MembershipDTO()
+      .setCreateTime( dao.getCreateTime() )
+      .setCreatorUuid( dao.getCreatorUuid() )
+      .setDepth( dao.getDepth() )
+      .setId( dao.getId() )
+      .setListName( dao.getListName() )
+      .setListType( dao.getListType() )
+      .setMemberUuid( dao.getMemberUuid() )
+      .setOwnerUuid( dao.getOwnerUuid() )
+      .setParentUuid( dao.getParentUuid() )
+      .setType( dao.getType() )
+      .setUuid( dao.getUuid() )
+      .setViaUuid( dao.getViaUuid() )
+      ;
   } // protected static MembershipDTO getDTO(dao)
 
 
@@ -142,20 +142,20 @@ class MembershipDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected HibernateMembershipDAO getDAO() {
-    HibernateMembershipDAO dao = new HibernateMembershipDAO();
-    dao.setCreateTime( this.getCreateTime() );
-    dao.setCreatorUuid( this.getCreatorUuid() );
-    dao.setDepth( this.getDepth() );
-    dao.setId( this.getId() );
-    dao.setListName( this.getListName() );
-    dao.setListType( this.getListType() );
-    dao.setMemberUuid( this.getMemberUuid() );
-    dao.setOwnerUuid( this.getOwnerUuid() );
-    dao.setParentUuid( this.getParentUuid() );
-    dao.setType( this.getType() );
-    dao.setMembershipUuid( this.getMembershipUuid() );
-    dao.setViaUuid( this.getViaUuid() );
-    return dao;
+    return new HibernateMembershipDAO()
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setDepth( this.getDepth() )
+      .setId( this.getId() )
+      .setListName( this.getListName() )
+      .setListType( this.getListType() )
+      .setMemberUuid( this.getMemberUuid() )
+      .setOwnerUuid( this.getOwnerUuid() )
+      .setParentUuid( this.getParentUuid() )
+      .setType( this.getType() )
+      .setUuid( this.getUuid() )
+      .setViaUuid( this.getViaUuid() )
+      ;
   } // protected HibernateMembershipDAO getDAO()
 
 
@@ -191,8 +191,8 @@ class MembershipDTO extends BaseGrouperDTO {
   protected String getType() {
     return this.type;
   }
-  protected String getMembershipUuid() {
-    return this.membershipUUID;
+  protected String getUuid() {
+    return this.uuid;
   }
   protected String getViaUuid() {
     return this.viaUUID;
@@ -201,41 +201,53 @@ class MembershipDTO extends BaseGrouperDTO {
 
   // SETTERS //
 
-  protected void setCreateTime(long createTime) {
+  protected MembershipDTO setCreateTime(long createTime) {
     this.createTime = createTime;
+    return this;
   }
-  protected void setCreatorUuid(String creatorUUID) {
+  protected MembershipDTO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
+    return this;
   }
-  protected void setDepth(int depth) {
+  protected MembershipDTO setDepth(int depth) {
     this.depth = depth;
+    return this;
   }
-  protected void setId(String id) {
+  protected MembershipDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setListName(String listName) {
+  protected MembershipDTO setListName(String listName) {
     this.listName = listName;
+    return this;
   }
-  protected void setListType(String listType) {
+  protected MembershipDTO setListType(String listType) {
     this.listType = listType;
+    return this;
   }
-  protected void setMemberUuid(String memberUUID) {
+  protected MembershipDTO setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
+    return this;
   }
-  protected void setOwnerUuid(String ownerUUID) {
+  protected MembershipDTO setOwnerUuid(String ownerUUID) {
     this.ownerUUID = ownerUUID;
+    return this;
   }
-  protected void setParentUuid(String parentUUID) {
+  protected MembershipDTO setParentUuid(String parentUUID) {
     this.parentUUID = parentUUID;
+    return this;
   }
-  protected void setType(String type) {
+  protected MembershipDTO setType(String type) {
     this.type = type;
+    return this;
   }
-  protected void setMembershipUuid(String membershipUUID) {
-    this.membershipUUID = membershipUUID;
+  protected MembershipDTO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
   }
-  protected void setViaUuid(String viaUUID) {
+  protected MembershipDTO setViaUuid(String viaUUID) {
     this.viaUUID = viaUUID;
+    return this;
   }
 
 } // class MembershipDTO extends BaseGrouperDTO

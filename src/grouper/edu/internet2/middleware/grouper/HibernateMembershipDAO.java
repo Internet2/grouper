@@ -26,10 +26,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.24 2007-03-29 19:26:30 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.25 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
-class HibernateMembershipDAO extends HibernateDAO {
+class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateMembershipDAO.class.getName();
@@ -46,15 +46,17 @@ class HibernateMembershipDAO extends HibernateDAO {
   private String  ownerUUID;
   private String  parentUUID;
   private String  type;
-  private String  membershipUUID;
+  private String  uuid;
   private String  viaUUID;
 
 
-  // PROTECTED CLASS METHODS //
+  // PUBLIC INSTANCE METHODS //
 
-  // @since   1.2.0
-  // TODO 20070222 this isn't exactly ideal
-  protected static boolean exists(String ownerUUID, String memberUUID, String listName, String msType)
+  /**
+   * <p/>
+   * @since   1.2.0 
+   */
+  public boolean exists(String ownerUUID, String memberUUID, String listName, String msType)
     throws  GrouperDAOException
   {
     try {
@@ -82,10 +84,12 @@ class HibernateMembershipDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static boolean exists(ownerUUID, memberUUID, listName, msType)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByCreatedAfter(Date d, Field f) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByCreatedAfter(Date d, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -109,10 +113,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByCreatedAfter(d, f)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByCreatedBefore(Date d, Field f) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByCreatedBefore(Date d, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -136,10 +142,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByCreatedBefore(d, f)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByMember(String mUUID) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByMember(String memberUUID) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -148,7 +156,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       Query   qry = hs.createQuery("from HibernateMembershipDAO as ms where ms.memberUuid = :member");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByMember");
-      qry.setString("member", mUUID);
+      qry.setString("member", memberUUID);
       mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
@@ -156,10 +164,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByMember(mUUID)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByMemberAndVia(String mUUID, String viaUUID) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByMemberAndVia(String memberUUID, String viaUUID) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -170,8 +180,8 @@ class HibernateMembershipDAO extends HibernateDAO {
         + "     ms.memberUuid  = :member          "
         + "and  ms.viaUuid     = :via             "
       );
-      qry.setString( "member", mUUID   );
-      qry.setString( "via",    viaUUID );
+      qry.setString( "member", memberUUID );
+      qry.setString( "via",    viaUUID    );
       mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
@@ -179,10 +189,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByMemberAndVia(mUUID, viaUUID)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByOwnerAndField(String ownerUUID, Field f) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByOwnerAndField(String ownerUUID, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -206,10 +218,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByOwnerAndField(ownerUUID, f)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByOwnerAndFieldAndType(String ownerUUID, Field f, String type) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByOwnerAndFieldAndType(String ownerUUID, Field f, String type) 
     throws  GrouperDAOException
   {
     Set mships  = new LinkedHashSet();
@@ -235,10 +249,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByOwnerAndFieldAndType(ownerUUID, f, type)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByOwnerAndMemberAndField(String ownerUUID, String mUUID, Field f) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -254,7 +270,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField");
       qry.setString( "owner",  ownerUUID              );
-      qry.setString( "member", mUUID                  );
+      qry.setString( "member", memberUUID             );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
       mships.addAll( MembershipDTO.getDTO( qry.list() ) );
@@ -264,10 +280,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllByOwnerAndMemberAndField(ownerUUID, mUUID, f)
+  } 
 
-  // @since   1.2.0
-  protected static MembershipDTO findByOwnerAndMemberAndFieldAndType(String ownerUUID, String mUUID, Field f, String type)
+  /**
+   * @since   1.2.0
+   */
+  public MembershipDTO findByOwnerAndMemberAndFieldAndType(String ownerUUID, String memberUUID, Field f, String type)
     throws  GrouperDAOException,
             MembershipNotFoundException
   {
@@ -284,7 +302,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByOwnerAndMemberAndFieldAndType");
       qry.setString( "owner",  ownerUUID              );
-      qry.setString( "member", mUUID                  );
+      qry.setString( "member", memberUUID             );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() ); 
       qry.setString( "type",   type                   );
@@ -298,10 +316,12 @@ class HibernateMembershipDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static MembershipDTO findByOwnerAndMemberAndFieldAndType(ownerUUID, mUUID, f, type)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllChildMemberships(MembershipDTO dto) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllChildMemberships(MembershipDTO _ms) 
     throws  GrouperDAOException
   {
     Set mships  = new LinkedHashSet();
@@ -310,7 +330,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       Query   qry = hs.createQuery("from HibernateMembershipDAO as ms where ms.parentUuid = :uuid");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindChildMemberships");
-      qry.setString( "uuid", dto.getMembershipUuid() );
+      qry.setString( "uuid", _ms.getUuid() );
       mships.addAll( MembershipDTO.getDTO( qry.list() ) );
       hs.close();
     }
@@ -318,10 +338,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected sdtatic Set findAllChildMemberships(dto)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllEffective(String ownerUUID, String mUUID, Field f, String viaUUID, int depth) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllEffective(String ownerUUID, String memberUUID, Field f, String viaUUID, int depth) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -340,7 +362,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllEffective");
       qry.setString( "owner",  ownerUUID              );
-      qry.setString( "member", mUUID                  );
+      qry.setString( "member", memberUUID             );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
       qry.setString( "type",   Membership.EFFECTIVE   );
@@ -353,10 +375,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllEffective(ownerUUID, mUUID, f, via, depth)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllEffectiveByMemberAndField(String mUUID, Field f) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllEffectiveByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -364,14 +388,14 @@ class HibernateMembershipDAO extends HibernateDAO {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
         "from HibernateMembershipDAO as ms where  "
-        + "     ms.memberUuid  = :member           "
-        + "and  ms.listName  = :fname            "
-        + "and  ms.listType  = :ftype            "
-        + "and  ms.type = :type             "
+        + "     ms.memberUuid  = :member          "
+        + "and  ms.listName  = :fname             "
+        + "and  ms.listType  = :ftype             "
+        + "and  ms.type = :type                   "
       );
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllEffectiveByMemberAndField");
-      qry.setString( "member", mUUID                  );
+      qry.setString( "member", memberUUID             );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
       qry.setString( "type",   Membership.EFFECTIVE   );
@@ -382,10 +406,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findEffectiveByMemberAndField(mUUID, f)
+  } 
 
-  // @since   1.2.0 
-  protected static Set findAllEffectiveByOwnerAndMemberAndField(String ownerUUID, String mUUID, Field f)
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllEffectiveByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f)
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -402,7 +428,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllEffectiveByOwnerAndMemberAndField");
       qry.setString( "owner",  ownerUUID              );
-      qry.setString( "member", mUUID                  );
+      qry.setString( "member", memberUUID             );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
       qry.setString( "type",   Membership.EFFECTIVE   );
@@ -413,10 +439,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllEffectiveByOwnerAndMemberAndField(ownerUUID, mUUID, f)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllImmediateByMemberAndField(String mUUID, Field f) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllImmediateByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -431,7 +459,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       );
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllImmediateByMemberAndField");      
-      qry.setString( "member", mUUID                  );
+      qry.setString( "member", memberUUID             );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
       qry.setString( "type",   Membership.IMMEDIATE   );
@@ -442,16 +470,18 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findAllImmediateByMemberAndField(mUUID, f)
+  } 
 
-  // @since   1.2.0
-  protected static MembershipDTO findByUuid(String uuid) 
+  /**
+   * @since   1.2.0
+   */
+  public MembershipDTO findByUuid(String uuid) 
     throws  GrouperDAOException,
             MembershipNotFoundException 
   {
     try {
       Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateMembershipDAO as ms where ms.membershipUuid = :uuid");
+      Query   qry = hs.createQuery("from HibernateMembershipDAO as ms where ms.uuid = :uuid");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
@@ -466,10 +496,12 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
 
-  } // protected static MembershipDTO findByUuid(uuid)
+  } 
 
-  // @since   1.2.0  
-  protected static Set findMembershipsByMemberAndField(String mUUID, Field f)
+  /**
+   * @since   1.2.0
+   */
+  public Set findMembershipsByMemberAndField(String memberUUID, Field f)
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -483,7 +515,7 @@ class HibernateMembershipDAO extends HibernateDAO {
       );
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindMemberships");
-      qry.setString( "member", mUUID                  );
+      qry.setString( "member", memberUUID             );
       qry.setString( "fname" , f.getName()            );
       qry.setString( "ftype" , f.getType().toString() );
       mships.addAll( MembershipDTO.getDTO( qry.list() ) );
@@ -493,21 +525,195 @@ class HibernateMembershipDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return mships;
-  } // protected static Set findMembershipsByMemberAndField(mUUID, f)
+  } 
 
-  // @since   1.2.0
-  protected static void reset(Session hs) 
-    throws  HibernateException
-  {
-    hs.delete("from HibernateMembershipDAO");
-  } // protected static void reset(hs)
+  /**
+   * @since   1.2.0
+   */ 
+  public long getCreateTime() {
+    return this.createTime;
+  }
 
-  // @since   1.2.0
-  // TODO 20070124 refactor usage of this method
-  protected static void update(MemberOf mof) 
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public int getDepth() {
+    return this.depth;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getListName() {
+    return this.listName;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getListType() {
+    return this.listType;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getMemberUuid() {
+    return this.memberUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getOwnerUuid() {
+    return this.ownerUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getParentUuid() {
+    return this.parentUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getType() {
+    return this.type;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getViaUuid() {
+    return this.viaUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setCreateTime(long createTime) {
+    this.createTime = createTime;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setDepth(int depth) {
+    this.depth = depth;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setListName(String listName) {
+    this.listName = listName;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setListType(String listType) {
+    this.listType = listType;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setMemberUuid(String memberUUID) {
+    this.memberUUID = memberUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setOwnerUuid(String ownerUUID) {
+    this.ownerUUID = ownerUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setParentUuid(String parentUUID) {
+    this.parentUUID = parentUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateMembershipDAO setViaUuid(String viaUUID) {
+    this.viaUUID = viaUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void update(MemberOf mof) 
     throws  GrouperDAOException
   {
-    // TODO 20061221 just passing in mof is ugly, especially given what mof returns
+    // TODO 20070404 this is incredibly ugly
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
@@ -541,88 +747,17 @@ class HibernateMembershipDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static void update(mof)
-
-  
-  // GETTERS //
-  
-  protected long getCreateTime() {
-    return this.createTime;
-  }
-  protected String getCreatorUuid() {
-    return this.creatorUUID;
-  }
-  protected int getDepth() {
-    return this.depth;
-  }
-  protected String getId() {
-    return this.id;
-  }
-  protected String getListName() {
-    return this.listName;
-  }
-  protected String getListType() {
-    return this.listType;
-  }
-  protected String getMemberUuid() {
-    return this.memberUUID;
-  }
-  protected String getOwnerUuid() {
-    return this.ownerUUID;
-  }
-  protected String getParentUuid() {
-    return this.parentUUID;
-  }
-  protected String getType() {
-    return this.type;
-  }
-  protected String getMembershipUuid() {
-    return this.membershipUUID;
-  }
-  protected String getViaUuid() {
-    return this.viaUUID;
-  }
+  } 
 
 
-  // SETTERS //
+  // PROTECTED CLASS METHODS //
 
-  protected void setCreateTime(long createTime) {
-    this.createTime = createTime;
-  }
-  protected void setCreatorUuid(String creatorUUID) {
-    this.creatorUUID = creatorUUID;
-  }
-  protected void setDepth(int depth) {
-    this.depth = depth;
-  }
-  protected void setId(String id) {
-    this.id = id;
-  }
-  protected void setListName(String listName) {
-    this.listName = listName;
-  }
-  protected void setListType(String listType) {
-    this.listType = listType;
-  }
-  protected void setMemberUuid(String memberUUID) {
-    this.memberUUID = memberUUID;
-  }
-  protected void setOwnerUuid(String ownerUUID) {
-    this.ownerUUID = ownerUUID;
-  }
-  protected void setParentUuid(String parentUUID) {
-    this.parentUUID = parentUUID;
-  }
-  protected void setType(String type) {
-    this.type = type;
-  }
-  protected void setMembershipUuid(String membershipUUID) {
-    this.membershipUUID = membershipUUID;
-  }
-  protected void setViaUuid(String viaUUID) {
-    this.viaUUID = viaUUID;
-  }
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateMembershipDAO");
+  } // protected static void reset(hs)
 
-} // class HibernateMembershipDAO extends HibernateDAO
-
+} // class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO 
 

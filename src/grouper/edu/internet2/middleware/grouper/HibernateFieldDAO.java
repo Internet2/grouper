@@ -25,30 +25,32 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.11 2007-03-29 19:26:30 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.12 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
-class HibernateFieldDAO extends HibernateDAO {
+class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateFieldDAO.class.getName();
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private String  fieldUUID;
   private String  groupTypeUUID;
   private String  id;
   private boolean isNullable;
   private String  name;
   private String  readPrivilege;
   private String  type;
+  private String  uuid;
   private String  writePrivilege;
 
 
-  // PROTECTED CLASS METHODS //
+  // PUBliC INSTANCE METHODS //
 
-  // @since   1.2.0
-  protected static boolean existsByName(String name) 
+  /**
+   * @since   1.2.0
+   */
+  public boolean existsByName(String name) 
     throws  GrouperDAOException
   {
     // TODO 20070316 cache?
@@ -67,10 +69,12 @@ class HibernateFieldDAO extends HibernateDAO {
       ErrorLog.fatal( HibernateFieldDAO.class, eH.getMessage() );
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static boolean existsByName(name)
+  } // public boolean existsByName(name)
   
-  // @since   1.2.0
-  protected static Set findAll() 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAll() 
     throws  GrouperRuntimeException
   {
     Set fields = new LinkedHashSet();
@@ -88,10 +92,12 @@ class HibernateFieldDAO extends HibernateDAO {
       throw new GrouperDAOException(msg, eH);
     }
     return fields;
-  } // protected Static Set findAll()
+  } // public Set findAll()
 
-  // @since   1.2.0
-  protected static Set findAllFieldsByGroupType(String uuid)
+  /** 
+   * @since   1.2.0
+   */
+  public Set findAllFieldsByGroupType(String uuid)
     throws  GrouperDAOException
   {
     Set fields = new LinkedHashSet();
@@ -113,8 +119,10 @@ class HibernateFieldDAO extends HibernateDAO {
     return fields;
   } // protected static Set findAllFieldsByGroupType(uuid)
 
-  // @since   1.2.0
-  protected static Set findAllByType(FieldType type) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByType(FieldType type) 
     throws  GrouperDAOException
   {
     Set fields = new LinkedHashSet();
@@ -133,10 +141,68 @@ class HibernateFieldDAO extends HibernateDAO {
       throw new GrouperDAOException(msg, eH);
     }
     return fields;
-  } // protected static Set fieldAllByType(type)
+  } // public Set fieldAllByType(type)
 
-  // @since   1.2.0
-  protected static boolean isInUse(Field f) 
+  /** 
+   * @since   1.2.0
+   */
+  public String getGroupTypeUuid() {
+    return this.groupTypeUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public boolean getIsNullable() {
+    return this.isNullable;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getName() {
+    return this.name;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getReadPrivilege() {
+    return this.readPrivilege;
+  }
+
+  /** 
+   * @since   1.2.0
+   */
+  public String getType() {
+    return this.type;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  /** 
+   * @since   1.2.0
+   */
+  public String getWritePrivilege() {
+    return this.writePrivilege;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public boolean isInUse(Field f) 
     throws  GrouperDAOException,
             SchemaException
   {
@@ -166,63 +232,71 @@ class HibernateFieldDAO extends HibernateDAO {
       throw new GrouperDAOException(msg, eH);
     }
     return false;
-  } // protected static boolean isInUse()
+  } // public boolean isInUse(f)
 
-
-  // GETTERS //
-
-  protected String getFieldUuid() {
-    return this.fieldUUID;
-  }
-  protected String getGroupTypeUuid() {
-    return this.groupTypeUUID;
-  }
-  protected String getId() {
-    return this.id;
-  }
-  protected boolean getIsNullable() {
-    return this.isNullable;
-  }
-  protected String getName() {
-    return this.name;
-  }
-  protected String getReadPrivilege() {
-    return this.readPrivilege;
-  }
-  protected String getType() {
-    return this.type;
-  }
-  protected String getWritePrivilege() {
-    return this.writePrivilege;
-  }
-
-
-  // SETTERS //
-
-  protected void setFieldUuid(String fieldUUID) {
-    this.fieldUUID = fieldUUID;
-  }
-  protected void setGroupTypeUuid(String groupTypeUUID) {
+  /** 
+   * @since   1.2.0
+   */
+  public HibernateFieldDAO setGroupTypeUuid(String groupTypeUUID) {
     this.groupTypeUUID = groupTypeUUID;
-  }
-  protected void setId(String id) {
-    this.id = id;
-  }
-  protected void setIsNullable(boolean isNullable) {
-    this.isNullable = isNullable;
-  }
-  protected void setName(String name) {
-    this.name = name;
-  }
-  protected void setReadPrivilege(String readPrivilege) {
-    this.readPrivilege = readPrivilege;
-  }
-  protected void setType(String type) {
-    this.type = type;
-  }
-  protected void setWritePrivilege(String writePrivilege) {
-    this.writePrivilege = writePrivilege;
+    return this;
   }
 
-} // class HibernateFieldDAO extends HibernateDAO
+  /**
+   * @since   1.2.0
+   */
+  public HibernateFieldDAO setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateFieldDAO setIsNullable(boolean isNullable) {
+    this.isNullable = isNullable;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateFieldDAO setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  /** 
+   * @since   1.2.0
+   */
+  public HibernateFieldDAO setReadPrivilege(String readPrivilege) {
+    this.readPrivilege = readPrivilege;
+    return this;
+  }
+
+  /** 
+   * @since   1.2.0
+   */
+  public HibernateFieldDAO setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateFieldDAO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  /** 
+   * @since    1.2.0
+   */
+  public HibernateFieldDAO setWritePrivilege(String writePrivilege) {
+    this.writePrivilege = writePrivilege;
+    return this;
+  }
+
+} // class HibernateFieldDAO extends HibernateDAO implements FieldDAO
 

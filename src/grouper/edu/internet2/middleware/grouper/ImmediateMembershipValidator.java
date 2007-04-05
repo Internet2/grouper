@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.4 2007-03-09 20:36:28 blair Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.5 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 class ImmediateMembershipValidator extends MembershipValidator {
@@ -58,7 +58,8 @@ class ImmediateMembershipValidator extends MembershipValidator {
     else if ( v._isCircular(_ms) )                            { // cannot be a direct member of oneself
       v.setErrorMessage(INVALID_CIRCULAR);
     }
-    else if ( HibernateMembershipDAO.exists(                    // cannot already exist
+    else if ( 
+      GrouperDAOFactory.getFactory().getMembership().exists(    // cannot already exist
         _ms.getOwnerUuid(), _ms.getMemberUuid(), _ms.getListName(), Membership.IMMEDIATE 
       )
     )
@@ -88,8 +89,8 @@ class ImmediateMembershipValidator extends MembershipValidator {
   {
     if ( GrouperConfig.LIST.equals( _ms.getListName() ) ) {
       try {
-        GroupDTO  _g  = HibernateGroupDAO.findByUuid( _ms.getOwnerUuid() );
-        MemberDTO _m  = HibernateMemberDAO.findByUuid( _ms.getMemberUuid() );
+        GroupDTO  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() );
+        MemberDTO _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
         if ( _g.getUuid().equals( _m.getSubjectId() ) ) {
           return true;
         }

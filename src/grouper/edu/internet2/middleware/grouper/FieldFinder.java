@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.31 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.32 2007-04-05 14:28:28 blair Exp $
  */
 public class FieldFinder {
 
@@ -67,7 +67,9 @@ public class FieldFinder {
   public static Set findAll() 
     throws  GrouperRuntimeException
   {
-    return new LinkedHashSet( Rosetta.getAPI( HibernateFieldDAO.findAll() ) );
+    return new LinkedHashSet(
+      Rosetta.getAPI( GrouperDAOFactory.getFactory().getField().findAll() ) 
+    );
   } // public static Set findAll()
 
   /**
@@ -79,7 +81,9 @@ public class FieldFinder {
   public static Set findAllByType(FieldType type) 
     throws  SchemaException
   {
-    return new LinkedHashSet( Rosetta.getAPI( HibernateFieldDAO.findAllByType(type) ) );
+    return new LinkedHashSet(
+      Rosetta.getAPI( GrouperDAOFactory.getFactory().getField().findAllByType(type) ) 
+    );
   } // public static Set findAllByType(type)
 
 

@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.6 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.7 2007-04-05 14:28:28 blair Exp $
  */
 class GrouperSessionDTO extends BaseGrouperDTO {
 
@@ -38,9 +38,9 @@ class GrouperSessionDTO extends BaseGrouperDTO {
   private String          memberUUID;
   private PrivilegeCache  namingCache;
   private GrouperSession  rootSession;
-  private String          sessionUUID;
   private Date            startTime;
   private Subject         subject;
+  private String          uuid;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -56,9 +56,9 @@ class GrouperSessionDTO extends BaseGrouperDTO {
     }
     GrouperSessionDTO that = (GrouperSessionDTO) other;
     return new EqualsBuilder()
-      .append( this.getMemberUuid(),  that.getMemberUuid()  )
-      .append( this.getSessionUuid(), that.getSessionUuid() )
-      .append( this.getStartTime(),   that.getStartTime()   )
+      .append( this.getMemberUuid(), that.getMemberUuid() )
+      .append( this.getStartTime(),  that.getStartTime()  )
+      .append( this.getUuid(),       that.getUuid()       )
       .isEquals();
   } // public boolean equals(other)
 
@@ -67,9 +67,9 @@ class GrouperSessionDTO extends BaseGrouperDTO {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getMemberUuid()  )
-      .append( this.getSessionUuid() )
-      .append( this.getStartTime()   )
+      .append( this.getMemberUuid() )
+      .append( this.getStartTime()  )
+      .append( this.getUuid()       )
       .toHashCode();
   } // public int hashCode()
 
@@ -78,9 +78,9 @@ class GrouperSessionDTO extends BaseGrouperDTO {
    */
   public String toString() {
     return new ToStringBuilder(this)
-      .append( "memberUuid",  this.getMemberUuid()  )
-      .append( "sessionUuid", this.getSessionUuid() )
-      .append( "startTime",   this.getStartTime()   )
+      .append( "memberUuid", this.getMemberUuid()  )
+      .append( "startTime",  this.getStartTime()   )
+      .append( "uuid",       this.getUuid() )
       .toString();
   } // public String toString()
 
@@ -89,12 +89,12 @@ class GrouperSessionDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected HibernateGrouperSessionDAO getDAO() {
-    HibernateGrouperSessionDAO dao = new HibernateGrouperSessionDAO();
-    dao.setId( this.getId() );
-    dao.setMemberUuid( this.getMemberUuid() );
-    dao.setSessionUuid( this.getSessionUuid() );
-    dao.setStartTime( this.getStartTime() );
-    return dao;
+    return new HibernateGrouperSessionDAO()
+      .setId( this.getId() )
+      .setMemberUuid( this.getMemberUuid() )
+      .setStartTime( this.getStartTime() )
+      .setUuid( this.getUuid() )
+      ;
   } // protected HibernateGrouperSessionDAO getDAO()
 
 
@@ -129,22 +129,22 @@ class GrouperSessionDTO extends BaseGrouperDTO {
       rs.setDTO(
         new GrouperSessionDTO()
           .setMemberUuid( MemberFinder.internal_findRootMember().getUuid() )
-          .setSessionUuid( GrouperUuid.internal_getUuid() )
           .setStartTime( new Date() )
           .setSubject( SubjectFinder.findRootSubject() )
+          .setUuid( GrouperUuid.internal_getUuid() )
       );
       this.setRootSession(rs);
     }
     return this.rootSession;
   } 
-  protected String getSessionUuid() {
-    return this.sessionUUID;
-  }
   protected Date getStartTime() {
     return this.startTime;
   }
   protected Subject getSubject() {
     return this.subject;
+  }
+  protected String getUuid() {
+    return this.uuid;
   }
 
 
@@ -170,16 +170,16 @@ class GrouperSessionDTO extends BaseGrouperDTO {
     this.rootSession = rootSession;
     return this;
   }
-  protected GrouperSessionDTO setSessionUuid(String sessionUUID) {
-    this.sessionUUID = sessionUUID;
-    return this;
-  }
   protected GrouperSessionDTO setStartTime(Date startTime) {
     this.startTime = startTime;
     return this;
   }
   protected GrouperSessionDTO setSubject(Subject subject) {
     this.subject = subject;
+    return this;
+  }
+  protected GrouperSessionDTO setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

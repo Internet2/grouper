@@ -22,7 +22,7 @@ import  java.util.Set;
  * Query by {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFilter.java,v 1.7 2007-03-08 19:07:20 blair Exp $
+ * @version $Id: GroupTypeFilter.java,v 1.8 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 public class GroupTypeFilter extends BaseQueryFilter {
@@ -56,7 +56,7 @@ public class GroupTypeFilter extends BaseQueryFilter {
     return this.filterByScope(
       this.ns,
       GrouperAPI.setSession(
-        s, Rosetta.getAPI( HibernateGroupDAO.findAllByType(this.type) ).iterator()
+        s, Rosetta.getAPI( GrouperDAOFactory.getFactory().getGroup().findAllByType(this.type) ).iterator()
       )
     );
   } // public Set getResults(s)

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateGroupTypeDAO.hbm.xml,v 1.1 2007-02-08 16:25:25 blair Exp $ -->
+<!-- $Id: HibernateGroupTypeDAO.hbm.xml,v 1.2 2007-04-05 14:28:28 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="HibernateGroupTypeDAO" table="grouper_types" >
@@ -40,8 +40,8 @@
     </id>
     <!-- id -->
 
-    <!-- typeUuid -->
-    <property name="typeUuid"
+    <!-- uuid -->
+    <property name="uuid"
               type="string"
               unique="true"
               update="false"
@@ -51,7 +51,7 @@
               not-null="true"
       />
     </property>
-    <!-- typeUuid -->
+    <!-- uuid -->
 
     <!-- name -->
     <property name="name"

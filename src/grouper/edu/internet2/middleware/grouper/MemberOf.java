@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.51 2007-03-23 13:55:04 blair Exp $
+ * @version $Id: MemberOf.java,v 1.52 2007-04-05 14:28:28 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -122,12 +122,14 @@ class MemberOf extends BaseMemberOf {
     GroupDTO      _g;
     StemDTO       _ns;
     try {
+      GroupDAO  gDAO  = GrouperDAOFactory.getFactory().getGroup();
+      StemDAO   nsDAO = GrouperDAOFactory.getFactory().getStem();
       while (it.hasNext()) {
         _ms = (MembershipDTO) it.next();
         k   = _ms.getOwnerUuid();
         if      ( _ms.getListType().equals(FieldType.LIST.toString()) || _ms.getListType().equals(FieldType.ACCESS.toString()) ) {
           if ( !groups.containsKey(k) ) {
-            _g = HibernateGroupDAO.findByUuid(k);
+            _g = gDAO.findByUuid(k);
             _g.setModifierUuid(modifierUuid);
             _g.setModifyTime(modifyTime);
             groups.put(k, _g);
@@ -135,7 +137,7 @@ class MemberOf extends BaseMemberOf {
         }
         else if ( _ms.getListType().equals(FieldType.NAMING.toString()) ) {
           if ( !stems.containsKey(k) ) {
-            _ns = HibernateStemDAO.findByUuid(k);
+            _ns = nsDAO.findByUuid(k);
             _ns.setModifierUuid(modifierUuid);
             _ns.setModifyTime(modifyTime);
             stems.put(k, _ns);
@@ -211,7 +213,7 @@ class MemberOf extends BaseMemberOf {
     String        listName    = this.getMembershipDTO().getListName();
     String        listType    = this.getMembershipDTO().getListType();
     String        memberUUID  = this.getSession().getMember().getUuid();
-    String        msUUID      = this.getMembershipDTO().getMembershipUuid();
+    String        msUUID      = this.getMembershipDTO().getUuid();
     String        ownerUUID   = this.getMembershipDTO().getOwnerUuid();
     while (it.hasNext()) {
       hasMS = (MembershipDTO) Rosetta.getDTO( it.next() );
@@ -234,7 +236,7 @@ class MemberOf extends BaseMemberOf {
           _ms.setParentUuid( hasMS.getParentUuid() );
         }
         else {
-          _ms.setParentUuid( hasMS.getMembershipUuid() );
+          _ms.setParentUuid( hasMS.getUuid() );
         }
       }
       EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(_ms);
@@ -277,7 +279,7 @@ class MemberOf extends BaseMemberOf {
           dto.setType(Membership.EFFECTIVE);
           if ( hasMS.getDepth() == 0 ) {
             dto.setViaUuid( hasMS.getOwnerUuid() );  // hasMember m was immediate
-            dto.setParentUuid( isMS.getMembershipUuid() );
+            dto.setParentUuid( isMS.getUuid() );
           }
           else {
             dto.setViaUuid( hasMS.getViaUuid() ); // hasMember m was effective
@@ -285,7 +287,7 @@ class MemberOf extends BaseMemberOf {
               dto.setParentUuid( hasMS.getParentUuid() );
             }
             else {
-              dto.setParentUuid( hasMS.getMembershipUuid() );
+              dto.setParentUuid( hasMS.getUuid() );
             }
           }
           EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
@@ -326,7 +328,7 @@ class MemberOf extends BaseMemberOf {
         dto.setType(Membership.EFFECTIVE);
         if ( this.getMembershipDTO().getDepth() == 0 ) {
           dto.setViaUuid( this.getMembershipDTO().getOwnerUuid() );  // ms m was immediate
-          dto.setParentUuid( isMS.getMembershipUuid() );
+          dto.setParentUuid( isMS.getUuid() );
         }
         else {
           dto.setViaUuid( this.getMembershipDTO().getViaUuid() ); // ms m was effective
@@ -334,7 +336,7 @@ class MemberOf extends BaseMemberOf {
             dto.setParentUuid( this.getMembershipDTO().getParentUuid() );
           }
           else {
-            dto.setParentUuid( this.getMembershipDTO().getMembershipUuid() );
+            dto.setParentUuid( this.getMembershipDTO().getUuid() );
           }
         }
         EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
@@ -437,7 +439,7 @@ class MemberOf extends BaseMemberOf {
     _ms.setCreatorUuid( s.getMember().getUuid() );
     _ms.setListName( f.getName() );
     _ms.setListType( f.getType().toString() );
-    _ms.setMemberUuid( _m.getMemberUuid() );
+    _ms.setMemberUuid( _m.getUuid() );
     _ms.setOwnerUuid( this.getOwnerUuid() );
 
     ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
@@ -462,7 +464,7 @@ class MemberOf extends BaseMemberOf {
     if ( this.getGroup() != null ) {
       isMember = PrivilegeResolver.internal_canViewMemberships(
         this.getGroup().getSession(),
-        HibernateMembershipDAO.findAllByMember( this.getGroup().toMember().getUuid() )
+        GrouperDAOFactory.getFactory().getMembership().findAllByMember( this.getGroup().toMember().getUuid() )
       );
     }
     // Members of _m if owner is a group
@@ -488,15 +490,16 @@ class MemberOf extends BaseMemberOf {
   {
     MembershipDTO _ms;
     MemberOf      mof;
-    Iterator      it  = HibernateMembershipDAO.findAllByOwnerAndField( 
+    Iterator      it  = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
       this.getGroup().getUuid(), Group.getDefaultList() 
     ).iterator();
     try {
+      MemberDAO dao = GrouperDAOFactory.getFactory().getMember();
       while (it.hasNext()) {
         _ms = (MembershipDTO) it.next();
         mof = new MemberOf();
         mof.deleteImmediate( 
-          this.getSession(), this.getGroup(), _ms, HibernateMemberDAO.findByUuid( _ms.getMemberUuid() ) 
+          this.getSession(), this.getGroup(), _ms, dao.findByUuid( _ms.getMemberUuid() ) 
         );
         this.deletes.addAll( mof.internal_getDeletes() );
       }
@@ -547,7 +550,7 @@ class MemberOf extends BaseMemberOf {
   private Set _findMembersOfMember() {
     Set hasMembers = new LinkedHashSet();
     if (this.getMemberDTO().getSubjectTypeId().equals("group")) {
-      hasMembers = HibernateMembershipDAO.findAllByOwnerAndField(
+      hasMembers = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField(
         this.getMemberDTO().getSubjectId(), Group.getDefaultList()
       );
     }
@@ -561,8 +564,10 @@ class MemberOf extends BaseMemberOf {
   {
     try {
       Set       memberUUIDs = new LinkedHashSet();
-      GroupDTO  _g          = HibernateGroupDAO.findByUuid(groupUUID);
-      Iterator  it          = HibernateMembershipDAO.findAllByOwnerAndField( _g.getUuid(), Group.getDefaultList() ).iterator();
+      GroupDTO  _g          = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUUID);
+      Iterator  it          = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField(
+         _g.getUuid(), Group.getDefaultList() 
+      ).iterator();
       while (it.hasNext()) {
         memberUUIDs.add( ( (MembershipDTO) it.next() ).getMemberUuid() );  
       }

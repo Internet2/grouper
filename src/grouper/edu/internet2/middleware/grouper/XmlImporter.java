@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.99 2007-03-28 16:27:46 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.100 2007-04-05 14:28:28 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1416,7 +1416,7 @@ public class XmlImporter {
     g.getDTO().setCreatorUuid(
       MemberFinder.internal_findOrCreateBySubject(
         elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
-      ).getMemberUuid()
+      ).getUuid()
     );
   } // private void setCreateSubject(g, e)
   
@@ -1426,7 +1426,7 @@ public class XmlImporter {
     ns.getDTO().setCreatorUuid(
       MemberFinder.internal_findOrCreateBySubject(
         elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
-      ).getMemberUuid()
+      ).getUuid()
     );
   } // private void setCreateSubject(ns, e)
 

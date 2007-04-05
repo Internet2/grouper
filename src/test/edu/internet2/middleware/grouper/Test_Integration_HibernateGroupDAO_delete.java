@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.3 2007-03-07 19:13:59 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.4 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
@@ -38,14 +38,15 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
       Group   g     = r.getGroup("i2mi:grouper", "grouper-dev");
       String  uuid  = g.getUuid();
 
+      GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
       assertTrue( 
         "group has attributes in registry before deletion", 
-        HibernateGroupDAO.findAllAttributesByGroup(uuid).size() > 0 
+        dao.findAllAttributesByGroup(uuid).size() > 0 
       );
       g.delete(); // attributes should be deleted automatically when group is deleted
       assertEquals(
         "group does not have attributes in registry after deletion",
-        0, HibernateGroupDAO.findAllAttributesByGroup(uuid).size()
+        0, dao.findAllAttributesByGroup(uuid).size()
       );
     }
     catch (Exception e) {
@@ -60,15 +61,16 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
       Group   g     = r.getGroup("i2mi:grouper", "grouper-dev");
       String  uuid  = g.getUuid();
 
+      GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
       assertTrue( 
         "group has attributes in registry before reset", 
-        HibernateGroupDAO.findAllAttributesByGroup(uuid).size() > 0 
+        dao.findAllAttributesByGroup(uuid).size() > 0 
       );
       RegistryReset.reset();  // attributes should be deleted when 
                               // registry is reset
       assertEquals(
         "group does not have attributes in registry after reset",
-        0, HibernateGroupDAO.findAllAttributesByGroup(uuid).size()
+        0, dao.findAllAttributesByGroup(uuid).size()
       );
     }
     catch (Exception e) {

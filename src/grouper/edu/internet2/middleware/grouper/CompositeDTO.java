@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Composite} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.5 2007-03-14 19:54:08 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.6 2007-04-05 14:28:28 blair Exp $
  */
 class CompositeDTO extends BaseGrouperDTO {
 
@@ -98,16 +98,16 @@ class CompositeDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected static CompositeDTO getDTO(HibernateCompositeDAO dao) {
-    CompositeDTO dto = new CompositeDTO();
-    dto.setCreateTime( dao.getCreateTime() );
-    dto.setCreatorUuid( dao.getCreatorUuid() );
-    dto.setFactorOwnerUuid( dao.getFactorOwnerUuid() );
-    dto.setId( dao.getId() );
-    dto.setLeftFactorUuid( dao.getLeftFactorUuid() );
-    dto.setUuid( dao.getUuid() );
-    dto.setRightFactorUuid( dao.getRightFactorUuid() );
-    dto.setType( dao.getType() );
-    return dto;
+    return new CompositeDTO()
+      .setCreateTime( dao.getCreateTime() )
+      .setCreatorUuid( dao.getCreatorUuid() )
+      .setFactorOwnerUuid( dao.getFactorOwnerUuid() )
+      .setId( dao.getId() )
+      .setLeftFactorUuid( dao.getLeftFactorUuid() )
+      .setUuid( dao.getUuid() )
+      .setRightFactorUuid( dao.getRightFactorUuid() )
+      .setType( dao.getType() )
+      ;
   } // protected static CompositeDTO getDTO(dao)
 
 
@@ -115,16 +115,16 @@ class CompositeDTO extends BaseGrouperDTO {
   
   // @since   1.2.0
   protected HibernateCompositeDAO getDAO() {
-    HibernateCompositeDAO dao = new HibernateCompositeDAO();
-    dao.setCreateTime( this.getCreateTime() );
-    dao.setCreatorUuid( this.getCreatorUuid() );
-    dao.setFactorOwnerUuid( this.getFactorOwnerUuid() );
-    dao.setId( this.getId() );
-    dao.setLeftFactorUuid( this.getLeftFactorUuid() );
-    dao.setUuid( this.getUuid() );
-    dao.setRightFactorUuid( this.getRightFactorUuid() );
-    dao.setType( this.getType() );
-    return dao;
+    return new HibernateCompositeDAO()
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setFactorOwnerUuid( this.getFactorOwnerUuid() )
+      .setId( this.getId() )
+      .setLeftFactorUuid( this.getLeftFactorUuid() )
+      .setUuid( this.getUuid() )
+      .setRightFactorUuid( this.getRightFactorUuid() )
+      .setType( this.getType() )
+      ;
   } // protected HibernateCompositeDAO getDAO()
 
 
@@ -158,29 +158,37 @@ class CompositeDTO extends BaseGrouperDTO {
 
   // SETTERS //
 
-  protected void setCreateTime(long createTime) {
+  protected CompositeDTO setCreateTime(long createTime) {
     this.createTime = createTime;
+    return this;
   }
-  protected void setCreatorUuid(String creatorUUID) {
+  protected CompositeDTO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
+    return this;
   }
-  protected void setFactorOwnerUuid(String factorOwnerUUID) {
+  protected CompositeDTO setFactorOwnerUuid(String factorOwnerUUID) {
     this.factorOwnerUUID = factorOwnerUUID;
+    return this;
   }
-  protected void setId(String id) {
+  protected CompositeDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setLeftFactorUuid(String leftFactorUUID) {
+  protected CompositeDTO setLeftFactorUuid(String leftFactorUUID) {
     this.leftFactorUUID = leftFactorUUID;
+    return this;
   }
-  protected void setRightFactorUuid(String rightFactorUUID) {
+  protected CompositeDTO setRightFactorUuid(String rightFactorUUID) {
     this.rightFactorUUID = rightFactorUUID;
+    return this;
   }
-  protected void setType(String type) {
+  protected CompositeDTO setType(String type) {
     this.type = type;
+    return this;
   }
-  protected void setUuid(String uuid) {
+  protected CompositeDTO setUuid(String uuid) {
     this.uuid = uuid;
+    return this;
   }
 
 } // class CompositeDTO extends BaseGrouperDTO

@@ -31,7 +31,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.55 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.56 2007-04-05 14:28:28 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -140,19 +140,20 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
-      Member    m     = MemberFinder.findBySubject(s, subj);
-      Member    all   = MemberFinder.internal_findAllMember();     
-      Field     f;
-      Privilege p;
-      Iterator  it;
-      Iterator  iterP = Privilege.getAccessPrivs().iterator();
+      Member        m     = MemberFinder.findBySubject(s, subj);
+      Member        all   = MemberFinder.internal_findAllMember();     
+      MembershipDAO dao   = GrouperDAOFactory.getFactory().getMembership();
+      Field         f;
+      Privilege     p;
+      Iterator      it;
+      Iterator      iterP = Privilege.getAccessPrivs().iterator();
       while (iterP.hasNext()) {
         p   = (Privilege) iterP.next();
         f   = GrouperPrivilegeAdapter.internal_getField(priv2list, p);
-        it  = HibernateMembershipDAO.findAllByOwnerAndMemberAndField( g.getUuid(), m.getDTO().getMemberUuid(), f ).iterator();
+        it  = dao.findAllByOwnerAndMemberAndField( g.getUuid(), m.getDTO().getUuid(), f ).iterator();
         privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, m, p, it) );
         if (!m.equals(all)) {
-          it  = HibernateMembershipDAO.findAllByOwnerAndMemberAndField( g.getUuid(), all.getDTO().getMemberUuid(), f ).iterator();
+          it  = dao.findAllByOwnerAndMemberAndField( g.getUuid(), all.getDTO().getUuid(), f ).iterator();
           privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, all, p, it) );
         }
       }
@@ -278,7 +279,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     g.internal_setModified();
     try {
-      HibernateGroupDAO.revokePriv( g.getDTO(), Membership.internal_deleteAllField(s, g, f) );
+      GrouperDAOFactory.getFactory().getGroup().revokePriv( g.getDTO(), Membership.internal_deleteAllField(s, g, f) );
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
@@ -324,7 +325,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     try {
       MemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
       g.internal_setModified();
-      HibernateGroupDAO.revokePriv( g.getDTO(), mof);
+      GrouperDAOFactory.getFactory().getGroup().revokePriv( g.getDTO(), mof);
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );

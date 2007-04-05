@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.79 2007-03-28 17:00:06 blair Exp $
+ * @version $Id: Membership.java,v 1.80 2007-04-05 14:28:28 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -64,7 +64,7 @@ public class Membership extends GrouperAPI {
     //   * It wasn't working and I didn't have time to debug it at the time.
     //   * I still need to filter
     return PrivilegeResolver.internal_canViewMemberships(
-      this.getSession(), HibernateMembershipDAO.findAllChildMemberships( this.getDTO() )
+      this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this.getDTO() )
     );
   } // public Set getChildMemberships()
 
@@ -83,7 +83,7 @@ public class Membership extends GrouperAPI {
   {
     try {
       Member m = new Member();
-      m.setDTO( HibernateMemberDAO.findByUuid( this.getDTO().getCreatorUuid() ) );
+      m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this.getDTO().getCreatorUuid() ) );
       m.setSession( this.getSession() );
       return m;
     }
@@ -113,7 +113,7 @@ public class Membership extends GrouperAPI {
       throw new GroupNotFoundException();
     }
     Group g = new Group();
-    g.setDTO( HibernateGroupDAO.findByUuid(uuid) );
+    g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
     g.setSession( this.getSession() );
     return g;
   } // public Group getGroup()
@@ -150,7 +150,7 @@ public class Membership extends GrouperAPI {
       throw new MemberNotFoundException("membership does not have a member!");
     }
     Member m = new Member();
-    m.setDTO( HibernateMemberDAO.findByUuid(uuid) );
+    m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) );
     m.setSession( this.getSession() );
     return m;
   } // public Member getMember()
@@ -176,7 +176,7 @@ public class Membership extends GrouperAPI {
       throw new MembershipNotFoundException("no parent");
     }
     Membership parent = new Membership();
-    parent.setDTO( HibernateMembershipDAO.findByUuid(uuid) );
+    parent.setDTO( GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid) );
     parent.setSession( this.getSession() );
     return parent;
   } // public Membership getParentMembership()
@@ -192,7 +192,7 @@ public class Membership extends GrouperAPI {
       throw new StemNotFoundException("membership stem not found");
     }
     Stem ns = new Stem();
-    ns.setDTO( HibernateStemDAO.findByUuid(uuid) );
+    ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
     ns.setSession( this.getSession() );
     return ns;
   } // public Stem getStem()
@@ -207,7 +207,7 @@ public class Membership extends GrouperAPI {
   /**
    */
   public String getUuid() {
-    return this.getDTO().getMembershipUuid();
+    return this.getDTO().getUuid();
   } // public String getUuid()
 
   /**
@@ -221,7 +221,7 @@ public class Membership extends GrouperAPI {
       throw new CompositeNotFoundException();
     }
     Composite via = new Composite();
-    via.setDTO( HibernateCompositeDAO.findByUuid(uuid) );
+    via.setDTO( GrouperDAOFactory.getFactory().getComposite().findByUuid(uuid) );
     via.setSession( this.getSession() );
     return via;
   } // public Composite getViaComposite()
@@ -249,7 +249,7 @@ public class Membership extends GrouperAPI {
       throw new GroupNotFoundException();
     }
     Group via = new Group();
-    via.setDTO( HibernateGroupDAO.findByUuid(uuid) );
+    via.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
     via.setSession( this.getSession() );
     return via;
   } // public Group getViaGroup()
@@ -276,7 +276,7 @@ public class Membership extends GrouperAPI {
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       MemberOf  mof = new MemberOf();
       mof.addImmediate( s, g, f, m.getDTO() );
-      HibernateMembershipDAO.update(mof);
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
       EL.addEffMembers( s, g, subj, f, mof.internal_getEffSaves() );
     }
     catch (IllegalStateException eIS)           {
@@ -301,7 +301,7 @@ public class Membership extends GrouperAPI {
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       MemberOf  mof = new MemberOf();
       mof.addImmediate( s, ns, f, m.getDTO() );
-      HibernateMembershipDAO.update(mof);
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
       EL.addEffMembers( s, ns, subj, f, mof.internal_getEffSaves() );
     }
     catch (IllegalStateException eIS)           {
@@ -325,7 +325,9 @@ public class Membership extends GrouperAPI {
       MemberOf  mof = new MemberOf();
       mof.deleteImmediate(
         s, g, 
-        HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( g.getUuid(), m.getUuid(), f, IMMEDIATE ), 
+        GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
+          g.getUuid(), m.getUuid(), f, IMMEDIATE
+        ), 
         m.getDTO()
       );
       return mof;
@@ -353,7 +355,9 @@ public class Membership extends GrouperAPI {
       MemberOf  mof = new MemberOf();
       mof.deleteImmediate(
         s, ns,
-        HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( ns.getUuid(), m.getUuid(), f, IMMEDIATE ), 
+        GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
+          ns.getUuid(), m.getUuid(), f, IMMEDIATE 
+        ), 
         m.getDTO()
       );
       return mof;
@@ -377,9 +381,10 @@ public class Membership extends GrouperAPI {
     try {
       GrouperSession.validate(s);
 
-      Set         deletes = new LinkedHashSet();
-      MemberOf    mof;
-      Membership  ms;
+      Set           deletes = new LinkedHashSet();
+      MemberOf      mof;
+      Membership    ms;
+      MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
       // Deal with where group is a member
       Iterator itIs = g.toMember().getImmediateMemberships(f).iterator();
@@ -389,7 +394,7 @@ public class Membership extends GrouperAPI {
         mof  = new MemberOf();
         mof.deleteImmediate(
           s, ms.getGroup(),
-          HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType( 
+          dao.findByOwnerAndMemberAndFieldAndType( 
             ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
           ),
           ms.getMember().getDTO()
@@ -398,7 +403,7 @@ public class Membership extends GrouperAPI {
       }
 
       // Deal with group's members
-      Iterator itHas = HibernateMembershipDAO.findAllByOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
+      Iterator itHas = dao.findAllByOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
       while (itHas.hasNext()) {
         ms = new Membership();
         ms.setSession(s);
@@ -406,7 +411,7 @@ public class Membership extends GrouperAPI {
         mof = new MemberOf();
         mof.deleteImmediate(
           s, g,
-          HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(
+          dao.findByOwnerAndMemberAndFieldAndType(
             g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
           ),
           ms.getMember().getDTO()
@@ -435,12 +440,13 @@ public class Membership extends GrouperAPI {
     try {
       GrouperSession.validate(s);
 
-      Set         deletes = new LinkedHashSet();
-      MemberOf    mof;
-      Membership  ms;
+      Set           deletes = new LinkedHashSet();
+      MemberOf      mof;
+      Membership    ms;
+      MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
       // Deal with stem's members
-      Iterator itHas = HibernateMembershipDAO.findAllByOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
+      Iterator itHas = dao.findAllByOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
       while (itHas.hasNext()) {
         ms = new Membership();
         ms.setSession(s);
@@ -448,7 +454,7 @@ public class Membership extends GrouperAPI {
         mof = new MemberOf();
         mof.deleteImmediate(
           s, ns,
-          HibernateMembershipDAO.findByOwnerAndMemberAndFieldAndType(
+          dao.findByOwnerAndMemberAndFieldAndType(
             ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
           ),
           ms.getMember().getDTO()

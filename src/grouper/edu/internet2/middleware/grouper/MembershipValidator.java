@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.28 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.29 2007-04-05 14:28:28 blair Exp $
  * @since   1.0
  */
 class MembershipValidator extends GrouperValidator {
@@ -29,22 +29,22 @@ class MembershipValidator extends GrouperValidator {
   // @since   1.2.0
   protected static MembershipValidator validate(MembershipDTO _ms) {
     MembershipValidator v = new MembershipValidator();
-    if ( _ms.getCreateTime() == GrouperConfig.EPOCH )             {
+    if ( _ms.getCreateTime() == GrouperConfig.EPOCH ) {
       v.setErrorMessage("creation time is set to epoch");
     }
-    else if ( _ms.getCreatorUuid() == null )                      {
+    else if ( _ms.getCreatorUuid() == null ) {
       v.setErrorMessage("null creator");
     }
-    else if ( !v._doesOwnerExist( _ms.getOwnerUuid() ) )          {
+    else if ( !v._doesOwnerExist( _ms.getOwnerUuid() ) ) {
       v.setErrorMessage("unable to find membership owner");
     }
-    else if ( !HibernateMemberDAO.exists( _ms.getMemberUuid() ) ) {
+    else if ( !GrouperDAOFactory.getFactory().getMember().exists( _ms.getMemberUuid() ) ) {
       v.setErrorMessage("unable to find membership member");
     }
-    else if ( !v._doesFieldExist( _ms.getListName() ) )           {
+    else if ( !v._doesFieldExist( _ms.getListName() ) ) {
       v.setErrorMessage("unable to find membership field");
     }
-    else if ( !v._isFieldValidType( _ms.getListType() ) )         {
+    else if ( !v._isFieldValidType( _ms.getListType() ) ) {
       v.setErrorMessage( E.ERR_FT + _ms.getListType() );
     }
     else {
@@ -70,10 +70,10 @@ class MembershipValidator extends GrouperValidator {
 
   // @since   1.2.0
   private boolean _doesOwnerExist(String ownerUUID) {
-    if ( HibernateGroupDAO.exists(ownerUUID) ) {
+    if ( GrouperDAOFactory.getFactory().getGroup().exists(ownerUUID) ) {
       return true;
     }
-    return HibernateStemDAO.exists(ownerUUID);
+    return GrouperDAOFactory.getFactory().getStem().exists(ownerUUID);
   } // private boolean _doesOwnerExist(ownerUUID)
 
   // @since   1.2.0

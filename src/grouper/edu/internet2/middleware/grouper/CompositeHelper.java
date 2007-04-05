@@ -28,42 +28,34 @@ class CompositeHelper {
 
   // @since   1.2.0
   protected static String getLeftName(Composite c) {
-    try {
-      Group g = new Group();
-      g.setDTO( HibernateGroupDAO.findByUuid( c.getDTO().getLeftFactorUuid() ) );
-      return g.getName();
-    }
-    catch (GroupNotFoundException eGNF) {
-      ErrorLog.error( CompositeHelper.class, E.COMP_NULL_LEFT_GROUP + U.internal_q( c.getUuid() ) + ": " + eGNF.getMessage() );
-      return GrouperConfig.EMPTY_STRING;
-    }
-  } // protected static String getLeftName(c)
+    return _getName( c, c.getDTO().getLeftFactorUuid(), E.COMP_NULL_LEFT_GROUP );
+  } 
 
   // @since   1.2.0
   protected static String getOwnerName(Composite c) {
-    try {
-      Group g = new Group();
-      g.setDTO( HibernateGroupDAO.findByUuid( c.getDTO().getFactorOwnerUuid() ) );
-      return g.getName();
-    }
-    catch (GroupNotFoundException eGNF) {
-      ErrorLog.error( CompositeHelper.class, E.COMP_NULL_OWNER_GROUP + U.internal_q( c.getUuid() ) + ": " + eGNF.getMessage() );
-      return GrouperConfig.EMPTY_STRING;
-    }
-  } // protected static String getOwnerName(c)
+    return _getName( c, c.getDTO().getFactorOwnerUuid(), E.COMP_NULL_OWNER_GROUP );
+  }
 
   // @since   1.2.0
   protected static String getRightName(Composite c) {
+    return _getName( c, c.getDTO().getRightFactorUuid(), E.COMP_NULL_RIGHT_GROUP );
+  }
+
+
+  // PRIVATE CLASS METHODS //
+
+  // @since   1.2.0
+  private static String _getName(Composite c, String uuid, String msg) {
     try {
       Group g = new Group();
-      g.setDTO( HibernateGroupDAO.findByUuid( c.getDTO().getRightFactorUuid() ) );
+      g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
       return g.getName();
     }
     catch (GroupNotFoundException eGNF) {
-      ErrorLog.error( CompositeHelper.class, E.COMP_NULL_RIGHT_GROUP + U.internal_q( c.getUuid() ) + ": " + eGNF.getMessage() );
+      ErrorLog.error( CompositeHelper.class, msg + U.internal_q( c.getUuid() ) + ": " + eGNF.getMessage() );
       return GrouperConfig.EMPTY_STRING;
     }
-  } // protected static String _getRightName(c)
+  } 
 
 } // class CompositeHelper
 

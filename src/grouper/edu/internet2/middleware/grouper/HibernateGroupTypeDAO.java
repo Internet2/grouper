@@ -28,9 +28,9 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.12 2007-03-29 19:26:30 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.13 2007-04-05 14:28:28 blair Exp $
  */
-class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
+class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecycle {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateGroupTypeDAO.class.getName();
@@ -43,10 +43,194 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
   private boolean isInternal    = false;
   private String  id;
   private String  name;
-  private String  typeUUID;
+  private String  uuid;
 
 
   // PUBLIC INSTANCE METHODS //
+
+  /**
+   * @since   1.2.0
+   */
+  public String create(GroupTypeDTO _gt)
+    throws  GrouperDAOException
+  {
+    try {
+      Session       hs  = HibernateDAO.getSession();
+      Transaction   tx  = hs.beginTransaction();
+      HibernateDAO  dao = Rosetta.getDAO(_gt);
+      // TODO 20070403 DRY w/ the other DAO classes
+      try {
+        hs.save(dao);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return dao.getId();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public String createField(FieldDTO _f)
+    throws  GrouperDAOException
+  {
+    try {
+      Session       hs  = HibernateDAO.getSession();
+      Transaction   tx  = hs.beginTransaction();
+      HibernateDAO  dao = Rosetta.getDAO(_f);
+      try {
+        hs.save(dao);
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return dao.getId();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public void delete(GroupTypeDTO _gt, Set fields)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        // delete fields
+        Iterator it = fields.iterator();
+        while (it.hasNext()) {
+          hs.delete( Rosetta.getDAO( it.next() ) );
+        }
+        // delete grouptype
+        hs.delete( Rosetta.getDAO(_gt) );
+
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      } 
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public void deleteField(FieldDTO _f) 
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        hs.delete( Rosetta.getDAO(_f) );
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public boolean existsByName(String name)
+    throws  GrouperDAOException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("select gt.id from HibernateGroupTypeDAO gt where gt.name = :name");
+      qry.setString("name", name);
+      boolean rv  = false;
+      if ( qry.uniqueResult() != null ) {
+        rv = true;
+      }
+      hs.close();
+      return rv;
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+  
+  /**
+   * @since   1.2.0
+   */
+  public Set findAll() 
+    throws  GrouperDAOException
+  {
+    Set types = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateGroupTypeDAO order by name asc");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAll");
+      types.addAll( Rosetta.getDTO( qry.list() ) );
+      hs.close();  
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH ); 
+    }
+    return types;
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public GroupTypeDTO findByUuid(String uuid)
+    throws  GrouperDAOException,
+            SchemaException
+  {
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery("from HibernateGroupTypeDAO as gt where gt.uuid = :uuid");
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindByUuid");
+      qry.setString("uuid", uuid);
+      HibernateGroupTypeDAO dao = (HibernateGroupTypeDAO) qry.uniqueResult();
+      if (dao == null) {
+        throw new SchemaException();
+      }
+      hs.close();
+      return (GroupTypeDTO) Rosetta.getDTO(dao);
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
 
   /**
    * @since   1.2.0
@@ -60,16 +244,73 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
     }
     HibernateGroupTypeDAO that = (HibernateGroupTypeDAO) other;
     return new EqualsBuilder()
-      .append( this.getTypeUuid(), that.getTypeUuid() )
+      .append( this.getUuid(), that.getUuid() )
       .isEquals();
   } // public boolean equals(other)
   
+
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getCreateTime() {
+    return this.createTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public Set getFields() {
+    return new HibernateFieldDAO().findAllFieldsByGroupType( this.getUuid() );
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public boolean getIsAssignable() {
+    return this.isAssignable;
+  }
+
+  /** 
+   * @since   1.2.0
+   */
+  public boolean getIsInternal() {
+    return this.isInternal;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getName() {
+    return this.name;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
   /**
    * @since   1.2.0
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getTypeUuid() )
+      .append( this.getUuid() )
       .toHashCode();
   } // public int hashCode()
 
@@ -102,6 +343,70 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
   /**
    * @since   1.2.0
    */
+  public HibernateGroupTypeDAO setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupTypeDAO setCreateTime(long createTime) {
+    this.createTime = createTime;
+    return this;
+  }
+  
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupTypeDAO setFields(Set fields) {
+    // nothing
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupTypeDAO setIsAssignable(boolean isAssignable) {
+    this.isAssignable = isAssignable;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupTypeDAO setIsInternal(boolean isInternal) {
+    this.isInternal = isInternal;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupTypeDAO setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupTypeDAO setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateGroupTypeDAO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
   public String toString() {
     return new ToStringBuilder(this)
       .append( "createTime",   this.getCreateTime()   )
@@ -111,7 +416,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
       .append( "isAssignable", this.getIsAssignable() )
       .append( "isInternal",   this.getIsInternal()   )
       .append( "name",         this.getName()         )
-      .append( "typeUuid",     this.getTypeUuid()     )
+      .append( "uuid",         this.getUuid()         )
       .toString();
   } // public String toString()
 
@@ -119,180 +424,11 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static String create(GroupTypeDTO gt)
-    throws  GrouperDAOException
-  {
-    try {
-      Session       hs  = HibernateDAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(gt);
-      try {
-        hs.save(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-      return dao.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static String create(GroupTypeDTO gt)
-
-  // @since   1.2.0
-  protected static String createField(FieldDTO _f)
-    throws  GrouperDAOException
-  {
-    try {
-      Session       hs  = HibernateDAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(_f);
-      try {
-        hs.save(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-      return dao.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static String create(FieldDTO _f)
-
-  // @since   1.2.0
-  protected static void delete(GroupTypeDTO _type, Set fields)
-    throws  GrouperDAOException 
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        // delete fields
-        Iterator it = fields.iterator();
-        while (it.hasNext()) {
-          hs.delete( Rosetta.getDAO( it.next() ) );
-        }
-        // delete grouptype
-        hs.delete( Rosetta.getDAO(_type) );
-
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      } 
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static void delete(type
-
-  // @since   1.2.0
-  protected static void deleteField(FieldDTO _f) 
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        hs.delete( Rosetta.getDAO(_f) );
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close(); 
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static void deleteField(_f)
-
-  // @since   1.2.0
-  protected static boolean existsByName(String name)
-    throws  GrouperDAOException
-  {
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("select gt.id from HibernateGroupTypeDAO gt where gt.name = :name");
-      qry.setString("name", name);
-      boolean rv  = false;
-      if ( qry.uniqueResult() != null ) {
-        rv = true;
-      }
-      hs.close();
-      return rv;
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static boolean existsByName(name)
-  
-  // @since   1.2.0
-  protected static Set findAll() 
-    throws  GrouperDAOException
-  {
-    Set types = new LinkedHashSet();
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupTypeDAO order by name asc");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAll");
-      types.addAll( Rosetta.getDTO( qry.list() ) );
-      hs.close();  
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH ); 
-    }
-    return types;
-  } // protected static Set findAll()
-
-  // @since   1.2.0
-  protected static GroupTypeDTO findByUuid(String uuid)
-    throws  GrouperDAOException,
-            SchemaException
-  {
-    try {
-      Session hs  = HibernateDAO.getSession();
-      Query   qry = hs.createQuery("from HibernateGroupTypeDAO as gt where gt.typeUuid = :uuid");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
-      qry.setString("uuid", uuid);
-      HibernateGroupTypeDAO dao = (HibernateGroupTypeDAO) qry.uniqueResult();
-      if (dao == null) {
-        throw new SchemaException();
-      }
-      hs.close();
-      return (GroupTypeDTO) Rosetta.getDTO(dao);
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static GroupTypeDTO findByUuid(uuid)
-
-  // @since   1.2.0
   protected static void reset(Session hs) 
     throws  HibernateException
   {
     GroupTypeDTO  _type;
-    Iterator      it    = HibernateGroupTypeDAO.findAll().iterator();
+    Iterator      it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
     Iterator      itF;
     while (it.hasNext()) {
       _type = (GroupTypeDTO) it.next();
@@ -307,60 +443,5 @@ class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle {
     }
   } // protected static void reset(hs)
 
-
-  // GETTERS //
-
-  protected String getCreatorUuid() {
-    return this.creatorUUID;
-  }
-  protected long getCreateTime() {
-    return this.createTime;
-  }
-  protected Set getFields() {
-    return HibernateFieldDAO.findAllFieldsByGroupType( this.getTypeUuid() );
-  }
-  protected boolean getIsAssignable() {
-    return this.isAssignable;
-  }
-  protected boolean getIsInternal() {
-    return this.isInternal;
-  }
-  protected String getId() {
-    return this.id;
-  }
-  protected String getName() {
-    return this.name;
-  }
-  protected String getTypeUuid() {
-    return this.typeUUID;
-  }
-
-
-  // SETTERS //
-
-  protected void setCreatorUuid(String creatorUUID) {
-    this.creatorUUID = creatorUUID;
-  }
-  protected void setCreateTime(long createTime) {
-    this.createTime = createTime;
-  }
-  protected void setFields(Set fields) {
-  }
-  protected void setIsAssignable(boolean isAssignable) {
-    this.isAssignable = isAssignable;
-  }
-  protected void setIsInternal(boolean isInternal) {
-    this.isInternal = isInternal;
-  }
-  protected void setId(String id) {
-    this.id = id;
-  }
-  protected void setName(String name) {
-    this.name = name;
-  }
-  protected void setTypeUuid(String typeUUID) {
-    this.typeUUID = typeUUID;
-  }
-
-} // class HibernateGroupTypeDAO extends HibernateDAO implements Lifecycle
+} // class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecycle
 

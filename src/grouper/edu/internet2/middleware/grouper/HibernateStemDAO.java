@@ -26,10 +26,10 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.19 2007-03-29 19:26:30 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.20 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
-class HibernateStemDAO extends HibernateDAO {
+class HibernateStemDAO extends HibernateDAO implements StemDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateStemDAO.class.getName();
@@ -52,58 +52,32 @@ class HibernateStemDAO extends HibernateDAO {
   private String  uuid;
 
 
-  // PROTECTED CLASS METHODS //
+  // PUBLIC INSTANCE METHODS //
 
-  // @since   1.2.0
-  protected static String createChildGroup(StemDTO parent, GroupDTO child, MemberDTO m)
+  /**
+   * @since   1.2.0
+   */
+  public String createChildGroup(StemDTO _parent, GroupDTO _child, MemberDTO _m)
     throws  GrouperDAOException
   {
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  _g  = Rosetta.getDAO(child);
-      try {
-        hs.save(_g);
-        // add group-type tuples
-        Iterator it = child.getTypes().iterator();
-        while (it.hasNext()) {
-          HibernateGroupTypeTupleDAO dao = new HibernateGroupTypeTupleDAO();
-          dao.setGroupUuid( child.getUuid() );
-          dao.setTypeUuid( ( (GroupTypeDTO) it.next() ).getTypeUuid() );
-          hs.save(dao); // new group-type tuple
-        }
-        hs.update( Rosetta.getDAO(parent) );
-        if ( !HibernateMemberDAO.exists( m.getMemberUuid() ) ) {
-          hs.save( Rosetta.getDAO(m) );
-        }
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-      return _g.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static String createChildGroup(parent, child, m)
-
-
-  // @since   1.2.0
-  protected static String createChildStem(StemDTO parent, StemDTO child)
-    throws  GrouperDAOException
-  {
-    try {
-      Session       hs  = HibernateDAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(child);
+      HibernateDAO  dao = Rosetta.getDAO(_child);
       try {
         hs.save(dao);
-        hs.update( Rosetta.getDAO(parent) );
+        // add group-type tuples
+        HibernateGroupTypeTupleDAO  tuple = new HibernateGroupTypeTupleDAO();
+        Iterator                    it    = _child.getTypes().iterator();
+        while (it.hasNext()) {
+          tuple.setGroupUuid( _child.getUuid() );
+          tuple.setTypeUuid( ( (GroupTypeDTO) it.next() ).getUuid() );
+          hs.save(tuple); // new group-type tuple
+        }
+        hs.update( Rosetta.getDAO(_parent) );
+        if ( !GrouperDAOFactory.getFactory().getMember().exists( _m.getUuid() ) ) {
+          hs.save( Rosetta.getDAO(_m) );
+        }
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -118,16 +92,47 @@ class HibernateStemDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static String createChildStem(parent, child)
+  } 
 
-  // @since   1.2.0
-  protected static String createRootStem(StemDTO root)
+  /**
+   * @since   1.2.0
+   */
+  public String createChildStem(StemDTO _parent, StemDTO _child)
+    throws  GrouperDAOException
+  {
+    try {
+      Session       hs  = HibernateDAO.getSession();
+      Transaction   tx  = hs.beginTransaction();
+      HibernateDAO  dao = Rosetta.getDAO(_child);
+      try {
+        hs.save(dao);
+        hs.update( Rosetta.getDAO(_parent) );
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close();
+      }
+      return dao.getId();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public String createRootStem(StemDTO _root)
     throws  GrouperDAOException
   {
     try {
       Session           hs  = HibernateDAO.getSession();
       Transaction       tx  = hs.beginTransaction();
-      HibernateStemDAO  dao = root.getDAO();
+      HibernateStemDAO  dao = _root.getDAO();
       try {
         hs.save(dao);
         tx.commit();
@@ -144,10 +149,12 @@ class HibernateStemDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static String createRootStem(root)
+  } 
 
-  // @since   1.2.0
-  protected static boolean exists(String uuid) 
+  /**
+   * @since   1.2.0
+   */
+  public boolean exists(String uuid) 
     throws  GrouperDAOException
   {
     // TODO 20070316 cache?
@@ -166,10 +173,12 @@ class HibernateStemDAO extends HibernateDAO {
       ErrorLog.fatal( HibernateStemDAO.class, eH.getMessage() );
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static boolean exists(uuid)
+  } 
   
-  // @since   1.2.0
-  protected static Set findAllByApproximateDisplayExtension(String val) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByApproximateDisplayExtension(String val) 
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();
@@ -186,10 +195,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
-  } // protected static Set findAllByApproximateDisplayExtension(val)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByApproximateDisplayName(String val) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByApproximateDisplayName(String val) 
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();
@@ -206,10 +217,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
-  } // protected static Set findAllByApproximateDisplayName(val)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByApproximateExtension(String val) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByApproximateExtension(String val) 
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();
@@ -226,10 +239,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
-  } // protected static Set findAllByApproximateExtension(val)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByApproximateName(String val) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByApproximateName(String val) 
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();
@@ -246,10 +261,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
-  } // protected static Set findAllByApproximateName(val)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByApproximateNameAny(String name) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByApproximateNameAny(String name) 
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();
@@ -272,10 +289,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
-  } // protected static Set findAllByApproximateNameAny(name)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByCreatedAfter(Date d) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByCreatedAfter(Date d) 
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();
@@ -292,10 +311,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
-  } // protected static Set findAllByCreatedAfter(d)
+  } 
 
-  // @since   1.2.0
-  protected static Set findAllByCreatedBefore(Date d) 
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllByCreatedBefore(Date d) 
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();
@@ -312,10 +333,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
-  } // protected static Set findAllByCreatedBefore(d)
+  } 
   
-  // @since   1.2.0
-  protected static Set findAllChildGroups(Stem ns)
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllChildGroups(Stem ns)
     throws  GrouperDAOException
   {
     Set groups = new LinkedHashSet();
@@ -332,10 +355,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return groups;
-  } // protected static Set findAllChildGroups(ns)
+  }
   
-  // @since   1.2.0
-  protected static Set findAllChildStems(Stem ns)
+  /**
+   * @since   1.2.0
+   */
+  public Set findAllChildStems(Stem ns)
     throws  GrouperDAOException
   {
     Set stems = new LinkedHashSet();
@@ -352,10 +377,12 @@ class HibernateStemDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return stems;
-  } // protected sdtatic Set findAllChildStems(ns)
+  } 
 
-  // @since   1.2.0
-  protected static StemDTO findByName(String name) 
+  /**
+   * @since   1.2.0
+   */
+  public StemDTO findByName(String name) 
     throws  GrouperDAOException,
             StemNotFoundException
   {
@@ -375,10 +402,12 @@ class HibernateStemDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static StemDTO findByName(name)
+  } 
 
-  // @since   1.2.0
-  protected static StemDTO findByUuid(String uuid)
+  /**
+   * @since   1.2.0
+   */
+  public StemDTO findByUuid(String uuid)
     throws  GrouperDAOException,
             StemNotFoundException
   {
@@ -398,10 +427,144 @@ class HibernateStemDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static StemDTO findByUuid(uuid)
+  } 
 
-  // @since   1.2.0
-  protected static void renameStemAndChildren(Stem ns, Set children)
+  /**
+   * @since   1.2.0
+   */
+  public String getCreateSource() {
+    return this.createSource;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getCreateTime() {
+    return this.createTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getDescription() {
+    return this.description;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getDisplayExtension() {
+    return this.displayExtension;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getDisplayName() {
+    return this.displayName;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getExtension() {
+    return this.extension;
+  }
+
+  /** 
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getModifierUuid() {
+    return this.modifierUUID;
+  }
+  
+  /**
+   * @since   1.2.0
+   */
+  public String getModifySource() {
+    return this.modifySource;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getModifyTime() {
+    return this.modifyTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getName() {
+    return this.name;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getParentUuid() {
+    return this.parentUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  /** 
+   * @since   1.2.0
+   */
+  public void revokePriv(StemDTO _ns, MemberOf mof)
+    throws  GrouperDAOException
+  {
+    try {
+      Session     hs  = HibernateDAO.getSession();
+      Transaction tx  = hs.beginTransaction();
+      try {
+        Iterator it = mof.internal_getDeletes().iterator();
+        while (it.hasNext()) {
+          hs.delete( Rosetta.getDAO( it.next() ) );
+        }
+        it = mof.internal_getSaves().iterator();
+        while (it.hasNext()) {
+          hs.saveOrUpdate( it.next() );
+        }
+        hs.update( _ns.getDAO() );
+        tx.commit();
+      }
+      catch (HibernateException eH) {
+        tx.rollback();
+        throw eH;
+      }
+      finally {
+        hs.close(); 
+      }
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+  } 
+
+  /**
+   * @since   1.2.0
+   */
+  public void renameStemAndChildren(Stem ns, Set children)
     throws  GrouperDAOException
   {
     try {
@@ -426,49 +589,12 @@ class HibernateStemDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static void renameStemAndChildren(ns, children)
+  } 
   
-  // @since   1.2.0
-  protected static void reset(Session hs) 
-    throws  HibernateException
-  {
-    hs.delete("from HibernateStemDAO as ns where ns.name not like '" + Stem.ROOT_INT + "'");
-  } // protected static void reset(hs)
-
-  // @since   1.2.0
-  protected static void revokePriv(StemDTO ns, MemberOf mof)
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        Iterator it = mof.internal_getDeletes().iterator();
-        while (it.hasNext()) {
-          hs.delete( Rosetta.getDAO( it.next() ) );
-        }
-        it = mof.internal_getSaves().iterator();
-        while (it.hasNext()) {
-          hs.saveOrUpdate( it.next() );
-        }
-        hs.update( ns.getDAO() );
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close(); 
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } // protected static void revokePriv(ns, mof)
-
-  // @since   1.2.0
-  protected static void revokePriv(StemDTO ns, Set toDelete)
+  /**
+   * @since   1.2.0
+   */
+  public void revokePriv(StemDTO _ns, Set toDelete)
     throws  GrouperDAOException
   {
     try {
@@ -479,7 +605,7 @@ class HibernateStemDAO extends HibernateDAO {
         while (it.hasNext()) {
           hs.delete( Rosetta.getDAO( it.next() ) );
         }
-        hs.update( Rosetta.getDAO(ns) );
+        hs.update( Rosetta.getDAO(_ns) );
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -493,99 +619,129 @@ class HibernateStemDAO extends HibernateDAO {
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
-  } // protected static void revokePriv(ns, toDelete)
+  } 
 
-
-  // GETTERS //
-
-  protected String getCreateSource() {
-    return this.createSource;
-  }
-  protected long getCreateTime() {
-    return this.createTime;
-  }
-  protected String getCreatorUuid() {
-    return this.creatorUUID;
-  }
-  protected String getDescription() {
-    return this.description;
-  }
-  protected String getDisplayExtension() {
-    return this.displayExtension;
-  }
-  protected String getDisplayName() {
-    return this.displayName;
-  }
-  protected String getExtension() {
-    return this.extension;
-  }
-  protected String getId() {
-    return this.id;
-  }
-  protected String getModifierUuid() {
-    return this.modifierUUID;
-  }
-  protected String getModifySource() {
-    return this.modifySource;
-  }
-  protected long getModifyTime() {
-    return this.modifyTime;
-  }
-  protected String getName() {
-    return this.name;
-  }
-  protected String getParentUuid() {
-    return this.parentUUID;
-  }
-  protected String getUuid() {
-    return this.uuid;
-  }
-
-
-  // SETTERS //
-
-  protected void setCreateSource(String createSource) {
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setCreateSource(String createSource) {
     this.createSource = createSource;
-  }
-  protected void setCreateTime(long createTime) {
-    this.createTime = createTime;
-  }
-  protected void setCreatorUuid(String creatorUUID) {
-    this.creatorUUID = creatorUUID;
-  }
-  protected void setDescription(String description) {
-    this.description = description;
-  }
-  protected void setDisplayExtension(String displayExtension) {
-    this.displayExtension = displayExtension;
-  }
-  protected void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
-  protected void setExtension(String extension) {
-    this.extension = extension;
-  }
-  protected void setId(String id) {
-    this.id = id;
-  }
-  protected void setModifierUuid(String modifierUUID) {
-    this.modifierUUID = modifierUUID;
-  }
-  protected void setModifySource(String modifySource) {
-    this.modifySource = modifySource;
-  }
-  protected void setModifyTime(long modifyTime) {
-    this.modifyTime = modifyTime;
-  }
-  protected void setName(String name) {
-    this.name = name;
-  }
-  protected void setParentUuid(String parentUUID) {
-    this.parentUUID = parentUUID;
-  }
-  protected void setUuid(String uuid) {
-    this.uuid = uuid;
+    return this;
   }
 
-} // class HibernateStemDAO extends HibernateDAO 
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setCreateTime(long createTime) {
+    this.createTime = createTime;
+    return this;
+  }
+  
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setDisplayExtension(String displayExtension) {
+    this.displayExtension = displayExtension;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setDisplayName(String displayName) {
+    this.displayName = displayName;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setExtension(String extension) {
+    this.extension = extension;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setModifierUuid(String modifierUUID) {
+    this.modifierUUID = modifierUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setModifySource(String modifySource) {
+    this.modifySource = modifySource;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setModifyTime(long modifyTime) {
+    this.modifyTime = modifyTime;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setParentUuid(String parentUUID) {
+    this.parentUUID = parentUUID;
+    return this;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public HibernateStemDAO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+
+  // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static void reset(Session hs) 
+    throws  HibernateException
+  {
+    hs.delete("from HibernateStemDAO as ns where ns.name not like '" + Stem.ROOT_INT + "'");
+  } // protected static void reset(hs)
+
+} // class HibernateStemDAO extends HibernateDAO implements StemDAO
 

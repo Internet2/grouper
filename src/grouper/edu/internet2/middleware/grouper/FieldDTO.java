@@ -22,19 +22,19 @@ import  org.apache.commons.lang.builder.*;
  * Basic {@link Field} DTO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldDTO.java,v 1.2 2007-03-14 19:31:47 blair Exp $    
+ * @version $Id: FieldDTO.java,v 1.3 2007-04-05 14:28:28 blair Exp $    
  * @since   1.2.0
  */
 class FieldDTO extends BaseGrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
-  private String    fieldUUID;
   private String    groupTypeUUID;
   private String    id;
   private boolean   isNullable;
   private String    name;
   private String    readPrivilege;
   private String    type;
+  private String    uuid;
   private String    writePrivilege;
 
     
@@ -52,7 +52,7 @@ class FieldDTO extends BaseGrouperDTO {
     }
     FieldDTO that = (FieldDTO) other;
     return new EqualsBuilder()
-      .append( this.getFieldUuid(), that.getFieldUuid() )
+      .append( this.getUuid(), that.getUuid() )
      .isEquals();
   } // public boolean equals(other)
 
@@ -61,7 +61,7 @@ class FieldDTO extends BaseGrouperDTO {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getFieldUuid() )
+      .append( this.getUuid() )
       .toHashCode();
   } // public int hashCode()
 
@@ -70,12 +70,12 @@ class FieldDTO extends BaseGrouperDTO {
    */
   public String toString() {
     return new ToStringBuilder(this)
-      .append( "fieldUuid",      this.getFieldUuid()      )
       .append( "groupTypeUuid",  this.getGroupTypeUuid()  )
       .append( "isNullable",     this.getIsNullable()     )
       .append( "name",           this.getName()           )
       .append( "readPrivilege",  this.getReadPrivilege()  )
       .append( "type",           this.getType()           )
+      .append( "uuid",           this.getUuid()           )
       .append( "writePrivilege", this.getWritePrivilege() )
       .toString();
   } // public String toString()
@@ -85,16 +85,16 @@ class FieldDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected static FieldDTO getDTO(HibernateFieldDAO dao) {
-    FieldDTO dto = new FieldDTO();
-    dto.setFieldUuid( dao.getFieldUuid() );
-    dto.setGroupTypeUuid( dao.getGroupTypeUuid() );
-    dto.setId( dao.getId() );
-    dto.setIsNullable( dao.getIsNullable() );
-    dto.setName( dao.getName() );
-    dto.setReadPrivilege( dao.getReadPrivilege() );
-    dto.setType( dao.getType() );
-    dto.setWritePrivilege( dao.getWritePrivilege() );
-    return dto;
+    return new FieldDTO()
+      .setGroupTypeUuid( dao.getGroupTypeUuid() )
+      .setId( dao.getId() )
+      .setIsNullable( dao.getIsNullable() )
+      .setName( dao.getName() )
+      .setReadPrivilege( dao.getReadPrivilege() )
+      .setType( dao.getType() )
+      .setUuid( dao.getUuid() )
+      .setWritePrivilege( dao.getWritePrivilege() )
+      ;
   } // protected static GroupTypeDTO getDTO(dao)
 
 
@@ -102,25 +102,22 @@ class FieldDTO extends BaseGrouperDTO {
 
   // @since   1.2.0
   protected HibernateFieldDAO getDAO() {
-    HibernateFieldDAO dao = new HibernateFieldDAO();
-    dao.setFieldUuid( this.getFieldUuid() );
-    dao.setGroupTypeUuid( this.getGroupTypeUuid() );
-    dao.setId( this.getId() );
-    dao.setIsNullable( this.getIsNullable() );
-    dao.setName( this.getName() );
-    dao.setReadPrivilege( this.getReadPrivilege() );
-    dao.setType( this.getType() );
-    dao.setWritePrivilege( this.getWritePrivilege() );
-    return dao;
+    return new HibernateFieldDAO()
+      .setGroupTypeUuid( this.getGroupTypeUuid() )
+      .setId( this.getId() )
+      .setIsNullable( this.getIsNullable() )
+      .setName( this.getName() )
+      .setReadPrivilege( this.getReadPrivilege() )
+      .setType( this.getType() )
+      .setUuid( this.getUuid() )
+      .setWritePrivilege( this.getWritePrivilege() )
+      ;
   } // protected HibernateFieldDAO getDAO()
 
 
 
   // GETTERS //
 
-  protected String getFieldUuid() {
-    return this.fieldUUID;
-  }
   protected String getGroupTypeUuid() {
     return this.groupTypeUUID;
   }
@@ -139,6 +136,9 @@ class FieldDTO extends BaseGrouperDTO {
   protected String getType() {
     return this.type;
   }
+  protected String getUuid() {
+    return this.uuid;
+  }
   protected String getWritePrivilege() {
     return this.writePrivilege;
   }
@@ -146,38 +146,49 @@ class FieldDTO extends BaseGrouperDTO {
 
   // SETTERS //
 
-  protected void setFieldUuid(String fieldUUID) {
-    this.fieldUUID = fieldUUID;
-  }
-  protected void setGroupTypeUuid(String groupTypeUUID) {
+  protected FieldDTO setGroupTypeUuid(String groupTypeUUID) {
     this.groupTypeUUID = groupTypeUUID;
+    return this;
   }
-  protected void setId(String id) {
+  protected FieldDTO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setIsNullable(boolean isNullable) {
+  protected FieldDTO setIsNullable(boolean isNullable) {
     this.isNullable = isNullable;
+    return this;
   }
-  protected void setName(String name) {
+  protected FieldDTO setName(String name) {
     this.name = name;
+    return this;
   }
-  protected void setReadPrivilege(Privilege readPrivilege) {
+  protected FieldDTO setReadPrivilege(Privilege readPrivilege) {
     this.setReadPrivilege( readPrivilege.getName() );
+    return this;
   }
-  protected void setReadPrivilege(String readPrivilege) {
+  protected FieldDTO setReadPrivilege(String readPrivilege) {
     this.readPrivilege = readPrivilege;
+    return this;
   }
-  protected void setType(FieldType type) {
+  protected FieldDTO setType(FieldType type) {
     this.setType( type.toString() );
+    return this;
   }
-  protected void setType(String type) {
+  protected FieldDTO setType(String type) {
     this.type = type;
+    return this;
   }
-  protected void setWritePrivilege(Privilege writePrivilege) {
+  protected FieldDTO setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+  protected FieldDTO setWritePrivilege(Privilege writePrivilege) {
     this.setWritePrivilege( writePrivilege.getName() );
+    return this;
   }
-  protected void setWritePrivilege(String writePrivilege) {
+  protected FieldDTO setWritePrivilege(String writePrivilege) {
     this.writePrivilege = writePrivilege;
+    return this;
   }
 
 } // class FieldDTO extends BaseGrouperDTO

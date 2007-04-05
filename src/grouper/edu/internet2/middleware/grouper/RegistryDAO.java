@@ -16,17 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  java.util.Date;
 
 /** 
- * Base Grouper DAO interface.
+ * <i>Registry</i> DAO interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAO.java,v 1.2 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: RegistryDAO.java,v 1.1 2007-04-05 14:28:28 blair Exp $
  * @since   1.2.0
  */
-interface GrouperDAO {
+interface RegistryDAO extends GrouperDAO {
 
-  // Nothing
+  /**
+   * @since   1.2.0
+   */
+  public void reset()
+    throws  GrouperDAOException;
 
-} // interface GrouperDAO
+} // interface RegistryDAO extends GrouperDAO
 

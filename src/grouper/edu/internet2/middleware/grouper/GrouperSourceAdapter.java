@@ -38,7 +38,7 @@ import  java.util.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.22 2007-03-08 15:31:28 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.23 2007-04-05 14:28:28 blair Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -94,7 +94,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      return new GrouperSubject( HibernateGroupDAO.findByUuid(id) );
+      return new GrouperSubject( GrouperDAOFactory.getFactory().getGroup().findByUuid(id) );
     }
     catch (GroupNotFoundException eGNF) {
       throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
@@ -132,7 +132,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      return new GrouperSubject( HibernateGroupDAO.findByName(name) );
+      return new GrouperSubject( GrouperDAOFactory.getFactory().getGroup().findByName(name) );
     }
     catch (GroupNotFoundException eGNF) {
       throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );

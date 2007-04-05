@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.39 2007-03-29 19:05:29 blair Exp $
+ * @version $Id: EventLog.java,v 1.40 2007-04-05 14:28:28 blair Exp $
  */
 class EventLog {
 
@@ -388,14 +388,14 @@ class EventLog {
     }
     else {
       try {
-        GroupDTO _g = HibernateGroupDAO.findByUuid(uuid);
+        GroupDTO _g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
         g           = new Group();
         g.setDTO(_g);
         this.groupCache.put(uuid, g);
       }
       catch (GroupNotFoundException eGNF) {
         try {
-          StemDTO _ns = HibernateStemDAO.findByUuid(uuid);
+          StemDTO _ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
           ns          = new Stem();
           ns.setDTO(_ns);
         }
@@ -419,7 +419,7 @@ class EventLog {
   // @since   1.2.0
   private String _getEffSubjectMsg(GrouperSession s, MembershipDTO _eff) {
     try {
-      return " " + HibernateMemberDAO.findByUuid( _eff.getMemberUuid() );
+      return " " + GrouperDAOFactory.getFactory().getMember().findByUuid( _eff.getMemberUuid() );
     }
     catch (MemberNotFoundException eMNF)    {
       // TODO 20070323 this can't help performance
