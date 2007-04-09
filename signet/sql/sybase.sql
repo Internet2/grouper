@@ -6,7 +6,7 @@
 --     fixes; spelled out "integer" everywhere.  Dropped "clustered" subsystem
 --     primary index declaration
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/sybase.sql,v 1.45 2007-03-08 07:11:15 lmcrae Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/sybase.sql,v 1.46 2007-04-09 00:37:30 lmcrae Exp $
 --
 -- Tree tables
 drop table signet_treeNodeRelationship;
@@ -144,14 +144,14 @@ unique (sourceID, subjectID)
 ;
 create table signet_subjectAttribute (
 subjectAttributeKey numeric(12,0)       IDENTITY,
-subjectKey          integer             NOT NULL,
+subjectKey          numeric(12,0)       NOT NULL,
 attributeName       varchar(31)         NOT NULL,
 attributeSequence   integer             NOT NULL,
 attributeValue      varchar(255)        NOT NULL,
 attributeType       varchar(31)         DEFAULT 'string',
 modifyDatetime      smalldatetime       NOT NULL,
 primary key (subjectAttributeKey),
-foreign key (subjectKey) references signet_subject(subjectKey)
+foreign key (subjectKey) references signet_subject(subjectKey),
 unique (subjectKey, attributeName, attributeSequence)
 )
 ;
@@ -236,7 +236,7 @@ primary key (assignmentID),
 foreign key (grantorKey) references signet_subject (subjectKey),
 foreign key (granteeKey) references signet_subject (subjectKey),
 foreign key (proxyKey) references signet_subject (subjectKey),
-foreign key (revokerKey) references signet_subject (subjectKey)
+foreign key (revokerKey) references signet_subject (subjectKey),
 foreign key (functionKey) references signet_function (functionKey)
 )
 ;
