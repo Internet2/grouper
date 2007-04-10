@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/test"/>
-	<classpathentry kind="src" path="contrib/gsh/src/gsh"/>
 	<classpathentry kind="src" path="src/grouper"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.8.jar"/>
@@ -12,7 +11,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/hibernate2-2.1.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ehcache-0.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="contrib/gsh/lib/bsh-2.0b4.jar"/>
 	<classpathentry kind="lib" path="conf"/>
 	<classpathentry kind="lib" path="lib/commons-math-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/subject-0.3.0-rc1-cvs.jar"/>
