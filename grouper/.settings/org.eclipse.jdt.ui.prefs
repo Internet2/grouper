@@ -1,5 +1,6 @@
-#Wed Aug 30 11:44:44 CDT 2006
+#Wed Apr 11 09:57:13 CDT 2007
 eclipse.preferences.version=1
 formatter_profile=_blair.
 formatter_settings_version=10
+internal.default.compliance=default
 org.eclipse.jdt.ui.text.custom_code_templates=<?xml version\="1.0" encoding\="UTF-8"?><templates/>
