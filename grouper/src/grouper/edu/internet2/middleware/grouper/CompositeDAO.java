@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.Date;
 import  java.util.Set;
 
 /** 
  * <i>Composite</i> DAO interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.1 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: CompositeDAO.java,v 1.2 2007-04-11 14:54:14 blair Exp $
  * @since   1.2.0
  */
 interface CompositeDAO extends GrouperDAO {
