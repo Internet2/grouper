@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 
 
  * @author Gary Brown.
- * @version $Id: PopulateAddCompositeAction.java,v 1.1 2006-07-06 11:08:15 isgwb Exp $
+ * @version $Id: PopulateAddCompositeAction.java,v 1.2 2007-04-11 08:19:24 isgwb Exp $
  */
 public class PopulateAddCompositeAction extends GrouperCapableAction {
 

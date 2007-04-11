@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -106,7 +106,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveCompositeAction.java,v 1.2 2006-07-17 12:52:57 isgwb Exp $
+ * @version $Id: SaveCompositeAction.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
  */
 public class SaveCompositeAction extends GrouperCapableAction {
 

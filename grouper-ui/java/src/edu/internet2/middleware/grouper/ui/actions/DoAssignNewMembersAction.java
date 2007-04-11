@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.6 2006-07-19 17:39:27 isgwb Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.7 2007-04-11 08:21:25 isgwb Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
 

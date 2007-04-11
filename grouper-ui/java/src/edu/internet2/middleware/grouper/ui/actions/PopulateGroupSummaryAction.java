@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -200,7 +200,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.8 2006-07-19 11:02:09 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.9 2007-04-11 08:19:24 isgwb Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 

@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import java.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: InitialStems.java,v 1.3 2006-07-14 11:04:11 isgwb Exp $
+ * @version $Id: InitialStems.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $
  */
 public interface InitialStems {
 
