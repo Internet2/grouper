@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.11 2007-03-21 11:09:49 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.12 2007-04-11 08:11:05 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -57,7 +57,7 @@
 		<c:if test="${canWriteField}">
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
-					<html:link page="/removeComposite.do" name="groupMembership">
+					<html:link page="/removeComposite.do" name="groupMembership" onclick="return confirm('${navMap['groups.remove.all.warn']}')">
 						<fmt:message bundle="${nav}" key="groups.composite.remove"/>
 					</html:link>
 					
@@ -72,7 +72,7 @@
 			</c:choose>
 		</c:if>
 		<c:if test="${empty $param.callerPageId && (empty listField || listField=='members') && canWriteField}">
-		<html:link page="/populateAddComposite.do" name="groupMembership">
+		<html:link page="/populateAddComposite.do" name="groupMembership" onclick="return confirm('${navMap['groups.remove.all.warn']}')">
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
 						<fmt:message bundle="${nav}" key="groups.composite.replace"/>

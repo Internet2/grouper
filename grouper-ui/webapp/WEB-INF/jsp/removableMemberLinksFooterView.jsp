@@ -2,7 +2,7 @@
 		  ynamic tile used  to provide footer, including form buttons, for removing all, or selected members
 --%><%--
   @author Gary Brown.
-  @version $Id: removableMemberLinksFooterView.jsp,v 1.1 2006-10-03 11:33:37 isgwb Exp $
+  @version $Id: removableMemberLinksFooterView.jsp,v 1.2 2007-04-11 08:11:05 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -21,8 +21,8 @@
 </div>
 
 <c:if test="${removableMembers}">
-		<br/><input type="submit" name="submit.remove.selected" value="<c:out value="${navMap['members.remove.selected']}"/>"/>
-		<input type="submit" name="submit.remove.all" value="<c:out value="${navMap['members.remove.all']}"/>"/> 
+		<br/><input type="submit" name="submit.remove.selected" value="<c:out value="${navMap['members.remove.selected']}"/>"  onclick="return confirm('<c:out value="${navMap['groups.remove.warn']}"/>')"/>
+		<input type="submit" name="submit.remove.all" value="<c:out value="${navMap['members.remove.all']}"/>" onclick="return confirm('<c:out value="${navMap['groups.remove.all.warn']}"/>')"/> 
 	</c:if>
 	</fieldset>
 	</form>
