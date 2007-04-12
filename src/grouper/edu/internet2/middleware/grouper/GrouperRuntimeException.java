@@ -21,10 +21,11 @@ package edu.internet2.middleware.grouper;
  * Grouper Runtime Exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperRuntimeException.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperRuntimeException.java,v 1.3 2007-04-12 18:06:51 blair Exp $
  * @since   1.0
  */
 public class GrouperRuntimeException extends RuntimeException {
+  private static final long serialVersionUID = 5172622560960945338L;
   /**
    * @since 1.0
    */

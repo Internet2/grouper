@@ -21,9 +21,10 @@ package edu.internet2.middleware.grouper;
  * Exception thrown when a group attribute is not found.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AttributeNotFoundException.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: AttributeNotFoundException.java,v 1.6 2007-04-12 18:06:51 blair Exp $
  */
 public class AttributeNotFoundException extends Exception {
+  private static final long serialVersionUID = 1942755987829117926L;
   public AttributeNotFoundException() { 
     super(); 
   }

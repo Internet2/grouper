@@ -21,10 +21,11 @@ package edu.internet2.middleware.grouper;
  * {@link PrivilegeCache} runtime exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCacheException.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: PrivilegeCacheException.java,v 1.3 2007-04-12 18:06:51 blair Exp $
  * @since   1.1.0
  */
 public class PrivilegeCacheException extends GrouperRuntimeException {
+  private static final long serialVersionUID = -4094066128285895630L;
   /**
    * @since 1.1.0
    */
