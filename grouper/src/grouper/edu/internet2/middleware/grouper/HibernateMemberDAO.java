@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.17 2007-04-12 15:40:41 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.18 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
@@ -83,7 +83,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
     throws  GrouperDAOException
   {
     if ( existsCache.containsKey(uuid) ) {
-      return existsCache.get(uuid).booleanValue();
+      return existsCache.getBoolean(uuid).booleanValue();
     }
     try {
       Session hs  = HibernateDAO.getSession();

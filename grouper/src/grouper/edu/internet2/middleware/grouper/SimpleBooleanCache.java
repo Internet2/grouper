@@ -21,19 +21,21 @@ package edu.internet2.middleware.grouper;
  * Simple cache implementation for holding boolean values.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleBooleanCache.java,v 1.2 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: SimpleBooleanCache.java,v 1.3 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0     
  */
 class SimpleBooleanCache extends SimpleCache {
 
   // PUBLIC INSTANCE METHODS //
 
+  // TODO 20070412 merge back into "SimpleCache"?
+  
   /**
    * Retrieve a cached {@link Object}.
    * <p/>
    * @since   1.2.0
    */
-  protected Boolean get(Object key) {
+  protected Boolean getBoolean(Object key) {
     return (Boolean) super.get(key);
   } // protected boolean get(key)
 

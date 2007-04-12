@@ -26,7 +26,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.45 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GroupType.java,v 1.46 2007-04-12 17:56:03 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -182,7 +182,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     if ( this.isSystemType() ) {
-      String msg = E.GROUPTYPE_NODELSYS + this.getDTO().getName();
+      String msg = E.GROUPTYPE_NODELSYS + this._getDTO().getName();
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     } 
@@ -198,8 +198,8 @@ public class GroupType extends GrouperAPI implements Serializable {
         throw new SchemaException(msg);
       }
       // Now delete the type
-      String typeName = this.getDTO().getName(); // For logging purposes
-      GrouperDAOFactory.getFactory().getGroupType().delete( this.getDTO(), this.getDTO().getFields() );
+      String typeName = this._getDTO().getName(); // For logging purposes
+      GrouperDAOFactory.getFactory().getGroupType().delete( this._getDTO(), this._getDTO().getFields() );
       sw.stop();
       EventLog.info(s, M.GROUPTYPE_DEL + U.internal_q(typeName), sw);
       // Now update the cached types + fields
@@ -259,14 +259,14 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
     // With validation complete, delete the field
     try {
-      Set fields = this.getDTO().getFields();
+      Set fields = this._getDTO().getFields();
       if ( fields.remove(f) ) {
-        this.getDTO().setFields(fields);
-        GrouperDAOFactory.getFactory().getGroupType().deleteField( f.getDTO() );
+        this._getDTO().setFields(fields);
+        GrouperDAOFactory.getFactory().getGroupType().deleteField( (FieldDTO) f.getDTO() );
         sw.stop();
         EventLog.info(
           s,
-          M.GROUPTYPE_DELFIELD + U.internal_q(f.getName()) + " type=" + U.internal_q(this.getDTO().getName()),
+          M.GROUPTYPE_DELFIELD + U.internal_q(f.getName()) + " type=" + U.internal_q( this._getDTO().getName() ),
           sw
         );
       }
@@ -298,7 +298,7 @@ public class GroupType extends GrouperAPI implements Serializable {
    * @return  A set of {@link Field} objects.
    */
   public Set getFields() {
-    return new LinkedHashSet( Rosetta.getAPI( this.getDTO().getFields() ) );
+    return new LinkedHashSet( Rosetta.getAPI( this._getDTO().getFields() ) );
   } // public Set getFields()
 
   /**
@@ -306,7 +306,7 @@ public class GroupType extends GrouperAPI implements Serializable {
    * @return  group type name.
    */
   public String getName() {
-    return this.getDTO().getName();
+    return this._getDTO().getName();
   } // public String getName()
 
   /**
@@ -394,7 +394,7 @@ public class GroupType extends GrouperAPI implements Serializable {
         nullable = false;
       }
       FieldDTO _f = new FieldDTO()
-        .setGroupTypeUuid( this.getDTO().getUuid() )
+        .setGroupTypeUuid( this._getDTO().getUuid() )
         .setIsNullable(nullable)
         .setName(name)
         .setReadPrivilege(read)
@@ -407,15 +407,15 @@ public class GroupType extends GrouperAPI implements Serializable {
       Field f = new Field();
       f.setDTO(_f);
 
-      Set fields = this.getDTO().getFields();
+      Set fields = this._getDTO().getFields();
       fields.add(f);
-      this.getDTO().setFields(fields);
+      this._getDTO().setFields(fields);
 
       sw.stop();
       EventLog.info(
         s, 
         M.GROUPTYPE_ADDFIELD + U.internal_q(f.getName()) + " ftype=" + U.internal_q(type.toString()) 
-        + " gtype=" + U.internal_q(this.getDTO().getName()),
+        + " gtype=" + U.internal_q( this._getDTO().getName() ),
         sw
       );
       return f;
@@ -427,11 +427,12 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
   } // protected Field internal_addField(s, name, type, read, write, required)
 
+  
+  // PRIVATE INSTANCE METHODS //
+  
   // @since   1.2.0
-  protected GroupTypeDTO getDTO() {
+  private GroupTypeDTO _getDTO() {
     return (GroupTypeDTO) super.getDTO();
-  } // protected GroupTypeDTO getDTO()
+  } 
 
-
-} // public class GroupType extends GrouperAPI implements Serializable
-
+}

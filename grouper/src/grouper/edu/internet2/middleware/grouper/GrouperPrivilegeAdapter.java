@@ -22,7 +22,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.10 2007-03-28 16:27:46 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.11 2007-04-12 17:56:03 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -63,7 +63,7 @@ class GrouperPrivilegeAdapter {
       catch (SubjectNotFoundException eSNF) {
         ErrorLog.error(GrouperPrivilegeAdapter.class, eSNF.getMessage());
       }
-      if ( ms.getDTO().getViaUuid() != null ) {
+      if ( ( (MembershipDTO) ms.getDTO() ).getViaUuid() != null ) {
         try {
           owner   = ms.getViaGroup().toSubject();
           revoke  = false;
@@ -101,7 +101,7 @@ class GrouperPrivilegeAdapter {
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.internal_findMemberships( s.getDTO().getRootSession(), m, f ).iterator();
+    Iterator    it      = MembershipFinder.internal_findMemberships( ( (GrouperSessionDTO) s.getDTO() ).getRootSession(), m, f ).iterator();
     while (it.hasNext()) {
       ms = (Membership) it.next();
       ms.setSession(s);
@@ -117,7 +117,7 @@ class GrouperPrivilegeAdapter {
     Set         mships  = new LinkedHashSet();
     Membership  ms;
     // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.internal_findMemberships( s.getDTO().getRootSession(), m, f ).iterator();
+    Iterator    it      = MembershipFinder.internal_findMemberships( ( (GrouperSessionDTO) s.getDTO() ).getRootSession(), m, f ).iterator();
     while (it.hasNext()) {
       ms = (Membership) it.next();
       ms.setSession(s);

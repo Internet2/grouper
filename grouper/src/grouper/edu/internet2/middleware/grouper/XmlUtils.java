@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.16 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: XmlUtils.java,v 1.17 2007-04-12 17:56:03 blair Exp $
  * @since   1.1.0
  */
 class XmlUtils {
@@ -41,8 +41,8 @@ class XmlUtils {
   
   // @since   1.2.0
   protected static boolean internal_getBooleanOption(Properties opts, String key) {
-    return Boolean.valueOf( opts.getProperty(key, "false") );
-  } // protected static boolean internal_getBooleanOption(opts, key)
+    return Boolean.valueOf( opts.getProperty(key, "false") ).booleanValue();
+  }
 
   // @since   1.2.0 
   protected static Properties internal_getSystemProperties(Log log, String file) 

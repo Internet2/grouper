@@ -42,7 +42,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.12 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.13 2007-04-12 17:56:03 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
@@ -83,7 +83,7 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
       // The privilege is cached ...
       // ... But is the wheel group enabled?
       boolean useCached = true;
-      if (Boolean.valueOf(GrouperConfig.getProperty(GrouperConfig.GWU))) {
+      if ( Boolean.valueOf( GrouperConfig.getProperty(GrouperConfig.GWU) ).booleanValue() ) {
         try {
           // Does the wheel group exist or has it been too long since we last fetched it?
           if ( (this._wheel == null) || this._isItTimeToUpdateWheel() ) {

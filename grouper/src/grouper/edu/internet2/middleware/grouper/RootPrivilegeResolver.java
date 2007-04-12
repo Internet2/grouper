@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Privilege resolution (as root) class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RootPrivilegeResolver.java,v 1.10 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: RootPrivilegeResolver.java,v 1.11 2007-04-12 17:56:03 blair Exp $
  * @since   1.1.0
  */
  class RootPrivilegeResolver extends PrivilegeResolver {
@@ -39,7 +39,7 @@ import  edu.internet2.middleware.subject.*;
   // @since   1.2.0
   protected static boolean internal_canSTEM(Stem ns, Subject subj) {
     GrouperSession  s   = ns.getSession();  
-    ns.setSession( s.getDTO().getRootSession() );
+    ns.setSession( ( (GrouperSessionDTO) s.getDTO() ).getRootSession() );
     boolean         rv  = PrivilegeResolver.internal_canSTEM(ns, subj);
     ns.setSession(s);
     return rv; 
@@ -48,7 +48,7 @@ import  edu.internet2.middleware.subject.*;
   // @since   1.2.0
   protected static boolean internal_canVIEW(Group g, Subject subj) {
     GrouperSession  s   = g.getSession();  
-    g.setSession( s.getDTO().getRootSession() );
+    g.setSession( ( (GrouperSessionDTO) s.getDTO() ).getRootSession() );
     boolean         rv  = PrivilegeResolver.internal_canVIEW(g, subj);
     g.setSession(s);
     return rv; 
@@ -82,11 +82,11 @@ import  edu.internet2.middleware.subject.*;
     boolean       rv  = false;
     // I keep going back-and-forth on whether this should be a one-time
     // check or a repetitive check.  
-    if (Boolean.valueOf(GrouperConfig.getProperty(GrouperConfig.GWU))) {
+    if ( Boolean.valueOf( GrouperConfig.getProperty(GrouperConfig.GWU) ).booleanValue() ) {
       String name = GrouperConfig.getProperty(GrouperConfig.GWG);
       try {
         // I suspect this isn't great for the performance
-        Group wheel = GroupFinder.findByName( s.getDTO().getRootSession(), name );
+        Group wheel = GroupFinder.findByName( ( (GrouperSessionDTO) s.getDTO() ).getRootSession(), name );
         rv          = wheel.hasMember(subj);
       }
       catch (GroupNotFoundException eGNF) {

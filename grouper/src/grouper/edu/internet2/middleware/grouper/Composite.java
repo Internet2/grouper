@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.38 2007-04-12 15:40:41 blair Exp $
+ * @version $Id: Composite.java,v 1.39 2007-04-12 17:56:03 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -146,7 +146,7 @@ public class Composite extends GrouperAPI {
   // @since   1.2.0
   protected static void internal_update(Group g) {
     Composite c;
-    Iterator  it  = GrouperDAOFactory.getFactory().getComposite().findAsFactor( g.getDTO() ).iterator();
+    Iterator  it  = GrouperDAOFactory.getFactory().getComposite().findAsFactor( (GroupDTO) g.getDTO() ).iterator();
     while (it.hasNext()) {
       c = new Composite();
       c.setDTO( (CompositeDTO) it.next() );
@@ -240,7 +240,7 @@ public class Composite extends GrouperAPI {
       mof.addComposite( this.getSession(), g, this );
   
       Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
-        g.getDTO().getUuid(), Group.getDefaultList()  // current mships
+        ( (GroupDTO) g.getDTO() ).getUuid(), Group.getDefaultList()  // current mships
       );
       Set should    = mof.internal_getEffSaves();     // What mships should be
       Set deletes   = new LinkedHashSet(cur);         // deletes  = cur - should

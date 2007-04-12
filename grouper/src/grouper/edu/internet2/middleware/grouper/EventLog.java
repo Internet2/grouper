@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.40 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: EventLog.java,v 1.41 2007-04-12 17:56:03 blair Exp $
  */
 class EventLog {
 
@@ -306,7 +306,7 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    GrouperSession  root  = s.getDTO().getRootSession();
+    GrouperSession  root  = ( (GrouperSessionDTO) s.getDTO() ).getRootSession();
     MembershipDTO   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
@@ -327,7 +327,7 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    GrouperSession  root  = s.getDTO().getRootSession();
+    GrouperSession  root  = ( (GrouperSessionDTO) s.getDTO() ).getRootSession();
     MembershipDTO   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {

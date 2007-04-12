@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.10 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.11 2007-04-12 17:56:03 blair Exp $
  */
 class GroupDTO extends BaseGrouperDTO {
 
@@ -113,8 +113,8 @@ class GroupDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
   
   // @since   1.2.0
-  protected HibernateGroupDAO getDAO() {
-    return new HibernateGroupDAO()
+  protected GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getGroup()
       .setAttributes( this.getAttributes() )
       .setCreateSource( this.getCreateSource() )
       .setCreateTime( this.getCreateTime() )
@@ -127,7 +127,7 @@ class GroupDTO extends BaseGrouperDTO {
       .setParentUuid( this.getParentUuid() )
       .setTypes( this.getTypes() )
       ;
-  } // protected HibernateGroupDAO getDAO()
+  }
 
 
   // PRIVATE INSTANCE METHODS //

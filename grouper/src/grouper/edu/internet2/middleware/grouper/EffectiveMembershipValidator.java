@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: EffectiveMembershipValidator.java,v 1.4 2007-03-09 20:07:31 blair Exp $
+ * @version $Id: EffectiveMembershipValidator.java,v 1.5 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 class EffectiveMembershipValidator extends MembershipValidator {
@@ -34,7 +34,7 @@ class EffectiveMembershipValidator extends MembershipValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static EffectiveMembershipValidator validate(MembershipDTO _ms) {
+  protected static MembershipValidator validate(MembershipDTO _ms) {
     EffectiveMembershipValidator  v     = new EffectiveMembershipValidator();
     NotNullValidator              vNull = NotNullValidator.validate(_ms);
     if (vNull.isInvalid()) {
@@ -64,7 +64,7 @@ class EffectiveMembershipValidator extends MembershipValidator {
       }
     }
     return v;
-  } // protected static EffectiveMembershipValidator validate(_ms)
+  }
 
-} // class EffectiveMembershipValidator extends MembershipValidator
+}
 

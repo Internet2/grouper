@@ -25,7 +25,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.40 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: StemFinder.java,v 1.41 2007-04-12 17:56:03 blair Exp $
  */
 public class StemFinder {
 
@@ -260,7 +260,7 @@ public class StemFinder {
     StemDAO dao     = GrouperDAOFactory.getFactory().getStem();
     StemDTO _parent = null;
     try {
-      _parent = dao.findByUuid( child.getDTO().getParentUuid() );
+      _parent = dao.findByUuid( ( (StemDTO) child.getDTO() ).getParentUuid() );
       while (_parent != null) {
         if ( _parent.getUuid().equals( ns.getUuid() ) ) {
           return true;

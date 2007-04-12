@@ -26,7 +26,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.80 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: Membership.java,v 1.81 2007-04-12 17:56:03 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -64,7 +64,7 @@ public class Membership extends GrouperAPI {
     //   * It wasn't working and I didn't have time to debug it at the time.
     //   * I still need to filter
     return PrivilegeResolver.internal_canViewMemberships(
-      this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this.getDTO() )
+      this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this._getDTO() )
     );
   } // public Set getChildMemberships()
 
@@ -72,7 +72,7 @@ public class Membership extends GrouperAPI {
    * @since   1.2.0
    */
   public Date getCreateTime() {
-    return new Date( this.getDTO().getCreateTime() );
+    return new Date( this._getDTO().getCreateTime() );
   } // public Date getCreateTime()
 
   /**
@@ -83,7 +83,7 @@ public class Membership extends GrouperAPI {
   {
     try {
       Member m = new Member();
-      m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this.getDTO().getCreatorUuid() ) );
+      m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getCreatorUuid() ) );
       m.setSession( this.getSession() );
       return m;
     }
@@ -95,7 +95,7 @@ public class Membership extends GrouperAPI {
   /**
    */
   public int getDepth() {
-    return this.getDTO().getDepth();
+    return this._getDTO().getDepth();
   } // public int getDepth()
    
   /**
@@ -108,7 +108,7 @@ public class Membership extends GrouperAPI {
   public Group getGroup() 
     throws  GroupNotFoundException
   {
-    String uuid = this.getDTO().getOwnerUuid();
+    String uuid = this._getDTO().getOwnerUuid();
     if (uuid == null) {
       throw new GroupNotFoundException();
     }
@@ -127,7 +127,7 @@ public class Membership extends GrouperAPI {
    */
   public Field getList() {
     try {
-      return FieldFinder.find( this.getDTO().getListName() );
+      return FieldFinder.find( this._getDTO().getListName() );
     }
     catch (SchemaException eS) {
       throw new GrouperRuntimeException( eS.getMessage(), eS );
@@ -145,7 +145,7 @@ public class Membership extends GrouperAPI {
   public Member getMember() 
     throws MemberNotFoundException
   {
-    String uuid = this.getDTO().getMemberUuid();
+    String uuid = this._getDTO().getMemberUuid();
     if (uuid == null) {
       throw new MemberNotFoundException("membership does not have a member!");
     }
@@ -171,7 +171,7 @@ public class Membership extends GrouperAPI {
   public Membership getParentMembership() 
     throws MembershipNotFoundException
   {
-    String uuid = this.getDTO().getParentUuid();
+    String uuid = this._getDTO().getParentUuid();
     if (uuid == null) {
       throw new MembershipNotFoundException("no parent");
     }
@@ -187,7 +187,7 @@ public class Membership extends GrouperAPI {
   public Stem getStem() 
     throws StemNotFoundException
   {
-    String uuid = this.getDTO().getOwnerUuid();
+    String uuid = this._getDTO().getOwnerUuid();
     if (uuid == null) {
       throw new StemNotFoundException("membership stem not found");
     }
@@ -201,13 +201,13 @@ public class Membership extends GrouperAPI {
    * @since   1.2.0
    */
   public String getType() {
-    return this.getDTO().getType();
+    return this._getDTO().getType();
   } // public String getType()
 
   /**
    */
   public String getUuid() {
-    return this.getDTO().getUuid();
+    return this._getDTO().getUuid();
   } // public String getUuid()
 
   /**
@@ -216,7 +216,7 @@ public class Membership extends GrouperAPI {
   public Composite getViaComposite() 
     throws  CompositeNotFoundException
   {
-    String uuid = this.getDTO().getViaUuid();
+    String uuid = this._getDTO().getViaUuid();
     if (uuid == null) {
       throw new CompositeNotFoundException();
     }
@@ -244,7 +244,7 @@ public class Membership extends GrouperAPI {
   public Group getViaGroup() 
     throws GroupNotFoundException
   {
-    String uuid = this.getDTO().getViaUuid();
+    String uuid = this._getDTO().getViaUuid();
     if (uuid == null) {
       throw new GroupNotFoundException();
     }
@@ -275,7 +275,7 @@ public class Membership extends GrouperAPI {
       GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       MemberOf  mof = new MemberOf();
-      mof.addImmediate( s, g, f, m.getDTO() );
+      mof.addImmediate( s, g, f, (MemberDTO) m.getDTO() );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EL.addEffMembers( s, g, subj, f, mof.internal_getEffSaves() );
     }
@@ -300,7 +300,7 @@ public class Membership extends GrouperAPI {
       GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       MemberOf  mof = new MemberOf();
-      mof.addImmediate( s, ns, f, m.getDTO() );
+      mof.addImmediate( s, ns, f, (MemberDTO) m.getDTO() );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EL.addEffMembers( s, ns, subj, f, mof.internal_getEffSaves() );
     }
@@ -328,7 +328,7 @@ public class Membership extends GrouperAPI {
         GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
           g.getUuid(), m.getUuid(), f, IMMEDIATE
         ), 
-        m.getDTO()
+        (MemberDTO) m.getDTO()
       );
       return mof;
     }
@@ -358,7 +358,7 @@ public class Membership extends GrouperAPI {
         GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
           ns.getUuid(), m.getUuid(), f, IMMEDIATE 
         ), 
-        m.getDTO()
+        (MemberDTO) m.getDTO()
       );
       return mof;
     }
@@ -397,7 +397,7 @@ public class Membership extends GrouperAPI {
           dao.findByOwnerAndMemberAndFieldAndType( 
             ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
           ),
-          ms.getMember().getDTO()
+          (MemberDTO) ms.getMember().getDTO()
         );
         deletes.addAll( mof.internal_getDeletes() );
       }
@@ -414,7 +414,7 @@ public class Membership extends GrouperAPI {
           dao.findByOwnerAndMemberAndFieldAndType(
             g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
           ),
-          ms.getMember().getDTO()
+          (MemberDTO) ms.getMember().getDTO()
         );
         deletes.addAll( mof.internal_getDeletes() );
       }
@@ -457,7 +457,7 @@ public class Membership extends GrouperAPI {
           dao.findByOwnerAndMemberAndFieldAndType(
             ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
           ),
-          ms.getMember().getDTO()
+          (MemberDTO) ms.getMember().getDTO()
         );
         deletes.addAll( mof.internal_getDeletes() );
       }
@@ -505,13 +505,11 @@ public class Membership extends GrouperAPI {
   } // protected static Set internal_deleteAllFieldType(s, ns, f)
 
 
-  // PROTECTED INSTANCE METHODS //
+  // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
-  protected MembershipDTO getDTO() {
+  private MembershipDTO _getDTO() {
     return (MembershipDTO) super.getDTO();
-  } // protected MembershipDTO getDTO()
-
-
-} // public class Membership extends GrouperAPI
-
+  } 
+  
+}

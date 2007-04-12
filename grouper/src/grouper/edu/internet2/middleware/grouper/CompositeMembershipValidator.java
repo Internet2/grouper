@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeMembershipValidator.java,v 1.3 2007-03-09 20:07:31 blair Exp $
+ * @version $Id: CompositeMembershipValidator.java,v 1.4 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 class CompositeMembershipValidator extends MembershipValidator {
@@ -34,7 +34,7 @@ class CompositeMembershipValidator extends MembershipValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static CompositeMembershipValidator validate(MembershipDTO _ms) {
+  protected static MembershipValidator validate(MembershipDTO _ms) {
     CompositeMembershipValidator  v     = new CompositeMembershipValidator();
     NotNullValidator              vNull = NotNullValidator.validate(_ms);
     if (vNull.isInvalid()) {
@@ -64,7 +64,7 @@ class CompositeMembershipValidator extends MembershipValidator {
       }
     }
     return v;
-  } // protected static CompositeMembershipValidator validate(_ms)
+  }
 
-} // class CompositeMembershipValidator extends MembershipValidator
+}
 
