@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  java.util.Collection;
 import  java.util.Date;
 import  java.util.Iterator;
@@ -27,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.6 2007-04-12 15:40:41 blair Exp $
+ * @version $Id: MembershipDTO.java,v 1.7 2007-04-12 18:27:20 blair Exp $
  */
 class MembershipDTO extends BaseGrouperDTO {
 
@@ -42,7 +43,7 @@ class MembershipDTO extends BaseGrouperDTO {
   private String  ownerUUID;
   private String  parentUUID  = null;                           // reasonable default
   private String  type        = Membership.IMMEDIATE;           // reasonable default
-  private String  uuid        = GrouperUuid.internal_getUuid(); // reasonable default
+  private String  uuid        = GrouperUuid.getUuid(); // reasonable default
   private String  viaUUID     = null;                           // reasonable default
 
 

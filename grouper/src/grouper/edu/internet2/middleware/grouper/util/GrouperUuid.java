@@ -15,25 +15,27 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
-
+package edu.internet2.middleware.grouper.util;
 import  org.doomdark.uuid.UUIDGenerator;
 
 /** 
  * Generate UUIDs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperUuid.java,v 1.6 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: GrouperUuid.java,v 1.1 2007-04-12 18:27:20 blair Exp $
+ * @since   1.2.0
  *     
 */
-class GrouperUuid {
+public class GrouperUuid {
 
-  // PROTECTED CLASS METHODS //
+  // PUBLIC CLASS METHODS //
 
-  // @since   1.2.0
-  protected static String internal_getUuid() {
+  /**
+   * @since   1.2.0
+   */
+  public static String getUuid() {
     return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
-  } // protected static String internal_getUuid()
+  } 
 
 }
 
