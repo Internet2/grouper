@@ -21,9 +21,10 @@ package edu.internet2.middleware.grouper;
  * Exception thrown when a prvilege cannot be granted.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrantPrivilegeException.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrantPrivilegeException.java,v 1.6 2007-04-12 18:06:51 blair Exp $
  */
 public class GrantPrivilegeException extends Exception {
+  private static final long serialVersionUID = -3438073632948498552L;
   public GrantPrivilegeException() { 
     super(); 
   }

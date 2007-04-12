@@ -21,10 +21,11 @@ package edu.internet2.middleware.grouper;
  * {@link SubjectCache} runtime exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCacheException.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SubjectCacheException.java,v 1.3 2007-04-12 18:06:51 blair Exp $
  * @since   1.1.0
  */
 public class SubjectCacheException extends GrouperRuntimeException {
+  private static final long serialVersionUID = -585354843789583335L;
   /**
    * @since 1.1.0
    */

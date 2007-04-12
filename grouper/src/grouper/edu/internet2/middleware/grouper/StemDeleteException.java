@@ -21,9 +21,10 @@ package edu.internet2.middleware.grouper;
  * Exception thrown when a stem cannot be deleted from the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDeleteException.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: StemDeleteException.java,v 1.5 2007-04-12 18:06:51 blair Exp $
  */
 public class StemDeleteException extends Exception {
+  private static final long serialVersionUID = 1280576183310060262L;
   public StemDeleteException() { 
     super(); 
   }

@@ -21,11 +21,11 @@ package edu.internet2.middleware.grouper;
  * Generic Grouper DAO exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOException.java,v 1.3 2007-01-04 19:24:09 blair Exp $
+ * @version $Id: GrouperDAOException.java,v 1.4 2007-04-12 18:06:51 blair Exp $
  * @since   1.2.0
  */
 public class GrouperDAOException extends GrouperRuntimeException {
-
+  private static final long serialVersionUID = -7856283917603254749L;
   /**
    * @since   1.2.0
    */

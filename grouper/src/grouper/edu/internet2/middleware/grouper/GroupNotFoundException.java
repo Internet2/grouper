@@ -22,9 +22,10 @@ package edu.internet2.middleware.grouper;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupNotFoundException.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GroupNotFoundException.java,v 1.6 2007-04-12 18:06:51 blair Exp $
  */
 public class GroupNotFoundException extends Exception {
+  private static final long serialVersionUID = 9117020859260199268L;
   public GroupNotFoundException() { 
     super(); 
   }

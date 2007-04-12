@@ -21,9 +21,10 @@ package edu.internet2.middleware.grouper;
  * General Groups Registry schema exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SchemaException.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SchemaException.java,v 1.6 2007-04-12 18:06:51 blair Exp $
  */
 public class SchemaException extends Exception {
+  private static final long serialVersionUID = 2797406692374621466L;
   public SchemaException() { 
     super(); 
   }

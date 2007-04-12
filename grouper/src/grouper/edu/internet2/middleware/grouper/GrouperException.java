@@ -21,10 +21,11 @@ package edu.internet2.middleware.grouper;
  * Generic Grouper exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperException.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: GrouperException.java,v 1.4 2007-04-12 18:06:51 blair Exp $
  * @since   1.1.0
  */
 public class GrouperException extends Exception {
+  private static final long serialVersionUID = 8386470587269519511L;
   public GrouperException() { 
     super(); 
   }
