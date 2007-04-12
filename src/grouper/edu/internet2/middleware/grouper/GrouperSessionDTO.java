@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  org.apache.commons.lang.builder.*;
@@ -24,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.8 2007-04-12 15:40:41 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.9 2007-04-12 18:27:20 blair Exp $
  */
 class GrouperSessionDTO extends BaseGrouperDTO {
 
@@ -131,7 +132,7 @@ class GrouperSessionDTO extends BaseGrouperDTO {
           .setMemberUuid( MemberFinder.internal_findRootMember().getUuid() )
           .setStartTime( new Date() )
           .setSubject( SubjectFinder.findRootSubject() )
-          .setUuid( GrouperUuid.internal_getUuid() )
+          .setUuid( GrouperUuid.getUuid() )
       );
       this.setRootSession(rs);
     }

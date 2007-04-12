@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  java.util.HashMap;
@@ -30,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.150 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: Group.java,v 1.151 2007-04-12 18:27:20 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -113,7 +114,7 @@ public class Group extends GrouperAPI implements Owner {
       _c.setLeftFactorUuid( left._getDTO().getUuid() );
       _c.setRightFactorUuid( right._getDTO().getUuid() );
       _c.setType( type.toString() );
-      _c.setUuid( GrouperUuid.internal_getUuid() );
+      _c.setUuid( GrouperUuid.getUuid() );
       CompositeValidator vComp = CompositeValidator.validate(_c);
       if (vComp.isInvalid()) {
         throw new MemberAddException( vComp.getErrorMessage() );

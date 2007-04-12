@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  java.util.HashMap;
@@ -30,7 +31,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.117 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: Stem.java,v 1.118 2007-04-12 18:27:20 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -808,7 +809,7 @@ public class Stem extends GrouperAPI implements Owner {
         .setDisplayName(ROOT_INT)
         .setExtension(ROOT_INT)
         .setName(ROOT_INT)
-        .setUuid( GrouperUuid.internal_getUuid() )
+        .setUuid( GrouperUuid.getUuid() )
         ;
       _ns.setId( GrouperDAOFactory.getFactory().getStem().createRootStem(_ns) );
       Stem root = new Stem();
@@ -861,7 +862,7 @@ public class Stem extends GrouperAPI implements Owner {
         .setParentUuid( this._getDTO().getUuid() )
         .setTypes(types);
       if (uuid == null) {
-        _g.setUuid( GrouperUuid.internal_getUuid() );
+        _g.setUuid( GrouperUuid.getUuid() );
       }
       else {
         _g.setUuid(uuid);
@@ -875,7 +876,7 @@ public class Stem extends GrouperAPI implements Owner {
       // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
       //               for existence in the dao as well.
       if (uuid == null) {
-        _m.setUuid( GrouperUuid.internal_getUuid() ); // assign a new uuid
+        _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
       }
       else {
         try {
@@ -884,7 +885,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
         catch (MemberNotFoundException eMNF) {
           // couldn't find member.  assign new uuid.
-          _m.setUuid( GrouperUuid.internal_getUuid() ); 
+          _m.setUuid( GrouperUuid.getUuid() ); 
         }
       }
 
@@ -935,7 +936,7 @@ public class Stem extends GrouperAPI implements Owner {
         .setParentUuid( this._getDTO().getUuid() )
         ;
       if (uuid == null) {
-        _ns.setUuid( GrouperUuid.internal_getUuid() );
+        _ns.setUuid( GrouperUuid.getUuid() );
       }
       else {
         _ns.setUuid(uuid);

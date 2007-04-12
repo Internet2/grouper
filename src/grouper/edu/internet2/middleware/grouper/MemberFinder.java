@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 
 /**
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.41 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.42 2007-04-12 18:27:20 blair Exp $
  */
 public class MemberFinder {
 
@@ -132,7 +133,7 @@ public class MemberFinder {
         .setSubjectId(id)
         .setSubjectSourceId(src)
         .setSubjectTypeId(type)
-        .setUuid( GrouperUuid.internal_getUuid() )
+        .setUuid( GrouperUuid.getUuid() )
         ;
       return _m.setId( GrouperDAOFactory.getFactory().getMember().create(_m) );
     }

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  java.io.Serializable;
 import  java.util.Date;
 import  java.util.LinkedHashSet;
@@ -26,7 +27,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.46 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: GroupType.java,v 1.47 2007-04-12 18:27:20 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -356,7 +357,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       .setIsAssignable(isAssignable)
       .setIsInternal(isInternal)
       .setName(name)
-      .setUuid( GrouperUuid.internal_getUuid() )
+      .setUuid( GrouperUuid.getUuid() )
       ;
     try {
       _gt.setId( dao.create(_gt) );
@@ -399,7 +400,7 @@ public class GroupType extends GrouperAPI implements Serializable {
         .setName(name)
         .setReadPrivilege(read)
         .setType(type)
-        .setUuid( GrouperUuid.internal_getUuid() )
+        .setUuid( GrouperUuid.getUuid() )
         .setWritePrivilege(write)
         ;
       _f.setId( GrouperDAOFactory.getFactory().getGroupType().createField(_f) );
