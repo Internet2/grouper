@@ -26,7 +26,7 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.6 2007-03-14 19:54:08 blair Exp $
+ * @version $Id: Rosetta.java,v 1.7 2007-04-12 15:40:41 blair Exp $
  */
 class Rosetta {
 
@@ -94,17 +94,17 @@ class Rosetta {
   } // protected static GrouperAPI getAPI(obj)
 
   // @since   1.2.0
-  protected static HibernateDAO getDAO(GrouperAPI api) {
+  protected static GrouperDAO getDAO(GrouperAPI api) {
     return getDAO( api.getDTO() );
-  } // protected static HibernateDAO getDAO(dto)
+  }
 
   // @since   1.2.0
-  protected static HibernateDAO getDAO(BaseGrouperDTO dto) {
+  protected static GrouperDAO getDAO(BaseGrouperDTO dto) {
     return dto.getDAO();
-  } // protected static HibernateDAO getDAO(dto)
+  }
 
   // @since   1.2.0
-  protected static HibernateDAO getDAO(Object obj) {
+  protected static GrouperDAO getDAO(Object obj) {
     if      (obj instanceof BaseGrouperDTO) {
       return getDAO( (BaseGrouperDTO) obj );
     }
@@ -112,7 +112,7 @@ class Rosetta {
       return getDAO( ( (GrouperAPI) obj ).getDTO() );
     }
     throw new IllegalArgumentException( "cannot translate obj to dao: " + obj.getClass().getName() );
-  } // protected static HibernateDAO getDAO(obj)
+  }
 
   // @since   1.2.0
   protected static Collection getDTO(Collection c) {

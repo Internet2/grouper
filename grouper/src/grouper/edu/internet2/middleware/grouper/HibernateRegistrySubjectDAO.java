@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link RegistrySubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.12 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.13 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjectDAO {
@@ -39,7 +39,7 @@ class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjec
   /**
    * @since   1.2.0
    */
-  public HibernateRegistrySubjectDAO find(String id, String type) 
+  public RegistrySubjectDAO find(String id, String type) 
     throws  GrouperDAOException,
             SubjectNotFoundException
   {
@@ -89,7 +89,7 @@ class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjec
   /**
    * @since   1.2.0
    */
-  public HibernateRegistrySubjectDAO setId(String id) {
+  public RegistrySubjectDAO setId(String id) {
     this.id = id;
     return this;
   }
@@ -97,7 +97,7 @@ class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjec
   /**
    * @since   1.2.0
    */
-  public HibernateRegistrySubjectDAO setName(String name) {
+  public RegistrySubjectDAO setName(String name) {
     this.name = name;
     return this;
   }
@@ -105,7 +105,7 @@ class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjec
   /**
    * @since   1.2.0
    */
-  public HibernateRegistrySubjectDAO setType(String type) {
+  public RegistrySubjectDAO setType(String type) {
     this.type = type;
     return this;
   }

@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Membership} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.5 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: MembershipDTO.java,v 1.6 2007-04-12 15:40:41 blair Exp $
  */
 class MembershipDTO extends BaseGrouperDTO {
 
@@ -141,8 +141,8 @@ class MembershipDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected HibernateMembershipDAO getDAO() {
-    return new HibernateMembershipDAO()
+  protected GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getMembership()
       .setCreateTime( this.getCreateTime() )
       .setCreatorUuid( this.getCreatorUuid() )
       .setDepth( this.getDepth() )
@@ -156,7 +156,7 @@ class MembershipDTO extends BaseGrouperDTO {
       .setUuid( this.getUuid() )
       .setViaUuid( this.getViaUuid() )
       ;
-  } // protected HibernateMembershipDAO getDAO()
+  }
 
 
   // GETTERS //

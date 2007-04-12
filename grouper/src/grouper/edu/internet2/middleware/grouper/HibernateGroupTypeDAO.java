@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.13 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.14 2007-04-12 15:40:41 blair Exp $
  */
 class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecycle {
 
@@ -57,7 +57,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(_gt);
+      HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(_gt);
       // TODO 20070403 DRY w/ the other DAO classes
       try {
         hs.save(dao);
@@ -86,7 +86,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(_f);
+      HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(_f);
       try {
         hs.save(dao);
         tx.commit();
@@ -343,7 +343,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
   /**
    * @since   1.2.0
    */
-  public HibernateGroupTypeDAO setCreatorUuid(String creatorUUID) {
+  public GroupTypeDAO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
     return this;
   }
@@ -351,7 +351,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
   /**
    * @since   1.2.0
    */
-  public HibernateGroupTypeDAO setCreateTime(long createTime) {
+  public GroupTypeDAO setCreateTime(long createTime) {
     this.createTime = createTime;
     return this;
   }
@@ -359,7 +359,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
   /**
    * @since   1.2.0
    */
-  public HibernateGroupTypeDAO setFields(Set fields) {
+  public GroupTypeDAO setFields(Set fields) {
     // nothing
     return this;
   }
@@ -367,7 +367,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
   /**
    * @since   1.2.0
    */
-  public HibernateGroupTypeDAO setIsAssignable(boolean isAssignable) {
+  public GroupTypeDAO setIsAssignable(boolean isAssignable) {
     this.isAssignable = isAssignable;
     return this;
   }
@@ -375,7 +375,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
   /**
    * @since   1.2.0
    */
-  public HibernateGroupTypeDAO setIsInternal(boolean isInternal) {
+  public GroupTypeDAO setIsInternal(boolean isInternal) {
     this.isInternal = isInternal;
     return this;
   }
@@ -383,7 +383,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
   /**
    * @since   1.2.0
    */
-  public HibernateGroupTypeDAO setId(String id) {
+  public GroupTypeDAO setId(String id) {
     this.id = id;
     return this;
   }
@@ -391,7 +391,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
   /**
    * @since   1.2.0
    */
-  public HibernateGroupTypeDAO setName(String name) {
+  public GroupTypeDAO setName(String name) {
     this.name = name;
     return this;
   }
@@ -399,7 +399,7 @@ class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecy
   /**
    * @since   1.2.0
    */
-  public HibernateGroupTypeDAO setUuid(String uuid) {
+  public GroupTypeDAO setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }

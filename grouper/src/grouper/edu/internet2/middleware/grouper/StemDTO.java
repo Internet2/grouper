@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Stem} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.5 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: StemDTO.java,v 1.6 2007-04-12 15:40:41 blair Exp $
  */
 class StemDTO extends BaseGrouperDTO {
 
@@ -131,8 +131,8 @@ class StemDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
   
   // @since   1.2.0
-  protected HibernateStemDAO getDAO() {
-    return new HibernateStemDAO()
+  protected GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getStem()
       .setCreateSource( this.getCreateSource() )
       .setCreateTime( this.getCreateTime() )
       .setCreatorUuid( this.getCreatorUuid() )
@@ -148,7 +148,7 @@ class StemDTO extends BaseGrouperDTO {
       .setUuid( this.getUuid() )
       .setParentUuid( this.getParentUuid() )
       ;
-  } // protected HibernateStemDAO getDAO()
+  }
 
 
   // GETTERS //

@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Member} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.4 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.5 2007-04-12 15:40:41 blair Exp $
  */
 class MemberDTO extends BaseGrouperDTO {
 
@@ -83,15 +83,15 @@ class MemberDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected HibernateMemberDAO getDAO() {
-    return new HibernateMemberDAO()
+  protected GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getMember()
       .setId( this.getId() )
       .setSubjectId( this.getSubjectId() )
       .setSubjectSourceId( this.getSubjectSourceId() )
       .setSubjectTypeId( this.getSubjectTypeId() )
       .setUuid( this.getUuid() )
       ;
-  } // protected HibernateMemberDAO getDAO()
+  }
 
 
   // GETTERS //

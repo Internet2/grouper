@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.52 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: MemberOf.java,v 1.53 2007-04-12 15:40:41 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -405,8 +405,8 @@ class MemberOf extends BaseMemberOf {
     throws  IllegalStateException
   {
     Set memberUUIDs = new LinkedHashSet();
-    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getDTO().getLeftFactorUuid() ) );
-    memberUUIDs.removeAll( this._findMemberUUIDs( this.getComposite().getDTO().getRightFactorUuid() ) );
+    memberUUIDs.addAll( this._findMemberUUIDs( ( (CompositeDTO) this.getComposite().getDTO() ).getLeftFactorUuid() ) );
+    memberUUIDs.removeAll( this._findMemberUUIDs( ( (CompositeDTO) this.getComposite().getDTO() ).getRightFactorUuid() ) );
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } // private Set _evaluateAddCompositeMembershipComplement()
   
@@ -415,8 +415,8 @@ class MemberOf extends BaseMemberOf {
     throws  IllegalStateException
   {
     Set memberUUIDs = new LinkedHashSet();
-    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getDTO().getLeftFactorUuid() ) );
-    memberUUIDs.retainAll( this._findMemberUUIDs( this.getComposite().getDTO().getRightFactorUuid() ) );
+    memberUUIDs.addAll( this._findMemberUUIDs( ( (CompositeDTO) this.getComposite().getDTO() ).getLeftFactorUuid() ) );
+    memberUUIDs.retainAll( this._findMemberUUIDs( ( (CompositeDTO) this.getComposite().getDTO() ).getRightFactorUuid() ) );
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } // private Set _evaluateAddCompositeMembershipIntersection()
 
@@ -425,8 +425,8 @@ class MemberOf extends BaseMemberOf {
     throws  IllegalStateException
   {
     Set memberUUIDs = new LinkedHashSet();
-    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getDTO().getLeftFactorUuid() ) );
-    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getDTO().getRightFactorUuid() ) );
+    memberUUIDs.addAll( this._findMemberUUIDs( ( (CompositeDTO) this.getComposite().getDTO() ).getLeftFactorUuid() ) );
+    memberUUIDs.addAll( this._findMemberUUIDs( ( (CompositeDTO) this.getComposite().getDTO() ).getRightFactorUuid() ) );
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } // private Set _evaluateAddCompositeMembershipUnion()
 

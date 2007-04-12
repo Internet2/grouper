@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Base {@link GrouperDTO} implementation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseGrouperDTO.java,v 1.1 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: BaseGrouperDTO.java,v 1.2 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 abstract class BaseGrouperDTO implements GrouperDTO {
@@ -37,7 +37,7 @@ abstract class BaseGrouperDTO implements GrouperDTO {
   // PROTECTED ABSTRACT METHODS //
   
   // @since   1.2.0
-  protected abstract HibernateDAO getDAO();
+  protected abstract GrouperDAO getDAO();
 
 } // abstract class BaseGrouperDTO implements GrouperDTO
 

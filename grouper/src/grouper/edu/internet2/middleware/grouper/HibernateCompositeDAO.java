@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.14 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.15 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
@@ -183,7 +183,7 @@ class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateCompositeDAO setCreateTime(long createTime) {
+  public CompositeDAO setCreateTime(long createTime) {
     this.createTime = createTime;
     return this;
   }
@@ -191,7 +191,7 @@ class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateCompositeDAO setCreatorUuid(String creatorUUID) {
+  public CompositeDAO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
     return this;
   }
@@ -199,7 +199,7 @@ class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateCompositeDAO setFactorOwnerUuid(String factorOwnerUUID) {
+  public CompositeDAO setFactorOwnerUuid(String factorOwnerUUID) {
     this.factorOwnerUUID = factorOwnerUUID;
     return this;
   }
@@ -207,7 +207,7 @@ class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateCompositeDAO setId(String id) {
+  public CompositeDAO setId(String id) {
     this.id = id;
     return this;
   }
@@ -215,7 +215,7 @@ class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateCompositeDAO setLeftFactorUuid(String leftFactorUUID) {
+  public CompositeDAO setLeftFactorUuid(String leftFactorUUID) {
     this.leftFactorUUID = leftFactorUUID;
     return this;
   }
@@ -223,7 +223,7 @@ class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateCompositeDAO setRightFactorUuid(String rightFactorUUID) {
+  public CompositeDAO setRightFactorUuid(String rightFactorUUID) {
     this.rightFactorUUID = rightFactorUUID;
     return this;
   }
@@ -231,7 +231,7 @@ class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateCompositeDAO setType(String type) {
+  public CompositeDAO setType(String type) {
     this.type = type;
     return this;
   }
@@ -239,7 +239,7 @@ class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateCompositeDAO setUuid(String uuid) {
+  public CompositeDAO setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }

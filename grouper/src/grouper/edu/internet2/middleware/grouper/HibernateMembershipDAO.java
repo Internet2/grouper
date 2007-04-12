@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.25 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.26 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
@@ -614,7 +614,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setCreateTime(long createTime) {
+  public MembershipDAO setCreateTime(long createTime) {
     this.createTime = createTime;
     return this;
   }
@@ -622,7 +622,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setCreatorUuid(String creatorUUID) {
+  public MembershipDAO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
     return this;
   }
@@ -630,7 +630,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setDepth(int depth) {
+  public MembershipDAO setDepth(int depth) {
     this.depth = depth;
     return this;
   }
@@ -638,7 +638,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setId(String id) {
+  public MembershipDAO setId(String id) {
     this.id = id;
     return this;
   }
@@ -646,7 +646,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setListName(String listName) {
+  public MembershipDAO setListName(String listName) {
     this.listName = listName;
     return this;
   }
@@ -654,7 +654,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setListType(String listType) {
+  public MembershipDAO setListType(String listType) {
     this.listType = listType;
     return this;
   }
@@ -662,7 +662,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setMemberUuid(String memberUUID) {
+  public MembershipDAO setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
     return this;
   }
@@ -670,7 +670,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setOwnerUuid(String ownerUUID) {
+  public MembershipDAO setOwnerUuid(String ownerUUID) {
     this.ownerUUID = ownerUUID;
     return this;
   }
@@ -678,7 +678,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setParentUuid(String parentUUID) {
+  public MembershipDAO setParentUuid(String parentUUID) {
     this.parentUUID = parentUUID;
     return this;
   }
@@ -686,7 +686,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setType(String type) {
+  public MembershipDAO setType(String type) {
     this.type = type;
     return this;
   }
@@ -694,7 +694,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setUuid(String uuid) {
+  public MembershipDAO setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }
@@ -702,7 +702,7 @@ class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMembershipDAO setViaUuid(String viaUUID) {
+  public MembershipDAO setViaUuid(String viaUUID) {
     this.viaUUID = viaUUID;
     return this;
   }

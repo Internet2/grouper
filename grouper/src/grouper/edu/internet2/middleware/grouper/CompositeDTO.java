@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Composite} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.6 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.7 2007-04-12 15:40:41 blair Exp $
  */
 class CompositeDTO extends BaseGrouperDTO {
 
@@ -114,8 +114,8 @@ class CompositeDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
   
   // @since   1.2.0
-  protected HibernateCompositeDAO getDAO() {
-    return new HibernateCompositeDAO()
+  protected GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getComposite()
       .setCreateTime( this.getCreateTime() )
       .setCreatorUuid( this.getCreatorUuid() )
       .setFactorOwnerUuid( this.getFactorOwnerUuid() )
@@ -125,7 +125,7 @@ class CompositeDTO extends BaseGrouperDTO {
       .setRightFactorUuid( this.getRightFactorUuid() )
       .setType( this.getType() )
       ;
-  } // protected HibernateCompositeDAO getDAO()
+  } 
 
 
   // GETTERS //
