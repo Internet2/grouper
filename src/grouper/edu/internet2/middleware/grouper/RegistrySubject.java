@@ -28,7 +28,7 @@ import  java.util.Set;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.4 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: RegistrySubject.java,v 1.5 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -129,7 +129,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public String getId() {
-    return this.getDTO().getId();
+    return this._getDTO().getId();
   } // public String getId()
 
   /**
@@ -138,7 +138,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public String getName() {
-    return this.getDTO().getName();
+    return this._getDTO().getName();
   } // public String getName()
 
   /**
@@ -153,7 +153,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     throws  IllegalStateException
   {
     try {
-      return SubjectFinder.findById( this.getDTO().getId(), this.getDTO().getType()).getSource();
+      return SubjectFinder.findById( this._getDTO().getId(), this._getDTO().getType()).getSource();
     }
     catch (SubjectNotFoundException eSNF)   {
       throw new IllegalStateException( eSNF.getMessage(), eSNF );
@@ -169,16 +169,16 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public SubjectType getType() {
-    return SubjectTypeEnum.valueOf( this.getDTO().getType() );
+    return SubjectTypeEnum.valueOf( this._getDTO().getType() );
   } // public SubjectType getType()
 
 
-  // PROTECTED INSTANCE METHODS //
+  // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
-  protected RegistrySubjectDTO getDTO() {
+  private RegistrySubjectDTO _getDTO() {
     return (RegistrySubjectDTO) super.getDTO();
-  } // protected RegistrySubjectDTO getDTO()
-
-} // public class RegistrySubject extends GrouperAPI implements Subject
+  } 
+  
+}
 

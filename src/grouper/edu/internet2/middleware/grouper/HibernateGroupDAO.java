@@ -29,7 +29,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.23 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.24 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -68,8 +68,8 @@ class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
       Transaction tx  = hs.beginTransaction();
       try {
         HibernateGroupTypeTupleDAO gtt = new HibernateGroupTypeTupleDAO();
-        gtt.setGroupUuid( g.getDTO().getUuid() );
-        gtt.setTypeUuid( t.getDTO().getUuid() );
+        gtt.setGroupUuid( ( (GroupDTO) g.getDTO() ).getUuid() );
+        gtt.setTypeUuid( ( (GroupTypeDTO) t.getDTO() ).getUuid() );
         hs.save(gtt); // new group-type tuple
         hs.saveOrUpdate( Rosetta.getDAO(g) ); // modified group
         tx.commit();
@@ -134,7 +134,9 @@ class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        HibernateGroupTypeTupleDAO gtt = HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), t.getDTO() );
+        HibernateGroupTypeTupleDAO gtt = HibernateGroupTypeTupleDAO.findByGroupAndType(
+          (GroupDTO) g.getDTO(), (GroupTypeDTO) t.getDTO()
+        );
         hs.delete(gtt); // delete group-type tuple
         hs.saveOrUpdate( Rosetta.getDAO(g) ); // save modified group
         tx.commit();
@@ -159,7 +161,7 @@ class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
     throws  GrouperDAOException
   {
     if ( existsCache.containsKey(uuid) ) {
-      return existsCache.get(uuid).booleanValue();
+      return existsCache.getBoolean(uuid).booleanValue();
     }
     try {
       Session hs  = HibernateDAO.getSession();
@@ -410,7 +412,7 @@ class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
       Query   qry = hs.createQuery("select gtt.groupUuid from HibernateGroupTypeTupleDAO gtt where gtt.typeUuid = :type");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByType");
-      qry.setString( "type", type.getDTO().getUuid() );
+      qry.setString( "type", ( (GroupTypeDTO) type.getDTO() ).getUuid() );
       Iterator it = qry.list().iterator();
       while (it.hasNext()) {
         groups.add( findByUuid( (String) it.next() ) );

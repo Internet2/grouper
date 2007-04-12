@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.25 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.26 2007-04-12 17:56:03 blair Exp $
  */
 public class GroupTypeFinder {
   
@@ -99,7 +99,7 @@ public class GroupTypeFinder {
     Iterator  iter    = types.values().iterator();
     while (iter.hasNext()) {
       t = (GroupType) iter.next();
-      if ( !t.getDTO().getIsInternal() ) {
+      if ( !( (GroupTypeDTO) t.getDTO() ).getIsInternal() ) {
         values.add(t); // We only want !internal group types
       }
     }
@@ -119,7 +119,7 @@ public class GroupTypeFinder {
     Iterator  iter  = findAll().iterator();
     while (iter.hasNext()) {
       t = (GroupType) iter.next();
-      if ( t.getDTO().getIsAssignable() ) {
+      if ( ( (GroupTypeDTO) t.getDTO() ).getIsAssignable() ) {
         types.add(t);
       }
     }

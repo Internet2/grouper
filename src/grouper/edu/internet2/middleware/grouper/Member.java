@@ -27,7 +27,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.88 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: Member.java,v 1.89 2007-04-12 17:56:03 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -456,7 +456,7 @@ public class Member extends GrouperAPI implements Serializable {
     if (this.subj == null) {
       try {
         this.subj = SubjectFinder.findById(
-          this.getDTO().getSubjectId(), this.getDTO().getSubjectTypeId(), this.getDTO().getSubjectSourceId()
+          this._getDTO().getSubjectId(), this._getDTO().getSubjectTypeId(), this._getDTO().getSubjectSourceId()
         );
       }
       catch (SourceUnavailableException eSU) {
@@ -478,7 +478,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Subject id
    */ 
   public String getSubjectId() {
-    return this.getDTO().getSubjectId();
+    return this._getDTO().getSubjectId();
   }
 
   /**
@@ -510,7 +510,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Subject's {@link Source} id
    */
   public String getSubjectSourceId() {
-    return this.getDTO().getSubjectSourceId();
+    return this._getDTO().getSubjectSourceId();
   } 
 
   /**
@@ -522,7 +522,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Subject's {@link SubjectType}
    */ 
   public SubjectType getSubjectType() {
-    return SubjectTypeEnum.valueOf( this.getDTO().getSubjectTypeId() );
+    return SubjectTypeEnum.valueOf( this._getDTO().getSubjectTypeId() );
   } // public SubjectType getSubjectType()
 
   /**
@@ -534,7 +534,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Subject's type id.
    */ 
   public String getSubjectTypeId() {
-    return this.getDTO().getSubjectTypeId();
+    return this._getDTO().getSubjectTypeId();
   }
 
   /**
@@ -546,7 +546,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Member's UUID.
    */
   public String getUuid() {
-    return this.getDTO().getUuid();
+    return this._getDTO().getUuid();
   }
 
   /**
@@ -1092,9 +1092,9 @@ public class Member extends GrouperAPI implements Serializable {
     if (v.isInvalid()) {
       throw new InsufficientPrivilegeException( v.getErrorMessage() );
     }
-    String    orig  = this.getDTO().getSubjectId(); // preserve original for logging purposes
-    this.getDTO().setSubjectId(id);
-    GrouperDAOFactory.getFactory().getMember().update( this.getDTO() );
+    String    orig  = this._getDTO().getSubjectId(); // preserve original for logging purposes
+    this._getDTO().setSubjectId(id);
+    GrouperDAOFactory.getFactory().getMember().update( this._getDTO() );
     sw.stop();
     EventLog.info(
       this.getSession(),
@@ -1135,9 +1135,9 @@ public class Member extends GrouperAPI implements Serializable {
     if (v.isInvalid()) {
       throw new InsufficientPrivilegeException( v.getErrorMessage() );
     }
-    String    orig  = this.getDTO().getSubjectSourceId();
-    this.getDTO().setSubjectSourceId(id);
-    GrouperDAOFactory.getFactory().getMember().update( this.getDTO() );
+    String    orig  = this._getDTO().getSubjectSourceId();
+    this._getDTO().setSubjectSourceId(id);
+    GrouperDAOFactory.getFactory().getMember().update( this._getDTO() );
     sw.stop();
     EventLog.info(
       this.getSession(),
@@ -1176,9 +1176,9 @@ public class Member extends GrouperAPI implements Serializable {
   public Group toGroup() 
     throws GroupNotFoundException 
   {
-    if ( SubjectFinder.internal_getGSA().getId().equals( this.getDTO().getSubjectSourceId() ) ) {
+    if ( SubjectFinder.internal_getGSA().getId().equals( this._getDTO().getSubjectSourceId() ) ) {
       if (this.g == null) {
-        this.g = GroupFinder.findByUuid( this.getSession(), this.getDTO().getSubjectId() );
+        this.g = GroupFinder.findByUuid( this.getSession(), this._getDTO().getSubjectId() );
       }
       this.g.setSession( this.getSession() ); // in case we are using cached group
       return this.g;
@@ -1189,29 +1189,28 @@ public class Member extends GrouperAPI implements Serializable {
   } // public Group toGroup()
 
   public String toString() {
-    return SubjectHelper.getPretty( this.getDTO() );
+    return SubjectHelper.getPretty( this._getDTO() );
   } // public String toString()
 
 
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected MemberDTO getDTO() {
-    return (MemberDTO) super.getDTO();
-  } // protected MemberDTO getDTO()
-
-  // @since   1.2.0
   protected boolean isMember(String ownerUUID, Field f) {
     boolean       rv      = false;
     MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
-    Set           mships  = dao.findAllByOwnerAndMemberAndField( ownerUUID, this.getDTO().getUuid(), f );
+    Set           mships  = dao.findAllByOwnerAndMemberAndField(
+      ownerUUID, ( (MemberDTO) this.getDTO() ).getUuid(), f
+    );
     if (mships.size() > 0) {
       rv = true;
     }
     else {
       Member all = MemberFinder.internal_findAllMember();
       if ( !this.equals(all) ) {
-        mships = dao.findAllByOwnerAndMemberAndField( ownerUUID, all.getDTO().getUuid(), f );
+        mships = dao.findAllByOwnerAndMemberAndField(
+          ownerUUID, ( (MemberDTO) all.getDTO() ).getUuid(), f
+        );
         if (mships.size() > 0) {
           rv = true;
         }
@@ -1223,6 +1222,11 @@ public class Member extends GrouperAPI implements Serializable {
 
   // PRIVATE INSTANCE METHODS //
 
+  // @since   1.2.0
+  private MemberDTO _getDTO() {
+    return (MemberDTO) super.getDTO();
+  }
+  
   // @since   1.1.0
   private Set _getGroups(Iterator it) {
     Group       g;

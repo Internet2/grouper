@@ -46,7 +46,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.100 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.101 2007-04-12 17:56:03 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -589,8 +589,8 @@ public class XmlImporter {
  
   // @since   1.1.0
   private boolean _isSubjectElementImmediate(Element el) {
-    return Boolean.valueOf( el.getAttribute("immediate") );
-  } // private boolean _isSubjectElementImmediate(el)
+    return Boolean.valueOf( el.getAttribute("immediate") ).booleanValue();
+  }
 
   // @since   1.1.0
   private boolean _isUpdatingAttributes() {
@@ -1197,7 +1197,7 @@ public class XmlImporter {
           gt.addList(s, fName, read, write);
         } 
         else if (fType.equals( FieldType.ATTRIBUTE.toString() ) ) {
-          gt.addAttribute( s, fName, read, write, Boolean.valueOf( el.getAttribute("required") ) );
+          gt.addAttribute( s, fName, read, write, Boolean.valueOf( el.getAttribute("required") ).booleanValue() );
         } 
       }
     }
@@ -1413,7 +1413,7 @@ public class XmlImporter {
   // @since   1.2.0
   private void _setCreateSubject(Group g, Element e) {
     Element elSubj = this._getImmediateElement(e, "subject");
-    g.getDTO().setCreatorUuid(
+    ( (GroupDTO) g.getDTO() ).setCreatorUuid(
       MemberFinder.internal_findOrCreateBySubject(
         elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
       ).getUuid()
@@ -1423,7 +1423,7 @@ public class XmlImporter {
   // @since   1.2.0
   private void _setCreateSubject(Stem ns, Element e) {
     Element elSubj = this._getImmediateElement(e, "subject");
-    ns.getDTO().setCreatorUuid(
+    ( (StemDTO) ns.getDTO() ).setCreatorUuid(
       MemberFinder.internal_findOrCreateBySubject(
         elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
       ).getUuid()
@@ -1434,7 +1434,7 @@ public class XmlImporter {
   private boolean _setCreateTime(Group g, Element e) {
     String msg = "error setting createTime: ";
     try {
-      g.getDTO().setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      ( (GroupDTO) g.getDTO() ).setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
       return true;
     } catch (GrouperException eG) {
        msg += eG.getMessage();
@@ -1449,7 +1449,7 @@ public class XmlImporter {
   private boolean _setCreateTime(Stem ns, Element e) {
     String msg = "error setting createTime: ";
     try {
-      ns.getDTO().setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      ( (StemDTO) ns.getDTO() ).setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
       return true;
     } catch (GrouperException eG) {
        msg += eG.getMessage();

@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.40 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.41 2007-04-12 17:56:03 blair Exp $
  */
 public class MemberFinder {
 
@@ -144,7 +144,7 @@ public class MemberFinder {
             MemberNotFoundException
   {
     Member m = findBySubject(s, subj);
-    if ( SubjectFinder.internal_getGSA().getId().equals( m.getDTO().getSubjectSourceId() ) ) {
+    if ( SubjectFinder.internal_getGSA().getId().equals( ( (MemberDTO) m.getDTO() ).getSubjectSourceId() ) ) {
       // subject is a group.  is it VIEWable?
       try {
         GroupFinder.findByUuid( s, m.getSubjectId() ); // TODO 20070328 this is rather heavy

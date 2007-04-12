@@ -22,7 +22,7 @@ import  java.io.Serializable;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.21 2007-04-05 14:28:28 blair Exp $    
+ * @version $Id: Field.java,v 1.22 2007-04-12 17:56:03 blair Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 
@@ -57,7 +57,7 @@ public class Field extends GrouperAPI implements Serializable {
   public GroupType getGroupType() 
     throws  IllegalStateException
   {
-    String uuid = this.getDTO().getGroupTypeUuid();
+    String uuid = this._getDTO().getGroupTypeUuid();
     if ( this.stateCache.containsKey(KEY_GROUPTYPE) ) {
       return (GroupType) this.stateCache.get(KEY_GROUPTYPE);
     }
@@ -75,31 +75,31 @@ public class Field extends GrouperAPI implements Serializable {
   /**
    */
   public FieldType getType() {
-    return FieldType.getInstance( this.getDTO().getType() );
+    return FieldType.getInstance( this._getDTO().getType() );
   } // public FieldType getType()
 
   /**
    */
   public String getName() {
-    return this.getDTO().getName();
+    return this._getDTO().getName();
   } // public String getName()
 
   /**
    */
   public Privilege getReadPriv() {
-    return Privilege.getInstance( this.getDTO().getReadPrivilege() ); 
+    return Privilege.getInstance( this._getDTO().getReadPrivilege() ); 
   } // public Privilege getReadPriv()
 
   /**
    */
   public boolean getRequired() {
-    return !this.getDTO().getIsNullable();
+    return !this._getDTO().getIsNullable();
   } // public boolean isRequired()
 
   /**
    */
   public Privilege getWritePriv() {
-    return Privilege.getInstance( this.getDTO().getWritePrivilege() );
+    return Privilege.getInstance( this._getDTO().getWritePrivilege() );
   } // public Privilege getWritePriv()
 
   /**
@@ -115,12 +115,12 @@ public class Field extends GrouperAPI implements Serializable {
   } // public String toString()
 
 
-  // PROTECTED INSTANCE METHODS //
+  // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
-  protected FieldDTO getDTO() {
+  private FieldDTO _getDTO() {
     return (FieldDTO) super.getDTO();
-  } // protected FieldDTO getDTO()
+  }
 
 } // public class Field extends GrouperAPI implements Serializable
 

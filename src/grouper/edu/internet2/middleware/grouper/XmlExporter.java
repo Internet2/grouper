@@ -36,7 +36,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.90 2007-03-28 16:27:46 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.91 2007-04-12 17:56:03 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -427,12 +427,12 @@ public class XmlExporter {
       if (group != null) {
         exporter.export(
           writer, group,
-          Boolean.valueOf(rc.getProperty(XmlArgs.RC_RELATIVE)),
-          Boolean.valueOf(rc.getProperty(XmlArgs.RC_PARENT))
+          Boolean.valueOf( rc.getProperty(XmlArgs.RC_RELATIVE) ).booleanValue(),
+          Boolean.valueOf( rc.getProperty(XmlArgs.RC_PARENT) ).booleanValue()
         );
       } 
       else {
-        exporter.export(writer, stem,   Boolean.valueOf(rc.getProperty(XmlArgs.RC_RELATIVE)));
+        exporter.export(writer, stem, Boolean.valueOf( rc.getProperty(XmlArgs.RC_RELATIVE) ).booleanValue() );
       }
     }
   } // private static void _handleArgs(exporter, rc)
@@ -1053,7 +1053,7 @@ public class XmlExporter {
   } // private void _writeHeader()
 
   // @since   1.1.0
-  private void _writeInternalAttribute(String attr, Long l)
+  private void _writeInternalAttribute(String attr, long l)
     throws  IOException
   {
     Date d = new Date(l);
@@ -1126,7 +1126,7 @@ public class XmlExporter {
       this.xml.internal_indent();
       this.xml.internal_puts("<internalAttributes>");
       this._writeInternalAttribute( "parentStem",     this._getParentStemName(g)   );
-      GroupDTO _g = g.getDTO();
+      GroupDTO _g = (GroupDTO) g.getDTO();
       this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, _g.getCreatorUuid() ) );
       this._writeInternalAttribute( "createTime",     _g.getCreateTime() );
       this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, _g.getModifierUuid() ) );
@@ -1148,7 +1148,7 @@ public class XmlExporter {
       this.xml.internal_indent();
       this.xml.internal_puts("<internalAttributes>");
       this._writeInternalAttribute( "parentStem",     this._getParentStemName(ns)   );
-      StemDTO _ns = ns.getDTO();
+      StemDTO _ns = (StemDTO) ns.getDTO();
       this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, _ns.getCreatorUuid() ) );
       this._writeInternalAttribute( "createTime",     _ns.getCreateTime() );
       this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, _ns.getModifierUuid() ) );

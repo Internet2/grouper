@@ -25,7 +25,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.56 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.57 2007-04-12 17:56:03 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -144,7 +144,7 @@ public class GrouperSession extends GrouperAPI {
     }
     try {
       Member m = new Member();
-      m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this.getDTO().getMemberUuid() ) );
+      m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getMemberUuid() ) );
       m.setSession(this);
       this.stateCache.put(KEY_MEMBER, m);
       return m;
@@ -175,7 +175,7 @@ public class GrouperSession extends GrouperAPI {
    * @return  The session id.
    */
   public String getSessionId() {
-    return this.getDTO().getUuid();
+    return this._getDTO().getUuid();
   } // public String getSessionId()
 
   /**
@@ -186,7 +186,7 @@ public class GrouperSession extends GrouperAPI {
    * @return  This session's start time.
    */
   public Date getStartTime() {
-    return this.getDTO().getStartTime();
+    return this._getDTO().getStartTime();
   } // public Date getStartTime()
 
   /**
@@ -200,12 +200,12 @@ public class GrouperSession extends GrouperAPI {
   public Subject getSubject() 
     throws  GrouperRuntimeException
   {
-    if ( this.getDTO().getSubject() == null ) {
+    if ( this._getDTO().getSubject() == null ) {
       String msg = "unable to get subject associated with session";
       ErrorLog.fatal(GrouperSession.class, msg);
       throw new GrouperRuntimeException(msg);
     }
-    return this.getDTO().getSubject();
+    return this._getDTO().getSubject();
   } // public Subject getSubject()
 
   public int hashCode() {
@@ -221,11 +221,11 @@ public class GrouperSession extends GrouperAPI {
   public void stop() 
     throws  SessionException
   {
-    if ( this.getDTO().getId() != null ) { // We have a persistent session
+    if ( this._getDTO().getId() != null ) { // We have a persistent session
       StopWatch sw    = new StopWatch();
       sw.start();
       long      start = this.getStartTime().getTime();
-      GrouperDAOFactory.getFactory().getGrouperSession().delete( this.getDTO() );
+      GrouperDAOFactory.getFactory().getGrouperSession().delete( this._getDTO() );
       sw.stop();
       Date      now   = new Date();
       long      dur   = now.getTime() - start;
@@ -237,9 +237,9 @@ public class GrouperSession extends GrouperAPI {
 
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append( "session_id",   this.getDTO().getUuid()                                        )
-      .append( "subject_id",   U.internal_q( this.getDTO().getSubject().getId() )             )
-      .append( "subject_type", U.internal_q( this.getDTO().getSubject().getType().getName() ) )
+      .append( "session_id",   this._getDTO().getUuid()                                        )
+      .append( "subject_id",   U.internal_q( this._getDTO().getSubject().getId() )             )
+      .append( "subject_type", U.internal_q( this._getDTO().getSubject().getType().getName() ) )
       .toString();
   } // public String toString()
 
@@ -250,27 +250,26 @@ public class GrouperSession extends GrouperAPI {
   public void validate() 
     throws  IllegalStateException
   {
-    GrouperValidator v = NotNullValidator.validate( this.getDTO().getMemberUuid() );
+    GrouperValidator v = NotNullValidator.validate( this._getDTO().getMemberUuid() );
     if (v.isInvalid()) {
       throw new IllegalStateException(E.SV_M);
     }
-    v = NotNullValidator.validate( this.getDTO().getUuid() );  
+    v = NotNullValidator.validate( this._getDTO().getUuid() );  
     if (v.isInvalid()) {
       throw new IllegalStateException(E.SV_I);
     }
-    v = NotNullValidator.validate( this.getDTO().getStartTime() );
+    v = NotNullValidator.validate( this._getDTO().getStartTime() );
     if (v.isInvalid()) {
       throw new IllegalStateException(E.SV_T);
     }
   } // public void validate(
 
 
-  // PROTECTED INSTANCE METHODS //
+  // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
-  protected GrouperSessionDTO getDTO() {
+  private GrouperSessionDTO _getDTO() {
     return (GrouperSessionDTO) super.getDTO();
-  } // protected GrouperSessionDTO getDTO()
-
-} // public class GrouperSession extends GrouperAPI
-
+  } 
+  
+}

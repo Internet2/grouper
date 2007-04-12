@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.2 2007-03-14 18:20:05 blair Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.3 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -100,7 +100,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setListName("members");
       _ms.setOwnerUuid( g.getUuid() );
       _ms.setMemberUuid( g.toMember().getUuid() );
-      ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", ImmediateMembershipValidator.INVALID_CIRCULAR, v.getErrorMessage() );
     }
@@ -126,7 +126,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setListName("members");
       _ms.setOwnerUuid( g.getUuid() );
       _ms.setMemberUuid( m.getUuid() );
-      ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", ImmediateMembershipValidator.INVALID_EXISTS, v.getErrorMessage() );
     }
@@ -150,7 +150,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setListName("members");
       _ms.setOwnerUuid( g.getUuid() );
       _ms.setMemberUuid( m.getUuid() );
-      ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
     }
     catch (Exception e) {

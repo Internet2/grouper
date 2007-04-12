@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.2 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.3 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
@@ -40,14 +40,15 @@ public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
       type.addAttribute(s, "custom attribute", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
       type.addList(s, "custom list", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN);
 
+      GroupTypeDTO _gt = (GroupTypeDTO) type.getDTO();
       assertEquals(
         "grouptype has fields before deletion",
-        2, new HibernateFieldDAO().findAllFieldsByGroupType( type.getDTO().getUuid() ).size()
+        2, new HibernateFieldDAO().findAllFieldsByGroupType( _gt.getUuid() ).size()
       );
       type.delete(s); // fields show be automatically deleted when the parent type is deleted
       assertEquals(
         "grouptype does not have fields after deletion",
-        0, new HibernateFieldDAO().findAllFieldsByGroupType( type.getDTO().getUuid() ).size()
+        0, new HibernateFieldDAO().findAllFieldsByGroupType( _gt.getUuid() ).size()
       );
     }
     catch (Exception e) {
@@ -64,14 +65,15 @@ public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
       type.addAttribute(s, "custom attribute", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
       type.addList(s, "custom list", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN);
 
+      GroupTypeDTO _gt = (GroupTypeDTO) type.getDTO();
       assertEquals(
         "grouptype has fields before reset",
-        2, new HibernateFieldDAO().findAllFieldsByGroupType( type.getDTO().getUuid() ).size()
+        2, new HibernateFieldDAO().findAllFieldsByGroupType( _gt.getUuid() ).size()
       );
       RegistryReset.reset();  // fields should be deleted when registry is reset
       assertEquals(
         "grouptype does not have fields after reset",
-        0, new HibernateFieldDAO().findAllFieldsByGroupType( type.getDTO().getUuid() ).size()
+        0, new HibernateFieldDAO().findAllFieldsByGroupType( _gt.getUuid() ).size()
       );
     }
     catch (Exception e) {

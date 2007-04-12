@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.149 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: Group.java,v 1.150 2007-04-12 17:56:03 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -109,9 +109,9 @@ public class Group extends GrouperAPI implements Owner {
       CompositeDTO  _c  = new CompositeDTO();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid( this.getSession().getMember().getUuid() );
-      _c.setFactorOwnerUuid( this.getDTO().getUuid() );
-      _c.setLeftFactorUuid( left.getDTO().getUuid() );
-      _c.setRightFactorUuid( right.getDTO().getUuid() );
+      _c.setFactorOwnerUuid( this._getDTO().getUuid() );
+      _c.setLeftFactorUuid( left._getDTO().getUuid() );
+      _c.setRightFactorUuid( right._getDTO().getUuid() );
       _c.setType( type.toString() );
       _c.setUuid( GrouperUuid.internal_getUuid() );
       CompositeValidator vComp = CompositeValidator.validate(_c);
@@ -256,9 +256,9 @@ public class Group extends GrouperAPI implements Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
     }
     try {
-      Set types = this.getDTO().getTypes();
+      Set types = this._getDTO().getTypes();
       types.add( type.getDTO() );
-      this.getDTO().setTypes(types);
+      this._getDTO().setTypes(types);
 
       this.internal_setModified();
 
@@ -431,12 +431,12 @@ public class Group extends GrouperAPI implements Owner {
       // ... And delete all memberships - as root
       Set deletes = new LinkedHashSet(
         Membership.internal_deleteAllFieldType(
-          this.getSession().getDTO().getRootSession(), this, FieldType.LIST
+          ( (GrouperSessionDTO) this.getSession().getDTO() ).getRootSession(), this, FieldType.LIST
         )
       );
       //deletes.add(this);            // ... And add the group last for good luck    
       String name = this.getName(); // Preserve name for logging
-      GrouperDAOFactory.getFactory().getGroup().delete( this.getDTO(), deletes );
+      GrouperDAOFactory.getFactory().getGroup().delete( this._getDTO(), deletes );
       //HibernateGroupDAO.delete(deletes);
       sw.stop();
       EventLog.info(this.getSession(), M.GROUP_DEL + U.internal_q(name), sw);
@@ -493,11 +493,11 @@ public class Group extends GrouperAPI implements Owner {
         throw new InsufficientPrivilegeException();
       }
 
-      Map attrs = this.getDTO().getAttributes();
+      Map attrs = this._getDTO().getAttributes();
       if (attrs.containsKey(attr)) {
         String val = (String) attrs.get(attr); // for logging
         attrs.remove(attr);
-        this.getDTO().setAttributes(attrs);
+        this._getDTO().setAttributes(attrs);
         this.internal_setModified();
         HibernateGroupDAO.update(this); // TODO 20070316 this should probably call a smarter method
         sw.stop();
@@ -549,7 +549,7 @@ public class Group extends GrouperAPI implements Owner {
         throw new MemberDeleteException(E.GROUP_DCFC); 
       }
       Composite c   = new Composite();
-      c.setDTO( GrouperDAOFactory.getFactory().getComposite().findAsOwner( this.getDTO() ) );
+      c.setDTO( GrouperDAOFactory.getFactory().getComposite().findAsOwner( this._getDTO() ) );
       MemberOf  mof = new MemberOf();
       mof.deleteComposite( this.getSession(), this, c );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
@@ -690,9 +690,9 @@ public class Group extends GrouperAPI implements Owner {
         throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
       }
 
-      Set types = this.getDTO().getTypes();
+      Set types = this._getDTO().getTypes();
       types.remove( type.getDTO() );
-      this.getDTO().setTypes(types);
+      this._getDTO().setTypes(types);
 
       this.internal_setModified();
 
@@ -771,7 +771,7 @@ public class Group extends GrouperAPI implements Owner {
         throw new AttributeNotFoundException( v.getErrorMessage() );
       }
       String  val   = GrouperConfig.EMPTY_STRING;
-      Map     attrs = this.getDTO().getAttributes();
+      Map     attrs = this._getDTO().getAttributes();
       if (attrs.containsKey(attr)) {
         return (String) attrs.get(attr);
       }
@@ -792,7 +792,7 @@ public class Group extends GrouperAPI implements Owner {
   public Map getAttributes() {
     Map       filtered  = new HashMap();
     Map.Entry kv;
-    Iterator  it        = this.getDTO().getAttributes().entrySet().iterator();
+    Iterator  it        = this._getDTO().getAttributes().entrySet().iterator();
     while (it.hasNext()) {
       kv = (Map.Entry) it.next();
       if ( this._canReadField( (String) kv.getKey() ) ) {
@@ -864,7 +864,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     try {
       // when called from "GrouperSubject" there is no attached session
-      MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getDTO().getCreatorUuid() );
+      MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getCreatorUuid() );
       this.stateCache.put(
         KEY_CREATOR, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
@@ -890,7 +890,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  {@link Date} that this group was created.
    */
   public Date getCreateTime() {
-    return new Date(this.getDTO().getCreateTime());
+    return new Date(this._getDTO().getCreateTime());
   } // public Date getCreateTime()
 
   /**
@@ -923,7 +923,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_DE);
+    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_DE);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODE);
@@ -945,7 +945,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_DN);
+    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_DN);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODN);
@@ -1042,7 +1042,7 @@ public class Group extends GrouperAPI implements Owner {
   public String getExtension() {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_E);
+    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_E);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NOE);
@@ -1238,12 +1238,12 @@ public class Group extends GrouperAPI implements Owner {
     if ( this.stateCache.containsKey(KEY_MODIFIER) ) {
       return (Subject) this.stateCache.get(KEY_MODIFIER);
     }
-    if ( this.getDTO().getModifierUuid() == null ) {
+    if ( this._getDTO().getModifierUuid() == null ) {
       throw new SubjectNotFoundException("group has not been modified");
     }
     try {
       // when called from "GrouperSubject" there is no attached session
-      MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getDTO().getModifierUuid() );
+      MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getModifierUuid() );
       this.stateCache.put(
         KEY_MODIFIER, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
@@ -1268,7 +1268,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  {@link Date} that this group was last modified.
    */
   public Date getModifyTime() {
-    return new Date(this.getDTO().getModifyTime());
+    return new Date( this._getDTO().getModifyTime() );
   }
 
   /**
@@ -1284,7 +1284,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_N);
+    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_N);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NON);
@@ -1349,7 +1349,7 @@ public class Group extends GrouperAPI implements Owner {
   public Stem getParentStem() 
     throws  IllegalStateException
   {
-    String uuid = this.getDTO().getParentUuid();
+    String uuid = this._getDTO().getParentUuid();
     if (uuid == null) {
       throw new IllegalStateException("group has no parent stem");
     }
@@ -1421,7 +1421,7 @@ public class Group extends GrouperAPI implements Owner {
       Iterator  iter  = this.getTypes().iterator();
       while (iter.hasNext()) {
         t = (GroupType) iter.next();
-        if ( t.getDTO().getIsAssignable() ) {
+        if ( ( (GroupTypeDTO) t.getDTO() ).getIsAssignable() ) {
           types.add(t);
         }
       }
@@ -1438,7 +1438,7 @@ public class Group extends GrouperAPI implements Owner {
    */
   public Set getTypes() {
     Set       types = new LinkedHashSet();
-    Iterator  it    = this.getDTO().getTypes().iterator();
+    Iterator  it    = this._getDTO().getTypes().iterator();
     while (it.hasNext()) {
       GroupTypeDTO dto = (GroupTypeDTO) it.next();
       if ( !dto.getIsInternal() ) {
@@ -1476,7 +1476,7 @@ public class Group extends GrouperAPI implements Owner {
   /**
    */
   public String getUuid() {
-    return this.getDTO().getUuid();
+    return this._getDTO().getUuid();
   } // public String getUuid()
 
   /**
@@ -1561,7 +1561,7 @@ public class Group extends GrouperAPI implements Owner {
    */
   public boolean hasComposite() {
     try {
-      GrouperDAOFactory.getFactory().getComposite().findAsOwner( this.getDTO() );
+      GrouperDAOFactory.getFactory().getComposite().findAsOwner( this._getDTO() );
       return true;
     }
     catch (CompositeNotFoundException eCNF) {
@@ -1806,7 +1806,7 @@ public class Group extends GrouperAPI implements Owner {
    * @param   type  The {@link GroupType} to check.
    */
   public boolean hasType(GroupType type) {
-    return this.getDTO().getTypes().contains( type.getDTO() );
+    return this._getDTO().getTypes().contains( type.getDTO() );
   } // public boolean hasType(type)
 
   /**
@@ -1853,7 +1853,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if group is a factor in a composite membership.
    */
   public boolean isComposite() {
-    if ( GrouperDAOFactory.getFactory().getComposite().findAsFactor( this.getDTO() ).size() > 0 ) {
+    if ( GrouperDAOFactory.getFactory().getComposite().findAsFactor( this._getDTO() ).size() > 0 ) {
       return true;
     }
     return false;
@@ -1979,7 +1979,7 @@ public class Group extends GrouperAPI implements Owner {
         throw new InsufficientPrivilegeException();
       }
 
-      Map attrs = this.getDTO().getAttributes();
+      Map attrs = this._getDTO().getAttributes();
       attrs.put(attr, value);
       if      ( attr.equals(GrouperConfig.ATTR_E) )   {
         attrs.put( GrouperConfig.ATTR_N, U.internal_constructName( this.getParentStem().getName(), value ) );
@@ -1987,7 +1987,7 @@ public class Group extends GrouperAPI implements Owner {
       else if ( attr.equals(GrouperConfig.ATTR_DE) )  {
         attrs.put( GrouperConfig.ATTR_DN, U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
       }
-      this.getDTO().setAttributes(attrs);
+      this._getDTO().setAttributes(attrs);
       this.internal_setModified();
       HibernateGroupDAO.update(this);
       sw.stop();
@@ -2170,18 +2170,13 @@ public class Group extends GrouperAPI implements Owner {
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append( GrouperConfig.ATTR_N, (String) this.getDTO().getAttributes().get(GrouperConfig.ATTR_N) )
+      .append( GrouperConfig.ATTR_N, (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_N) )
       .append( "uuid", this.getUuid() )
       .toString();
   } // public String toString()
 
 
   // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  protected GroupDTO getDTO() {
-    return (GroupDTO) super.getDTO();
-  } // protected GroupDTO getDTO()
 
   // @since   1.2.0
   // TODO 20070305 make into a validator?
@@ -2216,8 +2211,8 @@ public class Group extends GrouperAPI implements Owner {
   // @since   1.2.0 
   // i dislike this method
   protected void internal_setModified() {
-    this.getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
-    this.getDTO().setModifyTime( new Date().getTime() );
+    this._getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
+    this._getDTO().setModifyTime( new Date().getTime() );
   } // protected void internal_setModified()
 
 
@@ -2241,13 +2236,18 @@ public class Group extends GrouperAPI implements Owner {
     return rv;
   } // private boolean _canReadField(name)
 
+  // @since   1.2.0
+  private GroupDTO _getDTO() {
+    return (GroupDTO) super.getDTO();
+  }
+  
   private void _revokeAllAccessPrivs() 
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException, 
             SchemaException
   {
     GrouperSession orig = this.getSession();
-    this.setSession( orig.getDTO().getRootSession() ); // proxy as root
+    this.setSession( ( (GrouperSessionDTO) orig.getDTO() ).getRootSession() ); // proxy as root
 
     this.revokePriv(AccessPrivilege.ADMIN);
     this.revokePriv(AccessPrivilege.OPTIN);

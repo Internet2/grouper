@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.116 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: Stem.java,v 1.117 2007-04-12 17:56:03 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -234,7 +234,7 @@ public class Stem extends GrouperAPI implements Owner {
   {
     if (this.creator == null) {
       try {
-        this.creator = MemberFinder.findByUuid( this.getSession(), this.getDTO().getCreatorUuid() ).getSubject();
+        this.creator = MemberFinder.findByUuid( this.getSession(), this._getDTO().getCreatorUuid() ).getSubject();
       }
       catch (MemberNotFoundException eMNF) {
         throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
@@ -252,7 +252,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  {@link Date} that this stem was created.
    */
   public Date getCreateTime() {
-    return new Date(this.getDTO().getCreateTime());
+    return new Date( this._getDTO().getCreateTime() );
   } // public Date getCreateTime()
 
   /**
@@ -287,7 +287,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem description.
    */
   public String getDescription() {
-    String desc = this.getDTO().getDescription();
+    String desc = this._getDTO().getDescription();
     if (desc == null) {
       desc = GrouperConfig.EMPTY_STRING;
     }
@@ -303,7 +303,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem displayExtension.
    */
   public String getDisplayExtension() {
-    String val = this.getDTO().getDisplayExtension();
+    String val = this._getDTO().getDisplayExtension();
     if (val.equals(ROOT_INT)) {
       return ROOT_EXT;
     }
@@ -319,7 +319,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem displayName.
    */
   public String getDisplayName() {
-    String val = this.getDTO().getDisplayName();
+    String val = this._getDTO().getDisplayName();
     if (val.equals(ROOT_INT)) {
       return ROOT_EXT;
     }
@@ -335,7 +335,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem extension.
    */
   public String getExtension() {
-    String val = this.getDTO().getExtension();
+    String val = this._getDTO().getExtension();
     if (val.equals(ROOT_INT)) {
       return ROOT_EXT;
     }
@@ -372,11 +372,11 @@ public class Stem extends GrouperAPI implements Owner {
     throws  SubjectNotFoundException
   {
     if (this.modifier == null) {
-      if ( this.getDTO().getModifierUuid() == null) {
+      if ( this._getDTO().getModifierUuid() == null) {
         throw new SubjectNotFoundException("stem has not been modified");
       }
       try {
-        this.modifier = MemberFinder.findByUuid( this.getSession(), this.getDTO().getModifierUuid() ).getSubject();
+        this.modifier = MemberFinder.findByUuid( this.getSession(), this._getDTO().getModifierUuid() ).getSubject();
       }
       catch (MemberNotFoundException eMNF) {
         throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
@@ -394,7 +394,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  {@link Date} that this stem was last modified.
    */
   public Date getModifyTime() {
-    return new Date(this.getDTO().getModifyTime());
+    return new Date( this._getDTO().getModifyTime() );
   } // public Date getModifyTime()
 
   /**
@@ -406,7 +406,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem name.
    */ 
   public String getName() {
-    String val = this.getDTO().getName();
+    String val = this._getDTO().getName();
     if (val.equals(ROOT_INT)) {
       return ROOT_EXT;
     }
@@ -424,7 +424,7 @@ public class Stem extends GrouperAPI implements Owner {
   public Stem getParentStem() 
     throws StemNotFoundException
   {
-    String uuid = this.getDTO().getParentUuid();
+    String uuid = this._getDTO().getParentUuid();
     if (uuid == null) {
       throw new StemNotFoundException();
     }
@@ -472,7 +472,7 @@ public class Stem extends GrouperAPI implements Owner {
   /**
    */
   public String getUuid() {
-    return this.getDTO().getUuid();
+    return this._getDTO().getUuid();
   } // public String getUuid()
 
   /**
@@ -545,7 +545,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Boolean true if this is the root stem of the Groups Registry.
    */
   public boolean isRootStem() {
-    return ROOT_INT.equals( this.getDTO().getName() );
+    return ROOT_INT.equals( this._getDTO().getName() );
   } // public boolean isRootStem()
 
   /**
@@ -639,7 +639,7 @@ public class Stem extends GrouperAPI implements Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
-      this.getDTO().setDescription(value);
+      this._getDTO().setDescription(value);
       this.internal_setModified();
       HibernateStemDAO.update(this);
       sw.stop();
@@ -687,14 +687,14 @@ public class Stem extends GrouperAPI implements Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
-      this.getDTO().setDisplayExtension(value);
+      this._getDTO().setDisplayExtension(value);
       this.internal_setModified();
       if (this.isRootStem()) {
-        this.getDTO().setDisplayName(value);
+        this._getDTO().setDisplayName(value);
       }
       else {
         try {
-          this.getDTO().setDisplayName( U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
+          this._getDTO().setDisplayName( U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
         }
         catch (StemNotFoundException eShouldNeverHappen) {
           throw new IllegalStateException( 
@@ -754,14 +754,14 @@ public class Stem extends GrouperAPI implements Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
-      this.getDTO().setExtension(value);
+      this._getDTO().setExtension(value);
       this.internal_setModified();
       if (this.isRootStem()) {
-        this.getDTO().setName(value);
+        this._getDTO().setName(value);
       }
       else {
         try {
-          this.getDTO().setName( U.internal_constructName( this.getParentStem().getName(), value ) );
+          this._getDTO().setName( U.internal_constructName( this.getParentStem().getName(), value ) );
         }
         catch (StemNotFoundException eShouldNeverHappen) {
           throw new IllegalStateException( 
@@ -785,11 +785,11 @@ public class Stem extends GrouperAPI implements Owner {
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append( GrouperConfig.ATTR_DN, this.getDTO().getDisplayName()  )
-      .append( GrouperConfig.ATTR_N,  this.getDTO().getName()         )
-      .append( "uuid",                this.getDTO().getUuid()         )
-      .append( "creator",             this.getDTO().getCreatorUuid()  )
-      .append( "modifier",            this.getDTO().getModifierUuid() )
+      .append( GrouperConfig.ATTR_DN, this._getDTO().getDisplayName()  )
+      .append( GrouperConfig.ATTR_N,  this._getDTO().getName()         )
+      .append( "uuid",                this._getDTO().getUuid()         )
+      .append( "creator",             this._getDTO().getCreatorUuid()  )
+      .append( "modifier",            this._getDTO().getModifierUuid() )
       .toString();
   } // public String toString()
 
@@ -825,17 +825,12 @@ public class Stem extends GrouperAPI implements Owner {
 
   // @since   1.2.0
   protected void internal_setModified() {
-    this.getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
-    this.getDTO().setModifyTime(  new Date().getTime()    );
+    this._getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
+    this._getDTO().setModifyTime(  new Date().getTime()    );
   } // protected void internal_setModified()
 
 
   // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  protected StemDTO getDTO() {
-    return (StemDTO) super.getDTO();
-  } // protected StemDTO getDTO()
 
   // @since   1.2.0
   protected Group internal_addChildGroup(String extn, String dExtn, String uuid) 
@@ -863,7 +858,7 @@ public class Stem extends GrouperAPI implements Owner {
         .setAttributes(attrs)
         .setCreateTime( new Date().getTime() )
         .setCreatorUuid( this.getSession().getMember().getUuid() )
-        .setParentUuid( this.getDTO().getUuid() )
+        .setParentUuid( this._getDTO().getUuid() )
         .setTypes(types);
       if (uuid == null) {
         _g.setUuid( GrouperUuid.internal_getUuid() );
@@ -895,7 +890,7 @@ public class Stem extends GrouperAPI implements Owner {
 
       Group child = new Group();
       child.setDTO( 
-        _g.setId( GrouperDAOFactory.getFactory().getStem().createChildGroup( this.getDTO(), _g, _m ) ) 
+        _g.setId( GrouperDAOFactory.getFactory().getStem().createChildGroup( this._getDTO(), _g, _m ) ) 
       );
       child.setSession( this.getSession() );
         
@@ -937,7 +932,7 @@ public class Stem extends GrouperAPI implements Owner {
         .setDisplayName( U.internal_constructName( this.getDisplayName(), dExtn ) )
         .setExtension(extn)
         .setName( U.internal_constructName( this.getName(), extn ) )
-        .setParentUuid( this.getDTO().getUuid() )
+        .setParentUuid( this._getDTO().getUuid() )
         ;
       if (uuid == null) {
         _ns.setUuid( GrouperUuid.internal_getUuid() );
@@ -945,7 +940,7 @@ public class Stem extends GrouperAPI implements Owner {
       else {
         _ns.setUuid(uuid);
       }
-      _ns.setId( GrouperDAOFactory.getFactory().getStem().createChildStem( this.getDTO(), _ns ) );
+      _ns.setId( GrouperDAOFactory.getFactory().getStem().createChildStem( this._getDTO(), _ns ) );
 
       Stem child = new Stem();
       child.setDTO(_ns);
@@ -964,6 +959,11 @@ public class Stem extends GrouperAPI implements Owner {
 
   // PRIVATE INSTANCE METHODS //
 
+  // @since   1.2.0
+  private StemDTO _getDTO() {
+    return (StemDTO) super.getDTO();
+  }
+  
   private void _grantDefaultPrivsUponCreate(Group g)
     throws  GroupAddException
   {
@@ -976,7 +976,7 @@ public class Stem extends GrouperAPI implements Owner {
     // Possibly a bug. The modify* attrs get set when granting ADMIN at creation.
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = orig.getDTO().getRootSession();
+      GrouperSession  root  = ( (GrouperSessionDTO) orig.getDTO() ).getRootSession();
       g.setSession(root);
       PrivilegeResolver.internal_grantPriv(root, g, orig.getSubject(), AccessPrivilege.ADMIN);
 
@@ -1013,7 +1013,7 @@ public class Stem extends GrouperAPI implements Owner {
     // Possibly a bug. The modify* attrs get set when granting privs at creation.
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = orig.getDTO().getRootSession();
+      GrouperSession  root  = ( (GrouperSessionDTO) orig.getDTO() ).getRootSession();
       ns.setSession(root);
       PrivilegeResolver.internal_grantPriv(root, ns, orig.getSubject(), NamingPrivilege.STEM);
 
@@ -1119,13 +1119,13 @@ public class Stem extends GrouperAPI implements Owner {
       child.setDTO( (StemDTO) it.next() );
       child.setSession( this.getSession() );
       if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
-        child.getDTO().setDisplayName(
-          U.internal_constructName( this.getDTO().getDisplayName(), child.getDTO().getDisplayExtension() ) 
+        child._getDTO().setDisplayName(
+          U.internal_constructName( this._getDTO().getDisplayName(), child._getDTO().getDisplayExtension() ) 
         );
       }
       else if ( attr.equals(GrouperConfig.ATTR_E) )   {
-        child.getDTO().setName(
-          U.internal_constructName( this.getDTO().getName(), child.getDTO().getExtension() ) 
+        child._getDTO().setName(
+          U.internal_constructName( this._getDTO().getName(), child._getDTO().getExtension() ) 
         );
       }
       else {
@@ -1134,8 +1134,8 @@ public class Stem extends GrouperAPI implements Owner {
 
       children.addAll( child._renameChildGroups(attr, modifier, modifyTime) );
 
-      child.getDTO().setModifierUuid(modifier);
-      child.getDTO().setModifyTime(modifyTime);
+      child._getDTO().setModifierUuid(modifier);
+      child._getDTO().setModifyTime(modifyTime);
       children.add( child.getDTO() );
       children.addAll( child._renameChildStemsAndGroups(attr, modifier, modifyTime) );
     }
@@ -1148,7 +1148,7 @@ public class Stem extends GrouperAPI implements Owner {
             SchemaException
   {
     GrouperSession orig = this.getSession();
-    this.setSession( orig.getDTO().getRootSession() ); // proxy as root
+    this.setSession( ( (GrouperSessionDTO) orig.getDTO() ).getRootSession() ); // proxy as root
     this.revokePriv(NamingPrivilege.CREATE);
     this.revokePriv(NamingPrivilege.STEM);
     this.setSession(orig);

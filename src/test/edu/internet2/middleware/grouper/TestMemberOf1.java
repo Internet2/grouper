@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf1.java,v 1.9 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: TestMemberOf1.java,v 1.10 2007-04-12 17:56:03 blair Exp $
  * @since   1.0
  */
 public class TestMemberOf1 extends GrouperTest {
@@ -426,7 +426,7 @@ public class TestMemberOf1 extends GrouperTest {
         );
         Assert.assertNotNull(ms);
         MemberOf mof = new MemberOf();
-        mof.deleteImmediate( r.rs, gALL, ms.getDTO(), gAAS.toMember().getDTO() ); 
+        mof.deleteImmediate( r.rs, gALL, (MembershipDTO) ms.getDTO(), (MemberDTO) gAAS.toMember().getDTO() ); 
         gALL.deleteMember( gAAS.toSubject() );
         Assert.assertTrue("finally, a hibernate exception wasn't thrown", true);
         T.getMemberships(gA_A, 2);

@@ -29,7 +29,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.34 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.35 2007-04-12 17:56:03 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -154,7 +154,7 @@ public class GrouperSubject implements Subject {
       // No modifier
     }
     Map.Entry kv;
-    Iterator  it  = g.getDTO().getAttributes().entrySet().iterator();
+    Iterator  it  = ( (GroupDTO) g.getDTO() ).getAttributes().entrySet().iterator();
     while (it.hasNext()) {
       kv = (Map.Entry) it.next();
       this.attrs.put( (String) kv.getKey(), (String) kv.getValue() );

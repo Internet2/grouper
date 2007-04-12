@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.4 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.5 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
@@ -85,11 +85,13 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
       Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
       GroupType type  = GroupTypeFinder.find("base");
 
-      HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), type.getDTO() );
+      GroupDTO      _g  = (GroupDTO) g.getDTO();
+      GroupTypeDTO  _gt = (GroupTypeDTO) type.getDTO();
+      HibernateGroupTypeTupleDAO.findByGroupAndType(_g, _gt);
       assertTrue("group has type tuple in registry before deletion", true);
       g.delete(); // type tuples should be deleted automatically when group is deleted
       try {
-        HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), type.getDTO() );
+        HibernateGroupTypeTupleDAO.findByGroupAndType(_g, _gt);
         fail("type tuple still exists after group deletion");
       }
       catch (GrouperDAOException eExpected) {
@@ -108,11 +110,13 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
       Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
       GroupType type  = GroupTypeFinder.find("base");
 
-      HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), type.getDTO() );
+      GroupDTO      _g  = (GroupDTO) g.getDTO();
+      GroupTypeDTO  _gt = (GroupTypeDTO) type.getDTO();
+      HibernateGroupTypeTupleDAO.findByGroupAndType(_g, _gt);
       assertTrue("group has type tuple in registry before reset", true);
       RegistryReset.reset();  // tuples should be deleted when registry is reset
       try {
-        HibernateGroupTypeTupleDAO.findByGroupAndType( g.getDTO(), type.getDTO() );
+        HibernateGroupTypeTupleDAO.findByGroupAndType(_g, _gt);
         fail("type tuple still exists after reset");
       }
       catch (GrouperDAOException eExpected) {

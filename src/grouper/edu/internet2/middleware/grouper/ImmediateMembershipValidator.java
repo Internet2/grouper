@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.5 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.6 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 class ImmediateMembershipValidator extends MembershipValidator {
@@ -36,7 +36,7 @@ class ImmediateMembershipValidator extends MembershipValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static ImmediateMembershipValidator validate(MembershipDTO _ms) {
+  protected static MembershipValidator validate(MembershipDTO _ms) {
     ImmediateMembershipValidator  v     = new ImmediateMembershipValidator();
     NotNullValidator              vNull = NotNullValidator.validate(_ms);
     if (vNull.isInvalid()) {
@@ -77,7 +77,7 @@ class ImmediateMembershipValidator extends MembershipValidator {
       }
     }
     return v;
-  } // protected static ImmediateMembershipValidator validate(_ms)
+  }
 
 
   // PRIVATE INSTANCE METHODS //
@@ -107,7 +107,7 @@ class ImmediateMembershipValidator extends MembershipValidator {
       }
     }
     return false;
-  } // private boolean _isCircular(_ms)
+  }
 
-} // class ImmediateMembershipValidator extends MembershipValidator
+}
 

@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_ImmediateMembershipValidator_validate.java,v 1.2 2007-03-14 18:20:05 blair Exp $
+ * @version $Id: Test_Unit_API_ImmediateMembershipValidator_validate.java,v 1.3 2007-04-12 17:56:03 blair Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -34,7 +34,7 @@ public class Test_Unit_API_ImmediateMembershipValidator_validate extends Grouper
   public void testValidate_NullMembershipDTO() {
     try {
       LOG.info("testValidate_NullMembershipDTO");
-      ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(null);
+      GrouperValidator v = ImmediateMembershipValidator.validate(null);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", NotNullValidator.INVALID, v.getErrorMessage() );
     }
@@ -48,7 +48,7 @@ public class Test_Unit_API_ImmediateMembershipValidator_validate extends Grouper
       LOG.info("testValidate_InvalidType");
       MembershipDTO _ms = new MembershipDTO();
       _ms.setType(null);
-      ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", ImmediateMembershipValidator.INVALID_TYPE, v.getErrorMessage() );
     }
@@ -63,7 +63,7 @@ public class Test_Unit_API_ImmediateMembershipValidator_validate extends Grouper
       MembershipDTO _ms = new MembershipDTO();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(1);
-      ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", ImmediateMembershipValidator.INVALID_DEPTH, v.getErrorMessage() );
     }
@@ -79,7 +79,7 @@ public class Test_Unit_API_ImmediateMembershipValidator_validate extends Grouper
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
       _ms.setViaUuid("viaUuid");
-      ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", ImmediateMembershipValidator.INVALID_VIAUUID, v.getErrorMessage() );
     }
@@ -96,7 +96,7 @@ public class Test_Unit_API_ImmediateMembershipValidator_validate extends Grouper
       _ms.setDepth(0);
       _ms.setViaUuid(null);
       _ms.setParentUuid("parentUuid");
-      ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", ImmediateMembershipValidator.INVALID_PARENTUUID, v.getErrorMessage() );
     }

@@ -26,7 +26,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.53 2007-04-12 15:40:41 blair Exp $
+ * @version $Id: MemberOf.java,v 1.54 2007-04-12 17:56:03 blair Exp $
  */
 class MemberOf extends BaseMemberOf {
 
@@ -156,13 +156,13 @@ class MemberOf extends BaseMemberOf {
     }
     // add the owner
     if      ( this.getGroup() != null ) {
-      _g = this.getGroup().getDTO();
+      _g = (GroupDTO) this.getGroup().getDTO();
       _g.setModifierUuid(modifierUuid);
       _g.setModifyTime(modifyTime);
       groups.put( _g.getUuid(), _g );
     }
     else if ( this.getStem() != null )  {
-      _ns = this.getStem().getDTO();
+      _ns = (StemDTO) this.getStem().getDTO();
       _ns.setModifierUuid(modifierUuid);
       _ns.setModifyTime(modifyTime);
       stems.put( _ns.getUuid(), _ns );
@@ -239,7 +239,7 @@ class MemberOf extends BaseMemberOf {
           _ms.setParentUuid( hasMS.getUuid() );
         }
       }
-      EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(_ms);
+      GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
       if (v.isInvalid()) {
         throw new IllegalStateException( v.getErrorMessage() );
       }
@@ -290,7 +290,7 @@ class MemberOf extends BaseMemberOf {
               dto.setParentUuid( hasMS.getUuid() );
             }
           }
-          EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
+          GrouperValidator v = EffectiveMembershipValidator.validate(dto);
           if (v.isInvalid()) {
             throw new IllegalStateException( v.getErrorMessage() );
           }
@@ -339,7 +339,7 @@ class MemberOf extends BaseMemberOf {
             dto.setParentUuid( this.getMembershipDTO().getUuid() );
           }
         }
-        EffectiveMembershipValidator v = EffectiveMembershipValidator.validate(dto);
+        GrouperValidator v = EffectiveMembershipValidator.validate(dto);
         if (v.isInvalid()) {
           throw new IllegalStateException( v.getErrorMessage() );
         }
@@ -355,10 +355,10 @@ class MemberOf extends BaseMemberOf {
   private Set _createNewCompositeMembershipObjects(Set memberUUIDs) 
     throws  IllegalStateException
   {
-    CompositeMembershipValidator  v;
-    Set                           mships  = new LinkedHashSet();
-    MembershipDTO                 _ms;
-    Iterator                      it      = memberUUIDs.iterator();
+    GrouperValidator  v;
+    Set               mships  = new LinkedHashSet();
+    MembershipDTO     _ms;
+    Iterator          it      = memberUUIDs.iterator();
     while (it.hasNext()) {
       _ms = new MembershipDTO();
       _ms.setCreatorUuid( this.getSession().getMember().getUuid() );
@@ -442,7 +442,7 @@ class MemberOf extends BaseMemberOf {
     _ms.setMemberUuid( _m.getUuid() );
     _ms.setOwnerUuid( this.getOwnerUuid() );
 
-    ImmediateMembershipValidator v = ImmediateMembershipValidator.validate(_ms);
+    GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
     if (v.isInvalid()) {
       throw new IllegalStateException( v.getErrorMessage() );
     }

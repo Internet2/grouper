@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.11 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: TestStem.java,v 1.12 2007-04-12 17:56:03 blair Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -234,8 +234,8 @@ public class TestStem extends GrouperTest {
 
     // Now reset root's displayExtension
     // hack! hack! hack!
-    root.getDTO().setDisplayExtension(Stem.ROOT_INT);
-    root.getDTO().setDisplayName(Stem.ROOT_INT);
+    ( (StemDTO) root.getDTO() ).setDisplayExtension(Stem.ROOT_INT);
+    ( (StemDTO) root.getDTO() ).setDisplayName(Stem.ROOT_INT);
     HibernateDAO.update( root.getDTO() );
   } // public void testPropagateExtensionChangeRootAsRoot()
 
