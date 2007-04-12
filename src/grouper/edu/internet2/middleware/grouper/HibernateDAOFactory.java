@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * TODO 20070330
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAOFactory.java,v 1.1 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateDAOFactory.java,v 1.2 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateDAOFactory extends GrouperDAOFactory {
@@ -29,54 +29,54 @@ class HibernateDAOFactory extends GrouperDAOFactory {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected HibernateCompositeDAO getComposite() {
+  protected CompositeDAO getComposite() {
     return new HibernateCompositeDAO();
   } 
 
   // @since   1.2.0
-  protected HibernateFieldDAO getField() {
+  protected FieldDAO getField() {
     return new HibernateFieldDAO();
   }
 
   // @since   1.2.0
-  protected HibernateGroupDAO getGroup() {
+  protected GroupDAO getGroup() {
     return new HibernateGroupDAO();
   }
 
   // @since   1.2.0
-  protected HibernateGrouperSessionDAO getGrouperSession() {
+  protected GrouperSessionDAO getGrouperSession() {
     return new HibernateGrouperSessionDAO();
   } 
 
   // @since   1.2.0
-  protected HibernateGroupTypeDAO getGroupType() {
+  protected GroupTypeDAO getGroupType() {
     return new HibernateGroupTypeDAO();
   } 
 
   // @since   1.2.0
-  protected HibernateMemberDAO getMember() {
+  protected MemberDAO getMember() {
     return new HibernateMemberDAO();
   } 
 
   // @since   1.2.0
-  protected HibernateMembershipDAO getMembership() {
+  protected MembershipDAO getMembership() {
     return new HibernateMembershipDAO();
   } 
 
   // @since   1.2.0
-  protected HibernateRegistryDAO getRegistry() {
+  protected RegistryDAO getRegistry() {
     return new HibernateRegistryDAO();
   }
 
   // @since   1.2.0
-  protected HibernateRegistrySubjectDAO getRegistrySubject() {
+  protected RegistrySubjectDAO getRegistrySubject() {
     return new HibernateRegistrySubjectDAO();
   } 
 
   // @since   1.2.0
-  protected HibernateStemDAO getStem() {
+  protected StemDAO getStem() {
     return new HibernateStemDAO();
   }
 
-} // class HibernateDAOFactory extends GrouperDAOFactory
+} 
 

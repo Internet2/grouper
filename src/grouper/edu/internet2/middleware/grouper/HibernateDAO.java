@@ -28,7 +28,7 @@ import  net.sf.hibernate.cfg.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.12 2007-03-16 18:16:03 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.13 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 abstract class HibernateDAO {
@@ -81,7 +81,7 @@ abstract class HibernateDAO {
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(obj);
+      HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(obj);
       try {
         hs.save(dao);
         tx.commit();

@@ -26,19 +26,21 @@ class CompositeHelper {
 
   // PROTECTED CLASS METHODS //
 
+  // FIXME 20070412 why aren't these in "Composite"?
+  
   // @since   1.2.0
   protected static String getLeftName(Composite c) {
-    return _getName( c, c.getDTO().getLeftFactorUuid(), E.COMP_NULL_LEFT_GROUP );
+    return _getName( c, ( (CompositeDTO) c.getDTO() ).getLeftFactorUuid(), E.COMP_NULL_LEFT_GROUP );
   } 
 
   // @since   1.2.0
   protected static String getOwnerName(Composite c) {
-    return _getName( c, c.getDTO().getFactorOwnerUuid(), E.COMP_NULL_OWNER_GROUP );
+    return _getName( c, ( (CompositeDTO) c.getDTO() ).getFactorOwnerUuid(), E.COMP_NULL_OWNER_GROUP );
   }
 
   // @since   1.2.0
   protected static String getRightName(Composite c) {
-    return _getName( c, c.getDTO().getRightFactorUuid(), E.COMP_NULL_RIGHT_GROUP );
+    return _getName( c, ( (CompositeDTO) c.getDTO() ).getRightFactorUuid(), E.COMP_NULL_RIGHT_GROUP );
   }
 
 

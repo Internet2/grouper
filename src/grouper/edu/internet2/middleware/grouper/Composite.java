@@ -24,7 +24,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.37 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: Composite.java,v 1.38 2007-04-12 15:40:41 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -60,7 +60,7 @@ public class Composite extends GrouperAPI {
   public Group getLeftGroup() 
     throws  GroupNotFoundException
   {
-    return this._getGroup( this.getDTO().getLeftFactorUuid() );
+    return this._getGroup( this._getDTO().getLeftFactorUuid() );
   } // public Group getLeftGroup()
 
   /**
@@ -80,7 +80,7 @@ public class Composite extends GrouperAPI {
   public Group getOwnerGroup() 
     throws  GroupNotFoundException
   {
-    return this._getGroup( this.getDTO().getFactorOwnerUuid() );
+    return this._getGroup( this._getDTO().getFactorOwnerUuid() );
   } // public Group getOwnerGroup()
 
   /**
@@ -100,7 +100,7 @@ public class Composite extends GrouperAPI {
   public Group getRightGroup() 
     throws  GroupNotFoundException
   {
-    return this._getGroup( this.getDTO().getRightFactorUuid() );
+    return this._getGroup( this._getDTO().getRightFactorUuid() );
   } // public Group getLeftGroup()
 
   /**
@@ -112,13 +112,13 @@ public class Composite extends GrouperAPI {
    * @since   1.0
    */
   public CompositeType getType() {
-    return CompositeType.getInstance( this.getDTO().getType() );
+    return CompositeType.getInstance( this._getDTO().getType() );
   } // public CompositeType getType()
 
   /**
    */
   public String getUuid() {
-    return this.getDTO().getUuid();
+    return this._getDTO().getUuid();
   } // public String getUuid()
 
   /**
@@ -157,11 +157,6 @@ public class Composite extends GrouperAPI {
 
 
   // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  protected CompositeDTO getDTO() {
-    return (CompositeDTO) super.getDTO();
-  } // protected CompositeDTO getDTO()
 
   // @since   1.1.0
   protected String getName() {
@@ -214,6 +209,11 @@ public class Composite extends GrouperAPI {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
+  private CompositeDTO _getDTO() {
+    return (CompositeDTO) super.getDTO();
+  } 
+  
+  // @since   1.2.0
   private Group _getGroup(String uuid) 
     throws  GroupNotFoundException
   {
@@ -236,7 +236,7 @@ public class Composite extends GrouperAPI {
 
       Group     g   = new Group();
       MemberOf  mof = new MemberOf();
-      g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getDTO().getFactorOwnerUuid() ) ); 
+      g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this._getDTO().getFactorOwnerUuid() ) ); 
       mof.addComposite( this.getSession(), g, this );
   
       Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 

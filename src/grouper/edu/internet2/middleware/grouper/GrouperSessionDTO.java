@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.7 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.8 2007-04-12 15:40:41 blair Exp $
  */
 class GrouperSessionDTO extends BaseGrouperDTO {
 
@@ -88,14 +88,14 @@ class GrouperSessionDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected HibernateGrouperSessionDAO getDAO() {
-    return new HibernateGrouperSessionDAO()
+  protected GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getGrouperSession()
       .setId( this.getId() )
       .setMemberUuid( this.getMemberUuid() )
       .setStartTime( this.getStartTime() )
       .setUuid( this.getUuid() )
       ;
-  } // protected HibernateGrouperSessionDAO getDAO()
+  }
 
 
   // GETTERS //

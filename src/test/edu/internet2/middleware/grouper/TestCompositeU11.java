@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.8 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: TestCompositeU11.java,v 1.9 2007-04-12 15:40:41 blair Exp $
  */
 public class TestCompositeU11 extends GrouperTest {
 
@@ -69,10 +69,11 @@ public class TestCompositeU11 extends GrouperTest {
       Composite via = ms.getViaComposite();
       Assert.assertNotNull( "ms via !null"      , via );
       Assert.assertTrue(    "ms via Composite"  , via instanceof Composite  );
-      Composite u = (Composite) via;
-      Assert.assertEquals(  "u owner" , u.getDTO().getFactorOwnerUuid(),  a.getUuid() );
-      Assert.assertEquals(  "u left"  , u.getDTO().getLeftFactorUuid(),   b.getUuid() );
-      Assert.assertEquals(  "u right" , u.getDTO().getRightFactorUuid(),  c.getUuid() );
+      Composite     u   = (Composite) via;
+      CompositeDTO  _c  = (CompositeDTO) u.getDTO();
+      Assert.assertEquals(  "u owner" , _c.getFactorOwnerUuid(),  a.getUuid() );
+      Assert.assertEquals(  "u left"  , _c.getLeftFactorUuid(),   b.getUuid() );
+      Assert.assertEquals(  "u right" , _c.getRightFactorUuid(),  c.getUuid() );
       Assert.assertEquals(  "u type"  , CompositeType.UNION , u.getType() );
       r.rs.stop();
     }

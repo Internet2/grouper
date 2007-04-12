@@ -25,7 +25,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.12 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.13 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
@@ -237,7 +237,7 @@ class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   /** 
    * @since   1.2.0
    */
-  public HibernateFieldDAO setGroupTypeUuid(String groupTypeUUID) {
+  public FieldDAO setGroupTypeUuid(String groupTypeUUID) {
     this.groupTypeUUID = groupTypeUUID;
     return this;
   }
@@ -245,7 +245,7 @@ class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateFieldDAO setId(String id) {
+  public FieldDAO setId(String id) {
     this.id = id;
     return this;
   }
@@ -253,7 +253,7 @@ class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateFieldDAO setIsNullable(boolean isNullable) {
+  public FieldDAO setIsNullable(boolean isNullable) {
     this.isNullable = isNullable;
     return this;
   }
@@ -261,7 +261,7 @@ class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateFieldDAO setName(String name) {
+  public FieldDAO setName(String name) {
     this.name = name;
     return this;
   }
@@ -269,7 +269,7 @@ class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   /** 
    * @since   1.2.0
    */
-  public HibernateFieldDAO setReadPrivilege(String readPrivilege) {
+  public FieldDAO setReadPrivilege(String readPrivilege) {
     this.readPrivilege = readPrivilege;
     return this;
   }
@@ -277,7 +277,7 @@ class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   /** 
    * @since   1.2.0
    */
-  public HibernateFieldDAO setType(String type) {
+  public FieldDAO setType(String type) {
     this.type = type;
     return this;
   }
@@ -285,7 +285,7 @@ class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateFieldDAO setUuid(String uuid) {
+  public FieldDAO setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }
@@ -293,7 +293,7 @@ class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   /** 
    * @since    1.2.0
    */
-  public HibernateFieldDAO setWritePrivilege(String writePrivilege) {
+  public FieldDAO setWritePrivilege(String writePrivilege) {
     this.writePrivilege = writePrivilege;
     return this;
   }

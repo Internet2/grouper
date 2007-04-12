@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link RegistrySubject} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDTO.java,v 1.3 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: RegistrySubjectDTO.java,v 1.4 2007-04-12 15:40:41 blair Exp $
  */
 class RegistrySubjectDTO extends BaseGrouperDTO {
 
@@ -78,13 +78,13 @@ class RegistrySubjectDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected HibernateRegistrySubjectDAO getDAO() {
-    return new HibernateRegistrySubjectDAO()
+  protected GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getRegistrySubject()
       .setId( this.getId() )
       .setName( this.getName() )
       .setType( this.getType() )
       ;
-  } // protected HibernateRegistrySubjectDAO getDAO()
+  }
 
 
   // GETTERS //

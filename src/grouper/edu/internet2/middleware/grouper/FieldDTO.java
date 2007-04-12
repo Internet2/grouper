@@ -22,7 +22,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic {@link Field} DTO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldDTO.java,v 1.3 2007-04-05 14:28:28 blair Exp $    
+ * @version $Id: FieldDTO.java,v 1.4 2007-04-12 15:40:41 blair Exp $    
  * @since   1.2.0
  */
 class FieldDTO extends BaseGrouperDTO {
@@ -101,8 +101,8 @@ class FieldDTO extends BaseGrouperDTO {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected HibernateFieldDAO getDAO() {
-    return new HibernateFieldDAO()
+  protected GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getField()
       .setGroupTypeUuid( this.getGroupTypeUuid() )
       .setId( this.getId() )
       .setIsNullable( this.getIsNullable() )
@@ -112,8 +112,7 @@ class FieldDTO extends BaseGrouperDTO {
       .setUuid( this.getUuid() )
       .setWritePrivilege( this.getWritePrivilege() )
       ;
-  } // protected HibernateFieldDAO getDAO()
-
+  }
 
 
   // GETTERS //

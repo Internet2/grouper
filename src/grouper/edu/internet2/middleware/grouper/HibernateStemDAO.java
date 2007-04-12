@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.20 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.21 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -63,7 +63,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(_child);
+      HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(_child);
       try {
         hs.save(dao);
         // add group-type tuples
@@ -103,7 +103,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(_child);
+      HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(_child);
       try {
         hs.save(dao);
         hs.update( Rosetta.getDAO(_parent) );
@@ -132,7 +132,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
     try {
       Session           hs  = HibernateDAO.getSession();
       Transaction       tx  = hs.beginTransaction();
-      HibernateStemDAO  dao = _root.getDAO();
+      HibernateStemDAO  dao = (HibernateStemDAO) _root.getDAO();
       try {
         hs.save(dao);
         tx.commit();
@@ -624,7 +624,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setCreateSource(String createSource) {
+  public StemDAO setCreateSource(String createSource) {
     this.createSource = createSource;
     return this;
   }
@@ -632,7 +632,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setCreateTime(long createTime) {
+  public StemDAO setCreateTime(long createTime) {
     this.createTime = createTime;
     return this;
   }
@@ -640,7 +640,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setCreatorUuid(String creatorUUID) {
+  public StemDAO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
     return this;
   }
@@ -648,7 +648,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setDescription(String description) {
+  public StemDAO setDescription(String description) {
     this.description = description;
     return this;
   }
@@ -656,7 +656,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setDisplayExtension(String displayExtension) {
+  public StemDAO setDisplayExtension(String displayExtension) {
     this.displayExtension = displayExtension;
     return this;
   }
@@ -664,7 +664,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setDisplayName(String displayName) {
+  public StemDAO setDisplayName(String displayName) {
     this.displayName = displayName;
     return this;
   }
@@ -672,7 +672,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setExtension(String extension) {
+  public StemDAO setExtension(String extension) {
     this.extension = extension;
     return this;
   }
@@ -680,7 +680,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setId(String id) {
+  public StemDAO setId(String id) {
     this.id = id;
     return this;
   }
@@ -688,7 +688,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setModifierUuid(String modifierUUID) {
+  public StemDAO setModifierUuid(String modifierUUID) {
     this.modifierUUID = modifierUUID;
     return this;
   }
@@ -696,7 +696,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setModifySource(String modifySource) {
+  public StemDAO setModifySource(String modifySource) {
     this.modifySource = modifySource;
     return this;
   }
@@ -704,7 +704,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setModifyTime(long modifyTime) {
+  public StemDAO setModifyTime(long modifyTime) {
     this.modifyTime = modifyTime;
     return this;
   }
@@ -712,7 +712,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setName(String name) {
+  public StemDAO setName(String name) {
     this.name = name;
     return this;
   }
@@ -720,7 +720,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setParentUuid(String parentUUID) {
+  public StemDAO setParentUuid(String parentUUID) {
     this.parentUUID = parentUUID;
     return this;
   }
@@ -728,7 +728,7 @@ class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateStemDAO setUuid(String uuid) {
+  public StemDAO setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }

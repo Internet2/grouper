@@ -24,7 +24,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.16 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.17 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
@@ -57,7 +57,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(_m);
+      HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(_m);
       try {
         hs.save(dao);
         tx.commit();
@@ -261,7 +261,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
   /** 
    * @since   1.2.0
    */
-  public HibernateMemberDAO setId(String id) {
+  public MemberDAO setId(String id) {
     this.id = id;
     return this;
   }
@@ -269,7 +269,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMemberDAO setSubjectId(String subjectID) {
+  public MemberDAO setSubjectId(String subjectID) {
     this.subjectID = subjectID;
     return this;
   }
@@ -277,7 +277,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMemberDAO setSubjectSourceId(String subjectSourceID) {
+  public MemberDAO setSubjectSourceId(String subjectSourceID) {
     this.subjectSourceID = subjectSourceID;
     return this;
   }
@@ -285,7 +285,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMemberDAO setSubjectTypeId(String subjectTypeID) {
+  public MemberDAO setSubjectTypeId(String subjectTypeID) {
     this.subjectTypeID = subjectTypeID;
     return this;
   }
@@ -293,7 +293,7 @@ class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
   /**
    * @since   1.2.0
    */
-  public HibernateMemberDAO setUuid(String uuid) {
+  public MemberDAO setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }

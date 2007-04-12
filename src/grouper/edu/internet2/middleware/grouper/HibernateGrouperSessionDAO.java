@@ -23,7 +23,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.10 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.11 2007-04-12 15:40:41 blair Exp $
  * @since   1.2.0
  */
 class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionDAO {
@@ -46,7 +46,7 @@ class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionD
     try {
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = Rosetta.getDAO(_s);
+      HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(_s);
       try {
         hs.save(dao);
         tx.commit();
@@ -124,7 +124,7 @@ class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionD
   /** 
    * @since   1.2.0
    */
-  public HibernateGrouperSessionDAO setId(String id) {
+  public GrouperSessionDAO setId(String id) {
     this.id = id;
     return this;
   } 
@@ -132,7 +132,7 @@ class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionD
   /**
    * @since   1.2.0
    */
-  public HibernateGrouperSessionDAO  setMemberUuid(String memberUUID) {
+  public GrouperSessionDAO  setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
     return this;
   }
@@ -140,7 +140,7 @@ class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionD
   /**
    * @since   1.2.0
    */
-  public HibernateGrouperSessionDAO setStartTime(Date startTime) {
+  public GrouperSessionDAO setStartTime(Date startTime) {
     this.startTime = startTime;
     return this;
   }
@@ -148,7 +148,7 @@ class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionD
   /**
    * @since   1.2.0
    */
-  public HibernateGrouperSessionDAO setUuid(String uuid) {
+  public GrouperSessionDAO setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }
