@@ -42,7 +42,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.3 2007-04-17 17:30:45 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -701,7 +701,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setAttributes(Map attributes) {
+  public GroupDAO setAttributes(Map attributes) {
     this.attributes = attributes;
     return this;
   }
@@ -709,7 +709,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setCreateSource(String createSource) {
+  public GroupDAO setCreateSource(String createSource) {
     this.createSource = createSource;
     return this;
   }
@@ -717,7 +717,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setCreateTime(long createTime) {
+  public GroupDAO setCreateTime(long createTime) {
     this.createTime = createTime;
     return this;
   }
@@ -725,7 +725,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setCreatorUuid(String creatorUUID) {
+  public GroupDAO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
     return this;
   }
@@ -733,7 +733,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setId(String id) {
+  public GroupDAO setId(String id) {
     this.id = id;
     return this;
   }
@@ -741,7 +741,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setModifierUuid(String modifierUUID) {
+  public GroupDAO setModifierUuid(String modifierUUID) {
     this.modifierUUID = modifierUUID;
     return this;
   }
@@ -749,7 +749,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setModifySource(String modifySource) {
+  public GroupDAO setModifySource(String modifySource) {
     this.modifySource = modifySource;
     return this;
   }
@@ -757,7 +757,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setModifyTime(long modifyTime) {
+  public GroupDAO setModifyTime(long modifyTime) {
     this.modifyTime = modifyTime;
     return this;
   }
@@ -765,7 +765,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setParentUuid(String parentUUID) {
+  public GroupDAO setParentUuid(String parentUUID) {
     this.parentUUID = parentUUID;
     return this;
   }
@@ -773,7 +773,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setTypes(Set types) {
+  public GroupDAO setTypes(Set types) {
     // TODO 20070405 try to make this behave more like the rest of the *etters
     // as types are retrieved dynamically we don't need to cache them locally.
     // and, yes, that could be considered a poor design decision.
@@ -783,7 +783,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public HibernateGroupDAO setUuid(String uuid) {
+  public GroupDAO setUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }
