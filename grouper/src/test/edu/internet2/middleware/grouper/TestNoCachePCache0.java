@@ -19,12 +19,11 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.cache.BasePrivilegeCache;
 import  edu.internet2.middleware.grouper.internal.cache.NoCachePrivilegeCache;
 import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCache;
-import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCacheElement;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestNoCachePCache0.java,v 1.6 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: TestNoCachePCache0.java,v 1.7 2007-04-17 17:35:00 blair Exp $
  * @since   1.1.0
  */
 public class TestNoCachePCache0 extends GrouperTest {

@@ -25,7 +25,6 @@ import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
-import  edu.internet2.middleware.grouper.internal.util.U;
 import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -36,7 +35,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.2 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.3 2007-04-17 17:35:00 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {

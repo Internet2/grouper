@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
-import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
@@ -28,7 +27,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.3 2007-04-17 17:35:00 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionDAO {

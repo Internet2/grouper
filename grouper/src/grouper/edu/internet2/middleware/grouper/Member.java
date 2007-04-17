@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
@@ -31,7 +30,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.91 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: Member.java,v 1.92 2007-04-17 17:35:00 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 

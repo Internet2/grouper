@@ -17,7 +17,6 @@
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.Field;
-import  edu.internet2.middleware.grouper.FieldFinder;
 import  edu.internet2.middleware.grouper.FieldType;
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.SchemaException;
@@ -34,7 +33,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Field} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.3 2007-04-17 17:35:00 blair Exp $
  * @since   1.2.0
  */
 public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {

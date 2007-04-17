@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.internal.cache;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.subject.*;
 
 /** 
  * Subject Cache interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.2 2007-04-17 17:35:00 blair Exp $
  * @since   1.1.0     
  */
 public interface SubjectCache {

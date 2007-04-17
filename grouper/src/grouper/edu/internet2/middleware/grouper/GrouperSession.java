@@ -20,7 +20,6 @@ import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  org.apache.commons.lang.builder.*;
@@ -30,7 +29,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.60 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.61 2007-04-17 17:35:00 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 

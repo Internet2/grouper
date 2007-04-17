@@ -18,17 +18,12 @@
 package edu.internet2.middleware.grouper.internal.util;
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  java.lang.reflect.*;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.List;
-import  java.util.Properties;
-import  java.util.Set;
 
 /**
  * Reflectively instantiate classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Realize.java,v 1.1 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: Realize.java,v 1.2 2007-04-17 17:35:00 blair Exp $
  * @since   1.2.0
  */
 public class Realize {

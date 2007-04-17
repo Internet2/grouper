@@ -20,14 +20,13 @@ import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.Owner;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
-import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 
 /** 
  * Base implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BasePrivilegeCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: BasePrivilegeCache.java,v 1.2 2007-04-17 17:35:00 blair Exp $
  * @since   1.1.0     
  */
 public abstract class BasePrivilegeCache implements PrivilegeCache {
