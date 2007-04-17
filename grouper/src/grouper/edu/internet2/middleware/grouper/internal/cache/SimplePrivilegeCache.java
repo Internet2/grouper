@@ -15,7 +15,10 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
+import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import  edu.internet2.middleware.grouper.Owner;
+import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.subject.Subject;
 import  org.apache.commons.collections.keyvalue.MultiKey;
 
@@ -23,7 +26,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * A simple caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimplePrivilegeCache.java,v 1.8 2007-02-27 20:39:06 blair Exp $
+ * @version $Id: SimplePrivilegeCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0     
  */
 public class SimplePrivilegeCache extends BasePrivilegeCache {
@@ -117,5 +120,5 @@ public class SimplePrivilegeCache extends BasePrivilegeCache {
     return this.cache;
   } // protected SimpleCache internal_getCache()
 
-} // public class SimplePrivilegeCache extends BasePrivilegeCache
+} 
 

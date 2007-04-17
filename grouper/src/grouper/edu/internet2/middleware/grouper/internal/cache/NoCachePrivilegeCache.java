@@ -15,14 +15,17 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
+import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import  edu.internet2.middleware.grouper.Owner;
+import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.subject.*;
 
 /** 
  * A no-caching implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NoCachePrivilegeCache.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: NoCachePrivilegeCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0     
  */
 public class NoCachePrivilegeCache extends BasePrivilegeCache {
@@ -99,5 +102,5 @@ public class NoCachePrivilegeCache extends BasePrivilegeCache {
     // Nothing
   } // public void revokePriv(o, subj, p)
 
-} // public class NoCachePrivilegeCache extends BasePrivilegeCache
+} 
 

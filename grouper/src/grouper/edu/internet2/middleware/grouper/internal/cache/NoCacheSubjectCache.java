@@ -15,41 +15,32 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.Subject;
-import  org.apache.commons.collections.keyvalue.MultiKey;
+package edu.internet2.middleware.grouper.internal.cache;
+import  edu.internet2.middleware.subject.*;
 
 /** 
- * A simple caching implementation of {@link SubjectCache}.
+ * A no-caching implementation of {@link SubjectCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleSubjectCache.java,v 1.3 2007-02-27 20:22:21 blair Exp $
+ * @version $Id: NoCacheSubjectCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0     
  */
-public class SimpleSubjectCache extends BaseSubjectCache {
-
-  // PROTECTED INSTANCE VARIABLES //
-  protected SimpleCache cache = new SimpleCache();
-
+public class NoCacheSubjectCache extends BaseSubjectCache {
 
   // PUBLIC INSTANCE METHODS //
 
   /**
-   * Retrieve a potentially cached {@link Subject}.
+   * Do not return a cached {@link Subject}.
    * <p/>
-   * @return  A {@link Subject} or null.
+   * @return  null
    * @since   1.1.0
    */
   public Subject get(String id, String type, String source) {
-    MultiKey k = new MultiKey(id, type, source);
-    if ( this.cache.containsKey(k) ) {
-      return (Subject) this.cache.get(k);
-    }
     return null;
   } // public Subject get(id, source, type)
 
   /**
-   * Cache a {@link Subject}.
+   * Cache a {@link Subject} without any side-effects.
    * </p>
    * @throws  SubjectCacheException
    * @since   1.1.0
@@ -57,9 +48,8 @@ public class SimpleSubjectCache extends BaseSubjectCache {
   public void put(String id, String type, String source, Subject subj)
     throws  SubjectCacheException
   {
-    // Store the value without any cache flushing
-    this.cache.put( new MultiKey(id, type, source), subj );
-  } // public void put(o, subj, p, hasPriv)
+    // Nothing
+  } // public void put(subj)
 
   /**
    * Remove all cached {@link Subject}s.
@@ -70,8 +60,8 @@ public class SimpleSubjectCache extends BaseSubjectCache {
   public void removeAll() 
     throws  SubjectCacheException
   {
-    this.cache.removeAll();
+    // Nothing
   } // public void removeAll()
 
-} // public class SimpleSubjectCache extends BaseSubjectCache
+} 
 

@@ -15,13 +15,13 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
 
 /** 
  * Simple cache implementation for holding boolean values.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleBooleanCache.java,v 1.4 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: SimpleBooleanCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.2.0     
  */
 public class SimpleBooleanCache extends SimpleCache {

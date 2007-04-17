@@ -15,14 +15,19 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
+import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import  edu.internet2.middleware.grouper.Owner;
+import  edu.internet2.middleware.grouper.Privilege;
+import  edu.internet2.middleware.grouper.internal.util.Realize;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 
 /** 
  * Base implementation of {@link PrivilegeCache}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BasePrivilegeCache.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: BasePrivilegeCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0     
  */
 public abstract class BasePrivilegeCache implements PrivilegeCache {
@@ -46,7 +51,7 @@ public abstract class BasePrivilegeCache implements PrivilegeCache {
   public static PrivilegeCache getCache(String klass) 
     throws  GrouperRuntimeException
   {
-    return (PrivilegeCache) U.internal_realizeInterface(klass);
+    return (PrivilegeCache) Realize.instantiate(klass);
   } // public static PrivilegeCache getCache(klass)
 
 
@@ -100,5 +105,5 @@ public abstract class BasePrivilegeCache implements PrivilegeCache {
    */
   public abstract void revokePriv(Owner o, Subject subj, Privilege p) throws PrivilegeCacheException;
 
-} // public class BasePrivilegeCache implements PrivilegeCache
+} 
 

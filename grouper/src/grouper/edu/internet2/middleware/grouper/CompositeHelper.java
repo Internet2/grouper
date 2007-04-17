@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 
 /**
  * {@link Composite} utility code.
@@ -55,7 +57,7 @@ class CompositeHelper {
       return g.getName();
     }
     catch (GroupNotFoundException eGNF) {
-      ErrorLog.error( CompositeHelper.class, msg + U.internal_q( c.getUuid() ) + ": " + eGNF.getMessage() );
+      ErrorLog.error( CompositeHelper.class, msg + Quote.single( c.getUuid() ) + ": " + eGNF.getMessage() );
       return GrouperConfig.EMPTY_STRING;
     }
   } 

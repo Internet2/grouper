@@ -16,17 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.BasePrivilegeCache;
 import  edu.internet2.middleware.grouper.DebugLog;
 import  edu.internet2.middleware.grouper.GrouperConfig;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.MemberFinder;
-import  edu.internet2.middleware.grouper.PrivilegeCache;
 import  edu.internet2.middleware.grouper.SubjectFinder;
+import  edu.internet2.middleware.grouper.internal.cache.BasePrivilegeCache;
+import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  org.apache.commons.lang.builder.*;
@@ -35,7 +35,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.2 2007-04-17 17:13:27 blair Exp $
  * @since   1.2.0
  */
 public class GrouperSessionDTO extends BaseGrouperDTO {

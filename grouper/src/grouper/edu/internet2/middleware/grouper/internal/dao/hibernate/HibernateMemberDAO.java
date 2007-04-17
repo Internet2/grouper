@@ -18,12 +18,12 @@
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.MemberNotFoundException;
-import  edu.internet2.middleware.grouper.Rosetta;
-import  edu.internet2.middleware.grouper.SimpleCache;
-import  edu.internet2.middleware.grouper.SimpleBooleanCache;
+import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
+import  edu.internet2.middleware.grouper.internal.cache.SimpleBooleanCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  edu.internet2.middleware.subject.Subject;
 import  java.io.Serializable;
 import  net.sf.hibernate.*;
@@ -32,7 +32,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Member} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {

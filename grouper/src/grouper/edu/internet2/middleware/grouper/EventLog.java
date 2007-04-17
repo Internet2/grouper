@@ -16,10 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  org.apache.commons.lang.time.*;
@@ -29,7 +32,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.42 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: EventLog.java,v 1.43 2007-04-17 17:13:26 blair Exp $
  */
 class EventLog {
 
@@ -108,10 +111,10 @@ class EventLog {
       s
       , 
       M.COMP_ADD 
-      + U.internal_q( CompositeHelper.getOwnerName(c) )
-      + " type="  + U.internal_q(c.getType().toString() )
-      + " left="  + U.internal_q( CompositeHelper.getLeftName(c) )
-      + " right=" + U.internal_q( CompositeHelper.getRightName(c) )
+      + Quote.single( CompositeHelper.getOwnerName(c) )
+      + " type="  + Quote.single(c.getType().toString() )
+      + " left="  + Quote.single( CompositeHelper.getLeftName(c) )
+      + " right=" + Quote.single( CompositeHelper.getRightName(c) )
       ,
       sw
     );
@@ -129,10 +132,10 @@ class EventLog {
       s
       , 
       M.COMP_DEL 
-      + U.internal_q( CompositeHelper.getOwnerName(c) )
-      + " type="  + U.internal_q(c.getType().toString()  )
-      + " left="  + U.internal_q( CompositeHelper.getLeftName(c) )
-      + " right=" + U.internal_q( CompositeHelper.getRightName(c) )
+      + Quote.single( CompositeHelper.getOwnerName(c) )
+      + " type="  + Quote.single(c.getType().toString()  )
+      + " left="  + Quote.single( CompositeHelper.getLeftName(c) )
+      + " right=" + Quote.single( CompositeHelper.getRightName(c) )
       ,
       sw
     );
@@ -189,12 +192,12 @@ class EventLog {
   {
     if      (o instanceof Group) {
       if (this.log_eff_group_del == true) {
-        this._delEffs(s, "group=" + U.internal_q( ( (Group) o).getName() ), subj, f, effs);
+        this._delEffs(s, "group=" + Quote.single( ( (Group) o).getName() ), subj, f, effs);
       }
     }
     else if (o instanceof Stem) {
       if (this.log_eff_stem_del == true) {
-        this._delEffs(s, "stem=" + U.internal_q( ( (Stem) o).getName() ), subj, f, effs);
+        this._delEffs(s, "stem=" + Quote.single( ( (Stem) o).getName() ), subj, f, effs);
       }
     }
     else {
@@ -292,12 +295,12 @@ class EventLog {
       subject = SubjectHelper.getPretty(ms.getMember().getSubject());
     }
     catch (Exception e) {
-      subject = U.internal_q(e.getMessage());
+      subject = Quote.single(e.getMessage());
     }
     EventLog.info(
       s,
-      msg           + U.internal_q(where) 
-      + " list="    + U.internal_q(ms.getList().getName())  
+      msg           + Quote.single(where) 
+      + " list="    + Quote.single(ms.getList().getName())  
       + " subject=" + subject,
       sw
     );
@@ -355,18 +358,18 @@ class EventLog {
   {
     msg += this._getEffOwnerMsg(eff);
     // Get eff field
-    msg += " " + field + U.internal_q( eff.getListName() );
+    msg += " " + field + Quote.single( eff.getListName() );
     msg += this._getEffSubjectMsg(s, eff);
     // Get added or removed message that caused this effective membership change
     msg += " (" + name + " ";
     if      ( f.getType().equals(FieldType.ACCESS) )  {
-      msg += "priv=" + U.internal_q(f.getName());
+      msg += "priv=" + Quote.single(f.getName());
     }
     else if ( f.getType().equals(FieldType.LIST) )    {
-      msg += "list=" + U.internal_q(f.getName());
+      msg += "list=" + Quote.single(f.getName());
     }
     else if ( f.getType().equals(FieldType.NAMING) )  {
-      msg += "priv=" + U.internal_q(f.getName());
+      msg += "priv=" + Quote.single(f.getName());
     }
     // Get added or removed subject that caused this effective
     // membership change
@@ -409,10 +412,10 @@ class EventLog {
       }   
     }
     if (g != null) {
-      msg += "group=" + U.internal_q( g.getName() );
+      msg += "group=" + Quote.single( g.getName() );
     }
     else if (ns != null ) {
-      msg += "stem=" + U.internal_q( ns.getName() );
+      msg += "stem=" + Quote.single( ns.getName() );
     }
     else {
       msg += "owner=???";
@@ -438,7 +441,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + U.internal_q(name) + " priv=" + U.internal_q(p.getName()) + " subject=" 
+      msg + Quote.single(name) + " priv=" + Quote.single(p.getName()) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
@@ -450,7 +453,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + U.internal_q(group) + " list=" + U.internal_q(f.getName()) + " subject=" 
+      msg + Quote.single(group) + " list=" + Quote.single(f.getName()) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
@@ -461,7 +464,7 @@ class EventLog {
   )
   {
     EventLog.info(
-      s, msg + U.internal_q(name) + " priv=" + U.internal_q(p.getName()), sw
+      s, msg + Quote.single(name) + " priv=" + Quote.single(p.getName()), sw
     );
   } // private void _revokePriv(s, msg, name, p, sw)
 
@@ -471,7 +474,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + U.internal_q(name) + " priv=" + U.internal_q(p.getName()) + " subject=" 
+      msg + Quote.single(name) + " priv=" + Quote.single(p.getName()) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
@@ -481,7 +484,7 @@ class EventLog {
     GrouperSession s, String msg, String name, String attr, String val, StopWatch sw
   )
   {
-    EventLog.info(s, msg + U.internal_q(name) + " attr=" + U.internal_q(attr) + " value=" + U.internal_q(val), sw);
+    EventLog.info(s, msg + Quote.single(name) + " attr=" + Quote.single(attr) + " value=" + Quote.single(val), sw);
   } // private void _setAttr(s, msg, attr, val, sw)
 }
 

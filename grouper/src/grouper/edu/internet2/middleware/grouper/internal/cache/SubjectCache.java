@@ -15,41 +15,36 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
+import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.subject.*;
 
 /** 
- * A no-caching implementation of {@link SubjectCache}.
+ * Subject Cache interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NoCacheSubjectCache.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SubjectCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0     
  */
-public class NoCacheSubjectCache extends BaseSubjectCache {
+public interface SubjectCache {
 
   // PUBLIC INSTANCE METHODS //
 
   /**
-   * Do not return a cached {@link Subject}.
+   * Retrieve a cached {@link Subject}.
    * <p/>
-   * @return  null
+   * @return  A {@link Subject} or null.
    * @since   1.1.0
    */
-  public Subject get(String id, String type, String source) {
-    return null;
-  } // public Subject get(id, source, type)
+  Subject get(String id, String type, String source);
 
   /**
-   * Cache a {@link Subject} without any side-effects.
+   * Cache a {@link Subject}.
    * </p>
    * @throws  SubjectCacheException
    * @since   1.1.0
    */
-  public void put(String id, String type, String source, Subject subj)
-    throws  SubjectCacheException
-  {
-    // Nothing
-  } // public void put(subj)
+  void put(String id, String type, String source, Subject subj) throws SubjectCacheException;
 
   /**
    * Remove all cached {@link Subject}s.
@@ -57,11 +52,7 @@ public class NoCacheSubjectCache extends BaseSubjectCache {
    * @throws  SubjectCacheException
    * @since   1.1.0
    */
-  public void removeAll() 
-    throws  SubjectCacheException
-  {
-    // Nothing
-  } // public void removeAll()
+  void removeAll() throws SubjectCacheException;
 
-} // public class NoCacheSubjectCache extends BaseSubjectCache
+} 
 

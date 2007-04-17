@@ -17,13 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.subject.*;
 
 /**
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.20 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.21 2007-04-17 17:13:26 blair Exp $
  */
 class SubjectHelper {
 
@@ -59,20 +60,20 @@ class SubjectHelper {
  
   // @since   1.2.0
   protected static String getPretty(MemberDTO _m) {
-    return  U.internal_q( _m.getSubjectId() ) // don't bother grabbing the name.  names aren't consistent, after all.
+    return  Quote.single( _m.getSubjectId() ) // don't bother grabbing the name.  names aren't consistent, after all.
             + SUBJECT_DELIM
-            + U.internal_q( _m.getSubjectTypeId() ) 
+            + Quote.single( _m.getSubjectTypeId() ) 
             + SUBJECT_DELIM
-            + U.internal_q( _m.getSubjectSourceId() );
+            + Quote.single( _m.getSubjectSourceId() );
   } // protected static String getPretty(_m)
  
   // @since   1.2.0
   protected static String getPretty(Subject subj) {
-    return  U.internal_q( subj.getId() )
+    return  Quote.single( subj.getId() )
             + SUBJECT_DELIM
-            + U.internal_q( subj.getType().getName() ) 
+            + Quote.single( subj.getType().getName() ) 
             + SUBJECT_DELIM
-            + U.internal_q( subj.getSource().getId() );
+            + Quote.single( subj.getSource().getId() );
   } // protected static String getPretty(subj)
 
 } // class SubjectHelper

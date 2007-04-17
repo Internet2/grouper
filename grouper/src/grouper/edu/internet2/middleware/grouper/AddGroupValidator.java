@@ -16,10 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.util.U;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddGroupValidator.java,v 1.2 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: AddGroupValidator.java,v 1.3 2007-04-17 17:13:26 blair Exp $
  * @since   1.2.0
  */
 class AddGroupValidator extends GrouperValidator {
@@ -45,7 +46,7 @@ class AddGroupValidator extends GrouperValidator {
     else {
       try {
         // TODO 20070301 add "existsByName()" method to DAO?
-        GrouperDAOFactory.getFactory().getGroup().findByName( U.internal_constructName( parent.getName(), extn ) );
+        GrouperDAOFactory.getFactory().getGroup().findByName( U.constructName( parent.getName(), extn ) );
         v.setErrorMessage("group already exists");
       }
       catch (GroupNotFoundException eGNF) {

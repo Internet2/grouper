@@ -24,6 +24,7 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -34,7 +35,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.55 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: MemberOf.java,v 1.56 2007-04-17 17:13:26 blair Exp $
  */
 public class MemberOf extends BaseMemberOf {
   // FIXME 20070413 visibility!

@@ -16,8 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCacheElement;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import  edu.internet2.middleware.grouper.internal.util.Realize;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 
@@ -25,7 +28,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.82 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.83 2007-04-17 17:13:26 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -255,9 +258,7 @@ import  java.util.*;
   // @since   1.2.0
   protected static AccessAdapter internal_getAccess() {
     if (access == null) {
-      access = (AccessAdapter) U.internal_realizeInterface(
-        GrouperConfig.getProperty(GrouperConfig.PAI)
-      );
+      access = (AccessAdapter) Realize.instantiate( GrouperConfig.getProperty(GrouperConfig.PAI) );
     }
     return access;
   } // protected static AccessAdapter internal_getAccess()
@@ -274,9 +275,7 @@ import  java.util.*;
   // @since   1.2.0
   protected static NamingAdapter internal_getNaming() {
     if (naming == null) {
-      naming = (NamingAdapter) U.internal_realizeInterface(
-        GrouperConfig.getProperty(GrouperConfig.PNI)
-      );
+      naming = (NamingAdapter) Realize.instantiate( GrouperConfig.getProperty(GrouperConfig.PNI) );
     }
     return naming;
   } // protected static AccessAdapter internal_getNaming()

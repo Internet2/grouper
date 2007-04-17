@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
+// TODO 20070417 why both?
+import  edu.internet2.middleware.grouper.internal.cache.BaseSubjectCache;
+import  edu.internet2.middleware.grouper.internal.cache.SubjectCache;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.*;
@@ -24,7 +27,7 @@ import  java.util.*;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.32 2007-02-28 19:10:44 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.33 2007-04-17 17:13:26 blair Exp $
  */
 public class SubjectFinder {
 

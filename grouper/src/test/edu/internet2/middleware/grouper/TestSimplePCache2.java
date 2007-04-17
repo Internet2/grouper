@@ -16,12 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.cache.BasePrivilegeCache;
+import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCache;
+import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCacheElement;
+import  edu.internet2.middleware.grouper.internal.cache.SimplePrivilegeCache;
 import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSimplePCache2.java,v 1.5 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestSimplePCache2.java,v 1.6 2007-04-17 17:13:27 blair Exp $
  * @since   1.1.0
  */
 public class TestSimplePCache2 extends GrouperTest {

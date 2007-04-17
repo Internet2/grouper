@@ -16,11 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.cache.SimpleWheelPrivilegeCache;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSimpleWPCache3.java,v 1.6 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestSimpleWPCache3.java,v 1.7 2007-04-17 17:13:27 blair Exp $
  * @since   1.2.0
  */
 public class TestSimpleWPCache3 extends GrouperTest {

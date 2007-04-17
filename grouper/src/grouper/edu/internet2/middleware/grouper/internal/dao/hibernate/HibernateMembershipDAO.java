@@ -20,11 +20,12 @@ import  edu.internet2.middleware.grouper.Field;
 import  edu.internet2.middleware.grouper.MemberOf;
 import  edu.internet2.middleware.grouper.Membership;
 import  edu.internet2.middleware.grouper.MembershipNotFoundException;
-import  edu.internet2.middleware.grouper.Rosetta;
-import  edu.internet2.middleware.grouper.U;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -35,7 +36,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.2 2007-04-17 17:13:27 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
@@ -497,7 +498,7 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       HibernateMembershipDAO dao = (HibernateMembershipDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
-        throw new MembershipNotFoundException("could not find membership with uuid: " + U.internal_q(uuid));
+        throw new MembershipNotFoundException("could not find membership with uuid: " + Quote.single(uuid));
       }
       return MembershipDTO.getDTO(dao);
     }

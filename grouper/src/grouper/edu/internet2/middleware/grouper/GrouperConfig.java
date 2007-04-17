@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.41 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.42 2007-04-17 17:13:26 blair Exp $
  */
 public class GrouperConfig {
 
@@ -50,7 +50,8 @@ public class GrouperConfig {
   protected static final String ATTR_E        = "extension";
   protected static final String ATTR_N        = "name";
   protected static final String BT            = "true";
-  protected static final String EMPTY_STRING  = "";
+  // FIXME 20070417 access
+  public static final String EMPTY_STRING  = "";
   // FIXME 20070416 access
   public static final long   EPOCH         = 0;
   protected static final String GCGAA         = "groups.create.grant.all.admin";
@@ -59,11 +60,14 @@ public class GrouperConfig {
   protected static final String GCGAR         = "groups.create.grant.all.read";
   protected static final String GCGAU         = "groups.create.grant.all.update";
   protected static final String GCGAV         = "groups.create.grant.all.view";
-  protected static final String GWG           = "groups.wheel.group";
-  protected static final String GWU           = "groups.wheel.use";
+  // FIXME 20070417 access
+  public static final String GWG           = "groups.wheel.group";
+  // FIXME 20070417 access
+  public static final String GWU           = "groups.wheel.use";
   protected static final String IST           = "application";
   protected static final String LIST          = "members";
-  protected static final String MAX_WHEEL_AGE = "edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge";
+  // FIXME 20070417 access
+  public static final String MAX_WHEEL_AGE = "edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge";
   protected static final String MSLGEA        = "memberships.log.group.effective.add";
   protected static final String MSLGED        = "memberships.log.group.effective.del";
   protected static final String MSLSEA        = "memberships.log.stem.effective.add";

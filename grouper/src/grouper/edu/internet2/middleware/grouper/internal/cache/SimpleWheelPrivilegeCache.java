@@ -15,7 +15,14 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
+import  edu.internet2.middleware.grouper.DebugLog;
+import  edu.internet2.middleware.grouper.GrouperConfig;
+import  edu.internet2.middleware.grouper.GrouperDAOFactory;
+import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import  edu.internet2.middleware.grouper.GroupNotFoundException;
+import  edu.internet2.middleware.grouper.Owner;
+import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Date;
@@ -43,13 +50,14 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.14 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final long DEFAULT_MAX_AGE = 5000; // protected for testing purposes
+  // FIXME 20070417 access
+  public static final long DEFAULT_MAX_AGE = 5000; // protected for testing purposes
 
 
   // PRIVATE CLASS CONSTANTS //
@@ -133,7 +141,8 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
 
   // `protected` for testing purposes
   // @since   1.2.0
-  protected static long internal_getMaxWheelAge() {
+  // FIXME 20070417 access
+  public static long internal_getMaxWheelAge() {
     String val = GrouperConfig.getProperty(GrouperConfig.MAX_WHEEL_AGE);
     try {
       if (val == null) {
@@ -145,7 +154,7 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
       DebugLog.info(SimpleWheelPrivilegeCache.class, USING_DEFAULT_MAX_AGE + eNF.getMessage());
       return DEFAULT_MAX_AGE;
     }
-  } // protected static long internal_getMaxWheelAge()
+  } 
 
 
   // PRIVATE INSTANCE METHODS //
@@ -164,5 +173,5 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
     this.lastModified = new Date().getTime();
   } // private void _setLastModified()
 
-} // public class SimpleWheelPrivilegeCache extends BasePrivilegeCache
+} 
 

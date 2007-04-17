@@ -16,13 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  java.util.HashMap;
@@ -37,7 +40,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.152 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: Group.java,v 1.153 2007-04-17 17:13:26 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -273,7 +276,7 @@ public class Group extends GrouperAPI implements Owner {
       sw.stop();
       EventLog.info(
         this.getSession(),
-        M.GROUP_ADDTYPE + U.internal_q(this.getName()) + " type=" + U.internal_q(type.toString()),
+        M.GROUP_ADDTYPE + Quote.single(this.getName()) + " type=" + Quote.single(type.toString()),
         sw
       );
     }
@@ -445,7 +448,7 @@ public class Group extends GrouperAPI implements Owner {
       String name = this.getName(); // Preserve name for logging
       GrouperDAOFactory.getFactory().getGroup().delete( this._getDTO(), deletes );
       sw.stop();
-      EventLog.info(this.getSession(), M.GROUP_DEL + U.internal_q(name), sw);
+      EventLog.info(this.getSession(), M.GROUP_DEL + Quote.single(name), sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new GroupDeleteException( eDAO.getMessage(), eDAO );
@@ -706,7 +709,7 @@ public class Group extends GrouperAPI implements Owner {
       sw.stop();
       EventLog.info(
         this.getSession(),
-        M.GROUP_DELTYPE + U.internal_q(this.getName()) + " type=" + U.internal_q(type.toString()),
+        M.GROUP_DELTYPE + Quote.single(this.getName()) + " type=" + Quote.single(type.toString()),
         sw
       );
     }
@@ -1988,10 +1991,10 @@ public class Group extends GrouperAPI implements Owner {
       Map attrs = this._getDTO().getAttributes();
       attrs.put(attr, value);
       if      ( attr.equals(GrouperConfig.ATTR_E) )   {
-        attrs.put( GrouperConfig.ATTR_N, U.internal_constructName( this.getParentStem().getName(), value ) );
+        attrs.put( GrouperConfig.ATTR_N, U.constructName( this.getParentStem().getName(), value ) );
       }
       else if ( attr.equals(GrouperConfig.ATTR_DE) )  {
-        attrs.put( GrouperConfig.ATTR_DN, U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
+        attrs.put( GrouperConfig.ATTR_DN, U.constructName( this.getParentStem().getDisplayName(), value ) );
       }
       this._getDTO().setAttributes(attrs);
       this.internal_setModified();

@@ -15,14 +15,17 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
+import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import  edu.internet2.middleware.grouper.Owner;
+import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.subject.*;
 
 /** 
  * Privilege Cache interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCache.java,v 1.13 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: PrivilegeCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0     
  */
 public interface PrivilegeCache {
@@ -77,5 +80,5 @@ public interface PrivilegeCache {
    */
   void revokePriv(Owner o, Subject subj, Privilege p) throws PrivilegeCacheException;
 
-} // public interface PrivilegeCache
+} 
 

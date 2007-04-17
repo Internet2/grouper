@@ -18,14 +18,14 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 
 /**
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.43 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.44 2007-04-17 17:13:26 blair Exp $
  */
 public class MemberFinder {
 

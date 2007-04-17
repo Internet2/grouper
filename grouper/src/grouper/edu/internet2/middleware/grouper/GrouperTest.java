@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  junit.framework.*;
@@ -25,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.16 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.17 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -81,7 +83,7 @@ public class GrouperTest extends TestCase {
   public void assertDoNotFindGroupByName(GrouperSession s, String name, String msg) {
     try {
       GroupFinder.findByName(s, name);
-      fail(U.internal_qp(msg) + "unexpectedly found group by name: " + name);
+      fail(Quote.parens(msg) + "unexpectedly found group by name: " + name);
     }
     catch (GroupNotFoundException eGNF) {
       assertTrue(msg, true);
@@ -101,7 +103,7 @@ public class GrouperTest extends TestCase {
   public void assertDoNotFindGroupByType(GrouperSession s, GroupType type, String msg) {
     try {
       GroupFinder.findByType(s, type);
-      fail(U.internal_qp(msg) + "unexpectedly found group by type: " + type);
+      fail(Quote.parens(msg) + "unexpectedly found group by type: " + type);
     }
     catch (GroupNotFoundException eGNF) {
       assertTrue(msg, true);
@@ -121,7 +123,7 @@ public class GrouperTest extends TestCase {
   public void assertDoNotFindStemByName(GrouperSession s, String name, String msg) {
     try {
       StemFinder.findByName(s, name);
-      fail(U.internal_qp(msg) + "unexpectedly found stem by name: " + name);
+      fail(Quote.parens(msg) + "unexpectedly found stem by name: " + name);
     }
     catch (StemNotFoundException eNSNF) {
       assertTrue(msg, true);
@@ -178,7 +180,7 @@ public class GrouperTest extends TestCase {
       assertTrue(msg, true);
     }
     catch (GroupNotFoundException eGNF) {
-      fail(U.internal_qp(msg) + "did not find group (" + name + ") by name: " + eGNF.getMessage());
+      fail(Quote.parens(msg) + "did not find group (" + name + ") by name: " + eGNF.getMessage());
     }
     return g;
   } // public Group assertFindGroupByName(s, name, msg)
@@ -201,7 +203,7 @@ public class GrouperTest extends TestCase {
       assertGroupHasType(g, type, true);
     }
     catch (GroupNotFoundException eGNF) {
-      fail(U.internal_qp(msg) + "did not find group (" + type + ") by type: " + eGNF.getMessage());
+      fail(Quote.parens(msg) + "did not find group (" + type + ") by type: " + eGNF.getMessage());
     }
     return g;
   } // public Group assertFindGroupByType(s, type, msg)
@@ -239,7 +241,7 @@ public class GrouperTest extends TestCase {
       assertTrue(msg, true);
     }
     catch (StemNotFoundException eNSNF) {
-      fail(U.internal_qp(msg) + "did not find stem (" + name + ") by name: " + eNSNF.getMessage());
+      fail(Quote.parens(msg) + "did not find stem (" + name + ") by name: " + eNSNF.getMessage());
     }
     return ns;
   } // public Stem assertFindStemByName(s, name, msg)

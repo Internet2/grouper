@@ -20,6 +20,8 @@ import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -32,7 +34,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.40 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: Composite.java,v 1.41 2007-04-17 17:13:26 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -142,9 +144,9 @@ public class Composite extends GrouperAPI {
   public String toString() {
     return  new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append( "type",  this.getType()                                     )
-      .append( "owner", U.internal_q( CompositeHelper.getOwnerName(this) ) )
-      .append( "left",  U.internal_q( CompositeHelper.getLeftName(this)  ) )
-      .append( "right", U.internal_q( CompositeHelper.getRightName(this) ) )
+      .append( "owner", Quote.single( CompositeHelper.getOwnerName(this) ) )
+      .append( "left",  Quote.single( CompositeHelper.getLeftName(this)  ) )
+      .append( "right", Quote.single( CompositeHelper.getRightName(this) ) )
       .toString();
   } // public String toString()
 
