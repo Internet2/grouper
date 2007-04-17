@@ -21,11 +21,12 @@ import java.util.*;
 
 /**
  * Convenience class to allow a ResourceBundle to be acessed as a Map - used in
- * JSTL
+ * JSTL. If a key starts with '*' the '*' is discarded, however, if no value is
+ * found and empty String is returned rather than ???key???
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MapBundleWrapper.java,v 1.2 2005-12-08 15:31:42 isgwb Exp $
+ * @version $Id: MapBundleWrapper.java,v 1.3 2007-04-17 12:21:35 isgwb Exp $
  */
 
 public class MapBundleWrapper extends HashMap {
@@ -48,13 +49,20 @@ public class MapBundleWrapper extends HashMap {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
+		boolean isSilent=false;
 		if (key instanceof String) {
 		} else
 			throw new IllegalArgumentException("Strings only as keys");
 		try {
-			Object returnObj = bundle.getObject((String) key);
+			String keyStr = (String)key;
+			if(keyStr.startsWith("*")) {
+				isSilent=true;
+				keyStr = keyStr.substring(1);
+			}
+			Object returnObj = bundle.getObject(keyStr);
 			return returnObj;
 		} catch (MissingResourceException e) {
+			if(isSilent) return "";
 
 		}
 		return "???" + key + "???";
