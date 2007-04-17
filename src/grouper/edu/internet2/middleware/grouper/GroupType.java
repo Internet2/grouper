@@ -20,7 +20,10 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import  edu.internet2.middleware.grouper.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  java.io.Serializable;
 import  java.util.Date;
 import  java.util.LinkedHashSet;
@@ -31,7 +34,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.48 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GroupType.java,v 1.49 2007-04-17 17:13:26 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -73,7 +76,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     sw.start();
     GroupType type = internal_createType(s, name, true, false);
     sw.stop();
-    EventLog.info(s, M.GROUPTYPE_ADD + U.internal_q(type.toString()), sw);
+    EventLog.info(s, M.GROUPTYPE_ADD + Quote.single(type.toString()), sw);
     return type;
   } // public static GroupType createType(s, name)
 
@@ -206,7 +209,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       String typeName = this._getDTO().getName(); // For logging purposes
       GrouperDAOFactory.getFactory().getGroupType().delete( this._getDTO(), this._getDTO().getFields() );
       sw.stop();
-      EventLog.info(s, M.GROUPTYPE_DEL + U.internal_q(typeName), sw);
+      EventLog.info(s, M.GROUPTYPE_DEL + Quote.single(typeName), sw);
       // Now update the cached types + fields
       GroupTypeFinder.internal_updateKnownTypes();
       FieldFinder.internal_updateKnownFields();
@@ -271,7 +274,7 @@ public class GroupType extends GrouperAPI implements Serializable {
         sw.stop();
         EventLog.info(
           s,
-          M.GROUPTYPE_DELFIELD + U.internal_q(f.getName()) + " type=" + U.internal_q( this._getDTO().getName() ),
+          M.GROUPTYPE_DELFIELD + Quote.single(f.getName()) + " type=" + Quote.single( this._getDTO().getName() ),
           sw
         );
       }
@@ -419,8 +422,8 @@ public class GroupType extends GrouperAPI implements Serializable {
       sw.stop();
       EventLog.info(
         s, 
-        M.GROUPTYPE_ADDFIELD + U.internal_q(f.getName()) + " ftype=" + U.internal_q(type.toString()) 
-        + " gtype=" + U.internal_q( this._getDTO().getName() ),
+        M.GROUPTYPE_ADDFIELD + Quote.single(f.getName()) + " ftype=" + Quote.single(type.toString()) 
+        + " gtype=" + Quote.single( this._getDTO().getName() ),
         sw
       );
       return f;

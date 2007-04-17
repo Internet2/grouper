@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.util.Set;
 
 /** 
  * Query by {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFilter.java,v 1.8 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GroupTypeFilter.java,v 1.9 2007-04-17 17:13:26 blair Exp $
  * @since   1.2.0
  */
 public class GroupTypeFilter extends BaseQueryFilter {

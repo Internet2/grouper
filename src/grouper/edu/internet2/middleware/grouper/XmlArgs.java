@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  java.util.Properties;
 
 /**
  * XML Command Line Argument Processing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlArgs.java,v 1.7 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: XmlArgs.java,v 1.8 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0
  */
 class XmlArgs {
@@ -201,7 +202,7 @@ class XmlArgs {
       rc.setProperty(RC_UPROPS, arg);
       break;
     case 3:
-      throw new IllegalArgumentException(E_TOO_MANY_ARGS + U.internal_q(arg));
+      throw new IllegalArgumentException(E_TOO_MANY_ARGS + Quote.single(arg));
     }
   } // private static void _handlePositionalArg(rc, inputPos, arg, file)
 

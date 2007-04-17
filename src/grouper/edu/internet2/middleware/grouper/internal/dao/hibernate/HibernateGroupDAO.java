@@ -21,14 +21,14 @@ import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.GroupNotFoundException;
 import  edu.internet2.middleware.grouper.GroupType;
 import  edu.internet2.middleware.grouper.MemberOf;
-import  edu.internet2.middleware.grouper.Rosetta;
 import  edu.internet2.middleware.grouper.SchemaException;
-import  edu.internet2.middleware.grouper.SimpleBooleanCache;
+import  edu.internet2.middleware.grouper.internal.cache.SimpleBooleanCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.io.Serializable;
 import  java.util.Date;
 import  java.util.HashMap;
@@ -42,7 +42,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {

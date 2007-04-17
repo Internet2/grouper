@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  java.io.Serializable;
 
@@ -23,7 +24,7 @@ import  java.io.Serializable;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.23 2007-04-17 14:17:29 blair Exp $    
+ * @version $Id: Field.java,v 1.24 2007-04-17 17:13:26 blair Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 

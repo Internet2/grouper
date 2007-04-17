@@ -17,7 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import  edu.internet2.middleware.grouper.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
+import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  org.apache.commons.lang.builder.*;
@@ -27,7 +30,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.59 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.60 2007-04-17 17:13:26 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -241,8 +244,8 @@ public class GrouperSession extends GrouperAPI {
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
       .append( "session_id",   this._getDTO().getUuid()                                        )
-      .append( "subject_id",   U.internal_q( this._getDTO().getSubject().getId() )             )
-      .append( "subject_type", U.internal_q( this._getDTO().getSubject().getType().getName() ) )
+      .append( "subject_id",   Quote.single( this._getDTO().getSubject().getId() )             )
+      .append( "subject_type", Quote.single( this._getDTO().getSubject().getType().getName() ) )
       .toString();
   } // public String toString()
 

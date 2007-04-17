@@ -18,6 +18,8 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.Serializable;
@@ -29,7 +31,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.90 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: Member.java,v 1.91 2007-04-17 17:13:26 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1100,7 +1102,7 @@ public class Member extends GrouperAPI implements Serializable {
     sw.stop();
     EventLog.info(
       this.getSession(),
-      M.MEMBER_CHANGESID + U.internal_q(this.getUuid()) + " old=" + U.internal_q(orig) + " new=" + U.internal_q(id),
+      M.MEMBER_CHANGESID + Quote.single(this.getUuid()) + " old=" + Quote.single(orig) + " new=" + Quote.single(id),
       sw
     );
   } // public void setSubjectId(id)
@@ -1143,7 +1145,7 @@ public class Member extends GrouperAPI implements Serializable {
     sw.stop();
     EventLog.info(
       this.getSession(),
-      M.MEMBER_CHANGE_SSID + U.internal_q(this.getUuid()) + " old=" + U.internal_q(orig) + " new=" + U.internal_q(id),
+      M.MEMBER_CHANGE_SSID + Quote.single(this.getUuid()) + " old=" + Quote.single(orig) + " new=" + Quote.single(id),
       sw
     );
   } // public void setSubjectSourceId(id)
@@ -1243,8 +1245,8 @@ public class Member extends GrouperAPI implements Serializable {
       }
       catch (GroupNotFoundException eGNF) {
         ErrorLog.error(
-          Member.class, E.MEMBER_NOGROUP + U.internal_q(this.getUuid()) + " membership="
-          + U.internal_q(ms.getUuid()) + " " + eGNF.getMessage()
+          Member.class, E.MEMBER_NOGROUP + Quote.single(this.getUuid()) + " membership="
+          + Quote.single(ms.getUuid()) + " " + eGNF.getMessage()
         );
       }
     }

@@ -17,12 +17,12 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.Rosetta;
 import  edu.internet2.middleware.grouper.SchemaException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.io.Serializable;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -35,7 +35,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
  */
 public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecycle {
 

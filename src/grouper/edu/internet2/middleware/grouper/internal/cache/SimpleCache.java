@@ -15,7 +15,7 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
 import  java.util.HashMap;
 import  java.util.Map;
 
@@ -56,7 +56,7 @@ import  java.util.Map;
  * cache.removeAll();
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.6 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.2.0     
  */
 public class SimpleCache {

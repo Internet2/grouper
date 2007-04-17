@@ -16,10 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.util.U;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddStemValidator.java,v 1.1 2007-03-01 19:00:53 blair Exp $
+ * @version $Id: AddStemValidator.java,v 1.2 2007-04-17 17:13:26 blair Exp $
  * @since   1.2.0
  */
 class AddStemValidator extends GrouperValidator {
@@ -42,7 +43,7 @@ class AddStemValidator extends GrouperValidator {
     try {
       // TODO 20070301 once i move the ROOT_* out of the api layer i should be able to
       //               just make a direct DAO call.
-      StemFinder.internal_findByName( U.internal_constructName( parent.getName(), extn) );
+      StemFinder.internal_findByName( U.constructName( parent.getName(), extn) );
       v.setErrorMessage("stem already exists");
     }
     catch (StemNotFoundException eSNF) {

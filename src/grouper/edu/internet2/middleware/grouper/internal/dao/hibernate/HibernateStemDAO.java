@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.MemberOf;
-import  edu.internet2.middleware.grouper.Rosetta;
 import  edu.internet2.middleware.grouper.Stem;
 import  edu.internet2.middleware.grouper.StemNotFoundException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -28,6 +27,7 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -38,7 +38,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.2 2007-04-17 17:13:27 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {

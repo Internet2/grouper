@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.io.IOException;
 import  java.text.DateFormat;
@@ -49,7 +51,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.102 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.103 2007-04-17 17:13:26 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -243,7 +245,7 @@ public class XmlImporter {
     throws  GrouperException,
             IllegalArgumentException
   {
-    LOG.info("starting load at " + U.internal_q(ns.getName()));
+    LOG.info("starting load at " + Quote.single(ns.getName()));
     this._load(ns, doc);
     LOG.info("finished load");
   } // public void load(ns, doc)
@@ -295,14 +297,14 @@ public class XmlImporter {
         if (this._isRelativeImport(idfr)) {
           v = NotNullOrEmptyValidator.validate(this.importRoot);
           if (v.isValid()) {
-            idfr = U.internal_constructName( this.importRoot, idfr.substring(1) );
+            idfr = U.constructName( this.importRoot, idfr.substring(1) );
           }
           else {
             idfr = idfr.substring(1);
           }
         }
         else {
-          LOG.warn("not absolutizing idfr: " + U.internal_q(idfr));
+          LOG.warn("not absolutizing idfr: " + Quote.single(idfr));
         }
       }
       return this._getSubjectByIdentifier(idfr, type);
@@ -376,14 +378,14 @@ public class XmlImporter {
           try {
             ns = StemFinder.findByUuid(importer.s, uuid);
           } catch (StemNotFoundException e) {
-            throw new IllegalArgumentException(E.NO_STEM_UUID + U.internal_q(uuid));
+            throw new IllegalArgumentException(E.NO_STEM_UUID + Quote.single(uuid));
           }
         } 
         else if (name != null) {
           try {
             ns = StemFinder.findByName(importer.s, name);
           } catch (StemNotFoundException e) {
-            throw new IllegalArgumentException(E.NO_STEM_NAME + U.internal_q(name));
+            throw new IllegalArgumentException(E.NO_STEM_NAME + Quote.single(name));
           }
         }
         if (ns == null) {
@@ -451,7 +453,7 @@ public class XmlImporter {
           name = name.substring(3);
           stem = stem.substring(0, stem.lastIndexOf(Stem.ROOT_INT));
         }
-        name = U.internal_constructName(stem, name);
+        name = U.constructName(stem, name);
       }
     }
     NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(importRoot);
@@ -894,7 +896,7 @@ public class XmlImporter {
       );
     } 
     catch (GroupNotFoundException eGNF) {
-      LOG.error("error processing composite for " + U.internal_q(g.getName()) + ": " + eGNF.getMessage());
+      LOG.error("error processing composite for " + Quote.single(g.getName()) + ": " + eGNF.getMessage());
       return;
     }
   } // private void _processComposite(composite, group)
@@ -910,7 +912,7 @@ public class XmlImporter {
     String name = XmlImporter._getText(typeE);
     CompositeType ctype = CompositeType.getInstance(name);
     if (ctype == null) {
-      throw new IllegalStateException("could not resolve composite type: " + U.internal_q(name));
+      throw new IllegalStateException("could not resolve composite type: " + Quote.single(name));
     }
     return ctype;
   }  // private CompositeType _processCompositeType(typeE)
@@ -927,7 +929,7 @@ public class XmlImporter {
             SchemaException,
             StemNotFoundException
   {
-    String newGroup = U.internal_constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
+    String newGroup = U.constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
     try {
       this._processGroupUpdate(e, newGroup);  // Try and update
     } 
@@ -1159,7 +1161,7 @@ public class XmlImporter {
       rv = false; // Omit remaining processing
     }
     if (compE != null && hasMembers) {
-      LOG.warn("Cannot add composite membership to group that already has members: " + U.internal_q(g.getName()));
+      LOG.warn("Cannot add composite membership to group that already has members: " + Quote.single(g.getName()));
       rv = false; // Omit remaining processing
     }
     return rv;
@@ -1312,7 +1314,7 @@ public class XmlImporter {
             StemModifyException,
             StemNotFoundException
   {
-    String newStem = U.internal_constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
+    String newStem = U.constructName( stem, e.getAttribute(GrouperConfig.ATTR_E) );
     try {
       this._processPathUpdate(e, newStem);  // Try and update
     } 

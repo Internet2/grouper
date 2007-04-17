@@ -21,7 +21,9 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  edu.internet2.middleware.grouper.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  java.util.HashMap;
@@ -36,14 +38,15 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.119 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: Stem.java,v 1.120 2007-04-17 17:13:26 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
   // PROTECTED CLASS CONSTANTS //
   // TODO 20070316 move ROOT_INT to DAO
-  protected static final String ROOT_EXT  = GrouperConfig.EMPTY_STRING; // Appease Oracle
-  // TODO 20070416 visibility!
+  // FIXME 20070417 visibility!
+  public static final String ROOT_EXT  = GrouperConfig.EMPTY_STRING; // Appease Oracle
+  // FIXME 20070416 visibility!
   public static final String ROOT_INT  = ":";                           // Appease Oracle
 
 
@@ -144,7 +147,7 @@ public class Stem extends GrouperAPI implements Owner {
       this._revokeAllNamingPrivs();
       GrouperDAOFactory.getFactory().getStem().delete( this._getDTO() );
       sw.stop();
-      EventLog.info(this.getSession(), M.STEM_DEL + U.internal_q(name), sw);
+      EventLog.info(this.getSession(), M.STEM_DEL + Quote.single(name), sw);
     }
     catch (GrouperDAOException eDAO)      {
       throw new StemDeleteException( eDAO.getMessage(), eDAO );
@@ -701,7 +704,7 @@ public class Stem extends GrouperAPI implements Owner {
       }
       else {
         try {
-          this._getDTO().setDisplayName( U.internal_constructName( this.getParentStem().getDisplayName(), value ) );
+          this._getDTO().setDisplayName( U.constructName( this.getParentStem().getDisplayName(), value ) );
         }
         catch (StemNotFoundException eShouldNeverHappen) {
           throw new IllegalStateException( 
@@ -768,7 +771,7 @@ public class Stem extends GrouperAPI implements Owner {
       }
       else {
         try {
-          this._getDTO().setName( U.internal_constructName( this.getParentStem().getName(), value ) );
+          this._getDTO().setName( U.constructName( this.getParentStem().getName(), value ) );
         }
         catch (StemNotFoundException eShouldNeverHappen) {
           throw new IllegalStateException( 
@@ -856,9 +859,9 @@ public class Stem extends GrouperAPI implements Owner {
     try {
       Map attrs = new HashMap();
       attrs.put( GrouperConfig.ATTR_DE, dExtn );
-      attrs.put( GrouperConfig.ATTR_DN, U.internal_constructName( this.getDisplayName(), dExtn ) );
+      attrs.put( GrouperConfig.ATTR_DN, U.constructName( this.getDisplayName(), dExtn ) );
       attrs.put( GrouperConfig.ATTR_E,  extn );
-      attrs.put( GrouperConfig.ATTR_N,  U.internal_constructName( this.getName(), extn ) );
+      attrs.put( GrouperConfig.ATTR_N,  U.constructName( this.getName(), extn ) );
       Set types = new LinkedHashSet();
       types.add( GroupTypeFinder.find("base").getDTO() ); 
       GroupDTO _g = new GroupDTO()
@@ -902,7 +905,7 @@ public class Stem extends GrouperAPI implements Owner {
       child.setSession( this.getSession() );
         
       sw.stop();
-      EventLog.info(s, M.GROUP_ADD + U.internal_q(child.getName()), sw);
+      EventLog.info(s, M.GROUP_ADD + Quote.single(child.getName()), sw);
       _grantDefaultPrivsUponCreate(child);
       return child;
     }
@@ -936,9 +939,9 @@ public class Stem extends GrouperAPI implements Owner {
         .setCreatorUuid( this.getSession().getMember().getUuid() )
         .setCreateTime( new Date().getTime() )
         .setDisplayExtension(dExtn)
-        .setDisplayName( U.internal_constructName( this.getDisplayName(), dExtn ) )
+        .setDisplayName( U.constructName( this.getDisplayName(), dExtn ) )
         .setExtension(extn)
-        .setName( U.internal_constructName( this.getName(), extn ) )
+        .setName( U.constructName( this.getName(), extn ) )
         .setParentUuid( this._getDTO().getUuid() )
         ;
       if (uuid == null) {
@@ -954,7 +957,7 @@ public class Stem extends GrouperAPI implements Owner {
       child.setSession( this.getSession() );
 
       sw.stop();
-      EventLog.info(s, M.STEM_ADD + U.internal_q( child.getName() ), sw);
+      EventLog.info(s, M.STEM_ADD + Quote.single( child.getName() ), sw);
       _grantDefaultPrivsUponCreate(child);
       return child;
     }
@@ -1083,13 +1086,13 @@ public class Stem extends GrouperAPI implements Owner {
       if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
         attrs.put( 
           GrouperConfig.ATTR_DN, 
-          U.internal_constructName( this.getDisplayName(), (String) attrs.get(GrouperConfig.ATTR_DE) ) 
+          U.constructName( this.getDisplayName(), (String) attrs.get(GrouperConfig.ATTR_DE) ) 
         );
       }
       else if ( attr.equals(GrouperConfig.ATTR_E) )   {
         attrs.put(  
           GrouperConfig.ATTR_N, 
-          U.internal_constructName( this.getName(), (String) attrs.get(GrouperConfig.ATTR_E) ) 
+          U.constructName( this.getName(), (String) attrs.get(GrouperConfig.ATTR_E) ) 
         );
       }
       else {
@@ -1127,12 +1130,12 @@ public class Stem extends GrouperAPI implements Owner {
       child.setSession( this.getSession() );
       if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
         child._getDTO().setDisplayName(
-          U.internal_constructName( this._getDTO().getDisplayName(), child._getDTO().getDisplayExtension() ) 
+          U.constructName( this._getDTO().getDisplayName(), child._getDTO().getDisplayExtension() ) 
         );
       }
       else if ( attr.equals(GrouperConfig.ATTR_E) )   {
         child._getDTO().setName(
-          U.internal_constructName( this._getDTO().getName(), child._getDTO().getExtension() ) 
+          U.constructName( this._getDTO().getName(), child._getDTO().getExtension() ) 
         );
       }
       else {

@@ -15,13 +15,16 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.internal.cache;
+import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import  edu.internet2.middleware.grouper.Owner;
+import  edu.internet2.middleware.grouper.Privilege;
 
 /**
  * {@link PrivilegeCache} runtime exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeCacheException.java,v 1.3 2007-04-12 18:06:51 blair Exp $
+ * @version $Id: PrivilegeCacheException.java,v 1.1 2007-04-17 17:13:26 blair Exp $
  * @since   1.1.0
  */
 public class PrivilegeCacheException extends GrouperRuntimeException {
@@ -51,6 +54,6 @@ public class PrivilegeCacheException extends GrouperRuntimeException {
     super(cause); 
   }
 
-} // public class PrivilegeCacheException extends GrouperRuntimeException()
+}
 
 
