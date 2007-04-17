@@ -23,8 +23,6 @@ import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.MemberFinder;
 import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.internal.cache.BasePrivilegeCache;
-import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
@@ -35,7 +33,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.3 2007-04-17 18:08:05 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.4 2007-04-17 18:17:08 blair Exp $
  * @since   1.2.0
  */
 public class GrouperSessionDTO extends BaseGrouperDTO {
@@ -45,10 +43,8 @@ public class GrouperSessionDTO extends BaseGrouperDTO {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private PrivilegeCache  accessCache;
   private String          id;
   private String          memberUUID;
-  private PrivilegeCache  namingCache;
   private Date            startTime;
   private Subject         subject;
   private String          uuid;
@@ -76,18 +72,6 @@ public class GrouperSessionDTO extends BaseGrouperDTO {
   /**
    * @since   1.2.0
    */
-  public PrivilegeCache getAccessCache() {
-    // FIXME 20070416 why is this in this class?
-    if (this.accessCache == null) {
-      this.setAccessCache( BasePrivilegeCache.getCache( GrouperConfig.getProperty(GrouperConfig.PACI) ) );
-      DebugLog.info( KLASS, "using access cache: " + this.accessCache.getClass().getName() );
-    }
-    return this.accessCache;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public String getId() {
     return this.id;
   } 
@@ -97,18 +81,6 @@ public class GrouperSessionDTO extends BaseGrouperDTO {
    */
   public String getMemberUuid() {
     return this.memberUUID;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public PrivilegeCache getNamingCache() {
-    // FIXME 20070416 why is this in this class?
-    if (this.namingCache == null) {
-      this.setNamingCache( BasePrivilegeCache.getCache( GrouperConfig.getProperty(GrouperConfig.PNCI) ) );
-      DebugLog.info( KLASS, "using naming cache: " + this.namingCache.getClass().getName() );
-    }
-    return this.namingCache;
   }
 
   /**
@@ -146,14 +118,6 @@ public class GrouperSessionDTO extends BaseGrouperDTO {
   /**
    * @since   1.2.0
    */
-  public GrouperSessionDTO setAccessCache(PrivilegeCache accessCache) {
-    this.accessCache = accessCache;
-    return this;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public GrouperSessionDTO setId(String id) {
     this.id = id;
     return this;
@@ -164,14 +128,6 @@ public class GrouperSessionDTO extends BaseGrouperDTO {
    */
   public GrouperSessionDTO setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
-    return this;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public GrouperSessionDTO setNamingCache(PrivilegeCache namingCache) {
-    this.namingCache = namingCache;
     return this;
   }
 

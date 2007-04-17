@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.42 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.43 2007-04-17 18:17:08 blair Exp $
  */
 public class GrouperConfig {
 
@@ -73,11 +73,9 @@ public class GrouperConfig {
   protected static final String MSLSEA        = "memberships.log.stem.effective.add";
   protected static final String MSLSED        = "memberships.log.stem.effective.del";
   protected static final String NL            = System.getProperty("line.separator");
-  // FIXME 20070416 access
-  public static final String PACI          = "privileges.access.cache.interface";
+  protected static final String PACI          = "privileges.access.cache.interface";
   protected static final String PAI           = "privileges.access.interface";
-  // FIXME 20070416 access
-  public static final String PNCI          = "privileges.naming.cache.interface";
+  protected static final String PNCI          = "privileges.naming.cache.interface";
   protected static final String PNI           = "privileges.naming.interface";
   protected static final String ROOT          = "GrouperSystem";
   protected static final String SCGAC         = "stems.create.grant.all.create";
