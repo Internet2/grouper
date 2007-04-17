@@ -28,7 +28,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.83 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.84 2007-04-17 18:17:08 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -328,7 +328,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getAccess().grantPriv(s, g, subj, priv);
-    ( (GrouperSessionDTO) s.getDTO() ).getAccessCache().grantPriv(g, subj, priv);
+    s.internal_getAccessCache().grantPriv(g, subj, priv);
   } // protected static void internal_grantPriv(s, g, subj, priv)
 
   // @since   1.2.0
@@ -340,7 +340,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getNaming().grantPriv(s, ns, subj, priv);
-    ( (GrouperSessionDTO) s.getDTO() ).getNamingCache().grantPriv(ns, subj, priv);
+    s.internal_getNamingCache().grantPriv(ns, subj, priv);
   } // protected static void internal_grantPriv(s, ns, subj, priv)
 
   // @since   1.2.0
@@ -350,7 +350,7 @@ import  java.util.*;
   {
     GrouperSession.validate(s);
     boolean rv = false;
-    PrivilegeCacheElement el = ( (GrouperSessionDTO) s.getDTO() ).getAccessCache().get(g, subj, priv);
+    PrivilegeCacheElement el = s.internal_getAccessCache().get(g, subj, priv);
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
@@ -369,7 +369,7 @@ import  java.util.*;
         rv = false; 
       }
     }
-    ( (GrouperSessionDTO) s.getDTO() ).getAccessCache().put(g, subj, priv, rv);
+    s.internal_getAccessCache().put(g, subj, priv, rv);
     return rv;
   } // protected static boolean internal_hasPriv(s, g, subj, priv)
 
@@ -379,7 +379,7 @@ import  java.util.*;
   )
   {
     boolean rv = false;
-    PrivilegeCacheElement el = ( (GrouperSessionDTO) s.getDTO() ).getNamingCache().get(ns, subj, priv);
+    PrivilegeCacheElement el = s.internal_getNamingCache().get(ns, subj, priv);
     if (el.getIsCached()) {
       rv = el.getHasPriv(); // use cached result
     }
@@ -398,7 +398,7 @@ import  java.util.*;
         rv = false; 
       }
     }
-    ( (GrouperSessionDTO) s.getDTO() ).getNamingCache().put(ns, subj, priv, rv);
+    s.internal_getNamingCache().put(ns, subj, priv, rv);
     return rv;
   } // protected static boolean internal_hasPriv(s, ns, subj, priv)
 
@@ -409,7 +409,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getAccess().revokePriv(s, g, priv);
-    ( (GrouperSessionDTO) s.getDTO() ).getAccessCache().revokePriv(g, priv);
+    s.internal_getAccessCache().revokePriv(g, priv);
   } // protected static void internal_revokePriv(s, g, priv)
 
   // @since   1.2.0
@@ -419,7 +419,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getNaming().revokePriv(s, ns, priv);
-    ( (GrouperSessionDTO) s.getDTO() ).getNamingCache().revokePriv(ns, priv);
+    s.internal_getNamingCache().revokePriv(ns, priv);
   } // protected static void internal_revokePriv(s, ns, priv)
 
   // @since   1.2.0
@@ -431,7 +431,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getAccess().revokePriv(s, g, subj, priv);
-    ( (GrouperSessionDTO) s.getDTO() ).getAccessCache().revokePriv(g, subj, priv);
+    s.internal_getAccessCache().revokePriv(g, subj, priv);
   } // protected static void internal_revokePriv(s, g, subj, priv)
 
   // @since   1.2.0
@@ -443,7 +443,7 @@ import  java.util.*;
             SchemaException
   {
     internal_getNaming().revokePriv(s, ns, subj, priv);
-    ( (GrouperSessionDTO) s.getDTO() ).getNamingCache().revokePriv(ns, subj, priv);
+    s.internal_getNamingCache().revokePriv(ns, subj, priv);
   } // protected static void internal_revokePriv(s, ns, subj, priv)
 
 

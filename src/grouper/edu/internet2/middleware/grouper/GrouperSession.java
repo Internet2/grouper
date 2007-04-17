@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+import  edu.internet2.middleware.grouper.internal.cache.BasePrivilegeCache;
+import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCache;
 import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
@@ -29,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.62 2007-04-17 18:08:05 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.63 2007-04-17 18:17:08 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -38,6 +40,8 @@ public class GrouperSession extends GrouperAPI {
 
 
   // PRIVATE INSTANCE VARIABLES //
+  private PrivilegeCache  accessCache;
+  private PrivilegeCache  namingCache;
   private GrouperSession  rootSession;
   private SimpleCache     stateCache;
 
@@ -273,6 +277,24 @@ public class GrouperSession extends GrouperAPI {
 
 
   // PROTECTED INSTANCE METHODS //
+
+  // @since   1.2.0
+  protected PrivilegeCache internal_getAccessCache() {
+    if (this.accessCache == null) {
+      this.accessCache = BasePrivilegeCache.getCache( GrouperConfig.getProperty(GrouperConfig.PACI) );
+      DebugLog.info( GrouperSession.class, "using access cache: " + this.accessCache.getClass().getName() );
+    }
+    return this.accessCache;
+  }
+
+  // @since   1.2.0
+  protected PrivilegeCache internal_getNamingCache() {
+    if (this.namingCache == null) {
+      this.namingCache = BasePrivilegeCache.getCache( GrouperConfig.getProperty(GrouperConfig.PNCI) );
+      DebugLog.info( GrouperSession.class, "using naming cache: " + this.namingCache.getClass().getName() );
+    }
+    return this.namingCache;
+  }
 
   // @since   1.2.0
   protected GrouperSession internal_getRootSession() 
