@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.44 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: EventLog.java,v 1.45 2007-04-17 17:54:07 blair Exp $
  */
 class EventLog {
 
@@ -88,7 +88,7 @@ class EventLog {
       obj = it.next();
       if (obj instanceof Membership) {
         ms = (Membership) obj;
-        _member( s, M.COMP_MEMADD, CompositeHelper.getOwnerName(c), ms, sw );
+        _member( s, M.COMP_MEMADD, c.internal_getOwnerName(), ms, sw );
       }
     }
     it = deletes.iterator();
@@ -96,7 +96,7 @@ class EventLog {
       obj = it.next();
       if (obj instanceof Membership) {
         ms = (Membership) obj;
-        _member( s, M.COMP_MEMDEL, CompositeHelper.getOwnerName(c), ms, sw );
+        _member( s, M.COMP_MEMDEL, c.internal_getOwnerName(), ms, sw );
       }
     }
   } // protected static void groupAddAndDelCompositeMembers(s, c, mof, sw)
@@ -110,10 +110,10 @@ class EventLog {
       s
       , 
       M.COMP_ADD 
-      + Quote.single( CompositeHelper.getOwnerName(c) )
+      + Quote.single( c.internal_getOwnerName() )
       + " type="  + Quote.single(c.getType().toString() )
-      + " left="  + Quote.single( CompositeHelper.getLeftName(c) )
-      + " right=" + Quote.single( CompositeHelper.getRightName(c) )
+      + " left="  + Quote.single( c.internal_getLeftName() )
+      + " right=" + Quote.single( c.internal_getRightName() )
       ,
       sw
     );
@@ -131,10 +131,10 @@ class EventLog {
       s
       , 
       M.COMP_DEL 
-      + Quote.single( CompositeHelper.getOwnerName(c) )
+      + Quote.single( c.internal_getOwnerName() )
       + " type="  + Quote.single(c.getType().toString()  )
-      + " left="  + Quote.single( CompositeHelper.getLeftName(c) )
-      + " right=" + Quote.single( CompositeHelper.getRightName(c) )
+      + " left="  + Quote.single( c.internal_getLeftName() )
+      + " right=" + Quote.single( c.internal_getRightName() )
       ,
       sw
     );
