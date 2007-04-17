@@ -29,7 +29,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.61 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.62 2007-04-17 18:08:05 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -38,15 +38,17 @@ public class GrouperSession extends GrouperAPI {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private SimpleCache stateCache;
+  private GrouperSession  rootSession;
+  private SimpleCache     stateCache;
 
 
   // CONSTRUCTORS //
   
   // @since   1.2.0
   // FIXME 20070416 access
-  public GrouperSession() {
-    this.stateCache = new SimpleCache();
+  protected GrouperSession() {
+    this.rootSession  = null;
+    this.stateCache   = new SimpleCache();
   } 
 
   
@@ -268,6 +270,29 @@ public class GrouperSession extends GrouperAPI {
       throw new IllegalStateException(E.SV_T);
     }
   } // public void validate(
+
+
+  // PROTECTED INSTANCE METHODS //
+
+  // @since   1.2.0
+  protected GrouperSession internal_getRootSession() 
+    throws  GrouperRuntimeException
+  {
+    // TODO 20070119 should i care if we are fetching a root session from within another root session?
+    // TODO 20070417 deprecate if possible
+    if (this.rootSession == null) {
+      GrouperSession rs = new GrouperSession();
+      rs.setDTO(
+        new GrouperSessionDTO()
+          .setMemberUuid( MemberFinder.internal_findRootMember().getUuid() )
+          .setStartTime( new Date() )
+          .setSubject( SubjectFinder.findRootSubject() )
+          .setUuid( GrouperUuid.getUuid() )
+      );
+      this.rootSession = rs;
+    }
+    return this.rootSession;
+  } 
 
 
   // PRIVATE INSTANCE METHODS //
