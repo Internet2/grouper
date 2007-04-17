@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.42 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: Composite.java,v 1.43 2007-04-17 17:54:07 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -142,10 +142,10 @@ public class Composite extends GrouperAPI {
    */
   public String toString() {
     return  new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append( "type",  this.getType()                                     )
-      .append( "owner", Quote.single( CompositeHelper.getOwnerName(this) ) )
-      .append( "left",  Quote.single( CompositeHelper.getLeftName(this)  ) )
-      .append( "right", Quote.single( CompositeHelper.getRightName(this) ) )
+      .append( "type",  this.getType()                               )
+      .append( "owner", Quote.single( this.internal_getOwnerName() ) )
+      .append( "left",  Quote.single( this.internal_getLeftName()  ) )
+      .append( "right", Quote.single( this.internal_getRightName() ) )
       .toString();
   } // public String toString()
 
@@ -171,6 +171,21 @@ public class Composite extends GrouperAPI {
   protected String getName() {
     return this.getClass().getName();
   } // protected String getName()
+
+  // @since   1.2.0
+  protected String internal_getLeftName() {
+    return this._getName( this._getDTO().getLeftFactorUuid(), E.COMP_NULL_LEFT_GROUP );
+  } 
+
+  // @since   1.2.0
+  protected String internal_getOwnerName() {
+    return this._getName( this._getDTO().getFactorOwnerUuid(), E.COMP_NULL_OWNER_GROUP );
+  }
+
+  // @since   1.2.0
+  protected String internal_getRightName() {
+    return this._getName( this._getDTO().getRightFactorUuid(), E.COMP_NULL_RIGHT_GROUP );
+  }
 
   // @since   1.2.0
   protected void internal_setModified() {
@@ -234,6 +249,19 @@ public class Composite extends GrouperAPI {
   } 
 
   // @since   1.2.0
+  private String _getName(String uuid, String msg) {
+    try {
+      Group g = new Group();
+      g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
+      return g.getName();
+    }
+    catch (GroupNotFoundException eGNF) {
+      ErrorLog.error( Composite.class, msg + Quote.single( this.getUuid() ) + ": " + eGNF.getMessage() );
+      return GrouperConfig.EMPTY_STRING;
+    }
+  } 
+
+  // @since   1.2.0
   private void _update() {
     //  TODO  20070321 Assuming this is actually correct I am sure it can be
     //        improved upon.  At least it isn't as bad as the first
@@ -280,5 +308,5 @@ public class Composite extends GrouperAPI {
     }
   } // private void _update()
 
-} // public class Composite extends GrouperAPI
+} 
 
