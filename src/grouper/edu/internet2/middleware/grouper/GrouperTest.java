@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  junit.framework.*;
@@ -27,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.17 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.18 2007-04-17 17:35:00 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {

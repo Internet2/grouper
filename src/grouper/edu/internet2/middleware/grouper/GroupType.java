@@ -23,7 +23,6 @@ import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
-import  edu.internet2.middleware.grouper.internal.util.U;
 import  java.io.Serializable;
 import  java.util.Date;
 import  java.util.LinkedHashSet;
@@ -34,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.49 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: GroupType.java,v 1.50 2007-04-17 17:35:00 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
