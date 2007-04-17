@@ -37,7 +37,10 @@ import edu.internet2.middleware.grouper.SchemaException;
 
 /**
  * Class that reads an XML configuration file and hands off actual data import
- * to an implementation associated with the selected import format 
+ * to an implementation associated with the selected import format. The configuration 
+ * file is determined by looking up the media.properties key 'membership-import.config'.
+ * The base Grouper UI distribution does not have a value set. If you want to allow membership
+ * import you must configure one or more formats appropriate to your site. 
  * <pre>
 &lt;membership-import&gt;
     &lt;format name=&quot;Tab separated&quot; separator=&quot;\t&quot; id-field=&quot;1&quot;  field-type=&quot;id&quot;
@@ -55,7 +58,7 @@ which case it will be used as a default.</p>
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipImportManager.java,v 1.2 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: MembershipImportManager.java,v 1.3 2007-04-17 08:40:07 isgwb Exp $
  */
 public class MembershipImportManager {
 	private ResourceBundle config;
@@ -95,15 +98,15 @@ public class MembershipImportManager {
 	/**
 	 * Returns true if the XML configuration file exists and there is at least
 	 * one import format defined. 
-	 * @return
+	 * @return whether the UI should present import controls
 	 */
 	public boolean isActive() {
 		return active;
 	}
 	
 	/**
-	 * Returns the configured export formats
-	 * @return
+	 * Returns the configured import formats
+	 * @return list of import format names
 	 */
 	public List getAvailableFormats() {
 		List res = new ArrayList();
@@ -125,7 +128,7 @@ public class MembershipImportManager {
 	 * @param input
 	 * @param output
 	 * @param field
-	 * @return
+	 * @return count of errors encountered during the load
 	 * @throws IOException
 	 * @throws SchemaException
 	 */

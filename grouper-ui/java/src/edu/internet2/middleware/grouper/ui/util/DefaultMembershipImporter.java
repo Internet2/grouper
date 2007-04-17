@@ -36,12 +36,18 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 /**
  * Default implementation of the MembershipImporter interface. This class
  * expects single line records e.g. tab/comma separated fields where one
- * of the fields can be used to lookup a Subject by id or identifier. Other implementations
+ * of the fields can be used to lookup a Subject by id or identifier.
+ * <p>This class expects to find the following attributes in the config Element:<br/>
+ * separator e.g. ',' or '\t', used to determine fields<br/>
+ * id-field - an integer used to determine which field position to use to lookup a Subject>br/>
+ * field-type - 'id' or 'identifier' specifies the type of lookup to do<br/>
+ * ignore-existing - 'false' or 'true' determies whether trying to add an existing member is considered an error</p>
+ * <p>Other implementations
  * can be as complex as necessary  
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: DefaultMembershipImporter.java,v 1.2 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: DefaultMembershipImporter.java,v 1.3 2007-04-17 08:40:07 isgwb Exp $
  */
 
 public class DefaultMembershipImporter implements MembershipImporter{

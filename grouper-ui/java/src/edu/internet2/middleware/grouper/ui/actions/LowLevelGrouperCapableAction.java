@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.12 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.13 2007-04-17 08:40:07 isgwb Exp $
  */
 
 /**
@@ -499,6 +499,20 @@ public abstract class LowLevelGrouperCapableAction
 		return savedSubjects;
 	}
 	
+	/**
+	 * This method assumes that there is a HttpSession attribute, 'GrouperComparator',
+	 * which is an implementation of the {@link GrouperComparator} interface. If not present
+	 * this method will instantiate an implementation instance using the value for the
+	 * media.properties key 'comparator.impl'. The media.properties key 'comparator.sort.limit'
+	 * defines the maximum input size that will be sorted. If the input Collection is larger
+	 * than this limit, it is effectively returned as is, though if the Collection was not a List
+	 * it will be returned as an ArrayList.
+	 * @see edu.internet2.middleware.grouper.ui.DefaultComparatorImpl
+	 * @param input the Collection to sort
+	 * @param request the current request object
+	 * @param context the context in which sorting is taking place
+	 * @return the input Collection as a sorted List
+	 */
 	public static List sort(Collection input,HttpServletRequest request,String context) {
 		HttpSession session = request.getSession();
 		GrouperComparator gc = (GrouperComparator)session.getAttribute("GrouperComparator");

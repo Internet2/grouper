@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.14 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.15 2007-04-17 08:40:07 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -468,7 +468,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	 * @param from
 	 * @param attr
 	 * @param outTerms
-	 * @return
+	 * @return list of Stems matching search criteria
 	 * @throws Exception
 	 */
 	public List advancedStemSearch(GrouperSession s,String from,Map attr,List outTerms) throws Exception{
@@ -592,7 +592,11 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		String groupTypeText = navBundle.getString("find.results.group-type");
 		String groupType=null;
 		maxCountStr = getSingle("maxTypes",attr);
-		maxCount = Integer.parseInt(maxCountStr);
+		try {
+			maxCount = Integer.parseInt(maxCountStr);
+		}catch(NumberFormatException e) {
+			maxCount=0;
+		}
 		GroupType gt=null;
 		for (int i=1;i<=maxCount;i++) {
 			groupType = getSingle("searchType." + i,attr);

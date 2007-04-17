@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperComparatorHelper.java,v 1.1 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: GrouperComparatorHelper.java,v 1.2 2007-04-17 08:40:07 isgwb Exp $
  */
 
 public interface GrouperComparatorHelper {
@@ -34,7 +34,7 @@ public interface GrouperComparatorHelper {
 	 * @param obj
 	 * @param config
 	 * @param context
-	 * @return
+	 * @return a String, based on context, used to sort this object
 	 */
 	public String getComparisonString(Object obj,ResourceBundle config,String context);
 

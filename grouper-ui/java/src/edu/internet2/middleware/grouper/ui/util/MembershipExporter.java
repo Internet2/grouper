@@ -45,7 +45,10 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
- * Reads an XML configuration file and exports membership data as specified.
+ * Reads an XML configuration file and exports membership data as specified. The configuration 
+ * file is determined by looking up the media.properties key 'membership-export.config'.
+ * The base Grouper UI distribution does not have a value set. If you want to allow 
+ * membership export you must configure one or more formats appropriate to your site. 
  * <pre>&lt;membership-export&gt;
     &lt;format  name=&quot;CSV (Open with Excel)&quot; separator=&quot;,&quot; 
             quote=&quot;true&quot; 
@@ -112,7 +115,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipExporter.java,v 1.2 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: MembershipExporter.java,v 1.3 2007-04-17 08:40:07 isgwb Exp $
  */
 
 public class MembershipExporter {

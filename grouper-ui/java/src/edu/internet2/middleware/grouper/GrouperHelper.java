@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.29 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.30 2007-04-17 08:40:07 isgwb Exp $
  */
 
 
@@ -2723,7 +2723,8 @@ public class GrouperHelper {
 	 * Returns whether the user associated with the active GrouperSession can edit
 	 * any cuustom attribute associate with the supplied group
 	 * @param group
-	 * @return
+	 * @return whether the user associated with the active GrouperSession can edit
+	 * any cuustom attribute associate with the supplied group
 	 * @throws SchemaException
 	 */
 	public static boolean canUserEditAnyCustomAttribute(Group group) throws SchemaException{
@@ -2756,7 +2757,7 @@ public class GrouperHelper {
 	 * Stems don't have fields in the way Groups do. This approach allows for similar
 	 * code for advanced group and stem searching
 	 * @param bundle
-	 * @return
+	 * @return a list of Maps representing name / displayNames for stem fields
 	 */
 	public static List getSearchableStemFields(ResourceBundle bundle) {
 		List res = new ArrayList();

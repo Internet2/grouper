@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,15 +29,34 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * Implementation of Comparator used for sorting potentially disparate objects. 
- * A context and a config (ResourceBundle) must be set before the Comaparator 
+ * A context and a config (ResourceBundle) must be set before the Comparator 
  * is used. Stems always sort before Groups. 
  * <p>Each Object passed to the compare method is used to lookup a helper class,
  * configured through media.properties, which returns an appropriate sort String
  * for the Object.</p>
+ * <p>The Grouper UI comes pre-configured with the following implementations: 
+ * <pre>comparator.helper.edu.internet2.middleware.grouper\
+.Group                =<b>edu.internet2.middleware.grouper.ui.{@link GroupComparatorHelper}</b>
+.GroupAsMap           =<b>edu.internet2.middleware.grouper.ui.{@link GroupComparatorHelper}</b>
+.Stem                 =<b>edu.internet2.middleware.grouper.ui.{@link StemComparatorHelper}</b>
+.StemAsMap            =<b>edu.internet2.middleware.grouper.ui.{@link StemComparatorHelper}</b>
+.Subject              =<b>edu.internet2.middleware.grouper.ui.{@link StemComparatorHelper}</b>
+.SubjectAsMap         =<b>edu.internet2.middleware.grouper.ui.{@link SubjectComparatorHelper}</b>
+.Member               =<b>edu.internet2.middleware.grouper.ui.{@link SubjectComparatorHelper}</b>
+.Membership           =<b>edu.internet2.middleware.grouper.ui.{@link SubjectComparatorHelper}</b>
+.MembershipAsMap      =<b>edu.internet2.middleware.grouper.ui.{@link SubjectComparatorHelper}</b>
+.SubjectPrivilegeAsMap=<b>edu.internet2.middleware.grouper.ui.{@link GroupOrStemComparatorHelper}</b></pre>
+ * </p>
+ * <p>Sites can provide their own implementation for a helper class e.g. for a local implementation of the Subject interface which has complex sorting logic. 
+ * The object instance class name is looked up first. If a helper is not found and the object is an instance of Subject, then the Subject helper
+ * implementation will be used.</p>
+ * <p>This implementation has not been profiled. The sorting used is that provided by the JDK, however, determining the
+ * String to sort an object by, may be expensive, the first time it is determined, if lazy instantiation of the object 
+ * is used.  
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: DefaultComparatorImpl.java,v 1.1 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: DefaultComparatorImpl.java,v 1.2 2007-04-17 08:40:07 isgwb Exp $
  */
 public class DefaultComparatorImpl implements GrouperComparator {
 	private ResourceBundle config;
@@ -96,17 +115,17 @@ public class DefaultComparatorImpl implements GrouperComparator {
 		GrouperComparatorHelper helper = (GrouperComparatorHelper)helpers.get(obj.getClass().getName());
 		if(helper==null) {
 			String helperClass = null;
-			String keyLookup=null;
-			
-			if(obj instanceof Subject) {
-				keyLookup="comparator.helper." + Subject.class.getName();
-				
-			}else{
-				keyLookup="comparator.helper." + obj.getClass().getName();
-			}
+			String keyLookup="comparator.helper." + obj.getClass().getName();
 			try {
 				helperClass=config.getString(keyLookup);
 			}catch (Exception e) {}
+			
+			if(helperClass==null && obj instanceof Subject) {
+				keyLookup="comparator.helper." + Subject.class.getName();
+				try {
+					helperClass=config.getString(keyLookup);
+				}catch (Exception e) {}
+			}
 			
 			if(helperClass==null) {
 				throw new IllegalStateException(keyLookup + " is not defined");
