@@ -16,6 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
+import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  java.util.Iterator;
@@ -26,7 +30,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.82 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.83 2007-04-17 14:17:29 blair Exp $
  */
 public class MembershipFinder {
   

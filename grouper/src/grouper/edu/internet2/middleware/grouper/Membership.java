@@ -16,6 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  java.util.Iterator;
@@ -26,7 +30,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.81 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: Membership.java,v 1.82 2007-04-17 14:17:29 blair Exp $
  */
 public class Membership extends GrouperAPI {
 

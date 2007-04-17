@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -25,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.12 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: TestStem.java,v 1.13 2007-04-17 14:17:30 blair Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -236,7 +237,7 @@ public class TestStem extends GrouperTest {
     // hack! hack! hack!
     ( (StemDTO) root.getDTO() ).setDisplayExtension(Stem.ROOT_INT);
     ( (StemDTO) root.getDTO() ).setDisplayName(Stem.ROOT_INT);
-    HibernateDAO.update( root.getDTO() );
+    GrouperDAOFactory.getFactory().getStem().update( (StemDTO) root.getDTO() );
   } // public void testPropagateExtensionChangeRootAsRoot()
 
   public void testPropagateDisplayExtensionChangeAsRoot() {

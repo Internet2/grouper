@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.9 2007-04-12 15:40:41 blair Exp $
+ * @version $Id: TestCompositeU11.java,v 1.10 2007-04-17 14:17:30 blair Exp $
  */
 public class TestCompositeU11 extends GrouperTest {
 

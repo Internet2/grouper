@@ -16,6 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import  edu.internet2.middleware.grouper.internal.dto.BaseGrouperDTO;
 import  java.util.Collection;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -26,24 +34,25 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.7 2007-04-12 15:40:41 blair Exp $
+ * @version $Id: Rosetta.java,v 1.8 2007-04-17 14:17:29 blair Exp $
  */
-class Rosetta {
+public class Rosetta {
+  // FIXME 20070416 visibility! - including methods!
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static Collection getAPI(Collection c) {
+  public static Collection getAPI(Collection c) {
     Set       apis  = new LinkedHashSet();
     Iterator  it    = c.iterator();
     while (it.hasNext()) {
       apis.add( getAPI( it.next() ) );
     }
     return apis;
-  } // protected static Collection getAPI(c)
+  } // public static Collection getAPI(c)
 
   // @since   1.2.0
-  protected static GrouperAPI getAPI(BaseGrouperDTO dto) {
+  public static GrouperAPI getAPI(BaseGrouperDTO dto) {
     if      (dto instanceof FieldDTO)     {
       Field f = new Field();
       f.setDTO(dto);
@@ -60,51 +69,53 @@ class Rosetta {
       return (GroupType) type;
     }
     throw new IllegalArgumentException( "cannot translate dto to api: " + dto.getClass().getName() );
-  } // protected static GrouperAPI getAPI(dto)
+  } // public static GrouperAPI getAPI(dto)
 
   // @since   1.2.0
-  protected static GrouperAPI getAPI(HibernateDAO dao) 
+  public static GrouperAPI getAPI(GrouperDAO dao) 
     throws  IllegalArgumentException
   {
-    if      (dao instanceof HibernateFieldDAO)     {
+    // TODO 20070416 ???
+    if      (dao instanceof FieldDAO)     {
       Field f = new Field();
-      f.setDTO( FieldDTO.getDTO( (HibernateFieldDAO) dao ) );
+      f.setDTO( FieldDTO.getDTO( (FieldDAO) dao ) );
       return f;
     }
-    else if (dao instanceof HibernateGroupTypeDAO) {
+    else if (dao instanceof GroupTypeDAO) {
       GroupType t = new GroupType();
-      t.setDTO( GroupTypeDTO.getDTO( (HibernateGroupTypeDAO) dao ) );
+      t.setDTO( GroupTypeDTO.getDTO( (GroupTypeDAO) dao ) );
       return t;
     }
     throw new IllegalArgumentException( "cannot translate dao to api: " + dao.getClass().getName() );
-  } // protected static GrouperAPI getAPI(dao)
+  } // public static GrouperAPI getAPI(dao)
 
   // @since   1.2.0
-  protected static GrouperAPI getAPI(Object obj) {
+  public static GrouperAPI getAPI(Object obj) {
+    // TODO 20070416 ???
     if      (obj instanceof BaseGrouperDTO)  {
       return getAPI( (BaseGrouperDTO) obj );
     }
     else if (obj instanceof Field)           { // TODO 20070307 why does gsh trigger this?
       return (Field) obj;
     }
-    else if (obj instanceof HibernateDAO)    {
-      return getAPI( (HibernateDAO) obj );  
+    else if (obj instanceof GrouperDAO)    {
+      return getAPI( (GrouperDAO) obj );  
     }
     throw new IllegalArgumentException( "cannot translate obj to api: " + obj.getClass().getName() );
-  } // protected static GrouperAPI getAPI(obj)
+  } // public static GrouperAPI getAPI(obj)
 
   // @since   1.2.0
-  protected static GrouperDAO getDAO(GrouperAPI api) {
+  public static GrouperDAO getDAO(GrouperAPI api) {
     return getDAO( api.getDTO() );
   }
 
   // @since   1.2.0
-  protected static GrouperDAO getDAO(BaseGrouperDTO dto) {
+  public static GrouperDAO getDAO(BaseGrouperDTO dto) {
     return dto.getDAO();
   }
 
   // @since   1.2.0
-  protected static GrouperDAO getDAO(Object obj) {
+  public static GrouperDAO getDAO(Object obj) {
     if      (obj instanceof BaseGrouperDTO) {
       return getDAO( (BaseGrouperDTO) obj );
     }
@@ -115,44 +126,45 @@ class Rosetta {
   }
 
   // @since   1.2.0
-  protected static Collection getDTO(Collection c) {
+  public static Collection getDTO(Collection c) {
     Set       dtos  = new LinkedHashSet();
     Iterator  it    = c.iterator();
     while (it.hasNext()) {
       dtos.add( getDTO( it.next() ) );
     }
     return dtos;
-  } // protected static Collection getDTO(c)
+  } // public static Collection getDTO(c)
 
   // @since   1.2.0
-  protected static GrouperDTO getDTO(GrouperAPI api) {
+  public static GrouperDTO getDTO(GrouperAPI api) {
     return api.getDTO();
-  } // protected static GrouperDTO getDTO(api)
+  } // public static GrouperDTO getDTO(api)
 
   // @since   1.2.0
-  protected static GrouperDTO getDTO(HibernateDAO dao) {
-    if      (dao instanceof HibernateFieldDAO)      {
-      return FieldDTO.getDTO( (HibernateFieldDAO) dao );
+  public static GrouperDTO getDTO(GrouperDAO dao) {
+    // TODO 20070416 ???
+    if      (dao instanceof FieldDAO)      {
+      return FieldDTO.getDTO( (FieldDAO) dao );
     }
-    else if (dao instanceof HibernateGroupTypeDAO)  {
-      return GroupTypeDTO.getDTO( (HibernateGroupTypeDAO) dao );
+    else if (dao instanceof GroupTypeDAO)  {
+      return GroupTypeDTO.getDTO( (GroupTypeDAO) dao );
     }
     throw new IllegalArgumentException( "cannot translate dao to dto: " + dao.getClass().getName() );
-  } // protected static GrouperDTO getDTO(obj)
+  } // public static GrouperDTO getDTO(obj)
 
   // @since   1.2.0
-  protected static GrouperDTO getDTO(Object obj) {
-    if      (obj instanceof GrouperAPI)   {
+  public static GrouperDTO getDTO(Object obj) {
+    if      (obj instanceof GrouperAPI) {
       return getDTO( (GrouperAPI) obj );
     }
-    else if (obj instanceof GrouperDTO)   { // TODO 20070314 this is redundant 
+    else if (obj instanceof GrouperDTO) { // TODO 20070314 this is redundant 
       return (GrouperDTO) obj;
     }
-    else if (obj instanceof HibernateDAO) {
-      return getDTO( (HibernateDAO) obj );
+    else if (obj instanceof GrouperDAO) {
+      return getDTO( (GrouperDAO) obj );
     }
     throw new IllegalArgumentException( "cannot translate obj to dto: " + obj.getClass().getName() );
-  } // protected static GrouperDTO getDTO(obj)
+  } // public static GrouperDTO getDTO(obj)
 
-} // class Rosetta
+} 
 

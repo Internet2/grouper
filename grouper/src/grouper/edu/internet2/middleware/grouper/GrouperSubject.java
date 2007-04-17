@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.util.Iterator;
@@ -29,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.35 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.36 2007-04-17 14:17:29 blair Exp $
  */
 public class GrouperSubject implements Subject {
 

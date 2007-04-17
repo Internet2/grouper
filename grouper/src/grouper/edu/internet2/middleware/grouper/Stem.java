@@ -16,6 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
@@ -31,14 +36,15 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.118 2007-04-12 18:27:20 blair Exp $
+ * @version $Id: Stem.java,v 1.119 2007-04-17 14:17:29 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
   // PROTECTED CLASS CONSTANTS //
   // TODO 20070316 move ROOT_INT to DAO
   protected static final String ROOT_EXT  = GrouperConfig.EMPTY_STRING; // Appease Oracle
-  protected static final String ROOT_INT  = ":";                        // Appease Oracle
+  // TODO 20070416 visibility!
+  public static final String ROOT_INT  = ":";                           // Appease Oracle
 
 
   // PRIVATE CLASS CONSTANTS //
@@ -134,9 +140,9 @@ public class Stem extends GrouperAPI implements Owner {
       throw new StemDeleteException( v.getErrorMessage() );
     }
     try {
-      String name = this.getName();   // Preserve name for logging
-      this._revokeAllNamingPrivs();   // Revoke privs
-      HibernateStemDAO.delete(this);  // And delete
+      String name = this.getName(); // Preserve name for logging
+      this._revokeAllNamingPrivs();
+      GrouperDAOFactory.getFactory().getStem().delete( this._getDTO() );
       sw.stop();
       EventLog.info(this.getSession(), M.STEM_DEL + U.internal_q(name), sw);
     }
@@ -642,7 +648,7 @@ public class Stem extends GrouperAPI implements Owner {
     try {
       this._getDTO().setDescription(value);
       this.internal_setModified();
-      HibernateStemDAO.update(this);
+      GrouperDAOFactory.getFactory().getStem().update( this._getDTO() );
       sw.stop();
       EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_D, value, sw);
     }

@@ -16,6 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
+import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -26,9 +34,10 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.54 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: MemberOf.java,v 1.55 2007-04-17 14:17:29 blair Exp $
  */
-class MemberOf extends BaseMemberOf {
+public class MemberOf extends BaseMemberOf {
+  // FIXME 20070413 visibility!
 
   // PRIVATE INSTANCE VARIABLES // TODO 20070221 move these to "BaseMemberOf"?
   private Set deletes     = new LinkedHashSet();
@@ -177,9 +186,10 @@ class MemberOf extends BaseMemberOf {
   } // protected Map identifyGroupsAndStemsToMarkAsModified(m, it)
 
   // @since   1.2.0
-  protected Set internal_getDeletes() {
+  // FIXME 20070416 visibility - move to base?
+  public Set internal_getDeletes() {
     return this.deletes;
-  } // protected Set internal_getDeletes()
+  } 
 
   // @since   1.2.0
   protected Set internal_getEffDeletes() {
@@ -192,9 +202,10 @@ class MemberOf extends BaseMemberOf {
   } // protected Set internal_getEffSaves()
 
   // @since   1.2.0
-  protected Set internal_getSaves() {
+  // FIXME 20070416 visibility - move to base?
+  public Set internal_getSaves() {
     return this.saves;
-  } // protected Set internal_getSaves()
+  } 
 
 
   // PRIVATE INSTANCE METHODS //
@@ -589,5 +600,5 @@ class MemberOf extends BaseMemberOf {
     this.setModifiedStems( new LinkedHashSet( stems.values() ) );
   } // private void _identifyGroupsAndStemsToMarkAsModified()
 
-} // class MemberOf extends BaseMemberOf
+} 
 

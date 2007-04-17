@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 import  java.util.HashMap;
@@ -28,7 +29,7 @@ import  java.util.Set;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.5 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: RegistrySubject.java,v 1.6 2007-04-17 14:17:29 blair Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -75,7 +76,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
         .setId(id)
         .setName(name)
         .setType(type);
-      subj.setDTO( _subj.setId( HibernateRegistrySubjectDAO.create(_subj) ) );
+      subj.setDTO( _subj.setId( GrouperDAOFactory.getFactory().getRegistrySubject().create(_subj) ) );
       return subj;
     }
   } // public static RegistrySubject add(s, id, type, name)

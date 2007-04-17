@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 
@@ -23,7 +25,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.81 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.82 2007-04-17 14:17:29 blair Exp $
  */
  class PrivilegeResolver {
 

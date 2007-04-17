@@ -16,6 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  java.io.Serializable;
 import  java.util.Date;
@@ -27,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.47 2007-04-12 18:27:20 blair Exp $
+ * @version $Id: GroupType.java,v 1.48 2007-04-17 14:17:29 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 

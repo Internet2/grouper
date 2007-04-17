@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.18 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.19 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
 public class CompositeFinder {

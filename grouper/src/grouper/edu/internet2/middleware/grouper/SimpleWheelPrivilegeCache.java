@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Date;
 import  org.apache.commons.collections.keyvalue.MultiKey;
@@ -42,7 +43,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.13 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.14 2007-04-17 14:17:29 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {

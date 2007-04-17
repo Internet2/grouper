@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.subject.*;
 
 /**
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.19 2007-03-28 18:12:12 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.20 2007-04-17 14:17:29 blair Exp $
  */
 class SubjectHelper {
 

@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject10.java,v 1.5 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: TestSubject10.java,v 1.6 2007-04-17 14:17:30 blair Exp $
  */
 public class TestSubject10 extends TestCase {
 

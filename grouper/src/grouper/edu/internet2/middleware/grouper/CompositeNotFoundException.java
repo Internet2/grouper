@@ -19,10 +19,10 @@ package edu.internet2.middleware.grouper;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeNotFoundException.java,v 1.5 2007-04-12 18:06:51 blair Exp $
+ * @version $Id: CompositeNotFoundException.java,v 1.6 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
-class CompositeNotFoundException extends Exception {
+public class CompositeNotFoundException extends Exception {
   private static final long serialVersionUID = -2008937462791545490L;
   // @since 1.0
   public CompositeNotFoundException() { 

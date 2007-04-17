@@ -16,11 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.3 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.4 2007-04-17 14:17:30 blair Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_EffectiveMembershipValidator_validate extends GrouperTest {

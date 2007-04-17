@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 
 /**
  * {@link Composite} utility code.

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 
 /**
  * Perform low-level operations on the Groups Registry.
@@ -25,7 +26,7 @@ package edu.internet2.middleware.grouper;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.45 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.46 2007-04-17 14:17:29 blair Exp $
  */
 public class RegistryReset {
 
@@ -109,7 +110,7 @@ public class RegistryReset {
     for (int i=0; i<10; i++) {
       String id   = "test.subject." + i;
       String name = "my name is " + id;
-      HibernateRegistrySubjectDAO.create(
+      GrouperDAOFactory.getFactory().getRegistrySubject().create(
         new RegistrySubjectDTO()
           .setId(id)
           .setName(name)
