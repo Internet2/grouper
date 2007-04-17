@@ -17,10 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCacheElement;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 
@@ -28,7 +28,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.84 2007-04-17 18:17:08 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.85 2007-04-17 18:45:13 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -209,19 +209,18 @@ import  java.util.*;
 
   // @since   1.2.0
   protected static Set internal_canViewGroups(GrouperSession s, Set candidates) {
-    Set             groups  = new LinkedHashSet();
-    Group           g;
-    Iterator        it      = candidates.iterator();
+    Set       groups  = new LinkedHashSet();
+    Group     g;
+    Iterator  it      = candidates.iterator();
     while (it.hasNext()) {
-      g = (Group) Rosetta.getAPI( it.next() );
+      g = (Group) new Group().setDTO( (GroupDTO) it.next() );
       g.setSession(s);
-      // Can we view the group
-      if (internal_canVIEW(g, s.getSubject())) {
+      if ( internal_canVIEW( g, s.getSubject() ) ) {
         groups.add(g);
       }
     }
     return groups;
-  } // protected static Set internal_canViewGroups(s, candidates)
+  } 
 
   // @since   1.2.0
   protected static Set internal_canViewMemberships(GrouperSession s, Collection c) {

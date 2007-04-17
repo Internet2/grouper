@@ -38,83 +38,12 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.1 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: Rosetta.java,v 1.2 2007-04-17 18:45:13 blair Exp $
  */
 public class Rosetta {
   // FIXME 20070416 visibility! - including methods!
 
   // PUBLIC CLASS METHODS //
-
-  /**
-   * @since   1.2.0
-   */
-  public static Collection getAPI(Collection c) {
-    Set       apis  = new LinkedHashSet();
-    Iterator  it    = c.iterator();
-    while (it.hasNext()) {
-      apis.add( getAPI( it.next() ) );
-    }
-    return apis;
-  } 
-
-  /**
-   * @since   1.2.0
-   */
-  public static GrouperAPI getAPI(BaseGrouperDTO dto) {
-    if      (dto instanceof FieldDTO)     {
-      Field f = new Field();
-      f.setDTO(dto);
-      return (Field) f;
-    }
-    else if (dto instanceof GroupDTO)     {
-      Group g = new Group();
-      g.setDTO(dto);
-      return (Group) g;
-    }
-    else if (dto instanceof GroupTypeDTO) {
-      GroupType type = new GroupType();
-      type.setDTO(dto);
-      return (GroupType) type;
-    }
-    throw new IllegalArgumentException( "cannot translate dto to api: " + dto.getClass().getName() );
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public static GrouperAPI getAPI(GrouperDAO dao) 
-    throws  IllegalArgumentException
-  {
-    // TODO 20070416 ???
-    if      (dao instanceof FieldDAO)     {
-      Field f = new Field();
-      f.setDTO( FieldDTO.getDTO( (FieldDAO) dao ) );
-      return f;
-    }
-    else if (dao instanceof GroupTypeDAO) {
-      GroupType t = new GroupType();
-      t.setDTO( GroupTypeDTO.getDTO( (GroupTypeDAO) dao ) );
-      return t;
-    }
-    throw new IllegalArgumentException( "cannot translate dao to api: " + dao.getClass().getName() );
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public static GrouperAPI getAPI(Object obj) {
-    // TODO 20070416 ???
-    if      (obj instanceof BaseGrouperDTO)  {
-      return getAPI( (BaseGrouperDTO) obj );
-    }
-    else if (obj instanceof Field)           { // TODO 20070307 why does gsh trigger this?
-      return (Field) obj;
-    }
-    else if (obj instanceof GrouperDAO)    {
-      return getAPI( (GrouperDAO) obj );  
-    }
-    throw new IllegalArgumentException( "cannot translate obj to api: " + obj.getClass().getName() );
-  } // public static GrouperAPI getAPI(obj)
 
   /**
    * @since   1.2.0

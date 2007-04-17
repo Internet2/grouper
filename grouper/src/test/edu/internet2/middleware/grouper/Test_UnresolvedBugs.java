@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_UnresolvedBugs.java,v 1.4 2007-03-07 20:36:10 blair Exp $
+ * @version $Id: Test_UnresolvedBugs.java,v 1.5 2007-04-17 18:45:13 blair Exp $
  * @since   1.2.0
  */
 public class Test_UnresolvedBugs extends GrouperTest {
@@ -42,6 +42,7 @@ public class Test_UnresolvedBugs extends GrouperTest {
       assertTrue("no known unresolved bugs", true);
     }
     catch (Exception e) {
+      e.printStackTrace();
       unexpectedException(e);
     }
   } // public void testUnresolvedBug0()

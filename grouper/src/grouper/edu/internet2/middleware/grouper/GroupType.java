@@ -22,9 +22,9 @@ import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.io.Serializable;
 import  java.util.Date;
+import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 import  org.apache.commons.lang.time.*;
@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.50 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: GroupType.java,v 1.51 2007-04-17 18:45:13 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -305,8 +305,13 @@ public class GroupType extends GrouperAPI implements Serializable {
    * @return  A set of {@link Field} objects.
    */
   public Set getFields() {
-    return new LinkedHashSet( Rosetta.getAPI( this._getDTO().getFields() ) );
-  } // public Set getFields()
+    Set       fields  = new LinkedHashSet();
+    Iterator  it      = this._getDTO().getFields().iterator();
+    while (it.hasNext()) {
+      fields.add( new Field().setDTO( (FieldDTO) it.next() ) );
+    }
+    return fields;
+  } 
 
   /**
    * Get group type name.
