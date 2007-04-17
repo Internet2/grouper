@@ -17,7 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
+import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Map;
@@ -27,7 +27,7 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.33 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.34 2007-04-17 18:45:13 blair Exp $
  */
 public class FieldFinder {
 
@@ -69,10 +69,13 @@ public class FieldFinder {
   public static Set findAll() 
     throws  GrouperRuntimeException
   {
-    return new LinkedHashSet(
-      Rosetta.getAPI( GrouperDAOFactory.getFactory().getField().findAll() ) 
-    );
-  } // public static Set findAll()
+    Set       fields  = new LinkedHashSet();
+    Iterator  it      = GrouperDAOFactory.getFactory().getField().findAll().iterator();
+    while (it.hasNext()) {
+      fields.add( new Field().setDTO( (FieldDTO) it.next() ) );
+    }
+    return fields;
+  }
 
   /**
    * Find all fields of the specified type.
@@ -83,10 +86,13 @@ public class FieldFinder {
   public static Set findAllByType(FieldType type) 
     throws  SchemaException
   {
-    return new LinkedHashSet(
-      Rosetta.getAPI( GrouperDAOFactory.getFactory().getField().findAllByType(type) ) 
-    );
-  } // public static Set findAllByType(type)
+    Set       fields  = new LinkedHashSet();
+    Iterator  it      = GrouperDAOFactory.getFactory().getField().findAllByType(type).iterator();
+    while (it.hasNext()) {
+      fields.add( new Field().setDTO( (FieldDTO) it.next() ) );
+    }
+    return fields;
+  }
 
 
   // PROTECTED CLASS METHODS //
