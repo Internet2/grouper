@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  java.util.ArrayList;
 import  java.util.Date;
 import  java.util.Set;
@@ -24,7 +25,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.42 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.43 2007-04-17 14:17:29 blair Exp $
  */
 public class GroupFinder {
 

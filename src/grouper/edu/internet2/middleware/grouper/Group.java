@@ -16,6 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
@@ -31,7 +37,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.151 2007-04-12 18:27:20 blair Exp $
+ * @version $Id: Group.java,v 1.152 2007-04-17 14:17:29 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -438,7 +444,6 @@ public class Group extends GrouperAPI implements Owner {
       //deletes.add(this);            // ... And add the group last for good luck    
       String name = this.getName(); // Preserve name for logging
       GrouperDAOFactory.getFactory().getGroup().delete( this._getDTO(), deletes );
-      //HibernateGroupDAO.delete(deletes);
       sw.stop();
       EventLog.info(this.getSession(), M.GROUP_DEL + U.internal_q(name), sw);
     }
@@ -500,7 +505,7 @@ public class Group extends GrouperAPI implements Owner {
         attrs.remove(attr);
         this._getDTO().setAttributes(attrs);
         this.internal_setModified();
-        HibernateGroupDAO.update(this); // TODO 20070316 this should probably call a smarter method
+        GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
         sw.stop();
         EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
       }
@@ -1990,7 +1995,7 @@ public class Group extends GrouperAPI implements Owner {
       }
       this._getDTO().setAttributes(attrs);
       this.internal_setModified();
-      HibernateGroupDAO.update(this);
+      GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
       sw.stop();
       EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }

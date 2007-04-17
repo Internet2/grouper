@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.40 2007-02-15 20:42:17 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.41 2007-04-17 14:17:29 blair Exp $
  */
 public class GrouperConfig {
 
@@ -51,7 +51,8 @@ public class GrouperConfig {
   protected static final String ATTR_N        = "name";
   protected static final String BT            = "true";
   protected static final String EMPTY_STRING  = "";
-  protected static final long   EPOCH         = 0;
+  // FIXME 20070416 access
+  public static final long   EPOCH         = 0;
   protected static final String GCGAA         = "groups.create.grant.all.admin";
   protected static final String GCGAOI        = "groups.create.grant.all.optin";
   protected static final String GCGAOO        = "groups.create.grant.all.optout";
@@ -68,9 +69,11 @@ public class GrouperConfig {
   protected static final String MSLSEA        = "memberships.log.stem.effective.add";
   protected static final String MSLSED        = "memberships.log.stem.effective.del";
   protected static final String NL            = System.getProperty("line.separator");
-  protected static final String PACI          = "privileges.access.cache.interface";
+  // FIXME 20070416 access
+  public static final String PACI          = "privileges.access.cache.interface";
   protected static final String PAI           = "privileges.access.interface";
-  protected static final String PNCI          = "privileges.naming.cache.interface";
+  // FIXME 20070416 access
+  public static final String PNCI          = "privileges.naming.cache.interface";
   protected static final String PNI           = "privileges.naming.interface";
   protected static final String ROOT          = "GrouperSystem";
   protected static final String SCGAC         = "stems.create.grant.all.create";

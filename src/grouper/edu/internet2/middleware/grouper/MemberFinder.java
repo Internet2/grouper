@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 
@@ -23,7 +25,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.42 2007-04-12 18:27:20 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.43 2007-04-17 14:17:29 blair Exp $
  */
 public class MemberFinder {
 
@@ -98,7 +100,8 @@ public class MemberFinder {
   } // protected static Member internal_findAllMember()
 
   // @since   1.2.0
-  protected static Member internal_findRootMember() 
+  // FIXME 20070416 access
+  public static Member internal_findRootMember() 
     throws  GrouperRuntimeException
   {
     try {
@@ -109,7 +112,7 @@ public class MemberFinder {
       ErrorLog.fatal(MemberFinder.class, msg);
       throw new GrouperRuntimeException(msg, eShouldNeverHappen);
     }
-  } // protected static Member internal_findRootMember()
+  } 
 
   // @since   1.2.0
   protected static Member internal_findBySubject(Subject subj) 

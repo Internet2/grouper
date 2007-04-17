@@ -16,31 +16,44 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
+import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
+import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
+import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import  edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
+import  edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
+import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFactory;
 
 /** 
  * TODO 20070330
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.1 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.2 2007-04-17 14:17:29 blair Exp $
  * @since   1.2.0
  */
-abstract class GrouperDAOFactory {
+public abstract class GrouperDAOFactory {
+  // FIXME 20070416 visibility! - including methods
 
   // CONSTRUCTORS //
 
   // @since   1.2.0
-  protected GrouperDAOFactory() {
+  public GrouperDAOFactory() {
     super();
-  } // protected GrouperDAOFactory()
+  } // public GrouperDAOFactory()
 
 
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static GrouperDAOFactory getFactory() {
+  public static GrouperDAOFactory getFactory() {
     // TODO 20070403 cache?  singleton?
+    // TODO 20070416 use reflection to instantiate right class
     return new HibernateDAOFactory();
-  } // protected static GrouperDAOFactory getFactory()
+  } // public static GrouperDAOFactory getFactory()
 
 
   // PROTECTED ABSTRACT INSTANCE METHODS //
@@ -48,34 +61,34 @@ abstract class GrouperDAOFactory {
   // TODO 20070403 add static class methods that call these?
 
   // @since   1.2.0
-  protected abstract CompositeDAO getComposite();
+  public abstract CompositeDAO getComposite();
 
   // @since   1.2.0
-  protected abstract FieldDAO getField();
+  public abstract FieldDAO getField();
 
   // @since   1.2.0
-  protected abstract GroupDAO getGroup();
+  public abstract GroupDAO getGroup();
 
   // @since   1.2.0
-  protected abstract GrouperSessionDAO getGrouperSession();
+  public abstract GrouperSessionDAO getGrouperSession();
 
   // @since   1.2.0
-  protected abstract GroupTypeDAO getGroupType();
+  public abstract GroupTypeDAO getGroupType();
 
   // @since   1.2.0
-  protected abstract MemberDAO getMember();
+  public abstract MemberDAO getMember();
 
   // @since   1.2.0
-  protected abstract MembershipDAO getMembership();
+  public abstract MembershipDAO getMembership();
 
   // @since   1.2.0
-  protected abstract RegistryDAO getRegistry();
+  public abstract RegistryDAO getRegistry();
 
   // @since   1.2.0
-  protected abstract RegistrySubjectDAO getRegistrySubject();
+  public abstract RegistrySubjectDAO getRegistrySubject();
 
   // @since   1.2.0
-  protected abstract StemDAO getStem();
+  public abstract StemDAO getStem();
 
 } // abstract class GrouperDAOFactory
 

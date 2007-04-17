@@ -26,10 +26,11 @@ import  java.util.Set;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.15 2007-03-28 16:27:46 blair Exp $
+ * @version $Id: U.java,v 1.16 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
-class U {
+public class U {
+  // FIXME VISIBILITY + LOCATION
 
   // PRIVATE CLASS CONSTANTS //
   private static final String Q_CLOSE   = "'";
@@ -64,7 +65,8 @@ class U {
   } // protected static String internal_q(input)
  
   // @since   1.2.0
-  protected static String internal_q(String input) {
+  // FIXME 20070416 visibility
+  public static String internal_q(String input) {
     return Q_OPEN + input + Q_CLOSE;
   } // protected static String internal_q(input)
 

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -26,7 +27,7 @@ import  java.util.Set;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.26 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.27 2007-04-17 14:17:29 blair Exp $
  */
 public class GroupTypeFinder {
   

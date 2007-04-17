@@ -16,7 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
+import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import  java.util.HashMap;
+import  java.util.Iterator;
+import  java.util.LinkedHashSet;
+import  java.util.Map;
+import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -24,7 +32,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.39 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: Composite.java,v 1.40 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {

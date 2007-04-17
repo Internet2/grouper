@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -23,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf1.java,v 1.10 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: TestMemberOf1.java,v 1.11 2007-04-17 14:17:30 blair Exp $
  * @since   1.0
  */
 public class TestMemberOf1 extends GrouperTest {

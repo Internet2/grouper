@@ -16,10 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.29 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.30 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
 class MembershipValidator extends GrouperValidator {

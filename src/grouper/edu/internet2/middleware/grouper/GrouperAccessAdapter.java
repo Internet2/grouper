@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.HashMap;
 import  java.util.Iterator;
@@ -31,7 +34,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.57 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.58 2007-04-17 14:17:29 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.HashMap;
 import  java.util.Map;
@@ -25,7 +26,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.15 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: R.java,v 1.16 2007-04-17 14:17:29 blair Exp $
  * @since   1.2.0
  */
 public class R {
@@ -311,7 +312,7 @@ public class R {
       _subj.setId(id);
       _subj.setName(name);
       _subj.setType("person");
-      HibernateRegistrySubjectDAO.create(_subj);
+      GrouperDAOFactory.getFactory().getRegistrySubject().create(_subj);
       RegistrySubject     subj  = new RegistrySubject();
       subj.setDTO(_subj);
       r.subjects.put(id, subj);

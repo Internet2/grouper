@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.4 2007-02-27 18:08:09 blair Exp $
+ * @version $Id: BaseMemberOf.java,v 1.5 2007-04-17 14:17:29 blair Exp $
  * @since   1.2.0
  */
 abstract class BaseMemberOf {
@@ -95,10 +97,12 @@ abstract class BaseMemberOf {
   protected MembershipDTO getMembershipDTO() {
     return this._ms;
   }
-  protected Set getModifiedGroups() {
+  // FIXME 20070416 visibility
+  public Set getModifiedGroups() {
     return this.modifiedGroups;
   }
-  protected Set getModifiedStems() {
+  // FIXME 20070416 visibility
+  public Set getModifiedStems() {
     return this.modifiedStems;
   }
   protected String getOwnerUuid() {

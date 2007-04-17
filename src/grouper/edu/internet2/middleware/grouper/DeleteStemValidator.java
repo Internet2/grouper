@@ -16,10 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
 
 /** 
  * @author  blair christensen.
- * @version $Id: DeleteStemValidator.java,v 1.3 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: DeleteStemValidator.java,v 1.4 2007-04-17 14:17:29 blair Exp $
  * @since   1.2.0
  */
 class DeleteStemValidator extends GrouperValidator {

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
@@ -24,7 +25,7 @@ import  java.util.Set;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.2 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: GrouperAPI.java,v 1.3 2007-04-17 14:17:29 blair Exp $
  */
 abstract class GrouperAPI {
 
@@ -59,14 +60,15 @@ abstract class GrouperAPI {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected GrouperDTO getDTO() 
+  // FIXME 20070416 visibility
+  public GrouperDTO getDTO() 
     throws  IllegalStateException
   {
     if (this.dto == null) {
       throw new IllegalStateException( "null dto in class " + this.getClass().getName() );
     }
     return this.dto;
-  } // protected GrouperDTO getDTO()
+  } 
 
   // @since   1.2.0
   protected GrouperSession getSession() 
@@ -79,9 +81,10 @@ abstract class GrouperAPI {
   } // protected GrouperSession getSession()
 
   // @since   1.2.0
-  protected void setDTO(GrouperDTO dto) {
+  // FIXME 20070416 !!!
+  public void setDTO(GrouperDTO dto) {
     this.dto = dto;
-  } // protected void setDTO(dto)
+  } 
 
   // @since   1.2.0
   protected void setSession(GrouperSession s) {

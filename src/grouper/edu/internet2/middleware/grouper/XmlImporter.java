@@ -16,6 +16,9 @@
  */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.io.IOException;
 import  java.text.DateFormat;
@@ -46,7 +49,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.101 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.102 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1482,7 +1485,7 @@ public class XmlImporter {
       }
     }
     if (modified) {
-      HibernateDAO.update(g);
+      GrouperDAOFactory.getFactory().getGroup().update( (GroupDTO) g.getDTO() );
     }
   } // private void _setInternalAttributesAttributes(g, e)
   
@@ -1508,7 +1511,7 @@ public class XmlImporter {
       }
     }
     if (modified) {
-      HibernateDAO.update(ns);
+      GrouperDAOFactory.getFactory().getStem().update( (StemDTO) ns.getDTO() );
     }
   } // private void _setInternalAttributesAttributes(ns, e)
 

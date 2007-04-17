@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.40 2007-03-09 19:28:21 blair Exp $
+ * @version $Id: E.java,v 1.41 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
 class E {
@@ -140,7 +140,6 @@ class E {
   protected static final String HIBERNATE                 = "hibernate error: ";
   protected static final String HIBERNATE_COMMIT          = "hibernate commit error: ";
   protected static final String HIBERNATE_GETPERSISTENT   = "error getting persistent object: ";
-  protected static final String HIBERNATE_INIT            = "unable to initialize hibernate: ";
   protected static final String MEMBER_NOGROUP            = "member of group that cannot be found: member=";
   protected static final String MEMBER_NULL               = "null member";
   protected static final String MEMBER_SUBJNOTFOUND       = "unable to find member as subject: ";

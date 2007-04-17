@@ -16,10 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.13 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.14 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
 class CompositeValidator extends GrouperValidator {

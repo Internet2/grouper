@@ -16,6 +16,8 @@
  */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.*;
@@ -36,7 +38,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.91 2007-04-12 17:56:03 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.92 2007-04-17 14:17:29 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {

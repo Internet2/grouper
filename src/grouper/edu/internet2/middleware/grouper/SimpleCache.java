@@ -56,10 +56,11 @@ import  java.util.Map;
  * cache.removeAll();
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.5 2007-02-28 17:05:34 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.6 2007-04-17 14:17:29 blair Exp $
  * @since   1.2.0     
  */
-class SimpleCache {
+public class SimpleCache {
+  // FIXME 20070416 visibility - and methods
 
   // PRIVATE INSTANCE VARIABLES //
   private Object cache;
@@ -85,9 +86,9 @@ class SimpleCache {
    * @return  true if this cache contains this key.
    * @since   1.2.0
    */
-  protected boolean containsKey(Object key) {
+  public boolean containsKey(Object key) {
     return ( (Map) this.getCache() ).containsKey(key);
-  } // protected boolean containsKey(key)
+  } 
 
   /**
    * Retrieve a cached {@link Object}.
@@ -95,9 +96,9 @@ class SimpleCache {
    * @return  Cached {@link Object} or null.
    * @since   1.2.0
    */
-  protected Object get(Object key) {
+  public Object get(Object key) {
     return ( (Map) this.getCache() ).get(key);
-  } // protected Object get(key)
+  } 
 
   /**
    * Retrieve the raw cache.
@@ -105,18 +106,18 @@ class SimpleCache {
    * @return  The actual cache {@link Object}. 
    * @since   1.2.0
    */
-  protected Object getCache() {
+  public Object getCache() {
     return this.cache;
-  } // protected Object getCache()
+  } 
 
   /**
    * Cache an {@link Object}.
    * <p/>
    * @since   1.2.0
    */
-  protected void put(Object key, Object value) {
+  public void put(Object key, Object value) {
     ( (Map) this.getCache() ).put(key, value);  
-  } // protected void put(key, value)
+  } 
 
   /**
    * Remove an {@link Object} from the cache.
@@ -124,18 +125,18 @@ class SimpleCache {
    * @return  The removed {@link Object}.
    * @since   1.2.0
    */
-  protected Object remove(Object key) {
+  public Object remove(Object key) {
     return ( (Map) this.getCache() ).remove(key);
-  } // protected Object remove(key)
+  } 
 
   /**
    * Remove all cached {@link Object}s.
    * <p/>
    * @since   1.2.0
    */
-  void removeAll() {
+  public void removeAll() {
     this.setCache( new HashMap() );
-  } // protected void removeAll()
+  } 
 
   /**
    * Set the cache {@link Object}.
@@ -146,5 +147,5 @@ class SimpleCache {
     this.cache = cache;
   } // protected void setCache(cache)
 
-} // class SimpleCache
+} 
 
