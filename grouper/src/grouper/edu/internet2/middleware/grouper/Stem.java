@@ -38,7 +38,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.120 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: Stem.java,v 1.121 2007-04-17 18:08:05 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -986,7 +986,7 @@ public class Stem extends GrouperAPI implements Owner {
     // Possibly a bug. The modify* attrs get set when granting ADMIN at creation.
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = ( (GrouperSessionDTO) orig.getDTO() ).getRootSession();
+      GrouperSession  root  = orig.internal_getRootSession();
       g.setSession(root);
       PrivilegeResolver.internal_grantPriv(root, g, orig.getSubject(), AccessPrivilege.ADMIN);
 
@@ -1023,7 +1023,7 @@ public class Stem extends GrouperAPI implements Owner {
     // Possibly a bug. The modify* attrs get set when granting privs at creation.
     try {
       GrouperSession  orig  = this.s;
-      GrouperSession  root  = ( (GrouperSessionDTO) orig.getDTO() ).getRootSession();
+      GrouperSession  root  = orig.internal_getRootSession();
       ns.setSession(root);
       PrivilegeResolver.internal_grantPriv(root, ns, orig.getSubject(), NamingPrivilege.STEM);
 
@@ -1158,7 +1158,7 @@ public class Stem extends GrouperAPI implements Owner {
             SchemaException
   {
     GrouperSession orig = this.getSession();
-    this.setSession( ( (GrouperSessionDTO) orig.getDTO() ).getRootSession() ); // proxy as root
+    this.setSession( orig.internal_getRootSession() ); // proxy as root
     this.revokePriv(NamingPrivilege.CREATE);
     this.revokePriv(NamingPrivilege.STEM);
     this.setSession(orig);

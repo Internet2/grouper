@@ -40,7 +40,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.153 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: Group.java,v 1.154 2007-04-17 18:08:05 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -440,9 +440,7 @@ public class Group extends GrouperAPI implements Owner {
       }
       // ... And delete all memberships - as root
       Set deletes = new LinkedHashSet(
-        Membership.internal_deleteAllFieldType(
-          ( (GrouperSessionDTO) this.getSession().getDTO() ).getRootSession(), this, FieldType.LIST
-        )
+        Membership.internal_deleteAllFieldType( this.getSession().internal_getRootSession(), this, FieldType.LIST )
       );
       //deletes.add(this);            // ... And add the group last for good luck    
       String name = this.getName(); // Preserve name for logging
@@ -2256,7 +2254,7 @@ public class Group extends GrouperAPI implements Owner {
             SchemaException
   {
     GrouperSession orig = this.getSession();
-    this.setSession( ( (GrouperSessionDTO) orig.getDTO() ).getRootSession() ); // proxy as root
+    this.setSession( orig.internal_getRootSession() ); // proxy as root
 
     this.revokePriv(AccessPrivilege.ADMIN);
     this.revokePriv(AccessPrivilege.OPTIN);

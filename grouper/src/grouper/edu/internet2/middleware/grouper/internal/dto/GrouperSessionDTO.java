@@ -35,7 +35,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.2 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.3 2007-04-17 18:08:05 blair Exp $
  * @since   1.2.0
  */
 public class GrouperSessionDTO extends BaseGrouperDTO {
@@ -49,7 +49,6 @@ public class GrouperSessionDTO extends BaseGrouperDTO {
   private String          id;
   private String          memberUUID;
   private PrivilegeCache  namingCache;
-  private GrouperSession  rootSession;
   private Date            startTime;
   private Subject         subject;
   private String          uuid;
@@ -115,28 +114,6 @@ public class GrouperSessionDTO extends BaseGrouperDTO {
   /**
    * @since   1.2.0
    */
-  public GrouperSession getRootSession() 
-    throws  GrouperRuntimeException
-  {
-    // FIXME 20070416 why is this in this class?
-    // TODO 20070119 should i care if we are fetching a root session from within another root session?
-    if (this.rootSession == null) {
-      GrouperSession rs = new GrouperSession();
-      rs.setDTO(
-        new GrouperSessionDTO()
-          .setMemberUuid( MemberFinder.internal_findRootMember().getUuid() )
-          .setStartTime( new Date() )
-          .setSubject( SubjectFinder.findRootSubject() )
-          .setUuid( GrouperUuid.getUuid() )
-      );
-      this.setRootSession(rs);
-    }
-    return this.rootSession;
-  } 
-
-  /**
-   * @since   1.2.0
-   */
   public Date getStartTime() {
     return this.startTime;
   }
@@ -195,14 +172,6 @@ public class GrouperSessionDTO extends BaseGrouperDTO {
    */
   public GrouperSessionDTO setNamingCache(PrivilegeCache namingCache) {
     this.namingCache = namingCache;
-    return this;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public GrouperSessionDTO setRootSession(GrouperSession rootSession) {
-    this.rootSession = rootSession;
     return this;
   }
 
