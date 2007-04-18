@@ -24,20 +24,40 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.43 2007-04-17 18:17:08 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.44 2007-04-18 17:16:05 blair Exp $
  */
 public class GrouperConfig {
 
   // PUBLIC CLASS CONSTANTS //
   
   /**
+   * String with value of <code>""</code>.
+   */
+  public static final String EMPTY_STRING         = "";
+  /**
+   * Epoch origin.
+   */
+  public static final long   EPOCH                = 0;
+  /**
    * Grouper configuration file.
    */
-  public static final String GROUPER_CF   = "/grouper.properties";
+  public static final String GROUPER_CF           = "/grouper.properties";
   /**
    * Hibernate configuration file.
    */
-  public static final String HIBERNATE_CF = "/grouper.hibernate.properties";
+  public static final String HIBERNATE_CF         = "/grouper.hibernate.properties";
+  /**
+   * Property containing maximum age of cached wheel group.
+   */
+  public static final String PROP_MAX_WHEEL_AGE   = "edu.internet2.middleware.internal.cache.SimpleWheelPrivilegeCache.maxWheelAge";
+  /**
+   * Property containing name of wheel group.
+   */
+  public static final String PROP_WHEEL_GROUP     = "groups.wheel.group";
+  /**
+   * Property determining whether wheel group is to be used.
+   */
+  public static final String PROP_USE_WHEEL_GROUP = "groups.wheel.use";
 
 
   // PROTECTED CLASS CONSTANTS //
@@ -50,24 +70,14 @@ public class GrouperConfig {
   protected static final String ATTR_E        = "extension";
   protected static final String ATTR_N        = "name";
   protected static final String BT            = "true";
-  // FIXME 20070417 access
-  public static final String EMPTY_STRING  = "";
-  // FIXME 20070416 access
-  public static final long   EPOCH         = 0;
   protected static final String GCGAA         = "groups.create.grant.all.admin";
   protected static final String GCGAOI        = "groups.create.grant.all.optin";
   protected static final String GCGAOO        = "groups.create.grant.all.optout";
   protected static final String GCGAR         = "groups.create.grant.all.read";
   protected static final String GCGAU         = "groups.create.grant.all.update";
   protected static final String GCGAV         = "groups.create.grant.all.view";
-  // FIXME 20070417 access
-  public static final String GWG           = "groups.wheel.group";
-  // FIXME 20070417 access
-  public static final String GWU           = "groups.wheel.use";
   protected static final String IST           = "application";
   protected static final String LIST          = "members";
-  // FIXME 20070417 access
-  public static final String MAX_WHEEL_AGE = "edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge";
   protected static final String MSLGEA        = "memberships.log.group.effective.add";
   protected static final String MSLGED        = "memberships.log.group.effective.del";
   protected static final String MSLSEA        = "memberships.log.stem.effective.add";

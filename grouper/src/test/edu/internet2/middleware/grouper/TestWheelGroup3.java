@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup3.java,v 1.6 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestWheelGroup3.java,v 1.7 2007-04-18 17:16:05 blair Exp $
  * @since   1.1.0
  */
 public class TestWheelGroup3 extends GrouperTest {
@@ -58,8 +58,8 @@ public class TestWheelGroup3 extends GrouperTest {
       Stem    etc   = r.root.addChildStem("etc", "etc");
       Group   wheel = etc.addChildGroup("wheel", "wheel");
       wheel.addMember(subjA);
-      GrouperConfig.internal_setProperty(GrouperConfig.GWU, "true"     );
-      GrouperConfig.internal_setProperty(GrouperConfig.GWG, "etc:wheel");
+      GrouperConfig.internal_setProperty(GrouperConfig.PROP_USE_WHEEL_GROUP, "true"     );
+      GrouperConfig.internal_setProperty(GrouperConfig.PROP_WHEEL_GROUP, "etc:wheel");
       
       // After wheel
       Assert.assertTrue(  "now has create"  , nsA.hasCreate(subjA)  );
@@ -71,7 +71,7 @@ public class TestWheelGroup3 extends GrouperTest {
       T.e(e);
     }
     finally {
-      GrouperConfig.internal_setProperty(GrouperConfig.GWU, "false" ); // turn wheel back off
+      GrouperConfig.internal_setProperty(GrouperConfig.PROP_USE_WHEEL_GROUP, "false" ); // turn wheel back off
     }
   } // public void testNotWheelThenMakeWheel()
 

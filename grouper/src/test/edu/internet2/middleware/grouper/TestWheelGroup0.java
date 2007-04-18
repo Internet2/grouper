@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestWheelGroup0.java,v 1.6 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestWheelGroup0.java,v 1.7 2007-04-18 17:16:05 blair Exp $
  * @since   1.1.0
  */
 public class TestWheelGroup0 extends TestCase {
@@ -53,8 +53,8 @@ public class TestWheelGroup0 extends TestCase {
       // Enable wheel
       Stem    etc   = r.root.addChildStem("etc", "etc");
       etc.addChildGroup("wheel", "wheel");
-      GrouperConfig.internal_setProperty(GrouperConfig.GWU, "true"     );
-      GrouperConfig.internal_setProperty(GrouperConfig.GWG, "etc:wheel");
+      GrouperConfig.internal_setProperty(GrouperConfig.PROP_USE_WHEEL_GROUP, "true"     );
+      GrouperConfig.internal_setProperty(GrouperConfig.PROP_WHEEL_GROUP, "etc:wheel");
 
       GrouperSession nrs = GrouperSession.start(subjA);
       Assert.assertFalse("is !root", RootPrivilegeResolver.internal_isRoot(nrs));
@@ -76,7 +76,7 @@ public class TestWheelGroup0 extends TestCase {
       T.e(e);
     }
     finally {
-      GrouperConfig.internal_setProperty(GrouperConfig.GWU, "false" ); // turn wheel back off
+      GrouperConfig.internal_setProperty(GrouperConfig.PROP_USE_WHEEL_GROUP, "false" ); // turn wheel back off
     }
   } // public void testGrantAdminWithoutWheel()
 
