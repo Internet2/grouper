@@ -22,28 +22,27 @@ import  java.util.Properties;
 /**
  * Grouper Utility Class.
  * @author  blair christensen.
- * @version $Id: U.java,v 1.2 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: U.java,v 1.3 2007-04-18 18:02:04 blair Exp $
  * @since   1.0
  */
 public class U {
-  // FIXME 20070417 reconsider everything in this class
 
   // PUBLIC CLASS METHODS //
 
   /**
-   * FIXME 20070417 relocate to somewhere more appropriate.
+   * TODO 20070418 relocate to somewhere more appropriate.
    * <p/>
    * @since   1.2.0
    */
   public static String constructName(String stem, String extn) {
-    if ( stem.equals(Stem.ROOT_EXT) ) {
+    if ( stem.equals(Stem.ROOT_NAME) ) {
       return extn;
     }
-    return stem + Stem.ROOT_INT + extn;
+    return stem + Stem.DELIM + extn;
   } 
 
   /**
-   * FIXME 20070417 relocate to somewhere more appropriate.
+   * TODO 20070418 relocate to somewhere more appropriate.
    * <p/>
    * @since   1.2.0
    */ 

@@ -20,7 +20,7 @@ import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
 
 /** 
  * @author  blair christensen.
- * @version $Id: DeleteStemValidator.java,v 1.4 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: DeleteStemValidator.java,v 1.5 2007-04-18 18:02:04 blair Exp $
  * @since   1.2.0
  */
 class DeleteStemValidator extends GrouperValidator {
@@ -31,7 +31,7 @@ class DeleteStemValidator extends GrouperValidator {
   protected static DeleteStemValidator validate(Stem ns) {
     StemDAO             dao = GrouperDAOFactory.getFactory().getStem();
     DeleteStemValidator v   = new DeleteStemValidator();
-    if      ( Stem.ROOT_EXT.equals( ns.getName() ) ) {
+    if      ( Stem.ROOT_NAME.equals( ns.getName() ) ) {
       v.setErrorMessage("cannot delete root stem");
     }
     else if ( dao.findAllChildStems(ns).size() > 0 ) {

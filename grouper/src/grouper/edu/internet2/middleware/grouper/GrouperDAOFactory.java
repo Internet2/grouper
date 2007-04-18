@@ -32,11 +32,10 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFact
  * TODO 20070330
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.2 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.3 2007-04-18 18:02:04 blair Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
-  // FIXME 20070416 visibility! - including methods
 
   // CONSTRUCTORS //
 

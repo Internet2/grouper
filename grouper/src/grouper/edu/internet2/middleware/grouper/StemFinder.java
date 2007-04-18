@@ -27,7 +27,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.42 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: StemFinder.java,v 1.43 2007-04-18 18:02:04 blair Exp $
  */
 public class StemFinder {
 
@@ -53,7 +53,7 @@ public class StemFinder {
   {
     GrouperSession.validate(s);
     // TODO 20070314 bah.  should be in dao if it exists at all.
-    if ( name.equals(Stem.ROOT_EXT) ) {
+    if ( name.equals(Stem.ROOT_NAME) ) {
       name = Stem.ROOT_INT;
     }
     Stem ns = new Stem();
@@ -239,7 +239,7 @@ public class StemFinder {
     throws  StemNotFoundException
   {
     // @session false
-    if (name.equals(Stem.ROOT_EXT)) {
+    if (name.equals(Stem.ROOT_NAME)) {
       name = Stem.ROOT_INT;
     }
     return GrouperDAOFactory.getFactory().getStem().findByName(name);
@@ -256,7 +256,7 @@ public class StemFinder {
 
   // @since   1.2.0
   protected static boolean internal_isChild(Stem ns, Stem child) {
-    if ( Stem.ROOT_EXT.equals( child.getName() ) ) {
+    if ( Stem.ROOT_NAME.equals( child.getName() ) ) {
       return false; // child stem is the root stem.  bail out immediately.
     }
     StemDAO dao     = GrouperDAOFactory.getFactory().getStem();
@@ -267,7 +267,7 @@ public class StemFinder {
         if ( _parent.getUuid().equals( ns.getUuid() ) ) {
           return true;
         }
-        if ( Stem.ROOT_EXT.equals( _parent.getName() ) ) {
+        if ( Stem.ROOT_NAME.equals( _parent.getName() ) ) {
           return false; // _parent is root.  don't bother searching further.
         }
         _parent = dao.findByUuid( _parent.getParentUuid() );

@@ -37,16 +37,26 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.123 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: Stem.java,v 1.124 2007-04-18 18:02:04 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
+  // PUBLIC CLASS CONSTANTS //
+  
+  /**
+   * Hierarchy delimiter.
+   */
+  public static final String DELIM      = ":";
+  /**
+   * Default name of root stem.
+   */
+  public static final String ROOT_NAME  = GrouperConfig.EMPTY_STRING;
+  
+  
   // PROTECTED CLASS CONSTANTS //
   // TODO 20070316 move ROOT_INT to DAO
-  // FIXME 20070417 visibility!
-  public static final String ROOT_EXT  = GrouperConfig.EMPTY_STRING; // Appease Oracle
   // FIXME 20070416 visibility!
-  public static final String ROOT_INT  = ":";                           // Appease Oracle
+  public static final String ROOT_INT  = ":";                        // Appease Oracle
 
 
   // PRIVATE CLASS CONSTANTS //
@@ -314,7 +324,7 @@ public class Stem extends GrouperAPI implements Owner {
   public String getDisplayExtension() {
     String val = this._getDTO().getDisplayExtension();
     if (val.equals(ROOT_INT)) {
-      return ROOT_EXT;
+      return ROOT_NAME;
     }
     return val;
   }
@@ -330,7 +340,7 @@ public class Stem extends GrouperAPI implements Owner {
   public String getDisplayName() {
     String val = this._getDTO().getDisplayName();
     if (val.equals(ROOT_INT)) {
-      return ROOT_EXT;
+      return ROOT_NAME;
     }
     return val;
   }
@@ -346,7 +356,7 @@ public class Stem extends GrouperAPI implements Owner {
   public String getExtension() {
     String val = this._getDTO().getExtension();
     if (val.equals(ROOT_INT)) {
-      return ROOT_EXT;
+      return ROOT_NAME;
     }
     return val;
   }
@@ -417,7 +427,7 @@ public class Stem extends GrouperAPI implements Owner {
   public String getName() {
     String val = this._getDTO().getName();
     if (val.equals(ROOT_INT)) {
-      return ROOT_EXT;
+      return ROOT_NAME;
     }
     return val;
   }
@@ -684,7 +694,7 @@ public class Stem extends GrouperAPI implements Owner {
     sw.start();
     NamingValidator nv = NamingValidator.validate(value);
     if (nv.isInvalid()) {
-      if ( this.isRootStem() && value.equals(ROOT_EXT) ) {
+      if ( this.isRootStem() && value.equals(ROOT_NAME) ) {
         // Appease Oracle
         value = ROOT_INT;   
       }
@@ -720,7 +730,7 @@ public class Stem extends GrouperAPI implements Owner {
     sw.stop();
     // Reset for logging purposes
     if (value.equals(ROOT_INT)) {
-      value = ROOT_EXT;
+      value = ROOT_NAME;
     }
     EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_DE, value, sw);
   } // public void setDisplayExtension(value)
@@ -751,7 +761,7 @@ public class Stem extends GrouperAPI implements Owner {
     sw.start();
     NamingValidator nv = NamingValidator.validate(value);
     if (nv.isInvalid()) {
-      if ( this.isRootStem() && value.equals(ROOT_EXT) ) {
+      if ( this.isRootStem() && value.equals(ROOT_NAME) ) {
         // Appease Oracle
         value = ROOT_INT;   
       }
@@ -787,7 +797,7 @@ public class Stem extends GrouperAPI implements Owner {
     sw.stop();
     // Reset for logging purposes
     if (value.equals(ROOT_INT)) {
-      value = ROOT_EXT;
+      value = ROOT_NAME;
     }
     EL.stemSetAttr( this.getSession(), this.getName(), GrouperConfig.ATTR_E, value, sw );
   } // public void setExtension(value)
