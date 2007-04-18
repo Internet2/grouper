@@ -18,12 +18,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.GrouperConfig;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.io.InputStream;
-import  java.util.ArrayList;
-import  java.util.Collection;
-import  java.util.Iterator;
 import  java.util.Properties;
 import  net.sf.hibernate.*;
 import  net.sf.hibernate.cfg.*;
@@ -32,7 +27,7 @@ import  net.sf.hibernate.cfg.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.3 2007-04-18 15:19:22 blair Exp $
  * @since   1.2.0
  */
 public abstract class HibernateDAO {
@@ -80,109 +75,17 @@ public abstract class HibernateDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 revisit + visiblity
-  public static String create(Object obj) 
-    throws  GrouperDAOException 
-  {
-    try {
-      Session       hs  = HibernateDAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(obj);
-      try {
-        hs.save(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      } 
-      return dao.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } 
-
-  // @since   1.2.0
-  // FIXME 20070416 revisit + visiblity
-  public static void delete(Collection c) 
-    throws  GrouperDAOException 
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        Iterator it = c.iterator();
-        while (it.hasNext()) {
-          hs.delete( Rosetta.getDAO( it.next() ) );
-        }
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      } 
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } 
-
-  // @since   1.2.0
-  // FIXME 20070416 revisit + visiblity
-  public static void delete(Object obj) 
-    throws  GrouperDAOException 
-  {
-    Collection c = new ArrayList();
-    c.add(obj);
-    delete(c);
-  } 
-
-  // @since   1.2.0
-  // FIXME 20070416 visibility
-	public static Session getSession()
+	protected static Session getSession()
     throws HibernateException
   {
 		return FACTORY.openSession();
 	} 
 
-  // @since   1.2.0
-  // FIXME 20070416 revisit + visiblity
-  public static void update(Object obj) 
-    throws  GrouperDAOException 
-  {
-    try {
-      Session     hs  = HibernateDAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        hs.update( Rosetta.getDAO(obj) );
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      } 
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
-  } 
-
 
   // PROTECTED ABSTRACT METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 visibility
-  public abstract String getId();
+  protected abstract String getId();
 
 } 
 

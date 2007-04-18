@@ -31,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.63 2007-04-17 18:17:08 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.64 2007-04-18 15:19:22 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -49,8 +49,7 @@ public class GrouperSession extends GrouperAPI {
   // CONSTRUCTORS //
   
   // @since   1.2.0
-  // FIXME 20070416 access
-  protected GrouperSession() {
+  private GrouperSession() {
     this.rootSession  = null;
     this.stateCache   = new SimpleCache();
   } 
