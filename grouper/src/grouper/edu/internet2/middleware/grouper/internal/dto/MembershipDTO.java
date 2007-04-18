@@ -21,18 +21,14 @@ import  edu.internet2.middleware.grouper.Membership;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  java.util.Collection;
 import  java.util.Date;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * {@link Membership} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.3 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: MembershipDTO.java,v 1.4 2007-04-18 15:02:11 blair Exp $
  * @since   1.2.0
  */
 public class MembershipDTO implements GrouperDTO {
@@ -90,6 +86,26 @@ public class MembershipDTO implements GrouperDTO {
     return this.creatorUUID;
   }
 
+  /**
+   * @since   1.20
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getMembership()
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setDepth( this.getDepth() )
+      .setId( this.getId() )
+      .setListName( this.getListName() )
+      .setListType( this.getListType() )
+      .setMemberUuid( this.getMemberUuid() )
+      .setOwnerUuid( this.getOwnerUuid() )
+      .setParentUuid( this.getParentUuid() )
+      .setType( this.getType() )
+      .setUuid( this.getUuid() )
+      .setViaUuid( this.getViaUuid() )
+      ;
+  }
+  
   /**
    * @since   1.2.0
    */
@@ -290,24 +306,11 @@ public class MembershipDTO implements GrouperDTO {
       .append( "viaUuid",     this.getViaUuid()     )
       .toString();
   } // public String toString()
-
-
-  // PROTECTED CLASS METHODS //
-
+  
+  
+  // PUBLIC CLASS METHODS //
+  
   // @since   1.2.0
-  // FIXME 20070416 visibility + presence
-  public static Collection getDTO(Collection c) {
-    Set       mships  = new LinkedHashSet();
-    Iterator it       = c.iterator();
-    while ( it.hasNext() ) {
-      mships.add( getDTO( (MembershipDAO) it.next() ) );
-    }
-    return mships;
-    
-  } 
-
-  // @since   1.2.0
-  // FIXME 20070416 visibility + presence
   public static MembershipDTO getDTO(MembershipDAO dao) {
     return new MembershipDTO()
       .setCreateTime( dao.getCreateTime() )
@@ -324,28 +327,6 @@ public class MembershipDTO implements GrouperDTO {
       .setViaUuid( dao.getViaUuid() )
       ;
   }
-
-
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  // FIXME 20070416 visibility
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getMembership()
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setDepth( this.getDepth() )
-      .setId( this.getId() )
-      .setListName( this.getListName() )
-      .setListType( this.getListType() )
-      .setMemberUuid( this.getMemberUuid() )
-      .setOwnerUuid( this.getOwnerUuid() )
-      .setParentUuid( this.getParentUuid() )
-      .setType( this.getType() )
-      .setUuid( this.getUuid() )
-      .setViaUuid( this.getViaUuid() )
-      ;
-  }
-
+  
 } 
 

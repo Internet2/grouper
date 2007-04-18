@@ -27,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GrouperSession} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.5 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.6 2007-04-18 15:02:11 blair Exp $
  * @since   1.2.0
  */
 public class GrouperSessionDTO implements GrouperDTO {
@@ -57,8 +57,20 @@ public class GrouperSessionDTO implements GrouperDTO {
       .append( this.getStartTime(),  that.getStartTime()  )
       .append( this.getUuid(),       that.getUuid()       )
       .isEquals();
-  } // public boolean equals(other)
-
+  }
+  
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getGrouperSession()
+      .setId( this.getId() )
+      .setMemberUuid( this.getMemberUuid() )
+      .setStartTime( this.getStartTime() )
+      .setUuid( this.getUuid() )
+      ;
+  }
+  
   /**
    * @since   1.2.0
    */
@@ -154,20 +166,6 @@ public class GrouperSessionDTO implements GrouperDTO {
       .append( "startTime",  this.getStartTime()   )
       .append( "uuid",       this.getUuid() )
       .toString();
-  } // public String toString()
-
-
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  // FIXME 20070416 visibility
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getGrouperSession()
-      .setId( this.getId() )
-      .setMemberUuid( this.getMemberUuid() )
-      .setStartTime( this.getStartTime() )
-      .setUuid( this.getUuid() )
-      ;
   }
 
 } 

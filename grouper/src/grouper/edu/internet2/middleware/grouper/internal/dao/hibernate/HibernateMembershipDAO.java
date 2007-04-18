@@ -35,7 +35,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Membership} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.3 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.4 2007-04-18 15:02:11 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
@@ -115,7 +115,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setLong(   "time",  d.getTime()            );
       qry.setString( "fname", f.getName()            );
       qry.setString( "ftype", f.getType().toString() );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -144,7 +147,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setLong(   "time",  d.getTime()            );
       qry.setString( "fname", f.getName()            );
       qry.setString( "ftype", f.getType().toString() );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -166,7 +172,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByMember");
       qry.setString("member", memberUUID);
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -191,7 +200,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       );
       qry.setString( "member", memberUUID );
       qry.setString( "via",    viaUUID    );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -220,7 +232,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setString( "owner", ownerUUID                ); 
       qry.setString( "fname", f.getName()            );
       qry.setString( "ftype", f.getType().toString() ); 
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -251,7 +266,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setString( "fname" , f.getName()             );
       qry.setString( "ftype" , f.getType().toString()  );
       qry.setString( "type"  , type                    );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -282,7 +300,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setString( "member", memberUUID             );
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -340,7 +361,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindChildMemberships");
       qry.setString( "uuid", _ms.getUuid() );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -377,7 +401,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setString( "type",   Membership.EFFECTIVE   );
       qry.setString( "via",    viaUUID                );
       qry.setInteger("depth",  depth                  );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -408,7 +435,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
       qry.setString( "type",   Membership.EFFECTIVE   );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -441,7 +471,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
       qry.setString( "type",   Membership.EFFECTIVE   );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -472,7 +505,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setString( "fname",  f.getName()            );
       qry.setString( "ftype",  f.getType().toString() );
       qry.setString( "type",   Membership.IMMEDIATE   );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -527,7 +563,10 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       qry.setString( "member", memberUUID             );
       qry.setString( "fname" , f.getName()            );
       qry.setString( "ftype" , f.getType().toString() );
-      mships.addAll( MembershipDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {

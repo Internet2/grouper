@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic {@link Field} DTO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $    
+ * @version $Id: FieldDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $    
  * @since   1.2.0
  */
 public class FieldDTO implements GrouperDTO {
@@ -62,6 +62,22 @@ public class FieldDTO implements GrouperDTO {
      .isEquals();
   } // public boolean equals(other)
 
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getField()
+      .setGroupTypeUuid( this.getGroupTypeUuid() )
+      .setId( this.getId() )
+      .setIsNullable( this.getIsNullable() )
+      .setName( this.getName() )
+      .setReadPrivilege( this.getReadPrivilege() )
+      .setType( this.getType() )
+      .setUuid( this.getUuid() )
+      .setWritePrivilege( this.getWritePrivilege() )
+      ;
+  }
+  
   /**
    * @since   1.2.0
    */
@@ -234,7 +250,6 @@ public class FieldDTO implements GrouperDTO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 access
   public static FieldDTO getDTO(FieldDAO dao) {
     return new FieldDTO()
       .setGroupTypeUuid( dao.getGroupTypeUuid() )
@@ -247,24 +262,6 @@ public class FieldDTO implements GrouperDTO {
       .setWritePrivilege( dao.getWritePrivilege() )
       ;
   } 
-
-
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  // FIXME 20070416 access
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getField()
-      .setGroupTypeUuid( this.getGroupTypeUuid() )
-      .setId( this.getId() )
-      .setIsNullable( this.getIsNullable() )
-      .setName( this.getName() )
-      .setReadPrivilege( this.getReadPrivilege() )
-      .setType( this.getType() )
-      .setUuid( this.getUuid() )
-      .setWritePrivilege( this.getWritePrivilege() )
-      ;
-  }
 
 } 
 

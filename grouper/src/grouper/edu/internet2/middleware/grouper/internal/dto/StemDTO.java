@@ -19,17 +19,13 @@ package edu.internet2.middleware.grouper.internal.dto;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
-import  java.util.Collection;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * {@link Stem} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: StemDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
  */
 public class StemDTO implements GrouperDTO {
 
@@ -86,6 +82,28 @@ public class StemDTO implements GrouperDTO {
    */
   public String getCreatorUuid() {
     return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getStem()
+      .setCreateSource( this.getCreateSource() )
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setDescription( this.getDescription() )
+      .setDisplayExtension( this.getDisplayExtension() )
+      .setDisplayName( this.getDisplayName() )
+      .setExtension( this.getExtension() )
+      .setId( this.getId() )
+      .setModifierUuid( this.getModifierUuid() )
+      .setModifySource( this.getModifySource() )
+      .setModifyTime( this.getModifyTime() )
+      .setName( this.getName() )
+      .setUuid( this.getUuid() )
+      .setParentUuid( this.getParentUuid() )
+      ;
   }
 
   /**
@@ -308,21 +326,11 @@ public class StemDTO implements GrouperDTO {
   } // public String toString()
 
 
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  // FIXME 20070416 visiblity and existence
-  public static Collection getDTO(Collection c) {
-    Set       stems = new LinkedHashSet();
-    Iterator  it    = c.iterator();
-    while ( it.hasNext() ) {
-      stems.add( getDTO( (StemDAO) it.next() ) );
-    }
-    return stems;
-  } 
-
-  // @since   1.2.0
-  // FIXME 20070416 visibility
+  // PUBLIC CLASS METHODS //
+ 
+  /**
+   * @since   1.2.0
+   */
   public static StemDTO getDTO(StemDAO dao) {
     return new StemDTO()
       .setCreateSource( dao.getCreateSource() )
@@ -339,30 +347,6 @@ public class StemDTO implements GrouperDTO {
       .setName( dao.getName() )
       .setUuid( dao.getUuid() )
       .setParentUuid( dao.getParentUuid() )
-      ;
-  }
-
-
-  // PROTECTED INSTANCE METHODS //
-  
-  // @since   1.2.0
-  // FIXME 20070416 visibility
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getStem()
-      .setCreateSource( this.getCreateSource() )
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setDescription( this.getDescription() )
-      .setDisplayExtension( this.getDisplayExtension() )
-      .setDisplayName( this.getDisplayName() )
-      .setExtension( this.getExtension() )
-      .setId( this.getId() )
-      .setModifierUuid( this.getModifierUuid() )
-      .setModifySource( this.getModifySource() )
-      .setModifyTime( this.getModifyTime() )
-      .setName( this.getName() )
-      .setUuid( this.getUuid() )
-      .setParentUuid( this.getParentUuid() )
       ;
   }
 

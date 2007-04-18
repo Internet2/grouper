@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link RegistrySubject} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: RegistrySubjectDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
  * @since   1.2.0
  */
 public class RegistrySubjectDTO implements GrouperDTO {
@@ -53,8 +53,19 @@ public class RegistrySubjectDTO implements GrouperDTO {
       .append( this.getId(),   that.getId()   )
       .append( this.getType(), that.getType() )
       .isEquals();
-  } // public boolean equals(other)
-
+  } 
+  
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getRegistrySubject()
+      .setId( this.getId() )
+      .setName( this.getName() )
+      .setType( this.getType() )
+      ;
+  }
+  
   /**
    * @since   1.2.0
    */
@@ -120,19 +131,6 @@ public class RegistrySubjectDTO implements GrouperDTO {
       .append( "subjectId",   this.getId()   )
       .append( "subjectType", this.getType() )
       .toString();
-  } // public String toString()
-
-
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  // FIXME 20070416 visibility
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getRegistrySubject()
-      .setId( this.getId() )
-      .setName( this.getName() )
-      .setType( this.getType() )
-      ;
   }
 
 } 
