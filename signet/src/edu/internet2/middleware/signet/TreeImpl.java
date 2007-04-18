@@ -1,6 +1,6 @@
 /*--
-$Id: TreeImpl.java,v 1.11 2007-03-19 23:12:10 ddonn Exp $
-$Date: 2007-03-19 23:12:10 $
+$Id: TreeImpl.java,v 1.12 2007-04-18 00:11:31 ddonn Exp $
+$Date: 2007-04-18 00:11:31 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -139,6 +139,20 @@ public class TreeImpl extends EntityImpl implements Tree
   {
     this.subsystems = subsystems;
   }
+
+  /**
+   * Add a Subsystem
+   * @param subsystem
+   */
+  public void addSubsystem(Subsystem subsystem)
+  {
+	if ((null != subsystem) && (!subsystems.contains(subsystem)))
+	{
+		subsystems.add(subsystem);
+		subsystem.setTree(this);
+	}
+  }
+
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.tree#getRoot()

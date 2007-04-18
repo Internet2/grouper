@@ -9,7 +9,10 @@
 		name="edu.internet2.middleware.signet.ChoiceImpl"
 		table="signet_choice">
 		
-		<id name="key" type="int" column="choiceKey">
+		<id name="key"
+				type="int"
+				column="choiceKey"
+				unsaved-value="null" >
 			<generator class="sequence">
 				<param name="sequence">choiceSerial</param>
 			</generator>

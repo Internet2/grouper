@@ -18,6 +18,6 @@ goto end
 :okJavaHome
 CALL ..\dist-signet_cp.bat
 
-%JAVA_HOME%/bin/java -cp %CLASSPATH% edu.internet2.middleware.signet.util.SubsystemXmlLoader %1
+%JAVA_HOME%/bin/java -cp %CLASSPATH% edu.internet2.middleware.signet.util.SubsystemXmlLoader %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 :end

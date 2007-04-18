@@ -1,38 +1,81 @@
 --
 -- This is the HSQL DDL for the Signet database
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/hsql.sql,v 1.41 2007-03-08 07:10:01 lmcrae Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/hsql.sql,v 1.42 2007-04-18 00:11:31 ddonn Exp $
 --
 
 -- Tree tables
 drop table signet_treeNodeRelationship if exists;
 drop table signet_treeNode if exists;
 drop table signet_tree if exists;
+
 -- ChoiceSet tables
 drop table signet_choice if exists;
+drop sequence choiceSerial if exists;
+drop table dual_choiceSerial if exists;
+
 drop table signet_choiceSet if exists;
+drop sequence choiceSetSerial if exists;
+drop table dual_choiceSetSerial if exists;
+
 -- Assignment tables
 drop table signet_assignmentLimit if exists;
+
 drop table signet_assignment if exists;
+drop sequence assignmentSerial if exists;
+drop table dual_assignmentSerial if exists;
+
 drop table signet_assignmentLimit_history if exists;
+
 drop table signet_assignment_history if exists;
+drop sequence assignmentHistorySerial if exists;
+drop table dual_assignmentHistorySerial if exists;
+
 drop table signet_proxy if exists;
+drop sequence proxySerial if exists;
+drop table dual_proxySerial if exists;
+
 drop table signet_proxy_history if exists;
+drop sequence proxyHistorySerial if exists;
+drop table dual_proxyHistorySerial if exists;
+
 -- Subsystem tables
 drop table signet_permission_limit if exists;
 drop table signet_function_permission if exists;
+
 drop table signet_category if exists;
+drop sequence categorySerial if exists;
+drop table dual_categorySerial if exists;
+
 drop table signet_function if exists;
+drop sequence functionSerial if exists;
+drop table dual_functionSerial if exists;
+
 drop table signet_permission if exists;
+drop sequence permissionSerial if exists;
+drop table dual_permissionSerial if exists;
+
 drop table signet_limit if exists;
+drop sequence limitSerial if exists;
+drop table dual_limitSerial if exists;
+
 drop table signet_subsystem if exists;
--- Signet Subject table
+
+-- Signet Subject tables
 drop table signet_subjectAttribute if exists;
+drop sequence subjectAttributeSerial if exists;
+drop table dual_subjectAttributeSerial if exists;
+
 drop table signet_subject if exists;
+drop sequence subjectSerial if exists;
+drop table dual_subjectSerial if exists;
+
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute if exists;
 drop table Subject if exists;
 drop table SubjectType if exists;
+
+
 --
 -- Subsystem tables
 create table signet_subsystem
@@ -46,9 +89,14 @@ modifyDatetime      datetime            NOT NULL,
 primary key (subsystemID)
 )
 ;
+
+CREATE TABLE dual_categorySerial (seq_col int);
+INSERT INTO dual_categorySerial VALUES (0);
+CREATE SEQUENCE categorySerial START WITH 1;
+
 create table signet_category
 (
-categoryKey         int                 NOT NULL IDENTITY,
+categoryKey         int                 NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 categoryID          varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -59,9 +107,14 @@ unique (subsystemID, categoryID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
+
+CREATE TABLE dual_functionSerial (seq_col int);
+INSERT INTO dual_functionSerial VALUES (0);
+CREATE SEQUENCE functionSerial START WITH 1;
+
 create table signet_function
 (
-functionKey         int                 NOT NULL IDENTITY,
+functionKey         int                 NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 functionID          varchar(64)         NOT NULL,
 categoryKey         int                 NULL,
@@ -74,9 +127,14 @@ unique (subsystemID, functionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
+
+CREATE TABLE dual_permissionSerial (seq_col int);
+INSERT INTO dual_permissionSerial VALUES (0);
+CREATE SEQUENCE permissionSerial START WITH 1;
+
 create table signet_permission
 (
-permissionKey		int                 NOT NULL IDENTITY,
+permissionKey       int                 NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 permissionID        varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -86,9 +144,14 @@ unique (subsystemID, permissionID),
 foreign key (subsystemID) references signet_subsystem (subsystemID)
 )
 ;
+
+CREATE TABLE dual_limitSerial (seq_col int);
+INSERT INTO dual_limitSerial VALUES (0);
+CREATE SEQUENCE limitSerial START WITH 1;
+
 create table signet_limit
 (
-limitKey			int                 NOT NULL IDENTITY,
+limitKey            int                 NOT NULL,
 subsystemID         varchar(64)         NOT NULL,
 limitID             varchar(64)         NOT NULL,
 status              varchar(16)         NOT NULL,
@@ -125,11 +188,16 @@ foreign key (permissionKey) references signet_permission (permissionKey),
 foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
+
 --
 -- Signet Subject tables
 --
+CREATE TABLE dual_subjectSerial (seq_col int);
+INSERT INTO dual_subjectSerial VALUES (0);
+CREATE SEQUENCE subjectSerial START WITH 1;
+
 create table signet_subject (
-subjectKey          bigint              NOT NULL IDENTITY,
+subjectKey          bigint              NOT NULL,
 sourceID            varchar(64)         NOT NULL,
 subjectID           varchar(64)         NOT NULL,
 type                varchar(32)         NOT NULL,
@@ -140,6 +208,11 @@ primary key (subjectKey),
 unique (sourceID, subjectID)
 )
 ;
+
+CREATE TABLE dual_subjectAttributeSerial (seq_col int);
+INSERT INTO dual_subjectAttributeSerial VALUES (0);
+CREATE SEQUENCE subjectAttributeSerial START WITH 1;
+
 create table signet_subjectAttribute (
 subjectAttributeKey  bigint             NOT NULL,
 subjectKey           bigint             NOT NULL,
@@ -152,21 +225,6 @@ primary key (subjectAttributeKey),
 foreign key (subjectKey)
     references signet_subject(subjectKey) ON DELETE CASCADE,
 unique (subjectKey, attributeName, attributeSequence)
-)
-;
-
--- create sequence subjectAttrValueSerial START 1;
-
-create table signet_subjectAttrValue (
-subjectAttrValueKey		bigint			NOT NULL,
-subjectAttrKey			bigint			NOT NULL,
-sequence				bigint			NOT NULL,
-value					varchar(255)	NOT NULL,
-type					varchar(255)	DEFAULT 'string',
-primary key (subjectAttrValueKey),
-foreign key (subjectAttrKey)
-references signet_subjectAttribute(subjectAttrKey) ON DELETE CASCADE,
-unique (subjectAttrKey, sequence)
 )
 ;
 
@@ -208,9 +266,13 @@ foreign key (treeID, parentNodeID) references signet_treeNode(treeID, nodeID)
 --
 -- ChoiceSet tables
 --
+CREATE TABLE dual_choiceSetSerial (seq_col int);
+INSERT INTO dual_choiceSetSerial VALUES (0);
+CREATE SEQUENCE choiceSetSerial START WITH 1;
+
 create table signet_choiceSet
 (
-choiceSetKey		int          NOT NULL IDENTITY,
+choiceSetKey        int          NOT NULL,
 choiceSetID         varchar(64)  NOT NULL,
 adapterClass        varchar(255) NOT NULL,
 subsystemID         varchar(64)  NULL,
@@ -219,9 +281,14 @@ primary key (choiceSetKey),
 unique (choiceSetId, subsystemID)
 )
 ;
+
+CREATE TABLE dual_choiceSerial (seq_col int);
+INSERT INTO dual_choiceSerial VALUES (0);
+CREATE SEQUENCE choiceSerial START WITH 1;
+
 create table signet_choice
 (
-choiceKey			int          NOT NULL IDENTITY,
+choiceKey           int          NOT NULL,
 choiceSetKey        int          NOT NULL,
 value               varchar(32)  NOT NULL,
 label               varchar(64)  NOT NULL,
@@ -233,19 +300,24 @@ unique (choiceSetKey, value),
 foreign key (choiceSetKey) references signet_choiceSet (choiceSetKey)
 )
 ;
+
 --
 -- Assignment tables
 --
+CREATE TABLE dual_assignmentSerial (seq_col int);
+INSERT INTO dual_assignmentSerial VALUES (0);
+CREATE SEQUENCE assignmentSerial START WITH 1;
+
 create table signet_assignment
 (
-assignmentID        int                 NOT NULL IDENTITY,
+assignmentID        int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 functionKey         int                 NOT NULL,
-grantorKey          int                 NOT NULL,
-granteeKey          int                 NOT NULL,
-proxyKey            int                 NULL,
-revokerKey          int                 NULL,
+grantorKey          bigint              NOT NULL,
+granteeKey          bigint              NOT NULL,
+proxyKey            bigint              NULL,
+revokerKey          bigint              NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
 canUse              bit                 NOT NULL,
@@ -284,24 +356,29 @@ on signet_assignment (
 create table signet_assignmentLimit
 (
 assignmentID        int                 NOT NULL,
-limitKey    		int                 NOT NULL,
+limitKey            int                 NOT NULL,
 value               varchar(32)         NOT NULL,
 unique (assignmentID, limitKey, value),
 foreign key (assignmentID) references signet_assignment (assignmentID),
 foreign key (limitKey) references signet_limit (limitKey)
 )
 ;
+
+CREATE TABLE dual_assignmentHistorySerial (seq_col int);
+INSERT INTO dual_assignmentHistorySerial VALUES (0);
+CREATE SEQUENCE assignmentHistorySerial START WITH 1;
+
 create table signet_assignment_history
 (
-historyID           int                 NOT NULL IDENTITY,
+historyID           int                 NOT NULL,
 assignmentID        int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 functionKey         int                 NOT NULL,
-grantorKey          int                 NOT NULL,
-granteeKey          int                 NOT NULL,
-proxyKey            int                 NULL,
-revokerKey          int                 NULL,
+grantorKey          bigint              NOT NULL,
+granteeKey          bigint              NOT NULL,
+proxyKey            bigint              NULL,
+revokerKey          bigint              NULL,
 scopeID             varchar(64)         NULL,
 scopeNodeID         varchar(64)         NULL,
 canUse              bit                 NOT NULL,
@@ -342,20 +419,25 @@ create table signet_assignmentLimit_history
       (limitKey)
 )
 ;
+
+CREATE TABLE dual_proxySerial (seq_col int);
+INSERT INTO dual_proxySerial VALUES (0);
+CREATE SEQUENCE proxySerial START WITH 1;
+
 create table signet_proxy
 (
-proxyID             int                 NOT NULL IDENTITY,
+proxyID             int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NULL,
-grantorKey          int                 NOT NULL,
-granteeKey          int                 NOT NULL,
-proxySubjectKey     int                 NULL,
+grantorKey          bigint              NOT NULL,
+granteeKey          bigint              NOT NULL,
+proxySubjectKey     bigint              NULL,
+revokerKey          bigint              NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
-revokerKey          int                 NULL,
 modifyDatetime      datetime            NOT NULL,
 primary key (proxyID),
 foreign key (grantorKey) references signet_subject (subjectKey),
@@ -364,21 +446,26 @@ foreign key (proxySubjectKey) references signet_subject (subjectKey),
 foreign key (revokerKey) references signet_subject (subjectKey)
 )
 ;
+
+CREATE TABLE dual_proxyHistorySerial (seq_col int);
+INSERT INTO dual_proxyHistorySerial VALUES (0);
+CREATE SEQUENCE proxyHistorySerial START WITH 1;
+
 create table signet_proxy_history
 (
-historyID           int                 NOT NULL IDENTITY,
+historyID           int                 NOT NULL,
 proxyID             int                 NOT NULL,
 instanceNumber      int                 NOT NULL,
 status              varchar(16)         NOT NULL,
 subsystemID         varchar(64)         NULL,
-grantorKey          int                 NOT NULL,
-granteeKey          int                 NOT NULL,
-proxySubjectKey		int                 NULL,
+grantorKey          bigint              NOT NULL,
+granteeKey          bigint              NOT NULL,
+proxySubjectKey     bigint              NULL,
+revokerKey          bigint              NULL,
 canUse              bit                 NOT NULL,
 canExtend           bit                 NOT NULL,
 effectiveDate       datetime            NOT NULL,
 expirationDate      datetime            NULL,
-revokerKey          int                 NULL,
 historyDatetime     datetime            NOT NULL,
 modifyDatetime      datetime            NOT NULL,
 primary key (historyID),
@@ -422,3 +509,6 @@ on SubjectAttribute (
   value
 )
 ;
+
+COMMIT;
+-- SHUTDOWN;

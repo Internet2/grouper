@@ -12,7 +12,7 @@
 #    JAVA_HOME     Must point to your JDK.
 # -----------------------------------------------------------------------------
 
-BASEDIR=../..
+BASEDIR=..
 CLASSPATH=$BASEDIR/config
 
 for file in `ls $BASEDIR/lib/*.jar`;

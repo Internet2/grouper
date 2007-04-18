@@ -1,0 +1,41 @@
+Signet  04/10/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_RC04
+----------------------------------------------------
+Changes in this version:
+
+1. Modified utils to allow multiple command-line parameters:
+    - '-q' option suppresses prompting user (used by QuickStart build)
+    - multiple input files can be used on the command line for TreeXmlLoader,
+      SubsystemXmlLoader, SubjectFileLoader
+2. Fixed problems related to HypersonicSQL in TreeXmlLoader, SubsystemXmlLoader,
+   SubjectFileLoader, SignetProxy
+3. Fixed problem with Linux util/*/run.sh scripts: wrong BASEDIR
+4. New Ant build script for QuickStart: build_QS.xml and buildSignet_QS.properties
+    - automates the creation of the demo database
+    - separate/different output directory than standard Ant build
+    - fully-deployable ZIP and TGZ files generated
+    - See "Still to Do", below
+5. Fixed some bugs in Hibernate mapping files for Choice, ChoiceSet, Subsystem
+6. Added independent automatic record ID generation to HSQL DDL ("dual_*")
+7. Generation of Linux TAR files (JavaDocs, Sources, QuickStart) now creates a
+   TAR with GZIP compression (file extension = .tgz) instead of a TAR contained
+   within a GZIP (file extension = .gz).
+8. Added method addSubsystem(Subsystem) to TreeImpl
+9. Removed unused build.xml files from util/*, web
+10. Fixed several private build targets that needed ${...} 
+11. Removed unused Ant targets from build.xml
+12. Fixed syntax errors in sybase.sql
+
+Still to Do:
+
+1. Add Linux QuickStart Demo scripts (only Windows is verified working in RC04)
+2. Make sure CR/LF (Windows vs Linux vs OSX) problems are addressed in all ASCII
+   files contained in QuickStart and standard builds
+
+Other Middleware Build Dependencies
+-----------------------------------
+i2mi-common: CVS tag = signet_1_2
+subject_api: CVS tag = signet_1_2
+
+

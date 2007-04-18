@@ -15,7 +15,9 @@
 			@author Andy Cohen
 		</meta>
 		
-		<id name="id" type="string" column="subsystemID">
+		<id name="id"
+				type="string"
+				column="subsystemID" >
 			<generator class="assigned"/>
 		</id>
 		
@@ -41,7 +43,7 @@
 			<one-to-many class="edu.internet2.middleware.signet.FunctionImpl"/>
 		</set>
 		
-		<set name="choiceSets" inverse="true" cascade="save-update">
+		<set name="choiceSets" inverse="true" cascade="all">
 			<key column="subsystemID"/>
 			<one-to-many class="edu.internet2.middleware.signet.ChoiceSetImpl"/>
 		</set>

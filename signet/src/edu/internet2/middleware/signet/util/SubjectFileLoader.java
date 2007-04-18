@@ -19,40 +19,42 @@ limitations under the License.
 
 package edu.internet2.middleware.signet.util;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.io.*;
-
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
-
+import java.util.Vector;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 public class SubjectFileLoader
 {
-  private static SessionFactory sessionFactory;
-  private        Session        session;
-  private        Connection     conn;
+  private SessionFactory sessionFactory;
+  private Session        session;
+  private Connection     conn;
 
   private String[] deletionStatements
     = new String[]
         {
           "delete from SubjectAttribute",
-          "delete from Subject",
-          "delete from SubjectType"
+          "delete from Subject"
         };
   
   private String insertSubjectSQL
@@ -77,22 +79,6 @@ public class SubjectFileLoader
       + "values (?, ?, ?, ?, ?, ?, ?)";
 
   
-  static
-  /* runs at class load time */
-  {
-    Configuration cfg = new Configuration();
-
-    try
-    {
-      // Read the "hibernate.cfg.xml" file.
-      cfg.configure();
-      sessionFactory = cfg.buildSessionFactory();
-    }
-    catch (HibernateException he)
-    {
-      throw new RuntimeException(he);
-    }
-  }
     
   /**
    * Opens a connection to the database for subsequent use in loading
@@ -103,12 +89,21 @@ public class SubjectFileLoader
   {
     try
     {
-      this.session = sessionFactory.openSession();
-      this.conn = session.connection();
+      // Read the "hibernate.cfg.xml" file.
+      Configuration cfg = new Configuration();
+      cfg.configure();
+      sessionFactory = cfg.buildSessionFactory();
+      session = sessionFactory.openSession();
+      conn = session.connection();
+	  conn.setAutoCommit(true);
     }
     catch (HibernateException he)
     {
       throw new RuntimeException(he);
+    }
+    catch (SQLException se)
+    {
+    	throw new RuntimeException(se);
     }
   }
   
@@ -133,63 +128,59 @@ public class SubjectFileLoader
   throws
     SQLException
   {
-    PreparedStatement pStmt = null;
-    try {
-      pStmt = this.conn.prepareStatement(insertAttrSQL);
-      pStmt.setString(1, subject.getType().getName());
-      pStmt.setString(2, subject.getId());
-      pStmt.setString(3, name);
-      pStmt.setInt(4, instance);
-      pStmt.setString(5, value);
-      pStmt.setString(6, searchValue);
-      pStmt.setDate(7, new Date(new java.util.Date().getTime()));
-      pStmt.executeUpdate();
-    }
-    finally {
-      if (pStmt != null) {
-        pStmt.close();
-      }
-    }
+	PreparedStatement pStmt = null;
+	pStmt = this.conn.prepareStatement(insertAttrSQL);
+	pStmt.setString(1, subject.getType().getName());
+	pStmt.setString(2, subject.getId());
+	pStmt.setString(3, name);
+	pStmt.setInt(4, instance);
+	pStmt.setString(5, value);
+	pStmt.setString(6, searchValue);
+	pStmt.setDate(7, new Date(new java.util.Date().getTime()));
+	pStmt.executeUpdate();
+	pStmt.close();
    
     ((SubjImpl)subject).addAttribute(name, value);
   }
 
   
   /**
-   * Deletes all Subject data and associated attributes.
-   * This method updates the database, but does not commit any transaction.
-   * 
-   * @throws SQLException
-   */
-  public void deleteAll()
-  throws SQLException
-  {
-    try
-    {
-      //conn.setAutoCommit(true);
-      for (int i = 0; i < this.deletionStatements.length; i++)
-      {
-        execute(conn, this.deletionStatements[i], "deleted");
-      }
-    }
-    catch (SQLException ex)
-    {
-      conn.rollback();
-      System.out.println("SQL error occurred: " + ex.getMessage());
-    }
-  }
-  
-  /**
    * Commits the current database transaction in use by the SubjectFileLoader.
    * 
    * @throws SQLException
    */
-  public void commit() throws SQLException
+  public void commit() throws HibernateException, SQLException
   {
+    session.flush();
     this.conn.commit();
   }
-  
-  
+
+  public void closeSession() throws HibernateException, SQLException
+  {
+	  session.close();
+  }
+
+
+	public void shutdownDB()
+	{
+		try
+		{
+			DatabaseMetaData md = conn.getMetaData();
+			if (md.getDriverName().indexOf("HSQL") != -1) // if it's HypersonicSQL
+			{
+				PreparedStatement pStmt = null;
+				pStmt = conn.prepareStatement("SHUTDOWN");
+				pStmt.executeUpdate();
+				pStmt.close();
+			}
+		}
+		catch (SQLException se)
+		{
+			throw new RuntimeException(se);
+		}
+	}
+
+
   private void execute(Connection conn, String sql, String verb)
   throws SQLException
   {
@@ -228,265 +219,137 @@ public class SubjectFileLoader
     SQLException
   {
     PreparedStatement pStmt = null;
-    try {
-      pStmt = this.conn.prepareStatement(insertSubjectSQL);
-      pStmt.setString(1, subjectType.getName());
-      pStmt.setString(2, subjectId);
-      pStmt.setString(3, subjectName);
-      pStmt.setString(4, subjectDescription);
-      pStmt.setString(5, subjectDisplayId);
-      pStmt.setDate(6, new Date(new java.util.Date().getTime()));
-      pStmt.executeUpdate();
-    }
-    finally {
-      if (pStmt != null) {
-        pStmt.close();
-      }
-    }
+    pStmt = conn.prepareStatement(insertSubjectSQL);
+    pStmt.setString(1, subjectType.getName());
+    pStmt.setString(2, subjectId);
+    pStmt.setString(3, subjectName);
+    pStmt.setString(4, subjectDescription);
+    pStmt.setString(5, subjectDisplayId);
+    pStmt.setDate(6, new Date(System.currentTimeMillis()));
+    pStmt.executeUpdate();
+    pStmt.close();
     
-    Subject subject
-      = new SubjImpl
-          (subjectType,
-           subjectId,
-           subjectName,
-           subjectDescription,
-           subjectDisplayId);
+    Subject subject = new SubjImpl(subjectType, subjectId, subjectName, subjectDescription, subjectDisplayId);
 
     return subject;
   }
-  
-  public class SubjImpl
-  implements Subject
-  {
-    private SubjectType type;
-    private String      id;
-    private String      name;
-    private String      description;
-    private String      displayId;
-    private Map         attributes;
-    
-    SubjImpl
-      (SubjectType type,
-       String       id,
-       String       name,
-       String       description,
-       String       displayId)
-    {
-      this.type = type;
-      this.id = id;
-      this.name = name;
-      this.description = description;
-      this.displayId = displayId;
-      this.attributes = new HashMap();
-    }
-    
-    public String getDescription()
-    {
-      return this.description;
-    }
-    
-    public String getDisplayId()
-    {
-      return this.displayId;
-    }
-    
-    public String getId()
-    {
-      return this.id;
-    }
-    
-    public String getName()
-    {
-      return this.name;
-    }
-    
-    public SubjectType getType()
-    {
-      return this.type;
-    }
 
-    public void addAttribute(String name, String value)
-    {
-      Set attr = (Set)(this.attributes.get(name));
-      
-      if (attr == null)
-      {
-        attr = new HashSet();
-        this.attributes.put(name, attr);
-      }
-      
-      attr.add(value);
-    }
 
-    public Map getAttributes() {
-    	return attributes;
-    }
-    
-    public Set getAttributeValues(String name)
-    {
-      Set attr = (Set)(this.attributes.get(name));
-      
-      if (attr == null)
-      {
-        return new HashSet();
-      }
+	private void processFile(String inFile, boolean isQuiet) throws IOException, SQLException
+	{
+		int lineNumber = 0;
+		int subjCount = 0;
 
-      return (attr);
-    }
-    
-	public String getAttributeValue(String name) {
-		Set values = getAttributeValues(name);
-		return ((String[])values.toArray(new String[0]))[0];
+		try
+		{
+//System.out.println("Processing file " + inFile);
+			BufferedReader in = new BufferedReader(new FileReader(inFile));
+
+			lineNumber = scanForStartOfData(in);
+
+			// Delete the old subjects
+			removeSubjects(isQuiet);
+
+			// parse the new subjects
+			Subject subject = null;
+			String currAttributeName = "";
+			String prevAttributeName = "";
+			// String attributeName = "";
+			int attributeInstance = 0;
+
+			// Start processing the individual subject entries
+			String lineData;
+			while (null != (lineData = in.readLine()))
+			{
+				lineNumber++;
+//System.out.println(lineNumber + ": " + lineData);
+				if ((0 == lineData.length()) || (lineData.startsWith("/")))
+					continue;
+
+				if (lineData.startsWith("+"))
+				{
+					// Get the subject header line
+					lineData = lineData.substring(1);
+					subject = processAddSubject(lineData);
+					subjCount++;
+					currAttributeName = "";
+					prevAttributeName = "";
+					attributeInstance = 1;
+				}
+				else
+				{
+					currAttributeName = processSubjectAttribute(subject, lineData, prevAttributeName, attributeInstance);
+					if (currAttributeName.equals(prevAttributeName))
+					{
+						attributeInstance++;
+					}
+					else
+					{
+						prevAttributeName = currAttributeName;
+						attributeInstance = 2;
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			System.err.println("Exception caught: " + e.getMessage());
+		}
+
+		commit();
+		System.out.println("Added " + subjCount + " subjects from file " + inFile);
 	}
-	
-	public Source getSource() {
-		return new JDBCSourceAdapter("local", "local");
+
+
+	/**
+	 * Find the initial "source" line -- should be the first non-command, non-blank line in the input file
+	 * @param inReader
+	 * @return line number
+	 */
+	protected int scanForStartOfData(BufferedReader inReader) throws IOException, SQLException
+	{
+		int lineNumber = 0;
+		String lineData;
+
+		boolean done = false;
+		while ( !done && (null != (lineData = inReader.readLine())))
+		{
+			lineNumber++;
+			// System.out.println(lineNumber + ": " + lineData);
+			if ((0 == lineData.length()) || (lineData.startsWith("/")))
+					continue;
+
+//System.out.println(lineNumber + ": " + lineData);
+			StringTokenizer st = new StringTokenizer(lineData);
+			if ( !st.hasMoreTokens())
+				continue;
+
+			String keyword = st.nextToken();
+			if ( !keyword.equals("source"))
+			{
+				throw new IOException("Error in line " + lineNumber + ": Found keyword '" + keyword + "' but was expecting 'source'.");
+			}
+
+			if (st.hasMoreTokens())
+			{
+				String subjectSourceID = st.nextToken();
+
+				if (st.hasMoreTokens())
+				{
+					String value = st.nextToken();
+					throw new IOException("Error in line " + lineNumber + ": Extraneous data: " + value);
+				}
+
+				if ((null != subjectSourceID) && (0 < subjectSourceID.length()))
+					done = true;
+			}
+		}
+
+		return (lineNumber);
 	}
-	
-  }
 
-  public static void main(String[] args) 
-    throws SQLException
-    {
 
-    SubjectFileLoader loader = new SubjectFileLoader();
-
-    try {
-      if (args.length < 1) {
-          System.err.println("Usage: SubjectFileLoader <inputfile>");
-          return;
-      }
-         
-      String inputFileName = args[0];
-      BufferedReader in = new BufferedReader(new FileReader(inputFileName));
-      loader.processFile(loader, in);
-
-      in.close();
-      loader.commit();
-
-    } catch (IOException e) {
-       e.printStackTrace();
-    }
-  }
-
-private void processFile(SubjectFileLoader loader, BufferedReader in)
-  throws IOException, SQLException {
-    try {
-
-    String lineData = "";
-//    String lineData2 = "";
-//    String lineData3 = "";
-    String keyword = "";
-    String value = "";
-    String subjectSourceID = "";
-//    String subjectID = "";
-//    String subjectName = "";
-    int    lineNumber = 0;
-
-   /**
-    * Find the initial "source" line
-    * -- should be the first non-command, non-blank line in the input file
-    */
-
-    while ((lineData = in.readLine()) != null) {
-      lineNumber++;
-      // System.out.println(lineNumber + ": " + lineData);
-
-      if (lineData.startsWith("/"))
-      {
-         // skip
-      }         
-      else if (lineData.equals(""))
-      {
-         //skip
-      } 
-       
-      else {
-         System.out.println(lineNumber + ": " + lineData);
-         StringTokenizer st = new StringTokenizer(lineData);
-   
-         if (st.hasMoreTokens()) {
-            keyword = st.nextToken();
-            if (!keyword.equals("source"))
-            {
-               throw new IOException
-               ("Error in line " + lineNumber + ": Initial keyword must be 'source'");
-            }
-         }
-   
-         if (st.hasMoreTokens()) {
-            subjectSourceID = st.nextToken();
-         }
-   
-         if (st.hasMoreTokens()) {
-            value = st.nextToken();
-            throw new IOException
-            ("Error in line " + lineNumber + ": Extraneous data: " + value);
-         }
-         
-         if (!subjectSourceID.equals("")) {
-            break;
-         }
-      }
-    }
-
-    removeSubjects();
-    loader.commit();
-
-    Subject subject = null;
-    String  currAttributeName = "";
-    String  prevAttributeName = "";
-//    String  attributeName = "";
-    int     attributeInstance = 0;
-
-   /**
-    * --- Start processing the individual subject entries
-    */
-    
-    while ((lineData = in.readLine()) != null) {
-      lineNumber++;
-      System.out.println(lineNumber + ": " + lineData);
-
-      if (lineData.startsWith("/"))
-      {
-         // skip
-      }         
-      else if (lineData.equals(""))
-      {
-         //skip
-      } 
-       
-      else {
-
-         if (lineData.startsWith("+")) {
-            
-            // Get the subject header line
-            lineData = lineData.substring(1);
-            
-            subject = SubjectFileLoader.processAddSubject(loader, lineData);
-   
-            currAttributeName = "";
-            prevAttributeName = "";
-            attributeInstance = 1;
-   
-         } else {
-   
-            currAttributeName = SubjectFileLoader.processSubjectAttribute(loader, subject, lineData, prevAttributeName, attributeInstance);
-            if (currAttributeName.equals(prevAttributeName) ) {
-               attributeInstance++;
-            } else {
-               prevAttributeName = currAttributeName;
-               attributeInstance = 2;
-            }
-         }
-       }
-    }
-    } catch (Exception e) {
-        System.err.println("Exception caught: " + e.getMessage());
-    }
-  }
-
-  private static Subject processAddSubject(SubjectFileLoader loader, String lineData)
+  private Subject processAddSubject(String lineData)
     throws IOException, SQLException
     {
 
@@ -520,21 +383,25 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
      
     subjectName = lineData.substring(subjectID.length()+1);
     subjectName = subjectName.trim();
-    subjectNormalizedName = SubjectFileLoader.normalizeString(subjectName);
+    subjectNormalizedName = normalizeString(subjectName);
 
     // System.out.println("--- SubjectID: " + subjectID + ", SubjectName: " + subjectName);
 
-    Subject subject = loader.newSubject
-       (subjectType, subjectID, subjectName, "n/a", "n/a");
+    Subject subject = newSubject(subjectType, subjectID, subjectName, "n/a", "n/a");
 
-    loader.newAttribute
-      (subject, "name", 1, subjectName, subjectNormalizedName);
+    newAttribute(subject, "name", 1, subjectName, subjectNormalizedName);
 
     return subject;
   }
 
-  private static String processSubjectAttribute(SubjectFileLoader loader, Subject subject, String lineData, String prevAttributeName, int attributeInstance)
-     throws IOException, SQLException {
+
+  private String processSubjectAttribute(
+		  Subject subject,
+		  String lineData,
+		  String prevAttributeName,
+		  int attributeInstance)
+     throws IOException, SQLException
+  {
 
      String attributeName;
      String attributeValue;
@@ -562,13 +429,12 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
 
      // System.out.println("--- Attribute: " + attributeName + ", instance: " + attributeInstance + ", Value: " + attributeValue);
 
-     loader.newAttribute
-       (subject, attributeName, attributeInstance, attributeValue, attributeSearchValue);
+     newAttribute(subject, attributeName, attributeInstance, attributeValue, attributeSearchValue);
        
      return attributeName;
   }
    
-  private static boolean readYesOrNo(String prompt) {
+  private boolean readYesOrNo(String prompt) {
       while (true) {
           String response = promptedReadLine(prompt);
           if (response.length() > 0) {
@@ -584,45 +450,66 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
       }
   }
   
-  private static String promptedReadLine(String prompt) {
+  private String promptedReadLine(String prompt) {
       try {
           System.out.print(prompt);
+          BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
           return reader.readLine();
       } catch (java.io.IOException e) {
           return null;
       }
   }
     
-  private static BufferedReader reader;
-  
-  static {
-      reader = new BufferedReader(new InputStreamReader(System.in));
+
+	private void removeSubjects(boolean isQuiet)
+	{
+		if ( !isQuiet &&
+				!readYesOrNo("\nYou are about to delete and replace all subjects in the Signet Subject table." +
+						"\nDo you wish to continue (Y/N)? "))
+		{
+			System.exit(0);
+		}
+		try
+		{
+			deleteAll();
+			commit();
+		}
+		catch (SQLException sqle)
+		{
+			System.out.println("-Error: unable to delete subjects for source person");
+			System.out.println(sqle.getMessage());
+			System.exit(1);
+		}
+	}
+
+  /**
+   * Deletes all Subject data and associated attributes.
+   * This method updates the database, but does not commit any transaction.
+   * 
+   * @throws SQLException
+   */
+  public void deleteAll() throws SQLException
+  {
+    try
+    {
+      //conn.setAutoCommit(true);
+      for (int i = 0; i < this.deletionStatements.length; i++)
+      {
+        execute(conn, this.deletionStatements[i], "deleted");
+      }
+    }
+    catch (SQLException ex)
+    {
+      conn.rollback();
+      System.out.println("SQL error occurred: " + ex.getMessage());
+    }
   }
-
-
-  private void removeSubjects() {
-      if (! readYesOrNo(
-          "\nYou are about to delete and replace all subjects in the Signet Subject table."
-          + "\nDo you wish"
-          + " to continue (Y/N)? ")) {
-      System.exit(0);
-      }
-
-      try {
-          deleteAll();
-      }
-      catch (SQLException sqle) {
-         System.out.println("-Error: unable to delete subjects for source person");
-         System.out.println(sqle.getMessage());
-         System.exit(1);
-      }
-   }
-
-    private static String normalizeString(String value) {
-    /*
-    * Normalize a value for searching.  All non-alpha-numeric are converted
-    * to a space except for apostrophes, which are elided.
-    */
+  
+    /**
+	 * Normalize a value for searching. All non-alpha-numeric are converted to a
+	 * space except for apostrophes, which are elided.
+	 */
+    private String normalizeString(String value) {
        if (value == null) {
             return null;
         }
@@ -647,4 +534,161 @@ private void processFile(SubjectFileLoader loader, BufferedReader in)
         return buf.toString().trim();
     }
 
+
+    //////////////////////////////
+    // statics
+    //////////////////////////////
+
+    public static void main(String[] args) throws SQLException
+	{
+    	String[] fileargs = parseArgs(args);
+		if (1 > fileargs.length)
+		{
+			System.err.println("Usage: SubjectFileLoader <inputfile>");
+			System.exit(1);
+		}
+
+		boolean isQuiet = isQuiet(args);
+
+		SubjectFileLoader loader = new SubjectFileLoader();
+		try
+		{
+			for (int i = 0; i < fileargs.length; i++)
+				loader.processFile(fileargs[i], isQuiet);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+//		loader.shutdownDB();
+	}
+
+    /**
+	 * @param args
+	 * @return An array of command line args without optional '-q'
+	 */
+	protected static String[] parseArgs(String[] args)
+	{
+		Vector retval = new Vector();
+
+		if ((null != args) && (0 < args.length))
+			for (int i = 0; i < args.length; i++)
+				if ( !isQuietArg(args[i]))
+					retval.add(args[i]);
+
+		String[] retArray = (String[])retval.toArray(new String[retval.size()]);
+		return (retArray);
+	}
+
+
+	/**
+	 * @param args
+	 * @return true if '-q' appears anywhere on the command line
+	 */
+	protected static boolean isQuiet(String[] args)
+	{
+		boolean retval = false; // assume failure
+
+		for (int i = 0; (i < args.length) && !retval; i++)
+			retval = isQuietArg(args[i]);
+
+		return (retval);
+	}
+
+	/**
+	 * @param arg
+	 * @return true if arg equals '-q'
+	 */
+	protected static boolean isQuietArg(String arg)
+	{
+		return (arg.equalsIgnoreCase("-q"));
+	}
+
+}
+
+//////////////////////////////////////
+// class SubjImpl
+//////////////////////////////////////
+
+class SubjImpl implements Subject
+{
+	private SubjectType	type;
+	private String		id;
+	private String		name;
+	private String		description;
+	private String		displayId;
+	private Map			attributes;
+
+	SubjImpl(SubjectType type, String id, String name, String description, String displayId)
+	{
+		this.type = type;
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.displayId = displayId;
+		this.attributes = new HashMap();
+	}
+
+	public String getDescription()
+	{
+		return this.description;
+	}
+
+	public String getDisplayId()
+	{
+		return this.displayId;
+	}
+
+	public String getId()
+	{
+		return this.id;
+	}
+
+	public String getName()
+	{
+		return this.name;
+	}
+
+	public SubjectType getType()
+	{
+		return this.type;
+	}
+
+	public void addAttribute(String name, String value)
+	{
+		Set attr = (Set)(this.attributes.get(name));
+		if (attr == null)
+		{
+			attr = new HashSet();
+			this.attributes.put(name, attr);
+		}
+		attr.add(value);
+	}
+
+	public Map getAttributes()
+	{
+		return attributes;
+	}
+
+	public Set getAttributeValues(String name)
+	{
+		Set attr = (Set)(this.attributes.get(name));
+		if (attr == null)
+		{
+			return new HashSet();
+		}
+		return (attr);
+	}
+
+	public String getAttributeValue(String name)
+	{
+		Set values = getAttributeValues(name);
+		return ((String[])values.toArray(new String[0]))[0];
+	}
+
+	public Source getSource()
+	{
+		return new JDBCSourceAdapter("local", "local");
+	}
 }

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SignetProxy.java,v 1.8 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SignetProxy.java,v 1.9 2007-04-18 00:11:31 ddonn Exp $
 Created on Sep 12, 2005
 
 Copyright 2006 Internet2, Stanford University
@@ -19,6 +19,10 @@ limitations under the License.
 
 package edu.internet2.middleware.signet.util;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,9 +41,9 @@ import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 public class SignetProxy
 {
-	public static final String	ACTION_GRANT = "grant";
-	public static final String	ACTION_REVOKE = "revoke";
-	public static final String	ACTION_LIST = "list";
+	public static final String	ACTION_GRANT	= "grant";
+	public static final String	ACTION_REVOKE	= "revoke";
+	public static final String	ACTION_LIST		= "list";
 
 
    public SignetProxy(String action, String adminIdentifier, String subsystemId)
@@ -47,11 +51,11 @@ public class SignetProxy
       try {
 
 	      Signet signet = new Signet();
+    	  HibernateDB hibr = signet.getPersistentDB();
 
 	      SignetSubject signetSubject = signet.getSignetSubject();
 	      if ( !signetSubject.isPersisted()) // persist Signet super subject
 	      {
-	    	  HibernateDB hibr = signet.getPersistentDB();
 	    	  Session hs = hibr.openSession();
 	    	  Transaction tx = hs.beginTransaction();
 	    	  hibr.save(hs, signetSubject);
@@ -59,61 +63,29 @@ public class SignetProxy
 	    	  hibr.closeSession(hs);
 	      }
 
-	      if (action.equals(ACTION_GRANT)) {
-	
-	         grant(signet, signetSubject, adminIdentifier, subsystemId);
-	
-	      } else if (action.equals(ACTION_REVOKE)) {
-	
-	         revoke(signet, signetSubject, adminIdentifier, subsystemId);
-	
-	      } else if (action.equals(ACTION_LIST)) {
-	
-	         list(signet, signetSubject, subsystemId);
-	
-	      }
+		if (action.equals(ACTION_GRANT))
+			grant(signet, signetSubject, adminIdentifier, subsystemId);
 
-      } catch (ObjectNotFoundException exc) {
+		else if (action.equals(ACTION_REVOKE))
+			revoke(signet, signetSubject, adminIdentifier, subsystemId);
+
+		else if (action.equals(ACTION_LIST))
+			list(signet, signetSubject, subsystemId);
+
+//		shutdownDB(hibr);
+
+      }
+      catch (ObjectNotFoundException exc)
+      {
          System.out.println("Error: " + exc.getMessage());
-      } catch (Exception exc) {
+      }
+      catch (Exception exc)
+      {
          exc.printStackTrace();
       }
 
    }
 
-   public static void main(String[] args) 
-      {
-      
-      String action = "";
-      String adminIdentifier = "";
-      String subsystemId = "";
-      
-      boolean parsed = false;
-      if (args.length > 0) {
-         action = args[0];
-         if (action.equalsIgnoreCase(ACTION_GRANT) || action.equalsIgnoreCase(ACTION_REVOKE)) {
-            adminIdentifier = args[1];
-            if (args.length == 3) {
-               subsystemId = args[2];
-            }
-            parsed = true;
-         } else if (action.equalsIgnoreCase(ACTION_LIST)) {
-            if (args.length == 2) {
-               subsystemId = args[1];
-            }
-            parsed = true;
-         } 
-      }
- 
-      if (!parsed) {
-         System.err.println("Usage: SignetProxy grant|revoke <subjectid> [<subsystemid>]");
-         System.err.println("   or: SignetProxy list [<subsystemid>]");
-         return;
-      }
-
-      new SignetProxy(action, adminIdentifier, subsystemId);
-
-   }
 
    private void grant(Signet		signet,
 					SignetSubject	grantorSubj,
@@ -289,6 +261,7 @@ public class SignetProxy
      return filterProxies(all, statusSet);
    }
 
+
    private Set filterProxies(Set all, Set statusSet)
    {
      if (statusSet == null)
@@ -310,6 +283,7 @@ public class SignetProxy
      return subset;
    }
    
+
    private Set filterProxiesByGrantor (Set all, SignetSubject grantor)
    {
      if (grantor == null)
@@ -331,6 +305,7 @@ public class SignetProxy
      return subset;
    }
    
+
    private Set filterProxiesBySubsystem (Set all, Subsystem subsystem)
    {
      
@@ -348,6 +323,7 @@ public class SignetProxy
      return subset;
    }
    
+
    private Set filterProxiesByNoSubsystem (Set all)
    {
      
@@ -364,5 +340,71 @@ public class SignetProxy
      
      return subset;
    }
+
+
+	/**
+	 * HypersonicSQL needs a 'shutdown' command in order for commits to actually occur
+	 */
+	public void shutdownDB(HibernateDB hibr)
+	{
+		try
+		{
+			Session hs = hibr.openSession();
+			Connection conn = hs.connection();
+			DatabaseMetaData md = conn.getMetaData();
+			if (-1 != md.getDriverName().indexOf("HSQL")) // if it's HypersonicSQL
+			{
+				PreparedStatement pStmt = null;
+				pStmt = conn.prepareStatement("SHUTDOWN");
+				pStmt.executeUpdate();
+				pStmt.close();
+			}
+			hibr.closeSession(hs);
+		}
+		catch (SQLException se)
+		{
+			throw new RuntimeException(se);
+		}
+	}
+
+
+	////////////////////////////
+	// statics
+	////////////////////////////
+
+	public static void main(String[] args)
+	{
+		String action = "";
+		String adminIdentifier = null;
+		String subsystemId = "";
+
+		boolean parsed = false;
+		if (0 < args.length)
+		{
+			action = args[0];
+			if (action.equalsIgnoreCase(ACTION_GRANT) ||
+					action.equalsIgnoreCase(ACTION_REVOKE))
+			{
+				adminIdentifier = args[1];
+				if (2 < args.length)
+					subsystemId = args[2];
+				parsed = true;
+			}
+			else if (action.equalsIgnoreCase(ACTION_LIST))
+			{
+				if (1 < args.length)
+					subsystemId = args[1];
+				parsed = true;
+			}
+		}
+		if (!parsed)
+		{
+			System.err.println("Usage: SignetProxy <grant | revoke> <subjectid> [<subsystemid>]");
+			System.err.println("   or: SignetProxy list [<subsystemid>]");
+			System.exit(1);
+		}
+
+		new SignetProxy(action, adminIdentifier, subsystemId);
+	}
 
 }

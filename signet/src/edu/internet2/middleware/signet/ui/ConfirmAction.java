@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.21 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.22 2007-04-18 00:11:31 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -101,7 +101,7 @@ throws Exception
   }
 
 // debug
-Common.dumpHttpParams("ConfirmAction.execute()", signet.getLogger(), request);
+//Common.dumpHttpParams("ConfirmAction.execute()", signet.getLogger(), request);
 
 	// currentAssignment is present in the session only if we are editing
 	// an existing Assignment. Otherwise, we're attempting to create a new one.

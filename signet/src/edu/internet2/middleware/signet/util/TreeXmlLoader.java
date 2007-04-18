@@ -1,4 +1,5 @@
 /*
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.9 2007-04-18 00:11:31 ddonn Exp $
 TreeXmlLoader.java
 Created on Feb 22, 2005
 
@@ -19,30 +20,35 @@ limitations under the License.
 
 package edu.internet2.middleware.signet.util;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.io.*;
-
-import org.apache.commons.collections.set.UnmodifiableSet;
-
+import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-import javax.xml.stream.*;
-
-import edu.internet2.middleware.signet.Status;
-import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeAdapter;
-import edu.internet2.middleware.signet.tree.TreeNode;
-
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import org.apache.commons.collections.set.UnmodifiableSet;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import edu.internet2.middleware.signet.Status;
+import edu.internet2.middleware.signet.tree.Tree;
+import edu.internet2.middleware.signet.tree.TreeAdapter;
+import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class TreeXmlLoader
 {
@@ -70,7 +76,7 @@ public class TreeXmlLoader
       + " name,"
       + " adapterClass,"
       + " modifyDatetime)"
-      + "values (?, ?, ?, ?)";
+      + " values (?, ?, ?, ?)";
   
   private String insertTreeNodeSQL
     = "insert into signet_treeNode"
@@ -124,6 +130,45 @@ public class TreeXmlLoader
     }
   }
   
+  
+  /**
+   * Creates a new Tree.
+   * This method updates the database, but does not commit any transaction.
+   * 
+   * @param id
+   * @param name
+   * @param adapterClassName
+   * @return A new Tree
+   * @throws SQLException
+   */
+  public Tree newTree
+    (String id,
+     String name,
+     String adapterClassName)
+  throws
+    SQLException
+  {
+    PreparedStatement pStmt = null;
+    try {
+      pStmt = this.conn.prepareStatement(insertTreeSQL);
+      pStmt.setString(1, id);
+      pStmt.setString(2, name);
+      pStmt.setString(3, adapterClassName);
+      pStmt.setDate(4, new Date(new java.util.Date().getTime()));
+      pStmt.executeUpdate();
+    }
+    finally {
+      if (pStmt != null) {
+        pStmt.close();
+      }
+    }
+
+    
+    Tree tree = new TreeImpl(id, name, adapterClassName);
+
+    this.treesAdded++;
+    return tree;
+  }
   
   /**
    * Creates a new TreeNode, and stores that value in the database, along with
@@ -221,6 +266,25 @@ public class TreeXmlLoader
   }
 
   
+  public boolean removeTrees(boolean isQuiet)
+  {
+	  boolean status = isQuiet;
+	  if ( !isQuiet)
+		  status = readYesOrNo("\nYou are about to delete and replace all trees.\nDo you wish to continue (Y/N)? ");
+
+	  if (status)
+	  {
+	      try { deleteAll(); }
+	      catch (SQLException sqle) {
+	         System.out.println("-Error: unable to delete trees");
+	         System.out.println(sqle.getMessage());
+	         status = false;
+	      }
+	  }
+	  return (status);
+   }
+
+
   /**
    * Deletes all Tree data and associated TreeNode and TreeNodeRelationship
    * data.
@@ -233,7 +297,7 @@ public class TreeXmlLoader
   {
     try
     {
-      //conn.setAutoCommit(true);
+      conn.setAutoCommit(true);
       for (int i = 0; i < this.deletionTableNames.length; i++)
       {
         executeDeletion(conn, this.deletionTableNames[i]);
@@ -245,17 +309,6 @@ public class TreeXmlLoader
       System.out.println("SQL error occurred: " + ex.getMessage());
     }
   }
-  
-  /**
-   * Commits the current database transaction in use by the TreeXmlLoader.
-   * 
-   * @throws SQLException
-   */
-  public void commit() throws SQLException
-  {
-    this.conn.commit();
-  }
-  
   
   private void executeDeletion(Connection conn, String tableName)
   throws SQLException
@@ -277,234 +330,22 @@ public class TreeXmlLoader
     }
   }
 
-  /**
-   * Creates a new Tree.
-   * This method updates the database, but does not commit any transaction.
-   * 
-   * @param id
-   * @param name
-   * @param adapterClassName
-   * @return A new Tree
-   * @throws SQLException
-   */
-  public Tree newTree
-    (String id,
-     String name,
-     String adapterClassName)
-  throws
-    SQLException
-  {
-    PreparedStatement pStmt = null;
-    try {
-      pStmt = this.conn.prepareStatement(insertTreeSQL);
-      pStmt.setString(1, id);
-      pStmt.setString(2, name);
-      pStmt.setString(3, adapterClassName);
-      pStmt.setDate(4, new Date(new java.util.Date().getTime()));
-      pStmt.executeUpdate();
-    }
-    finally {
-      if (pStmt != null) {
-        pStmt.close();
-      }
-    }
-
-    
-    Tree tree = new TreeImpl(id, name, adapterClassName);
-
-    this.treesAdded++;
-    return tree;
-  }
-  
-  private class TreeImpl implements Tree
-  {
-    private String id;
-    private String name;
-    private String adapterClassName;
-    private Set    roots;
-    
-    protected TreeImpl
-      (String id,
-       String name,
-       String adapterClassName)
-    {
-      this.id = id;
-      this.name = name;
-      this.adapterClassName = adapterClassName;
-      
-      this.roots = new HashSet();
-    }
-    
-    public void addRoot(TreeNode rootNode)
-    {
-      this.roots.add(rootNode);
-    }
-    
-    public TreeAdapter getAdapter()
-    {
-      throw new UnsupportedOperationException
-        ("This implementation of the Tree interface has '"
-         + this.adapterClassName
-         + "' as its adapterClassName, but does not yet support"
-         + " instantiation of that adapter.");
-    }
-    
-    public String getId()
-    {
-      return this.id;
-    }
-    
-    public String getName()
-    {
-      return this.name;
-    }
-    
-    public TreeNode getNode(String nodeId)
-    {
-      throw new UnsupportedOperationException();
-    }
-    
-    public Set getRoots()
-    {
-      return UnmodifiableSet.decorate(this.roots);
-    }
-    
-    public Set getTreeNodes()
-    {
-      throw new UnsupportedOperationException();
-    }
-}
-  
-  private class NodeImpl implements TreeNode
-  {
-    private Tree    tree;
-    private String  id;
-    private String  type;
-    private Status  status;
-    private String  name;
-    
-    private Set     parents;
-    private Set     children;
-    
-    NodeImpl
-      (Tree   tree,
-       String id,
-       String type,
-       Status status,
-       String name)
-    {
-      this.tree = tree;
-      this.id = id;
-      this.type = type;
-      this.status = status;
-      this.name = name;
-      
-      this.children = new HashSet();
-      this.parents = new HashSet();
-    }
-    
-    public Tree getTree()
-    {
-      return this.tree;
-    }
-    
-    public String getId()
-    {
-      return this.id;
-    }
-    
-    public String getType()
-    {
-      return this.type;
-    }
-    
-    public Status getStatus()
-    {
-      return this.status;
-    }
-    
-    public String getName()
-    {
-      return this.name;
-    }
-
-    public Set getParents()
-    {
-      return UnmodifiableSet.decorate(this.parents);
-    }
-
-    public Set getChildren()
-    {
-      return UnmodifiableSet.decorate(this.children);
-    }
-
-    public void addChild(TreeNode treeNode)
-    {
-      this.children.add(treeNode);
-    }
-    
-    public boolean isAncestorOf(TreeNode treeNode)
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public boolean isAncestorOfAll(Set treeNodes)
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public boolean isDescendantOf(TreeNode treeNode)
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public int compareTo(Object o)
-    {
-      TreeNode otherNode = (TreeNode)o;
-      return this.id.compareTo(otherNode.getId());
-    }
-    
-    public int hashCode()
-    {
-      return this.id.hashCode();
-    }
-    
-    public boolean equals(Object obj)
-    {
-      TreeNode otherNode = (TreeNode)obj;
-      return this.id.equals(otherNode.getId());
-    }
-  }
-
-
-	public static void main(String[] args)
-	{
-		TreeXmlLoader loader = new TreeXmlLoader();
-
-		if (args.length < 1)
-		{
-			System.err.println("Usage: TreeXmlLoader <inputfile> [inputfile] ...");
-			return;
-		}
-
-		if ( !loader.removeTrees())
-			return;
-    
-		loader.processFile(args, null);
-	}
-
 	public void processFile(String[] filenames, JComponent parent)
 	{
 		if (null == filenames)
 			return;
 
-		for (int i = 0; i < filenames.length; i++)
+		try
 		{
-			processFile(filenames[i], parent);
-			try { commit(); }
-			catch (SQLException e) { e.printStackTrace(); }
+			for (int i = 0; i < filenames.length; i++)
+			{
+				processFile(filenames[i], parent);
+				commit();
+			}
 		}
+		catch (SQLException e) { e.printStackTrace(); }
 	}
+
 
 	public void processFile(String filename, JComponent parent)
 	{
@@ -997,6 +838,40 @@ public class TreeXmlLoader
   }
   
 
+  /**
+   * Commits the current database transaction in use by the TreeXmlLoader.
+   * 
+   * @throws SQLException
+   */
+  public void commit() throws SQLException
+  {
+    this.conn.commit();
+  }
+  
+
+	/**
+	 * HypersonicSQL needs a 'shutdown' command in order for commits to actually occur
+	 */
+	public void shutdownDB()
+	{
+		try
+		{
+			DatabaseMetaData md = conn.getMetaData();
+			if (md.getDriverName().indexOf("HSQL") != -1) // if it's HypersonicSQL
+			{
+				PreparedStatement pStmt = null;
+				pStmt = conn.prepareStatement("SHUTDOWN");
+				pStmt.executeUpdate();
+				pStmt.close();
+			}
+		}
+		catch (SQLException se)
+		{
+			throw new RuntimeException(se);
+		}
+	}
+
+
 	private String promptedReadLine(String prompt)
 	{
 		String retval = "";
@@ -1029,18 +904,228 @@ public class TreeXmlLoader
 	}
 
 
-  public boolean removeTrees()
+	////////////////////////////////////////////
+	// Nested classes
+	////////////////////////////////////////////
+
+  private class TreeImpl implements Tree
   {
-	  boolean status = readYesOrNo("\nYou are about to delete and replace all trees.\nDo you wish to continue (Y/N)? ");
-	  if (status)
-	  {
-	      try { deleteAll(); }
-	      catch (SQLException sqle) {
-	         System.out.println("-Error: unable to delete trees");
-	         System.out.println(sqle.getMessage());
-	         status = false;
-	      }
-	  }
-	  return (status);
-   }
+    private String id;
+    private String name;
+    private String adapterClassName;
+    private Set    roots;
+    
+    protected TreeImpl
+      (String id,
+       String name,
+       String adapterClassName)
+    {
+      this.id = id;
+      this.name = name;
+      this.adapterClassName = adapterClassName;
+      
+      this.roots = new HashSet();
+    }
+    
+    public void addRoot(TreeNode rootNode)
+    {
+      this.roots.add(rootNode);
+    }
+    
+    public TreeAdapter getAdapter()
+    {
+      throw new UnsupportedOperationException
+        ("This implementation of the Tree interface has '"
+         + this.adapterClassName
+         + "' as its adapterClassName, but does not yet support"
+         + " instantiation of that adapter.");
+    }
+    
+    public String getId()
+    {
+      return this.id;
+    }
+    
+    public String getName()
+    {
+      return this.name;
+    }
+    
+    public TreeNode getNode(String nodeId)
+    {
+      throw new UnsupportedOperationException();
+    }
+    
+    public Set getRoots()
+    {
+      return UnmodifiableSet.decorate(this.roots);
+    }
+    
+    public Set getTreeNodes()
+    {
+      throw new UnsupportedOperationException();
+    }
+}
+  
+  private class NodeImpl implements TreeNode
+  {
+    private Tree    tree;
+    private String  id;
+    private String  type;
+    private Status  status;
+    private String  name;
+    
+    private Set     parents;
+    private Set     children;
+    
+    NodeImpl
+      (Tree   tree,
+       String id,
+       String type,
+       Status status,
+       String name)
+    {
+      this.tree = tree;
+      this.id = id;
+      this.type = type;
+      this.status = status;
+      this.name = name;
+      
+      this.children = new HashSet();
+      this.parents = new HashSet();
+    }
+    
+    public Tree getTree()
+    {
+      return this.tree;
+    }
+    
+    public String getId()
+    {
+      return this.id;
+    }
+    
+    public String getType()
+    {
+      return this.type;
+    }
+    
+    public Status getStatus()
+    {
+      return this.status;
+    }
+    
+    public String getName()
+    {
+      return this.name;
+    }
+
+    public Set getParents()
+    {
+      return UnmodifiableSet.decorate(this.parents);
+    }
+
+    public Set getChildren()
+    {
+      return UnmodifiableSet.decorate(this.children);
+    }
+
+    public void addChild(TreeNode treeNode)
+    {
+      this.children.add(treeNode);
+    }
+    
+    public boolean isAncestorOf(TreeNode treeNode)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public boolean isAncestorOfAll(Set treeNodes)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public boolean isDescendantOf(TreeNode treeNode)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public int compareTo(Object o)
+    {
+      TreeNode otherNode = (TreeNode)o;
+      return this.id.compareTo(otherNode.getId());
+    }
+    
+    public int hashCode()
+    {
+      return this.id.hashCode();
+    }
+    
+    public boolean equals(Object obj)
+    {
+      TreeNode otherNode = (TreeNode)obj;
+      return this.id.equals(otherNode.getId());
+    }
+  }
+
+
+  ///////////////////////////////////////
+  // Statics
+  ///////////////////////////////////////
+
+	/**
+	 * Main
+	 * @param args
+	 */
+	public static void main(String[] args)
+	{
+		TreeXmlLoader loader = new TreeXmlLoader();
+
+		String[] fileargs = parseArgs(args);
+		if (1 > fileargs.length)
+		{
+			System.out.println("Signet TreeXmlLoader, $Revision: 1.9 $");
+			System.out.println("Usage:\n\tTreeXmlLoader [-q] <inputfile> [inputfile] ...");
+			System.out.println("\t\t-q : Quiet, do not prompt on overwrite");
+			System.out.println("\t\tinputfile : a file containing Signet Tree data");
+			System.exit(1);
+		}
+
+		if ( !loader.removeTrees(isQuiet(args)))
+			return;
+    
+		loader.processFile(fileargs, null);
+//		loader.shutdownDB();
+	}
+
+
+	protected static String[] parseArgs(String[] args)
+	{
+		Vector retval = new Vector();
+
+		if ((null != args) && (0 < args.length))
+			for (int i = 0; i < args.length; i++)
+				if ( !isQuietArg(args[i]))
+					retval.add(args[i]);
+
+		String[] retArray = (String[])retval.toArray(new String[retval.size()]);
+		return (retArray);
+	}
+
+
+	protected static boolean isQuiet(String[] args)
+	{
+		boolean retval = false; // assume failure
+
+		for (int i = 0; (i < args.length) && !retval; i++)
+			retval = isQuietArg(args[i]);
+
+		return (retval);
+	}
+
+	protected static boolean isQuietArg(String arg)
+	{
+		return (arg.equalsIgnoreCase("-q"));
+	}
+
 }

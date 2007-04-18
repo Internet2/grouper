@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.59 2007-04-18 00:11:31 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.1 2007-04-18 00:11:31 ddonn Exp $ -->
 
-<project name="Signet" default="production" basedir="." >
+<project name="Signet" default="quickstart" basedir="." >
 
 	<!-- Signet version number and signet basename. Import this before all others! -->
 	<property file="config/signet.properties" />
@@ -10,7 +10,7 @@
 		Custom Properties (i.e. "Doppleganger")
 		Don't include the following line if there are no alternate sources, libs, etc.
 		NOTE: if you intend to use this file to override any of the mandatory
-		properties (defined in buildSignet.properties), you must import the
+		properties (defined in buildSignet_QS.properties), you must import the
 		overrides FIRST. Ant does not assign new values if a property is
 		already defined: your override must be defined BEFORE the default value
 		is defined.
@@ -23,49 +23,31 @@
 		Global Properties
 		This file contains required properties.
 	-->
-	<property file="buildSignet.properties" />
-
-	<!--
-		Tomcat-specific Ant build tasks. Remove/replace, as desired, for your
-		environment. Note that this import is dependent on properties set in
-		buildSignet.properties.
-		Note: If your Ant build produces error messages similar to:
-			...signetBuildTomcatDefs.xml:32: taskdef class org.apache.catalina.ant.DeployTask cannot be found
-		then you need a copy of catalina-ant.jar in Ant's lib directory. For example
-			cp /Tomcat/server/lib/catalina-ant.jar /ant/lib
-		Alternatively, if you don't need to have Ant deploy the newly built
-		Signet to a running instance of Tomcat, you can comment out this line.
-	-->
-	<!-- <import file="signetBuildTomcatDefs.xml" /> -->
+	<property file="buildSignet_QS.properties" />
 
 
 	<!-- ======================== Public Targets =========================== -->
 
 
-	<!-- =============== target: production =============== -->
-	<target name="production"
-			description="Signet production build (default Ant target)"
+    <!-- =============== target: quickstart =================== -->
+	<target name="quickstart"
+			description="Create a QuickStart Demo distribution zip and/or gzip"
 			depends="clean, compile, assemble_prod, deploy_prod" >
+		<property file="buildSignetQS.properties" />
 	</target>
 
 
-	<!-- =============== target: development ============== -->
-	<target name="development"
-			description="Signet development build"
-			depends="clean, compile, assemble_dev, deploy_dev">
-	</target>
+	<!-- - - - - - - - - - - Private, Utility Targets - - - - - - - - - - - -->
 
 
-	<!-- =============== target: clean ==================== -->
+	<!-- - - - - - - - - target: clean - - - - - - - - - -  -->
 	<target name="clean"
-			description="Clean out (delete) previous build products including Java classes and the signet dist directory" 
 			depends="delete_classes, clean_distdirs" >
 	</target>
 
 
-	<!-- =============== target: compile ================== -->
+	<!-- - - - - - - - - target: compile - - - - - - - - -  -->
 	<target name="compile"
-			description="Compile .java files, copy Hibernate mapping files"
 			depends="create_altlocal_java_dir_no, create_classpath" >
 
 		<tstamp/>
@@ -91,37 +73,20 @@
 	</target>
 
 
-	<!-- =============== target: assemble_prod ============= -->
+	<!-- - - - - - - - - target: assemble_prod - - - - - - - -->
 	<target name="assemble_prod"
-			description="Assemble production output products in preparation for deployment"
-			depends="clean, compile, assemble_all, create_signet_jars, javadoc" >
+			depends="clean,	compile, assemble_all, create_signet_jars, javadoc" >
 	</target>
 
 
-	<!-- =============== target: assemble_dev ============= -->
-	<target name="assemble_dev"
-			description="Assemble development output products in preparation for deployment"
-			depends="compile, assemble_all, create_signet_jars" >
-	</target>
-
-
-	<!-- =============== target: deploy_prod ============== -->
+	<!-- - - - - - - - - target: deploy_prod - - - - - - -  -->
 	<target name="deploy_prod"
-			description="Deploy utilities and web app for Production build"
-			depends="assemble_prod, create_webapp" >
+			depends="assemble_prod, create_hsqldb, create_webapp, create_prod_archives" >
 	</target>
 
 
-	<!-- =============== target: deploy_dev =============== -->
-	<target name="deploy_dev"
-			description="Deploy utilities and web app for Development build"
-			depends="assemble_dev, create_webapp, deploy_to_tomcat" >
-	</target>
-
-
-    <!-- =============== target: javadoc =================== -->
+    <!-- - - - - - - - - target: javadoc - - - - - - - - - - -->
 	<target name="javadoc"
-			description="Create the Signet JavaDocs plus zip and gzip archives"
 			depends="create_sourcepath, create_classpath" >
 		<path id="javadoc.src.path">
 			<pathelement location="${source_java.dir}" />
@@ -176,16 +141,6 @@
 			</tarfileset>
 		</tar>
 	</target>
-
-
-    <!-- =============== target: create_src_distrib =================== -->
-	<target name="create_src_distrib"
-			description="Create a source distribution zip and/or gzip"
-			depends="delete_src_distrib, create_src_zip_yes, create_src_gzip_yes" >
-	</target>
-
-
-	<!-- - - - - - - - - - - Private, Utility Targets - - - - - - - - - - - -->
 
 
     <!-- - - - - - - - - target: copy_readmes - -->
@@ -266,7 +221,9 @@
 
 	<!-- - - - - - - - - target: assemble_all - - - - - - - - - -->
 	<target name="assemble_all"
-			depends="create_distdirs, copy_readmes, copy_config_files, copy_libs, copy_sql, copy_util_scripts, config_util_run_script, configure_hibernate" >
+			depends="create_distdirs, copy_readmes, copy_config_files, copy_libs,
+					copy_sql, copy_util_scripts, copy_demo_scripts,
+					config_util_run_script, configure_hibernate" >
 	</target>
 
 
@@ -333,7 +290,7 @@
 		<mkdir dir="${dist_doc.dir}" />
 		<mkdir dir="${dist_lib.dir}" />
 		<mkdir dir="${dist_sql.dir}" />
-		<mkdir dir="${dist_webapp.dir}" />
+		<mkdir dir="${dist.demo.dir}" />
 	</target>
 
 	
@@ -439,6 +396,16 @@
 	</target>
 
 
+	<!-- - - - - - - - - target: copy_demo_scripts - - -->
+    <target name="copy_demo_scripts" >
+		<copy todir="${dist.demo.dir}" >
+			<fileset dir="${source.demo.dir}" >
+				<include name="*/**" />
+			</fileset>
+		</copy>
+    </target>
+
+
 	<!-- - - - - - - - - target: create_signet_jars - -->
 	<target name="create_signet_jars" 
 			depends="create_signet_api_jar, create_signet_ui_jar, create_signet_util_jar" >
@@ -516,130 +483,6 @@
 	</target>
 
 
-    <!-- - - - - - - - - target: delete_src_distrib - -->
-	<target name="delete_src_distrib" >
-		<delete file="${signet.zipfile}" />
-		<delete file="${signet.gzipfile}" />
-	</target>
-
-
-	<!-- - - - - - - - - target: create_src_zip_yes - -->
-	<target name="create_src_zip_yes"
-			if="signet.zipfile" >
-		<zip destfile="${signet.zipfile}" >
-			<fileset dir="${basedir}" >
-				<include name="${source_config.dir}/**" />
-				<include name="${source_java.dir}/**" />
-				<include name="${source_lib.dir}/**" />
-				<include name="${source_sql.dir}/**" />
-				<include name="${source_util.dir}/**" />
-				<include name="${source_webapp.dir}/**" />
-				<include name="README" />
-				<include name="LICENSE" />
-				<include name="build.xml" />
-				<include name="buildSignet.properties" />
-				<include name="buildAltLocal.properties" />
-				<include name="build_QS.xml" />
-				<include name="buildSignet_QS.properties" />
-				<exclude name="${signet.zipfile}" />
-				<exclude name="${signet.gzipfile}" />
-			</fileset>
-		</zip>
-		<chmod file="${signet.zipfile}" perm="755" />
-	</target>
-
-
-	<!-- - - - - - - - - target: create_src_gzip_yes - -->
-	<target name="create_src_gzip_yes"
-			if="signet.gzipfile" >
-		<tar destfile="${signet.gzipfile}"
-				longfile="gnu"
-				compression="gzip" >
-			<tarfileset dir="${basedir}"  mode="755" >
-				<include name="${source_config.dir}/**" />
-				<include name="${source_java.dir}/**" />
-				<include name="${source_lib.dir}/**" />
-				<include name="${source_sql.dir}/**" />
-				<include name="${source_util.dir}/**" />
-				<include name="${source_webapp.dir}/**" />
-				<include name="README" />
-				<include name="LICENSE" />
-				<include name="build.xml" />
-				<include name="buildSignet.properties" />
-				<include name="buildAltLocal.properties" />
-				<include name="build_QS.xml" />
-				<include name="buildSignet_QS.properties" />
-				<exclude name="${signet.zipfile}" />
-				<exclude name="${signet.gzipfile}" />
-			</tarfileset>
-		</tar>
-		<chmod file="${signet.gzipfile}" perm="755" />
-	</target>
-
-
-	<!-- - - - - - - - - target: create_webapp - -->
-	<target name="create_webapp"
-		if="dist_webapp.dir"
-		depends="create_webapp_dirs, create_war_file" >
-	</target>
-
-
-	<!-- - - - - - - - - target: create_webapp_dirs - -->
-	<target name="create_webapp_dirs" >
-		<mkdir dir="${dist_webapp.dir}"/>
-	</target>
-
-
-	<!-- - - - - - - - - target: create_war_file - -->
-	<target name="create_war_file"
-			depends="create_config_fileset,
-					create_altconfig_fileset_yes,
-					copy_libs,
-					copy_altweb_configs_yes,
-					copy_altweb_images_yes,
-					copy_altweb_metainf_yes,
-					copy_altweb_jsps_yes,
-					copy_altweb_scripts_yes,
-					copy_altweb_styles_yes,
-					copy_altweb_tiles_yes" >
-
-		<war destfile="${signet.war}" 
-				webxml="${source_webapp.config.dir}/web.xml" >
-
-			<fileset dir="${source_webapp.dir}" includes="index.jsp" />
-
-			<metainf dir="${source_webapp.metainf.dir}" />
-			<metainf refid="custom.webmetainf.fileset" />
-
-			<webinf dir="${source_webapp.images.dir}"		prefix="${dirname.images}" />
-			<webinf refid="custom.webimages.fileset"		prefix="${dirname.images}" />
-
-			<webinf dir="${source_webapp.jsp.dir}"			prefix="${dirname.jsp}" />
-			<webinf refid="custom.webjsp.fileset"			prefix="${dirname.jsp}" />
-
-			<webinf dir="${source_webapp.scripts.dir}"		prefix="${dirname.scripts}" />
-			<webinf refid="custom.webscripts.fileset"		prefix="${dirname.scripts}" />
-
-			<webinf dir="${source_webapp.styles.dir}"		prefix="${dirname.styles}" />
-			<webinf refid="custom.webstyles.fileset"		prefix="${dirname.styles}" />
-
-			<webinf dir="${source_webapp.tiles.dir}"		prefix="${dirname.tiles}" />
-			<webinf refid="custom.webtiles.fileset"			prefix="${dirname.tiles}" />
-
-			<webinf dir="${source_webapp.config.dir}" >		<exclude name="web.xml"/> </webinf>
-			<webinf refid="custom.webconfig.fileset" />
-
-			<!-- Note: config files are copied from dist_config.dir because they may get
-			     modified by the configure_hibernate target -->
-			<classes dir="${dist_config.dir}" />
-<!--			<classes refid="source.config.fileset" /> -->
-			<classes refid="custom.config.fileset" /> 
-
-			<lib dir="${dist_lib.dir}" />
-		</war>
-	</target>
-
-
 	<!-- - - - - - - - - target: copy_altweb_configs_yes - -->
 	<target name="copy_altweb_configs_yes"
 			depends="copy_altweb_configs_no"
@@ -661,12 +504,13 @@
 	</target>
 
 
+
 	<!-- - - - - - - - - target: copy_altweb_images_yes - -->
 	<target name="copy_altweb_images_yes"
 			depends="copy_altweb_images_no"
 			if="custom.webimages.dir" >
 		<fileset id="custom.webimages.fileset"
-				dir="${custom.webimages.dir}" >
+				dir="custom.webimages.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -687,7 +531,7 @@
 			depends="copy_altweb_jsps_no"
 			if="custom.webjsp.dir" >
 		<fileset id="custom.webjsp.fileset"
-				dir="${custom.webjsp.dir}" >
+				dir="custom.webjsp.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -708,7 +552,7 @@
 			depends="copy_altweb_metainf_no"
 			if="custom.webmetainf.dir" >
 		<fileset id="custom.webmetainf.fileset"
-				dir="${custom.webmetainf.dir}" >
+				dir="custom.webmetainf.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -729,7 +573,7 @@
 			depends="copy_altweb_scripts_no"
 			if="custom.webscripts.dir" >
 		<fileset id="custom.webscripts.fileset"
-				dir="${custom.webscripts.dir}" >
+				dir="custom.webscripts.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -750,7 +594,7 @@
 			depends="copy_altweb_styles_no"
 			if="custom.webstyles.dir" >
 		<fileset id="custom.webstyles.fileset"
-				dir="${custom.webstyles.dir}" >
+				dir="custom.webstyles.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -771,7 +615,7 @@
 			depends="copy_altweb_tiles_no"
 			if="custom.webtiles.dir" >
 		<fileset id="custom.webtiles.fileset"
-				dir="${custom.webtiles.dir}" >
+				dir="custom.webtiles.dir" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -817,7 +661,10 @@
 
 	<!-- - - - - - - - - target: config_db_url - -->
 	<target name="config_db_url"
-			if="db.cfg.url" >
+			if="db.cfg.url.filename" >
+		<property name="db.cfg.url" value="${db.cfg.url.prefix}${db.cfg.url.filename}" />
+		<property name="db.cfg.url.subjapi" value="${db.cfg.url.subjapi.prefix}${db.cfg.url.subjapi.filename}" />
+
 		<replace file="${dist_config.dir}/hibernate.cfg.xml"
 				token="${db.cfg.url.token}"
 				value="${db.cfg.url}" />
@@ -851,35 +698,253 @@
 	</target>
 
 
-	<!-- - - - - - - - - target: deploy_to_tomcat - -->
-	<target name="deploy_to_tomcat" >
-
-		<!-- Either use copy or stop/undeploy/deploy/start. -->
-<!--
-		<copy todir="${catalina_home}/webapps" file="${signet.war}" overwrite="true"/>
--->
-		<!-- stop/undeploy/deploy/start requires signetBuildTomcatDefs.xml -->
-		<stop username="${tomcat.manager.username}"
-				password="${tomcat.manager.password}"
-				url="${tomcat.manager.url}"
-				path="${tomcat.manager.signetpath}"
-				failonerror="false" />
-		<undeploy username="${tomcat.manager.username}"
-				password="${tomcat.manager.password}"
-				url="${tomcat.manager.url}"
-				path="${tomcat.manager.signetpath}"
-				failonerror="false" />
-		<deploy username="${tomcat.manager.username}"
-				password="${tomcat.manager.password}"
-				url="${tomcat.manager.url}"
-				path="${tomcat.manager.signetpath}"
-				war="${signet.war}" />
-		<start username="${tomcat.manager.username}"
-				password="${tomcat.manager.password}"
-				url="${tomcat.manager.url}"
-				path="${tomcat.manager.signetpath}" />
+	<!-- - - - - - - - - target: create_hsqldb - -->
+	<target name="create_hsqldb" >
+		<sequential>
+			<antcall target="config_hsqldb_rc" inheritrefs="true" />
+			<parallel>
+				<antcall target="start_hsqldb" inheritrefs="true" />
+				<sequential>
+<echo>CREATE_HSQLDB - SLEEPING</echo>
+					<sleep seconds="5"/>
+<echo>CREATE_HSQLDB - AWAKE</echo>
+					<antcall target="create_hsqldb_tables" inheritrefs="true" />
+					<antcall target="run_treexmlloader" inheritrefs="true" />
+					<antcall target="run_subsystemxmlloader" inheritrefs="true" />
+					<antcall target="run_subjectfileloader" inheritrefs="true" />
+					<antcall target="run_signetproxy" inheritrefs="true" />
+					<antcall target="stop_hsqldb" inheritrefs="true" />
+				</sequential>
+			</parallel>
+		</sequential>
 	</target>
 
+
+	<!-- - - - - - - - - target: config_hsqldb_rc - -->
+	<target name="config_hsqldb_rc" >
+<echo>CONFIG_HSQLDB_RC - TOP</echo>
+		<replace file="${hsqldb.rc.file}"
+				token="${db.cfg.url.token}"
+				value="${db.cfg.url}" />
+<echo>CONFIG_HSQLDB_RC - BOTTOM</echo>
+	</target>
+
+
+	<!-- - - - - - - - - target: start_hsqldb - - - - - - - - - - - - -->
+	<target name="start_hsqldb">
+<echo>START_HSQDB - TOP</echo>
+		<java classname="org.hsqldb.Server"
+				dir="${dist.demo.dir}" 
+				fork="true" >
+			<arg value="-database.0" />
+			<arg value="${dist.dir}/data/SignetQsDb" />
+			<arg value="-dbname.0" />
+			<arg value="SignetQsDb" />
+			<classpath>
+				<pathelement location="${hsqldb.jar.file}"/>
+				<pathelement location="${dist.util.dir}/config"/>
+			</classpath>
+		</java>
+<echo>START_HSQLDB - BOTTOM</echo>
+    </target>
+
+	<!-- - - - - - - - - target: stop_hsqldb - - - - - - - - - - - - - -->
+	<target name="stop_hsqldb">
+<echo>STOP_HSQLDB - TOP</echo>
+		<java jar="${hsqldb.jar.file}"
+				dir="${dist.demo.dir}" 
+				fork="true" >
+			<arg value="--sql" />
+			<arg value="SHUTDOWN" />
+			<arg value="${hsqldb.rc.arg}" />
+			<arg value="${hsqldb.rc.file}" />
+			<arg value="${hsqldb.rc.target}" />
+		</java>
+<echo>STOP_HSQLDB - BOTTOM</echo>
+    </target>
+
+	<!-- - - - - - - - - target: create_hsqldb_tables - -->
+	<target name="create_hsqldb_tables" >
+<echo>CREATE_HSQLDB_TABLES - TOP</echo>
+		<java jar="${hsqldb.jar.file}"
+				dir="${dist.util.dir}"
+				fork="true" >
+			<arg value="${hsqldb.rc.arg}" />
+			<arg value="${hsqldb.rc.file}" />
+			<arg value="${hsqldb.rc.target}" />
+			<arg value="${hsqldb.ddl}" />
+		</java>
+<echo>CREATE_HSQLDB_TABLES - BOTTOM</echo>
+	</target>
+
+
+	<!-- - - - - - - - - target: run_treexmlloader - -->
+	<target name="run_treexmlloader" >
+<echo>RUN_TREEXMLLOADER - TOP</echo>
+		<exec os="Windows XP, Windows NT"
+				dir="${TreeXmlLoader.dir}"
+				executable="cmd.exe" >
+			<arg line="/C run.bat -q ${TreeXmlLoader.arg}"/>
+		</exec>
+		<exec os="Linux, osx"
+				dir="${TreeXmlLoader.dir}"
+				executable="/bin/sh">
+			<arg line="-c run.sh -q ${TreeXmlLoader.arg}"/>
+		</exec>
+<echo>RUN_TREEXMLLOADER - BOTTOM</echo>
+	</target>
+
+
+	<!-- - - - - - - - - target: run_subsystemxmlloader - -->
+	<target name="run_subsystemxmlloader" >
+<echo>RUN_SUBSYSTEMLOADER - TOP</echo>
+		<exec os="Windows XP, Windows NT"
+				dir="${SubsystemXmlLoader.dir}"
+				executable="cmd.exe">
+			<arg line="/C run.bat -q ${SubsystemXmlLoader.arg.1} ${SubsystemXmlLoader.arg.2}"/>
+		</exec>
+		<exec os="Linux, osx"
+				dir="${SubsystemXmlLoader.dir}"
+				executable="/bin/sh">
+			<arg line="-c run.sh -q ${SubsystemXmlLoader.arg.1} ${SubsystemXmlLoader.arg.2}"/>
+		</exec>
+<echo>RUN_SUBSYSTEMLOADER - BOTTOM</echo>
+	</target>
+
+
+	<!-- - - - - - - - - target: run_subjectfileloader - -->
+	<target name="run_subjectfileloader" >
+<echo>RUN_SUBJECTFILELOADER - TOP</echo>
+		<exec os="Windows XP, Windows NT"
+				dir="${SubjectFileLoader.dir}"
+				executable="cmd.exe">
+			<arg line="/C run.bat -q ${SubjectFileLoader.arg}"/>
+		</exec>
+		<exec os="Linux, osx"
+				dir="${SubjectFileLoader.dir}"
+				executable="/bin/sh">
+			<arg line="-c run.sh -q ${SubjectFileLoader.arg}"/>
+		</exec>
+<echo>RUN_SUBJECTFILELOADER - BOTTOM</echo>
+	</target>
+
+
+	<!-- - - - - - - - - target: run_signetproxy - -->
+	<target name="run_signetproxy" >
+<echo>RUN_SIGNETPROXY - TOP</echo>
+		<exec os="Windows XP, Windows NT"
+				dir="${SignetProxy.dir}"
+				executable="cmd.exe">
+			<arg line="/C run.bat ${SignetProxy.arg}"/>
+		</exec>
+		<exec os="Linux, osx"
+				dir="${SignetProxy.dir}"
+				executable="/bin/sh">
+			<arg line="-c run.sh ${SignetProxy.arg}"/>
+		</exec>
+<echo>RUN_SIGNETPROXY - BOTTOM</echo>
+	</target>
+
+
+	<!-- - - - - - - - - target: create_webapp - -->
+	<target name="create_webapp"
+		depends="unpack_tomcat, create_war_file, deploy_to_tomcat" >
+	</target>
+
+
+	<!-- - - - - - - - - target: unpack_tomcat - -->
+	<target name="unpack_tomcat" >
+		<unzip dest="${tomcat.unzip.dir}" src="${tomcat.installer.file}" />
+		<move file="${tomcat.installer.topdir}" tofile="${tomcat.renamed.topdir}" />
+	</target>
+
+
+	<!-- - - - - - - - - target: create_war_file - -->
+	<target name="create_war_file"
+			depends="create_config_fileset, create_altconfig_fileset_yes, copy_libs,
+					copy_altweb_configs_yes, copy_altweb_images_yes, copy_altweb_metainf_yes,
+					copy_altweb_jsps_yes, copy_altweb_scripts_yes, copy_altweb_styles_yes,
+					copy_altweb_tiles_yes" >
+
+		<war destfile="${signet.war}" 
+				webxml="${source_webapp.config.dir}/web.xml" >
+
+			<fileset dir="${source_webapp.dir}" includes="index.jsp" />
+
+			<metainf dir="${source_webapp.metainf.dir}" />
+			<metainf refid="custom.webmetainf.fileset" />
+
+			<webinf dir="${source_webapp.images.dir}"		prefix="${dirname.images}" />
+			<webinf refid="custom.webimages.fileset"		prefix="${dirname.images}" />
+
+			<webinf dir="${source_webapp.jsp.dir}"			prefix="${dirname.jsp}" />
+			<webinf refid="custom.webjsp.fileset"			prefix="${dirname.jsp}" />
+
+			<webinf dir="${source_webapp.scripts.dir}"		prefix="${dirname.scripts}" />
+			<webinf refid="custom.webscripts.fileset"		prefix="${dirname.scripts}" />
+
+			<webinf dir="${source_webapp.styles.dir}"		prefix="${dirname.styles}" />
+			<webinf refid="custom.webstyles.fileset"		prefix="${dirname.styles}" />
+
+			<webinf dir="${source_webapp.tiles.dir}"		prefix="${dirname.tiles}" />
+			<webinf refid="custom.webtiles.fileset"			prefix="${dirname.tiles}" />
+
+			<webinf dir="${source_webapp.config.dir}" >		<exclude name="web.xml"/> </webinf>
+			<webinf refid="custom.webconfig.fileset" />
+
+			<!-- Note: config files are copied from dist_config.dir because they may get
+			     modified by the configure_hibernate target -->
+			<classes dir="${dist_config.dir}" />
+<!--			<classes refid="source.config.fileset" /> -->
+			<classes refid="custom.config.fileset" /> 
+
+			<lib dir="${dist_lib.dir}" />
+		</war>
+	</target>
+
+
+	<!-- - - - - - - - - target: deploy_to_tomcat - -->
+	<target name="deploy_to_tomcat" >
+		<copy todir="${tomcat.renamed.topdir}/webapps"
+				file="${signet.war}"
+				overwrite="true" />
+	</target>
+
+
+	<!-- - - - - - - - - target: create_prod_archives - - - - - - -->
+	<target name="create_prod_archives"
+		depends="create_win_archive, create_linux_archive" >
+	</target>
+
+
+	<!-- - - - - - - - - target: create_win_archive - - - - - - - -->
+	<target name="create_win_archive" >
+
+		<delete file="${signet.zipfile}" />
+		
+		<zip destfile="${signet.zipfile}"
+				encoding="UTF8"
+				duplicate="fail"
+				basedir="${dist.dir.root}"
+				includes="${dist.dir.name}/**"
+				excludes="${signet.zipfile}, ${signet.gzipfile}" >
+		</zip>
+	</target>
+
+
+	<!-- - - - - - - - - target: create_linux_archive - - - - - - -->
+	<target name="create_linux_archive">
+
+		<delete file="${signet.gzipfile}" />
+
+		<tar destfile="${signet.gzipfile}"
+				longfile="gnu"
+				compression="gzip"
+				basedir="${dist.dir.root}"
+				includes="${dist.dir.name}/**"
+				excludes="${signet.zipfile}, ${signet.gzipfile}" >
+		</tar>
+	</target>
 
 </project>
 

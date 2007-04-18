@@ -9,7 +9,10 @@
 		name="edu.internet2.middleware.signet.ChoiceSetImpl"
 		table="signet_choiceSet">
 		
-		<id name="key" type="int" column="choiceSetKey">
+		<id name="key"
+				type="int"
+				column="choiceSetKey"
+				unsaved-value="null" >
 			<generator class="sequence">
 				<param name="sequence">choiceSetSerial</param>
 			</generator>
@@ -32,7 +35,7 @@
 			class="edu.internet2.middleware.signet.SubsystemImpl"
 			not-null="true"/>
 		
-		<set name="choices" inverse="true" cascade="save-update">
+		<set name="choices" inverse="true" cascade="all">
 			<key column="choiceSetKey"/>
 			<one-to-many
 				class="edu.internet2.middleware.signet.ChoiceImpl"/>
