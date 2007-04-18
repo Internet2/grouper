@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link RegistrySubject} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.2 2007-04-18 17:30:21 blair Exp $
  * @since   1.2.0
  */
 public class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjectDAO {
@@ -145,8 +145,7 @@ public class HibernateRegistrySubjectDAO extends HibernateDAO implements Registr
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME VISIBILITY
-  public static void reset(Session hs) 
+  protected static void reset(Session hs) 
     throws  HibernateException
   {
     hs.delete("from HibernateRegistrySubjectAttributeDAO"); // TDOO 20061018 this shouldn't be necessary
