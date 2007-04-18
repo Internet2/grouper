@@ -38,19 +38,12 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.2 2007-04-17 18:45:13 blair Exp $
+ * @version $Id: Rosetta.java,v 1.3 2007-04-18 14:03:11 blair Exp $
  */
 public class Rosetta {
   // FIXME 20070416 visibility! - including methods!
 
   // PUBLIC CLASS METHODS //
-
-  /**
-   * @since   1.2.0
-   */
-  public static GrouperDAO getDAO(GrouperAPI api) {
-    return getDAO( api.getDTO() );
-  }
 
   /**
    * @since   1.2.0
@@ -65,9 +58,6 @@ public class Rosetta {
   public static GrouperDAO getDAO(Object obj) {
     if      (obj instanceof BaseGrouperDTO) {
       return getDAO( (BaseGrouperDTO) obj );
-    }
-    else if (obj instanceof GrouperAPI)     {
-      return getDAO( ( (GrouperAPI) obj ).getDTO() );
     }
     throw new IllegalArgumentException( "cannot translate obj to dao: " + obj.getClass().getName() );
   }
@@ -87,13 +77,6 @@ public class Rosetta {
   /**
    * @since   1.2.0
    */
-  public static GrouperDTO getDTO(GrouperAPI api) {
-    return api.getDTO();
-  } // public static GrouperDTO getDTO(api)
-
-  /**
-   * @since   1.2.0
-   */
   public static GrouperDTO getDTO(GrouperDAO dao) {
     // TODO 20070416 ???
     if      (dao instanceof FieldDAO)      {
@@ -109,10 +92,7 @@ public class Rosetta {
    * @since   1.2.0
    */
   public static GrouperDTO getDTO(Object obj) {
-    if      (obj instanceof GrouperAPI) {
-      return getDTO( (GrouperAPI) obj );
-    }
-    else if (obj instanceof GrouperDTO) { // TODO 20070314 this is redundant 
+    if (obj instanceof GrouperDTO) { // TODO 20070314 this is redundant 
       return (GrouperDTO) obj;
     }
     else if (obj instanceof GrouperDAO) {

@@ -38,7 +38,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.121 2007-04-17 18:08:05 blair Exp $
+ * @version $Id: Stem.java,v 1.122 2007-04-18 14:03:11 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -713,7 +713,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_DE) );
+      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this._getDTO(), this._renameChildren(GrouperConfig.ATTR_DE) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -780,7 +780,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_E) );
+      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this._getDTO(), this._renameChildren(GrouperConfig.ATTR_E) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set extension: " + eDAO.getMessage(), eDAO );
@@ -1077,12 +1077,12 @@ public class Stem extends GrouperAPI implements Owner {
   // @since   1.2.0
   private Set _renameChildGroups(String attr, String modifier, long modifyTime) {
     Map       attrs;
-    GroupDTO  child;
+    GroupDTO  _g;
     Set       groups  = new LinkedHashSet();
     Iterator  it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(this).iterator();
     while (it.hasNext()) {
-      child = (GroupDTO) it.next();
-      attrs = child.getAttributes();
+      _g = (GroupDTO) it.next();
+      attrs = _g.getAttributes();
       if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
         attrs.put( 
           GrouperConfig.ATTR_DN, 
@@ -1098,13 +1098,10 @@ public class Stem extends GrouperAPI implements Owner {
       else {
         throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
       }
-      child.setModifierUuid(modifier);
-      child.setModifyTime(modifyTime);
-      child.setAttributes(attrs);
-      groups.add(child);
+      groups.add( _g.setModifierUuid(modifier).setModifyTime(modifyTime).setAttributes(attrs) );
     }
     return groups;
-  } // private Set _renameChildGroups(attr, modifier, modifyTime)
+  } 
 
   // @since   1.2.0
   private Set _renameChildren(String attr) 
@@ -1116,16 +1113,17 @@ public class Stem extends GrouperAPI implements Owner {
     children.addAll( this._renameChildStemsAndGroups(attr, modifier, modifyTime) );
     children.addAll( this._renameChildGroups(attr, modifier, modifyTime) );
     return children;
-  } // private Set _renameChildren(attr)
+  } 
 
   // @since   1.2.0
   private Set _renameChildStemsAndGroups(String attr, String modifier, long modifyTime) 
     throws  IllegalStateException
   {
     Set       children  = new LinkedHashSet();
+    Stem      child;
     Iterator  it        = GrouperDAOFactory.getFactory().getStem().findAllChildStems(this).iterator();
     while (it.hasNext()) {
-      Stem child = new Stem();
+      child = new Stem();
       child.setDTO( (StemDTO) it.next() );
       child.setSession( this.getSession() );
       if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
@@ -1144,13 +1142,11 @@ public class Stem extends GrouperAPI implements Owner {
 
       children.addAll( child._renameChildGroups(attr, modifier, modifyTime) );
 
-      child._getDTO().setModifierUuid(modifier);
-      child._getDTO().setModifyTime(modifyTime);
-      children.add( child.getDTO() );
+      children.add( child._getDTO().setModifierUuid(modifier).setModifyTime(modifyTime) );
       children.addAll( child._renameChildStemsAndGroups(attr, modifier, modifyTime) );
     }
     return children;
-  } // private Set _renameChildStemsAndGroups(attr, modifier, modifyTime)
+  } 
 
   private void _revokeAllNamingPrivs() 
     throws  InsufficientPrivilegeException,

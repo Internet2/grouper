@@ -29,7 +29,7 @@ import  java.util.Set;
  * <i>Stem</i> DAO interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: StemDAO.java,v 1.2 2007-04-18 14:03:11 blair Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -207,7 +207,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public void renameStemAndChildren(Stem ns, Set children)
+  public void renameStemAndChildren(StemDTO _ns, Set children)
     throws  GrouperDAOException;
 
   /** 

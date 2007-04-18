@@ -35,7 +35,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.56 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: MemberOf.java,v 1.57 2007-04-18 14:03:11 blair Exp $
  */
 public class MemberOf extends BaseMemberOf {
   // FIXME 20070413 visibility!
@@ -50,6 +50,7 @@ public class MemberOf extends BaseMemberOf {
   // PROTECTED INSTANCE METHODS //
  
   // @since   1.2.0
+  // TODO 20070418 should i just pass in DTOs?
   protected void addComposite(GrouperSession s, Group g, Composite c)
     throws  IllegalStateException
   {
@@ -57,10 +58,11 @@ public class MemberOf extends BaseMemberOf {
     this.setGroup(g);
     this.setSession(s);
     this._evaluateAddCompositeMembership(); // find memberships to add
-    this.saves.add(c);                      // add the composite
-  } // protected void addComposite(s, g, c)
+    this.saves.add( c.getDTO() );
+  } 
 
   // @since   1.2.0
+  // TODO 20070418 should i just pass in DTOs?
   protected void deleteComposite(GrouperSession s, Group g, Composite c)
     throws  IllegalStateException
   {
@@ -68,8 +70,8 @@ public class MemberOf extends BaseMemberOf {
     this.setGroup(g);
     this.setSession(s);
     this._evaluateDeleteCompositeMembership();  // find memberships to delete
-    this.deletes.add(c);                        // delete the composite
-  } // protected void deleteComposite(s, o, c)
+    this.deletes.add( c.getDTO() );
+  }
 
   // @since   1.2.0
   protected void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
@@ -276,7 +278,7 @@ public class MemberOf extends BaseMemberOf {
       MembershipDTO dto;
       Iterator      isIt    = isMember.iterator();
       while (isIt.hasNext()) {
-        isMS = (MembershipDTO) Rosetta.getDTO( isIt.next() );
+        isMS = (MembershipDTO) ( (Membership) isIt.next() ).getDTO();
         hasIt = hasMembers.iterator();
         while (hasIt.hasNext()) {
           hasMS = (MembershipDTO) Rosetta.getDTO( hasIt.next() );
@@ -323,12 +325,12 @@ public class MemberOf extends BaseMemberOf {
     Set     mships  = new LinkedHashSet();
 
     // Add m to where g is a member if f == "members"
-    if (this.getField().equals(Group.getDefaultList())) {
+    if ( this.getField().equals( Group.getDefaultList() ) ) {
       MembershipDTO isMS;
       MembershipDTO dto;
       Iterator      isIt  = isMember.iterator();
       while (isIt.hasNext()) {
-        isMS = (MembershipDTO) Rosetta.getDTO( isIt.next() );
+        isMS = (MembershipDTO) ( (Membership) isIt.next() ).getDTO();
 
         dto = new MembershipDTO();
         dto.setCreatorUuid( this.getSession().getMember().getUuid() );
@@ -361,7 +363,7 @@ public class MemberOf extends BaseMemberOf {
     }
 
     return mships;
-  } // private Set _addHasMembersToWhereGroupIsMember(isMember, hasMembers)
+  } 
 
   // @since   1.2.0
   private Set _createNewCompositeMembershipObjects(Set memberUUIDs) 

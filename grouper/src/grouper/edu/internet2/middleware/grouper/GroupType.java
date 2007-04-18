@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.51 2007-04-17 18:45:13 blair Exp $
+ * @version $Id: GroupType.java,v 1.52 2007-04-18 14:03:11 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -199,7 +199,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       throw new InsufficientPrivilegeException(msg);
     }
     try {
-      if ( GrouperDAOFactory.getFactory().getGroup().findAllByType(this).size() > 0 ) {
+      if ( GrouperDAOFactory.getFactory().getGroup().findAllByType( this._getDTO() ).size() > 0 ) {
         String msg = E.GROUPTYPE_DELINUSE;
         ErrorLog.error(GroupType.class, msg);
         throw new SchemaException(msg);
@@ -267,7 +267,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     // With validation complete, delete the field
     try {
       Set fields = this._getDTO().getFields();
-      if ( fields.remove(f) ) {
+      if ( fields.remove( (FieldDTO) f.getDTO() ) ) {
         this._getDTO().setFields(fields);
         GrouperDAOFactory.getFactory().getGroupType().deleteField( (FieldDTO) f.getDTO() );
         sw.stop();
@@ -420,7 +420,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       f.setDTO(_f);
 
       Set fields = this._getDTO().getFields();
-      fields.add(f);
+      fields.add( (FieldDTO) f.getDTO() );
       this._getDTO().setFields(fields);
 
       sw.stop();

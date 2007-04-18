@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  java.util.ArrayList;
 import  java.util.Date;
@@ -26,7 +27,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.45 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.46 2007-04-18 14:03:11 blair Exp $
  */
 public class GroupFinder {
 
@@ -140,7 +141,7 @@ public class GroupFinder {
       throw new IllegalArgumentException("null type");
     }
     Set groups = PrivilegeResolver.internal_canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByType(type)
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByType( (GroupTypeDTO) type.getDTO() )
     );
     if (groups.size() == 1) {
       return (Group) new ArrayList(groups).get(0);

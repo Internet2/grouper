@@ -42,7 +42,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.3 2007-04-17 17:30:45 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.4 2007-04-18 14:03:11 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -73,18 +73,19 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public void addType(Group g, GroupType t) 
+  public void addType(GroupDTO _g, GroupTypeDTO _gt) 
     throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        HibernateGroupTypeTupleDAO gtt = new HibernateGroupTypeTupleDAO();
-        gtt.setGroupUuid( ( (GroupDTO) g.getDTO() ).getUuid() );
-        gtt.setTypeUuid( ( (GroupTypeDTO) t.getDTO() ).getUuid() );
-        hs.save(gtt); // new group-type tuple
-        hs.saveOrUpdate( Rosetta.getDAO(g) ); // modified group
+        hs.save(  // new group-type tuple
+          new HibernateGroupTypeTupleDAO()
+            .setGroupUuid( _g.getUuid() )
+            .setTypeUuid( _gt.getUuid() )
+        );
+        hs.saveOrUpdate( Rosetta.getDAO(_g) ); // modified group
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -140,18 +141,15 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public void deleteType(Group g, GroupType t) 
+  public void deleteType(GroupDTO _g, GroupTypeDTO _gt) 
     throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        HibernateGroupTypeTupleDAO gtt = HibernateGroupTypeTupleDAO.findByGroupAndType(
-          (GroupDTO) g.getDTO(), (GroupTypeDTO) t.getDTO()
-        );
-        hs.delete(gtt); // delete group-type tuple
-        hs.saveOrUpdate( Rosetta.getDAO(g) ); // save modified group
+        hs.delete( HibernateGroupTypeTupleDAO.findByGroupAndType(_g, _gt) );
+        hs.saveOrUpdate( Rosetta.getDAO(_g) ); 
         tx.commit();
       }
       catch (HibernateException eH) {
@@ -415,7 +413,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public Set findAllByType(GroupType type) 
+  public Set findAllByType(GroupTypeDTO _gt) 
     throws  GrouperDAOException
   {
     Set groups = new LinkedHashSet();
@@ -425,7 +423,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
       Query   qry = hs.createQuery("select gtt.groupUuid from HibernateGroupTypeTupleDAO gtt where gtt.typeUuid = :type");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByType");
-      qry.setString( "type", ( (GroupTypeDTO) type.getDTO() ).getUuid() );
+      qry.setString( "type", _gt.getUuid() );
       Iterator it = qry.list().iterator();
       while (it.hasNext()) {
         groups.add( findByUuid( (String) it.next() ) );
