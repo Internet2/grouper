@@ -22,11 +22,10 @@ import  org.apache.commons.lang.builder.*;
  * Stub Hibernate Group {@link Attribute} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateAttributeDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: HibernateAttributeDAO.java,v 1.2 2007-04-18 15:56:59 blair Exp $
  * @since   1.2.0
  */
-public class HibernateAttributeDAO extends HibernateDAO {
-  // FIXME 20070416 visibility!
+class HibernateAttributeDAO extends HibernateDAO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  attrName;
@@ -79,35 +78,43 @@ public class HibernateAttributeDAO extends HibernateDAO {
   } // public String toString()
 
 
-  // GETTERS //
+  // PROTECTED INSTANCE METHODS //
 
+  // @since   1.2.0
   protected String getAttrName() {
     return this.attrName;
   }
+  // @since   1.2.0
   protected String getGroupUuid() {
     return this.groupUUID;
   }
-  public String getId() {
+  // @since   1.2.0
+  protected String getId() {
     return this.id;
   }
+  // @since   1.2.0
   protected String getValue() {
     return this.value;
   }
-
-
-  // SETTERS //
-
-  protected void setAttrName(String attrName) {
+  // @since   1.2.0
+  protected HibernateAttributeDAO setAttrName(String attrName) {
     this.attrName = attrName;
+    return this;
   }
-  protected void setGroupUuid(String groupUUID) {
+  // @since   1.2.0
+  protected HibernateAttributeDAO setGroupUuid(String groupUUID) {
     this.groupUUID = groupUUID;
+    return this;
   }
-  protected void setId(String id) {
+  // @since   1.2.0
+  protected HibernateAttributeDAO setId(String id) {
     this.id = id;
+    return this;
   }
-  protected void setValue(String value) {
+  // @since   1.2.0
+  protected HibernateAttributeDAO setValue(String value) {
     this.value = value;
+    return this;
   }
 
 } 

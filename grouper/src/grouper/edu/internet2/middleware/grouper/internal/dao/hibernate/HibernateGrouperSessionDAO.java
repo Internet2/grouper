@@ -27,7 +27,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link GrouperSession} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.3 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.4 2007-04-18 15:56:59 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionDAO {
@@ -159,8 +159,7 @@ public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperS
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 visibility
-  public static void reset(Session hs) 
+  protected static void reset(Session hs) 
     throws  HibernateException
   {
     hs.delete("from HibernateGrouperSessionDAO");

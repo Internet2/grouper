@@ -35,7 +35,7 @@ import  org.apache.commons.lang.builder.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.3 2007-04-18 15:56:59 blair Exp $
  */
 public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecycle {
 
@@ -431,8 +431,7 @@ public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO,
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 visibility
-  public static void reset(Session hs) 
+  protected static void reset(Session hs) 
     throws  HibernateException
   {
     GroupTypeDTO  _type;

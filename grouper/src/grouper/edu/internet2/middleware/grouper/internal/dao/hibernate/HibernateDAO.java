@@ -27,11 +27,10 @@ import  net.sf.hibernate.cfg.*;
  * Stub Hibernate DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDAO.java,v 1.3 2007-04-18 15:19:22 blair Exp $
+ * @version $Id: HibernateDAO.java,v 1.4 2007-04-18 15:56:59 blair Exp $
  * @since   1.2.0
  */
-public abstract class HibernateDAO {
-  // FIXME 20070416 revisit visibility - including methods
+abstract class HibernateDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Configuration  CFG;

@@ -56,11 +56,10 @@ import  java.util.Map;
  * cache.removeAll();
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.1 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.2 2007-04-18 15:56:59 blair Exp $
  * @since   1.2.0     
  */
 public class SimpleCache {
-  // FIXME 20070416 visibility - and methods
 
   // PRIVATE INSTANCE VARIABLES //
   private Object cache;
