@@ -31,7 +31,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Composite} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
  * @since   1.2.0
  */
 public class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {
@@ -71,7 +71,10 @@ public class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO 
       qry.setCacheRegion(KLASS + ".FindAsFactor");
       qry.setString( "left",  _g.getUuid() );
       qry.setString( "right", _g.getUuid() );
-      composites.addAll( CompositeDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        composites.add( CompositeDTO.getDTO( (CompositeDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) { 

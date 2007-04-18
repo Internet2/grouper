@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Member} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
  */
 public class MemberDTO implements GrouperDTO {
 
@@ -57,6 +57,19 @@ public class MemberDTO implements GrouperDTO {
       .isEquals();
   } // public boolean equals(other)
 
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getMember()
+      .setId( this.getId() )
+      .setSubjectId( this.getSubjectId() )
+      .setSubjectSourceId( this.getSubjectSourceId() )
+      .setSubjectTypeId( this.getSubjectTypeId() )
+      .setUuid( this.getUuid() )
+      ;
+  }
+  
   /**
    * @since   1.2.0
    */
@@ -154,21 +167,6 @@ public class MemberDTO implements GrouperDTO {
       .append( "subjectTypeId",   this.getSubjectTypeId()   )
       .append( "uuid",            this.getUuid()            )
       .toString();
-  } // public String toString()
-
-
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  // FIXME 20070416 visibility
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getMember()
-      .setId( this.getId() )
-      .setSubjectId( this.getSubjectId() )
-      .setSubjectSourceId( this.getSubjectSourceId() )
-      .setSubjectTypeId( this.getSubjectTypeId() )
-      .setUuid( this.getUuid() )
-      ;
   }
 
 } 

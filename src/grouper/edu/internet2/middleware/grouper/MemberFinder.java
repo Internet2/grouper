@@ -24,7 +24,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.45 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.46 2007-04-18 15:02:11 blair Exp $
  */
 public class MemberFinder {
 
@@ -99,8 +99,7 @@ public class MemberFinder {
   } // protected static Member internal_findAllMember()
 
   // @since   1.2.0
-  // FIXME 20070416 access
-  public static Member internal_findRootMember() 
+  protected static Member internal_findRootMember() 
     throws  GrouperRuntimeException
   {
     try {

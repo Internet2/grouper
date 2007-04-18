@@ -20,9 +20,6 @@ import  edu.internet2.middleware.grouper.GrouperConfig;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  java.util.Collection;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
 import  java.util.Map;
 import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
@@ -31,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
  */
 public class GroupDTO implements GrouperDTO {
 
@@ -108,6 +105,25 @@ public class GroupDTO implements GrouperDTO {
     return this.creatorUUID;
   }
 
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getGroup()
+      .setAttributes( this.getAttributes() )
+      .setCreateSource( this.getCreateSource() )
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setId( this.getId() )
+      .setModifierUuid( this.getModifierUuid() )
+      .setModifySource( this.getModifySource() )
+      .setModifyTime( this.getModifyTime() )
+      .setUuid( this.getUuid() )
+      .setParentUuid( this.getParentUuid() )
+      .setTypes( this.getTypes() )
+      ;
+  }
+  
   /**
    * @since   1.2.0
    */
@@ -294,46 +310,15 @@ public class GroupDTO implements GrouperDTO {
   } // public String toString()
 
 
-  // PROTECTED CLASS METHODS //
+  // PUBLIC CLASS METHODS //
 
-  // @since   1.2.0
-  // FIXME 20070416 visiblity and existence
-  public static Collection getDTO(Collection c) {
-    Set       groups  = new LinkedHashSet();
-    Iterator  it      = c.iterator();
-    while ( it.hasNext() ) {
-      groups.add( getDTO( (GroupDAO) it.next() ) );
-    }
-    return groups;
-  } 
-
-  // @since   1.2.0
-  // FIXME 20070416 visiblity and existence
+  /**
+   * @since   1.2.0
+   */
   public static GroupDTO getDTO(GroupDAO dao) {
     GroupDTO dto = new GroupDTO();
     dto._setDAO(dao);
     return dto;
-  } // protected static GroupDTO getDTO(dao)
-
-
-  // PROTECTED INSTANCE METHODS //
-  
-  // @since   1.2.0
-  // FIXME 20070416 visiblity and existence
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getGroup()
-      .setAttributes( this.getAttributes() )
-      .setCreateSource( this.getCreateSource() )
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setId( this.getId() )
-      .setModifierUuid( this.getModifierUuid() )
-      .setModifySource( this.getModifySource() )
-      .setModifyTime( this.getModifyTime() )
-      .setUuid( this.getUuid() )
-      .setParentUuid( this.getParentUuid() )
-      .setTypes( this.getTypes() )
-      ;
   }
 
 

@@ -41,7 +41,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.5 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.6 2007-04-18 15:02:11 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -334,7 +334,10 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
       qry.setLong( "time", d.getTime() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        groups.add( GroupDTO.getDTO( (GroupDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -356,7 +359,10 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
       qry.setLong( "time", d.getTime() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        groups.add( GroupDTO.getDTO( (GroupDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -378,7 +384,10 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByModifiedAfter");
       qry.setLong( "time", d.getTime() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        groups.add( GroupDTO.getDTO( (GroupDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -400,7 +409,10 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByModifiedBefore");
       qry.setLong( "time", d.getTime() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        groups.add( GroupDTO.getDTO( (GroupDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {

@@ -21,6 +21,7 @@ import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.MemberOf;
 import  edu.internet2.middleware.grouper.Stem;
 import  edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
@@ -38,7 +39,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.3 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.4 2007-04-18 15:02:11 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -226,7 +227,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByApproximateDisplayExtension");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -248,7 +252,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByApproximateDisplayName");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -270,7 +277,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByApproximateExtension");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -292,7 +302,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByApproximateName");
       qry.setString(  "value" , "%" + val.toLowerCase() + "%" );
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -320,7 +333,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByApproximateNameAny");
       qry.setString("name", "%" + name.toLowerCase() + "%");
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -342,7 +358,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
       qry.setLong( "time", d.getTime() );
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -364,7 +383,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
       qry.setLong( "time", d.getTime() );
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -386,7 +408,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindChildGroups");
       qry.setString( "parent", ns.getUuid() );
-      groups.addAll( GroupDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        groups.add( GroupDTO.getDTO( (GroupDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
@@ -408,7 +433,10 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindChildStems");
       qry.setString( "parent", ns.getUuid() );
-      stems.addAll( StemDTO.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {

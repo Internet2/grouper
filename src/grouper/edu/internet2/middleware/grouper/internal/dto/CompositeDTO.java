@@ -19,17 +19,13 @@ package edu.internet2.middleware.grouper.internal.dto;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
-import  java.util.Collection;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * {@link Composite} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
  */
 public class CompositeDTO implements GrouperDTO {
 
@@ -74,6 +70,22 @@ public class CompositeDTO implements GrouperDTO {
   public String getCreatorUuid() {
     return this.creatorUUID;
   }
+
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getComposite()
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setFactorOwnerUuid( this.getFactorOwnerUuid() )
+      .setId( this.getId() )
+      .setLeftFactorUuid( this.getLeftFactorUuid() )
+      .setUuid( this.getUuid() )
+      .setRightFactorUuid( this.getRightFactorUuid() )
+      .setType( this.getType() )
+      ;
+  } 
 
   /**
    * @since   1.2.0
@@ -204,25 +216,12 @@ public class CompositeDTO implements GrouperDTO {
       .append( "rightFactorUuid", this.getRightFactorUuid()   )
       .append( "type",            this.getType()              )
       .toString();
-  } // public String toString()
+  }
 
 
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  // FIXME 20070416 revisit visibility + presence
-  public static Collection getDTO(Collection c) {
-    Set       composites  = new LinkedHashSet();
-    Iterator  it          = c.iterator();
-    while ( it.hasNext() ) {
-      composites.add( getDTO( (CompositeDAO) it.next() ) );
-    }
-    return composites;
-    
-  } 
+  // PUBLIC CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 revisit visibility + presence
   public static CompositeDTO getDTO(CompositeDAO dao) {
     return new CompositeDTO()
       .setCreateTime( dao.getCreateTime() )
@@ -233,24 +232,6 @@ public class CompositeDTO implements GrouperDTO {
       .setUuid( dao.getUuid() )
       .setRightFactorUuid( dao.getRightFactorUuid() )
       .setType( dao.getType() )
-      ;
-  } 
-
-
-  // PROTECTED INSTANCE METHODS //
-  
-  // @since   1.2.0
-  // FIXME 20070416 revisit visibility + presence
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getComposite()
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setFactorOwnerUuid( this.getFactorOwnerUuid() )
-      .setId( this.getId() )
-      .setLeftFactorUuid( this.getLeftFactorUuid() )
-      .setUuid( this.getUuid() )
-      .setRightFactorUuid( this.getRightFactorUuid() )
-      .setType( this.getType() )
       ;
   } 
 
