@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * Stub Hibernate {@link Group} and {@link GroupType} tuple DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.2 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.3 2007-04-18 15:56:59 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupTypeTupleDAO extends HibernateDAO {
@@ -85,7 +85,7 @@ public class HibernateGroupTypeTupleDAO extends HibernateDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 visibility
+  // FIXME 20070418 visibility
   public static HibernateGroupTypeTupleDAO findByGroupAndType(GroupDTO g, GroupTypeDTO type)
     throws  GrouperDAOException
   {
@@ -135,8 +135,7 @@ public class HibernateGroupTypeTupleDAO extends HibernateDAO {
 
   // SETTERS //
 
-  // FIXME 20070416 visiblity
-  public HibernateGroupTypeTupleDAO setGroupUuid(String groupUUID) {
+  protected HibernateGroupTypeTupleDAO setGroupUuid(String groupUUID) {
     this.groupUUID = groupUUID;
     return this;
   }
@@ -144,8 +143,7 @@ public class HibernateGroupTypeTupleDAO extends HibernateDAO {
     this.id = id;
     return this;
   }
-  // FIXME 20070416 visiblity
-  public HibernateGroupTypeTupleDAO setTypeUuid(String typeUUID) {
+  protected HibernateGroupTypeTupleDAO setTypeUuid(String typeUUID) {
     this.typeUUID = typeUUID;
     return this;
   }

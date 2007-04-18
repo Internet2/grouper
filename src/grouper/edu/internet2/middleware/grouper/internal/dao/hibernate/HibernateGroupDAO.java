@@ -41,7 +41,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Group} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.6 2007-04-18 15:02:11 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.7 2007-04-18 15:56:59 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -827,8 +827,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 visibility
-  public static void reset(Session hs) 
+  protected static void reset(Session hs) 
     throws  HibernateException
   {
     // TODO 20070307 ideally i would just put hooks for associated tables into "onDelete()" 
