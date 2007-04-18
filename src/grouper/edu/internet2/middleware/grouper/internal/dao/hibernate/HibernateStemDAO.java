@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.5 2007-04-18 17:30:21 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.6 2007-04-18 18:02:04 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -832,7 +832,8 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
   protected static void reset(Session hs) 
     throws  HibernateException
   {
-    hs.delete("from HibernateStemDAO as ns where ns.name not like '" + Stem.ROOT_INT + "'");
+    // To appease Oracle the root stem is named ":" internally.
+    hs.delete("from HibernateStemDAO as ns where ns.name not like '" + Stem.DELIM + "'");
   } 
 
 } 
