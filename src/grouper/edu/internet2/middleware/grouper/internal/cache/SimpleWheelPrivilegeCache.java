@@ -49,14 +49,17 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.3 2007-04-18 17:16:05 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.4 2007-04-18 17:30:21 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
 
-  // PROTECTED CLASS CONSTANTS //
-  // FIXME 20070417 access
-  public static final long DEFAULT_MAX_AGE = 5000; // protected for testing purposes
+  // PUBLIC CLASS CONSTANTS //
+  
+  /**
+   * Default maximum age for cached wheel group.
+   */
+  public static final long DEFAULT_MAX_AGE = 5000;
 
 
   // PRIVATE CLASS CONSTANTS //
@@ -69,11 +72,31 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
 
   // PRIVATE INSTANCE VARIABLES //
   private long  lastModified    = 0;
-  private long  maxWheelAge     = internal_getMaxWheelAge();
+  private long  maxWheelAge     = getMaxWheelAge();
   private GroupDTO _wheel       = null;
   private long  wheelFetchTime  = 0;
 
+  
+  // PUBLIC CLASS METHODS //
 
+  /**
+   * @since   1.2.0
+   */
+  public static long getMaxWheelAge() {
+    String val = GrouperConfig.getProperty(GrouperConfig.PROP_MAX_WHEEL_AGE);
+    try {
+      if (val == null) {
+        throw new NumberFormatException(NULL_VALUE);
+      }
+      return Long.parseLong(val);
+    }
+    catch (NumberFormatException eNF) {
+      DebugLog.info(SimpleWheelPrivilegeCache.class, USING_DEFAULT_MAX_AGE + eNF.getMessage());
+      return DEFAULT_MAX_AGE;
+    }
+  } 
+
+  
   // PUBLIC INSTANCE METHODS //
 
   /**
@@ -133,28 +156,8 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
   {
     super.put(o, subj, p, hasPriv); // Store the value without any cache flushing
     this._setLastModified();        // Update cache modification time
-  } // public void put(o, subj, p, hasPriv)
-
-
-  // PROTECTED CLASS METHODS //
-
-  // `protected` for testing purposes
-  // @since   1.2.0
-  // FIXME 20070417 access
-  public static long internal_getMaxWheelAge() {
-    String val = GrouperConfig.getProperty(GrouperConfig.PROP_MAX_WHEEL_AGE);
-    try {
-      if (val == null) {
-        throw new NumberFormatException(NULL_VALUE);
-      }
-      return Long.parseLong(val);
-    }
-    catch (NumberFormatException eNF) {
-      DebugLog.info(SimpleWheelPrivilegeCache.class, USING_DEFAULT_MAX_AGE + eNF.getMessage());
-      return DEFAULT_MAX_AGE;
-    }
-  } 
-
+  }
+  
 
   // PRIVATE INSTANCE METHODS //
 

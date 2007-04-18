@@ -32,10 +32,10 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.5 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: Rosetta.java,v 1.6 2007-04-18 17:30:21 blair Exp $
  */
 public class Rosetta {
-  // FIXME 20070416 visibility! - including methods!
+  // TODO 20070418 ideally i would deprecate this entire class
 
   // PUBLIC CLASS METHODS //
 

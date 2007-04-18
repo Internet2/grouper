@@ -23,11 +23,10 @@ import  org.apache.commons.lang.builder.*;
  * Hibernate representation of the JDBC SubjectAttribute table.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectAttributeDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: HibernateRegistrySubjectAttributeDAO.java,v 1.2 2007-04-18 17:30:21 blair Exp $
  * @since   1.0
  */
-public class HibernateRegistrySubjectAttributeDAO implements Serializable {
-  // FIXME VISIBILITY!
+class HibernateRegistrySubjectAttributeDAO implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = -4979920855853791786L;
@@ -87,36 +86,44 @@ public class HibernateRegistrySubjectAttributeDAO implements Serializable {
       .toHashCode();
   } // public int hashCode()
 
-
-  // GETTERS //
-
+  
+  // PRIVATE INSTANCE METHODS //
+  
+  // @since   1.2.0
   private String getName() {
     return this.name;
   }
+  // @since   1.2.0
   private String getSearchValue() {
     return this.searchValue;
   }
+  // @since   1.2.0
   private String getSubjectId() {
     return this.subjectId;
   }
+  // @since   1.2.0
   private String getValue() {
     return this.value;
   }
-
-
-  // SETTERS //
-
-  private void setName(String name) {
+  // @since   1.2.0
+  private HibernateRegistrySubjectAttributeDAO setName(String name) {
     this.name = name;
+    return this;
   }
-  private void setSearchValue(String value) {
+  // @since   1.2.0
+  private HibernateRegistrySubjectAttributeDAO setSearchValue(String value) {
     this.searchValue = value;
+    return this;
   }
-  private void setSubjectId(String subjectId) {
+  // @since   1.2.0
+  private HibernateRegistrySubjectAttributeDAO setSubjectId(String subjectId) {
     this.subjectId = subjectId;
+    return this;
   }
-  private void setValue(String value) {
+  // @since   1.2.0
+  private HibernateRegistrySubjectAttributeDAO setValue(String value) {
     this.value = value;
+    return this;
   }
 
 }

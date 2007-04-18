@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSimpleWPCache3.java,v 1.8 2007-04-18 17:16:05 blair Exp $
+ * @version $Id: TestSimpleWPCache3.java,v 1.9 2007-04-18 17:30:21 blair Exp $
  * @since   1.2.0
  */
 public class TestSimpleWPCache3 extends GrouperTest {
@@ -53,7 +53,7 @@ public class TestSimpleWPCache3 extends GrouperTest {
       assertEquals( 
         "not configured so using default",
         SimpleWheelPrivilegeCache.DEFAULT_MAX_AGE, 
-        SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
+        SimpleWheelPrivilegeCache.getMaxWheelAge()
       );
 
       // Improper value configured
@@ -65,7 +65,7 @@ public class TestSimpleWPCache3 extends GrouperTest {
       assertEquals( 
         "inappropriately configured",
         SimpleWheelPrivilegeCache.DEFAULT_MAX_AGE, 
-        SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
+        SimpleWheelPrivilegeCache.getMaxWheelAge()
       );
 
       // Custom value
@@ -75,7 +75,7 @@ public class TestSimpleWPCache3 extends GrouperTest {
         "configured", val, GrouperConfig.getProperty(GrouperConfig.PROP_MAX_WHEEL_AGE) 
       );
       assertEquals( 
-        "using custom value", Long.parseLong(val), SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
+        "using custom value", Long.parseLong(val), SimpleWheelPrivilegeCache.getMaxWheelAge()
       );
 
       // Reset
@@ -85,7 +85,7 @@ public class TestSimpleWPCache3 extends GrouperTest {
       assertEquals( 
         "reset to default value", 
         SimpleWheelPrivilegeCache.DEFAULT_MAX_AGE, 
-        SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
+        SimpleWheelPrivilegeCache.getMaxWheelAge()
       );
     }
     catch (Exception e) {
