@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Privilege resolution (as root) class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RootPrivilegeResolver.java,v 1.14 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: RootPrivilegeResolver.java,v 1.15 2007-04-18 17:16:05 blair Exp $
  * @since   1.1.0
  */
  class RootPrivilegeResolver extends PrivilegeResolver {
@@ -82,8 +82,8 @@ import  edu.internet2.middleware.subject.*;
     boolean       rv  = false;
     // I keep going back-and-forth on whether this should be a one-time
     // check or a repetitive check.  
-    if ( Boolean.valueOf( GrouperConfig.getProperty(GrouperConfig.GWU) ).booleanValue() ) {
-      String name = GrouperConfig.getProperty(GrouperConfig.GWG);
+    if ( Boolean.valueOf( GrouperConfig.getProperty(GrouperConfig.PROP_USE_WHEEL_GROUP) ).booleanValue() ) {
+      String name = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
       try {
         // I suspect this isn't great for the performance
         Group wheel = GroupFinder.findByName( s.internal_getRootSession(), name );

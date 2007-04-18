@@ -49,7 +49,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * edu.internet2.middleware.SimpleWheelPrivilegeCache.maxWheelAge = 10000
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleWheelPrivilegeCache.java,v 1.2 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: SimpleWheelPrivilegeCache.java,v 1.3 2007-04-18 17:16:05 blair Exp $
  * @since   1.1.0     
  */
 public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
@@ -91,11 +91,11 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
       // The privilege is cached ...
       // ... But is the wheel group enabled?
       boolean useCached = true;
-      if ( Boolean.valueOf( GrouperConfig.getProperty(GrouperConfig.GWU) ).booleanValue() ) {
+      if ( Boolean.valueOf( GrouperConfig.getProperty(GrouperConfig.PROP_USE_WHEEL_GROUP) ).booleanValue() ) {
         try {
           // Does the wheel group exist or has it been too long since we last fetched it?
           if ( (this._wheel == null) || this._isItTimeToUpdateWheel() ) {
-            this._wheel = GrouperDAOFactory.getFactory().getGroup().findByName( GrouperConfig.getProperty(GrouperConfig.GWG) );
+            this._wheel = GrouperDAOFactory.getFactory().getGroup().findByName( GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP) );
             this.wheelFetchTime = new Date().getTime();
             DebugLog.info(SimpleWheelPrivilegeCache.class, FOUND_WHEEL_GROUP);
           }
@@ -142,7 +142,7 @@ public class SimpleWheelPrivilegeCache extends SimplePrivilegeCache {
   // @since   1.2.0
   // FIXME 20070417 access
   public static long internal_getMaxWheelAge() {
-    String val = GrouperConfig.getProperty(GrouperConfig.MAX_WHEEL_AGE);
+    String val = GrouperConfig.getProperty(GrouperConfig.PROP_MAX_WHEEL_AGE);
     try {
       if (val == null) {
         throw new NumberFormatException(NULL_VALUE);

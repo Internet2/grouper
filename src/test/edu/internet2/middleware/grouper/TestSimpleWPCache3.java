@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSimpleWPCache3.java,v 1.7 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: TestSimpleWPCache3.java,v 1.8 2007-04-18 17:16:05 blair Exp $
  * @since   1.2.0
  */
 public class TestSimpleWPCache3 extends GrouperTest {
@@ -48,7 +48,7 @@ public class TestSimpleWPCache3 extends GrouperTest {
       assertEquals( 
         "not configured",   
         GrouperConfig.EMPTY_STRING, 
-        GrouperConfig.getProperty(GrouperConfig.MAX_WHEEL_AGE) 
+        GrouperConfig.getProperty(GrouperConfig.PROP_MAX_WHEEL_AGE) 
       );
       assertEquals( 
         "not configured so using default",
@@ -58,9 +58,9 @@ public class TestSimpleWPCache3 extends GrouperTest {
 
       // Improper value configured
       String val = "not a long value";
-      GrouperConfig.internal_setProperty(GrouperConfig.MAX_WHEEL_AGE, val);
+      GrouperConfig.internal_setProperty(GrouperConfig.PROP_MAX_WHEEL_AGE, val);
       assertEquals( 
-        "inappropriately configured", val, GrouperConfig.getProperty(GrouperConfig.MAX_WHEEL_AGE) 
+        "inappropriately configured", val, GrouperConfig.getProperty(GrouperConfig.PROP_MAX_WHEEL_AGE) 
       );
       assertEquals( 
         "inappropriately configured",
@@ -70,9 +70,9 @@ public class TestSimpleWPCache3 extends GrouperTest {
 
       // Custom value
       val = "5555";
-      GrouperConfig.internal_setProperty(GrouperConfig.MAX_WHEEL_AGE, val);
+      GrouperConfig.internal_setProperty(GrouperConfig.PROP_MAX_WHEEL_AGE, val);
       assertEquals( 
-        "configured", val, GrouperConfig.getProperty(GrouperConfig.MAX_WHEEL_AGE) 
+        "configured", val, GrouperConfig.getProperty(GrouperConfig.PROP_MAX_WHEEL_AGE) 
       );
       assertEquals( 
         "using custom value", Long.parseLong(val), SimpleWheelPrivilegeCache.internal_getMaxWheelAge()
@@ -80,7 +80,7 @@ public class TestSimpleWPCache3 extends GrouperTest {
 
       // Reset
       GrouperConfig.internal_setProperty(
-        GrouperConfig.MAX_WHEEL_AGE, new String(GrouperConfig.MAX_WHEEL_AGE)
+        GrouperConfig.PROP_MAX_WHEEL_AGE, new String(GrouperConfig.PROP_MAX_WHEEL_AGE)
       );
       assertEquals( 
         "reset to default value", 
