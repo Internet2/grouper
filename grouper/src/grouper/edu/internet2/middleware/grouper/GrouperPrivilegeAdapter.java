@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
@@ -24,7 +23,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.13 2007-04-17 18:08:05 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.14 2007-04-18 14:31:59 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {

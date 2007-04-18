@@ -16,17 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 
 /** 
  * Grouper DTO interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDTO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
  * @since   1.2.0
  */
 public interface GrouperDTO {
-
-  // NOTHING
+  
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO();
 
 } 
 

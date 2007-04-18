@@ -29,9 +29,9 @@ import  org.apache.commons.lang.builder.*;
  * {@link Stem} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: StemDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
  */
-public class StemDTO extends BaseGrouperDTO {
+public class StemDTO implements GrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  createSource;

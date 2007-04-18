@@ -20,10 +20,8 @@ import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.BaseGrouperDTO;
 import  java.util.Collection;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -34,7 +32,7 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.4 2007-04-18 14:07:14 blair Exp $
+ * @version $Id: Rosetta.java,v 1.5 2007-04-18 14:31:59 blair Exp $
  */
 public class Rosetta {
   // FIXME 20070416 visibility! - including methods!
@@ -44,7 +42,7 @@ public class Rosetta {
   /**
    * @since   1.2.0
    */
-  public static GrouperDAO getDAO(BaseGrouperDTO dto) {
+  public static GrouperDAO getDAO(GrouperDTO dto) {
     return dto.getDAO();
   }
 
@@ -52,8 +50,8 @@ public class Rosetta {
    * @since   1.2.0
    */
   public static GrouperDAO getDAO(Object obj) {
-    if      (obj instanceof BaseGrouperDTO) {
-      return getDAO( (BaseGrouperDTO) obj );
+    if      (obj instanceof GrouperDTO) {
+      return getDAO( (GrouperDTO) obj );
     }
     throw new IllegalArgumentException( "cannot translate obj to dao: " + obj.getClass().getName() );
   }

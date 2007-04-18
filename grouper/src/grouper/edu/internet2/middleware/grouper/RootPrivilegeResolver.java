@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.subject.*;
 
 /** 
  * Privilege resolution (as root) class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RootPrivilegeResolver.java,v 1.13 2007-04-17 18:08:05 blair Exp $
+ * @version $Id: RootPrivilegeResolver.java,v 1.14 2007-04-18 14:31:59 blair Exp $
  * @since   1.1.0
  */
  class RootPrivilegeResolver extends PrivilegeResolver {

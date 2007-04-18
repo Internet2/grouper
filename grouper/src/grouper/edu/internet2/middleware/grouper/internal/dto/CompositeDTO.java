@@ -29,9 +29,9 @@ import  org.apache.commons.lang.builder.*;
  * {@link Composite} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
  */
-public class CompositeDTO extends BaseGrouperDTO {
+public class CompositeDTO implements GrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private long    createTime;
