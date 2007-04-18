@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dto;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import  java.util.Iterator;
 import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 
@@ -26,7 +27,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link GroupType} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeDTO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GroupTypeDTO.java,v 1.2 2007-04-18 14:03:11 blair Exp $
  * @since   1.2.0
  */
 public class GroupTypeDTO extends BaseGrouperDTO {
@@ -145,6 +146,14 @@ public class GroupTypeDTO extends BaseGrouperDTO {
    * @since   1.2.0
    */ 
   public GroupTypeDTO setFields(Set fields) {
+    Iterator it = fields.iterator();
+    while (it.hasNext()) {
+      Object obj = it.next();
+      if ( !(obj instanceof FieldDTO) ) {
+System.err.println("OBJ IS " + obj.getClass().getName());
+        throw new RuntimeException("NOT A FIELDDTO! (" + obj.getClass().getName() + ")");
+      }
+    }
     this.fields = fields;
     return this;
   }

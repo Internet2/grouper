@@ -40,7 +40,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.154 2007-04-17 18:08:05 blair Exp $
+ * @version $Id: Group.java,v 1.155 2007-04-18 14:03:11 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -272,7 +272,7 @@ public class Group extends GrouperAPI implements Owner {
 
       this.internal_setModified();
 
-      GrouperDAOFactory.getFactory().getGroup().addType(this, type);
+      GrouperDAOFactory.getFactory().getGroup().addType( this._getDTO(), (GroupTypeDTO) type.getDTO() );
       sw.stop();
       EventLog.info(
         this.getSession(),
@@ -703,7 +703,7 @@ public class Group extends GrouperAPI implements Owner {
 
       this.internal_setModified();
 
-      GrouperDAOFactory.getFactory().getGroup().deleteType(this, type);
+      GrouperDAOFactory.getFactory().getGroup().deleteType( this._getDTO(), (GroupTypeDTO) type.getDTO() );
       sw.stop();
       EventLog.info(
         this.getSession(),

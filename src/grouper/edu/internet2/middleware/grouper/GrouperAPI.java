@@ -25,7 +25,7 @@ import  java.util.Set;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.5 2007-04-17 18:45:13 blair Exp $
+ * @version $Id: GrouperAPI.java,v 1.6 2007-04-18 14:03:11 blair Exp $
  */
 public abstract class GrouperAPI {
   // FIXME 20070417 !!! This should not be public
@@ -61,8 +61,7 @@ public abstract class GrouperAPI {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416 !!!
-  public GrouperDTO getDTO() 
+  protected GrouperDTO getDTO() 
     throws  IllegalStateException
   {
     if (this.dto == null) {

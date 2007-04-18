@@ -38,7 +38,7 @@ import  net.sf.hibernate.*;
  * Stub Hibernate {@link Stem} DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.2 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.3 2007-04-18 14:03:11 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -602,7 +602,7 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @since   1.2.0
    */
-  public void renameStemAndChildren(Stem ns, Set children)
+  public void renameStemAndChildren(StemDTO _ns, Set children)
     throws  GrouperDAOException
   {
     try {
@@ -613,7 +613,7 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
         while (it.hasNext()) {
           hs.update( Rosetta.getDAO( it.next() ) );
         }
-        hs.update( Rosetta.getDAO(ns) );
+        hs.update( Rosetta.getDAO(_ns) );
         tx.commit();
       }
       catch (HibernateException eH) {

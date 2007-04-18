@@ -21,6 +21,7 @@ import  edu.internet2.middleware.grouper.GroupNotFoundException;
 import  edu.internet2.middleware.grouper.GroupType;
 import  edu.internet2.middleware.grouper.MemberOf;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  java.util.Date;
 import  java.util.Map;
 import  java.util.Set;
@@ -29,7 +30,7 @@ import  java.util.Set;
  * <i>Group</i> DAO interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GroupDAO.java,v 1.2 2007-04-18 14:03:11 blair Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -39,7 +40,7 @@ public interface GroupDAO extends GrouperDAO {
    * <p/>
    * @since   1.2.0
    */
-  public void addType(Group g, GroupType t) 
+  public void addType(GroupDTO _g, GroupTypeDTO _gt) 
     throws  GrouperDAOException;
 
   /**
@@ -53,7 +54,7 @@ public interface GroupDAO extends GrouperDAO {
    * <p/>
    * @since   1.2.0
    */
-  public void deleteType(Group g, GroupType t) 
+  public void deleteType(GroupDTO _g, GroupTypeDTO _gt) 
     throws  GrouperDAOException;
 
   /**
@@ -119,7 +120,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public Set findAllByType(GroupType type) 
+  public Set findAllByType(GroupTypeDTO _gt)
     throws  GrouperDAOException;
 
   /**
