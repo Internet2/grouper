@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.6 2007-04-17 14:17:30 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.7 2007-04-18 16:57:30 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
@@ -83,6 +83,8 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
     }
   } // public void testDelete_AttributesDeletedWhenRegistryIsReset()
 
+  // TODO 20070418  refactor test so that "HibernateGroupTypeTuple" and
+  //                "findByGroupAndType" do not need to be public
   public void testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted() {
     try {
       LOG.info("testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted");

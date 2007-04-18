@@ -26,11 +26,11 @@ import  org.apache.commons.lang.builder.*;
  * Stub Hibernate {@link Group} and {@link GroupType} tuple DAO.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.3 2007-04-18 15:56:59 blair Exp $
+ * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.4 2007-04-18 16:57:30 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupTypeTupleDAO extends HibernateDAO {
-  // FIXME 20070416 VISIBILITY!
+  // TODO 20070418 public until i refactor "Test_Integration_HibernateGroupDAO_delete#testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset()"
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateGroupTypeTupleDAO.class.getName();
@@ -42,50 +42,10 @@ public class HibernateGroupTypeTupleDAO extends HibernateDAO {
   private String  typeUUID;
 
 
-  // PUBLIC INSTANCE METHODS //
-
-  /**
-   * @since   1.2.0
-   */
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof HibernateGroupTypeTupleDAO)) {
-      return false;
-    }
-    HibernateGroupTypeTupleDAO that = (HibernateGroupTypeTupleDAO) other;
-    return new EqualsBuilder()
-      .append( this.getGroupUuid(), that.getGroupUuid() )
-      .append( this.getTypeUuid(),  that.getTypeUuid()  )
-      .isEquals();
-  } // public boolean equals(other)
-  
-  /**
-   * @since   1.2.0
-   */
-  public int hashCode() {
-    return new HashCodeBuilder()
-      .append( this.getGroupUuid() )
-      .append( this.getTypeUuid()  )
-      .toHashCode();
-  } // public int hashCode()
-  
-  /**
-   * @since   1.2.0
-   */
-  public String toString() {
-    return new ToStringBuilder(this)
-      .append( "groupUuid", this.getGroupUuid() )
-      .append( "typeUuid",  this.getTypeUuid()  )
-      .toString();
-  } // public String toString()
-
-
-  // PROTECTED CLASS METHODS //
+  // PUBLIC CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070418 visibility
+  // TODO 20070418 public until i refactor "Test_Integration_HibernateGroupDAO_delete#testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset()"
   public static HibernateGroupTypeTupleDAO findByGroupAndType(GroupDTO g, GroupTypeDTO type)
     throws  GrouperDAOException
   {
@@ -111,6 +71,49 @@ public class HibernateGroupTypeTupleDAO extends HibernateDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   }
+
+
+  // PUBLIC INSTANCE METHODS //
+
+  /**
+   * @since   1.2.0
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof HibernateGroupTypeTupleDAO)) {
+      return false;
+    }
+    HibernateGroupTypeTupleDAO that = (HibernateGroupTypeTupleDAO) other;
+    return new EqualsBuilder()
+      .append( this.getGroupUuid(), that.getGroupUuid() )
+      .append( this.getTypeUuid(),  that.getTypeUuid()  )
+      .isEquals();
+  }
+  
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getGroupUuid() )
+      .append( this.getTypeUuid()  )
+      .toHashCode();
+  }
+  
+  /**
+   * @since   1.2.0
+   */
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append( "groupUuid", this.getGroupUuid() )
+      .append( "typeUuid",  this.getTypeUuid()  )
+      .toString();
+  }
+
+
+  // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
   protected static void reset(Session hs) 
