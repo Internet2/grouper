@@ -16,10 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
-import  edu.internet2.middleware.grouper.Field;       // FIXME 20070417 no!
-import  edu.internet2.middleware.grouper.Group;       // FIXME 20070417 no!
-import  edu.internet2.middleware.grouper.GrouperAPI;  // FIXME 20070417 no!
-import  edu.internet2.middleware.grouper.GroupType;   // FIXME 20070417 no!
 import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
@@ -38,7 +34,7 @@ import  java.util.Set;
  * <p/>
  * @author  blair christensen.
  * @since   1.2.0
- * @version $Id: Rosetta.java,v 1.3 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: Rosetta.java,v 1.4 2007-04-18 14:07:14 blair Exp $
  */
 public class Rosetta {
   // FIXME 20070416 visibility! - including methods!

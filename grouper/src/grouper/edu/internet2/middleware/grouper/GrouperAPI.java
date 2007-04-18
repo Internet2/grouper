@@ -25,10 +25,10 @@ import  java.util.Set;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.6 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: GrouperAPI.java,v 1.7 2007-04-18 14:07:13 blair Exp $
+ * @since   1.2.0
  */
-public abstract class GrouperAPI {
-  // FIXME 20070417 !!! This should not be public
+abstract class GrouperAPI {
 
   // PROTECTED INSTANCE VARIABLES //
   protected GrouperDTO      dto;
