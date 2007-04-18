@@ -31,9 +31,9 @@ import  org.apache.commons.lang.builder.*;
  * {@link Group} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
  */
-public class GroupDTO extends BaseGrouperDTO {
+public class GroupDTO implements GrouperDTO {
 
   // TODO 20070215 smarter, more DRY, lazy-loading, please
 

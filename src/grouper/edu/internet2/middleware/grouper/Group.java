@@ -20,7 +20,6 @@ import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -40,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.155 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: Group.java,v 1.156 2007-04-18 14:31:59 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 

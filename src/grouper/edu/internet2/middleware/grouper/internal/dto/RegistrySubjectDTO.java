@@ -24,10 +24,10 @@ import  org.apache.commons.lang.builder.*;
  * {@link RegistrySubject} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDTO.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: RegistrySubjectDTO.java,v 1.2 2007-04-18 14:31:59 blair Exp $
  * @since   1.2.0
  */
-public class RegistrySubjectDTO extends BaseGrouperDTO {
+public class RegistrySubjectDTO implements GrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  id;

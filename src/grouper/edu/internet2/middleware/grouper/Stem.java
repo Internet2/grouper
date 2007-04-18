@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -38,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.122 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: Stem.java,v 1.123 2007-04-18 14:31:59 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 

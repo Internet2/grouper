@@ -16,9 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
-import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GroupNotFoundException;
-import  edu.internet2.middleware.grouper.GroupType;
 import  edu.internet2.middleware.grouper.MemberOf;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
@@ -30,7 +28,7 @@ import  java.util.Set;
  * <i>Group</i> DAO interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.2 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: GroupDAO.java,v 1.3 2007-04-18 14:31:59 blair Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {

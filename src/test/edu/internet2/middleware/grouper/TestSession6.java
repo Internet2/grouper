@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
@@ -24,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession6.java,v 1.12 2007-04-17 18:08:05 blair Exp $
+ * @version $Id: TestSession6.java,v 1.13 2007-04-18 14:31:59 blair Exp $
  */
 public class TestSession6 extends TestCase {
 

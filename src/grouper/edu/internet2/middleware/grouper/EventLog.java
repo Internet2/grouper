@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
@@ -31,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.46 2007-04-17 18:08:05 blair Exp $
+ * @version $Id: EventLog.java,v 1.47 2007-04-18 14:31:59 blair Exp $
  */
 class EventLog {
 

@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper.internal.dto;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import  java.util.Iterator;
 import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 
@@ -27,10 +26,10 @@ import  org.apache.commons.lang.builder.*;
  * {@link GroupType} DTO class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeDTO.java,v 1.2 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: GroupTypeDTO.java,v 1.3 2007-04-18 14:31:59 blair Exp $
  * @since   1.2.0
  */
-public class GroupTypeDTO extends BaseGrouperDTO {
+public class GroupTypeDTO implements GrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  creatorUUID;
@@ -75,6 +74,25 @@ public class GroupTypeDTO extends BaseGrouperDTO {
     return this.createTime;
   }
  
+
+  // PROTECTED INSTANCE METHODS //
+
+  /**
+   * @since   1.2.0
+   */
+  public GrouperDAO getDAO() {
+    return GrouperDAOFactory.getFactory().getGroupType()
+      .setCreateTime( this.getCreateTime() )
+      .setCreatorUuid( this.getCreatorUuid() )
+      .setFields( this.getFields() )
+      .setId( this.getId() )
+      .setIsAssignable( this.getIsAssignable() )
+      .setIsInternal( this.getIsInternal() )
+      .setName( this.getName() )
+      .setUuid( this.getUuid() )
+      ;
+  }
+  
   /**
    * @since   1.2.0
    */ 
@@ -146,14 +164,6 @@ public class GroupTypeDTO extends BaseGrouperDTO {
    * @since   1.2.0
    */ 
   public GroupTypeDTO setFields(Set fields) {
-    Iterator it = fields.iterator();
-    while (it.hasNext()) {
-      Object obj = it.next();
-      if ( !(obj instanceof FieldDTO) ) {
-System.err.println("OBJ IS " + obj.getClass().getName());
-        throw new RuntimeException("NOT A FIELDDTO! (" + obj.getClass().getName() + ")");
-      }
-    }
     this.fields = fields;
     return this;
   }
@@ -217,7 +227,6 @@ System.err.println("OBJ IS " + obj.getClass().getName());
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // FIXME 20070416
   public static GroupTypeDTO getDTO(GroupTypeDAO dao) {
     return new GroupTypeDTO()
       .setCreateTime( dao.getCreateTime() )
@@ -228,24 +237,6 @@ System.err.println("OBJ IS " + obj.getClass().getName());
       .setIsInternal( dao.getIsInternal() )
       .setName( dao.getName() )
       .setUuid( dao.getUuid() )
-      ;
-  } 
-
-
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  // FIXME 20070416
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getGroupType()
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setFields( this.getFields() )
-      .setId( this.getId() )
-      .setIsAssignable( this.getIsAssignable() )
-      .setIsInternal( this.getIsInternal() )
-      .setName( this.getName() )
-      .setUuid( this.getUuid() )
       ;
   }
 
