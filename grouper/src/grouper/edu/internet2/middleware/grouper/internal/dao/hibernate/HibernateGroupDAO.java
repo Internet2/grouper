@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
-import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.GroupNotFoundException;
 import  edu.internet2.middleware.grouper.MemberOf;
@@ -41,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.8 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.9 2007-04-19 14:39:29 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
