@@ -20,14 +20,13 @@ import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
-import  java.util.Date;
 import  net.sf.hibernate.*;
 
 /**
  * Basic Hibernate <code>GrouperSession</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.6 2007-04-19 19:33:42 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.7 2007-04-19 19:40:17 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionDAO {
