@@ -26,7 +26,7 @@ import  java.util.Set;
  * Basic <code>Field</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: FieldDAO.java,v 1.2 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: FieldDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public interface FieldDAO extends GrouperDAO {
@@ -34,71 +34,71 @@ public interface FieldDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public boolean existsByName(String name) 
+  boolean existsByName(String name) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAll() 
+  Set findAll() 
     throws  GrouperRuntimeException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllFieldsByGroupType(String uuid)
+  Set findAllFieldsByGroupType(String uuid)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByType(FieldType type) 
+  Set findAllByType(FieldType type) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public String getGroupTypeUuid();
+  String getGroupTypeUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getId();
+  String getId();
 
   /**
    * @since   1.2.0
    */
-  public boolean getIsNullable();
+  boolean getIsNullable();
 
   /**
    * @since   1.2.0
    */
-  public String getName();
+  String getName();
 
   /**
    * @since   1.2.0
    */
-  public String getReadPrivilege();
+  String getReadPrivilege();
 
   /**
    * @since   1.2.0
    */
-  public String getType();
+  String getType();
  
   /**
    * @since   1.2.0
    */
-  public String getUuid();
+  String getUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getWritePrivilege();
+  String getWritePrivilege();
 
   /**
    * @since   1.2.0
    */
-  public boolean isInUse(Field f) 
+  boolean isInUse(Field f) 
     throws  GrouperDAOException,
             SchemaException
             ;
@@ -106,42 +106,42 @@ public interface FieldDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public FieldDAO setGroupTypeUuid(String groupTypeUUID);
+  FieldDAO setGroupTypeUuid(String groupTypeUUID);
 
   /**
    * @since   1.2.0
    */
-  public FieldDAO setId(String id);
+  FieldDAO setId(String id);
 
   /**
    * @since   1.2.0
    */
-  public FieldDAO setIsNullable(boolean isNullable);
+  FieldDAO setIsNullable(boolean isNullable);
 
   /**
    * @since   1.2.0
    */
-  public FieldDAO setName(String name);
+  FieldDAO setName(String name);
 
   /**
    * @since   1.2.0
    */
-  public FieldDAO setReadPrivilege(String readPrivilege);
+  FieldDAO setReadPrivilege(String readPrivilege);
 
   /**
    * @since   1.2.0
    */
-  public FieldDAO setType(String type);
+  FieldDAO setType(String type);
 
   /**
    * @since   1.2.0
    */
-  public FieldDAO setUuid(String uuid);
+  FieldDAO setUuid(String uuid);
 
   /**
    * @since   1.2.0
    */
-  public FieldDAO setWritePrivilege(String writePrivilege);
+  FieldDAO setWritePrivilege(String writePrivilege);
 
 } 
 

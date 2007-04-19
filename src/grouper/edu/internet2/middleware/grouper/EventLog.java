@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.48 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: EventLog.java,v 1.49 2007-04-19 19:23:21 blair Exp $
  */
 class EventLog {
 
@@ -311,53 +311,50 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    GrouperSession  root  = s.internal_getRootSession();
     MembershipDTO   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
       eff = (MembershipDTO) iter.next();
       if      ( eff.getListType().equals(FieldType.ACCESS.toString()) )  {
-        this._eff(root, s, M.G_GP_E, name, subj, f, eff, "priv="); 
+        this._eff(s, M.G_GP_E, name, subj, f, eff, "priv="); 
       }
       else if ( eff.getListType().equals(FieldType.LIST.toString()) )    {
-        this._eff(root, s, M.G_AM_E, name, subj, f, eff, "list="); 
+        this._eff(s, M.G_AM_E, name, subj, f, eff, "list="); 
       }
       else if ( eff.getListType().equals(FieldType.NAMING.toString()) )  {
-        this._eff(root, s, M.S_GP_E, name, subj, f, eff, "priv="); 
+        this._eff(s, M.S_GP_E, name, subj, f, eff, "priv="); 
       }
     }
-  } // private void _addEffs(s, name, subj, f, effs)
+  }
 
   private void _delEffs(
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
-    GrouperSession  root  = s.internal_getRootSession();
     MembershipDTO   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
       eff = (MembershipDTO) iter.next();
       if      ( eff.getListType().equals(FieldType.ACCESS.toString()) )  {
-        this._eff(root, s, M.G_RP_E, name, subj, f, eff, "priv="); 
+        this._eff(s, M.G_RP_E, name, subj, f, eff, "priv="); 
       }
       else if ( eff.getListType().equals(FieldType.LIST.toString()) )    {
-        this._eff(root, s, M.G_DM_E, name, subj, f, eff, "list="); 
+        this._eff(s, M.G_DM_E, name, subj, f, eff, "list="); 
       }
       else if ( eff.getListType().equals(FieldType.NAMING.toString()) )  {
-        this._eff(root, s, M.S_RP_E, name, subj, f, eff, "priv="); 
+        this._eff(s, M.S_RP_E, name, subj, f, eff, "priv="); 
       }
     }
-  } // private void _delEffs(s, name, subj, f, effs)
+  } 
 
   private void _eff(
-    GrouperSession root, GrouperSession s, String msg, String name, 
-    Subject subj, Field f, MembershipDTO eff, String field
+    GrouperSession s, String msg, String name, Subject subj, Field f, MembershipDTO eff, String field
   )
   {
     msg += this._getEffOwnerMsg(eff);
     // Get eff field
     msg += " " + field + Quote.single( eff.getListName() );
-    msg += this._getEffSubjectMsg(s, eff);
+    msg += this._getEffSubjectMsg(eff);
     // Get added or removed message that caused this effective membership change
     msg += " (" + name + " ";
     if      ( f.getType().equals(FieldType.ACCESS) )  {
@@ -374,8 +371,7 @@ class EventLog {
     msg += " subject=" + SubjectHelper.getPretty(subj) + ")";
     // Now log it
     LOG.info( LogHelper.internal_formatMsg(s, msg) );
-    // Reset to the original session
-  } // private void _eff(root, s, msg, name, subj, f, eff, field)
+  } 
 
   // @since   1.2.0
   // TODO 20070222 this is still pretty nasty
@@ -422,7 +418,7 @@ class EventLog {
   } // private String _getEffOwnerMsg(_eff)
 
   // @since   1.2.0
-  private String _getEffSubjectMsg(GrouperSession s, MembershipDTO _eff) {
+  private String _getEffSubjectMsg(MembershipDTO _eff) {
     try {
       return " " + GrouperDAOFactory.getFactory().getMember().findByUuid( _eff.getMemberUuid() );
     }
@@ -431,7 +427,7 @@ class EventLog {
       ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eMNF.getMessage() );
     }
     return " subject=???";
-  } // private String _getEffSubjectMsg(s, _eff)
+  } 
 
   private void _grantPriv(
     GrouperSession s, String msg, String name, Subject subj, Privilege p, StopWatch sw

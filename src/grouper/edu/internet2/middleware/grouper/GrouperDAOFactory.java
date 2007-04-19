@@ -32,18 +32,10 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFact
  * Factor for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.4 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.5 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
-
-  // CONSTRUCTORS //
-
-  // @since   1.2.0
-  public GrouperDAOFactory() {
-    super();
-  } // public GrouperDAOFactory()
-
 
   // PROTECTED CLASS METHODS //
 

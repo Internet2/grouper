@@ -23,7 +23,7 @@ import  java.util.Date;
  * Basic <code>GrouperSession</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDAO.java,v 1.2 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: GrouperSessionDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public interface GrouperSessionDAO extends GrouperDAO {
@@ -31,54 +31,54 @@ public interface GrouperSessionDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public String create(GrouperSessionDTO _s)
+  String create(GrouperSessionDTO _s)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public void delete(GrouperSessionDTO _s)
+  void delete(GrouperSessionDTO _s)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public String getId();
+  String getId();
 
   /**
    * @since   1.2.0
    */
-  public String getMemberUuid();
+  String getMemberUuid();
 
   /**
    * @since   1.2.0
    */
-  public Date getStartTime();
+  Date getStartTime();
 
   /**
    * @since   1.2.0
    */
-  public String getUuid();
+  String getUuid();
 
   /**
    * @since   1.2.0
    */
-  public GrouperSessionDAO setId(String id);
+  GrouperSessionDAO setId(String id);
 
   /**
    * @since   1.2.0
    */
-  public GrouperSessionDAO setMemberUuid(String memberUuid);
+  GrouperSessionDAO setMemberUuid(String memberUuid);
 
   /**
    * @since   1.2.0
    */
-  public GrouperSessionDAO setStartTime(Date startTime);
+  GrouperSessionDAO setStartTime(Date startTime);
 
   /**
    * @since   1.2.0
    */
-  public GrouperSessionDAO setUuid(String uuid);
+  GrouperSessionDAO setUuid(String uuid);
 
 } 
 

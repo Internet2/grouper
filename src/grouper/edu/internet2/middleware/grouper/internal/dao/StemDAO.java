@@ -29,7 +29,7 @@ import  java.util.Set;
  * Basic <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.5 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: StemDAO.java,v 1.6 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -37,91 +37,91 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public String createChildGroup(StemDTO _parent, GroupDTO _child, MemberDTO _m)
+  String createChildGroup(StemDTO _parent, GroupDTO _child, MemberDTO _m)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public String createChildStem(StemDTO _parent, StemDTO _child)
+  String createChildStem(StemDTO _parent, StemDTO _child)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public String createRootStem(StemDTO _root)
+  String createRootStem(StemDTO _root)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public void delete(StemDTO _ns)
+  void delete(StemDTO _ns)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public boolean exists(String uuid) 
+  boolean exists(String uuid) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByApproximateDisplayExtension(String val) 
+  Set findAllByApproximateDisplayExtension(String val) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByApproximateDisplayName(String val) 
+  Set findAllByApproximateDisplayName(String val) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByApproximateExtension(String val) 
+  Set findAllByApproximateExtension(String val) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByApproximateName(String val) 
+  Set findAllByApproximateName(String val) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByApproximateNameAny(String name) 
+  Set findAllByApproximateNameAny(String name) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByCreatedAfter(Date d) 
+  Set findAllByCreatedAfter(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByCreatedBefore(Date d) 
+  Set findAllByCreatedBefore(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllChildGroups(Stem ns)
+  Set findAllChildGroups(Stem ns)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllChildStems(Stem ns)
+  Set findAllChildStems(Stem ns)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public StemDTO findByName(String name) 
+  StemDTO findByName(String name) 
     throws  GrouperDAOException,
             StemNotFoundException
             ;
@@ -129,7 +129,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public StemDTO findByUuid(String uuid)
+  StemDTO findByUuid(String uuid)
     throws  GrouperDAOException,
             StemNotFoundException
             ;
@@ -137,165 +137,165 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public String getCreateSource();
+  String getCreateSource();
 
   /**
    * @since   1.2.0
    */
-  public long getCreateTime();
+  long getCreateTime();
 
   /**
    * @since   1.2.0
    */
-  public String getCreatorUuid();
+  String getCreatorUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getDescription();
+  String getDescription();
 
   /**
    * @since   1.2.0
    */
-  public String getDisplayExtension();
+  String getDisplayExtension();
 
   /**
    * @since   1.2.0
    */
-  public String getDisplayName();
+  String getDisplayName();
 
   /**
    * @since   1.2.0
    */
-  public String getExtension();
-
-  /** 
-   * @since   1.2.0
-   */
-  public String getId();
-
-  /**
-   * @since   1.2.0
-   */
-  public String getModifierUuid();
-  
-  /**
-   * @since   1.2.0
-   */
-  public String getModifySource();
-
-  /**
-   * @since   1.2.0
-   */
-  public long getModifyTime();
-
-  /**
-   * @since   1.2.0
-   */
-  public String getName();
-
-  /**
-   * @since   1.2.0
-   */
-  public String getParentUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  public String getUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  public void renameStemAndChildren(StemDTO _ns, Set children)
-    throws  GrouperDAOException;
+  String getExtension();
 
   /** 
    * @since   1.2.0
    */
-  public void revokePriv(StemDTO _ns, DefaultMemberOf mof)
-    throws  GrouperDAOException;
+  String getId();
 
   /**
    * @since   1.2.0
    */
-  public void revokePriv(StemDTO _ns, Set toDelete)
-    throws  GrouperDAOException;
-
-  /**
-   * @since   1.2.0
-   */
-  public StemDAO setCreateSource(String createSource);
-
-  /**
-   * @since   1.2.0
-   */
-  public StemDAO setCreateTime(long createTime);
+  String getModifierUuid();
   
   /**
    * @since   1.2.0
    */
-  public StemDAO setCreatorUuid(String creatorUUID);
+  String getModifySource();
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setDescription(String description);
+  long getModifyTime();
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setDisplayExtension(String displayExtension);
+  String getName();
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setDisplayName(String displayName);
+  String getParentUuid();
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setExtension(String extension);
+  String getUuid();
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setId(String id);
+  void renameStemAndChildren(StemDTO _ns, Set children)
+    throws  GrouperDAOException;
+
+  /** 
+   * @since   1.2.0
+   */
+  void revokePriv(StemDTO _ns, DefaultMemberOf mof)
+    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setModifierUuid(String modifierUUID);
+  void revokePriv(StemDTO _ns, Set toDelete)
+    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setModifySource(String modifySource);
+  StemDAO setCreateSource(String createSource);
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setModifyTime(long modifyTime);
+  StemDAO setCreateTime(long createTime);
+  
+  /**
+   * @since   1.2.0
+   */
+  StemDAO setCreatorUuid(String creatorUUID);
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setName(String name);
+  StemDAO setDescription(String description);
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setParentUuid(String parentUUID);
+  StemDAO setDisplayExtension(String displayExtension);
 
   /**
    * @since   1.2.0
    */
-  public StemDAO setUuid(String uuid);
+  StemDAO setDisplayName(String displayName);
 
   /**
    * @since   1.2.0
    */
-  public void update(StemDTO _ns)
+  StemDAO setExtension(String extension);
+
+  /**
+   * @since   1.2.0
+   */
+  StemDAO setId(String id);
+
+  /**
+   * @since   1.2.0
+   */
+  StemDAO setModifierUuid(String modifierUUID);
+
+  /**
+   * @since   1.2.0
+   */
+  StemDAO setModifySource(String modifySource);
+
+  /**
+   * @since   1.2.0
+   */
+  StemDAO setModifyTime(long modifyTime);
+
+  /**
+   * @since   1.2.0
+   */
+  StemDAO setName(String name);
+
+  /**
+   * @since   1.2.0
+   */
+  StemDAO setParentUuid(String parentUUID);
+
+  /**
+   * @since   1.2.0
+   */
+  StemDAO setUuid(String uuid);
+
+  /**
+   * @since   1.2.0
+   */
+  void update(StemDTO _ns)
     throws  GrouperDAOException;
 
 } 

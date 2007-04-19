@@ -22,7 +22,7 @@ import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
  * Grouper DTO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperDTO.java,v 1.3 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: GrouperDTO.java,v 1.4 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public interface GrouperDTO {
@@ -30,7 +30,7 @@ public interface GrouperDTO {
   /**
    * @since   1.2.0
    */
-  public GrouperDAO getDAO();
+  GrouperDAO getDAO();
 
 } 
 

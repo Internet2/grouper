@@ -24,7 +24,7 @@ import  java.util.Set;
  * <b>THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b> 
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.58 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: MemberOf.java,v 1.59 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 interface MemberOf {
@@ -35,63 +35,63 @@ interface MemberOf {
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  public void addComposite(GrouperSession s, Group g, Composite c)
+  void addComposite(GrouperSession s, Group g, Composite c)
     throws  IllegalStateException;
 
   /**
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  public void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
+  void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
     throws  IllegalStateException;  
 
   /**
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  public void addImmediate(GrouperSession s, Stem ns, Field f, MemberDTO _m)
+  void addImmediate(GrouperSession s, Stem ns, Field f, MemberDTO _m)
     throws  IllegalStateException; 
 
   /**
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  public void deleteComposite(GrouperSession s, Group g, Composite c)
+  void deleteComposite(GrouperSession s, Group g, Composite c)
     throws  IllegalStateException;
 
   /**
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  public void deleteImmediate(GrouperSession s, Group g, MembershipDTO _ms, MemberDTO _m)
+  void deleteImmediate(GrouperSession s, Group g, MembershipDTO _ms, MemberDTO _m)
     throws  IllegalStateException;
 
   /**
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  public void deleteImmediate(GrouperSession s, Stem ns, MembershipDTO _ms, MemberDTO _m)
+  void deleteImmediate(GrouperSession s, Stem ns, MembershipDTO _ms, MemberDTO _m)
     throws  IllegalStateException;
 
   /**
    * @since   1.2.0
    */
-  public Set getSaves();
+  Set getSaves();
   
   /**
    * @since   1.2.0
    */
-  public Set getModifiedGroups();
+  Set getModifiedGroups();
   
   
   /**
    * @since    1.2.0
    */
-  public Set getModifiedStems();
+  Set getModifiedStems();
   
   /**
    * @since   1.2.0
    */
-  public Set getDeletes();
+  Set getDeletes();
   
 }
