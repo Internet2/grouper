@@ -18,7 +18,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.GroupNotFoundException;
-import  edu.internet2.middleware.grouper.MemberOf;
+import  edu.internet2.middleware.grouper.DefaultMemberOf;
 import  edu.internet2.middleware.grouper.SchemaException;
 import  edu.internet2.middleware.grouper.internal.cache.SimpleBooleanCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -40,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.9 2007-04-19 14:39:29 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.10 2007-04-19 15:39:50 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -645,18 +645,18 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   /**
    * @since   1.2.0
    */
-  public void revokePriv(GroupDTO _g, MemberOf mof)
+  public void revokePriv(GroupDTO _g, DefaultMemberOf mof)
     throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Iterator it = mof.internal_getDeletes().iterator();
+        Iterator it = mof.getDeletes().iterator();
         while (it.hasNext()) {
           hs.delete( Rosetta.getDAO( it.next() ) );
         }
-        it = mof.internal_getSaves().iterator();
+        it = mof.getSaves().iterator();
         while (it.hasNext()) {
           hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
         }

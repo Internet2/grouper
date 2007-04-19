@@ -17,7 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao;
 import  edu.internet2.middleware.grouper.GroupNotFoundException;
-import  edu.internet2.middleware.grouper.MemberOf;
+import  edu.internet2.middleware.grouper.DefaultMemberOf;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  java.util.Date;
@@ -28,7 +28,7 @@ import  java.util.Set;
  * Basic <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.4 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: GroupDAO.java,v 1.5 2007-04-19 15:39:50 blair Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -205,7 +205,7 @@ public interface GroupDAO extends GrouperDAO {
    * <p/>
    * @since   1.2.0
    */
-  public void revokePriv(GroupDTO _g, MemberOf mof)
+  public void revokePriv(GroupDTO _g, DefaultMemberOf mof)
     throws  GrouperDAOException;
 
   /**

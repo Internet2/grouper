@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.43 2007-04-17 17:54:07 blair Exp $
+ * @version $Id: Composite.java,v 1.44 2007-04-19 15:39:50 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -272,14 +272,14 @@ public class Composite extends GrouperAPI {
       sw.start();
 
       Group     g   = new Group();
-      MemberOf  mof = new MemberOf();
+      DefaultMemberOf  mof = new DefaultMemberOf();
       g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this._getDTO().getFactorOwnerUuid() ) ); 
       mof.addComposite( this.getSession(), g, this );
   
       Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
         ( (GroupDTO) g.getDTO() ).getUuid(), Group.getDefaultList()  // current mships
       );
-      Set should    = mof.internal_getEffSaves();     // What mships should be
+      Set should    = mof.getEffectiveSaves();     // What mships should be
       Set deletes   = new LinkedHashSet(cur);         // deletes  = cur - should
       deletes.removeAll(should);
       Set adds      = new LinkedHashSet(should);      // adds     = should - cur

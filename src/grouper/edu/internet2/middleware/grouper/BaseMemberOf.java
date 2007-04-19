@@ -16,22 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import  java.util.Collection;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.5 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: BaseMemberOf.java,v 1.6 2007-04-19 15:39:50 blair Exp $
  * @since   1.2.0
  */
-abstract class BaseMemberOf {
+public abstract class BaseMemberOf implements MemberOf {
 
   // PRIVATE INSTANCE VARIABLES //
   private Composite       c;
-  private Field           f           = Group.getDefaultList();
+  private Set             deletes         = new LinkedHashSet();
+  private Set             effDeletes      = new LinkedHashSet();
+  private Set             effSaves        = new LinkedHashSet();
+  private Field           f               = Group.getDefaultList();
   private Group           g;
   private GrouperSession  s;
   private MemberDTO       _m;
@@ -40,6 +45,7 @@ abstract class BaseMemberOf {
   private Set             modifiedStems   = new LinkedHashSet();
   private Stem            ns;
   private String          ownerUUID;  
+  private Set             saves           = new LinkedHashSet();
 
 
   // CONSTRUCTORS //
@@ -50,103 +56,161 @@ abstract class BaseMemberOf {
   } // protected BaseMemberOf()
 
 
-  // PROTECTED ABSTRACT METHODS //
-
-  // @since   1.2.0
-  protected abstract void addComposite(GrouperSession s, Group g, Composite c)
-    throws  IllegalStateException;
-
-  // @since   1.2.0
-  protected abstract void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
-    throws  IllegalStateException;  
-
-  // @since   1.2.0
-  protected abstract void addImmediate(GrouperSession s, Stem ns, Field f, MemberDTO _m)
-    throws  IllegalStateException; 
-
-  // @since   1.2.0
-  protected abstract void deleteComposite(GrouperSession s, Group g, Composite c)
-    throws  IllegalStateException;
-
-  // @since   1.2.0
-  protected abstract void deleteImmediate(GrouperSession s, Group g, MembershipDTO _ms, MemberDTO _m)
-    throws  IllegalStateException;
-
-  // @since   1.2.0
-  protected abstract void deleteImmediate(GrouperSession s, Stem ns, MembershipDTO _ms, MemberDTO _m)
-    throws  IllegalStateException;
-
-
-  // GETTERS //
-
-  protected Composite getComposite() {
-    return this.c;
-  }  
-  protected Field getField() {
-    return this.f;
+  // PUBLIC INSTANCE METHODS //
+  
+  /**
+   * @since   1.2.0
+   */
+  public Set getDeletes() {
+    return this.deletes;
   }
-  protected Group getGroup() {
-    return this.g;
-  }
-  protected GrouperSession getSession() {
-    return this.s;
-  }
-  protected MemberDTO getMemberDTO() {
-    return this._m;
-  }
-  protected MembershipDTO getMembershipDTO() {
-    return this._ms;
-  }
-  // FIXME 20070416 visibility
+  
+  /**
+   * @since   1.2.0
+   */
   public Set getModifiedGroups() {
     return this.modifiedGroups;
   }
-  // FIXME 20070416 visibility
+
+  /**
+   * @since   1.2.0
+   */
   public Set getModifiedStems() {
     return this.modifiedStems;
   }
+
+  /**
+   * @since   1.2.0
+   */
+  public Set getSaves() {
+    return this.saves;
+  }  
+  
+  
+  // PROTECTED INSTANCE METHODS //
+
+  // @since   1.2.0
+  protected Set addDelete(GrouperDTO dto) {
+    this.deletes.add(dto);
+    return this.deletes;
+  }
+  // @since   1.2.0
+  protected Set addDeletes(Collection c) {
+    this.deletes.addAll(c);
+    return this.deletes;
+  }
+  // @since   1.2.0
+  protected Set addEffectiveDeletes(Collection c) {
+    this.effDeletes.addAll(c);
+    return this.effDeletes;
+  }
+  // @since   1.2.0
+  protected Set addEffectiveSaves(Collection c) {
+    this.effSaves.addAll(c);
+    return this.effSaves;
+  }
+  // @since   1.2.0
+  protected Set addSave(GrouperDTO dto) {
+    this.saves.add(dto);
+    return this.saves;
+  }
+  // @since   1.2.0
+  protected Set addSaves(Collection c) {
+    this.saves.addAll(c);
+    return this.saves;
+  }
+  // @since   1.2.0
+  protected Composite getComposite() {
+    return this.c;
+  }  
+  // @since   1.2.0
+  protected Set getEffectiveDeletes() {
+    return this.effDeletes;
+  }
+  // @since   1.2.0
+  protected Set getEffectiveSaves() {
+    return this.effSaves;
+  }
+  // @since   1.2.0
+  protected Field getField() {
+    return this.f;
+  }
+  // @since   1.2.0
+  protected Group getGroup() {
+    return this.g;
+  }
+  // @since   1.2.0
+  protected GrouperSession getSession() {
+    return this.s;
+  }
+  // @since   1.2.0
+  protected MemberDTO getMemberDTO() {
+    return this._m;
+  }
+  // @since   1.2.0
+  protected MembershipDTO getMembershipDTO() {
+    return this._ms;
+  }
+  // @since   1.2.0
   protected String getOwnerUuid() {
     return this.ownerUUID;
   }
+  // @since   1.2.0
   protected Stem getStem() {
     return this.ns;
   }
-
-
-  // SETTERS //
-
-  protected void setComposite(Composite c) {
+  // @since   1.2.0
+  protected MemberOf setComposite(Composite c) {
     this.c = c;
+    return this;
   }
-  protected void setField(Field f) {
+  // @since   1.2.0
+  protected MemberOf setField(Field f) {
     this.f = f;
+    return this;
   }
-  protected void setGroup(Group g) {
+  // @since   1.2.0
+  protected MemberOf setGroup(Group g) {
     this.g = g;
     this.setOwnerUuid( g.getUuid() );
+    return this;
   }
-  protected void setSession(GrouperSession s) {
+  // @since   1.2.0
+  protected MemberOf setSession(GrouperSession s) {
     this.s = s;
+    return this;
   }
-  protected void setMemberDTO(MemberDTO _m) {
+  // @since   1.2.0
+  protected MemberOf setMemberDTO(MemberDTO _m) {
     this._m = _m;
+    return this;
   }
-  protected void setMembershipDTO(MembershipDTO _ms) {
+  // @since   1.2.0
+  protected MemberOf setMembershipDTO(MembershipDTO _ms) {
     this._ms = _ms;
+    return this;
   }
-  protected void setModifiedGroups(Set modifiedGroups) {
+  // @since   1.2.0
+  protected MemberOf setModifiedGroups(Set modifiedGroups) {
     this.modifiedGroups = modifiedGroups;
+    return this;
   }
-  protected void setModifiedStems(Set modifiedStems) {
+  // @since   1.2.0
+  protected MemberOf setModifiedStems(Set modifiedStems) {
     this.modifiedStems = modifiedStems;
+    return this;
   }
-  protected void setOwnerUuid(String ownerUUID) {
+  // @since   1.2.0
+  protected MemberOf setOwnerUuid(String ownerUUID) {
     this.ownerUUID = ownerUUID;
+    return this;
   }
-  protected void setStem(Stem ns) {
+  // @since   1.2.0
+  protected MemberOf setStem(Stem ns) {
     this.ns = ns;
     this.setOwnerUuid( ns.getUuid() );
+    return this;
   }
 
-} // abstract class BaseMemberOf
+}
 

@@ -18,7 +18,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.MemberOf;
+import  edu.internet2.middleware.grouper.DefaultMemberOf;
 import  edu.internet2.middleware.grouper.Stem;
 import  edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.7 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.8 2007-04-19 15:39:50 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -596,18 +596,18 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /** 
    * @since   1.2.0
    */
-  public void revokePriv(StemDTO _ns, MemberOf mof)
+  public void revokePriv(StemDTO _ns, DefaultMemberOf mof)
     throws  GrouperDAOException
   {
     try {
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Iterator it = mof.internal_getDeletes().iterator();
+        Iterator it = mof.getDeletes().iterator();
         while (it.hasNext()) {
           hs.delete( Rosetta.getDAO( it.next() ) );
         }
-        it = mof.internal_getSaves().iterator();
+        it = mof.getSaves().iterator();
         while (it.hasNext()) {
           hs.saveOrUpdate( it.next() );
         }
