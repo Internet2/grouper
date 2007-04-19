@@ -25,7 +25,7 @@ import  java.util.Set;
  * Basic <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.3 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: CompositeDAO.java,v 1.4 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
@@ -33,13 +33,13 @@ public interface CompositeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public Set findAsFactor(GroupDTO _g)
+  Set findAsFactor(GroupDTO _g)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public CompositeDTO findAsOwner(GroupDTO _g) 
+  CompositeDTO findAsOwner(GroupDTO _g) 
     throws  CompositeNotFoundException,
             GrouperDAOException
             ;
@@ -47,7 +47,7 @@ public interface CompositeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public CompositeDTO findByUuid(String uuid) 
+  CompositeDTO findByUuid(String uuid) 
     throws  CompositeNotFoundException,
             GrouperDAOException
             ;
@@ -55,87 +55,87 @@ public interface CompositeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public long getCreateTime();
+  long getCreateTime();
 
   /**
    * @since   1.2.0
    */
-  public String getCreatorUuid();
+  String getCreatorUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getFactorOwnerUuid();
+  String getFactorOwnerUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getId();
+  String getId();
 
   /**
    * @since   1.2.0
    */
-  public String getLeftFactorUuid();
+  String getLeftFactorUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getRightFactorUuid();
+  String getRightFactorUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getType();
+  String getType();
 
   /**
    * @since   1.2.0
    */
-  public String getUuid();
+  String getUuid();
 
   /**
    * @since   1.2.0
    */
-  public CompositeDAO setCreateTime(long createTime);
+  CompositeDAO setCreateTime(long createTime);
 
   /**
    * @since   1.2.0
    */
-  public CompositeDAO setCreatorUuid(String creatorUUID);
+  CompositeDAO setCreatorUuid(String creatorUUID);
 
   /**
    * @since   1.2.0
    */
-  public CompositeDAO setFactorOwnerUuid(String factorOwnerUUID);
+  CompositeDAO setFactorOwnerUuid(String factorOwnerUUID);
 
   /**
    * @since   1.2.0
    */
-  public CompositeDAO setId(String id);
+  CompositeDAO setId(String id);
 
   /**
    * @since   1.2.0
    */
-  public CompositeDAO setLeftFactorUuid(String leftFactorUUID);
+  CompositeDAO setLeftFactorUuid(String leftFactorUUID);
 
   /**
    * @since   1.2.0
    */
-  public CompositeDAO setRightFactorUuid(String rightFactorUUID);
+  CompositeDAO setRightFactorUuid(String rightFactorUUID);
 
   /**
    * @since   1.2.0
    */
-  public CompositeDAO setType(String type);
+  CompositeDAO setType(String type);
 
   /**
    * @since   1.2.0
    */
-  public CompositeDAO setUuid(String uuid);
+  CompositeDAO setUuid(String uuid);
 
   /**
    * @since   1.2.0
    */
-  public void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 
+  void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 
     throws  GrouperDAOException;
 
 } 

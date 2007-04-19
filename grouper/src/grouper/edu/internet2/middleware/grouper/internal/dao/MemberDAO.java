@@ -24,7 +24,7 @@ import  edu.internet2.middleware.subject.Subject;
  * Basic <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MemberDAO.java,v 1.2 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: MemberDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public interface MemberDAO extends GrouperDAO {
@@ -32,19 +32,19 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public String create(MemberDTO _m) 
+  String create(MemberDTO _m) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public boolean exists(String uuid) 
+  boolean exists(String uuid) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public MemberDTO findBySubject(Subject subj)
+  MemberDTO findBySubject(Subject subj)
     throws  GrouperDAOException,
             MemberNotFoundException
             ;
@@ -52,7 +52,7 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public MemberDTO findBySubject(String id, String src, String type) 
+  MemberDTO findBySubject(String id, String src, String type) 
     throws  GrouperDAOException,
             MemberNotFoundException
             ;
@@ -60,7 +60,7 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public MemberDTO findByUuid(String uuid) 
+  MemberDTO findByUuid(String uuid) 
     throws  GrouperDAOException,
             MemberNotFoundException
             ;
@@ -68,57 +68,57 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public String getId();
+  String getId();
 
   /**
    * @since   1.2.0
    */
-  public String getSubjectId();
+  String getSubjectId();
 
   /**
    * @since   1.2.0
    */
-  public String getSubjectSourceId();
+  String getSubjectSourceId();
 
   /**
    * @since   1.2.0
    */
-  public String getSubjectTypeId();
+  String getSubjectTypeId();
 
   /**
    * @since   1.2.0
    */
-  public String getUuid();
+  String getUuid();
 
   /**
    * @since   1.2.0
    */
-  public MemberDAO setId(String id);
+  MemberDAO setId(String id);
 
   /**
    * @since   1.2.0
    */
-  public MemberDAO setSubjectId(String subjectID);
+  MemberDAO setSubjectId(String subjectID);
 
   /**
    * @since   1.2.0
    */
-  public MemberDAO setSubjectSourceId(String subjectSourceID);
+  MemberDAO setSubjectSourceId(String subjectSourceID);
 
   /**
    * @since   1.2.0
    */
-  public MemberDAO setSubjectTypeId(String subjectTypeID);
+  MemberDAO setSubjectTypeId(String subjectTypeID);
 
   /**
    * @since   1.2.0
    */
-  public MemberDAO setUuid(String uuid);
+  MemberDAO setUuid(String uuid);
 
   /**
    * @since   1.2.0
    */
-  public void update(MemberDTO _m) 
+  void update(MemberDTO _m) 
     throws  GrouperDAOException;
 
 } 

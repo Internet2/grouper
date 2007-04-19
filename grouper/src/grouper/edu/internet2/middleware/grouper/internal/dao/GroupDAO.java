@@ -28,7 +28,7 @@ import  java.util.Set;
  * Basic <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.6 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: GroupDAO.java,v 1.7 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -36,37 +36,37 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public void addType(GroupDTO _g, GroupTypeDTO _gt) 
+  void addType(GroupDTO _g, GroupTypeDTO _gt) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public void delete(GroupDTO _g, Set mships)
+  void delete(GroupDTO _g, Set mships)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public void deleteType(GroupDTO _g, GroupTypeDTO _gt) 
+  void deleteType(GroupDTO _g, GroupTypeDTO _gt) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public boolean exists(String uuid)
+  boolean exists(String uuid)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Map findAllAttributesByGroup(String uuid)
+  Map findAllAttributesByGroup(String uuid)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByAnyApproximateAttr(String val) 
+  Set findAllByAnyApproximateAttr(String val) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -74,7 +74,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public Set findAllByApproximateAttr(String attr, String val) 
+  Set findAllByApproximateAttr(String attr, String val) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -82,7 +82,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public Set findAllByApproximateName(String name) 
+  Set findAllByApproximateName(String name) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -90,37 +90,37 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public Set findAllByCreatedAfter(Date d) 
+  Set findAllByCreatedAfter(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByCreatedBefore(Date d) 
+  Set findAllByCreatedBefore(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByModifiedAfter(Date d) 
+  Set findAllByModifiedAfter(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByModifiedBefore(Date d) 
+  Set findAllByModifiedBefore(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAllByType(GroupTypeDTO _gt)
+  Set findAllByType(GroupTypeDTO _gt)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public GroupDTO findByAttribute(String attr, String val) 
+  GroupDTO findByAttribute(String attr, String val) 
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
@@ -128,7 +128,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public GroupDTO findByName(String name) 
+  GroupDTO findByName(String name) 
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
@@ -136,7 +136,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public GroupDTO findByUuid(String uuid) 
+  GroupDTO findByUuid(String uuid) 
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
@@ -144,129 +144,129 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public Map getAttributes();
+  Map getAttributes();
   
   /**
    * @since   1.2.0
    */
-  public String getCreateSource();
+  String getCreateSource();
 
   /**
    * @since   1.2.0
    */
-  public long getCreateTime();
+  long getCreateTime();
 
   /**
    * @since   1.2.0
    */
-  public String getCreatorUuid();
+  String getCreatorUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getId();
+  String getId();
 
   /**
    * @since   1.2.0
    */
-  public String getModifierUuid();
+  String getModifierUuid();
 
   /**
    * @since   1.2.0
    */
-  public String getModifySource();
+  String getModifySource();
 
   /**
    * @since   1.2.0
    */
-  public long getModifyTime();
+  long getModifyTime();
 
   /**
    * @since   1.2.0
    */
-  public String getParentUuid();
+  String getParentUuid();
 
   /**
    * @since   1.2.0
    */
-  public Set getTypes();
+  Set getTypes();
   
   /**
    * @since   1.2.0
    */
-  public String getUuid();
+  String getUuid();
 
   /**
    * @since   1.2.0
    */
-  public void revokePriv(GroupDTO _g, DefaultMemberOf mof)
+  void revokePriv(GroupDTO _g, DefaultMemberOf mof)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public void revokePriv(GroupDTO _g, Set toDelete)
+  void revokePriv(GroupDTO _g, Set toDelete)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setAttributes(Map attributes);
+  GroupDAO setAttributes(Map attributes);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setCreateSource(String createSource);
+  GroupDAO setCreateSource(String createSource);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setCreateTime(long createTime);
+  GroupDAO setCreateTime(long createTime);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setCreatorUuid(String creatorUUID);
+  GroupDAO setCreatorUuid(String creatorUUID);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setId(String id);
+  GroupDAO setId(String id);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setModifierUuid(String modifierUUID);
+  GroupDAO setModifierUuid(String modifierUUID);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setModifySource(String modifySource);
+  GroupDAO setModifySource(String modifySource);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setModifyTime(long modifyTime);
+  GroupDAO setModifyTime(long modifyTime);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setParentUuid(String parentUUID);
+  GroupDAO setParentUuid(String parentUUID);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setTypes(Set types);
+  GroupDAO setTypes(Set types);
 
   /**
    * @since   1.2.0
    */
-  public GroupDAO setUuid(String uuid);
+  GroupDAO setUuid(String uuid);
 
   /**
    * @since   1.2.0
    */
-  public void update(GroupDTO _g)
+  void update(GroupDTO _g)
     throws  GrouperDAOException;
 
 } 

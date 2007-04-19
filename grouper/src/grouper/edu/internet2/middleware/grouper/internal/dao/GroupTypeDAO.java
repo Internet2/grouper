@@ -25,7 +25,7 @@ import  java.util.Set;
  * Basic <code>GroupType</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupTypeDAO.java,v 1.2 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: GroupTypeDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
  * @since   1.2.0
  */
 public interface GroupTypeDAO extends GrouperDAO {
@@ -33,43 +33,43 @@ public interface GroupTypeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public String create(GroupTypeDTO _gt)
+  String create(GroupTypeDTO _gt)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public String createField(FieldDTO _f)
+  String createField(FieldDTO _f)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public void delete(GroupTypeDTO _gt, Set fields)
+  void delete(GroupTypeDTO _gt, Set fields)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public void deleteField(FieldDTO _f) 
+  void deleteField(FieldDTO _f) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public boolean existsByName(String name)
+  boolean existsByName(String name)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public Set findAll() 
+  Set findAll() 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  public GroupTypeDTO findByUuid(String uuid)
+  GroupTypeDTO findByUuid(String uuid)
     throws  GrouperDAOException,
             SchemaException
             ;
@@ -77,82 +77,82 @@ public interface GroupTypeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  public String getCreatorUuid();
+  String getCreatorUuid();
 
   /**
    * @since   1.2.0
    */
-  public long getCreateTime();
+  long getCreateTime();
 
   /**
    * @since   1.2.0
    */
-  public Set getFields();
+  Set getFields();
 
   /**
    * @since   1.2.0
    */
-  public boolean getIsAssignable();
+  boolean getIsAssignable();
 
   /** 
    * @since   1.2.0
    */
-  public boolean getIsInternal();
+  boolean getIsInternal();
 
   /**
    * @since   1.2.0
    */
-  public String getId();
+  String getId();
 
   /**
    * @since   1.2.0
    */
-  public String getName();
+  String getName();
 
   /**
    * @since   1.2.0
    */
-  public String getUuid();
+  String getUuid();
 
   /**
    * @since   1.2.0
    */
-  public GroupTypeDAO setCreatorUuid(String creatorUUID);
+  GroupTypeDAO setCreatorUuid(String creatorUUID);
 
   /**
    * @since   1.2.0
    */
-  public GroupTypeDAO setCreateTime(long createTime);
+  GroupTypeDAO setCreateTime(long createTime);
   
   /**
    * @since   1.2.0
    */
-  public GroupTypeDAO setFields(Set fields);
+  GroupTypeDAO setFields(Set fields);
 
   /**
    * @since   1.2.0
    */
-  public GroupTypeDAO setIsAssignable(boolean isAssignable);
+  GroupTypeDAO setIsAssignable(boolean isAssignable);
 
   /**
    * @since   1.2.0
    */
-  public GroupTypeDAO setIsInternal(boolean isInternal);
+  GroupTypeDAO setIsInternal(boolean isInternal);
 
   /**
    * @since   1.2.0
    */
-  public GroupTypeDAO setId(String id);
+  GroupTypeDAO setId(String id);
 
   /**
    * @since   1.2.0
    */
-  public GroupTypeDAO setName(String name);
+  GroupTypeDAO setName(String name);
 
   /**
    * @since   1.2.0
    */
-  public GroupTypeDAO setUuid(String uuid);
+  GroupTypeDAO setUuid(String uuid);
 
 } 
 
