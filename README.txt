@@ -20,7 +20,7 @@ Grouper.  Please see the [Grouper Wiki][0] for more detailed documentation.
 
 ## Reporting Problems
 
-Please send email to the [grouper-dev][1] list.
+Please send email to the [grouper-dev][1] list or report them in the [issue tracker][2].
 
 
 ## Project Layout
@@ -148,5 +148,6 @@ When prompted for a password, hit enter.
 ## Notes
 
 [0]: <https://wiki.internet2.edu/confluence/display/GrouperWG/Home>
-[1]: <ailto:grouper-dev@internet2.edu>
+[1]: <mailto:grouper-dev@internet2.edu>
+[2]: <https://bugs.internet2.edu/jira/browse/GRP>
 
