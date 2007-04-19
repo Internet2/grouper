@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic <code>GrouperSession</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.8 2007-04-19 14:39:29 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.9 2007-04-19 19:33:42 blair Exp $
  * @since   1.2.0
  */
 public class GrouperSessionDTO implements GrouperDTO {
@@ -34,7 +34,7 @@ public class GrouperSessionDTO implements GrouperDTO {
   // PRIVATE INSTANCE VARIABLES //
   private String          id;
   private String          memberUUID;
-  private Date            startTime;
+  private long            startTime;
   private Subject         subject;
   private String          uuid;
 
@@ -87,7 +87,7 @@ public class GrouperSessionDTO implements GrouperDTO {
   /**
    * @since   1.2.0
    */
-  public Date getStartTime() {
+  public long getStartTime() {
     return this.startTime;
   }
 
@@ -135,7 +135,7 @@ public class GrouperSessionDTO implements GrouperDTO {
   /**
    * @since   1.2.0
    */
-  public GrouperSessionDTO setStartTime(Date startTime) {
+  public GrouperSessionDTO setStartTime(long startTime) {
     this.startTime = startTime;
     return this;
   }

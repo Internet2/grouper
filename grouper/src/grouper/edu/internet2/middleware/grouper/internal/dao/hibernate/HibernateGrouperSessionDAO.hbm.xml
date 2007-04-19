@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateGrouperSessionDAO.hbm.xml,v 1.1 2007-04-17 14:17:29 blair Exp $ -->
+<!-- $Id: HibernateGrouperSessionDAO.hbm.xml,v 1.2 2007-04-19 19:33:42 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hibernate">
   <class name="HibernateGrouperSessionDAO" table="grouper_sessions">
@@ -58,7 +58,7 @@
 
     <!-- startTime -->
     <property name="startTime"
-              type="java.util.Date"
+              type="long"
               not-null="true"
               update="false"
     />
