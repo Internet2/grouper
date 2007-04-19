@@ -22,10 +22,10 @@ import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import  org.apache.commons.lang.builder.*;
 
 /** 
- * {@link Composite} DTO class.
- * <p/>
+ * Basic <code>Composite</code> DTO.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
  */
 public class CompositeDTO implements GrouperDTO {
 

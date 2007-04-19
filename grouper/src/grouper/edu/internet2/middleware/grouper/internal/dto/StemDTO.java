@@ -22,10 +22,10 @@ import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import  org.apache.commons.lang.builder.*;
 
 /** 
- * {@link Stem} DTO class.
- * <p/>
+ * Basic <code>Stem</code> DTO.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
+ * @version $Id: StemDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
  */
 public class StemDTO implements GrouperDTO {
 

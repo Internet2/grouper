@@ -20,11 +20,11 @@ import  java.io.Serializable;
 import  org.apache.commons.lang.builder.*;
 
 /** 
- * Hibernate representation of the JDBC SubjectAttribute table.
- * <p/>
+ * Hibernate representation of the JDBC <code>SubjectAttribute</code> table.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectAttributeDAO.java,v 1.2 2007-04-18 17:30:21 blair Exp $
- * @since   1.0
+ * @version $Id: HibernateRegistrySubjectAttributeDAO.java,v 1.3 2007-04-19 14:31:20 blair Exp $
+ * @since   1.2.0
  */
 class HibernateRegistrySubjectAttributeDAO implements Serializable {
 
@@ -40,15 +40,16 @@ class HibernateRegistrySubjectAttributeDAO implements Serializable {
 
 
   // CONSTRUCTORS //
+
   /**
    * For Hibernate.
-   * @since 1.0
+   * @since   1.2.0
    */
   public HibernateRegistrySubjectAttributeDAO() {
     super();
-  } // public Attribute()
+  }
 
-  // @since 1.0
+  // @since   1.2.0
   protected HibernateRegistrySubjectAttributeDAO(
     String id, String name, String value, String searchVal
   )
@@ -57,12 +58,13 @@ class HibernateRegistrySubjectAttributeDAO implements Serializable {
     this.setSearchValue(  searchVal );
     this.setSubjectId(    id        );
     this.setValue(        value     );
-  } // protected HibernateRegistrySubjectAttributeDAO(id, name, value, searchVal)
+  } 
 
 
   // PUBLIC INSTANCE METHODS //
+
   /**
-   * @since 1.0
+   * @since   1.2.0
    */
   public boolean equals(Object other) {
     if ( (this == other ) ) return true;
@@ -73,10 +75,10 @@ class HibernateRegistrySubjectAttributeDAO implements Serializable {
       .append(this.getName()      , castOther.getName()       )
       .append(this.getValue()     , castOther.getValue()      )
       .isEquals();
-  } // public boolean equals(other)
+  } 
 
   /**
-   * @since 1.0
+   * @since   1.2.0
    */
   public int hashCode() {
     return new HashCodeBuilder()
@@ -84,7 +86,7 @@ class HibernateRegistrySubjectAttributeDAO implements Serializable {
       .append(getName()     )
       .append(getValue()    )
       .toHashCode();
-  } // public int hashCode()
+  }
 
   
   // PRIVATE INSTANCE METHODS //

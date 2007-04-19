@@ -36,10 +36,10 @@ import  java.util.Set;
 import  net.sf.hibernate.*;
 
 /**
- * Stub Hibernate {@link Stem} DAO.
- * <p/>
+ * Basic Hibernate <code>Stem</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.6 2007-04-18 18:02:04 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.7 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {

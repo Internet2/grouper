@@ -28,10 +28,10 @@ import  java.util.Set;
 import  net.sf.hibernate.*;
 
 /**
- * Stub Hibernate {@link Composite} DAO.
- * <p/>
+ * Basic Hibernate <code>Composite</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateCompositeDAO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
+ * @version $Id: HibernateCompositeDAO.java,v 1.4 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class HibernateCompositeDAO extends HibernateDAO implements CompositeDAO {

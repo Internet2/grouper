@@ -23,10 +23,10 @@ import  edu.internet2.middleware.subject.*;
 import  net.sf.hibernate.*;
 
 /**
- * Stub Hibernate {@link RegistrySubject} DAO.
- * <p/>
+ * Basic Hibernate <code>RegistrySubject</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.2 2007-04-18 17:30:21 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.3 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjectDAO {

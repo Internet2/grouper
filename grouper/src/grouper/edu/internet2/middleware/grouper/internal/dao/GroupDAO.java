@@ -25,10 +25,10 @@ import  java.util.Map;
 import  java.util.Set;
 
 /** 
- * <i>Group</i> DAO interface.
- * <p/>
+ * Basic <code>Group</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.3 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: GroupDAO.java,v 1.4 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {

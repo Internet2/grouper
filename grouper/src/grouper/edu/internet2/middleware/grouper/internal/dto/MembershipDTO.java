@@ -25,10 +25,10 @@ import  java.util.Date;
 import  org.apache.commons.lang.builder.*;
 
 /** 
- * {@link Membership} DTO class.
- * <p/>
+ * Basic <code>Membership</code> DTO.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.4 2007-04-18 15:02:11 blair Exp $
+ * @version $Id: MembershipDTO.java,v 1.5 2007-04-19 14:31:21 blair Exp $
  * @since   1.2.0
  */
 public class MembershipDTO implements GrouperDTO {

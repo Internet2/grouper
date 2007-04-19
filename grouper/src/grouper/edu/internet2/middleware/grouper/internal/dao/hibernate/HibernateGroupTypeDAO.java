@@ -32,10 +32,10 @@ import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /** 
- * Schema specification for a Group type.
- * <p/>
+ * Basic Hibernate <code>GroupType</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.3 2007-04-18 15:56:59 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.4 2007-04-19 14:31:20 blair Exp $
  */
 public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecycle {
 

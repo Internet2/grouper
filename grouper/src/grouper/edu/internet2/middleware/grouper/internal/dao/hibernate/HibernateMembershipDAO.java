@@ -32,10 +32,10 @@ import  java.util.Set;
 import  net.sf.hibernate.*;
 
 /**
- * Stub Hibernate {@link Membership} DAO.
- * <p/>
+ * Basic Hibernate <code>Membership</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.4 2007-04-18 15:02:11 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.5 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {

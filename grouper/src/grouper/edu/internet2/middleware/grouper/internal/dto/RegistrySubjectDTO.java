@@ -21,10 +21,10 @@ import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  org.apache.commons.lang.builder.*;
 
 /** 
- * {@link RegistrySubject} DTO class.
- * <p/>
+ * Basic <code>RegistrySubject</code> DTO.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $
+ * @version $Id: RegistrySubjectDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
  * @since   1.2.0
  */
 public class RegistrySubjectDTO implements GrouperDTO {
