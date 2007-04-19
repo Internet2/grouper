@@ -25,10 +25,10 @@ import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import  org.apache.commons.lang.builder.*;
 
 /** 
- * Basic {@link Field} DTO.
- * <p/>
+ * Basic <code>Field</code> DTO.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: FieldDTO.java,v 1.3 2007-04-18 15:02:11 blair Exp $    
+ * @version $Id: FieldDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $    
  * @since   1.2.0
  */
 public class FieldDTO implements GrouperDTO {

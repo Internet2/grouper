@@ -24,10 +24,10 @@ import  java.util.Date;
 import  net.sf.hibernate.*;
 
 /**
- * Stub Hibernate {@link GrouperSession} DAO.
- * <p/>
+ * Basic Hibernate <code>GrouperSession</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.4 2007-04-18 15:56:59 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.5 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionDAO {

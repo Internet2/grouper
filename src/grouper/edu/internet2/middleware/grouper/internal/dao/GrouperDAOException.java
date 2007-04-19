@@ -20,9 +20,9 @@ import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 
 /**
  * Generic Grouper DAO exception.
- * <p/>
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperDAOException.java,v 1.1 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperDAOException.java,v 1.2 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class GrouperDAOException extends GrouperRuntimeException {

@@ -19,10 +19,10 @@ package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  org.apache.commons.lang.builder.*;
 
 /**
- * Stub Hibernate Group {@link Attribute} DAO.
- * <p/>
+ * Basic Hibernate <code>Attribute</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateAttributeDAO.java,v 1.2 2007-04-18 15:56:59 blair Exp $
+ * @version $Id: HibernateAttributeDAO.java,v 1.3 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 class HibernateAttributeDAO extends HibernateDAO {

@@ -23,10 +23,10 @@ import  net.sf.hibernate.*;
 import  org.apache.commons.lang.builder.*;
 
 /**
- * Stub Hibernate {@link Group} and {@link GroupType} tuple DAO.
- * <p/>
+ * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.4 2007-04-18 16:57:30 blair Exp $
+ * @version $Id: HibernateGroupTypeTupleDAO.java,v 1.5 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupTypeTupleDAO extends HibernateDAO {

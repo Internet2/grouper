@@ -29,10 +29,10 @@ import  java.io.Serializable;
 import  net.sf.hibernate.*;
 
 /**
- * Stub Hibernate {@link Member} DAO.
- * <p/>
+ * Basic Hibernate <code>Member</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.2 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.3 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {

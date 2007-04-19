@@ -26,10 +26,10 @@ import  java.util.Date;
 import  java.util.Set;
 
 /** 
- * <i>Stem</i> DAO interface.
- * <p/>
+ * Basic <code>Stem</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.2 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: StemDAO.java,v 1.3 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {

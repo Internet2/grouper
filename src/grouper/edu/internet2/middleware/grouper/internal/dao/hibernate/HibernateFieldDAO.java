@@ -30,10 +30,10 @@ import  java.util.Set;
 import  net.sf.hibernate.*;
 
 /**
- * Stub Hibernate {@link Field} DAO.
- * <p/>
+ * Basic Hibernate <code>Field</code> DAO interface.
+ * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.3 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.4 2007-04-19 14:31:20 blair Exp $
  * @since   1.2.0
  */
 public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
