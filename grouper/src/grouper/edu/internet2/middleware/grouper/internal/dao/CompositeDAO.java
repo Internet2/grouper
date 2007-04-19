@@ -25,7 +25,7 @@ import  java.util.Set;
  * Basic <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.2 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: CompositeDAO.java,v 1.3 2007-04-19 16:48:43 blair Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
@@ -133,8 +133,6 @@ public interface CompositeDAO extends GrouperDAO {
   public CompositeDAO setUuid(String uuid);
 
   /**
-   * TODO 20070403 expect this to change.
-   * <p/>
    * @since   1.2.0
    */
   public void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 

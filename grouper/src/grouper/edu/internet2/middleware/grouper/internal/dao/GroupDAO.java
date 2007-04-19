@@ -28,14 +28,12 @@ import  java.util.Set;
  * Basic <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.5 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: GroupDAO.java,v 1.6 2007-04-19 16:48:43 blair Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
 
   /**
-   * TODO 20070405 expect this to change.
-   * <p/>
    * @since   1.2.0
    */
   public void addType(GroupDTO _g, GroupTypeDTO _gt) 
@@ -48,8 +46,6 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
-   * TODO 20070405 expect this to change.
-   * <p/>
    * @since   1.2.0
    */
   public void deleteType(GroupDTO _g, GroupTypeDTO _gt) 
@@ -201,16 +197,12 @@ public interface GroupDAO extends GrouperDAO {
   public String getUuid();
 
   /**
-   * TODO 20070405 expect this to change.
-   * <p/>
    * @since   1.2.0
    */
   public void revokePriv(GroupDTO _g, DefaultMemberOf mof)
     throws  GrouperDAOException;
 
   /**
-   * TODO 20070405 expect this to change.
-   * <p/>
    * @since   1.2.0
    */
   public void revokePriv(GroupDTO _g, Set toDelete)
