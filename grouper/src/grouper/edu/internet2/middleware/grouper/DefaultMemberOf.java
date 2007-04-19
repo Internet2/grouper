@@ -24,7 +24,6 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -35,7 +34,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.1 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.2 2007-04-19 16:28:49 blair Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -211,7 +210,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     String        msUUID      = this.getMembershipDTO().getUuid();
     String        ownerUUID   = this.getMembershipDTO().getOwnerUuid();
     while (it.hasNext()) {
-      hasMS = (MembershipDTO) Rosetta.getDTO( it.next() );
+      hasMS = (MembershipDTO) it.next();
 
       _ms = new MembershipDTO();
       _ms.setCreatorUuid(memberUUID);
@@ -262,7 +261,7 @@ public class DefaultMemberOf extends BaseMemberOf {
         isMS = (MembershipDTO) ( (Membership) isIt.next() ).getDTO();
         hasIt = hasMembers.iterator();
         while (hasIt.hasNext()) {
-          hasMS = (MembershipDTO) Rosetta.getDTO( hasIt.next() );
+          hasMS = (MembershipDTO) hasIt.next();
 
           dto = new MembershipDTO();
           dto.setCreatorUuid( this.getSession().getMember().getUuid() );

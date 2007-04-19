@@ -32,11 +32,10 @@ import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
  * Basic Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateDAOFactory.java,v 1.2 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: HibernateDAOFactory.java,v 1.3 2007-04-19 16:28:49 blair Exp $
  * @since   1.2.0
  */
 public class HibernateDAOFactory extends GrouperDAOFactory {
-  // FIXME 20070416 visibility - including methods
 
   // PROTECTED INSTANCE METHODS //
 

@@ -35,7 +35,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.4 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.5 2007-04-19 16:28:49 blair Exp $
  */
 public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecycle {
 
@@ -205,7 +205,10 @@ public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO,
       Query   qry = hs.createQuery("from HibernateGroupTypeDAO order by name asc");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAll");
-      types.addAll( Rosetta.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        types.add( GroupTypeDTO.getDTO( (GroupTypeDAO) it.next() ) );
+      }
       hs.close();  
     }
     catch (HibernateException eH) {
@@ -232,7 +235,7 @@ public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO,
         throw new SchemaException();
       }
       hs.close();
-      return (GroupTypeDTO) Rosetta.getDTO(dao);
+      return (GroupTypeDTO) GroupTypeDTO.getDTO(dao);
     }
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );

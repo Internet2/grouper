@@ -23,11 +23,10 @@ import  org.apache.commons.logging.*;
  * Grouper API debug logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DebugLog.java,v 1.4 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: DebugLog.java,v 1.5 2007-04-19 16:28:49 blair Exp $
  * @since   1.0
  */
 public class DebugLog {
-  // FIXME 20070416 access
 
   // PRIVATE CLASS CONSTANTS //
   private static final Log LOG;
@@ -36,12 +35,15 @@ public class DebugLog {
   // STATIC
   static {
     LOG = LogFactory.getLog(DebugLog.class);
-  } // static
+  }
 
 
-  // PROTECTED CLASS METHODS //
-  // @since 1.0
-  // FIXME 20070416 access
+  // PUBLIC CLASS METHODS //
+  
+  /**
+   * Send <code>info</code> message to <code>DebugLog</code>.
+   * @since   1.2.0
+   */
   public static void info(Class c, String msg) {
     LOG.info(msg);
   } 

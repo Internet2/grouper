@@ -23,7 +23,6 @@ import  edu.internet2.middleware.grouper.SchemaException;
 import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
@@ -33,7 +32,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Field</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.4 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.5 2007-04-19 16:28:49 blair Exp $
  * @since   1.2.0
  */
 public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
@@ -91,7 +90,10 @@ public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
       Query   qry = hs.createQuery("from HibernateFieldDAO order by name asc");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAll");
-      fields.addAll( Rosetta.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        fields.add( (FieldDTO) FieldDTO.getDTO( (FieldDAO) it.next() ) );
+      }
       hs.close();  
     }
     catch (HibernateException eH) {
@@ -115,7 +117,7 @@ public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
       qry.setString("uuid", uuid);
       Iterator it = qry.iterate();
       while (it.hasNext()) {
-        fields.add( (FieldDTO) Rosetta.getDTO( it.next() ) );
+        fields.add( (FieldDTO) FieldDTO.getDTO( (FieldDAO) it.next() ) );
       }
       hs.close();
     }
@@ -123,7 +125,7 @@ public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
     return fields;
-  } // protected static Set findAllFieldsByGroupType(uuid)
+  } 
 
   /**
    * @since   1.2.0
@@ -138,7 +140,10 @@ public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByType");
       qry.setString( "type", type.toString() );
-      fields.addAll( Rosetta.getDTO( qry.list() ) );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        fields.add( (FieldDTO) FieldDTO.getDTO( (FieldDAO) it.next() ) );
+      }
       hs.close();
     }
     catch (HibernateException eH) {
