@@ -19,14 +19,13 @@ package edu.internet2.middleware.grouper.internal.dto;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.subject.*;
-import  java.util.Date;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * Basic <code>GrouperSession</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.9 2007-04-19 19:33:42 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.10 2007-04-19 19:40:17 blair Exp $
  * @since   1.2.0
  */
 public class GrouperSessionDTO implements GrouperDTO {

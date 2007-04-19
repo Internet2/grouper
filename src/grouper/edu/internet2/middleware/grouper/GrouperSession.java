@@ -31,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.65 2007-04-19 19:33:42 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.66 2007-04-19 19:40:17 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -268,11 +268,8 @@ public class GrouperSession extends GrouperAPI {
     if (v.isInvalid()) {
       throw new IllegalStateException(E.SV_I);
     }
-    v = NotNullValidator.validate( this._getDTO().getStartTime() );
-    if (v.isInvalid()) {
-      throw new IllegalStateException(E.SV_T);
-    }
-  } // public void validate(
+    // TODO 20070419 what about "startTime"?
+  } 
 
 
   // PROTECTED INSTANCE METHODS //
