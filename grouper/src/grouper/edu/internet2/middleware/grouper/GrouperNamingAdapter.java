@@ -34,7 +34,7 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.60 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.61 2007-04-19 15:39:50 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -317,7 +317,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
     try {
-      MemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
+      DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
       ns.internal_setModified();
       GrouperDAOFactory.getFactory().getStem().revokePriv( (StemDTO) ns.getDTO(), mof );
     }

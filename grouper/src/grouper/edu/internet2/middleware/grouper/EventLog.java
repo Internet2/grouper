@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.47 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: EventLog.java,v 1.48 2007-04-19 15:39:50 blair Exp $
  */
 class EventLog {
 
@@ -102,7 +102,7 @@ class EventLog {
 
   // @since 1.0
   protected static void groupAddComposite(
-    GrouperSession s, Composite c, MemberOf mof, StopWatch sw
+    GrouperSession s, Composite c, DefaultMemberOf mof, StopWatch sw
   )
   {
     EventLog.info(
@@ -117,13 +117,13 @@ class EventLog {
       sw
     );
     EventLog.groupAddAndDelCompositeMembers(
-      s, c, mof.internal_getSaves(), mof.internal_getDeletes(), sw
+      s, c, mof.getSaves(), mof.getDeletes(), sw
     );
   } // protected static void groupAddComposite(s, c, mof, sw)
 
   // @since 1.0
   protected static void groupDelComposite(
-    GrouperSession s, Composite c, MemberOf mof, StopWatch sw
+    GrouperSession s, Composite c, DefaultMemberOf mof, StopWatch sw
   )
   {
     EventLog.info(
@@ -138,7 +138,7 @@ class EventLog {
       sw
     );
     EventLog.groupAddAndDelCompositeMembers(
-      s, c, mof.internal_getSaves(), mof.internal_getDeletes(), sw
+      s, c, mof.getSaves(), mof.getDeletes(), sw
     );
   } // protected static void groupDelComposite(s, c, mof, sw)
 

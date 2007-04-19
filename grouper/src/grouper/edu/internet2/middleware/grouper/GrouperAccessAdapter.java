@@ -34,7 +34,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.58 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.59 2007-04-19 15:39:50 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -326,7 +326,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       throw new InsufficientPrivilegeException();
     }
     try {
-      MemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
+      DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
       g.internal_setModified();
       GrouperDAOFactory.getFactory().getGroup().revokePriv( (GroupDTO) g.getDTO(), mof);
     }

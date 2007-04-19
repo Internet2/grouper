@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.156 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: Group.java,v 1.157 2007-04-19 15:39:50 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -135,7 +135,7 @@ public class Group extends GrouperAPI implements Owner {
         throw new MemberAddException( vAdd.getErrorMessage() );
       }
 
-      MemberOf mof = new MemberOf();
+      DefaultMemberOf mof = new DefaultMemberOf();
       mof.addComposite( this.getSession(), this, c );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EventLog.groupAddComposite( this.getSession(), c, mof, sw );
@@ -556,7 +556,7 @@ public class Group extends GrouperAPI implements Owner {
       }
       Composite c   = new Composite();
       c.setDTO( GrouperDAOFactory.getFactory().getComposite().findAsOwner( this._getDTO() ) );
-      MemberOf  mof = new MemberOf();
+      DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteComposite( this.getSession(), this, c );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EventLog.groupDelComposite( this.getSession(), c, mof, sw );
@@ -642,7 +642,7 @@ public class Group extends GrouperAPI implements Owner {
     if ( (f.equals( Group.getDefaultList() ) ) && ( this.hasComposite() ) ) {
       throw new MemberDeleteException(E.GROUP_DMFC);
     }
-    MemberOf  mof = Membership.internal_delImmediateMembership( this.getSession(), this, subj, f );
+    DefaultMemberOf  mof = Membership.internal_delImmediateMembership( this.getSession(), this, subj, f );
     try {
       GrouperDAOFactory.getFactory().getMembership().update(mof);
     }
@@ -651,7 +651,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     sw.stop();
     EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
-    EL.delEffMembers(this.getSession(), this, subj, f, mof.internal_getEffDeletes());
+    EL.delEffMembers(this.getSession(), this, subj, f, mof.getEffectiveDeletes());
     Composite.internal_update(this);
   } // public void deleteMember(subj, f)
 

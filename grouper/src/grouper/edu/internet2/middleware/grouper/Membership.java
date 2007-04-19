@@ -30,7 +30,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.82 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: Membership.java,v 1.83 2007-04-19 15:39:50 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -278,10 +278,10 @@ public class Membership extends GrouperAPI {
     try {
       GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
-      MemberOf  mof = new MemberOf();
+      DefaultMemberOf  mof = new DefaultMemberOf();
       mof.addImmediate( s, g, f, (MemberDTO) m.getDTO() );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
-      EL.addEffMembers( s, g, subj, f, mof.internal_getEffSaves() );
+      EL.addEffMembers( s, g, subj, f, mof.getEffectiveSaves() );
     }
     catch (IllegalStateException eIS)           {
       throw new MemberAddException( eIS.getMessage(), eIS );
@@ -303,10 +303,10 @@ public class Membership extends GrouperAPI {
     try {
       GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
-      MemberOf  mof = new MemberOf();
+      DefaultMemberOf  mof = new DefaultMemberOf();
       mof.addImmediate( s, ns, f, (MemberDTO) m.getDTO() );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
-      EL.addEffMembers( s, ns, subj, f, mof.internal_getEffSaves() );
+      EL.addEffMembers( s, ns, subj, f, mof.getEffectiveSaves() );
     }
     catch (IllegalStateException eIS)           {
       throw new MemberAddException( eIS.getMessage(), eIS );
@@ -320,13 +320,13 @@ public class Membership extends GrouperAPI {
   } // protected static void internal_addImmediateMembership(s, ns, subj, f)
 
   // @since   1.2.0
-  protected static MemberOf internal_delImmediateMembership(GrouperSession s, Group g, Subject subj, Field f)
+  protected static DefaultMemberOf internal_delImmediateMembership(GrouperSession s, Group g, Subject subj, Field f)
     throws  MemberDeleteException
   {
     try {
       GrouperSession.validate(s); 
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
-      MemberOf  mof = new MemberOf();
+      DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteImmediate(
         s, g, 
         GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
@@ -348,7 +348,7 @@ public class Membership extends GrouperAPI {
   } // protected static void internal_delImmediateMembership(s, g, subj, f)
 
   // @since   1.2.0
-  protected static MemberOf internal_delImmediateMembership(GrouperSession s, Stem ns, Subject subj, Field f)
+  protected static DefaultMemberOf internal_delImmediateMembership(GrouperSession s, Stem ns, Subject subj, Field f)
     throws  MemberDeleteException
   {
     try {
@@ -356,7 +356,7 @@ public class Membership extends GrouperAPI {
       // Who we're deleting
       //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
-      MemberOf  mof = new MemberOf();
+      DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteImmediate(
         s, ns,
         GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
@@ -386,7 +386,7 @@ public class Membership extends GrouperAPI {
       GrouperSession.validate(s);
 
       Set           deletes = new LinkedHashSet();
-      MemberOf      mof;
+      DefaultMemberOf      mof;
       Membership    ms;
       MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
@@ -395,7 +395,7 @@ public class Membership extends GrouperAPI {
       while (itIs.hasNext()) {
         ms   = (Membership) itIs.next();
         ms.setSession(s);
-        mof  = new MemberOf();
+        mof  = new DefaultMemberOf();
         mof.deleteImmediate(
           s, ms.getGroup(),
           dao.findByOwnerAndMemberAndFieldAndType( 
@@ -403,7 +403,7 @@ public class Membership extends GrouperAPI {
           ),
           (MemberDTO) ms.getMember().getDTO()
         );
-        deletes.addAll( mof.internal_getDeletes() );
+        deletes.addAll( mof.getDeletes() );
       }
 
       // Deal with group's members
@@ -412,7 +412,7 @@ public class Membership extends GrouperAPI {
         ms = new Membership();
         ms.setSession(s);
         ms.setDTO( (MembershipDTO) itHas.next() );
-        mof = new MemberOf();
+        mof = new DefaultMemberOf();
         mof.deleteImmediate(
           s, g,
           dao.findByOwnerAndMemberAndFieldAndType(
@@ -420,7 +420,7 @@ public class Membership extends GrouperAPI {
           ),
           (MemberDTO) ms.getMember().getDTO()
         );
-        deletes.addAll( mof.internal_getDeletes() );
+        deletes.addAll( mof.getDeletes() );
       }
 
       return deletes;
@@ -445,7 +445,7 @@ public class Membership extends GrouperAPI {
       GrouperSession.validate(s);
 
       Set           deletes = new LinkedHashSet();
-      MemberOf      mof;
+      DefaultMemberOf      mof;
       Membership    ms;
       MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
@@ -455,7 +455,7 @@ public class Membership extends GrouperAPI {
         ms = new Membership();
         ms.setSession(s);
         ms.setDTO( (MembershipDTO) itHas.next() );
-        mof = new MemberOf();
+        mof = new DefaultMemberOf();
         mof.deleteImmediate(
           s, ns,
           dao.findByOwnerAndMemberAndFieldAndType(
@@ -463,7 +463,7 @@ public class Membership extends GrouperAPI {
           ),
           (MemberDTO) ms.getMember().getDTO()
         );
-        deletes.addAll( mof.internal_getDeletes() );
+        deletes.addAll( mof.getDeletes() );
       }
 
       return deletes;

@@ -17,7 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.Field;
-import  edu.internet2.middleware.grouper.MemberOf;
+import  edu.internet2.middleware.grouper.DefaultMemberOf;
 import  edu.internet2.middleware.grouper.Membership;
 import  edu.internet2.middleware.grouper.MembershipNotFoundException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -35,7 +35,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.5 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.6 2007-04-19 15:39:50 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
@@ -758,7 +758,7 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
   /**
    * @since   1.2.0
    */
-  public void update(MemberOf mof) 
+  public void update(DefaultMemberOf mof) 
     throws  GrouperDAOException
   {
     // TODO 20070404 this is incredibly ugly
@@ -766,11 +766,11 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
       Session     hs  = HibernateDAO.getSession();
       Transaction tx  = hs.beginTransaction();
       try {
-        Iterator it = mof.internal_getDeletes().iterator();
+        Iterator it = mof.getDeletes().iterator();
         while (it.hasNext()) {
           hs.delete( Rosetta.getDAO( it.next() ) );
         }
-        it = mof.internal_getSaves().iterator();
+        it = mof.getSaves().iterator();
         while (it.hasNext()) {
           hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
         }
