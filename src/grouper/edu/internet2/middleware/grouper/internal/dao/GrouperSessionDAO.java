@@ -17,13 +17,12 @@
 
 package edu.internet2.middleware.grouper.internal.dao;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import  java.util.Date;
 
 /** 
  * Basic <code>GrouperSession</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: GrouperSessionDAO.java,v 1.4 2007-04-19 19:33:42 blair Exp $
  * @since   1.2.0
  */
 public interface GrouperSessionDAO extends GrouperDAO {
@@ -53,7 +52,7 @@ public interface GrouperSessionDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Date getStartTime();
+  long getStartTime();
 
   /**
    * @since   1.2.0
@@ -73,7 +72,7 @@ public interface GrouperSessionDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  GrouperSessionDAO setStartTime(Date startTime);
+  GrouperSessionDAO setStartTime(long startTime);
 
   /**
    * @since   1.2.0

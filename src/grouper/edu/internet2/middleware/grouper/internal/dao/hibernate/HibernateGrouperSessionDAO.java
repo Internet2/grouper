@@ -27,7 +27,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>GrouperSession</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGrouperSessionDAO.java,v 1.5 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: HibernateGrouperSessionDAO.java,v 1.6 2007-04-19 19:33:42 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperSessionDAO {
@@ -35,7 +35,7 @@ public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperS
   // HIBERNATE PROPERTIES //
   private String  id;
   private String  memberUUID;
-  private Date    startTime;
+  private long    startTime;
   private String  uuid;
 
 
@@ -112,7 +112,7 @@ public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperS
   /**
    * @since   1.2.0
    */
-  public Date getStartTime() {
+  public long getStartTime() {
     return this.startTime;
   }
 
@@ -142,7 +142,7 @@ public class HibernateGrouperSessionDAO extends HibernateDAO implements GrouperS
   /**
    * @since   1.2.0
    */
-  public GrouperSessionDAO setStartTime(Date startTime) {
+  public GrouperSessionDAO setStartTime(long startTime) {
     this.startTime = startTime;
     return this;
   }

@@ -31,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.64 2007-04-18 15:19:22 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.65 2007-04-19 19:33:42 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -79,7 +79,7 @@ public class GrouperSession extends GrouperAPI {
       GrouperSession    s   = new GrouperSession();
       GrouperSessionDTO _s  = new GrouperSessionDTO()
         .setMemberUuid( m.getUuid() )
-        .setStartTime( new Date() )
+        .setStartTime( new Date().getTime() )
         .setSubject(subject)
         .setUuid( GrouperUuid.getUuid() )
         ;
@@ -196,7 +196,7 @@ public class GrouperSession extends GrouperAPI {
    * @return  This session's start time.
    */
   public Date getStartTime() {
-    return this._getDTO().getStartTime();
+    return new Date( this._getDTO().getStartTime() );
   } // public Date getStartTime()
 
   /**
@@ -306,7 +306,7 @@ public class GrouperSession extends GrouperAPI {
       rs.setDTO(
         new GrouperSessionDTO()
           .setMemberUuid( MemberFinder.internal_findRootMember().getUuid() )
-          .setStartTime( new Date() )
+          .setStartTime( new Date().getTime() )
           .setSubject( SubjectFinder.findRootSubject() )
           .setUuid( GrouperUuid.getUuid() )
       );
