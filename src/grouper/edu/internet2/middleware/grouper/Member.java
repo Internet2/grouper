@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.92 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: Member.java,v 1.93 2007-04-19 16:48:43 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -936,23 +936,19 @@ public class Member extends GrouperAPI implements Serializable {
   public boolean isEffectiveMember(Group g, Field f) 
     throws  SchemaException
   {
-    boolean rv = false;
-    if (
-      MembershipFinder.internal_findAllEffectiveByOwnerAndMemberAndField(g, this, f).size() > 0
+    MembershipDAO dao = GrouperDAOFactory.getFactory().getMembership();    
+    boolean       rv  = false;
+    if ( dao.findAllEffectiveByOwnerAndMemberAndField( g.getUuid(), this.getUuid(), f ).size() > 0 ) {
+      rv = true;
+    }
+    else if (
+      dao.findAllEffectiveByOwnerAndMemberAndField( g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f ).size() > 0
     ) 
     {
       rv = true;
     }
-    else if (
-      MembershipFinder.internal_findAllEffectiveByOwnerAndMemberAndField(
-        g, MemberFinder.internal_findAllMember(), f
-      ).size() > 0
-    )
-    {
-      rv = true;
-    }
     return rv;
-  } // public boolean isEffectiveMember(g, f)
+  }
 
   /**
    * Test whether a member immediately belongs to a group.

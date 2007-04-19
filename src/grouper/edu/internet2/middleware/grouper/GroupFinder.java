@@ -20,14 +20,13 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  java.util.ArrayList;
-import  java.util.Date;
 import  java.util.Set;
 
 /**
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.46 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.47 2007-04-19 16:48:43 blair Exp $
  */
 public class GroupFinder {
 
@@ -176,83 +175,7 @@ public class GroupFinder {
     }
     ErrorLog.error(GroupFinder.class, E.GF_FBUUID + E.CANNOT_VIEW);
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
-  } // public static Group findByUuid(s, uuid)
+  } 
 
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static Set internal_findAllByAnyApproximateAttr(GrouperSession s, String val) 
-    throws  QueryException
-  {
-    // TODO 20070405 KILL!
-    GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByAnyApproximateAttr(val)
-    );
-  } // protected static Set internal_findAllByAnyApproximateAttr(s, val)
-
-  // @since   1.2.0
-  protected static Set internal_findAllByApproximateAttr(GrouperSession s, String attr, String val) 
-    throws  QueryException
-  {
-    // TODO 20070405 KILL!
-    GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewGroups( 
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAttr(attr, val) 
-    );
-  } // protected static Set internal_findAllByApproximateAttr(s, attr, val)
-
-  // @since   1.2.0
-  protected static Set internal_findAllByApproximateName(GrouperSession s, String name) 
-    throws  QueryException
-  {
-    // TODO 20070405 KILL!
-    GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName(name)
-    );
-  } // protected static Set internal_findAllByApproximateName(s, name)
-
-  // @since   1.2.0
-  protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d) 
-    throws QueryException 
-  {
-    // TODO 20070405 KILL!
-    return PrivilegeResolver.internal_canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByCreatedAfter(d)
-    );
-  } // protected static Set internal_findAllByCreatedAfter(s, d)
-    
-  // @since   1.2.0
-  protected static Set internal_findAllByCreatedBefore(GrouperSession s, Date d) 
-    throws QueryException 
-  {
-    // TODO 20070405 KILL!
-    return PrivilegeResolver.internal_canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByCreatedBefore(d) 
-    );
-  } // protected static Set internal_findAllByCreatedBefore(s, d)
-    
-  // @since   1.2.0
-  protected static Set internal_findAllByModifiedAfter(GrouperSession s, Date d) 
-    throws QueryException 
-  {
-    // TODO 20070405 KILL! 
-    return PrivilegeResolver.internal_canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByModifiedAfter(d)
-    );
-  } // protected static Set internal_findAllByModifiedAfter(s, d)
-    
-  // @since   1.2.0
-  protected static Set internal_findAllByModifiedBefore(GrouperSession s, Date d) 
-    throws QueryException 
-  {
-    // TODO 20070405 KILL!
-    return PrivilegeResolver.internal_canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByModifiedBefore(d)
-    );
-  } // protected static Set internal_findAllByModifiedBefore(s, d)
-    
-} // public class GroupFinder
+}
 

@@ -29,7 +29,7 @@ import  java.util.Set;
  * Basic <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.4 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: StemDAO.java,v 1.5 2007-04-19 16:48:43 blair Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -211,16 +211,12 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /** 
-   * TODO 20070403 expect this to change.
-   * <p/>
    * @since   1.2.0
    */
   public void revokePriv(StemDTO _ns, DefaultMemberOf mof)
     throws  GrouperDAOException;
 
   /**
-   * TODO 20070403 expect this to change.
-   * <p/>
    * @since   1.2.0
    */
   public void revokePriv(StemDTO _ns, Set toDelete)

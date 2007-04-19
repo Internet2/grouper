@@ -27,14 +27,12 @@ import  java.util.Set;
  * Basic <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.3 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: MembershipDAO.java,v 1.4 2007-04-19 16:48:43 blair Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
 
   /**
-   * TODO 20070404 expect this to change
-   * <p/>
    * @since   1.2.0 
    */
   public boolean exists(String ownerUUID, String memberUUID, String listName, String msType)
@@ -255,8 +253,6 @@ public interface MembershipDAO extends GrouperDAO {
   public MembershipDAO setViaUuid(String viaUUID);
 
   /**
-   * TODO 20070404 expect this to change
-   * <p/>
    * @since   1.2.0
    */
   public void update(DefaultMemberOf mof) 

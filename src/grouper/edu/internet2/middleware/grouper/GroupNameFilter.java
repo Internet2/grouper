@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by group name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupNameFilter.java,v 1.9 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: GroupNameFilter.java,v 1.10 2007-04-19 16:48:43 blair Exp $
  */
 public class GroupNameFilter extends BaseQueryFilter {
 
@@ -57,7 +57,9 @@ public class GroupNameFilter extends BaseQueryFilter {
     throws QueryException
   {
     GrouperSession.validate(s);
-    Set candidates  = GroupFinder.internal_findAllByApproximateName(s, this.name);
+    Set candidates  = PrivilegeResolver.internal_canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName(this.name)
+    );
     Set results     = this.filterByScope(this.ns, candidates);
     return results;
   } // public Set getResults(s)

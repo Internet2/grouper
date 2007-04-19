@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.83 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.84 2007-04-19 16:48:43 blair Exp $
  */
 public class MembershipFinder {
   
@@ -378,17 +378,6 @@ public class MembershipFinder {
       s, GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByMemberAndField( m.getUuid(), f ) 
     );
   } // protected static Set internal_findAllEffectiveByMemberAndField(s, m, f)
-
-  // @since   1.2.0
-  protected static Set internal_findAllEffectiveByOwnerAndMemberAndField(
-    Owner o, Member m, Field f
-  ) 
-  {
-    // @filtered  false
-    // @session   false
-    // TODO 20070404 KILL!
-    return GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByOwnerAndMemberAndField( o.getUuid(), m.getUuid(), f );
-  } // protected static Set internal_findAllEffectiveByOwnerAndMemberAndField(o, m, f)
 
   // @since   1.2.0
   protected static Set internal_findAllImmediateByMemberAndField(GrouperSession s, Member m, Field f) {
