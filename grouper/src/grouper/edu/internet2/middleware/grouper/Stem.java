@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.124 2007-04-18 18:02:04 blair Exp $
+ * @version $Id: Stem.java,v 1.125 2007-04-19 15:58:31 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -54,9 +54,8 @@ public class Stem extends GrouperAPI implements Owner {
   
   
   // PROTECTED CLASS CONSTANTS //
-  // TODO 20070316 move ROOT_INT to DAO
-  // FIXME 20070416 visibility!
-  public static final String ROOT_INT  = ":";                        // Appease Oracle
+  // TODO 20070419 how can i get rid of this?
+  protected static final String ROOT_INT = ":"; // Appease Oracle, et. al.
 
 
   // PRIVATE CLASS CONSTANTS //
