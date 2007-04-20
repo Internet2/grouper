@@ -3,11 +3,15 @@
 		  a result of a search in 'Create' mode
 --%><%--
   @author Gary Brown.
-  @version $Id: stemSearchResultLinkView.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: stemSearchResultLinkView.jsp,v 1.2 2007-04-20 08:26:40 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute name="viewObject"/>
-<html:link page="/browseStemsCreate.do" paramId="currentNode" paramName="viewObject" paramProperty="stemId">
+<jsp:useBean id="params" scope="page" class="java.util.HashMap"/>
+<c:set target="${params}" property="currentNode" value="${viewObject.stemId}"/>
+<c:set target="${params}" property="advancedSearch" value="false"/>
+
+<html:link page="/browseStemsCreate.do" name="params">
   <tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="viewObject"/>
 	  <tiles:put name="view" value="searchResultItem"/>
