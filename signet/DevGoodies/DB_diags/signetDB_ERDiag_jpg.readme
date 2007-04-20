@@ -1,6 +1,0 @@
-
-The file signetDB_ERDiag.jpg is the Entity Relationship Diagram for the Signet
-persisted store database. The JPG was generated using the free version of
-Aqua Data Studio (available at http://www.aquafold.com) against a Signet
-development database. It reflects the Signet DB state prior to Signet 1.1.
-
