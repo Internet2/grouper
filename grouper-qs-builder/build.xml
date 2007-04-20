@@ -102,6 +102,14 @@
 					<exclude name="lib"/>
 				</fileset>
 			</copy>
+			<mkdir dir="${quickstart.dir}/grouper/doc"/>
+			<copy todir="${quickstart.dir}/grouper/doc">
+				<fileset dir="${grouper.folder}">
+					<include name="LICENSE"/>
+					<include name="README"/>
+					<include name="*.txt"/>
+				</fileset>
+			</copy>
 			<antcall target="-make-grouper-complete"/>
 			
 			<copy todir="${quickstart.dir}">
