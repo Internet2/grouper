@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.1 2007-04-18 00:11:31 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.2 2007-04-22 01:17:36 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -15,9 +15,7 @@
 		already defined: your override must be defined BEFORE the default value
 		is defined.
 	-->
-	<!--
-	<property file="/Projects/signet/buildCustom.properties" />
-	-->
+	<property file="demo/build_QSCustom.properties" />
 
 	<!--
 		Global Properties
@@ -393,6 +391,12 @@
 				<include name="dist-signet_cp.bat" />
 			</fileset>
 		</copy>
+		<chmod perm="755">
+			<fileset dir="${dist.util.dir}" >
+				<include name="**/*.sh" />
+				<include name="**/*.bat" />
+			</fileset>
+		</chmod>
 	</target>
 
 
@@ -400,9 +404,16 @@
     <target name="copy_demo_scripts" >
 		<copy todir="${dist.demo.dir}" >
 			<fileset dir="${source.demo.dir}" >
-				<include name="*/**" />
+				<include name="**/*" />
+				<exclude name="*.zip" />
 			</fileset>
 		</copy>
+		<chmod perm="755">
+			<fileset dir="${dist.demo.dir}" >
+				<include name="**/*.sh" />
+				<include name="**/*.bat" />
+			</fileset>
+		</chmod>
     </target>
 
 
@@ -510,7 +521,7 @@
 			depends="copy_altweb_images_no"
 			if="custom.webimages.dir" >
 		<fileset id="custom.webimages.fileset"
-				dir="custom.webimages.dir" >
+				dir="${custom.webimages.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -519,7 +530,7 @@
 	<!-- - - - - - - - - target: copy_altweb_images_no - -->
 	<target name="copy_altweb_images_no"
 			unless="custom.webimages.dir" >
-		<fileset id="custom.webimages.fileset"
+		<fileset id="${custom.webimages.fileset}"
 				dir="" >
 			<include name="" />
 		</fileset>
@@ -531,7 +542,7 @@
 			depends="copy_altweb_jsps_no"
 			if="custom.webjsp.dir" >
 		<fileset id="custom.webjsp.fileset"
-				dir="custom.webjsp.dir" >
+				dir="${custom.webjsp.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -552,7 +563,7 @@
 			depends="copy_altweb_metainf_no"
 			if="custom.webmetainf.dir" >
 		<fileset id="custom.webmetainf.fileset"
-				dir="custom.webmetainf.dir" >
+				dir="${custom.webmetainf.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -573,7 +584,7 @@
 			depends="copy_altweb_scripts_no"
 			if="custom.webscripts.dir" >
 		<fileset id="custom.webscripts.fileset"
-				dir="custom.webscripts.dir" >
+				dir="${custom.webscripts.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -594,7 +605,7 @@
 			depends="copy_altweb_styles_no"
 			if="custom.webstyles.dir" >
 		<fileset id="custom.webstyles.fileset"
-				dir="custom.webstyles.dir" >
+				dir="${custom.webstyles.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -615,7 +626,7 @@
 			depends="copy_altweb_tiles_no"
 			if="custom.webtiles.dir" >
 		<fileset id="custom.webtiles.fileset"
-				dir="custom.webtiles.dir" >
+				dir="${custom.webtiles.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -705,9 +716,7 @@
 			<parallel>
 				<antcall target="start_hsqldb" inheritrefs="true" />
 				<sequential>
-<echo>CREATE_HSQLDB - SLEEPING</echo>
 					<sleep seconds="5"/>
-<echo>CREATE_HSQLDB - AWAKE</echo>
 					<antcall target="create_hsqldb_tables" inheritrefs="true" />
 					<antcall target="run_treexmlloader" inheritrefs="true" />
 					<antcall target="run_subsystemxmlloader" inheritrefs="true" />
@@ -722,17 +731,14 @@
 
 	<!-- - - - - - - - - target: config_hsqldb_rc - -->
 	<target name="config_hsqldb_rc" >
-<echo>CONFIG_HSQLDB_RC - TOP</echo>
 		<replace file="${hsqldb.rc.file}"
 				token="${db.cfg.url.token}"
 				value="${db.cfg.url}" />
-<echo>CONFIG_HSQLDB_RC - BOTTOM</echo>
 	</target>
 
 
 	<!-- - - - - - - - - target: start_hsqldb - - - - - - - - - - - - -->
 	<target name="start_hsqldb">
-<echo>START_HSQDB - TOP</echo>
 		<java classname="org.hsqldb.Server"
 				dir="${dist.demo.dir}" 
 				fork="true" >
@@ -745,12 +751,10 @@
 				<pathelement location="${dist.util.dir}/config"/>
 			</classpath>
 		</java>
-<echo>START_HSQLDB - BOTTOM</echo>
     </target>
 
 	<!-- - - - - - - - - target: stop_hsqldb - - - - - - - - - - - - - -->
 	<target name="stop_hsqldb">
-<echo>STOP_HSQLDB - TOP</echo>
 		<java jar="${hsqldb.jar.file}"
 				dir="${dist.demo.dir}" 
 				fork="true" >
@@ -760,12 +764,10 @@
 			<arg value="${hsqldb.rc.file}" />
 			<arg value="${hsqldb.rc.target}" />
 		</java>
-<echo>STOP_HSQLDB - BOTTOM</echo>
     </target>
 
 	<!-- - - - - - - - - target: create_hsqldb_tables - -->
 	<target name="create_hsqldb_tables" >
-<echo>CREATE_HSQLDB_TABLES - TOP</echo>
 		<java jar="${hsqldb.jar.file}"
 				dir="${dist.util.dir}"
 				fork="true" >
@@ -774,13 +776,11 @@
 			<arg value="${hsqldb.rc.target}" />
 			<arg value="${hsqldb.ddl}" />
 		</java>
-<echo>CREATE_HSQLDB_TABLES - BOTTOM</echo>
 	</target>
 
 
 	<!-- - - - - - - - - target: run_treexmlloader - -->
 	<target name="run_treexmlloader" >
-<echo>RUN_TREEXMLLOADER - TOP</echo>
 		<exec os="Windows XP, Windows NT"
 				dir="${TreeXmlLoader.dir}"
 				executable="cmd.exe" >
@@ -789,15 +789,14 @@
 		<exec os="Linux, osx"
 				dir="${TreeXmlLoader.dir}"
 				executable="/bin/sh">
-			<arg line="-c run.sh -q ${TreeXmlLoader.arg}"/>
+			<arg value="-c" />
+			<arg value="run.sh -q ${TreeXmlLoader.arg}" />
 		</exec>
-<echo>RUN_TREEXMLLOADER - BOTTOM</echo>
 	</target>
 
 
 	<!-- - - - - - - - - target: run_subsystemxmlloader - -->
 	<target name="run_subsystemxmlloader" >
-<echo>RUN_SUBSYSTEMLOADER - TOP</echo>
 		<exec os="Windows XP, Windows NT"
 				dir="${SubsystemXmlLoader.dir}"
 				executable="cmd.exe">
@@ -806,15 +805,14 @@
 		<exec os="Linux, osx"
 				dir="${SubsystemXmlLoader.dir}"
 				executable="/bin/sh">
-			<arg line="-c run.sh -q ${SubsystemXmlLoader.arg.1} ${SubsystemXmlLoader.arg.2}"/>
+			<arg value="-c" />
+			<arg value="run.sh -q ${SubsystemXmlLoader.arg.1} ${SubsystemXmlLoader.arg.2}"/>
 		</exec>
-<echo>RUN_SUBSYSTEMLOADER - BOTTOM</echo>
 	</target>
 
 
 	<!-- - - - - - - - - target: run_subjectfileloader - -->
 	<target name="run_subjectfileloader" >
-<echo>RUN_SUBJECTFILELOADER - TOP</echo>
 		<exec os="Windows XP, Windows NT"
 				dir="${SubjectFileLoader.dir}"
 				executable="cmd.exe">
@@ -823,15 +821,14 @@
 		<exec os="Linux, osx"
 				dir="${SubjectFileLoader.dir}"
 				executable="/bin/sh">
-			<arg line="-c run.sh -q ${SubjectFileLoader.arg}"/>
+			<arg value="-c" />
+			<arg value="run.sh -q ${SubjectFileLoader.arg}"/>
 		</exec>
-<echo>RUN_SUBJECTFILELOADER - BOTTOM</echo>
 	</target>
 
 
 	<!-- - - - - - - - - target: run_signetproxy - -->
 	<target name="run_signetproxy" >
-<echo>RUN_SIGNETPROXY - TOP</echo>
 		<exec os="Windows XP, Windows NT"
 				dir="${SignetProxy.dir}"
 				executable="cmd.exe">
@@ -840,9 +837,9 @@
 		<exec os="Linux, osx"
 				dir="${SignetProxy.dir}"
 				executable="/bin/sh">
-			<arg line="-c run.sh ${SignetProxy.arg}"/>
+			<arg value="-c" />
+			<arg value="run.sh ${SignetProxy.arg}"/>
 		</exec>
-<echo>RUN_SIGNETPROXY - BOTTOM</echo>
 	</target>
 
 
@@ -855,6 +852,12 @@
 	<!-- - - - - - - - - target: unpack_tomcat - -->
 	<target name="unpack_tomcat" >
 		<unzip dest="${tomcat.unzip.dir}" src="${tomcat.installer.file}" />
+		<chmod perm="755" >
+			<fileset dir="${tomcat.unzip.dir}" >
+			    <include name="**/*.sh"/>
+			    <include name="**/*.bat"/>
+			</fileset>
+		</chmod>
 		<move file="${tomcat.installer.topdir}" tofile="${tomcat.renamed.topdir}" />
 	</target>
 
@@ -933,16 +936,22 @@
 
 
 	<!-- - - - - - - - - target: create_linux_archive - - - - - - -->
-	<target name="create_linux_archive">
+	<target name="create_linux_archive" >
 
 		<delete file="${signet.gzipfile}" />
-
+		<!-- Ant's tar is really stupid in that it cannot preserve file	-->
+		<!-- permissions (a limitation of its Java implementation).		-->
+		<!-- Therefore, we set everything to "rwxr-xr-x" (mode="755").	-->
+		<!-- If left to its own devices, Ant's tar sets everything to	-->
+		<!-- "644" which doesn't allow the *.sh scripts to run.			-->
 		<tar destfile="${signet.gzipfile}"
 				longfile="gnu"
-				compression="gzip"
-				basedir="${dist.dir.root}"
-				includes="${dist.dir.name}/**"
-				excludes="${signet.zipfile}, ${signet.gzipfile}" >
+				compression="gzip" >
+			<tarfileset 
+					mode="755"
+					dir="${dist.dir.root}"
+					includes="${dist.dir.name}/**" >
+			</tarfileset>
 		</tar>
 	</target>
 

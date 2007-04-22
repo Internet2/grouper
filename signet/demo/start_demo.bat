@@ -1,5 +1,5 @@
 @echo off
-REM $Header: /home/hagleyj/i2mi/signet/demo/start_demo.bat,v 1.1 2007-04-18 00:11:31 ddonn Exp $
+REM $Header: /home/hagleyj/i2mi/signet/demo/start_demo.bat,v 1.2 2007-04-22 01:17:36 ddonn Exp $
 
 REM This script starts the Signet QuickStart Demo.
 
@@ -23,7 +23,7 @@ ECHO Could not find the Tomcat startup script: %TOMCAT_START%
 GOTO errorEnd
 
 :okExec
-CALL startup_hsqldb.bat FROM_DEMO_SCRIPT
+CALL start_hsqldb.bat FROM_DEMO_SCRIPT
 CALL %TOMCAT_START%
 START http://localhost:8080/signet
 GOTO okEnd

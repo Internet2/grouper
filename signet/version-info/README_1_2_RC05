@@ -1,0 +1,15 @@
+Signet  04/21/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_RC05
+----------------------------------------------------
+Changes in this version:
+
+1. Added Linux QuickStart Demo scripts
+2. Removed KITN.gif from standard signet build, included in QuickStart build
+
+Other Middleware Build Dependencies
+-----------------------------------
+i2mi-common: CVS tag = signet_1_2
+subject_api: CVS tag = signet_1_2
+
+
