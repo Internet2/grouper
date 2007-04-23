@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.2 2007-04-22 01:17:36 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.3 2007-04-23 20:50:50 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -786,11 +786,11 @@
 				executable="cmd.exe" >
 			<arg line="/C run.bat -q ${TreeXmlLoader.arg}"/>
 		</exec>
-		<exec os="Linux, osx"
+		<exec os="Linux, Max OS X"
 				dir="${TreeXmlLoader.dir}"
 				executable="/bin/sh">
 			<arg value="-c" />
-			<arg value="run.sh -q ${TreeXmlLoader.arg}" />
+			<arg value="./run.sh -q ${TreeXmlLoader.arg}" />
 		</exec>
 	</target>
 
@@ -802,7 +802,7 @@
 				executable="cmd.exe">
 			<arg line="/C run.bat -q ${SubsystemXmlLoader.arg.1} ${SubsystemXmlLoader.arg.2}"/>
 		</exec>
-		<exec os="Linux, osx"
+		<exec os="Linux, Max OS X"
 				dir="${SubsystemXmlLoader.dir}"
 				executable="/bin/sh">
 			<arg value="-c" />
@@ -818,7 +818,7 @@
 				executable="cmd.exe">
 			<arg line="/C run.bat -q ${SubjectFileLoader.arg}"/>
 		</exec>
-		<exec os="Linux, osx"
+		<exec os="Linux, Max OS X"
 				dir="${SubjectFileLoader.dir}"
 				executable="/bin/sh">
 			<arg value="-c" />
@@ -834,7 +834,7 @@
 				executable="cmd.exe">
 			<arg line="/C run.bat ${SignetProxy.arg}"/>
 		</exec>
-		<exec os="Linux, osx"
+		<exec os="Linux, Max OS X"
 				dir="${SignetProxy.dir}"
 				executable="/bin/sh">
 			<arg value="-c" />

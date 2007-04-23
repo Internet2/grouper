@@ -6,6 +6,7 @@ Changes in this version:
 
 1. Added Linux QuickStart Demo scripts
 2. Removed KITN.gif from standard signet build, included in QuickStart build
+3. Replaced "osx" with "Max OS X" in build_QS.xml
 
 Other Middleware Build Dependencies
 -----------------------------------
