@@ -2,7 +2,7 @@
 			Form for creating newstems or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditStem.jsp,v 1.5 2007-03-06 11:05:49 isgwb Exp $
+  @version $Id: EditStem.jsp,v 1.6 2007-04-24 15:35:29 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -17,7 +17,7 @@
 			<label for="stemName"><c:out value="${fieldList.stems.extension}"/></label>
 		</div>
    		<div class="formRight">
-			<html:text property="stemName" size="50" maxlength="50" disabled="${!isNewStem}" styleId="stemName"/>
+			<html:text property="stemName" size="50" maxlength="50" styleId="stemName"/>
     	</div>
 	</div>
 	<div class="formRow">
