@@ -26,60 +26,102 @@ import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import  edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
-import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFactory;
+import  edu.internet2.middleware.grouper.internal.util.Realize;
 
 /** 
- * Factor for returning <code>GrouperDAO</code> objects.
+ * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.5 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.6 2007-04-27 17:45:00 blair Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
 
-  // PROTECTED CLASS METHODS //
+  // PRIVATE CLASS VARIABLES //
+  private static GrouperDAOFactory gdf;
 
-  // @since   1.2.0
+
+  // PUBLIC CLASS METHODS //
+
+  /**
+   * Return default configured {@link GrouperDAOFactory} implementation.
+   * <p/>
+   * @since   1.2.0
+   */
   public static GrouperDAOFactory getFactory() {
-    // TODO 20070403 cache?  singleton?
-    // TODO 20070416 use reflection to instantiate right class
-    return new HibernateDAOFactory();
-  } // public static GrouperDAOFactory getFactory()
+    if (gdf == null) {
+      String klass = GrouperConfig.getProperty( GrouperConfig.PROP_DAO_FACTORY );
+      GrouperValidator v = NotNullOrEmptyValidator.validate(klass);
+      if ( v.isInvalid() ) {
+        klass = GrouperConfig.DEFAULT_DAO_FACTORY;
+      }
+      gdf = (GrouperDAOFactory) Realize.instantiate(klass);
+    }
+    return gdf;
+  } 
 
 
-  // PROTECTED ABSTRACT INSTANCE METHODS //
+  // PUBLIC ABSTRACT INSTANCE METHODS //
 
   // TODO 20070403 add static class methods that call these?
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract CompositeDAO getComposite();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract FieldDAO getField();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract GroupDAO getGroup();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract GrouperSessionDAO getGrouperSession();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract GroupTypeDAO getGroupType();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract MemberDAO getMember();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract MembershipDAO getMembership();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract RegistryDAO getRegistry();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract RegistrySubjectDAO getRegistrySubject();
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   public abstract StemDAO getStem();
 
-} // abstract class GrouperDAOFactory
+
+  // PROTECTED CLASS METHODS //
+
+  // @since   1.2.0
+  protected static void internal_resetFactory() {
+    gdf = null;
+  }
+
+} 
 
