@@ -24,12 +24,18 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.44 2007-04-18 17:16:05 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.45 2007-04-27 17:45:00 blair Exp $
  */
 public class GrouperConfig {
 
   // PUBLIC CLASS CONSTANTS //
-  
+ 
+  /**
+   * Default DAO implementation to be used if an alternative is not configured.
+   * <p/>
+   * @since   1.2.0
+   */
+  public static final String DEFAULT_DAO_FACTORY  = "edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFactory";
   /**
    * String with value of <code>""</code>.
    */
@@ -46,6 +52,12 @@ public class GrouperConfig {
    * Hibernate configuration file.
    */
   public static final String HIBERNATE_CF         = "/grouper.hibernate.properties";
+  /**
+   * Property containing name of DAO implementation to be used.
+   * <p>Grouper will default to <code>DEFAULT_DAO_FACTORY</code> if this property is not set.</p>
+   * @since   1.2.0
+   */
+  public static final String PROP_DAO_FACTORY     = "dao.factory";
   /**
    * Property containing maximum age of cached wheel group.
    */
@@ -175,7 +187,7 @@ public class GrouperConfig {
   // @since   1.2.0
   protected static void internal_setProperty(String property, String value) {
     grouper_props.setProperty(property, value);
-  } // protected static void internal_setProperty(property, value):w
+  } 
 
 
   // PRIVATE CLASS METHODS //
@@ -189,5 +201,5 @@ public class GrouperConfig {
     return value;
   } // private static String _getProperty(props, property)
 
-} // public class GrouperConfig
+} 
 
