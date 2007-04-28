@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SubsystemDestroyer.java,v 1.9 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SubsystemDestroyer.java,v 1.10 2007-04-28 01:56:43 ddonn Exp $
 Created on Feb 22, 2005
 
 Copyright 2006 Internet2, Stanford University
@@ -27,7 +27,7 @@ import org.hibernate.Session;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 
 /**
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @author lmcrae
  *
  */
@@ -93,7 +93,7 @@ public class SubsystemDestroyer
 		Session hs = hibr.openSession();
 		Connection conn = hs.connection();
 	    try {
-	        conn.setAutoCommit(true);
+//	        conn.setAutoCommit(true);
 	        for (int i = 0; i < statements.length; i++) {
 	        	execute(conn, statements[i], tables[i], subsystemId);
 	    	}

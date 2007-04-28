@@ -95,16 +95,16 @@ public class SubjectFileLoader
       sessionFactory = cfg.buildSessionFactory();
       session = sessionFactory.openSession();
       conn = session.connection();
-	  conn.setAutoCommit(true);
+//	  conn.setAutoCommit(true);
     }
     catch (HibernateException he)
     {
       throw new RuntimeException(he);
     }
-    catch (SQLException se)
-    {
-    	throw new RuntimeException(se);
-    }
+//    catch (SQLException se)
+//    {
+//    	throw new RuntimeException(se);
+//    }
   }
   
   

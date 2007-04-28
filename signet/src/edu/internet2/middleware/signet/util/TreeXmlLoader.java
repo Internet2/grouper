@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.9 2007-04-18 00:11:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.10 2007-04-28 01:56:43 ddonn Exp $
 TreeXmlLoader.java
 Created on Feb 22, 2005
 
@@ -297,7 +297,7 @@ public class TreeXmlLoader
   {
     try
     {
-      conn.setAutoCommit(true);
+//      conn.setAutoCommit(true);
       for (int i = 0; i < this.deletionTableNames.length; i++)
       {
         executeDeletion(conn, this.deletionTableNames[i]);
@@ -322,6 +322,7 @@ public class TreeXmlLoader
          + (rows == 1 ? " row " : " rows ")
          + "deleted from table "
          + tableName);
+      commit();
     }
     finally {
       if (ps != null) {
@@ -342,6 +343,7 @@ public class TreeXmlLoader
 				processFile(filenames[i], parent);
 				commit();
 			}
+			conn.close();
 		}
 		catch (SQLException e) { e.printStackTrace(); }
 	}
@@ -1084,7 +1086,7 @@ public class TreeXmlLoader
 		String[] fileargs = parseArgs(args);
 		if (1 > fileargs.length)
 		{
-			System.out.println("Signet TreeXmlLoader, $Revision: 1.9 $");
+			System.out.println("Signet TreeXmlLoader, $Revision: 1.10 $");
 			System.out.println("Usage:\n\tTreeXmlLoader [-q] <inputfile> [inputfile] ...");
 			System.out.println("\t\t-q : Quiet, do not prompt on overwrite");
 			System.out.println("\t\tinputfile : a file containing Signet Tree data");

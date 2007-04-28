@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml,v 1.6 2007-02-27 03:01:49 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml,v 1.7 2007-04-28 01:56:43 ddonn Exp $ -->
 
 <hibernate-mapping
 		default-lazy="false" >
@@ -14,7 +14,7 @@
 				type="long"
 				column="subjectKey"
 				unsaved-value="null" > 
-			<generator class="sequence" >
+			<generator class="native" >
 				<param name="sequence">subjectSerial</param>
 			</generator>
 		</id>

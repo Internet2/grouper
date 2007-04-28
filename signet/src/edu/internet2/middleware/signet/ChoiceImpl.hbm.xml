@@ -13,7 +13,7 @@
 				type="int"
 				column="choiceKey"
 				unsaved-value="null" >
-			<generator class="sequence">
+			<generator class="native">
 				<param name="sequence">choiceSerial</param>
 			</generator>
 		</id>

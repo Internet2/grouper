@@ -10,7 +10,7 @@
 		table="signet_limit">
 		
 		<id name="key" type="int" column="limitKey">
-			<generator class="sequence">
+			<generator class="native">
 				<param name="sequence">limitSerial</param>
 			</generator>
 		</id>
