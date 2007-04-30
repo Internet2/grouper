@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml,v 1.7 2007-04-28 01:56:43 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml,v 1.8 2007-04-30 03:56:40 lmcrae Exp $ -->
 
 <hibernate-mapping
 		default-lazy="false" >
 
 	<class
 			name="edu.internet2.middleware.signet.subjsrc.SignetSubjectAttr"
-			table="signet_subjectattribute" >
+			table="signet_subjectAttribute" >
 		<id name="subjectAttr_PK"
 				type="long"
 				column="subjectAttributeKey"
