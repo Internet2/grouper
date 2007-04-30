@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.166 2007-04-02 17:26:10 blair Exp $ -->
+<!-- $Id: build.xml,v 1.167 2007-04-30 16:15:12 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -11,7 +11,7 @@
   <property name="impl.version" value="1.2.0"/>
 
   <!-- Grouper Global Build Properties -->
-  <property file="buildGrouper.properties" />
+  <property file="${basedir}/conf/buildGrouper.properties"/>
 
 
   <!-- IMPORTS -->
@@ -217,7 +217,7 @@
 
   <!-- target: db.init -->
   <target name="db.init" 
-          depends="init, compile"
+          depends="init, schemaexport"
           description="Initialize Groups Registry"
   >
     <record name="${db.init.log}" action="start"/>
@@ -584,25 +584,15 @@
           depends="init, compile"
           description="Generate SQL schema appropriate for configured database"
   >
-    <taskdef  name="schemaexport"
-              classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask"
-              classpathref="project.classpath"
-    />
     <record name="${schemaexport.log}" action="start"/>
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir.run}"/>
-    <mkdir dir="${build.dir.sql}"/>
-    <schemaexport properties="${conf.hibernate}"
-                  delimiter=";"
-                  drop="no"
-                  output="${schemaexport.out}"
-                  quiet="yes"
-                  text="no"
-    >
-      <fileset dir="${src.dir.grouper}">
-        <include name="**/*.hbm.xml"/>
-      </fileset>
-    </schemaexport>
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.RegistryInitializeSchema"
+          failonerror="true"
+    />
     <record name="${schemaexport.log}" action="stop"/>
   </target>
   <!-- target: schemaexport -->
@@ -637,7 +627,7 @@
 
   <!-- target: test -->
   <target name="test" 
-          depends="test.compile"
+          depends="test.compile, db.init"
           description="Run Grouper Tests"
   >
     <echo/>

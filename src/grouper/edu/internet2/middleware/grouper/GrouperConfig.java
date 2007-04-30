@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.45 2007-04-27 17:45:00 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.46 2007-04-30 16:15:12 blair Exp $
  */
 public class GrouperConfig {
 
@@ -48,6 +48,10 @@ public class GrouperConfig {
    * Grouper configuration file.
    */
   public static final String GROUPER_CF           = "/grouper.properties";
+  /**
+   * Grouper build configuration file.
+   */
+  public static final String GROUPER_BUILD_CF     = "/buildGrouper.properties";
   /**
    * Hibernate configuration file.
    */
@@ -107,12 +111,23 @@ public class GrouperConfig {
 
 
   // PRIVATE CLASS VARIABLES //
+  private static  Properties  build_props   = new Properties();
   private static  Properties  grouper_props = new Properties();
   private static  Properties  hib_props     = new Properties();
 
 
   // STATIC //
   static {
+    // Load Grouper build properties
+    try {
+      InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_BUILD_CF);
+      build_props.load(in);
+    }
+    catch (IOException eIO) {
+      String msg = "unable to read grouper build configuration: " + eIO.getMessage();
+      ErrorLog.fatal(GrouperConfig.class, msg);
+      throw new GrouperRuntimeException(msg, eIO);
+    }
     // Load Grouper properties
     try {
       InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_CF);
@@ -144,6 +159,18 @@ public class GrouperConfig {
 
 
   // PUBLIC CLASS METHODS //
+
+  /**
+   * Get a Grouper build configuration parameter.
+   * <pre class="eg">
+   * String schemaexportOut = GrouperConfig.getBuildProperty("schemaexport.out");
+   * </pre>
+   * @return  Value of configuration parameter or an empty string if parameter is invalid.
+   * @since   1.2.0
+   */
+  public static String getBuildProperty(String property) {
+    return _getProperty(build_props, property);
+  } 
 
   /**
    * Get a Hibernate configuration parameter.

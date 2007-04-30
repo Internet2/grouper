@@ -5,15 +5,22 @@
 
 # Grouper 1.2.0
 
-Estimated Release: Late 200704
+Released: TBD
 
-## TODO 
-* Convert "bench" to an (included) extension
-* Convert "eg.bootstrap" to an extension
-* Look into failures of "TestGroup43" and "TestStem12"
-* Identify upgrade path
-  - This **might** involve creating a new DAO that uses the old mapping files.
-* Convert gsh to a non-release candidate (included) extension
+## INCOMPATIBILITIES
+
+## NEW
+* Added optional "dao.factory" configuration parameter to "grouper.properties".
+
+## UPDATED
+* "ant test" now has a proper dependency chain and can be called without
+  having previously initialized the database.
+
+---
+
+# Grouper 1.2.0rc1
+
+Released: 20070420 
 
 ## Incompabilities
 * The database schema has changed significantly and is not backwards compatible.

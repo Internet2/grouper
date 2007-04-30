@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem12.java,v 1.1 2007-02-14 19:55:17 blair Exp $
+ * @version $Id: TestStem12.java,v 1.2 2007-04-30 16:15:12 blair Exp $
  * @since   1.2.0
  */
 public class TestStem12 extends GrouperTest {
@@ -55,16 +55,17 @@ public class TestStem12 extends GrouperTest {
       long    pre   = new java.util.Date().getTime();
       nsA.grantPriv(subjA, NamingPrivilege.STEM);
       long    post  = new java.util.Date().getTime();
-      assertTrue( "nsA modify time updated", nsA.getModifyTime().getTime() > orig );
-      assertTrue( "nsA modifyTime >= pre",    nsA.getModifyTime().getTime() >= pre );
-      assertTrue( "nsA modifyTime <= post",   nsA.getModifyTime().getTime() <= post );
+      long    mtime = nsA.getModifyTime().getTime();
+      assertTrue( "nsA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
+      assertTrue( "nsA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
+      assertTrue( "nsA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
 
       r.rs.stop();
     }
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testStemModifyAttributesUpdatedAfterGrantingImmediatePriv()
+  }
 
   // @since   1.2.0
   public void testStemModifyAttributesUpdatedAfterRevokingImmediatePriv() {
@@ -79,16 +80,17 @@ public class TestStem12 extends GrouperTest {
       long    pre   = new java.util.Date().getTime();
       nsA.revokePriv(subjA, NamingPrivilege.STEM);
       long    post  = new java.util.Date().getTime();
-      assertTrue( "nsA modify time updated", nsA.getModifyTime().getTime() > orig );
-      assertTrue( "nsA modifyTime >= pre",    nsA.getModifyTime().getTime() >= pre );
-      assertTrue( "nsA modifyTime <= post",   nsA.getModifyTime().getTime() <= post );
+      long    mtime = nsA.getModifyTime().getTime();
+      assertTrue( "nsA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
+      assertTrue( "nsA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
+      assertTrue( "nsA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
 
       r.rs.stop();
     }
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testStemModifyAttributesUpdatedAfterRevokingImmediatePriv()
+  } 
 
-} // public class TestStem12 extends GrouperTest
+} 
 

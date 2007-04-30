@@ -83,7 +83,7 @@ This generates a DDL appropriate for the database configured in
 "GROUPER_HOME/conf/grouper.hibernate.properties" and applies it to the
 database.
 
-    % ant db-init
+    % ant db.init
 
 This initializes the Groups Registry with Grouper's default schema and
 installs the root stem
