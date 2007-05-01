@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import net.sf.hibernate.Session;
+
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.30 2007-04-17 08:40:07 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.31 2007-05-01 08:42:01 isgwb Exp $
  */
 
 
@@ -2772,7 +2772,7 @@ public class GrouperHelper {
 	
 	
 	
-	public static List query(String sql) throws Exception{
+	/*public static List query(String sql) throws Exception{
 		Connection con = null;
 		try {
 			  List results = new ArrayList();
@@ -2797,7 +2797,7 @@ e.getMessage(), e);
 		    	}catch(Exception e){}
 		    }
 
-	}
+	}*/
 }
 
 
