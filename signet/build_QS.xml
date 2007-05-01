@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.4 2007-05-01 06:00:00 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.5 2007-05-01 06:47:48 lmcrae Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -806,7 +806,7 @@
 				dir="${SubsystemXmlLoader.dir}"
 				executable="/bin/sh">
 			<arg value="-c" />
-			<arg value="run.sh -q ${SubsystemXmlLoader.arg.1} ${SubsystemXmlLoader.arg.2}"/>
+			<arg value="./run.sh -q ${SubsystemXmlLoader.arg.1} ${SubsystemXmlLoader.arg.2}"/>
 		</exec>
 	</target>
 
@@ -822,7 +822,7 @@
 				dir="${SubjectFileLoader.dir}"
 				executable="/bin/sh">
 			<arg value="-c" />
-			<arg value="run.sh -q ${SubjectFileLoader.arg}"/>
+			<arg value="./run.sh -q ${SubjectFileLoader.arg}"/>
 		</exec>
 	</target>
 
@@ -838,7 +838,7 @@
 				dir="${SignetProxy.dir}"
 				executable="/bin/sh">
 			<arg value="-c" />
-			<arg value="run.sh ${SignetProxy.arg}"/>
+			<arg value="./run.sh ${SignetProxy.arg}"/>
 		</exec>
 	</target>
 
