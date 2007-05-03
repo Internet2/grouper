@@ -5,7 +5,7 @@
   '-//Hibernate/Hibernate Configuration DTD//EN'
   'http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd'>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/hibernate.cfg.xml,v 1.28 2007-02-27 03:01:49 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/hibernate.cfg.xml,v 1.29 2007-05-03 01:16:14 ddonn Exp $ -->
 
 <hibernate-configuration>
   <session-factory>
@@ -41,7 +41,20 @@
 	<property name="hibernate.dbcp.ps.whenExhaustedAction">1</property>
 
 
-	<!-- import the object/relational mapping files -->
+	<!-- Import the object/relational mapping files -->
+	<!--
+		Note: when mapping ID fields in subsequent .hbm.xml files, bear in
+		mind how Hibernate interprets the 'native' <generator> parameter:
+			identity - Supports identity columns in DB2, MySQL, MS SQL Server,
+				Sybase and HypersonicSQL. 
+			sequence - Uses a sequence in DB2, PostgreSQL, Oracle, SAP DB,
+				McKoi or a generator in Interbase. 
+			native - Picks identity, sequence or hilo depending upon the
+				capabilities of the underlying database. 
+		HypersonicSQL will support sequence, if it is explicitly declared in
+		the mapping file. However, if native is specifed, the default is
+		identity.
+	-->
 
 	<mapping resource="edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml" />
 	<mapping resource="edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.hbm.xml" />

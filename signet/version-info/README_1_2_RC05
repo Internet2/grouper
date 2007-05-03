@@ -6,13 +6,15 @@ Changes in this version:
 
 1. Added Linux QuickStart Demo scripts
 2. Removed KITN.gif from standard signet build, included in QuickStart build
-3. Replaced "osx" with "Max OS X" in build_QS.xml
+3. Replaced "osx" with "Mac OS X" in build_QS.xml
 4. Determined that DB sequence vs. identity issues can be solved using the
     'native' generator for primary keys, if the 'sequence' parameter is
     always specified in the hibernate mapping files (*.hbm.xml).
 5. Removed the autocommits from the utils (caused problem with Sybase) and
     replaced with explicit commits. (Note: May need to do the same for Signet
     main code as well.)
+6. Fixed problem with HypersonicSQL DDL due to item 4, above. HSQLDB default
+    behavior is to use 'identity'.
 
 Other Middleware Build Dependencies
 -----------------------------------
