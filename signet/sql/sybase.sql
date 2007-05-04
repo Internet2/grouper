@@ -6,7 +6,7 @@
 --     fixes; spelled out "integer" everywhere.  Dropped "clustered" subsystem
 --     primary index declaration
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/sybase.sql,v 1.46 2007-04-09 00:37:30 lmcrae Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/sybase.sql,v 1.47 2007-05-04 06:43:08 lmcrae Exp $
 --
 -- Tree tables
 drop table signet_treeNodeRelationship;
@@ -31,12 +31,11 @@ drop table signet_permission;
 drop table signet_limit;
 drop table signet_subsystem;
 -- Signet Subject table
-drop table signet_subject;
 drop table signet_subjectAttribute;
+drop table signet_subject;
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute;
 drop table Subject;
-drop table SubjectType;
 --
 -- Subsystem tables
 create table signet_subsystem
