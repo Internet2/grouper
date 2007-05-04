@@ -1,12 +1,8 @@
 --
 -- This is the Sybase DDL for the Signet database
 -- Author Lynn McRae, Stanford University 
--- Modifications
---  03/09/2006 Add "foreign key (treeID) ..." to signet_treeNode table; formatting
---     fixes; spelled out "integer" everywhere.  Dropped "clustered" subsystem
---     primary index declaration
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/sybase.sql,v 1.47 2007-05-04 06:43:08 lmcrae Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/sybase.sql,v 1.48 2007-05-04 06:53:09 lmcrae Exp $
 --
 -- Tree tables
 drop table signet_treeNodeRelationship;
