@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.6 2007-03-15 00:14:27 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.7 2007-05-04 20:43:03 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -418,7 +418,7 @@ public class SignetSource implements Source
 		}
 		catch (SubjectNotFoundException snfe)
 		{
-			log.warn(snfe);
+			log.info(snfe);
 		}
 		catch (SubjectNotUniqueException snue)
 		{
