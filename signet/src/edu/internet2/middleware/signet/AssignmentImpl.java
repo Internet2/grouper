@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.42 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.43 2007-05-06 07:13:15 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -147,7 +147,7 @@ public AssignmentImpl
     }
 
 	setInstanceNumber(MIN_INSTANCE_NUMBER - 1); // createHistory bumps instance number
-	createHistoryRecord();
+	addHistoryRecord(createHistoryRecord());
   }
   
   /**
@@ -506,11 +506,21 @@ public AssignmentImpl
 	 * (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Grantable#createHistoryRecord()
 	 */
-	public void createHistoryRecord()
+	public History createHistoryRecord()
 	{
 		incrementInstanceNumber();
-		getHistory().add(new AssignmentHistoryImpl(this));
+		return (new AssignmentHistoryImpl(this));
 	}
 
+
+	/**
+	 * Add a History record to the set
+	 * @param histRecord
+	 */
+	public void addHistoryRecord(History histRecord)
+	{
+		if ((null != histRecord) && (histRecord instanceof AssignmentHistory))
+			getHistory().add(histRecord);
+	}
 
 }

@@ -1,6 +1,6 @@
 /*--
-$Id: Grantable.java,v 1.10 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: Grantable.java,v 1.11 2007-05-06 07:13:15 ddonn Exp $
+$Date: 2007-05-06 07:13:15 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -207,9 +207,15 @@ extends Entity, Comparable
   public Set findDuplicates();
   
 	/**
-	 * Generate a History object from this and add it to the history Set.
+	 * Generate a History object from 'this'
 	 */
-	public void createHistoryRecord();
+	public History createHistoryRecord();
+
+	/**
+	 *  Add a History record to the history Set.
+	 * @param histRecord the record to add
+	 */
+	public void addHistoryRecord(History histRecord);
 
   /**
    * Retrieves the <code>Set</code> of objects which describe the history of

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/reconcile/Reconciler.java,v 1.4 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/reconcile/Reconciler.java,v 1.5 2007-05-06 07:13:15 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -33,6 +33,7 @@ import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.GrantableImpl;
+import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.ProxyImpl;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetRuntimeException;
@@ -185,7 +186,8 @@ public class Reconciler
 
 				if (grantable.evaluate(date))
 				{
-					grantable.createHistoryRecord();
+					History histRecord = grantable.createHistoryRecord();
+					grantable.addHistoryRecord(histRecord);
 //					grantable.save();
 					grantList.add(grantable);
 				}

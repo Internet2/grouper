@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.22 2007-04-18 00:11:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.23 2007-05-06 07:13:15 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.Function;
+import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
@@ -127,7 +128,7 @@ throws Exception
 	boolean canGrant = Common.paramIsPresent(request.getParameter(Constants.CAN_GRANT_HTTPPARAMNAME));
 	boolean canUse = Common.paramIsPresent(request.getParameter(Constants.CAN_USE_HTTPPARAMNAME));
 
-	// Editing existing or creating new?
+	// Creating a new Assignment or editing an existing one?
 	if (assignment == null)
 	{
 		SignetSubject grantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
@@ -193,6 +194,8 @@ throws Exception
 		assignment.setEffectiveDate(grantor, effectiveDate, false);
 		assignment.setExpirationDate(grantor, expirationDate, false);
 		assignment.evaluate();
+		History histRecord = assignment.createHistoryRecord();
+		assignment.addHistoryRecord(histRecord);
 	}
 
 	/**

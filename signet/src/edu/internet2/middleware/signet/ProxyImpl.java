@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.17 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.18 2007-05-06 07:13:15 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -114,7 +114,7 @@ public class ProxyImpl extends GrantableImpl implements Proxy
     }
 
 	setInstanceNumber(MIN_INSTANCE_NUMBER - 1); // createHistory bumps instance number
-	createHistoryRecord();
+	addHistoryRecord(createHistoryRecord());
   }
 
   void setSubsystem(Subsystem subsystem)
@@ -196,12 +196,20 @@ public class ProxyImpl extends GrantableImpl implements Proxy
 	 * (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Grantable#createHistoryRecord()
 	 */
-	public void createHistoryRecord()
+	public History createHistoryRecord()
 	{
 		incrementInstanceNumber();
-		getHistory().add(new ProxyHistoryImpl(this));
+		return (new ProxyHistoryImpl(this));
 	}
 
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Grantable#addHistoryRecord(edu.internet2.middleware.signet.History)
+	 */
+	public void addHistoryRecord(History histRecord)
+	{
+		if ((null != histRecord) && (histRecord instanceof ProxyHistory))
+			getHistory().add(histRecord);
+	}
 
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Assignment#getActualStartDatetime()

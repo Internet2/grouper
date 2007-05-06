@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.19 2007-03-19 23:12:10 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.20 2007-05-06 07:13:15 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -322,12 +322,13 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 		{
 			Signet signet = getSignet();
 			if (null != signet)
-				subject = signet.getSubject(revokerId.longValue());
+			{
+				if (null == (subject = signet.getSubject(revokerId.longValue())))
+					log.warn("GrantableImpl.getRevoker() - No Subject found matching revokerId=" + revokerId);
+			}
 			else
-				log.warn("No Signet found in " + this.getClass().getName() + ".getRevoker()" + " where id=" + id);
+				log.error("GrantableImpl.getRevoker() - No Signet found");
 		}
-		else
-		  log.warn("No revokerId found in " + this.getClass().getName() + ".getRevoker()" + " where id=" + id);
 
 		return (subject);
 	}
