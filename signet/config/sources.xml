@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.11 2007-05-07 00:31:00 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.12 2007-05-07 07:16:52 lmcrae Exp $ -->
 
 <!--
 	Note that values that enclosed in "@" will be replaced during an
@@ -25,7 +25,7 @@
       <param-name>maxWait</param-name>
       <param-value>5</param-value>
     </init-param>
-	
+
     <!--  Database connection properties  -->
     <init-param>
       <param-name>dbDriver</param-name>
@@ -62,31 +62,17 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-<!--                select id, 
-                  concat(firstname, concat(' ', lastname)) as name, 
-                  concat(lastname, concat(', ', firstname)) as lfname,
-                  lastname, firstname, middlename,
-                  account.name as loginid,
-                  department, curriculum, appointment
-                from individual 
-                  left join account on (account.individualid = id)
-                  left join faculty on (faculty.individualid = id)
-                  left join staff on (staff.individualid = id)
-                  left join student on (student.individualid = id)
-                where (id='%TERM%')
--->
-				SELECT
-						subj.subjectTypeID,
-						subj.subjectID,
-						subj.name			AS name,
-						subj.description	AS description,
-						subj.displayID,
-						subj.modifyDatetime
-					FROM
-						subject subj
-					WHERE
-						subj.subjectID = '%TERM%'
-
+               SELECT subj.subjectTypeID,
+                      subj.subjectID,
+                      subj.name,
+                      desc.value  AS description,
+                      subj.displayID,
+                      subj.modifyDatetime
+               FROM   Subject subj,
+                      SubjectAttribute desc
+               WHERE  subj.subjectID = '%TERM%'
+               AND    subj.subjectID = desc.subjectID
+               AND    desc.name = 'description'
             </param-value>
        </param>
     </search>
@@ -95,34 +81,20 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-<!--
-                select id, 
-                  concat(firstname, concat(' ', lastname)) as name, 
-                  concat(lastname, concat(', ', firstname)) as lfname,
-                  lastname, firstname, middlename,
-                  account.name as loginid,
-                  department, curriculum, appointment
-                from individual 
-                  left join account on (account.individualid = id)
-                  left join faculty on (faculty.individualid = id)
-                  left join staff on (staff.individualid = id)
-                  left join student on (student.individualid = id)
-                where (account.name='%TERM%')
--->
-				SELECT
-						subj.subjectTypeID,
-						subj.subjectID,
-						subj.name,
-						subj.description,
-						subj.displayID,
-						subj.modifyDatetime
-					FROM
-						subject subj,
-						subjectAttribute attr
-					WHERE
-						subj.subjectID = attr.subjectID AND
-						attr.name = 'loginid' AND
-						attr.value = '%TERM%'
+               SELECT subj.subjectTypeID,
+                      subj.subjectID,
+                      subj.name,
+                      desc.value  AS description,
+                      subj.displayID,
+                      subj.modifyDatetime
+               FROM   Subject subj,
+                      SubjectAttribute desc,
+                      SubjectAttribute loginid
+               WHERE  subj.subjectID = desc.subjectID
+               AND    desc.name = 'description'
+               AND    subj.subjectID = loginid.subjectID
+               AND    loginid.name = 'loginid'
+               AND    loginid.value = '%TERM%'
             </param-value>
         </param>
     </search>
@@ -131,42 +103,25 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-<!--
-                select id, 
-                  concat(firstname, concat(' ', lastname)) as name, 
-                  concat(lastname, concat(', ', firstname)) as lfname,
-                  lastname, firstname, middlename,
-                  account.name as loginid,
-                  department, curriculum, appointment
-                from individual 
-                  left join account on (account.individualid = id)
-                  left join faculty on (faculty.individualid = id)
-                  left join staff on (staff.individualid = id)
-                  left join student on (student.individualid = id)
-                where (firstname like '%%TERM%%')
-                  or (lastname like '%%TERM%%') 
-                  or (department like '%%TERM%%') 
-                  or (account.name like '%%TERM%%')
--->
-				SELECT
-				        DISTINCT 
-				        subj.subjectTypeID,
-				        subj.subjectID,
-				        subj.name,
-				        subj.description,
-				        subj.displayID,
-				        subj.modifyDatetime
-				    FROM
-				        subject subj,
-				        subjectAttribute attr
-				    WHERE
-				        subj.subjectID = attr.subjectID AND
-				        ((attr.name = 'loginid' AND
-				            lower(attr.value) like lower('%TERM%')) OR
-				        (attr.name = 'name' AND
-				            lower(attr.value) like lower('%TERM%')) OR
-				        (attr.name = 'all' AND
-				            lower(attr.value) = lower('%TERM%')))
+               SELECT DISTINCT 
+                      subj.subjectTypeID,
+                      subj.subjectID,
+                      subj.name,
+                      desc.value AS description,
+                      subj.displayID,
+                      subj.modifyDatetime
+               FROM   Subject subj,
+                      SubjectAttribute attr,
+                      SubjectAttribute desc
+               WHERE  subj.subjectID = desc.subjectID
+               AND    desc.name = 'description'
+               AND    subj.subjectID = attr.subjectID
+               AND   ((attr.name = 'loginid' AND
+                          lower(attr.value) like lower('%TERM%')) OR
+                      (attr.name = 'name' AND
+                          lower(attr.value) like lower('%TERM%%')) OR
+                      (attr.name = 'all' AND
+                          lower(attr.value) = lower('%TERM%')))
             </param-value>
         </param>
     </search>
