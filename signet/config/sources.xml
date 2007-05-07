@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.13 2007-05-07 07:54:12 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.14 2007-05-07 07:59:43 lmcrae Exp $ -->
 
 <!--
 	Note that values that enclosed in "@" will be replaced during an
@@ -76,6 +76,7 @@
             </param-value>
        </param>
     </search>
+
     <search>
         <searchType>searchSubjectByIdentifier</searchType>
         <param>
