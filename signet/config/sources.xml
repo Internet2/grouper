@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.12 2007-05-07 07:16:52 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.13 2007-05-07 07:54:12 lmcrae Exp $ -->
 
 <!--
 	Note that values that enclosed in "@" will be replaced during an
@@ -62,17 +62,17 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-               SELECT subj.subjectTypeID,
-                      subj.subjectID,
-                      subj.name,
-                      desc.value  AS description,
-                      subj.displayID,
-                      subj.modifyDatetime
-               FROM   Subject subj,
-                      SubjectAttribute desc
-               WHERE  subj.subjectID = '%TERM%'
-               AND    subj.subjectID = desc.subjectID
-               AND    desc.name = 'description'
+               SELECT sub.subjectTypeID,
+                      sub.subjectID,
+                      sub.name,
+                      des.value  AS description,
+                      sub.displayID,
+                      sub.modifyDatetime
+               FROM   Subject sub,
+                      SubjectAttribute des
+               WHERE  sub.subjectID = '%TERM%'
+               AND    sub.subjectID = des.subjectID
+               AND    des.name = 'description'
             </param-value>
        </param>
     </search>
@@ -81,20 +81,20 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-               SELECT subj.subjectTypeID,
-                      subj.subjectID,
-                      subj.name,
-                      desc.value  AS description,
-                      subj.displayID,
-                      subj.modifyDatetime
-               FROM   Subject subj,
-                      SubjectAttribute desc,
-                      SubjectAttribute loginid
-               WHERE  subj.subjectID = desc.subjectID
-               AND    desc.name = 'description'
-               AND    subj.subjectID = loginid.subjectID
-               AND    loginid.name = 'loginid'
-               AND    loginid.value = '%TERM%'
+               SELECT sub.subjectTypeID,
+                      sub.subjectID,
+                      sub.name,
+                      des.value  AS description,
+                      sub.displayID,
+                      sub.modifyDatetime
+               FROM   Subject sub,
+                      SubjectAttribute des,
+                      SubjectAttribute log
+               WHERE  sub.subjectID = des.subjectID
+               AND    des.name = 'description'
+               AND    sub.subjectID = log.subjectID
+               AND    log.name = 'loginid'
+               AND    log.value = '%TERM%'
             </param-value>
         </param>
     </search>
@@ -104,24 +104,24 @@
             <param-name>sql</param-name>
             <param-value>
                SELECT DISTINCT 
-                      subj.subjectTypeID,
-                      subj.subjectID,
-                      subj.name,
-                      desc.value AS description,
-                      subj.displayID,
-                      subj.modifyDatetime
-               FROM   Subject subj,
-                      SubjectAttribute attr,
-                      SubjectAttribute desc
-               WHERE  subj.subjectID = desc.subjectID
-               AND    desc.name = 'description'
-               AND    subj.subjectID = attr.subjectID
-               AND   ((attr.name = 'loginid' AND
-                          lower(attr.value) like lower('%TERM%')) OR
-                      (attr.name = 'name' AND
-                          lower(attr.value) like lower('%TERM%%')) OR
-                      (attr.name = 'all' AND
-                          lower(attr.value) = lower('%TERM%')))
+                      sub.subjectTypeID,
+                      sub.subjectID,
+                      sub.name,
+                      des.value AS description,
+                      sub.displayID,
+                      sub.modifyDatetime
+               FROM   Subject sub,
+                      SubjectAttribute att,
+                      SubjectAttribute des
+               WHERE  sub.subjectID = des.subjectID
+               AND    des.name = 'description'
+               AND    sub.subjectID = att.subjectID
+               AND   ((att.name = 'loginid' AND
+                          lower(att.value) like lower('%TERM%')) OR
+                      (att.name = 'name' AND
+                          lower(att.value) like lower('%TERM%%')) OR
+                      (att.name = 'all' AND
+                          lower(att.value) = lower('%TERM%')))
             </param-value>
         </param>
     </search>
