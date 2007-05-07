@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.hbm.xml,v 1.12 2007-04-28 01:56:43 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.hbm.xml,v 1.13 2007-05-07 04:28:36 lmcrae Exp $ -->
 
 <hibernate-mapping
 		default-lazy="false" >
@@ -33,10 +33,10 @@
     	</id>
 -->
 
-        <property name="grantorId"		column="grantorkey"		type="long" />
-        <property name="proxyId"		column="proxySubjectkey" type="long" />
-        <property name="granteeId"		column="granteekey"		type="long" />
-        <property name="revokerId"		column="revokerkey"		type="long" />
+        <property name="grantorId"		column="grantorKey"		 type="long" />
+        <property name="proxyId"		column="proxySubjectKey" type="long" />
+        <property name="granteeId"		column="granteeKey"		 type="long" />
+        <property name="revokerId"		column="revokerKey"		 type="long" />
 		
 		<set
 			name="history"
