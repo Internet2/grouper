@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.8 2007-03-15 00:14:26 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.9 2007-05-08 08:53:02 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -450,7 +450,7 @@ public String latencyMinutes;
 			msgData = new Object[] { getSourceId(), identifier };
 			String msgTemplate = ResLoaderApp.getString("HibernateDb.msg.exc.SubjNotFound");  //$NON-NLS-1$
 			msgFmt = new MessageFormat(msgTemplate);
-			log.warn(msgFmt.format(msgData));
+			log.info(msgFmt.format(msgData));
 		}
 		catch (SignetRuntimeException rte)
 		{

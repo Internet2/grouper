@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.11 2007-03-19 23:12:10 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.12 2007-05-08 08:53:02 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -271,7 +271,7 @@ public class SignetSubject implements Subject, Comparable
 		// check if it's a SignetSubject
 		if (apiSubject instanceof SignetSubject)
 		{
-			log.warn(
+			log.info(
 				"SignetSubject.synchAttributes(Subject)" +
 				" is redirecting to method synchAttributes(SignetSubject) " +
 				"where SignetSubject = \n" + ((SignetSubject)apiSubject).toString());
@@ -310,7 +310,7 @@ public class SignetSubject implements Subject, Comparable
 
 			if ((null == apiAttrValues) || (0 == apiAttrValues.size()))
 			{
-				log.warn("SignetSubject.synchAttributes: No apiAttrValues for Subject \"" +
+				log.info("SignetSubject.synchAttributes: No apiAttrValues for Subject \"" +
 						getName() + "\" " +
 						"and Attribute \"" + sigAttrName + "\".");
 			}
@@ -512,7 +512,7 @@ public class SignetSubject implements Subject, Comparable
 		else
 		{
 			assignsGranted = new HashSet();
-			log.warn("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
+			log.info("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
 		}
 
 		return (assignsGranted);
@@ -541,7 +541,7 @@ public class SignetSubject implements Subject, Comparable
 		else
 		{
 			assignsReceived = new HashSet();
-			log.warn("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
+			log.info("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
 		}
 
 		return (assignsReceived);
@@ -571,7 +571,7 @@ public class SignetSubject implements Subject, Comparable
 		else
 		{
 			proxiesGranted = new HashSet();
-			log.warn("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
+			log.info("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
 		}
 
 		return (proxiesGranted);
@@ -600,7 +600,7 @@ public class SignetSubject implements Subject, Comparable
 		else
 		{
 			proxiesReceived = new HashSet();
-			log.warn("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
+			log.info("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
 		}
 
 		return (proxiesReceived);
