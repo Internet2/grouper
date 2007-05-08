@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.14 2007-05-07 07:59:43 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.15 2007-05-08 01:26:02 lmcrae Exp $ -->
 
 <!--
 	Note that values that enclosed in "@" will be replaced during an
@@ -66,13 +66,16 @@
                       sub.subjectID,
                       sub.name,
                       des.value  AS description,
-                      sub.displayID,
-                      sub.modifyDatetime
+                      log.value  AS loginid
                FROM   Subject sub,
-                      SubjectAttribute des
-               WHERE  sub.subjectID = '%TERM%'
+                      SubjectAttribute des,
+                      SubjectAttribute log
+               WHERE  sub.subjectTypeID = 'person'
+               AND    sub.subjectID = '%TERM%'
                AND    sub.subjectID = des.subjectID
                AND    des.name = 'description'
+               AND    sub.subjectID = log.subjectID
+               AND    log.name = 'loginid'
             </param-value>
        </param>
     </search>
@@ -86,12 +89,12 @@
                       sub.subjectID,
                       sub.name,
                       des.value  AS description,
-                      sub.displayID,
-                      sub.modifyDatetime
+                      log.value  AS loginid
                FROM   Subject sub,
                       SubjectAttribute des,
                       SubjectAttribute log
-               WHERE  sub.subjectID = des.subjectID
+               WHERE  sub.subjectTypeID = 'person'
+               AND    sub.subjectID = des.subjectID
                AND    des.name = 'description'
                AND    sub.subjectID = log.subjectID
                AND    log.name = 'loginid'
@@ -109,13 +112,16 @@
                       sub.subjectID,
                       sub.name,
                       des.value AS description,
-                      sub.displayID,
-                      sub.modifyDatetime
+                      log.value  AS loginid
                FROM   Subject sub,
                       SubjectAttribute att,
-                      SubjectAttribute des
-               WHERE  sub.subjectID = des.subjectID
+                      SubjectAttribute des,
+                      SubjectAttribute log
+               WHERE  sub.subjectTypeID = 'person'
+               AND    sub.subjectID = des.subjectID
                AND    des.name = 'description'
+               AND    sub.subjectID = log.subjectID
+               AND    log.name = 'loginid'
                AND    sub.subjectID = att.subjectID
                AND   ((att.name = 'loginid' AND
                           lower(att.value) like lower('%TERM%')) OR
@@ -182,18 +188,16 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-                select id, 
-                  concat(firstname, concat(' ', lastname)) as name, 
-                  concat(lastname, concat(', ', firstname)) as lfname,
-                  lastname, firstname, middlename,
-                  account.name as loginid,
-                  department, curriculum, appointment
-                from individual 
-                  left join account on (account.individualid = id)
-                  left join faculty on (faculty.individualid = id)
-                  left join staff on (staff.individualid = id)
-                  left join student on (student.individualid = id)
-                where (id='%TERM%')
+               SELECT sub.subjectTypeID,
+                      sub.subjectID,
+                      sub.name,
+                      des.value  AS description
+               FROM   Subject sub,
+                      SubjectAttribute des
+               WHERE  sub.subjectTypeID = 'group'
+               AND    sub.subjectID = '%TERM%'
+               AND    sub.subjectID = des.subjectID
+               AND    des.name = 'description'
             </param-value>
        </param>
     </search>
@@ -202,18 +206,16 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-                select id, 
-                  concat(firstname, concat(' ', lastname)) as name, 
-                  concat(lastname, concat(', ', firstname)) as lfname,
-                  lastname, firstname, middlename,
-                  account.name as loginid,
-                  department, curriculum, appointment
-                from individual 
-                  left join account on (account.individualid = id)
-                  left join faculty on (faculty.individualid = id)
-                  left join staff on (staff.individualid = id)
-                  left join student on (student.individualid = id)
-                where (account.name='%TERM%')
+               SELECT sub.subjectTypeID,
+                      sub.subjectID,
+                      sub.name,
+                      des.value  AS description
+               FROM   Subject sub,
+                      SubjectAttribute des
+               WHERE  sub.subjectTypeID = 'group'
+               AND    sub.subjectID = des.subjectID
+               AND    des.name = 'description'
+               AND    sub.subjectID = '%TERM%'
             </param-value>
         </param>
     </search>
@@ -222,21 +224,24 @@
         <param>
             <param-name>sql</param-name>
             <param-value>
-                select id, 
-                  concat(firstname, concat(' ', lastname)) as name, 
-                  concat(lastname, concat(', ', firstname)) as lfname,
-                  lastname, firstname, middlename,
-                  account.name as loginid,
-                  department, curriculum, appointment
-                from individual 
-                  left join account on (account.individualid = id)
-                  left join faculty on (faculty.individualid = id)
-                  left join staff on (staff.individualid = id)
-                  left join student on (student.individualid = id)
-                where (firstname like '%%TERM%%')
-                  or (lastname like '%%TERM%%') 
-                  or (department like '%%TERM%%') 
-                  or (account.name like '%%TERM%%')
+               SELECT DISTINCT 
+                      sub.subjectTypeID,
+                      sub.subjectID,
+                      sub.name,
+                      des.value AS description
+               FROM   Subject sub,
+                      SubjectAttribute att,
+                      SubjectAttribute des
+               WHERE  sub.subjectTypeID = 'group'
+               AND    sub.subjectID = des.subjectID
+               AND    des.name = 'description'
+               AND    sub.subjectID = att.subjectID
+               AND   ((att.name = 'name' AND
+                          lower(att.value) like lower('%%TERM%%')) OR
+                      (att.name = 'all' AND
+                          lower(att.value) = lower('%TERM%')) OR
+                      (lower(sub.subjectID) like lower('%%TERM%%'))
+                     )
             </param-value>
         </param>
     </search>
