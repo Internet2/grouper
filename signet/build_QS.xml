@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.5 2007-05-01 06:47:48 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.6 2007-05-08 20:20:13 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -921,7 +921,9 @@
 
 
 	<!-- - - - - - - - - target: create_win_archive - - - - - - - -->
-	<target name="create_win_archive" >
+	<target name="create_win_archive"
+			if="running_windows"
+			depends="get_os_property" >
 
 		<delete file="${signet.zipfile}" />
 		
@@ -936,7 +938,9 @@
 
 
 	<!-- - - - - - - - - target: create_linux_archive - - - - - - -->
-	<target name="create_linux_archive" >
+	<target name="create_linux_archive"
+			if="running_unix"
+			depends="get_os_property" >
 
 		<delete file="${signet.gzipfile}" />
 		<!-- Ant's tar is really stupid in that it cannot preserve file	-->
@@ -944,6 +948,7 @@
 		<!-- Therefore, we set everything to "rwxr-xr-x" (mode="755").	-->
 		<!-- If left to its own devices, Ant's tar sets everything to	-->
 		<!-- "644" which doesn't allow the *.sh scripts to run.			-->
+<!--
 		<tar destfile="${signet.gzipfile}"
 				longfile="gnu"
 				compression="gzip" >
@@ -953,6 +958,31 @@
 					includes="${dist.dir.name}/**" >
 			</tarfileset>
 		</tar>
+-->
+		<exec os="Linux, Mac OS X" 
+				dir="${dist.dir.root}"
+				executable="/bin/tar" >
+			<arg value="-c" /> <!-- create -->
+			<arg value="-p" /> <!-- preserve permissions -->
+			<arg value="-z" /> <!-- gzip archive contents -->
+			<arg value="-f" /> <!-- output file follows -->
+			<arg value="${signet.gzipfile}" />
+			<arg value="${dist.dir.name}" />
+		</exec>
+	</target>
+
+
+	<!-- - - - - - - - - target: get_os_property - - - - - - -->
+	<target name="get_os_property" >
+		<condition property="running_windows" >
+			<os family="windows" />
+		</condition>
+		<condition property="running_unix" >
+			<or>
+				<os family="unix" />
+				<os family="mac" />
+			</or>
+		</condition>
 	</target>
 
 </project>
