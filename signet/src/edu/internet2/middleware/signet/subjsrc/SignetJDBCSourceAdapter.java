@@ -69,9 +69,9 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter
 		try
 		{
 			conn = dataSource.getConnection();
-			String sql = "select sa.name, sa.value " +
-						"from subjectattribute sa " +
-						"where sa.subjectid = ?";
+			String sql = "SELECT sa.name, sa.value " +
+						"FROM SubjectAttribute sa " +
+						"WHERE sa.subjectID = ?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, rs.getString(getSubjectIDAttributeName()));
 

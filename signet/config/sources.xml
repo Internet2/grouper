@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.15 2007-05-08 01:26:02 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.16 2007-05-08 08:40:48 ddonn Exp $ -->
 
 <!--
 	Note that values that enclosed in "@" will be replaced during an
@@ -46,7 +46,7 @@
 
      <init-param>
       <param-name>SubjectID_AttributeType</param-name>
-      <param-value>subjectid</param-value>
+      <param-value>subjectID</param-value>
     </init-param>
     <init-param>
       <param-name>Name_AttributeType</param-name>
@@ -124,7 +124,7 @@
                AND    log.name = 'loginid'
                AND    sub.subjectID = att.subjectID
                AND   ((att.name = 'loginid' AND
-                          lower(att.value) like lower('%TERM%')) OR
+                          lower(att.value) like lower('%TERM%%')) OR
                       (att.name = 'name' AND
                           lower(att.value) like lower('%TERM%%')) OR
                       (att.name = 'all' AND
@@ -172,7 +172,7 @@
 
      <init-param>
       <param-name>SubjectID_AttributeType</param-name>
-      <param-value>id</param-value>
+      <param-value>subjectID</param-value>
     </init-param>
     <init-param>
       <param-name>Name_AttributeType</param-name>
@@ -237,10 +237,10 @@
                AND    des.name = 'description'
                AND    sub.subjectID = att.subjectID
                AND   ((att.name = 'name' AND
-                          lower(att.value) like lower('%%TERM%%')) OR
+                          lower(att.value) like lower('%TERM%%')) OR
                       (att.name = 'all' AND
                           lower(att.value) = lower('%TERM%')) OR
-                      (lower(sub.subjectID) like lower('%%TERM%%'))
+                      (lower(sub.subjectID) like lower('%TERM%%'))
                      )
             </param-value>
         </param>
