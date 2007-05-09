@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.6 2007-05-08 20:20:13 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.7 2007-05-09 07:14:23 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -959,9 +959,19 @@
 			</tarfileset>
 		</tar>
 -->
-		<exec os="Linux, Mac OS X" 
+		<exec os="Linux" 
 				dir="${dist.dir.root}"
 				executable="/bin/tar" >
+			<arg value="-c" /> <!-- create -->
+			<arg value="-p" /> <!-- preserve permissions -->
+			<arg value="-z" /> <!-- gzip archive contents -->
+			<arg value="-f" /> <!-- output file follows -->
+			<arg value="${signet.gzipfile}" />
+			<arg value="${dist.dir.name}" />
+		</exec>
+		<exec os="Mac OS X" 
+				dir="${dist.dir.root}"
+				executable="/usr/bin/tar" >
 			<arg value="-c" /> <!-- create -->
 			<arg value="-p" /> <!-- preserve permissions -->
 			<arg value="-z" /> <!-- gzip archive contents -->
