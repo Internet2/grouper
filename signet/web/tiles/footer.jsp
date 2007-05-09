@@ -1,6 +1,6 @@
 <!--
-  $Id: footer.jsp,v 1.5 2006-06-13 00:51:11 ddonn Exp $
-  $Date: 2006-06-13 00:51:11 $
+  $Id: footer.jsp,v 1.6 2007-05-09 02:12:10 ddonn Exp $
+  $Date: 2007-05-09 02:12:10 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -8,9 +8,11 @@
 -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 <%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
+<%@ page import="edu.internet2.middleware.signet.resource.ResLoaderApp" %>
 
 <DIV id="Footer">
   <P>
+  	<%="Signet version " + ResLoaderApp.getString("signet_version") + ", "%>
     <%=ResLoaderUI.getString("footer.copyright.txt") %>
     <BR /> 
     <A href=<%=ResLoaderUI.getString("footer.terms.href") %> target="_blank">
