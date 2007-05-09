@@ -1,8 +1,8 @@
 <!--
-  $Id: footer.jsp,v 1.6 2007-05-09 02:12:10 ddonn Exp $
-  $Date: 2007-05-09 02:12:10 $
+  $Id: footer.jsp,v 1.7 2007-05-09 04:40:53 lmcrae Exp $
+  $Date: 2007-05-09 04:40:53 $
   
-  Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
+  Copyright 2007 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
   see doc/license.txt in this distribution.
 -->
@@ -12,9 +12,10 @@
 
 <DIV id="Footer">
   <P>
-  	<%="Signet version " + ResLoaderApp.getString("signet_version") + ", "%>
     <%=ResLoaderUI.getString("footer.copyright.txt") %>
-    <BR /> 
+    <BR />
+    <%="Signet " + ResLoaderApp.getString("signet_version") %>
+    |
     <A href=<%=ResLoaderUI.getString("footer.terms.href") %> target="_blank">
       <%=ResLoaderUI.getString("footer.terms.txt") %>
     </A>
