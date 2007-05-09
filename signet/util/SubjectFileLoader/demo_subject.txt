@@ -592,9 +592,11 @@ loginid mcohen
 all all
 +person SD00144 Laochamroonvorapongse, Warnakulasuriya Patabendige Ushantha Joseph Chaminda Vaas
 description Professor
+loginid wpujcvl
 all all
 +person SD00145 Temple-Nugent-Chandler-Brydges-Grenville, Lady Caroline Rowena
 description Professor
+loginid ladytemple
 all all
 +group kitn:biology:biox Bio-X project team
 description Members of the Bio-X project team
