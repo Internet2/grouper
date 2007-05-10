@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.17 2007-05-09 18:24:22 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/sources.xml,v 1.18 2007-05-10 00:24:29 lmcrae Exp $ -->
 
 <!--
 	Note that values that enclosed in "@" will be replaced during an
@@ -64,7 +64,9 @@
             <param-value>
                SELECT sub.subjectTypeID,
                       sub.subjectID,
-                      sub.name
+                      sub.name,
+                      '*' AS description,
+                      '*' AS loginid
                FROM   Subject sub
                WHERE  sub.subjectTypeID = 'person'
                AND    sub.subjectID = '%TERM%'
@@ -79,13 +81,12 @@
             <param-value>
                SELECT sub.subjectTypeID,
                       sub.subjectID,
-                      sub.name
+                      sub.name,
+                      '*' AS description,
+                      log.value AS loginid
                FROM   Subject sub,
-                      SubjectAttribute des,
                       SubjectAttribute log
                WHERE  sub.subjectTypeID = 'person'
-               AND    sub.subjectID = des.subjectID
-               AND    des.name = 'description'
                AND    sub.subjectID = log.subjectID
                AND    log.name = 'loginid'
                AND    log.value = '%TERM%'
@@ -101,17 +102,11 @@
                       sub.subjectTypeID,
                       sub.subjectID,
                       sub.name,
-                      des.value AS description,
-                      log.value  AS loginid
+                      '*' AS description,
+                      '*' AS loginid
                FROM   Subject sub,
-                      SubjectAttribute att,
-                      SubjectAttribute des,
-                      SubjectAttribute log
+                      SubjectAttribute att
                WHERE  sub.subjectTypeID = 'person'
-               AND    sub.subjectID = des.subjectID
-               AND    des.name = 'description'
-               AND    sub.subjectID = log.subjectID
-               AND    log.name = 'loginid'
                AND    sub.subjectID = att.subjectID
                AND   ((att.name = 'loginid' AND
                           lower(att.value) like lower('%TERM%%')) OR
