@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.12 2007-05-08 08:53:02 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.13 2007-05-11 04:35:09 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -42,7 +42,6 @@ import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Grantable;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegeImpl;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.ProxyImpl;
@@ -490,11 +489,27 @@ public class SignetSubject implements Subject, Comparable
 
 
 	/**
-	 * Support for Hibernate
-	 * @return Returns the assignmentsGranted.
-	 * @throws ObjectNotFoundException
+	 * Get the set of Assignments granted (Active, Pending and Inactive) by this Subject.
+	 * @return A Set of Assignment objects that have been granted
+	 * May be an empty set but never null.
 	 */
 	public Set getAssignmentsGranted()
+	{
+		Set assignsGranted;
+		assignsGranted = getAssignmentsGranted(Status.ACTIVE.toString());
+		assignsGranted.addAll(getAssignmentsGranted(Status.PENDING.toString()));
+		assignsGranted.addAll(getAssignmentsGranted(Status.INACTIVE.toString()));
+		return (assignsGranted);
+	}
+
+
+	/**
+	 * Get the set of Assignments granted by this Subject.
+	 * @param isActive Selector for Active/Pending/Inactive assignments
+	 * @return A Set of Assignment objects that have been granted by Subject.
+	 * May be an empty set but never null.
+	 */
+	public Set getAssignmentsGranted(String isActive)
 	{
 		Set assignsGranted;
 		SignetSources srcs;
@@ -507,7 +522,7 @@ public class SignetSubject implements Subject, Comparable
 			(null != (srcs = signetSource.getSources())) &&
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
-			assignsGranted = persistSrc.getAssignmentsGranted(subject_PK.longValue(), Status.ACTIVE.toString());
+			assignsGranted = persistSrc.getAssignmentsGranted(subject_PK.longValue(), isActive);
 		}
 		else
 		{
@@ -520,10 +535,26 @@ public class SignetSubject implements Subject, Comparable
 	
 
 	/**
-	 * Support for Hibernate
-	 * @return Returns the assignmentsReceived.
+	 * Get the set of Assignments received (Active, Pending and Inactive) by this Subject.
+	 * @return A Set of Assignment objects that have been received by Subject.
+	 * May be an empty set but never null.
 	 */
 	public Set getAssignmentsReceived()
+	{
+		Set assignsReceived;
+		assignsReceived = getAssignmentsReceived(Status.ACTIVE.toString());
+		assignsReceived.addAll(getAssignmentsReceived(Status.PENDING.toString()));
+		assignsReceived.addAll(getAssignmentsReceived(Status.INACTIVE.toString()));
+		return (assignsReceived);
+	}
+
+
+	/**
+	 * Get the set of Assignments received by this subject
+	 * @param isActive Selector for Active/Pending/Inactive Assignments
+	 * @return Returns the assignmentsReceived.
+	 */
+	public Set getAssignmentsReceived(String isActive)
 	{
 		Set assignsReceived;
 		SignetSources srcs;
@@ -536,7 +567,7 @@ public class SignetSubject implements Subject, Comparable
 			(null != (srcs = signetSource.getSources())) &&
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
-			assignsReceived = persistSrc.getAssignmentsReceived(subject_PK.longValue(), Status.ACTIVE.toString());
+			assignsReceived = persistSrc.getAssignmentsReceived(subject_PK.longValue(), isActive);
 		}
 		else
 		{
@@ -549,11 +580,27 @@ public class SignetSubject implements Subject, Comparable
 
 
 	/**
-	 * Get the set of Proxies granted by this Subject.
+	 * Get the set of Proxies granted (Active, Pending and Inactive) by this Subject.
 	 * @return A Set of ProxyImpl objects that have been granted by grantor.
 	 * May be an empty set but never null.
 	 */
 	public Set getProxiesGranted()
+	{
+		Set proxiesGranted = new HashSet();
+		proxiesGranted = getProxiesGranted(Status.ACTIVE.toString());
+		proxiesGranted.addAll(getProxiesGranted(Status.PENDING.toString()));
+		proxiesGranted.addAll(getProxiesGranted(Status.INACTIVE.toString()));
+		return (proxiesGranted);
+	}
+
+
+	/**
+	 * Get the set of Proxies granted by this Subject.
+	 * @param isActive Selector for Active/Pending/Inactive proxies
+	 * @return A Set of ProxyImpl objects that have been granted by grantor.
+	 * May be an empty set but never null.
+	 */
+	public Set getProxiesGranted(String isActive)
 	{
 		Set proxiesGranted;
 		SignetSources srcs;
@@ -566,7 +613,7 @@ public class SignetSubject implements Subject, Comparable
 			(null != (srcs = signetSource.getSources())) &&
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
-			proxiesGranted = persistSrc.getProxiesGranted(subject_PK.longValue(), Status.ACTIVE.toString());
+			proxiesGranted = persistSrc.getProxiesGranted(subject_PK.longValue(), isActive);
 		}
 		else
 		{
@@ -579,10 +626,27 @@ public class SignetSubject implements Subject, Comparable
 
 
 	/**
-	 * Support for Hibernate
-	 * @return A Set of Proxies received by this Subject
+	 * Get the set of Proxies received (Active, Pending and Inactive) by this Subject.
+	 * @return A Set of ProxyImpl objects that have been received by Subject.
+	 * May be an empty set but never null.
 	 */
 	public Set getProxiesReceived()
+	{
+		Set proxiesReceived = new HashSet();
+		proxiesReceived = getProxiesReceived(Status.ACTIVE.toString());
+		proxiesReceived.addAll(getProxiesReceived(Status.PENDING.toString()));
+		proxiesReceived.addAll(getProxiesReceived(Status.INACTIVE.toString()));
+		return (proxiesReceived);
+	}
+
+
+	/**
+	 * Get the set of Proxies received by this Subject.
+	 * @param isActive Selector for Active/Pending/Inactive proxies
+	 * @return A Set of ProxyImpl objects that have been received by Subject.
+	 * May be an empty set but never null.
+	 */
+	public Set getProxiesReceived(String isActive)
 	{
 		Set proxiesReceived;
 		SignetSources srcs;
@@ -595,7 +659,7 @@ public class SignetSubject implements Subject, Comparable
 			(null != (srcs = signetSource.getSources())) &&
 			(null != (persistSrc = srcs.getPersistedSource())))
 		{
-			proxiesReceived = persistSrc.getProxiesReceived(subject_PK.longValue(), Status.ACTIVE.toString());
+			proxiesReceived = persistSrc.getProxiesReceived(subject_PK.longValue(), isActive);
 		}
 		else
 		{

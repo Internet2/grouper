@@ -1,6 +1,6 @@
 /*--
-$Id: ProxyHistoryImpl.java,v 1.2 2006-02-09 10:24:05 lmcrae Exp $
-$Date: 2006-02-09 10:24:05 $
+$Id: ProxyHistoryImpl.java,v 1.3 2007-05-11 04:35:09 ddonn Exp $
+$Date: 2007-05-11 04:35:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -43,7 +43,7 @@ class ProxyHistoryImpl extends HistoryImpl implements ProxyHistory
   ProxyHistoryImpl(ProxyImpl proxy)
   {
     // Most information is just copied from the Proxy object to the
-    // AssignmentHistoryImpl object.
+    // ProxyHistoryImpl object.
     super(proxy);
     this.setProxy(proxy);
     this.setSubsystem(proxy.getSubsystem());
