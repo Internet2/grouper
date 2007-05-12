@@ -1,4 +1,4 @@
-<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.39 2007-02-24 02:11:32 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.40 2007-05-12 00:56:22 ddonn Exp $ -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.util.Set" %>
@@ -97,12 +97,12 @@
   </DIV> <!-- tablecontrols -->
 
 
+<!--   		title="<%=ResLoaderUI.getString("privilegesGrantedReport.warning.title") %>"  -->
    <FORM
    		name="checkform"
    		action="Revoke.do"
    		method="post"
    		id="checkform"
-   		title="<%=ResLoaderUI.getString("privilegesGrantedReport.warning.title") %>"
 	    onSubmit="return confirm
 	           (<%=new String("'" + ResLoaderUI.getString("privilegesGrantedReport.warning.txt") + "'") %>);">
 	
@@ -128,10 +128,11 @@
                type="checkbox"
                id="checkAll"
                onClick="selectAll(this.checked);"
-               value="<%=ResLoaderUI.getString("privilegesGrantedReport.checkall.bt")%>" />
+               value="<%=ResLoaderUI.getString("privilegesGrantedReport.checkall.bt")%>" 
+               title="<%=ResLoaderUI.getString("privilegesGrantedReport.checkall.title")%>"/>
           </TH>
         </TR>
-        <%
+<%
   Set assignmentSet;
   Set proxySet;
   Subsystem subsystemFilter = null;
@@ -152,40 +153,47 @@
     SignetSubject grantee = grantable.getGrantee();
 %>
         <TR>
-          <%
+<%
     if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
         || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
     {
 %>
-          <TD><!-- subject -->
-              <A
-              href="PersonView.do?<%=Constants.SIGNET_SOURCE_ID_HTTPPARAMNAME + "=" + grantee.getSourceId() +
-            		  "&" + Constants.SIGNET_SUBJECT_ID_HTTPPARAMNAME + "=" + grantee.getId() + 
-            		  (subsystemFilter == null ? "" : ("&" + Constants.SUBSYSTEM_HTTPPARAMNAME + "=" + subsystemFilter.getId()))%>">
-            		  <%=grantee.getName()%>
-              </A>
-          </TD>
-          <!-- subject -->
-          <%
+			<!-- subject -->
+			<TD>
+				<A
+					href="PersonView.do?<%=Constants.SIGNET_SOURCE_ID_HTTPPARAMNAME + "=" + grantee.getSourceId() +
+						"&" + Constants.SIGNET_SUBJECT_ID_HTTPPARAMNAME + "=" + grantee.getId() + 
+						(subsystemFilter == null ? "" : ("&" + Constants.SUBSYSTEM_HTTPPARAMNAME + "=" + subsystemFilter.getId()))%>"
+					title="<%=ResLoaderUI.getString("privilegesGrantedReport.person.title") + grantee.getName()%>" >
+				<%=grantee.getName()%>
+				</A>
+			</TD>
+<%
     }
 %>
-          <TD><!-- privilege -->
-              <%=Common.popupIcon(grantable)%> <%=Common.privilegeStr(signet, grantable)%> </TD>
-          <!-- privilege -->
-          <TD><!-- scope -->
-              <%=Common.scopeStr(grantable)%> </TD>
-          <!-- scope -->
-          <TD><!-- limits -->
-              <%=Common.editLink(loggedInPrivilegedSubject, grantable)%> <%=Common.displayLimitValues(grantable)%> </TD>
-          <!-- limits -->
-          <TD><!-- status -->
-              <%=Common.displayStatus(grantable)%> </TD>
-          <!-- status -->
-          <%=Common.revokeBox
-               (loggedInPrivilegedSubject,
-                grantable,
-                UnusableStyle.DIM)%> </TR>
-        <% 
+			<!-- privilege -->
+			<TD>
+				<%=Common.popupIcon(grantable)%> <%=Common.privilegeStr(signet, grantable)%>
+			</TD>
+	
+			<!-- scope -->
+			<TD>
+				<%=Common.scopeStr(grantable)%>
+			</TD>
+	
+			<!-- limits -->
+			<TD>
+				<%=Common.editLink(loggedInPrivilegedSubject, grantable)%> <%=Common.displayLimitValues(grantable)%>
+			</TD>
+	
+			<!-- status -->
+			<TD>
+				<%=Common.displayStatus(grantable) %>
+			</TD>
+
+			<%=Common.revokeBox(loggedInPrivilegedSubject, grantable, UnusableStyle.DIM) %>
+		</TR>
+<% 
   }
 %>
         <TR >
@@ -207,7 +215,8 @@
               type="submit"
               disabled="true"
               class="button1"
-              value="<%=ResLoaderUI.getString("privilegesGrantedReport.revoke.bt") %>" />
+              value="<%=ResLoaderUI.getString("privilegesGrantedReport.revoke.bt") %>"
+              title="<%=ResLoaderUI.getString("privilegesGrantedReport.revoke.title.bt") %>" />
           </TD>
         </TR>
       </TABLE>

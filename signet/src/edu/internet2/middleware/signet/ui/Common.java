@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.74 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.75 2007-05-12 00:56:22 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -982,13 +982,20 @@ public class Common
      String             style)
   {
     StringBuffer outStr = new StringBuffer();
-    String editAction
-      = (grantable instanceof Proxy ? "Designate.do" : "Conditions.do");
-    String paramName
-      = (grantable instanceof Proxy
-          ? Constants.PROXYID_HTTPPARAMNAME
-          : "assignmentId");
-    
+
+	String editAction;
+	String paramName;
+	if (grantable instanceof Proxy)
+	{
+		editAction = "Designate.do";
+		paramName = Constants.PROXYID_HTTPPARAMNAME;
+	}
+	else
+	{
+		editAction = "Conditions.do";
+		paramName = "assignmentId";
+	}
+
     Decision decision = loggedInPrivilegedSubject.canEdit(grantable);
     boolean canEdit = decision.getAnswer();
     
@@ -1008,7 +1015,11 @@ public class Common
       {
         outStr.append("  style=\"" + style + "\"\n");
       }
-      outStr.append("  href=\"" + editAction + "?" + paramName + "=" + grantable.getId() + "\">\n");
+      outStr.append("  href=\"" + editAction + "?" + paramName + "=" + grantable.getId() + "\" ");
+      outStr.append("  title=\"");
+      outStr.append(     ResLoaderUI.getString("privilegesGrantedReport.edit.title"));
+      outStr.append(   "\" ");
+      outStr.append(">\n");
       outStr.append("  <img\n");
       outStr.append("    src=\"images/arrow_right.gif\"\n");
       outStr.append("      alt=\"\" />\n");
@@ -1068,7 +1079,11 @@ public class Common
     Decision decision = loggedInPrivilegedSubject.canEdit(grantableInstance);
     if (decision.getAnswer() == true)
     {
-      outStr.append("<td align=\"center\" >\n");
+      outStr.append("<td align=\"center\" ");
+      outStr.append("title=\"");
+      outStr.append(  ResLoaderUI.getString("privilegesGrantedReport.revoke.title"));
+      outStr.append("\" ");
+      outStr.append(">\n");
       outStr.append("  <input\n");
       outStr.append("    name=\"revoke\"\n");
       outStr.append("    type=\"checkbox\"\n");
@@ -1170,7 +1185,11 @@ public class Common
     outStr.append("         'scrollbars=yes,\n");
     outStr.append("          resizable=yes,\n");
     outStr.append("          width=500,\n");
-    outStr.append("          height=450');\">\n");
+    outStr.append("          height=450');\" ");
+    outStr.append("          title=\"");
+    outStr.append(             ResLoaderUI.getString("privilegesGrantedReport.details.title"));
+    outStr.append(           "\" ");
+    outStr.append("          >\n");
     outStr.append("  <img\n");
     outStr.append("   src=\"images/maglass.gif\"\n");
     outStr.append("   alt=\"More info about this assignment...\" />\n");
@@ -1192,7 +1211,11 @@ public class Common
     outStr.append("         'scrollbars=yes,\n");
     outStr.append("          resizable=yes,\n");
     outStr.append("          width=500,\n");
-    outStr.append("          height=450');\">\n");
+    outStr.append("          height=450');\"");
+    outStr.append("          title=\"");
+    outStr.append(             ResLoaderUI.getString("privilegesGrantedReport.details.title"));
+    outStr.append(           "\" ");
+    outStr.append("          >\n");
     outStr.append("  <img\n");
     outStr.append("   src=\"images/maglass.gif\"\n");
     outStr.append("   alt=\"More info about this proxy designation...\" />\n");
