@@ -1,4 +1,4 @@
-<!-- $Id: ext-build.xml,v 1.1 2007-04-02 17:26:10 blair Exp $ -->
+<!-- $Id: ext-build.xml,v 1.2 2007-05-14 16:12:56 blair Exp $ -->
 
 <project name="Grouper Extensions" default="ext.compile" basedir=".">
 
@@ -30,7 +30,9 @@
   <target name="ext.clean">
     <delete dir="${ext.dir.bin}"/>
     <delete dir="${ext.dir.doc}"/>
-    <delete dir="${ext.dir.lib}"/>
+    <delete>
+      <fileset dir="${ext.dir.lib}"/>
+    </delete>
     <iterate target="ext.clean"/>
   </target>
   <!-- target: ext.clean -->

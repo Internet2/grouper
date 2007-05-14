@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.35 2007-03-14 18:27:12 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.36 2007-05-14 16:12:56 blair Exp $    
  */
 public class RegistryInstall {
 
@@ -40,7 +40,7 @@ public class RegistryInstall {
       ErrorLog.fatal(RegistryInstall.class, msg);
       throw new GrouperRuntimeException(msg, e);
     }
-  } // public static void main(args)
+  }
 
 
   // PRIVATE CLASS METHODS //
