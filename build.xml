@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.167 2007-04-30 16:15:12 blair Exp $ -->
+<!-- $Id: build.xml,v 1.168 2007-05-14 16:12:56 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -473,6 +473,7 @@
   <target name="init">
     <tstamp/>
     <mkdir dir="${build.dir.test}"/>
+    <mkdir dir="${ext.dir.lib}"/> <!-- a bit of a hack -->
     <!-- only define our classpath once -->
     <path id="project.classpath">
       <pathelement path="${java.class.path}"/>
@@ -481,6 +482,10 @@
       <fileset dir="${lib.dir}">
         <include name="**/*.jar"/>
       </fileset>
+      <fileset dir="${ext.dir.lib}">
+        <include name="**/*.jar"/>
+      </fileset>
+      <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>

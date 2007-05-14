@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.9 2007-04-30 16:15:12 blair Exp $
+ * @version $Id: TestGroup43.java,v 1.10 2007-05-14 16:12:56 blair Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -77,18 +77,21 @@ public class TestGroup43 extends GrouperTest {
 
       long    orig  = gA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1); // TODO 20070430 hack
       gA.deleteMember(subjA);
+      Thread.sleep(1); // TODO 20070430 hack
       long    post  = new java.util.Date().getTime();
-      assertTrue( "gA modify time updated", gA.getModifyTime().getTime() > orig );
-      assertTrue( "gA modifyTime >= pre",    gA.getModifyTime().getTime() >= pre );
-      assertTrue( "gA modifyTime <= post",   gA.getModifyTime().getTime() <= post );
+      long    mtime = gA.getModifyTime().getTime();
+      assertTrue( "gA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
+      assertTrue( "gA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
+      assertTrue( "gA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
 
       r.rs.stop();
     }
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testGroupModifyAttributesUpdatedAfterDeletingImmediateMember()
+  } 
 
   // @since   1.2.0
   public void testGroupModifyAttributesUpdatedAfterAddingEffectiveMember() {

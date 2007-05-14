@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem12.java,v 1.2 2007-04-30 16:15:12 blair Exp $
+ * @version $Id: TestStem12.java,v 1.3 2007-05-14 16:12:56 blair Exp $
  * @since   1.2.0
  */
 public class TestStem12 extends GrouperTest {
@@ -78,7 +78,9 @@ public class TestStem12 extends GrouperTest {
 
       long    orig  = nsA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1); // TODO 20070430 hack!
       nsA.revokePriv(subjA, NamingPrivilege.STEM);
+      Thread.sleep(1); // TODO 20070430 hack!
       long    post  = new java.util.Date().getTime();
       long    mtime = nsA.getModifyTime().getTime();
       assertTrue( "nsA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );

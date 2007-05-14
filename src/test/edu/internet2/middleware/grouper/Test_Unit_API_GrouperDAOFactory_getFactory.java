@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_GrouperDAOFactory_getFactory.java,v 1.1 2007-04-27 17:45:00 blair Exp $
+ * @version $Id: Test_Unit_API_GrouperDAOFactory_getFactory.java,v 1.2 2007-05-14 16:12:56 blair Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_GrouperDAOFactory_getFactory extends GrouperTest {
@@ -34,6 +34,7 @@ public class Test_Unit_API_GrouperDAOFactory_getFactory extends GrouperTest {
 
   public void test_GetDefaultFactory_InvalidFactory() {
     String orig = GrouperConfig.getProperty( GrouperConfig.PROP_DAO_FACTORY );
+    GrouperDAOFactory.internal_resetFactory(); 
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_DAO_FACTORY, "this class does not exist" );
     try {
       GrouperDAOFactory gdf = GrouperDAOFactory.getFactory();
@@ -41,6 +42,8 @@ public class Test_Unit_API_GrouperDAOFactory_getFactory extends GrouperTest {
     }
     catch (GrouperRuntimeException eExpected) {
       // expected
+    }
+    finally {
       // TODO 20070427 this is *far* too fragile
       GrouperConfig.internal_setProperty( GrouperConfig.PROP_DAO_FACTORY, orig );
     }
@@ -55,16 +58,24 @@ public class Test_Unit_API_GrouperDAOFactory_getFactory extends GrouperTest {
   } 
 
   public void test_GetDefaultFactory_WhenNotConfigured() {
-    GrouperConfig.internal_setProperty( GrouperConfig.PROP_DAO_FACTORY, GrouperConfig.EMPTY_STRING );
-    assertEquals(
-      "default dao when not configured",
-      Realize.instantiate( GrouperConfig.DEFAULT_DAO_FACTORY ).getClass(),
-      GrouperDAOFactory.getFactory().getClass()
-    );
+    // TODO 20070514 this is extremely fragile
+    String orig = GrouperConfig.getProperty( GrouperConfig.PROP_DAO_FACTORY );
+    GrouperDAOFactory.internal_resetFactory();
+    try {
+      GrouperConfig.internal_setProperty( GrouperConfig.PROP_DAO_FACTORY, GrouperConfig.EMPTY_STRING );
+      assertEquals(
+        "default dao when not configured",
+        Realize.instantiate( GrouperConfig.DEFAULT_DAO_FACTORY ).getClass(),
+        GrouperDAOFactory.getFactory().getClass()
+      );
+    }
+    finally {
+      GrouperConfig.internal_setProperty( GrouperConfig.PROP_DAO_FACTORY, orig );
+    }
   }
 
+  /* TODO 20070427 what am i even trying to test here?
   public void test_GetDefaultFactory_ReturnedMatchesConfiguration() {
-    // TODO 20070427 i need a better test
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_DAO_FACTORY, GrouperConfig.DEFAULT_DAO_FACTORY );
     assertEquals(
       "returned dao matches configured dao",
@@ -72,6 +83,7 @@ public class Test_Unit_API_GrouperDAOFactory_getFactory extends GrouperTest {
       GrouperDAOFactory.getFactory().getClass().getName()
     );
   }
+  */
 
   public void test_GetDefaultFactory_FactoryIsReused() {
     assertEquals(

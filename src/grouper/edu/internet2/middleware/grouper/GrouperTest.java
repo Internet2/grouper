@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.18 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.19 2007-05-14 16:12:56 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -495,12 +495,12 @@ public class GrouperTest extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.reset();
-  } // protected void setUp()
+  } 
 
   // @since   1.2.0
   protected void tearDown () {
     LOG.debug("tearDown");
-  } // protected void tearDown()
+  } 
 
 
   // PRIVATE INSTANCE METHODS //

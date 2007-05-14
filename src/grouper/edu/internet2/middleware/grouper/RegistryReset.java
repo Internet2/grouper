@@ -26,7 +26,7 @@ import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.47 2007-04-27 17:45:00 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.48 2007-05-14 16:12:56 blair Exp $
  */
 public class RegistryReset {
 
@@ -66,14 +66,14 @@ public class RegistryReset {
   public static void reset() {
     RegistryReset rr = new RegistryReset();
     try {
-      rr._emptyTables();
       GrouperDAOFactory.internal_resetFactory();  // as it is static and cached
+      rr._emptyTables();
     }
     catch (Exception e) {
       e.printStackTrace();
       rr._abort(e.getMessage());
     }
-  } // public static void reset()
+  } 
 
 
   // PROTECTED CLASS METHODS //
@@ -88,7 +88,7 @@ public class RegistryReset {
       e.printStackTrace();
       rr._abort(e.getMessage());
     }
-  } // protected static void internal_addTestSubjects()
+  }
 
   // @since   1.2.0
   protected static void internal_resetRegistryAndAddTestSubjects() { 
@@ -101,7 +101,7 @@ public class RegistryReset {
       e.printStackTrace();
       rr._abort(e.getMessage());
     }
-  } // protected static void internal_resetRegistryAndAddTestSubjects()
+  } 
 
 
   // PRIVATE INSTANCE METHODS //
@@ -125,7 +125,7 @@ public class RegistryReset {
   {
     ErrorLog.error(RegistryReset.class, msg);
     throw new GrouperRuntimeException(msg);
-  } // private void _abort(msg)
+  }
 
   private void _emptyTables() 
     throws  GrouperException
@@ -135,7 +135,7 @@ public class RegistryReset {
     GroupTypeFinder.internal_updateKnownTypes();
     FieldFinder.internal_updateKnownFields();
     SubjectFinder.internal_flushCache();
-  } // private void _emptyTables()
+  } 
 
-} // public class RegistryReset
+} 
 
