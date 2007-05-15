@@ -15,6 +15,7 @@ Released: TBD
 ## UPDATED
 * "ant test" now has a proper dependency chain and can be called without
   having previously initialized the database.
+* "ext/gsh-src.zip" updated to gsh 0.1.1.
 
 ---
 
