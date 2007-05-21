@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2007 University Corporation for Advanced Internet Development, Inc.
-  Copyright (C) 2007 The University Of Chicago
+  Copyright (C) 2004-2007 University Corporation for Advanced Internet Development, Inc.
+  Copyright (C) 2004-2007 The University Of Chicago
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,22 +15,28 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+package edu.internet2.middleware.grouper.internal.util;
+import  org.apache.commons.lang.StringEscapeUtils;
 
 /**
+ * XML Utility class.
+ * <p/>
  * @author  blair christensen.
- * @version $Id: Suite_Unit.java,v 1.2 2007-05-21 16:16:41 blair Exp $
+ * @version $Id: XML.java,v 1.1 2007-05-21 16:16:41 blair Exp $
  * @since   1.2.0
  */
-public class Suite_Unit extends GrouperTest {
+public class XML {
 
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest( Suite_Unit_API.suite() );  // API-level unit tests
-    suite.addTest( Suite_U_Util.suite() );    // Utility classes
-    return suite;
+  // PUBLIC CLASS METHODS //
+
+  /**
+   * Return string with escaped '&gt;', '&lt;', '&quot;', '&amp;' and '&apos;'.
+   * <p/>
+   * @since   1.2.0
+   */
+  public static String escape(String s) {
+    return StringEscapeUtils.escapeXml(s);
   } 
 
-} // public class Suite_Unit extends GrouperTest
+} 
 
