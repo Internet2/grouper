@@ -17,6 +17,9 @@ Released: TBD
   having previously initialized the database.
 * "ext/gsh-src.zip" updated to gsh 0.1.1.
 
+## FIXED
+* Fixed some XML escaping issues with group "name" and "displayName" in "XmlExporter".
+
 ---
 
 # Grouper 1.2.0rc1

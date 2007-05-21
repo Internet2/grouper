@@ -20,6 +20,7 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.U;
+import  edu.internet2.middleware.grouper.internal.util.XML;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 import  java.io.*;
@@ -40,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.93 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.94 2007-05-21 16:16:40 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -324,6 +325,28 @@ public class XmlExporter {
   protected Properties internal_getOptions() {
     return (Properties) this.options.clone();
   } // protected Properties internal_getOptions()
+
+  /**
+   * Return a <i>String</i> containing a <i>Group</i> as XML.
+   * @since   1.2.0
+   */
+  protected String internal_groupToXML(Group g, boolean writeAbsoluteName) {
+    StringBuffer sb = new StringBuffer();
+    sb.append( "<groupRef id=" + Quote.single( XML.escape( g.getUuid() ) ) );
+    sb.append( GrouperConfig.NL );
+    sb.append( "        name=" );
+    if (writeAbsoluteName) {
+      sb.append( Quote.single( XML.escape( this._fixGroupName( g.getName() ) ) ) );
+    }
+    else {
+      sb.append( Quote.single( XML.escape( g.getName() ) ) );
+    }
+    sb.append( GrouperConfig.NL );
+    sb.append( " displayName=" + Quote.single( XML.escape( g.getDisplayName() ) ) );
+    sb.append( "/>" );
+    sb.append( GrouperConfig.NL );
+    return sb.toString();
+  }
 
 
   // PRIVATE CLASS METHODS //
@@ -753,15 +776,13 @@ public class XmlExporter {
             IOException
   {
     this.xml.internal_puts("<composite>");
-    this._writeGroupRef(comp.getLeftGroup());
+    this.xml.internal_puts( this.internal_groupToXML( comp.getLeftGroup(), false ) );
     this.xml.internal_puts();
-    this.xml.internal_puts(
-      "<compositeType>" + comp.getType().toString() + "</compositeType>"
-    );
+    this.xml.internal_puts( "<compositeType>" + comp.getType().toString() + "</compositeType>" );
     this.xml.internal_puts();
-    this._writeGroupRef(comp.getRightGroup());
+    this.xml.internal_puts( this.internal_groupToXML( comp.getRightGroup(), false ) );
     this.xml.internal_puts("</composite>");
-  } // private void _writeComposite(comp)
+  } 
 
   // @since   1.1.0
   private void _writeExportParams(Owner o)
@@ -793,7 +814,7 @@ public class XmlExporter {
     throws  IOException
   {
     this.xml.internal_indent();
-    this.xml.internal_puts("<field name="  + Quote.single( XmlUtils.internal_xmlE( f.getName() ) ) );
+    this.xml.internal_puts("<field name="  + Quote.single( XML.escape( f.getName() ) ) );
     this.xml.internal_indent();
     this.xml.internal_puts("required="     + Quote.single( f.getRequired() )              );
     this.xml.internal_puts("type="         + Quote.single( f.getType().toString() )       );
@@ -860,16 +881,16 @@ public class XmlExporter {
     this.xml.internal_puts();
     this.xml.internal_indent();
     this.xml.internal_puts( this.xml.internal_comment( Quote.single( g.getName() ) ) );
-    this.xml.internal_puts("<group extension=" + Quote.single( XmlUtils.internal_xmlE( g.getExtension() ) )            );
+    this.xml.internal_puts("<group extension=" + Quote.single( XML.escape( g.getExtension() ) )            );
     this.xml.internal_indent();
-    this.xml.internal_puts("displayExtension=" + Quote.single( XmlUtils.internal_xmlE( g.getDisplayExtension() ) )     );
-    this.xml.internal_puts("name="             + Quote.single( XmlUtils.internal_xmlE( g.getName() ) )                 );
-    this.xml.internal_puts("displayName="      + Quote.single( XmlUtils.internal_xmlE( g.getDisplayName() ) )          );
-    this.xml.internal_puts("id="               + Quote.single( XmlUtils.internal_xmlE( g.getUuid() ) )                 );
+    this.xml.internal_puts("displayExtension=" + Quote.single( XML.escape( g.getDisplayExtension() ) )     );
+    this.xml.internal_puts("name="             + Quote.single( XML.escape( g.getName() ) )                 );
+    this.xml.internal_puts("displayName="      + Quote.single( XML.escape( g.getDisplayName() ) )          );
+    this.xml.internal_puts("id="               + Quote.single( XML.escape( g.getUuid() ) )                 );
     this.xml.internal_undent();
     this.xml.internal_puts(">");
     this.xml.internal_indent();
-    this.xml.internal_puts("<description>" + XmlUtils.internal_xmlE( g.getDescription() ) + "</description>"  );
+    this.xml.internal_puts("<description>" + XML.escape( g.getDescription() ) + "</description>"  );
     this.xml.internal_undent();
     // Don't fully undent
   } // private void _writeGroupHeader(g)
@@ -890,32 +911,12 @@ public class XmlExporter {
   } // private void _writeGroupPrivs(g)
 
   // @since   1.1.0
-  private void _writeGroupRef(Group group) 
-    throws  IOException
-  {
-    this._writeGroupRef(group, false);
-  } // private void _writeGroupRef(group)
-
-  // @since   1.1.0
-  private void _writeGroupRef(Group group, boolean writeAbsoluteName) 
-    throws  IOException
-  {
-    this.xml.internal_puts("<groupRef id='" + group.getUuid() + "'");
-    String name = group.getName();
-    if (!writeAbsoluteName) {
-      name = this._fixGroupName(name);
-    }
-    this.xml.internal_puts("        name='" + name + "'");
-    this.xml.internal_puts(" displayName='" + group.getDisplayName() + "'/>");
-  } // private void _writeGroupRef(group, writeAbsoluteName)
-
-  // @since   1.1.0
   private void _writeGroupType(Group g, GroupType gt)
     throws  IOException,
             SchemaException
   {
     this.xml.internal_indent();
-    this.xml.internal_puts("<groupType name=" + Quote.single( XmlUtils.internal_xmlE( gt.getName() ) ) + ">");
+    this.xml.internal_puts("<groupType name=" + Quote.single( XML.escape( gt.getName() ) ) + ">");
     Iterator  it  = gt.getFields().iterator();
     while (it.hasNext()) {
       this._writeGroupTypeField(g, (Field) it.next());
@@ -932,7 +933,7 @@ public class XmlExporter {
   {
     if ( !f.getType().equals(FieldType.LIST) && g.canReadField(f) ) {
       try {
-        String            val = XmlUtils.internal_xmlE( g.getAttribute( f.getName() ) );
+        String            val = XML.escape( g.getAttribute( f.getName() ) );
         NotNullValidator  v   = NotNullValidator.validate(val);
         if (
           v.isValid() && ":description:extension:displayExtension:".indexOf(":" + f.getName() + ":") == -1
@@ -941,7 +942,7 @@ public class XmlExporter {
           this.xml.internal_indent();
           this.xml.internal_puts(
             "<attribute name='"
-            + XmlUtils.internal_xmlE( f.getName() ) + "'>" + val
+            + XML.escape( f.getName() ) + "'>" + val
             + "</attribute>"
           );
           this.xml.internal_undent();
@@ -1020,7 +1021,7 @@ public class XmlExporter {
     throws  IOException
   {
     this.xml.internal_indent();
-    this.xml.internal_puts("<groupTypeDef name=" + Quote.single( XmlUtils.internal_xmlE( gt.getName() ) ) + ">");
+    this.xml.internal_puts("<groupTypeDef name=" + Quote.single( XML.escape( gt.getName() ) ) + ">");
     Iterator it = gt.getFields().iterator();
     while (it.hasNext()) {
       this._writeFieldMetaData( (Field) it.next() );
@@ -1084,7 +1085,7 @@ public class XmlExporter {
     this.xml.internal_indent();
     this.xml.internal_puts(
         "<internalAttribute name=" + Quote.single(attr) + ">" 
-      + XmlUtils.internal_xmlE(val) + "</internalAttribute>"
+      + XML.escape(val) + "</internalAttribute>"
     ); 
     this.xml.internal_undent();
   } // private void _writeInternalAttribute(attr, val)
@@ -1103,9 +1104,9 @@ public class XmlExporter {
       id      = this._fixGroupName(subj.getName());
     }
     String  txt   = 
-        "<subject " + idAttr + "=" + Quote.single( XmlUtils.internal_xmlE(id)           )
-      + " type="    + Quote.single( XmlUtils.internal_xmlE( subj.getType().getName() )  )
-      + " source="  + Quote.single( XmlUtils.internal_xmlE( subj.getSource().getId() )  );
+        "<subject " + idAttr + "=" + Quote.single( XML.escape(id)           )
+      + " type="    + Quote.single( XML.escape( subj.getType().getName() )  )
+      + " source="  + Quote.single( XML.escape( subj.getSource().getId() )  );
     if (idAttr.equals("identifier")) {
       txt += " id=" + Quote.single( subj.getId() );
     }
@@ -1202,8 +1203,8 @@ public class XmlExporter {
       }
       this.xml.internal_indent();
       this.xml.internal_puts(
-          "<list field="  + Quote.single( XmlUtils.internal_xmlE( f.getName() )                 )
-        + " groupType="   + Quote.single( XmlUtils.internal_xmlE( f.getGroupType().getName() )  )
+          "<list field="  + Quote.single( XML.escape( f.getName() )                 )
+        + " groupType="   + Quote.single( XML.escape( f.getGroupType().getName() )  )
         + ">"
       );
       if (isComposite) {
@@ -1211,7 +1212,7 @@ public class XmlExporter {
       }
       this._writeMembers(members, g, f);
       this.xml.internal_puts(
-        "</list> " + this.xml.internal_comment( Quote.single( XmlUtils.internal_xmlE( f.getName() ) ) ) 
+        "</list> " + this.xml.internal_comment( Quote.single( XML.escape( f.getName() ) ) ) 
       );
       this.xml.internal_undent();
       this.xml.internal_puts();
@@ -1261,10 +1262,10 @@ public class XmlExporter {
     this.xml.internal_puts("<depth>" + membership.getDepth() + "</depth>");
     this.xml.internal_puts("<listName>" + membership.getList().getName() + "</listName>");
     this.xml.internal_puts("<immediate>" + isImmediate + "</immediate>");
-    _writeGroupRef(membership.getGroup(), true);
+    this.xml.internal_puts( this.internal_groupToXML( membership.getGroup(), true ) );
     this._writeSubject(membership.getMember().getSubject());
     this.xml.internal_puts("</membership>");
-  } // private void _writeMembership(membership)
+  } 
 
   // @since   1.1.0
   private void _writeMetaData()
@@ -1385,16 +1386,16 @@ public class XmlExporter {
     this.xml.internal_puts();
     this.xml.internal_indent();
     this.xml.internal_puts( this.xml.internal_comment( Quote.single( ns.getName() ) ) );
-    this.xml.internal_puts("<stem extension="  + Quote.single( XmlUtils.internal_xmlE( ns.getExtension() ) )           );
+    this.xml.internal_puts("<stem extension="  + Quote.single( XML.escape( ns.getExtension() ) )           );
     this.xml.internal_indent();
-    this.xml.internal_puts("displayExtension=" + Quote.single( XmlUtils.internal_xmlE( ns.getDisplayExtension() ) )    );
-    this.xml.internal_puts("name="             + Quote.single( XmlUtils.internal_xmlE( ns.getName()) )                 );
-    this.xml.internal_puts("displayName="      + Quote.single( XmlUtils.internal_xmlE( ns.getDisplayName() ) )         );
-    this.xml.internal_puts("id="               + Quote.single( XmlUtils.internal_xmlE( ns.getUuid() ) )                );
+    this.xml.internal_puts("displayExtension=" + Quote.single( XML.escape( ns.getDisplayExtension() ) )    );
+    this.xml.internal_puts("name="             + Quote.single( XML.escape( ns.getName()) )                 );
+    this.xml.internal_puts("displayName="      + Quote.single( XML.escape( ns.getDisplayName() ) )         );
+    this.xml.internal_puts("id="               + Quote.single( XML.escape( ns.getUuid() ) )                );
     this.xml.internal_undent();
     this.xml.internal_puts(">");
     this.xml.internal_indent();
-    this.xml.internal_puts("<description>" + XmlUtils.internal_xmlE( ns.getDescription() ) + "</description>" );
+    this.xml.internal_puts("<description>" + XML.escape( ns.getDescription() ) + "</description>" );
     this.xml.internal_undent();
     // Don't fully undent
   } // private void _writeStemHeader(ns)
@@ -1466,9 +1467,9 @@ public class XmlExporter {
       id = subj.getId();
     }
     this.xml.internal_put(
-      "<subject " + attrName + "='" + XmlUtils.internal_xmlE(id)
-      + "' type='" + XmlUtils.internal_xmlE( subj.getType().getName() )
-      + "' source='" + XmlUtils.internal_xmlE( subj.getSource().getId() )
+      "<subject " + attrName + "='" + XML.escape(id)
+      + "' type='" + XML.escape( subj.getType().getName() )
+      + "' source='" + XML.escape( subj.getSource().getId() )
       + "'" + immediate
     );
     if ("group".equals(subj.getType().getName())) {
@@ -1505,7 +1506,7 @@ public class XmlExporter {
     throws  IOException
   {
     this.xml.internal_indent();
-    this.xml.internal_puts("<source id=" + Quote.single( XmlUtils.internal_xmlE( sa.getId() ) )  );
+    this.xml.internal_puts("<source id=" + Quote.single( XML.escape( sa.getId() ) )  );
     this.xml.internal_indent();
     this.xml.internal_puts("name="       + Quote.single( sa.getName() )                 );
     this.xml.internal_puts("class="      + Quote.single( sa.getClass().getName() )      );
