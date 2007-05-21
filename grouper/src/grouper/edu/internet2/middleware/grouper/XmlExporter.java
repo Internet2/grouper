@@ -41,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.95 2007-05-21 17:25:02 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.96 2007-05-21 17:29:47 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -590,13 +590,13 @@ public class XmlExporter {
             if (counter == 1) {
               this.xml.internal_puts("<exportOnly/>");
             }
-            this.internal_subjectToXML( (Subject) obj, GrouperConfig.EMPTY_STRING );
+            this.xml.internal_puts( this.internal_subjectToXML( (Subject) obj, GrouperConfig.EMPTY_STRING ) );
           } 
           else if (obj instanceof Member)     {
             if (counter == 1) {
               this.xml.internal_puts("<exportOnly/>");
             }
-            this.internal_subjectToXML( ( (Member) obj).getSubject(), GrouperConfig.EMPTY_STRING );
+            this.xml.internal_puts( this.internal_subjectToXML( ( (Member) obj).getSubject(), GrouperConfig.EMPTY_STRING ) );
           } 
           else if (obj instanceof Membership) {
             if (counter == 1) {
