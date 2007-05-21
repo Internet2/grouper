@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.125 2007-04-19 15:58:31 blair Exp $
+ * @version $Id: Stem.java,v 1.126 2007-05-21 18:43:55 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -860,7 +860,7 @@ public class Stem extends GrouperAPI implements Owner {
     if ( !RootPrivilegeResolver.internal_canCREATE( this.getSession(), this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
     } 
-    AddGroupValidator v = AddGroupValidator.validate(this, extn, dExtn);
+    GrouperValidator v = AddGroupValidator.validate(this, extn, dExtn);
     if (v.isInvalid()) {
       throw new GroupAddException( v.getErrorMessage() );
     }
@@ -878,7 +878,8 @@ public class Stem extends GrouperAPI implements Owner {
         .setCreatorUuid( this.getSession().getMember().getUuid() )
         .setParentUuid( this._getDTO().getUuid() )
         .setTypes(types);
-      if (uuid == null) {
+      v = NotNullOrEmptyValidator.validate(uuid);
+      if (v.isInvalid()) {
         _g.setUuid( GrouperUuid.getUuid() );
       }
       else {
@@ -926,7 +927,7 @@ public class Stem extends GrouperAPI implements Owner {
     catch (SourceUnavailableException eSU)  {
       throw new GroupAddException(E.CANNOT_CREATE_GROUP + eSU.getMessage(), eSU);
     }
-  } // protected Group internal_addChildGroup(extn, dExtn, uuid)
+  } 
 
   // @since   1.2.0
   protected Stem internal_addChildStem(String extn, String dExtn, String uuid) 
@@ -938,7 +939,7 @@ public class Stem extends GrouperAPI implements Owner {
     if (!RootPrivilegeResolver.internal_canSTEM( this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     } 
-    AddStemValidator v = AddStemValidator.validate(this, extn, dExtn);
+    GrouperValidator v = AddStemValidator.validate(this, extn, dExtn);
     if (v.isInvalid()) {
       throw new StemAddException( v.getErrorMessage() );
     }
@@ -952,7 +953,8 @@ public class Stem extends GrouperAPI implements Owner {
         .setName( U.constructName( this.getName(), extn ) )
         .setParentUuid( this._getDTO().getUuid() )
         ;
-      if (uuid == null) {
+      v = NotNullOrEmptyValidator.validate(uuid);
+      if (v.isInvalid()) {
         _ns.setUuid( GrouperUuid.getUuid() );
       }
       else {
@@ -972,7 +974,7 @@ public class Stem extends GrouperAPI implements Owner {
     catch (GrouperDAOException eDAO) {
       throw new StemAddException( E.CANNOT_CREATE_STEM + eDAO.getMessage(), eDAO );
     }
-  }  // protected Stem internal_addChildStem(extn, dExtn, uuid)
+  }
 
 
   // PRIVATE INSTANCE METHODS //

@@ -20,17 +20,19 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration_Stem.java,v 1.2 2007-03-07 20:30:44 blair Exp $
+ * @version $Id: Suite_Integration_Stem.java,v 1.3 2007-05-21 18:43:56 blair Exp $
  * @since   1.2.0
  */
 public class Suite_Integration_Stem extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+    suite.addTestSuite( Test_I_API_Stem_internal_addChildGroup.class );
+    suite.addTestSuite( Test_I_API_Stem_internal_addChildStem.class );
     suite.addTestSuite(Test_Integration_Stem_internal_addChildGroup.class);
     suite.addTestSuite(Test_Integration_Stem_setExtension.class);
     return suite;
-  } // static public Test suite()
+  } 
 
 } // public class Suite_Integration_Stem extends GrouperTest
 
