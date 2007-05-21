@@ -19,6 +19,7 @@ Released: TBD
 
 ## FIXED
 * Fixed some XML escaping issues with group "name" and "displayName" in "XmlExporter".
+* Fixed some XML escaping issues with Subject identifiers, attributes and attribute values "XmlExporter".
 
 ---
 

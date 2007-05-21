@@ -41,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.94 2007-05-21 16:16:40 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.95 2007-05-21 17:25:02 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -348,6 +348,63 @@ public class XmlExporter {
     return sb.toString();
   }
 
+  /**
+   * Return a <i>String</i> containing a <i>Subject</i> as XML.
+   * @since   1.2.0
+   */
+  protected String internal_subjectToXML(Subject subj, String immediate) { 
+    // TODO 20070521 rename/refactor "immediate"
+    // TODO 20070521 this method is far too large
+    StringBuffer sb = new StringBuffer();
+    sb.append("<subject ");
+    // TODO 20070521 i don't like how we treat groups different here
+    if ( "group".equals( subj.getType().getName() ) ) {
+      sb.append( "identifier="  + Quote.single( XML.escape( this._fixGroupName( subj.getName() ) ) ) );
+      sb.append( " type="       + Quote.single( XML.escape( subj.getType().getName() ) ) );
+      sb.append( " source="     + Quote.single( XML.escape( subj.getSource().getId() ) ) );
+      sb.append( immediate );
+      sb.append( " id="          + Quote.single( XML.escape( subj.getId() ) ) );
+    }
+    else {
+      sb.append( "id="      + Quote.single( XML.escape( subj.getId() ) ) );
+      sb.append( " type="   + Quote.single( XML.escape( subj.getType().getName() ) ) );
+      sb.append( " source=" + Quote.single( XML.escape( subj.getSource().getId() ) ) );
+      sb.append( immediate );
+    } 
+    sb.append( GrouperConfig.NL );
+   
+    // TODO 20070521 move to own method? 
+    Iterator it = this._getExportAttributes(subj);
+    if (it == null) {
+      sb.append( "/>" );
+    }
+    else {
+      sb.append( ">" );
+      sb.append( GrouperConfig.NL );
+
+      String    attr;
+      Iterator  itAttr;
+      Set       values;
+      while (it.hasNext()) {
+        attr    = (String) it.next();
+        values  = subj.getAttributeValues(attr);
+        sb.append( "<subjectAttribute name=" + Quote.single( XML.escape(attr) ) + ">" );
+        sb.append( GrouperConfig.NL );
+        itAttr = values.iterator();
+        while (itAttr.hasNext()) {
+          sb.append( "<value>" + XML.escape( (String) itAttr.next() ) + "</value>" );
+        }
+        sb.append( "</subjectAttribute>" );
+        sb.append( GrouperConfig.NL );
+      }
+
+      sb.append( "</subject>" );
+    }
+
+    sb.append( GrouperConfig.NL );
+    return sb.toString();
+  }
+
 
   // PRIVATE CLASS METHODS //
 
@@ -533,13 +590,13 @@ public class XmlExporter {
             if (counter == 1) {
               this.xml.internal_puts("<exportOnly/>");
             }
-            this._writeSubject( (Subject) obj);
+            this.internal_subjectToXML( (Subject) obj, GrouperConfig.EMPTY_STRING );
           } 
           else if (obj instanceof Member)     {
             if (counter == 1) {
               this.xml.internal_puts("<exportOnly/>");
             }
-            this._writeSubject( ((Member) obj).getSubject());
+            this.internal_subjectToXML( ( (Member) obj).getSubject(), GrouperConfig.EMPTY_STRING );
           } 
           else if (obj instanceof Membership) {
             if (counter == 1) {
@@ -587,7 +644,7 @@ public class XmlExporter {
     catch (SubjectNotFoundException eSNF)   {
       throw new GrouperException(eSNF.getMessage(), eSNF);
     }
-  } // private void _exportCollection(c, msg)
+  } 
 
   // @since   1.0
   private String _fixGroupName(String name) {
@@ -1241,12 +1298,12 @@ public class XmlExporter {
         }
       }
       subj = member.getMember().getSubject();
-      this._writeSubject(subj, " immediate='" + isImmediate + "' ");
+      this.xml.internal_puts( this.internal_subjectToXML( subj, " immediate=" + Quote.single(isImmediate) + " " ) );
     }
-  } // private void _writeMembers(members, group, field)
+  } 
 
   // @since   1.1.0
-  private void _writeMembership(Membership membership) 
+  private void _writeMembership(Membership ms) 
     throws  GroupNotFoundException,
             IOException,
             MemberNotFoundException,
@@ -1254,16 +1311,16 @@ public class XmlExporter {
   {
     boolean isImmediate = true;
     // How do composites fit in here?
-    if (membership.getType().equals(Membership.EFFECTIVE)) {
+    if (ms.getType().equals(Membership.EFFECTIVE)) {
       isImmediate = false;
     }
 
     this.xml.internal_puts("<membership>");
-    this.xml.internal_puts("<depth>" + membership.getDepth() + "</depth>");
-    this.xml.internal_puts("<listName>" + membership.getList().getName() + "</listName>");
+    this.xml.internal_puts("<depth>" + ms.getDepth() + "</depth>");
+    this.xml.internal_puts("<listName>" + ms.getList().getName() + "</listName>");
     this.xml.internal_puts("<immediate>" + isImmediate + "</immediate>");
-    this.xml.internal_puts( this.internal_groupToXML( membership.getGroup(), true ) );
-    this._writeSubject(membership.getMember().getSubject());
+    this.xml.internal_puts( this.internal_groupToXML( ms.getGroup(), true ) );
+    this.xml.internal_puts( this.internal_subjectToXML( ms.getMember().getSubject(), GrouperConfig.EMPTY_STRING ) );
     this.xml.internal_puts("</membership>");
   } 
 
@@ -1326,11 +1383,11 @@ public class XmlExporter {
         (isImmediate || !U.getBooleanProperty(this.options, "export.privs.immediate-only") )
       )
       {
-        this._writeSubject(subject, " immediate='" + isImmediate + "' ");
+        this.xml.internal_puts( this.internal_subjectToXML( subject, " immediate= " + Quote.single(isImmediate) + " " ) );
       }
     }
     this.xml.internal_puts("</privileges> " + this.xml.internal_comment(privilege));
-  } // private void _writePrivileges(privilege, subjects, o)
+  } 
 
   // @since   1.1.0
   private void _writeStem(Stem ns) 
@@ -1445,61 +1502,6 @@ public class XmlExporter {
       this._writeStemFooter(ns);
     }
   } // private void _writeOwnerStack(stack)
-
-  // @since   1.1.0
-  private void _writeSubject(Subject subj) 
-    throws  IOException 
-  {
-    this._writeSubject(subj, GrouperConfig.EMPTY_STRING);
-  } // private void _writeSubject(subj)
-
-  // @since   1.1.0
-  private void _writeSubject(Subject subj, String immediate) 
-    throws  IOException 
-  {
-    // TODO 20070321 this. is. ugly.
-    String attrName = "id";
-    String id       = null;
-    if ("group".equals(subj.getType().getName())) {
-      attrName  = "identifier";
-      id        = this._fixGroupName(subj.getName());
-    } else {
-      id = subj.getId();
-    }
-    this.xml.internal_put(
-      "<subject " + attrName + "='" + XML.escape(id)
-      + "' type='" + XML.escape( subj.getType().getName() )
-      + "' source='" + XML.escape( subj.getSource().getId() )
-      + "'" + immediate
-    );
-    if ("group".equals(subj.getType().getName())) {
-      this.xml.internal_put(" id='" + subj.getId() + "'");
-    }
-    Iterator          exportAttrs = _getExportAttributes(subj);
-    NotNullValidator  v           = NotNullValidator.validate(exportAttrs);
-    if (v.isInvalid()) {
-      this.xml.internal_puts("/>");
-      return;
-    }
-    this.xml.internal_puts(">");
-    String    attr;
-    Iterator  attrIt;
-    String    attrValue;
-    Set       values;
-    while (exportAttrs.hasNext()) {
-      attr = (String) exportAttrs.next();
-      values = subj.getAttributeValues(attr);
-      this.xml.internal_puts("<subjectAttribute name='" + attr + "'>");
-      attrIt = values.iterator();
-      while (attrIt.hasNext()) {
-        attrValue = (String) attrIt.next();
-        this.xml.internal_puts("<value>" + attrValue + "</value>");
-      }
-      this.xml.internal_puts("</subjectAttribute>");
-    }
-    this.xml.internal_puts("</subject>");
-
-  } // private void _writeSubject(subj, immediate)
 
   // @since   1.1.0
   private void _writeSubjectSourceMetaData(Source sa) 
