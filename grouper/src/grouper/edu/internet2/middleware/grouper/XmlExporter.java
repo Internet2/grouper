@@ -41,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.96 2007-05-21 17:29:47 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.97 2007-05-21 17:58:41 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -349,6 +349,40 @@ public class XmlExporter {
   }
 
   /**
+   * Return a <i>String</i> containing a <i>Membership</i> as XML.
+   * @since   1.2.0
+   */
+  protected String internal_membershipToXML(Membership ms) 
+    throws  GroupNotFoundException,
+            MemberNotFoundException,
+            SubjectNotFoundException
+  {
+    // TODO 20070521 should these exceptions be thrown?  or replaced by something else?
+    StringBuffer sb = new StringBuffer();
+    sb.append( "<membership>" );
+    sb.append( GrouperConfig.NL );
+    sb.append( "  <depth>" + ms.getDepth() + "</depth>" );
+    sb.append( GrouperConfig.NL );
+    sb.append( "  <listName>" + XML.escape( ms.getList().getName() ) + "</listName>" );
+    sb.append( GrouperConfig.NL );
+    sb.append( "  <immediate>" );
+    // TODO 20070521 how do composites fit in here?
+    if ( Membership.EFFECTIVE.equals( ms.getType() ) ) {
+      sb.append( false );
+    }
+    else {
+      sb.append( true );
+    }
+    sb.append( "</immediate>" );
+    sb.append( GrouperConfig.NL );
+    sb.append( this.internal_groupToXML( ms.getGroup(), true ) );
+    sb.append( this.internal_subjectToXML( ms.getMember().getSubject(), GrouperConfig.EMPTY_STRING ) );
+    sb.append( "</membership>" );
+    sb.append( GrouperConfig.NL );
+    return sb.toString();
+  }
+
+  /**
    * Return a <i>String</i> containing a <i>Subject</i> as XML.
    * @since   1.2.0
    */
@@ -602,7 +636,7 @@ public class XmlExporter {
             if (counter == 1) {
               this.xml.internal_puts("<exportOnly/>");
             }
-            this._writeMembership( (Membership) obj);
+            this.xml.internal_puts( this.internal_membershipToXML( (Membership) obj ) );
           } 
           else {
             LOG.error("Don't know about exporting " + obj);
@@ -1300,28 +1334,6 @@ public class XmlExporter {
       subj = member.getMember().getSubject();
       this.xml.internal_puts( this.internal_subjectToXML( subj, " immediate=" + Quote.single(isImmediate) + " " ) );
     }
-  } 
-
-  // @since   1.1.0
-  private void _writeMembership(Membership ms) 
-    throws  GroupNotFoundException,
-            IOException,
-            MemberNotFoundException,
-            SubjectNotFoundException
-  {
-    boolean isImmediate = true;
-    // How do composites fit in here?
-    if (ms.getType().equals(Membership.EFFECTIVE)) {
-      isImmediate = false;
-    }
-
-    this.xml.internal_puts("<membership>");
-    this.xml.internal_puts("<depth>" + ms.getDepth() + "</depth>");
-    this.xml.internal_puts("<listName>" + ms.getList().getName() + "</listName>");
-    this.xml.internal_puts("<immediate>" + isImmediate + "</immediate>");
-    this.xml.internal_puts( this.internal_groupToXML( ms.getGroup(), true ) );
-    this.xml.internal_puts( this.internal_subjectToXML( ms.getMember().getSubject(), GrouperConfig.EMPTY_STRING ) );
-    this.xml.internal_puts("</membership>");
   } 
 
   // @since   1.1.0
