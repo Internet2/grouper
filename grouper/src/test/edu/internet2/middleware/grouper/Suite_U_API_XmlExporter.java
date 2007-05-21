@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_U_API_XmlExporter.java,v 1.1 2007-05-21 16:16:41 blair Exp $
+ * @version $Id: Suite_U_API_XmlExporter.java,v 1.2 2007-05-21 17:25:02 blair Exp $
  * @since   1.2.0
  */
 public class Suite_U_API_XmlExporter extends GrouperTest {
@@ -28,6 +28,7 @@ public class Suite_U_API_XmlExporter extends GrouperTest {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( Test_U_API_XmlExporter_internal_groupToXML.class );
+    suite.addTestSuite( Test_U_API_XmlExporter_internal_subjectToXML.class );
     return suite;
   } 
 
