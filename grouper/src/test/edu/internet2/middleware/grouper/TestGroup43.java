@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.10 2007-05-14 16:12:56 blair Exp $
+ * @version $Id: TestGroup43.java,v 1.11 2007-05-22 15:20:45 blair Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -170,14 +170,17 @@ public class TestGroup43 extends GrouperTest {
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
       long    pre   = new java.util.Date().getTime();
+      //Thread.sleep(1); // TODO 20070522 hack
       gA.addMember(subjC);
       long    post  = new java.util.Date().getTime();
 
       // load group in new session so we don't (potentially) get stale data
-      GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gC.getUuid() );
-      assertTrue( "gC modifyTime >= pre",  g.getModifyTime().getTime() >= pre );
-      assertTrue( "gC modifyTime <= post", g.getModifyTime().getTime() <= post );
+      GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
+      Group           g     = GroupFinder.findByUuid( s, gC.getUuid() );
+      long            mtime = g.getModifyTime().getTime();
+
+      assertTrue( "gC modifyTime >= pre",  mtime >= pre );
+      assertTrue( "gC modifyTime <= post", mtime <= post );
 
       s.stop();
       r.rs.stop();
@@ -185,8 +188,7 @@ public class TestGroup43 extends GrouperTest {
     catch (Exception e) {
       T.e(e);
     }
-  } // public void testGroupModifyAttributesUpdatedAfterAddingImmediateMember()
-
+  } 
 
   // ACCESS PRIVS //
 

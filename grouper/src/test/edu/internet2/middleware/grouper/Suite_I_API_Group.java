@@ -20,22 +20,14 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration.java,v 1.10 2007-05-22 15:20:45 blair Exp $
+ * @version $Id: Suite_I_API_Group.java,v 1.1 2007-05-22 15:20:45 blair Exp $
  * @since   1.2.0
  */
-public class Suite_Integration extends GrouperTest {
+public class Suite_I_API_Group extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    // API
-    suite.addTest( Suite_I_API_Group.suite() );
-    suite.addTest( Suite_Integration_CompositeValidator.suite() );
-    suite.addTest( Suite_Integration_ImmediateMembershipValidator.suite() );
-    suite.addTest( Suite_Integration_Stem.suite() );
-    // DAO
-    suite.addTest( Suite_Integration_HibernateGroupDAO.suite() );
-    suite.addTest( Suite_Integration_HibernateGroupTypeDAO.suite() );
-    suite.addTest( Suite_Integration_HibernateStemDAO.suite() );
+    suite.addTestSuite( Test_I_API_Group_addCompositeMember.class );
     return suite;
   } 
 
