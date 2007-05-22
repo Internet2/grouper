@@ -34,7 +34,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.3 2007-05-22 14:09:44 blair Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.4 2007-05-22 15:20:45 blair Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -48,6 +48,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     throws  IllegalStateException
   {
     this.setComposite(c);
+    g.setSession(s); // TODO 20070522 in theory i shouldn't need to explicity set this but...
     this.setGroup(g);
     this.setSession(s);
     this._evaluateAddCompositeMembership();
@@ -386,22 +387,34 @@ public class DefaultMemberOf extends BaseMemberOf {
     return mships;
   } // private Set _createNewCompositeMembershipObjects(memberUUIDs)
 
-  // @since   1.2.0
+  /**
+   * Evaluate the addition of a new composite membership.
+   * @since   1.2.0
+   */
   private void _evaluateAddCompositeMembership()
     throws  IllegalStateException
   {
+    Set composites = new LinkedHashSet();
     if      ( this.getComposite().getType().equals(CompositeType.COMPLEMENT) )    {
-      this.addEffectiveSaves( this._evaluateAddCompositeMembershipComplement() );
+      composites.addAll( this._evaluateAddCompositeMembershipComplement() );
     }
     else if ( this.getComposite().getType().equals(CompositeType.INTERSECTION) )  {
-      this.addEffectiveSaves( this._evaluateAddCompositeMembershipIntersection() );
+      composites.addAll( this._evaluateAddCompositeMembershipIntersection() );
     }
     else if ( this.getComposite().getType().equals(CompositeType.UNION) )         {
-      this.addEffectiveSaves( this._evaluateAddCompositeMembershipUnion() );
+      composites.addAll( this._evaluateAddCompositeMembershipUnion() );
     }
     else {
       throw new IllegalStateException( E.MOF_CTYPE + this.getComposite().getType().toString() );
     }
+    this.addEffectiveSaves(composites);
+    // we also need to propogate changes up to where the composite owner is a member
+    this.addEffectiveSaves( 
+      this._addHasMembersToWhereGroupIsMember(
+        GrouperDAOFactory.getFactory().getMembership().findAllByMember( this.getGroup().toMember().getUuid() ), 
+        composites
+      )
+    );
 
     this.addSaves( this.getEffectiveSaves() );
     this._identifyGroupsAndStemsToMarkAsModified();
