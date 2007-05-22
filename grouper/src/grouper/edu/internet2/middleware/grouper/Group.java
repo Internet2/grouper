@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.157 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: Group.java,v 1.158 2007-05-22 14:09:44 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -148,7 +148,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       throw new MemberAddException(eS);
     }
-  } // public void addCompositeMember(type, left, right)
+  } 
 
   /**
    * Add a subject to this group.

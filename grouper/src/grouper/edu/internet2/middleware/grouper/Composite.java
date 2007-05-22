@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.44 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: Composite.java,v 1.45 2007-05-22 14:09:44 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -152,7 +152,10 @@ public class Composite extends GrouperAPI {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.2.0
+  /**
+   * Identify composites where <code>g</code> is a factor and update memberships as necessary.
+   * @since   1.2.0
+   */
   protected static void internal_update(Group g) {
     Composite c;
     Iterator  it  = GrouperDAOFactory.getFactory().getComposite().findAsFactor( (GroupDTO) g.getDTO() ).iterator();
@@ -162,7 +165,7 @@ public class Composite extends GrouperAPI {
       c.setSession( g.getSession() );
       c._update();
     }
-  } // protected static void internal_update(g)
+  }
 
 
   // PROTECTED INSTANCE METHODS //
@@ -196,9 +199,11 @@ public class Composite extends GrouperAPI {
 
   // PRIVATE CLASS METHODS //
 
-  // given a set of memberships, extract the owner group and locate where each is the
-  // member of a factor so that all factors can be updated as appropriate.
-  // @since   1.2.0
+  /**
+   * Given a set of memberships, extract the owner group and locate where each is the
+   * member of a factor so that all factors can be updated as appropriate.
+   * @since   1.2.0
+   */
   private static void _update(GrouperSession s, Set mships) {
     try {
       Set groupsToUpdate  = new LinkedHashSet();
@@ -227,7 +232,7 @@ public class Composite extends GrouperAPI {
     catch (GroupNotFoundException eGNF) {
       throw new IllegalStateException( eGNF.getMessage(), eGNF );
     }
-  } // private static void _update(s, mships)
+  } 
 
 
   // PRIVATE INSTANCE METHODS //
