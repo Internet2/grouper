@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.19 2007-05-14 16:12:56 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.20 2007-05-23 18:20:55 blair Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -490,6 +490,14 @@ public class GrouperTest extends TestCase {
 
 
   // PROTECTED INSTANCE METHODS //
+
+  /**
+   * Return consistent test initialization error message.
+   * @since   1.2.0
+   */
+  protected void errorInitializingTest(Exception e) {
+    fail( "ERROR INITIALIZING TEST: " + e.getMessage() );
+  }
 
   // @since   1.2.0
   protected void setUp () {

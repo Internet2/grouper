@@ -20,23 +20,17 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration.java,v 1.11 2007-05-23 18:20:55 blair Exp $
+ * @version $Id: Suite_I_API_MemberOf.java,v 1.1 2007-05-23 18:20:55 blair Exp $
  * @since   1.2.0
  */
-public class Suite_Integration extends GrouperTest {
+public class Suite_I_API_MemberOf extends GrouperTest {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    // API
-    suite.addTest( Suite_I_API_Group.suite() );
-    suite.addTest( Suite_I_API_MemberOf.suite() );
-    suite.addTest( Suite_Integration_CompositeValidator.suite() );
-    suite.addTest( Suite_Integration_ImmediateMembershipValidator.suite() );
-    suite.addTest( Suite_Integration_Stem.suite() );
-    // DAO
-    suite.addTest( Suite_Integration_HibernateGroupDAO.suite() );
-    suite.addTest( Suite_Integration_HibernateGroupTypeDAO.suite() );
-    suite.addTest( Suite_Integration_HibernateStemDAO.suite() );
+    suite.addTestSuite( Test_I_API_MemberOf_addComposite.class );
+    suite.addTestSuite( Test_I_API_MemberOf_addImmediate.class );
+    suite.addTestSuite( Test_I_API_MemberOf_deleteComposite.class );
+    suite.addTestSuite( Test_I_API_MemberOf_deleteImmediate.class );
     return suite;
   } 
 
