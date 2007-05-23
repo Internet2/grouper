@@ -1,4 +1,4 @@
-<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.40 2007-05-12 00:56:22 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.41 2007-05-23 19:15:20 ddonn Exp $ -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.util.Set" %>
@@ -150,13 +150,13 @@
   {
     Grantable grantable = (Grantable)(assignmentsAndProxiesIterator.next());
 
-    SignetSubject grantee = grantable.getGrantee();
 %>
         <TR>
 <%
     if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED)
         || privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
     {
+		SignetSubject grantee = grantable.getGrantee();
 %>
 			<!-- subject -->
 			<TD>

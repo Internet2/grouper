@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.20 2007-05-06 07:13:15 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.21 2007-05-23 19:15:20 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -192,7 +192,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 				log.warn("No Signet found in " + this.getClass().getName() + ".getProxy()" + " where id=" + id);
 		}
 		else
-			log.warn("No proxyId found in " + this.getClass().getName() + ".getProxy()" + " where id=" + id);
+			log.info("No proxyId found in " + this.getClass().getName() + ".getProxy()" + " where id=" + id);
 
 		return (subject);
 	}

@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.75 2007-05-12 00:56:22 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.76 2007-05-23 19:15:20 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -983,19 +983,6 @@ public class Common
   {
     StringBuffer outStr = new StringBuffer();
 
-	String editAction;
-	String paramName;
-	if (grantable instanceof Proxy)
-	{
-		editAction = "Designate.do";
-		paramName = Constants.PROXYID_HTTPPARAMNAME;
-	}
-	else
-	{
-		editAction = "Conditions.do";
-		paramName = "assignmentId";
-	}
-
     Decision decision = loggedInPrivilegedSubject.canEdit(grantable);
     boolean canEdit = decision.getAnswer();
     
@@ -1008,8 +995,21 @@ public class Common
       canEdit = false; 
     }
     
-    if (canEdit == true)
+    if (canEdit)
     {
+		String editAction;
+		String paramName;
+		if (grantable instanceof Proxy)
+		{
+			editAction = "Designate.do";
+			paramName = Constants.PROXYID_HTTPPARAMNAME;
+		}
+		else
+		{
+			editAction = "Conditions.do";
+			paramName = "assignmentId";
+		}
+
       outStr.append("<a\n");
       if (style != null)
       {
@@ -1905,35 +1905,27 @@ public class Common
     
     if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
     {
-      proxies = pSubject.getProxiesGranted();
-      proxies = filterProxies(proxies, Status.ACTIVE);
+      proxies = pSubject.getProxiesGranted(Status.ACTIVE.toString());
       
-      assignments = pSubject.getAssignmentsGranted();
-      assignments = filterAssignments(assignments, Status.ACTIVE);
+      assignments = pSubject.getAssignmentsGranted(Status.ACTIVE.toString());
     }
     else if (privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
     {
-      proxies = pSubject.getProxiesGranted();
-      proxies = filterProxies(proxies, Status.INACTIVE);
+      proxies = pSubject.getProxiesGranted(Status.INACTIVE.toString());
       
-      assignments = pSubject.getAssignmentsGranted();
-      assignments = filterAssignments(assignments, Status.INACTIVE);
+      assignments = pSubject.getAssignmentsGranted(Status.INACTIVE.toString());
     }
     else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
     {
-      proxies = pSubject.getProxiesReceived();
-      proxies = filterProxies(proxies, Status.ACTIVE);
+      proxies = pSubject.getProxiesReceived(Status.ACTIVE.toString());
       
-      assignments = pSubject.getAssignmentsReceived();
-      assignments = filterAssignments(assignments, Status.ACTIVE);
+      assignments = pSubject.getAssignmentsReceived(Status.ACTIVE.toString());
     }
     else if (privDisplayType.equals(PrivDisplayType.FORMER_RECEIVED))
     {
-      proxies = pSubject.getProxiesReceived();
-      proxies = filterProxies(proxies, Status.INACTIVE);
+      proxies = pSubject.getProxiesReceived(Status.INACTIVE.toString());
       
-      assignments = pSubject.getAssignmentsReceived();
-      assignments = filterAssignments(assignments, Status.INACTIVE);
+      assignments = pSubject.getAssignmentsReceived(Status.INACTIVE.toString());
     }
     else
     {

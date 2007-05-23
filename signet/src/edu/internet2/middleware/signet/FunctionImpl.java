@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.17 2007-03-19 23:12:10 ddonn Exp $
-$Date: 2007-03-19 23:12:10 $
+$Id: FunctionImpl.java,v 1.18 2007-05-23 19:15:20 ddonn Exp $
+$Date: 2007-05-23 19:15:20 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -161,7 +161,8 @@ public class FunctionImpl extends EntityImpl implements Function
     {
       try
       {
-        subsystem = getSignet().getPersistentDB().getSubsystem(subsystemId);
+        Subsystem tmpSubsystem = getSignet().getPersistentDB().getSubsystem(subsystemId);
+        setSubsystem(tmpSubsystem);
       }
       catch (ObjectNotFoundException onfe)
       {

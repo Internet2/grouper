@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.8 2007-03-05 18:10:51 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.9 2007-05-23 19:15:20 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -68,7 +68,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @author $Author: ddonn $
  */
 public class HibernateDB
@@ -87,6 +87,11 @@ public class HibernateDB
 			" as subject " + //$NON-NLS-1$
 			" where subjectkey = :subjectkey "; //$NON-NLS-1$
 
+	protected static final String	Qry_proxiesGrantedAll =
+			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
+			" as proxy " +  //$NON-NLS-1$
+			" where grantorKey = :grantorKey "; //$NON-NLS-1$
+
 	protected static final String	Qry_proxiesGranted =
 			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
 			" as proxy " +  //$NON-NLS-1$
@@ -94,6 +99,11 @@ public class HibernateDB
 			" and " + //$NON-NLS-1$
 			" status = :status "; //$NON-NLS-1$
 
+	protected static final String	Qry_proxiesReceivedAll =
+			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
+			" as proxy " +  //$NON-NLS-1$
+			" where granteeKey = :granteeKey "; //$NON-NLS-1$
+	
 	protected static final String	Qry_proxiesReceived =
 			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
 			" as proxy " +  //$NON-NLS-1$
@@ -101,12 +111,22 @@ public class HibernateDB
 			" and " + //$NON-NLS-1$
 			" status = :status "; //$NON-NLS-1$
 
+	protected static final String	Qry_assignmentsGrantedAll =
+			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
+			" as assignment " +  //$NON-NLS-1$
+			" where grantorKey = :grantorKey "; //$NON-NLS-1$
+
 	protected static final String	Qry_assignmentsGranted =
 			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
 			" as assignment " +  //$NON-NLS-1$
 			" where grantorKey = :grantorKey " + //$NON-NLS-1$
 			" and " + //$NON-NLS-1$
 			" status = :status "; //$NON-NLS-1$
+
+	protected static final String	Qry_assignmentsReceivedAll =
+			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
+			" as assignment " +  //$NON-NLS-1$
+			" where granteeKey = :granteeKey "; //$NON-NLS-1$
 
 	protected static final String	Qry_assignmentsReceived =
 			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
@@ -706,12 +726,20 @@ public class HibernateDB
 	// I really want to do away with this method, having the
 	// Tree pick up its parent-child relationships via Hibernate
 	// object-mapping. I just haven't figured out how to do that yet.
-	public Set getChildren(TreeNode parentNode)
+
+	/**
+	 * Manually fetch the children TreeNodes of the given parentNode
+	 * @param hs A Hibernate Session, for improved performance
+	 * @param parentNode the prospective parent
+	 * @return A Set of child nodes, may be empty but never null.
+	 */
+	public Set getChildren(Session hs, TreeNode parentNode)
 	{
+		Session session = (null != hs) ? hs : openSession();
+
 		Query query;
 		List resultList;
 		Tree tree = parentNode.getTree();
-		Session session = openSession();
 		try
 		{
 			query = createQuery(session,
@@ -726,9 +754,11 @@ public class HibernateDB
 		}
 		catch (HibernateException e)
 		{
-			session.close();
+			if (null == hs)
+				session.close();
 			throw new SignetRuntimeException(e);
 		}
+
 		Set resultSet = new HashSet(resultList);
 		Set children = new HashSet();
 		Iterator resultSetIterator = resultSet.iterator();
@@ -738,7 +768,9 @@ public class HibernateDB
 			children.add(tree.getNode(tnr.getChildNodeId()));
 		}
 
-		closeSession(session);
+		if (null == hs)
+			closeSession(session);
+
 		return children;
 	}
 
@@ -862,7 +894,7 @@ public class HibernateDB
 	/**
 	 * Get the set of Proxies granted by the grantor.
 	 * @param grantorId The primary key of the proxy grantor
-	 * @param status The status of the proxy
+	 * @param status The status of the proxy, if null or empty string, selects _all_
 	 * @return A Set of ProxyImpl objects that have been granted by grantor.
 	 * May be an empty set but never null.
 	 */
@@ -871,9 +903,16 @@ public class HibernateDB
 		Set retval = new HashSet();
 
 		Session session = openSession();
-		Query qry = createQuery(session, Qry_proxiesGranted);
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(session, Qry_proxiesGrantedAll);
+		else
+		{
+			qry = createQuery(session, Qry_proxiesGranted);
+			qry.setString("status", status);
+		}
 		qry.setLong("grantorKey", grantorId);
-		qry.setString("status", status);
+
 		try
 		{
 			retval.addAll(qry.list());
@@ -893,7 +932,7 @@ public class HibernateDB
 	/**
 	 * Get the set of Proxies granted to the grantee.
 	 * @param granteeId The primary key of the proxy grantee
-	 * @param status The status of the proxy
+	 * @param status The status of the proxy, if null or empty string, selects _all_
 	 * @return A Set of ProxyImpl objects that have been granted to grantee.
 	 * May be an empty set but never null.
 	 */
@@ -902,9 +941,16 @@ public class HibernateDB
 		Set retval = new HashSet();
 
 		Session session = openSession();
-		Query qry = createQuery(session, Qry_proxiesReceived);
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(session, Qry_proxiesReceivedAll);
+		else
+		{
+			qry = createQuery(session, Qry_proxiesReceived);
+			qry.setString("status", status);
+		}
 		qry.setLong("granteeKey", granteeId);
-		qry.setString("status", status);
+
 		try
 		{
 			retval.addAll(qry.list());
@@ -925,7 +971,7 @@ public class HibernateDB
 	/**
 	 * Get the set of Assignments granted by the grantor.
 	 * @param grantorId The primary key of the assignment grantor
-	 * @param status The status of the assignment
+	 * @param status The status of the assignment, if null or empty string, selects _all_
 	 * @return A Set of AssignmentImpl objects that have been granted by grantor.
 	 * May be an empty set but never null.
 	 */
@@ -934,9 +980,16 @@ public class HibernateDB
 		Set retval = new HashSet();
 
 		Session session = openSession();
-		Query qry = createQuery(session, Qry_assignmentsGranted);
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(session, Qry_assignmentsGrantedAll);
+		else
+		{
+			qry = createQuery(session, Qry_assignmentsGranted);
+			qry.setString("status", status);
+		}
 		qry.setLong("grantorKey", grantorId);
-		qry.setString("status", status);
+
 		try
 		{
 			retval.addAll(qry.list());
@@ -956,7 +1009,7 @@ public class HibernateDB
 	/**
 	 * Get the set of Assignments granted to the grantee.
 	 * @param granteeId The primary key of the assignment grantee
-	 * @param status The status of the assignment
+	 * @param status The status of the assignment, if null or empty string, selects _all_
 	 * @return A Set of AssignmentImpl objects that have been granted to grantee.
 	 * May be an empty set but never null.
 	 */
@@ -965,9 +1018,16 @@ public class HibernateDB
 		Set retval = new HashSet();
 
 		Session session = openSession();
-		Query qry = createQuery(session, Qry_assignmentsReceived);
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(session, Qry_assignmentsReceivedAll);
+		else
+		{
+			qry = createQuery(session, Qry_assignmentsReceived);
+			qry.setString("status", status);
+		}
 		qry.setLong("granteeKey", granteeId);
-		qry.setString("status", status);
+
 		try
 		{
 			retval.addAll(qry.list());

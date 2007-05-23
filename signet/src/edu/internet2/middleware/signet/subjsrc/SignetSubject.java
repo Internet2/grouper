@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.13 2007-05-11 04:35:09 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.14 2007-05-23 19:15:20 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -54,6 +54,7 @@ import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.SubsystemImpl;
+import edu.internet2.middleware.signet.TreeNodeImpl;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceNotFoundException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
@@ -495,11 +496,7 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getAssignmentsGranted()
 	{
-		Set assignsGranted;
-		assignsGranted = getAssignmentsGranted(Status.ACTIVE.toString());
-		assignsGranted.addAll(getAssignmentsGranted(Status.PENDING.toString()));
-		assignsGranted.addAll(getAssignmentsGranted(Status.INACTIVE.toString()));
-		return (assignsGranted);
+		return (getAssignmentsGranted(null));
 	}
 
 
@@ -541,11 +538,7 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getAssignmentsReceived()
 	{
-		Set assignsReceived;
-		assignsReceived = getAssignmentsReceived(Status.ACTIVE.toString());
-		assignsReceived.addAll(getAssignmentsReceived(Status.PENDING.toString()));
-		assignsReceived.addAll(getAssignmentsReceived(Status.INACTIVE.toString()));
-		return (assignsReceived);
+		return (getAssignmentsReceived(null));
 	}
 
 
@@ -586,11 +579,7 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getProxiesGranted()
 	{
-		Set proxiesGranted = new HashSet();
-		proxiesGranted = getProxiesGranted(Status.ACTIVE.toString());
-		proxiesGranted.addAll(getProxiesGranted(Status.PENDING.toString()));
-		proxiesGranted.addAll(getProxiesGranted(Status.INACTIVE.toString()));
-		return (proxiesGranted);
+		return (getProxiesGranted(null));
 	}
 
 
@@ -632,11 +621,7 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getProxiesReceived()
 	{
-		Set proxiesReceived = new HashSet();
-		proxiesReceived = getProxiesReceived(Status.ACTIVE.toString());
-		proxiesReceived.addAll(getProxiesReceived(Status.PENDING.toString()));
-		proxiesReceived.addAll(getProxiesReceived(Status.INACTIVE.toString()));
-		return (proxiesReceived);
+		return (getProxiesReceived(null));
 	}
 
 
@@ -1091,10 +1076,11 @@ public class SignetSubject implements Subject, Comparable
 		if (this.equals(signetSource.getSignet().getSignetSubject()))
 			return (new DecisionImpl(false, Reason.CANNOT_USE, null));
 
+		Function assignFunction = assignment.getFunction();
 		// If you're going to edit an Assignment while "acting as" someone
 		// else, you must hold a "useable" Proxy from that other person.
 		if ( !this.equals(effEditor) &&
-				!canUseProxy(effEditor, assignment.getFunction().getSubsystem()))
+				!canUseProxy(effEditor, assignFunction.getSubsystem()))
 			return (new DecisionImpl(false, Reason.CANNOT_USE, null));
 
 		Decision retval = null;
@@ -1104,16 +1090,23 @@ public class SignetSubject implements Subject, Comparable
 		// Assignment has any Limit-values that exceed the ones we're allowed to
 		// work with in this particular combination of Scope and Function.
 
-		Set grantableScopes = getGrantableScopes(assignment.getFunction());
+		TreeNode assignScope = assignment.getScope();
+		Set grantableScopes = getGrantableScopes(assignFunction);
+
+		HibernateDB hibr = signetSource.getSignet().getPersistentDB();
+		Session hs = null;
 		boolean sufficientScopeFound = false;
 		for (Iterator grantableScopesIterator = grantableScopes.iterator();
 				grantableScopesIterator.hasNext() &&
 				!sufficientScopeFound &&
 				(null == retval);)
 		{
-			TreeNode myGrantableScope = (TreeNode)(grantableScopesIterator.next());
-			if (myGrantableScope.equals(assignment.getScope()) ||
-					myGrantableScope.isAncestorOf(assignment.getScope()))
+			TreeNodeImpl myGrantableScope = (TreeNodeImpl)(grantableScopesIterator.next());
+
+			if (null == hs)
+				hs = hibr.openSession();
+
+			if (myGrantableScope.equals(assignScope) || myGrantableScope.isAncestorOf(hs, assignScope))
 			{
 				sufficientScopeFound = true;
 				// This scope is indeed one that we can grant this Function in.
@@ -1135,15 +1128,15 @@ public class SignetSubject implements Subject, Comparable
 						throw new SignetRuntimeException(e);
 					}
 
-					Set grantableChoices = effEditor.getGrantableChoices(
-							assignment.getFunction(), 
-							assignment.getScope(),
-							limit);
+					Set grantableChoices = effEditor.getGrantableChoices(assignFunction, assignScope, limit);
 					if ( !grantableChoices.contains(choice))
 						retval = new DecisionImpl(false, Reason.LIMIT, limit);
 				}
 			}
 		}
+
+		if (null != hs)
+			hibr.closeSession(hs);
 
 		if (null == retval)
 		{
@@ -1300,14 +1293,14 @@ public class SignetSubject implements Subject, Comparable
 
 
     /**
-     * Returns a Set of Proxy objects filtered by ACTIVE + Subsystem + Grantor
+     * Returns a Set of Proxy objects for this subject, filtered by ACTIVE + Subsystem + Grantor
      * @param subject The EffectiveEditor ("acting as") SignetSubject
      * @param subsystem The Subsystem
      * @return Filtered Set of Proxy objects
      */
     protected Set getFilteredProxySet(SignetSubject subject, Subsystem subsystem)
 	{
-		Set proxies = Common.filterProxies(getProxiesReceived(), Status.ACTIVE);
+		Set proxies = getProxiesReceived(Status.ACTIVE.toString());
 		proxies = Common.filterProxies(proxies, subsystem);
 		proxies = Common.filterProxiesByGrantor(proxies, subject);
 		return (proxies);
@@ -1409,9 +1402,10 @@ public class SignetSubject implements Subject, Comparable
 		Set grantableScopes = new HashSet();
 		// First, check to see if the we are the Signet superSubject.
 		// That Subject can grant any function at any scope to anyone.
-		if (hasSuperSubjectPrivileges(aFunction.getSubsystem()))
+		Subsystem subsys = aFunction.getSubsystem();
+		if (hasSuperSubjectPrivileges(subsys))
 		{
-			Tree tree = aFunction.getSubsystem().getTree();
+			Tree tree = subsys.getTree();
 			if (tree != null)
 				grantableScopes.addAll(tree.getRoots());
 		}
@@ -1798,13 +1792,16 @@ public class SignetSubject implements Subject, Comparable
 		SignetSubject privSubj = signetSource.getSignet().getSignetSubject();
 		// First, check to see if the we are the Signet superSubject.
 		// That Subject can grant any privilege in any category to anyone.
-		if (getEffectiveEditor().equals(privSubj))
+		if ( !(retval = this.equals(privSubj))) // yes, I do mean '='
 		{
 			// We're either the SignetSuperSubject or we're "acting as" that
 			// esteemed personage. If we're just "acting as", then we need to make
 			// sure that our set of active Proxies actually includes this Subystem.
-			Set proxies = getFilteredProxySet(privSubj, subsystem);
-			retval = (this.equals(privSubj)) || ( !proxies.isEmpty());
+			if (getEffectiveEditor().equals(privSubj))
+			{
+				Set proxies = getFilteredProxySet(privSubj, subsystem);
+				retval = !proxies.isEmpty();
+			}
 		}
 
 		return (retval);

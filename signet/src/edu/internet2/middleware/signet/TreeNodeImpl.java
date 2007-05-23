@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.15 2007-03-19 23:12:10 ddonn Exp $
-$Date: 2007-03-19 23:12:10 $
+$Id: TreeNodeImpl.java,v 1.16 2007-05-23 19:15:20 ddonn Exp $
+$Date: 2007-05-23 19:15:20 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -31,12 +31,7 @@ import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
-class TreeNodeImpl
-extends
-	EntityImpl
-implements
-	TreeNode,
-	Comparable
+public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
 {
   private TreeImpl tree;
   private String   treeId;
@@ -88,13 +83,22 @@ implements
     		HibernateDB hibr = mySignet.getPersistentDB();
     		if (null != hibr)
     		{
-    			parentsAlreadyFetched = (null != (parents = hibr.getParents(this)));
+    			parents = hibr.getParents(this);
+    			parentsAlreadyFetched = true;
     		}
     	}
     }
 
     return (parents);
     // return UnmodifiableSet.decorate(this.parents);
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.tree.TreeNode#getChildren()
+   */
+  public Set getChildren()
+  {
+    return (getChildren(null));
   }
 
   /* (non-Javadoc)
@@ -110,15 +114,15 @@ implements
    * getter, so that the public getter can resume returning a non-modifiable
    * copy of the collection. 
    */
-  public Set getChildren()
+  public Set getChildren(Session hs)
   {
-    if (childrenAlreadyFetched == false)
+    if ( !childrenAlreadyFetched)
     {
-      this.children = getSignet().getPersistentDB().getChildren(this);
+      children = getSignet().getPersistentDB().getChildren(hs, this);
       childrenAlreadyFetched = true;
     }
 
-    return this.children;
+    return (children);
     // return UnmodifiableSet.decorate(this.children);
   }
 
@@ -145,7 +149,7 @@ implements
     return this.tree;
   }
 
-  String getTreeId()
+  public String getTreeId()
   {
     return this.treeId;
   }
@@ -240,23 +244,60 @@ implements
               + " is the descendant of some other node.");
     }
 
-    if (this.getChildren().contains(possibleDescendant))
+    if (getChildren().contains(possibleDescendant))
     {
       foundDescendant = true;
     }
     else
     {
-      Iterator childrenIterator = this.children.iterator();
+      Iterator childrenIterator = children.iterator();
 
-      while (childrenIterator.hasNext() && (foundDescendant == false))
+      while (childrenIterator.hasNext() && ( !foundDescendant))
       {
-        foundDescendant = ((TreeNodeImpl) (childrenIterator.next()))
-            .isAncestorOf(possibleDescendant);
+    	  TreeNodeImpl child = (TreeNodeImpl)childrenIterator.next();
+        foundDescendant = child.isAncestorOf(possibleDescendant);
       }
     }
 
     return foundDescendant;
   }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.tree.TreeNode#isAncestorOf(edu.internet2.middleware.signet.tree.TreeNode)
+   */
+  public boolean isAncestorOf(Session hs, TreeNode possibleDescendant)
+  {
+    // If we can find the possibleDescendant in this node's subtree, then
+    // this node is an ancestor of that possibleDescendant.
+
+    boolean foundDescendant = false;
+
+    if (possibleDescendant == null)
+    {
+      // No one can be an ancestor of a NULL node.
+      throw new IllegalArgumentException(
+          "It is illegal to inquire whether a NULL TreeNode"
+              + " is the descendant of some other node.");
+    }
+
+    if (getChildren(hs).contains(possibleDescendant))
+    {
+      foundDescendant = true;
+    }
+    else
+    {
+      Iterator childrenIterator = children.iterator();
+
+      while (childrenIterator.hasNext() && ( !foundDescendant))
+      {
+    	  TreeNodeImpl child = (TreeNodeImpl)childrenIterator.next();
+		  foundDescendant = child.isAncestorOf(hs, possibleDescendant);
+      }
+    }
+
+    return foundDescendant;
+  }
+
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.tree.TreeNode#isDescendantOf(edu.internet2.middleware.signet.tree.TreeNode)
@@ -302,18 +343,22 @@ implements
    */
   public boolean isAncestorOfAll(Set treeNodes)
   {
-    Iterator treeNodesIterator = treeNodes.iterator();
-    while (treeNodesIterator.hasNext())
-    {
-      TreeNodeImpl otherTreeNode = (TreeNodeImpl) (treeNodesIterator.next());
-      if ((otherTreeNode.getTreeId().equals(this.getTreeId()))
-          && (otherTreeNode.isAncestorOf(this)))
-      {
-        return false;
-      }
-    }
+	boolean retval = true; // assume success
 
-    return true;
+	if ((null == treeNodes) || (0 >= treeNodes.size()))
+		retval = false;
+	else
+	{
+		for (Iterator treeNodesIterator = treeNodes.iterator();
+				treeNodesIterator.hasNext() && retval; )
+		{
+			TreeNodeImpl otherTreeNode = (TreeNodeImpl)treeNodesIterator.next();
+			retval = this.getTreeId().equals(otherTreeNode.getTreeId()) &&
+					this.isAncestorOf(otherTreeNode);
+		}
+	}
+
+    return (retval);
   }
 
   /* (non-Javadoc)
@@ -342,17 +387,8 @@ implements
    */
   void setFullyQualifiedId(TreeNodeFullyQualifiedId tnfqId) throws ObjectNotFoundException
   {
-    treeId = tnfqId.getTreeId();
+    setTreeId(tnfqId.getTreeId());
     setId(tnfqId.getTreeNodeId());
-
-    Signet signet;
-    if (null != (signet = getSignet()))
-    {
-    	HibernateDB hibr = signet.getPersistentDB();
-    	Session hs = hibr.openSession();
-      tree = (TreeImpl)(hibr.getTree(hs, treeId));
-      	hibr.closeSession(hs);
-    }
   }
   
   public String getId()
@@ -374,4 +410,5 @@ implements
     throw new UnsupportedOperationException
       ("This method is not yet implemented");
   }
+
 }

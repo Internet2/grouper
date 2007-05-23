@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.17 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: ConfirmProxyAction.java,v 1.18 2007-05-23 19:15:20 ddonn Exp $
+$Date: 2007-05-23 19:15:20 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -88,9 +88,6 @@ public final class ConfirmProxyAction extends BaseAction
       return (mapping.findForward("notInitialized"));
     }
 
-// debug
-Common.dumpHttpParams("ConfirmProxyAction.execute()", signet.getLogger(), request);
-    
     // currentProxy is present in the session only if we are editing
     // an existing Proxy. Otherwise, we're attempting to create a new one.
     Proxy proxy = (Proxy)(session.getAttribute(Constants.PROXY_ATTRNAME));

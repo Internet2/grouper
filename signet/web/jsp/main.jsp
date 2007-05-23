@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: main.jsp,v 1.9 2006-11-30 04:21:50 ddonn Exp $
-  $Date: 2006-11-30 04:21:50 $
+  $Id: main.jsp,v 1.10 2007-05-23 19:15:20 ddonn Exp $
+  $Date: 2007-05-23 19:15:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -43,8 +43,6 @@ return false;
 
     function initControls()
     {
-var System = java.lang.System;
-System.err.println("RUNNING INITCONTROLS");
       initRevokeAllCheckbox();
       setStartButtonStatus();
     }
