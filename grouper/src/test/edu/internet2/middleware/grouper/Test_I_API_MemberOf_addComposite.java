@@ -24,7 +24,7 @@ import  java.util.Date;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_addComposite.java,v 1.1 2007-05-23 18:20:55 blair Exp $
+ * @version $Id: Test_I_API_MemberOf_addComposite.java,v 1.2 2007-05-23 20:04:26 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_addComposite extends GrouperTest {
@@ -65,7 +65,7 @@ public class Test_I_API_MemberOf_addComposite extends GrouperTest {
           .setCreatorUuid( s.getMember().getUuid() )
           .setFactorOwnerUuid( gA.getUuid() )
           .setLeftFactorUuid( gB.getUuid() )
-          .setRightFactorUuid( gB.getUuid() )
+          .setRightFactorUuid( gC.getUuid() )
           .setType( CompositeType.UNION.toString() )
           .setUuid( GrouperUuid.getUuid() )
       );
@@ -99,6 +99,31 @@ public class Test_I_API_MemberOf_addComposite extends GrouperTest {
 
     assertEquals( "mof deletes",        0, mof.getDeletes().size() );
     assertEquals( "mof saves",          1, mof.getSaves().size() );
+    assertEquals( "mof modifiedGroups", 1, mof.getModifiedGroups().size() );
+    assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
+  }
+
+  /**  
+   * Generate correct membership delta when adding a simple UNION (each factor containing
+   * a single unique subject) to an isolated group.
+   * @since   1.2.0
+   */
+  public void test_addComposite_addSimpleUnionToIsolatedGroup() {
+    try {
+      gB.addMember(subjX);
+      gC.addMember(subjY);
+    }
+    catch (Exception eShouldNotHappen) {
+      errorInitializingTest(eShouldNotHappen);
+    }
+
+    MemberOf mof = new DefaultMemberOf(); // TODO 20070523 should use a factory or equiv
+    mof.addComposite(s, gA, c);
+
+    assertEquals( "mof deletes",        0, mof.getDeletes().size() );
+    // composite memberships (2) + composite (1)
+    assertEquals( "mof saves",          3, mof.getSaves().size() );
+    // composite owner (1)
     assertEquals( "mof modifiedGroups", 1, mof.getModifiedGroups().size() );
     assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
   }

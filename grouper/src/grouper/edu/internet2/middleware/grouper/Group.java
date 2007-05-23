@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.158 2007-05-22 14:09:44 blair Exp $
+ * @version $Id: Group.java,v 1.159 2007-05-23 20:04:26 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -115,14 +115,15 @@ public class Group extends GrouperAPI implements Owner {
       );
 
       Composite     c   = new Composite();
-      CompositeDTO  _c  = new CompositeDTO();
-      _c.setCreateTime( new Date().getTime() );
-      _c.setCreatorUuid( this.getSession().getMember().getUuid() );
-      _c.setFactorOwnerUuid( this._getDTO().getUuid() );
-      _c.setLeftFactorUuid( left._getDTO().getUuid() );
-      _c.setRightFactorUuid( right._getDTO().getUuid() );
-      _c.setType( type.toString() );
-      _c.setUuid( GrouperUuid.getUuid() );
+      CompositeDTO  _c  = new CompositeDTO()
+        .setCreateTime( new Date().getTime() )
+        .setCreatorUuid( this.getSession().getMember().getUuid() )
+        .setFactorOwnerUuid( this._getDTO().getUuid() )
+        .setLeftFactorUuid( left._getDTO().getUuid() )
+        .setRightFactorUuid( right._getDTO().getUuid() )
+        .setType( type.toString() )
+        .setUuid( GrouperUuid.getUuid() )
+        ;
       CompositeValidator vComp = CompositeValidator.validate(_c);
       if (vComp.isInvalid()) {
         throw new MemberAddException( vComp.getErrorMessage() );
