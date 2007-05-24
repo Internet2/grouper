@@ -17,14 +17,12 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.subject.Subject;
 import  java.util.Date;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteComposite.java,v 1.1 2007-05-23 18:20:55 blair Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteComposite.java,v 1.2 2007-05-24 19:34:59 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
@@ -32,11 +30,8 @@ public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
   // PRIVATE INSTANCE VARIABLES //
   private Composite       c;
   private Group           gA, gB, gC;
-  private Member          mX, mY;
-  private MemberDTO       _mX, _mY;
   private Stem            parent;
   private GrouperSession  s;
-  private Subject         subjX, subjY;
 
 
 
@@ -51,12 +46,6 @@ public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
       gA      = parent.addChildGroup("child group a", "child group a");
       gB      = parent.addChildGroup("child group b", "child group b");
       gC      = parent.addChildGroup("child group c", "child group c");
-      subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
-      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
-      mX      = MemberFinder.findBySubject(s, subjX);
-      mY      = MemberFinder.findBySubject(s, subjY);
-      _mX     = (MemberDTO) mX.getDTO();
-      _mY     = (MemberDTO) mY.getDTO();
       // TODO 20070523 this *screams* for an easier way
       c       = new Composite();
       c.setDTO(

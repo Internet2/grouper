@@ -22,16 +22,16 @@ import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.2 2007-05-24 15:38:05 blair Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.3 2007-05-24 19:34:59 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
 
   // PRIVATE INSTANCE VARIABLES //
   private Group           gA, gB, gC, gD;
-  private Member          mX, mY;
+  private Member          mX;
   private MembershipDTO   _ms;
-  private MemberDTO       _mX, _mY;
+  private MemberDTO       _mX;
   private Stem            parent;
   private GrouperSession  s;
   private Subject         subjX, subjY;
@@ -53,9 +53,7 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
       subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
       subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
       mX      = MemberFinder.findBySubject(s, subjX);
-      mY      = MemberFinder.findBySubject(s, subjY);
       _mX     = (MemberDTO) mX.getDTO();
-      _mY     = (MemberDTO) mY.getDTO();
     }
     catch (Exception eShouldNotHappen) {
       throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );

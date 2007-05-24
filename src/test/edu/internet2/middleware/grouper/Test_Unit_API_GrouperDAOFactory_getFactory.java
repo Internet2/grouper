@@ -17,18 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
-import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_GrouperDAOFactory_getFactory.java,v 1.2 2007-05-14 16:12:56 blair Exp $
+ * @version $Id: Test_Unit_API_GrouperDAOFactory_getFactory.java,v 1.3 2007-05-24 19:34:59 blair Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_GrouperDAOFactory_getFactory extends GrouperTest {
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_Unit_API_GrouperDAOFactory_getFactory.class);
-
 
   // TESTS //  
 
