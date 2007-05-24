@@ -21,18 +21,18 @@ import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_addImmediate.java,v 1.1 2007-05-23 18:20:55 blair Exp $
+ * @version $Id: Test_I_API_MemberOf_addImmediate.java,v 1.2 2007-05-24 15:38:05 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
 
   // PRIVATE INSTANCE VARIABLES //
-  private Group           gA;
-  private Member          mX;
-  private MemberDTO       _mX;
+  private Group           gA, gB, gC, gD;
+  private Member          mX, mY;
+  private MemberDTO       _mX, _mY;
   private Stem            parent;
   private GrouperSession  s;
-  private Subject         subjX;
+  private Subject         subjX, subjY;
 
 
 
@@ -45,9 +45,15 @@ public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
       s       = GrouperSession.start( SubjectFinder.findRootSubject() );
       parent  = StemFinder.findRootStem(s).addChildStem("parent", "parent");
       gA      = parent.addChildGroup("child group a", "child group a");
+      gB      = parent.addChildGroup("child group b", "child group b");
+      gC      = parent.addChildGroup("child group c", "child group c");
+      gD      = parent.addChildGroup("child group d", "child group d");
       subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
+      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
       mX      = MemberFinder.findBySubject(s, subjX);
+      mY      = MemberFinder.findBySubject(s, subjY);
       _mX     = (MemberDTO) mX.getDTO();
+      _mY     = (MemberDTO) mY.getDTO();
     }
     catch (Exception eShouldNotHappen) {
       throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
@@ -77,6 +83,36 @@ public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
 
     assertEquals( "mof deletes",        0, mof.getDeletes().size() );
     assertEquals( "mof saves",          1, mof.getSaves().size() );
+    assertEquals( "mof modifiedGroups", 1, mof.getModifiedGroups().size() );
+    assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
+  }
+
+  /**  
+   * <pre>
+   * 1. Add subjX to gB.
+   * 2. Add subjY to gC.
+   * 3. Add UNION(gB, gC) to gA.
+   * 4. Add gA to gD.
+   * </pre>
+   * @since   1.2.0
+   */
+  public void test_addImmediate_addGroupWithSimpleUnionAsMemberToIsolatedGroup() {
+    try {
+      gB.addMember(subjX);
+      gC.addMember(subjY);
+      gA.addCompositeMember( CompositeType.UNION, gB, gC );
+    }
+    catch (Exception eShouldNotHappen) {
+      errorInitializingTest(eShouldNotHappen);
+    }
+
+    MemberOf mof = new DefaultMemberOf(); // TODO 20070524 should use a factory or equiv
+    mof.addImmediate( s, gD, Group.getDefaultList(), (MemberDTO) gA.toMember().getDTO() );
+
+    assertEquals( "mof deletes",        0, mof.getDeletes().size() );
+    // immediate membership in gD (1), effectives in gD from composite gA (2)
+    assertEquals( "mof saves",          3, mof.getSaves().size() );
+    // membership owner (1)
     assertEquals( "mof modifiedGroups", 1, mof.getModifiedGroups().size() );
     assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
   }
