@@ -28,7 +28,7 @@ import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
  * Utility class for pretty printing objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrettyPrint.java,v 1.1 2007-05-23 20:04:26 blair Exp $
+ * @version $Id: PrettyPrint.java,v 1.2 2007-05-24 19:22:47 blair Exp $
  * @since   1.2.0
  */
 public class PrettyPrint {
@@ -104,6 +104,8 @@ public class PrettyPrint {
         + "depth="    + _ms.getDepth()
         + DELIM
         + "type="     + _ms.getType()
+        + DELIM
+        + "via="      + _ms.getViaUuid()
         + DELIM
         + "uuid="     + _ms.getUuid()
         + CLOSE
