@@ -22,18 +22,19 @@ import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.1 2007-05-23 18:20:55 blair Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.2 2007-05-24 15:38:05 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
 
   // PRIVATE INSTANCE VARIABLES //
-  private Group           gA;
-  private Member          mX;
-  private MemberDTO       _mX;
+  private Group           gA, gB, gC, gD;
+  private Member          mX, mY;
+  private MembershipDTO   _ms;
+  private MemberDTO       _mX, _mY;
   private Stem            parent;
   private GrouperSession  s;
-  private Subject         subjX;
+  private Subject         subjX, subjY;
 
 
 
@@ -46,9 +47,15 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
       s       = GrouperSession.start( SubjectFinder.findRootSubject() );
       parent  = StemFinder.findRootStem(s).addChildStem("parent", "parent");
       gA      = parent.addChildGroup("child group a", "child group a");
+      gB      = parent.addChildGroup("child group b", "child group b");
+      gC      = parent.addChildGroup("child group c", "child group c");
+      gD      = parent.addChildGroup("child group d", "child group d");
       subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
+      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
       mX      = MemberFinder.findBySubject(s, subjX);
+      mY      = MemberFinder.findBySubject(s, subjY);
       _mX     = (MemberDTO) mX.getDTO();
+      _mY     = (MemberDTO) mY.getDTO();
     }
     catch (Exception eShouldNotHappen) {
       throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
@@ -73,7 +80,6 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
    * @since   1.2.0
    */
   public void test_deleteImmediate_addSubjectToIsolatedGroup() {
-    MembershipDTO _ms = null;
     try {
       gA.addMember(subjX);
       _ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
@@ -89,6 +95,41 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
 
     assertEquals( "mof deletes",        1, mof.getDeletes().size() );
     assertEquals( "mof saves",          0, mof.getSaves().size() );
+    assertEquals( "mof modifiedGroups", 1, mof.getModifiedGroups().size() );
+    assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
+  }
+
+  /**  
+   * <pre>
+   * 1. Add subjX to gB.
+   * 2. Add subjY to gC.
+   * 3. Add UNION(gB, gC) to gA.
+   * 4. Add gA to gD.
+   * 5. Remove subjX from gB.
+   * </pre>
+   * @since   1.2.0
+   */
+  public void test_deleteImmediate_deleteSubjectFromGroupThatIsFactorInNonIsolatedGroup() {
+    try {
+      gB.addMember(subjX);
+      gC.addMember(subjY);
+      gA.addCompositeMember( CompositeType.UNION, gB, gC );
+      gD.addMember( gA.toSubject() );
+      _ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+        gB.getUuid(), mX.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE
+      );
+    }
+    catch (Exception eShouldNotHappen) {
+      errorInitializingTest(eShouldNotHappen);
+    }
+
+    MemberOf mof = new DefaultMemberOf(); // TODO 20070524 should use a factory or equiv
+    mof.deleteImmediate(s, gA, _ms, _mX);
+
+    // immediate membership in gA (1)
+    assertEquals( "mof deletes",        1, mof.getDeletes().size() );
+    assertEquals( "mof saves",          0, mof.getSaves().size() );
+    // membership owner gA (1)
     assertEquals( "mof modifiedGroups", 1, mof.getModifiedGroups().size() );
     assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
   }

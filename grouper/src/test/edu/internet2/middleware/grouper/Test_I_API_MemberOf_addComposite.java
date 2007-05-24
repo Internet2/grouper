@@ -24,7 +24,7 @@ import  java.util.Date;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_addComposite.java,v 1.2 2007-05-23 20:04:26 blair Exp $
+ * @version $Id: Test_I_API_MemberOf_addComposite.java,v 1.3 2007-05-24 15:38:05 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_addComposite extends GrouperTest {
@@ -104,8 +104,11 @@ public class Test_I_API_MemberOf_addComposite extends GrouperTest {
   }
 
   /**  
-   * Generate correct membership delta when adding a simple UNION (each factor containing
-   * a single unique subject) to an isolated group.
+   * <pre>
+   * 1. Add subjX to gB.
+   * 2. Add subjY to gC.
+   * 3. Add UNION(gB, gC) to gA.
+   * </pre>
    * @since   1.2.0
    */
   public void test_addComposite_addSimpleUnionToIsolatedGroup() {
