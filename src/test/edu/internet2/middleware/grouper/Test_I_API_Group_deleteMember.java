@@ -20,10 +20,10 @@ import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_addCompositeMember.java,v 1.2 2007-05-24 19:22:47 blair Exp $
+ * @version $Id: Test_I_API_Group_deleteMember.java,v 1.1 2007-05-24 19:22:47 blair Exp $
  * @since   1.2.0
  */
-public class Test_I_API_Group_addCompositeMember extends GrouperTest {
+public class Test_I_API_Group_deleteMember extends GrouperTest {
 
   // PRIVATE INSTANCE VARIABLES //
   private Group           gA, gB, gC, gD;
@@ -67,42 +67,38 @@ public class Test_I_API_Group_addCompositeMember extends GrouperTest {
   // TESTS //
 
   /**
-   * From <a href="https://bugs.internet2.edu/jira/browse/GRP-1">jira:grouper:#1</a>.
+   * From <a href="https://bugs.internet2.edu/jira/browse/GRP-2">jira:grouper:#2</a>.
    * <pre>
-   * 1. I created a group A and added two direct members Subject X and Subject Y.
-   * 2. I created a group B and added one direct member Subject Y.
-   * 3. I created a composite group C that is A\B (the complement of B within A). It has a
-   *    single indirect member X.
-   * 4. I created a group D and added a single direct member of group C. Group D also shows
-   *    Subject X as an indirect member.
-   * 5. I modified the composite group C so that C is now A U B (A union B). Group C now has
-   *    two indirect members Subjects X and Y.
-   * 6. I looked at the member list of Group D. Group C is still a direct member, but it is the
-   *    only member of D. I had also expected to see Subjects X and Y as indirect members. 
+   * 1. I created a Group A with a single subject X.
+   * 2. I created a Group B with a single subject Y.
+   * 3. I created a Group C that is union of A and B. It has members X and Y.
+   * 4. I created a Group D with a single subject Group C. Indirectly it has members X and Y.
+   * 5. I removed subject X from Group A. This resulted in subject X no longer in being member
+   *    of Group C as expected, but subject X remained a member of D.     
    * </pre>
    * @since   1.2.0
    */
-  public void test_addCompositeMember_propogateEffectiveChangesOnCompositeTypeChange() {
+  public void test_DeleteSubjectsRemovedFromFactorsFromWhereTheyAreEffective() {
     try {
       // (1)
       gA.addMember(subjX);
-      gA.addMember(subjY);
       // (2)
-      gB.addMember(subjX);
+      gB.addMember(subjY);
       // (3)
-      gC.addCompositeMember( CompositeType.COMPLEMENT, gA, gB );
+      gC.addCompositeMember( CompositeType.UNION, gA, gB );
       // (4)
       gD.addMember( gC.toSubject() );
       // (5)
-      gC.deleteCompositeMember();
-      gC.addCompositeMember( CompositeType.UNION, gA, gB );
+      gA.deleteMember(subjX);
     }
     catch (Exception eShouldNotHappen) {
       fail( "ERROR INITIALIZING TEST: " + eShouldNotHappen.getMessage() );
     }
-    assertTrue( "gD has immediate gC",    gD.hasImmediateMember( gC.toSubject() ) );
-    assertTrue( "gD has effective subjX", gD.hasEffectiveMember( subjX ) );
-    assertTrue( "gD has effective subjY", gD.hasEffectiveMember( subjY ) );
+    assertFalse( "gC !has subjX", gC.hasMember(subjX) );
+    assertTrue(  "gC has subjY",  gC.hasMember(subjY) );
+    assertTrue(  "gD has gC",     gD.hasMember( gC.toSubject() ) ); 
+    assertFalse( "gD !has subjX", gD.hasMember(subjX) ); 
+    assertTrue(  "gD has subjY",  gD.hasMember(subjY) ); 
   }
 
 } 

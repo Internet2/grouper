@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  java.util.HashMap;
@@ -33,7 +34,7 @@ import  org.apache.commons.lang.time.*;
  * A composite membership definition within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.45 2007-05-22 14:09:44 blair Exp $
+ * @version $Id: Composite.java,v 1.46 2007-05-24 19:22:47 blair Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -153,17 +154,16 @@ public class Composite extends GrouperAPI {
   // PROTECTED CLASS METHODS //
 
   /**
-   * Identify composites where <code>g</code> is a factor and update memberships as necessary.
+   * Identify memberships (composites and not) where updated need to be performed.
    * @since   1.2.0
    */
   protected static void internal_update(Group g) {
-    Composite c;
-    Iterator  it  = GrouperDAOFactory.getFactory().getComposite().findAsFactor( (GroupDTO) g.getDTO() ).iterator();
-    while (it.hasNext()) {
-      c = new Composite();
-      c.setDTO( (CompositeDTO) it.next() );
-      c.setSession( g.getSession() );
-      c._update();
+    Set factorOwners = _updateWhereGroupIsFactor(g);
+    try {
+      _updateWhereFactorOwnersAreImmediateMembers(g, factorOwners);
+    }
+    catch (GroupNotFoundException eShouldNotHappen) {
+      ErrorLog.fatal( Composite.class, "error processing composite updates: " + eShouldNotHappen.getMessage() );  
     }
   }
 
@@ -204,7 +204,7 @@ public class Composite extends GrouperAPI {
    * member of a factor so that all factors can be updated as appropriate.
    * @since   1.2.0
    */
-  private static void _update(GrouperSession s, Set mships) {
+  private static void _updateComposites(GrouperSession s, Set mships) {
     try {
       Set groupsToUpdate  = new LinkedHashSet();
       // first find the owning group uuid for each membership
@@ -233,6 +233,88 @@ public class Composite extends GrouperAPI {
       throw new IllegalStateException( eGNF.getMessage(), eGNF );
     }
   } 
+
+  /**
+   * Update effective memberships where a) the modified group b) is a factor and c) the factor owner
+   * is an immediate member elsewhere.
+   * @param   g     The original modified group.
+   * @throws  GroupNotFoundException
+   * @since   1.2.0
+   */
+  private static void _updateWhereFactorOwnersAreImmediateMembers(Group g, Set factorOwners) 
+    throws  GroupNotFoundException
+  {
+    Group           factorOwner;
+    String          factorOwnerUuid;
+
+    Iterator it = factorOwners.iterator();
+      while (it.hasNext()) {
+        factorOwnerUuid = (String) it.next();
+        factorOwner     = new Group();
+        factorOwner.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(factorOwnerUuid) );
+        factorOwner.setSession( g.getSession() );
+        _updateWhereFactorOwnerIsImmediateMember(factorOwner);
+      }
+  }
+
+  /**
+   * Update effective memberships where the factor owner is an immediate member.
+   * @throws  GroupNotFoundException
+   * @since   1.2.0
+   */
+  private static void _updateWhereFactorOwnerIsImmediateMember(Group factorOwner)
+    throws  GroupNotFoundException
+  {
+    MemberDTO       _m        = (MemberDTO) factorOwner.toMember().getDTO();
+    DefaultMemberOf mof;
+    MembershipDTO   _ms;
+    Group           msOwner;
+
+    // Find everywhere where the factor owner is an immediate member, delete the
+    // membership and then recreate it.
+    Iterator it = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(
+      factorOwner.toMember().getUuid(), Group.getDefaultList()
+    ).iterator();
+    while (it.hasNext()) {
+      _ms     = (MembershipDTO) it.next();
+      msOwner = new Group();
+      msOwner.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) );
+      msOwner.setSession( factorOwner.getSession() );
+
+      // TODO 20070524 ideally i wouldn't delete and then re-add the membership.  bad programmer.  
+      //               i *should* identify where there have been changes and then only
+      //               update *those* memberships.
+      mof = new DefaultMemberOf();
+      mof.deleteImmediate( factorOwner.getSession(), msOwner, _ms, _m );
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+      mof = new DefaultMemberOf();
+      mof.addImmediate( factorOwner.getSession(), msOwner, Group.getDefaultList(), _m );
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
+    
+      // TODO 20070524 do i need to call "Composite.internal_update(msOwner)"?  i
+      //               certainly hope not and so far the tests suggest no. 
+    }
+  }
+
+  /**
+   * Update composites where modified group is a factor.
+   * @return  <i>Set</i> of factor owner UUIDs for use by {@link _updateWhereFactorOwnersAreImmediateMembers(Group, Set)}.
+   * @since   1.2.0
+   */
+  private static Set _updateWhereGroupIsFactor(Group g) {
+    Composite c;
+    Set       factorOwners  = new LinkedHashSet();
+    Iterator  it            = GrouperDAOFactory.getFactory().getComposite().findAsFactor( (GroupDTO) g.getDTO() ).iterator();
+    while (it.hasNext()) {
+      c = new Composite();
+      c.setDTO( (CompositeDTO) it.next() );
+      c.setSession( g.getSession() );
+      factorOwners.add( c._getDTO().getFactorOwnerUuid() );
+      c._update();
+    }
+    return factorOwners; // TODO 20070524 aesthetically this is inappropriate
+  }
 
 
   // PRIVATE INSTANCE METHODS //
@@ -284,10 +366,10 @@ public class Composite extends GrouperAPI {
       Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
         ( (GroupDTO) g.getDTO() ).getUuid(), Group.getDefaultList()  // current mships
       );
-      Set should    = mof.getEffectiveSaves();     // What mships should be
-      Set deletes   = new LinkedHashSet(cur);         // deletes  = cur - should
+      Set should    = mof.getEffectiveSaves();    // What mships should be
+      Set deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
       deletes.removeAll(should);
-      Set adds      = new LinkedHashSet(should);      // adds     = should - cur
+      Set adds      = new LinkedHashSet(should);  // adds     = should - cur
       adds.removeAll(cur);
       Map modified  = new HashMap();
       modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, adds.iterator() );
@@ -299,8 +381,8 @@ public class Composite extends GrouperAPI {
         GrouperDAOFactory.getFactory().getComposite().update(adds, deletes, modGroups, modStems);
         sw.stop();
         EventLog.compositeUpdate(this, adds, deletes, sw);
-        Composite._update( this.getSession(), deletes);
-        Composite._update( this.getSession(), adds);
+        _updateComposites( this.getSession(), deletes);
+        _updateComposites( this.getSession(), adds);
       }
     }
     catch (GroupNotFoundException eGNF) {
@@ -311,7 +393,7 @@ public class Composite extends GrouperAPI {
       String msg = E.COMP_UPDATE + eIS.getMessage();
       ErrorLog.error(Composite.class, msg);
     }
-  } // private void _update()
+  } 
 
 } 
 

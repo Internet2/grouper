@@ -18,7 +18,7 @@ Released: TBD
 * "ext/gsh-src.zip" updated to gsh 0.1.1.
 
 ## FIXED
-* Fixed membership calculation bug [jira:grouper:#1].
+* Fixed two severe membership calculation bugs [jira#1, jira#2].
 * Fixed bugs where imported Groups and Stems were not assigned UUIDs.
 * Fixed some XML escaping issues with group "name" and "displayName" in "XmlExporter".
 * Fixed some XML escaping issues with list names in "XmlExporter".
