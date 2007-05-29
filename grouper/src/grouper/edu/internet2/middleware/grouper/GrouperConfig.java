@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.46 2007-04-30 16:15:12 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.47 2007-05-29 14:49:17 blair Exp $
  */
 public class GrouperConfig {
 
@@ -118,16 +118,8 @@ public class GrouperConfig {
 
   // STATIC //
   static {
-    // Load Grouper build properties
-    try {
-      InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_BUILD_CF);
-      build_props.load(in);
-    }
-    catch (IOException eIO) {
-      String msg = "unable to read grouper build configuration: " + eIO.getMessage();
-      ErrorLog.fatal(GrouperConfig.class, msg);
-      throw new GrouperRuntimeException(msg, eIO);
-    }
+    // TODO 20070529 why are these static again?
+
     // Load Grouper properties
     try {
       InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_CF);
@@ -148,9 +140,7 @@ public class GrouperConfig {
       ErrorLog.fatal(GrouperConfig.class, msg);
       throw new GrouperRuntimeException(msg, eIO);
     }
-  } // static
-
-
+  } 
 
   // CONSTRUCTORS //
   private GrouperConfig() {
@@ -169,7 +159,7 @@ public class GrouperConfig {
    * @since   1.2.0
    */
   public static String getBuildProperty(String property) {
-    return _getProperty(build_props, property);
+    return _getProperty( _getProperties(GROUPER_BUILD_CF, build_props), property );
   } 
 
   /**
@@ -196,7 +186,7 @@ public class GrouperConfig {
    */
   public static String getProperty(String property) {
     return _getProperty(grouper_props, property);
-  } // public static String getProperty(property)
+  }
 
 
   // PROTECTED CLASS METHODS //
@@ -219,6 +209,24 @@ public class GrouperConfig {
 
   // PRIVATE CLASS METHODS //
 
+  /**
+   * Load properties in <code>cf</code> into <code>props</code> if not already loaded.
+   * @since   1.2.0
+   */
+  private static Properties _getProperties(String cf, Properties props) {
+    if ( (props != null) && (props.size() > 0) ) {
+      return props;
+    }
+    try {
+      props = new Properties();
+      props.load( GrouperConfig.class.getResourceAsStream(cf) );
+      return props;
+    }
+    catch (IOException eIO) {
+      throw new GrouperRuntimeException( "error reading (" + cf + "): " + eIO.getMessage(), eIO );
+    }
+  }
+
   // @since   1.1.0
   private static String _getProperty(Properties props, String property) {
     String value = GrouperConfig.EMPTY_STRING;
@@ -226,7 +234,7 @@ public class GrouperConfig {
       value = StringUtils.strip( props.getProperty(property) );
     }
     return value;
-  } // private static String _getProperty(props, property)
+  } 
 
 } 
 
