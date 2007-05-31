@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.50 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: EventLog.java,v 1.51 2007-05-31 19:35:02 blair Exp $
  */
 class EventLog {
 
@@ -173,14 +173,14 @@ class EventLog {
   // @since   1.2.0
   protected void addEffMembers(GrouperSession s, Group g, Subject subj, Field f, Set effs) {
     if (this.log_eff_group_add) {
-      this._addEffs(s, "group=" + g.getName(), subj, f, effs);
+      this._addEffs(s, "group=" + Quote.single( g.getName() ), subj, f, effs);
     }
   } // protected void addEffMembers(s, g, subj, f, effs)
 
   // @since   1.2.0
   protected void addEffMembers(GrouperSession s, Stem ns, Subject subj, Field f, Set effs) {
     if (this.log_eff_stem_add) {
-      this._addEffs(s, "stem=" + ns.getName(), subj, f, effs);
+      this._addEffs(s, "stem=" + Quote.single( ns.getName() ), subj, f, effs);
     }
   } // protected void addEffMembers(s, ns, subj, f, effs)
 
@@ -298,7 +298,7 @@ class EventLog {
     EventLog.info(
       s,
       msg           + Quote.single(where) 
-      + " list="    + Quote.single(ms.getList().getName())  
+      + " list="    + Quote.single( ms.getList().getName() )  
       + " subject=" + subject,
       sw
     );
@@ -358,13 +358,13 @@ class EventLog {
     // Get added or removed message that caused this effective membership change
     msg += " (" + name + " ";
     if      ( f.getType().equals(FieldType.ACCESS) )  {
-      msg += "priv=" + Quote.single(f.getName());
+      msg += "priv=" + Quote.single( f.getName() );
     }
     else if ( f.getType().equals(FieldType.LIST) )    {
-      msg += "list=" + Quote.single(f.getName());
+      msg += "list=" + Quote.single( f.getName() );
     }
     else if ( f.getType().equals(FieldType.NAMING) )  {
-      msg += "priv=" + Quote.single(f.getName());
+      msg += "priv=" + Quote.single( f.getName() );
     }
     // Get added or removed subject that caused this effective
     // membership change
@@ -420,7 +420,7 @@ class EventLog {
   // @since   1.2.0
   private String _getEffSubjectMsg(MembershipDTO _eff) {
     try {
-      return " " + GrouperDAOFactory.getFactory().getMember().findByUuid( _eff.getMemberUuid() );
+      return " subject=" + SubjectHelper.getPretty( GrouperDAOFactory.getFactory().getMember().findByUuid( _eff.getMemberUuid() ) );
     }
     catch (MemberNotFoundException eMNF)    {
       // TODO 20070323 this can't help performance
@@ -435,7 +435,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + Quote.single(name) + " priv=" + Quote.single(p.getName()) + " subject=" 
+      msg + Quote.single(name) + " priv=" + Quote.single( p.getName() ) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
@@ -447,7 +447,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + Quote.single(group) + " list=" + Quote.single(f.getName()) + " subject=" 
+      msg + Quote.single(group) + " list=" + Quote.single( f.getName() ) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
@@ -458,7 +458,7 @@ class EventLog {
   )
   {
     EventLog.info(
-      s, msg + Quote.single(name) + " priv=" + Quote.single(p.getName()), sw
+      s, msg + Quote.single(name) + " priv=" + Quote.single( p.getName() ), sw
     );
   } // private void _revokePriv(s, msg, name, p, sw)
 
@@ -468,7 +468,7 @@ class EventLog {
   {
     EventLog.info(
       s,
-      msg + Quote.single(name) + " priv=" + Quote.single(p.getName()) + " subject=" 
+      msg + Quote.single(name) + " priv=" + Quote.single( p.getName() ) + " subject=" 
       + SubjectHelper.getPretty(subj),
       sw
     );
