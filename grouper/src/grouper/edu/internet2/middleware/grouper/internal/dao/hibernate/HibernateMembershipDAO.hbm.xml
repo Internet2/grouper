@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateMembershipDAO.hbm.xml,v 1.1 2007-04-17 14:17:29 blair Exp $ -->
+<!-- $Id: HibernateMembershipDAO.hbm.xml,v 1.2 2007-05-31 15:57:14 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hibernate">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
@@ -175,6 +175,7 @@
     >
       <column name="membership_uuid"
               unique-key="members_idx"
+              index="membership_uuid_idx"
               length="128"
       />
     </property>

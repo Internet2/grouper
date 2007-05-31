@@ -16,6 +16,7 @@ Released: TBD
 * "ant test" now has a proper dependency chain and can be called without
   having previously initialized the database.
 * "ext/gsh-src.zip" updated to gsh 0.1.1.
+* Added "membership_uuid_idx" index to "grouper_memberships" table.
 
 ## FIXED
 * Fixed two severe membership calculation bugs [jira#1, jira#2].
