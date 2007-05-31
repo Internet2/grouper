@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
@@ -29,7 +30,7 @@ import  java.util.Set;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.6 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: RegistrySubject.java,v 1.7 2007-05-31 17:57:44 blair Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -82,8 +83,46 @@ public class RegistrySubject extends GrouperAPI implements Subject {
   } // public static RegistrySubject add(s, id, type, name)
 
 
+
   // PUBLIC INSTANCE METHODS //
 
+  /**
+   * Delete existing {@link RegistrySubject}.
+   * <pre>
+   * try {
+   *   rSubj.delete(s);
+   * }
+   * catch (GrouperException eG) {
+   *   // failed to delete this RegistrySubject
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // not privileged to delete this RegistrySubject
+   * }
+   * </pre>
+   * @param   s   Delete <i>RegistrySubject</i> within this <i>GrouperSession</i> context.
+   * @throws  GrouperException  if <i>RegistrySubject</i> cannot be deleted.
+   * @throws  IllegalStateException if <i>GrouperSession</i> is null.
+   * @throws  InsufficientPrivilegeException if not privileged to delete <i>RegistrySubject</i>s.
+   * @since   1.2.0
+   */
+  public void delete(GrouperSession s) 
+    throws  GrouperException,
+            IllegalStateException,
+            InsufficientPrivilegeException
+  {
+    if (s == null) {
+      throw new IllegalStateException("null session");
+    }
+    if ( !RootPrivilegeResolver.internal_isRoot(s) ) {
+      throw new InsufficientPrivilegeException("must be root-like to delete RegistrySubjects");
+    }    
+    try {
+      GrouperDAOFactory.getFactory().getRegistrySubject().delete( this._getDTO() );
+    }
+    catch (GrouperDAOException eDAO) {
+      throw new GrouperException( eDAO.getMessage(), eDAO );
+    }
+  }
   /**
    * Return the subject's attribute.
    *  <p/>
