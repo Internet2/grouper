@@ -11,6 +11,7 @@ Released: TBD
 
 ## NEW
 * Added optional "dao.factory" configuration parameter to "grouper.properties".
+* Added "RegistrySubject.delete()".
 
 ## UPDATED
 * "ant test" now has a proper dependency chain and can be called without

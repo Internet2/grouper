@@ -23,7 +23,7 @@ import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
  * Basic <code>RegistrySubject</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: RegistrySubjectDAO.java,v 1.4 2007-05-31 17:57:45 blair Exp $
  * @since   1.2.0
  */
 public interface RegistrySubjectDAO extends GrouperDAO {
@@ -32,6 +32,12 @@ public interface RegistrySubjectDAO extends GrouperDAO {
    * @since   1.2.0
    */
   String create(RegistrySubjectDTO _subj)
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.2.0
+   */
+  void delete(RegistrySubjectDTO _subj)
     throws  GrouperDAOException;
 
   /**
