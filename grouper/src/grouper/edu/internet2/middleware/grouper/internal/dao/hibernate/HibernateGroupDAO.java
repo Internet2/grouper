@@ -40,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.11 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.12 2007-05-31 19:01:11 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -782,9 +782,10 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
    * @since   1.2.0
    */
   public GroupDAO setTypes(Set types) {
-    // TODO 20070405 try to make this behave more like the rest of the *etters
-    // as types are retrieved dynamically we don't need to cache them locally.
-    // and, yes, that could be considered a poor design decision.
+    // TODO 20070405 try to make this behave more like the rest of the *etters.
+    //               as types are retrieved dynamically we don't need to cache
+    //               them locally.  and, yes, that could be considered a poor 
+    //               design decision.
     return this;
   }
 

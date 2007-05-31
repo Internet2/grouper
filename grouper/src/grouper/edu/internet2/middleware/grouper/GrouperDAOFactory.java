@@ -32,7 +32,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.6 2007-04-27 17:45:00 blair Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.7 2007-05-31 19:01:11 blair Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -62,8 +62,6 @@ public abstract class GrouperDAOFactory {
 
 
   // PUBLIC ABSTRACT INSTANCE METHODS //
-
-  // TODO 20070403 add static class methods that call these?
 
   /**
    * @since   1.2.0
