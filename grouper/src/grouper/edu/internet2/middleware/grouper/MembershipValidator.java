@@ -20,7 +20,7 @@ import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.30 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.31 2007-05-31 18:52:26 blair Exp $
  * @since   1.0
  */
 class MembershipValidator extends GrouperValidator {
@@ -58,7 +58,8 @@ class MembershipValidator extends GrouperValidator {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
-  // TODO 20070220 this is still fuck
+  // TODO 20070531 should i go straight to the dao?  or would i be burned by
+  //               bypassing any caching done in "FieldFinder"?
   private boolean _doesFieldExist(String name) {
     try {
       FieldFinder.find(name);

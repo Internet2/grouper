@@ -20,11 +20,15 @@ import  java.util.regex.Pattern;
 
 /** 
  * @author  blair christensen.
- * @version $Id: NamingValidator.java,v 1.2 2007-02-28 19:37:31 blair Exp $
+ * @version $Id: NamingValidator.java,v 1.3 2007-05-31 18:52:26 blair Exp $
  * @since   1.2.0
  */
 class NamingValidator extends GrouperValidator {
 
+  // PROTECTED CLASS CONSTANTS //
+  protected static final String E_WS = "must contain a non-whitespace character";
+  
+  
   // PRIVATE CLASS CONSTANTS //
   private static final Pattern  RE_COLON  = Pattern.compile(":");
   private static final Pattern  RE_WS     = Pattern.compile("^\\s*$");
@@ -42,7 +46,7 @@ class NamingValidator extends GrouperValidator {
       nv.setErrorMessage(E.ATTR_COLON);
     }
     else if ( RE_WS.matcher(name).find() )    {
-      nv.setErrorMessage(E.ATTR_NULL); // TODO 20070219 return a better message
+      nv.setErrorMessage(E_WS);
     }
     else {
       nv.setIsValid(true);

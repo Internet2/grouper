@@ -26,7 +26,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>RegistrySubject</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateRegistrySubjectDAO.java,v 1.5 2007-05-31 17:57:45 blair Exp $
+ * @version $Id: HibernateRegistrySubjectDAO.java,v 1.6 2007-05-31 18:52:26 blair Exp $
  * @since   1.2.0
  */
 public class HibernateRegistrySubjectDAO extends HibernateDAO implements RegistrySubjectDAO {
@@ -175,7 +175,7 @@ public class HibernateRegistrySubjectDAO extends HibernateDAO implements Registr
   protected static void reset(Session hs) 
     throws  HibernateException
   {
-    hs.delete("from HibernateRegistrySubjectAttributeDAO"); // TODO 20061018 this shouldn't be necessary
+    hs.delete("from HibernateRegistrySubjectAttributeDAO");
     hs.delete("from HibernateRegistrySubjectDAO");
   } 
 

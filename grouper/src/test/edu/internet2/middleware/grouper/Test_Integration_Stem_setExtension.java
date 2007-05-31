@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.3 2007-03-06 19:29:21 blair Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.4 2007-05-31 18:52:25 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
@@ -31,7 +31,6 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
 
   // TESTS //  
 
-  // TODO 20070219 add mock priv adapter and add version of this to unit tests?
   public void testSetExtension_NotPrivileged() {
     try {
       LOG.info("testSetExtension_NotPrivileged");

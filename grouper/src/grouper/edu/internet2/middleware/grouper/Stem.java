@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.126 2007-05-21 18:43:55 blair Exp $
+ * @version $Id: Stem.java,v 1.127 2007-05-31 18:52:26 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -755,7 +755,7 @@ public class Stem extends GrouperAPI implements Owner {
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
-    // TODO 20070219 DRY w/ "setDisplayExtension"
+    // TODO 20070531 DRY w/ "setDisplayExtension"
     StopWatch sw = new StopWatch();
     sw.start();
     NamingValidator nv = NamingValidator.validate(value);

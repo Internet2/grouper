@@ -23,7 +23,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.14 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.15 2007-05-31 18:52:26 blair Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -46,7 +46,7 @@ class GrouperPrivilegeAdapter {
   )
     throws  SchemaException
   {
-    // TODO 20070328 i have to be able to break this up
+    // TODO 20070531 split and test
     Membership  ms;
     Subject     owner   = subj;
     Set         privs   = new LinkedHashSet();

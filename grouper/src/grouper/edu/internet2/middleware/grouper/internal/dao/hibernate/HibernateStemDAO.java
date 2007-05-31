@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.8 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.9 2007-05-31 18:52:26 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -196,7 +196,6 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
   public boolean exists(String uuid) 
     throws  GrouperDAOException
   {
-    // TODO 20070316 cache?
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("select ns.id from HibernateStemDAO ns where ns.uuid = :uuid");

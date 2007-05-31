@@ -32,7 +32,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Field</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.5 2007-04-19 16:28:49 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.6 2007-05-31 18:52:26 blair Exp $
  * @since   1.2.0
  */
 public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
@@ -60,7 +60,6 @@ public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
   public boolean existsByName(String name) 
     throws  GrouperDAOException
   {
-    // TODO 20070316 cache?
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("select f.id from HibernateFieldDAO f where f.name = :name");

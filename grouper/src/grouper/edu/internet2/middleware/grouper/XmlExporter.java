@@ -41,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.97 2007-05-21 17:58:41 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.98 2007-05-31 18:52:26 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -598,7 +598,7 @@ public class XmlExporter {
     throws  GrouperException
   {
     try {
-      // TODO 20061010 refactor! refactor! refactor!
+      // TODO 20070531 this is atrocious
       this.fromStem         = "_Z";
       this._writeHeader();
       int     counter       = 0;

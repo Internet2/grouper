@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_Stem_setExtension.java,v 1.2 2007-04-17 14:17:30 blair Exp $
+ * @version $Id: Test_Unit_API_Stem_setExtension.java,v 1.3 2007-05-31 18:52:25 blair Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_Stem_setExtension extends GrouperTest {
@@ -59,7 +59,7 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
     }
     catch (StemModifyException eNSM) {
       assertTrue(true);
-      assertEquals( E.ATTR_NULL, eNSM.getMessage() );
+      assertEquals( NamingValidator.E_WS, eNSM.getMessage() );
     }
     catch (Exception e) {
       unexpectedException(e);
@@ -93,12 +93,12 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
     }
     catch (StemModifyException eNSM) {
       assertTrue(true);
-      assertEquals( E.ATTR_NULL, eNSM.getMessage() );
+      assertEquals( NamingValidator.E_WS, eNSM.getMessage() );
     }
     catch (Exception e) {
       unexpectedException(e);
     }
-  } // public void testSetExtension_WhitespaceOnlyValue()
+  }
     
-} // public class Test_Unit_API_Stem_setExtension extends GrouperTest
+}
 
