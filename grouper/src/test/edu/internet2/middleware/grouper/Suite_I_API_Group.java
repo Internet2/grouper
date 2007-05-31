@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_I_API_Group.java,v 1.2 2007-05-24 19:22:47 blair Exp $
+ * @version $Id: Suite_I_API_Group.java,v 1.3 2007-05-31 16:54:02 blair Exp $
  * @since   1.2.0
  */
 public class Suite_I_API_Group extends GrouperTest {
@@ -28,6 +28,7 @@ public class Suite_I_API_Group extends GrouperTest {
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( Test_I_API_Group_addCompositeMember.class );
+    suite.addTestSuite( Test_I_API_Group_deleteAttribute.class );
     suite.addTestSuite( Test_I_API_Group_deleteMember.class );
     return suite;
   } 

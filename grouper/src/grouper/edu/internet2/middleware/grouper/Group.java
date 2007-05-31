@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.159 2007-05-23 20:04:26 blair Exp $
+ * @version $Id: Group.java,v 1.160 2007-05-31 16:54:02 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -905,17 +905,16 @@ public class Group extends GrouperAPI implements Owner {
    * <pre class="eg">
    * String description = g.getDescription();
    * </pre>
-   * @return  Group description.
+   * @return  Group's <i>description</i> or an empty string if no value set.
    */
   public String getDescription() {
     try {
       return (String) this.getAttribute(GrouperConfig.ATTR_D);
     }
     catch (AttributeNotFoundException eANF) {
-      // Lack of a description is acceptable
-      return GrouperConfig.EMPTY_STRING;
+      return GrouperConfig.EMPTY_STRING; // Lack of a description is acceptable
     }
-  } // public String getDescription()
+  } 
 
   /**
    * Get group displayExtension.
