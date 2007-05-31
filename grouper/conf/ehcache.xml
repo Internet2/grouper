@@ -32,7 +32,7 @@
     eternal="false"
     timeToIdleSeconds="10"
     timeToLiveSeconds="20"
-    overflowToDisk="true"
+    overflowToDisk="false"
   />
 
   <!--
@@ -74,8 +74,10 @@
 
   <cache name="net.sf.hibernate.cache.UpdateTimestampsCache"
     maxElementsInMemory="5000"
-    eternal="true"
-    overflowToDisk="true"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="20"
+    overflowToDisk="false"
   />
 
 </ehcache>
