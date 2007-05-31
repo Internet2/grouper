@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Stem_internal_addChildGroup.java,v 1.1 2007-05-21 18:43:56 blair Exp $
+ * @version $Id: Test_I_API_Stem_internal_addChildGroup.java,v 1.2 2007-05-31 19:01:11 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Stem_internal_addChildGroup extends GrouperTest {
@@ -33,8 +33,7 @@ public class Test_I_API_Stem_internal_addChildGroup extends GrouperTest {
 
   public void setUp() {
     super.setUp();
-    try {
-      // TODO 20070521 this *really* cries out for an object mother     
+    try {  
       s       = GrouperSession.start( SubjectFinder.findRootSubject() );
       parent  = StemFinder.findRootStem(s).addChildStem("parent", "parent");
     }

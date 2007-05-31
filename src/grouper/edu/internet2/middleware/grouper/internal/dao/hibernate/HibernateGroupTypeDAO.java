@@ -35,7 +35,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupTypeDAO.java,v 1.5 2007-04-19 16:28:49 blair Exp $
+ * @version $Id: HibernateGroupTypeDAO.java,v 1.6 2007-05-31 19:01:11 blair Exp $
  */
 public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO, Lifecycle {
 
@@ -65,7 +65,6 @@ public class HibernateGroupTypeDAO extends HibernateDAO implements GroupTypeDAO,
       Session       hs  = HibernateDAO.getSession();
       Transaction   tx  = hs.beginTransaction();
       HibernateDAO  dao = (HibernateDAO) Rosetta.getDAO(_gt);
-      // TODO 20070403 DRY w/ the other DAO classes
       try {
         hs.save(dao);
         tx.commit();

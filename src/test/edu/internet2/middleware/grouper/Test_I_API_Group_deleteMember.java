@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteMember.java,v 1.1 2007-05-24 19:22:47 blair Exp $
+ * @version $Id: Test_I_API_Group_deleteMember.java,v 1.2 2007-05-31 19:01:11 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteMember extends GrouperTest {
@@ -37,8 +37,7 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
 
   public void setUp() {
     super.setUp();
-    try {
-      // TODO 20070521 this *really* cries out for an object mother     
+    try {    
       s       = GrouperSession.start( SubjectFinder.findRootSubject() );
       parent  = StemFinder.findRootStem(s).addChildStem("parent", "parent");
       gA      = parent.addChildGroup("child group a", "child group a");

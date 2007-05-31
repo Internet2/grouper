@@ -20,7 +20,7 @@ import  java.util.regex.Pattern;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.1 2007-05-21 16:16:41 blair Exp $
+ * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.2 2007-05-31 19:01:11 blair Exp $
  * @since   1.2.0
  */
 public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
@@ -36,8 +36,7 @@ public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
 
   public void setUp() {
     super.setUp();
-    try {
-      // TODO 20070521 this *really* cries out for an object mother     
+    try {    
       s       = GrouperSession.start( SubjectFinder.findRootSubject() );
       parent  = StemFinder.findRootStem(s).addChildStem("parent", "parent");
       child   = parent.addChildGroup("parent > child", "parent > child");
