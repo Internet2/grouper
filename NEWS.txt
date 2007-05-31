@@ -17,6 +17,7 @@ Released: TBD
   having previously initialized the database.
 * "ext/gsh-src.zip" updated to gsh 0.1.1.
 * Added "membership_uuid_idx" index to "grouper_memberships" table.
+* Updated "conf/ehcache.xml" to no longer overflow to disk by default.
 
 ## FIXED
 * Fixed two severe membership calculation bugs [jira#1, jira#2].
