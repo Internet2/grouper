@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/test"/>
+	<classpathentry excluding="edu/internet2/middleware/grouper/.cvsignore" kind="src" path="src/test"/>
 	<classpathentry kind="src" path="src/grouper"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.8.jar"/>
