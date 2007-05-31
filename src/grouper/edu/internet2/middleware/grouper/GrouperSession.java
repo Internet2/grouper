@@ -31,7 +31,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.67 2007-05-14 16:12:56 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.68 2007-05-31 18:52:26 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -296,7 +296,6 @@ public class GrouperSession extends GrouperAPI {
   protected GrouperSession internal_getRootSession() 
     throws  GrouperRuntimeException
   {
-    // TODO 20070119 should i care if we are fetching a root session from within another root session?
     // TODO 20070417 deprecate if possible
     if (this.rootSession == null) {
       GrouperSession rs = new GrouperSession();

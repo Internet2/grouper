@@ -22,7 +22,7 @@ import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.7 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.8 2007-05-31 18:52:26 blair Exp $
  * @since   1.2.0
  */
 class ImmediateMembershipValidator extends MembershipValidator {
@@ -86,7 +86,7 @@ class ImmediateMembershipValidator extends MembershipValidator {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
-  // TODO 20070220 this is still fuck
+  // TODO 20070531 it would be nice if i could avoid exceptions here
   private boolean _isCircular(MembershipDTO _ms) 
     throws  IllegalStateException
   {

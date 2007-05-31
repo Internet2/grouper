@@ -27,7 +27,7 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.34 2007-04-17 18:45:13 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.35 2007-05-31 18:52:26 blair Exp $
  */
 public class FieldFinder {
 
@@ -98,7 +98,7 @@ public class FieldFinder {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  // TODO 20070222 i really hate this method
+  // TODO 20070531 split and test.
   protected static void internal_updateKnownFields() {
     Field f;
     Set   fieldsInRegistry = findAll();
@@ -108,7 +108,7 @@ public class FieldFinder {
     while (it.hasNext()) {
       f = (Field) it.next();
       if ( !fieldCache.containsKey( f.getName() ) ) {
-        fieldCache.put( f.getName(), f ); // TODO 20070222 make sure the "GroupType" is loaded?
+        fieldCache.put( f.getName(), f );
       }
     }
 

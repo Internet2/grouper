@@ -34,7 +34,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.4 2007-05-22 15:20:45 blair Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.5 2007-05-31 18:52:26 blair Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -122,7 +122,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     String        modifierUuid  = this.getSession().getMember().getUuid();
     long          modifyTime    = new java.util.Date().getTime();
 
-    // TODO 20070214 this is a little hackish
+    // TODO 20070531 this is horribly ugly.
     Map           groups        = new HashMap();
     if (m.containsKey("groups")) {
       groups = (Map) m.get("groups");
@@ -451,7 +451,7 @@ public class DefaultMemberOf extends BaseMemberOf {
   } 
 
   // @since   1.2.0
-  // TODO 20070220 split; this method has gotten too large
+  // TODO 20070531 split; this method has gotten too large
   private void _evaluateAddImmediateMembership(GrouperSession s, Field f, MemberDTO _m) 
     throws  IllegalStateException
   {
@@ -468,7 +468,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     }
 
     try {
-      // TODO 20070220 i really shouldn't be throwing schema exceptions here
+      // TODO 20070531 look into finding a way to avoid SchemaExceptions here
       this.setField( FieldFinder.find( _ms.getListName() ) );
     }
     catch (SchemaException eS) {

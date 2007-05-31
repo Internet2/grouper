@@ -40,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.10 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.11 2007-05-31 18:52:26 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -875,7 +875,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   private void _updateAttributes(Session hs) 
     throws  HibernateException
   {
-    // TODO 20070314 refactor.  this is too big.
+    // TODO 20070531 split and test
     Query qry = hs.createQuery("from HibernateAttributeDAO as a where a.groupUuid = :uuid");
     qry.setCacheable(false);
     qry.setCacheRegion(KLASS + "._UpdateAttributes");

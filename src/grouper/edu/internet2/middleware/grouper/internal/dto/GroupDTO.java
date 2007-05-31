@@ -28,11 +28,11 @@ import  org.apache.commons.lang.builder.*;
  * Basic <code>Group</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.5 2007-05-31 18:52:26 blair Exp $
  */
 public class GroupDTO implements GrouperDTO {
 
-  // TODO 20070215 smarter, more DRY, lazy-loading, please
+  // TODO 20070531 review lazy-loading to improve consistency + performance
 
   // PRIVATE INSTANCE VARIABLES //
   private Map       attributes;

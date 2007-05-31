@@ -39,15 +39,15 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.160 2007-05-31 16:54:02 blair Exp $
+ * @version $Id: Group.java,v 1.161 2007-05-31 18:52:26 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL            = new EventLog();
-  private static final String   KEY_CREATOR   = "creator";  // for state caching // TODO 20070322 deprecate
+  private static final String   KEY_CREATOR   = "creator";  // for state caching 
   private static final String   KEY_MEMBER    = "member";   // for state caching  
-  private static final String   KEY_MODIFIER  = "modifier"; // for state caching // TODO 20070322 deprecate
+  private static final String   KEY_MODIFIER  = "modifier"; // for state caching
   private static final String   KEY_SUBJECT   = "subject";  // for state caching
 
 
@@ -1961,7 +1961,7 @@ public class Group extends GrouperAPI implements Owner {
         throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() );
       }
 
-      // TODO 20070306 this is all rather nasty
+      // TODO 20070531 split and test
       GrouperValidator v = NotNullOrEmptyValidator.validate(attr);
       if (v.isInvalid()) {
         throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
@@ -2185,7 +2185,7 @@ public class Group extends GrouperAPI implements Owner {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  // TODO 20070305 make into a validator?
+  // TODO 20070531 this should probably become a validator
   protected boolean internal_canWriteField(Subject subj, Field f, FieldType type)
     throws  IllegalArgumentException,
             SchemaException

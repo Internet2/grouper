@@ -30,7 +30,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.49 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: EventLog.java,v 1.50 2007-05-31 18:52:26 blair Exp $
  */
 class EventLog {
 
@@ -374,7 +374,7 @@ class EventLog {
   } 
 
   // @since   1.2.0
-  // TODO 20070222 this is still pretty nasty
+  // TODO 20070531 i need to make this all go away
   private String _getEffOwnerMsg(MembershipDTO _eff) {
     String  msg   = GrouperConfig.EMPTY_STRING;
     String  uuid  = _eff.getOwnerUuid();
