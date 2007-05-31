@@ -16,12 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.Subject;
 
 /**
  * Test <code>Group.deleteAttribute()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.1 2007-05-31 16:54:02 blair Exp $
+ * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.2 2007-05-31 18:16:22 blair Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteAttribute extends GrouperTest {
