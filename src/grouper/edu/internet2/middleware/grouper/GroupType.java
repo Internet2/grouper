@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.52 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: GroupType.java,v 1.53 2007-06-01 15:03:29 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -75,9 +75,9 @@ public class GroupType extends GrouperAPI implements Serializable {
     sw.start();
     GroupType type = internal_createType(s, name, true, false);
     sw.stop();
-    EventLog.info(s, M.GROUPTYPE_ADD + Quote.single(type.toString()), sw);
+    EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
     return type;
-  } // public static GroupType createType(s, name)
+  } 
 
 
   // PUBLIC INSTANCE METHODS //
