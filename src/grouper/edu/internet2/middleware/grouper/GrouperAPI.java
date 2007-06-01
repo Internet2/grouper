@@ -25,7 +25,7 @@ import  java.util.Set;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.7 2007-04-18 14:07:13 blair Exp $
+ * @version $Id: GrouperAPI.java,v 1.8 2007-06-01 16:14:03 blair Exp $
  * @since   1.2.0
  */
 abstract class GrouperAPI {
@@ -41,21 +41,6 @@ abstract class GrouperAPI {
   protected GrouperAPI() {
     super();
   } // protected GrouperAPI() 
-
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static Set setSession(GrouperSession s, Iterator it) {
-    Set         objects = new LinkedHashSet();
-    GrouperAPI  api;
-    while (it.hasNext()) {
-      api = (GrouperAPI) it.next();
-      api.setSession(s);
-      objects.add(api);
-    }
-    return objects;
-  } // protected static Set setSession(s, it)
 
 
   // PROTECTED INSTANCE METHODS //
