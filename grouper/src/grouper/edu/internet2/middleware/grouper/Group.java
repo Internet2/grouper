@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.161 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: Group.java,v 1.162 2007-06-01 15:03:29 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -276,7 +276,7 @@ public class Group extends GrouperAPI implements Owner {
       sw.stop();
       EventLog.info(
         this.getSession(),
-        M.GROUP_ADDTYPE + Quote.single(this.getName()) + " type=" + Quote.single(type.toString()),
+        M.GROUP_ADDTYPE + Quote.single(this.getName()) + " type=" + Quote.single( type.getName() ),
         sw
       );
     }
@@ -285,7 +285,7 @@ public class Group extends GrouperAPI implements Owner {
       ErrorLog.error(Group.class, msg);
       throw new GroupModifyException(msg, eDAO); 
     }
-  } // public void addType(type)
+  } 
 
   /**
    * Check whether the {@link Subject} that loaded this {@link Group} can
@@ -707,7 +707,7 @@ public class Group extends GrouperAPI implements Owner {
       sw.stop();
       EventLog.info(
         this.getSession(),
-        M.GROUP_DELTYPE + Quote.single(this.getName()) + " type=" + Quote.single(type.toString()),
+        M.GROUP_DELTYPE + Quote.single(this.getName()) + " type=" + Quote.single( type.getName() ),
         sw
       );
     }
@@ -716,7 +716,7 @@ public class Group extends GrouperAPI implements Owner {
       ErrorLog.error(Group.class, msg);
       throw new GroupModifyException(msg, eDAO);
     }
-  } // public void deleteType(type)
+  } 
 
   public boolean equals(Object other) {
     if (this == other) {
