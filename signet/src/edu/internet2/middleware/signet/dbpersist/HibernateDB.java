@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.9 2007-05-23 19:15:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.10 2007-06-14 21:39:04 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -54,6 +54,7 @@ import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.SubsystemImpl;
 import edu.internet2.middleware.signet.TreeAdapterImpl;
 import edu.internet2.middleware.signet.TreeImpl;
+import edu.internet2.middleware.signet.TreeNodeImpl;
 import edu.internet2.middleware.signet.TreeNodeRelationship;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.resource.ResLoaderApp;
@@ -68,7 +69,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @author $Author: ddonn $
  */
 public class HibernateDB
@@ -158,6 +159,8 @@ public class HibernateDB
 				" attr.mappedName, " +							//$NON-NLS-1$
 				" attr.sequence ";								//$NON-NLS-1$
 
+	/** Cache the Tree for performance */
+	protected TreeImpl cachedTree = null;
 
 	///////////////////////////////////
 	// class methods
@@ -367,13 +370,13 @@ public class HibernateDB
 	 * @return A SQL query
 	 * @throws SignetRuntimeException
 	 */
-	public Query createQuery(Session session, String hibrQuery) throws SignetRuntimeException
+	public Query createQuery(Session hs, String hibrQuery) throws SignetRuntimeException
 	{
 		Query retval = null;
 
 		try
 		{
-			retval = session.createQuery(hibrQuery);
+			retval = hs.createQuery(hibrQuery);
 		}
 		catch (HibernateException he)
 		{
@@ -385,12 +388,13 @@ public class HibernateDB
 
 
 	/**
-	 * Run the Hibernate Query Language query and return the results (wrapper method for session)
+	 * Run the arbitrary Hibernate Query Language query and return the results
+	 * @param hs A Hibernate Session
 	 * @param hibrQuery HQL query string
 	 * @return List of matching records or empty List (never null)
 	 * @throws SignetRuntimeException
 	 */
-	public List find(Session session, String hibrQuery) throws SignetRuntimeException
+	public List find(Session hs, String hibrQuery) throws SignetRuntimeException
 	{
 		List retval = null;
 
@@ -398,7 +402,7 @@ public class HibernateDB
 			retval = new ArrayList();
 		else
 		{
-			Query query = createQuery(session, hibrQuery);
+			Query query = createQuery(hs, hibrQuery);
 			try { retval = query.list(); }
 			catch (HibernateException e)
 			{
@@ -409,43 +413,73 @@ public class HibernateDB
 		return (retval);
 	}
 
+protected Session stdSession = null;
+
 	/**
 	 * Open a new Session, it's the caller's responsibility to call closeSession()
 	 * @return Returns a new Session
 	 */
 	public Session openSession()
 	{
-		Session session = null;
-		try
+		if (null == stdSession)
 		{
-			session = sessionFactory.openSession();
+			try
+			{
+				stdSession = sessionFactory.openSession();
+			}
+			catch (HibernateException he)
+			{
+				log.error("HibernateDB.HibernateDB: hibernate error");
+				log.error(he.toString());
+				throw new SignetRuntimeException(he);
+			}
 		}
-		catch (HibernateException he)
-		{
-			log.error("HibernateDB.HibernateDB: hibernate error");
-			log.error(he.toString());
-			throw new SignetRuntimeException(he);
-		}
-		return (session);
+		return (stdSession);
 	}
 
 	/**
 	 * Closes a Hibernate session.
 	 */
-	public void closeSession(Session session)
+	public void closeSession(Session hs)
+	{
+		if (hs != stdSession)
+		{
+			try
+			{
+				if (null != hs)
+				{
+					hs.close();
+				}
+			}
+			catch (HibernateException e)
+			{
+				throw new SignetRuntimeException(e);
+			}
+		}
+	}
+
+	public void reset()
 	{
 		try
 		{
-			if (null != session)
+			if (null != stdSession)
 			{
-				session.close();
+				if (stdSession.isDirty())
+					log.warn("HibernateDB.reset: Outstanding transactions have been lost");
+				stdSession.close();
+				stdSession = null;
 			}
+			openSession();
+			
 		}
 		catch (HibernateException e)
 		{
 			throw new SignetRuntimeException(e);
 		}
+
+		cachedTree = null;
 	}
+
 
 	/**
 	 * Saves an object, and any signet objects it refers to. Caller is responsible
@@ -454,13 +488,13 @@ public class HibernateDB
 	 * @param o The Object to save. Must have been previously defined in a
 	 * object.hbm.xml configuration file.
 	 */
-	public void save(Session session, Object o)
+	public void save(Session hs, Object o)
 	{
-		if ((null == o) || (null == session))
+		if ((null == o) || (null == hs))
 			return;
 		try
 		{
-			session.saveOrUpdate(o);
+			hs.saveOrUpdate(o);
 		}
 		catch (HibernateException e)
 		{
@@ -469,15 +503,15 @@ public class HibernateDB
 		}
 	}
 
-	public void save(Session session, List list)
+	public void save(Session hs, List list)
 	{
-		if ((null == list) || (null == session))
+		if ((null == list) || (null == hs))
 			return;
 
 		for (Iterator objs = list.iterator(); objs.hasNext(); )
 		{
 			Object o = objs.next();
-			try { session.saveOrUpdate(o); }
+			try { hs.saveOrUpdate(o); }
 			catch (HibernateException e)
 			{
 				log.error("HibernateDB.save(Session, List): Error occurred processing Object " + o.toString());
@@ -493,11 +527,11 @@ public class HibernateDB
 	 * @param o The Object to update. Must have been previously defined in a
 	 * object.hbm.xml configuration file.
 	 */
-	public void update(Session session, Object o)
+	public void update(Session hs, Object o)
 	{
 		try
 		{
-			session.update(o);
+			hs.update(o);
 		}
 		catch (HibernateException e)
 		{
@@ -506,11 +540,11 @@ public class HibernateDB
 	}
 
 
-	public void delete(Session session, Object o)
+	public void delete(Session hs, Object o)
 	{
 		try
 		{
-			session.delete(o);
+			hs.delete(o);
 		}
 		catch (HibernateException e)
 		{
@@ -528,9 +562,13 @@ public class HibernateDB
 	 */
 	public Tree getTree(Session hs, String id) throws ObjectNotFoundException
 	{
-		TreeImpl tree = (TreeImpl)(load(hs, TreeImpl.class, id));
-		tree.setSignet(signet);
-		return tree;
+		if ((null == cachedTree) || ( !cachedTree.getId().equals(id)))
+		{
+			cachedTree = (TreeImpl)(load(hs, TreeImpl.class, id));
+			cachedTree.setSignet(signet);
+		}
+
+		return (cachedTree);
 	}
 
 
@@ -543,14 +581,14 @@ public class HibernateDB
 	 */
 	public Set getSubsystems()
 	{
-		Session session = openSession();
-		List resultList = find(session, "from edu.internet2.middleware.signet.SubsystemImpl as subsystem");
+		Session hs = openSession();
+		List resultList = find(hs, "from edu.internet2.middleware.signet.SubsystemImpl as subsystem");
 
 		Set resultSet = new HashSet(resultList);
 		for (Iterator i = resultSet.iterator(); i.hasNext();)
 			((EntityImpl)i.next()).setSignet(signet);
 		Set retval = UnmodifiableSet.decorate(resultSet);
-		closeSession(session);
+		closeSession(hs);
 
 		return (retval);
 	}
@@ -596,10 +634,10 @@ public class HibernateDB
 	{
 		Query query;
 		List resultList;
-		Session session = openSession();
+		Session hs = openSession();
 		try
 		{
-			query = createQuery(session,
+			query = createQuery(hs,
 					"from " +
 					AssignmentImpl.class.getName() +
 					" as assignment " + 
@@ -617,9 +655,10 @@ public class HibernateDB
 		}
 		catch (HibernateException e)
 		{
-			session.close();
+			closeSession(hs);
 			throw new SignetRuntimeException(e);
 		}
+
 		Set resultSet = new HashSet(resultList);
 		Set editedSet = new HashSet();
 		editedSet.addAll(resultSet);
@@ -644,7 +683,7 @@ public class HibernateDB
 			}
 		}
 
-		closeSession(session);
+		closeSession(hs);
 		return editedSet;
 	}
 
@@ -683,43 +722,79 @@ public class HibernateDB
 	}
 
 
-	// I really want to do away with this method, having the
-	// Tree pick up its parent-child relationships via Hibernate
-	// object-mapping. I just haven't figured out how to do that yet.
-	public Set getParents(TreeNode childNode)
+	/**
+	 * Get the Set of parent TreeNodes for the given child
+	 * @param hs A Hibernate Session
+	 * @param childNode The child TreeNode
+	 * @return A Set of parents, may be empty (never null)
+	 */
+	public Set getParents(Session hs, TreeNode childNode)
 	{
-		Query query;
+		Set parents = new HashSet();
+		if (null == childNode)
+			return (parents);
+
+		Session session = (null != hs) ? hs : openSession();
+
+		String treeId = ((TreeNodeImpl)childNode).getTreeId();
+
 		List resultList;
-		Tree tree = childNode.getTree();
-		Session session = openSession();
 		try
 		{
-			query = createQuery(session,
+			Query query = createQuery(session,
 					"from " +
 					TreeNodeRelationship.class.getName() +
 					" as treeNodeRelationship" +
 					" where treeID = :treeId" +
 					" and nodeID = :childNodeId");
-			query.setString("treeId", tree.getId());
+			query.setString("treeId", treeId);
 			query.setString("childNodeId", childNode.getId());
 			resultList = query.list();
 		}
 		catch (HibernateException e)
 		{
-			session.close();
+			if (null == hs)
+				closeSession(session);
 			throw new SignetRuntimeException(e);
 		}
-		Set resultSet = new HashSet(resultList);
-		Set parents = new HashSet();
-		Iterator resultSetIterator = resultSet.iterator();
-		while (resultSetIterator.hasNext())
+
+		try
 		{
-			TreeNodeRelationship tnr = (TreeNodeRelationship)(resultSetIterator.next());
-			parents.add(tree.getNode(tnr.getParentNodeId()));
+			Tree tree = getTree(session, treeId);
+			for (Iterator iter = resultList.iterator(); iter.hasNext(); )
+			{
+				TreeNodeRelationship tnr = (TreeNodeRelationship)(iter.next());
+				parents.add(tree.getNode(tnr.getParentNodeId()));
+			}
+		}
+		catch (ObjectNotFoundException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			if (null == hs)
+				closeSession(session);
 		}
 
-		closeSession(session);
-		return parents;
+		return (parents);
+	}
+
+	// I really want to do away with this method, having the
+	// Tree pick up its parent-child relationships via Hibernate
+	// object-mapping. I just haven't figured out how to do that yet.
+	public Set getParents(TreeNode childNode)
+	{
+		Set parents = new HashSet();
+		if (null == childNode)
+			return (parents);
+
+		Session hs = openSession();
+		parents = getParents(hs, childNode);
+
+		closeSession(hs);
+
+		return (parents);
 	}
 
 
@@ -735,41 +810,47 @@ public class HibernateDB
 	 */
 	public Set getChildren(Session hs, TreeNode parentNode)
 	{
+		Set children = new HashSet();
+		if (null == parentNode)
+			return (children);
+
 		Session session = (null != hs) ? hs : openSession();
 
-		Query query;
+		String treeId = ((TreeNodeImpl)parentNode).getTreeId();
+
 		List resultList;
-		Tree tree = parentNode.getTree();
 		try
 		{
-			query = createQuery(session,
+			Query query = createQuery(session,
 					"from " +
 					TreeNodeRelationship.class.getName() +
 					" as treeNodeRelationship"
 					+ " where treeID = :treeId" +
 					" and parentNodeID = :parentNodeId");
-			query.setString("treeId", tree.getId());
+			query.setString("treeId", treeId);
 			query.setString("parentNodeId", parentNode.getId());
 			resultList = query.list();
+
+			Tree tree = getTree(session, treeId);
+			for (Iterator iter = resultList.iterator(); iter.hasNext(); )
+			{
+				TreeNodeRelationship tnr = (TreeNodeRelationship)(iter.next());
+				children.add(tree.getNode(tnr.getChildNodeId()));
+			}
 		}
 		catch (HibernateException e)
 		{
-			if (null == hs)
-				session.close();
 			throw new SignetRuntimeException(e);
 		}
-
-		Set resultSet = new HashSet(resultList);
-		Set children = new HashSet();
-		Iterator resultSetIterator = resultSet.iterator();
-		while (resultSetIterator.hasNext())
+		catch (ObjectNotFoundException e)
 		{
-			TreeNodeRelationship tnr = (TreeNodeRelationship)(resultSetIterator.next());
-			children.add(tree.getNode(tnr.getChildNodeId()));
+			throw new SignetRuntimeException(e);
 		}
-
-		if (null == hs)
-			closeSession(session);
+		finally
+		{
+			if (null == hs)
+				closeSession(session);
+		}
 
 		return children;
 	}
@@ -781,10 +862,10 @@ public class HibernateDB
 	public Map getLimitsBySubsystem(Subsystem subsystem)
 	{
 		List resultList;
-		Session session = openSession();
+		Session hs = openSession();
 		try
 		{
-			Query query = createQuery(session,
+			Query query = createQuery(hs,
 					"from " +
 					LimitImpl.class.getName() +
 					" as limit where subsystemID = :id");
@@ -793,9 +874,10 @@ public class HibernateDB
 		}
 		catch (HibernateException e)
 		{
-			session.close();
+			closeSession(hs);
 			throw new SignetRuntimeException(e);
 		}
+
 		Map limits = new HashMap(resultList.size());
 		Iterator resultListIterator = resultList.iterator();
 		while (resultListIterator.hasNext())
@@ -805,7 +887,7 @@ public class HibernateDB
 			limits.put(limit.getId(), limit);
 		}
 
-		closeSession(session);
+		closeSession(hs);
 		return limits;
 	}
 
@@ -817,10 +899,10 @@ public class HibernateDB
 	{
 		Query query;
 		List resultList;
-		Session session = openSession();
+		Session hs = openSession();
 		try
 		{
-			query = createQuery(session,
+			query = createQuery(hs,
 					"from " +
 					PermissionImpl.class.getName() +
 					" as limit where subsystemID = :id");
@@ -829,9 +911,10 @@ public class HibernateDB
 		}
 		catch (HibernateException e)
 		{
-			session.close();
+			closeSession(hs);
 			throw new SignetRuntimeException(e);
 		}
+
 		Map permissions = new HashMap(resultList.size());
 		Iterator resultListIterator = resultList.iterator();
 		while (resultListIterator.hasNext())
@@ -841,7 +924,7 @@ public class HibernateDB
 			permissions.put(permission.getId(), permission);
 		}
 
-		closeSession(session);
+		closeSession(hs);
 		return permissions;
 	}
 
@@ -853,11 +936,22 @@ public class HibernateDB
 	 * @throws SignetRuntimeException
 	 *           if more than one Tree is found.
 	 */
-	public Tree getNativeSignetTree(String id) throws ObjectNotFoundException
+	public TreeImpl getNativeSignetTree(String id) throws ObjectNotFoundException
 	{
-		TreeImpl treeImpl = (TreeImpl)(load(TreeImpl.class, id));
-		treeImpl.setAdapter(new TreeAdapterImpl(signet));
-		treeImpl.setSignet(signet);
+		TreeImpl treeImpl;
+
+		if ((null != cachedTree) && (cachedTree.getId().equals(id)))
+			treeImpl = cachedTree;
+		else
+		{
+			Session hs = openSession();
+			treeImpl = (TreeImpl)getTree(hs, id);
+			closeSession(hs);
+		}
+
+		if (null == treeImpl.getAdapter())
+			treeImpl.setAdapter(new TreeAdapterImpl(signet));
+
 		return treeImpl;
 	}
 
@@ -902,27 +996,30 @@ public class HibernateDB
 	{
 		Set retval = new HashSet();
 
-		Session session = openSession();
+		Session hs = openSession();
 		Query qry;
 		if ((null == status) || (0 >= status.length()))
-			qry = createQuery(session, Qry_proxiesGrantedAll);
+			qry = createQuery(hs, Qry_proxiesGrantedAll);
 		else
 		{
-			qry = createQuery(session, Qry_proxiesGranted);
+			qry = createQuery(hs, Qry_proxiesGranted);
 			qry.setString("status", status);
 		}
 		qry.setLong("grantorKey", grantorId);
 
 		try
 		{
-			retval.addAll(qry.list());
+			List list = qry.list();
+			retval.addAll(list);
 		}
 		catch (HibernateException e)
 		{
-			session.close();
-			log.error("Unable to obtain iterator for results");
+			throw new SignetRuntimeException(e);
 		}
-		closeSession(session);
+		finally
+		{
+			closeSession(hs);
+		}
 
 		SignetApiUtil.setEntitysSignetValue(retval, signet);
 
@@ -940,13 +1037,13 @@ public class HibernateDB
 	{
 		Set retval = new HashSet();
 
-		Session session = openSession();
+		Session hs = openSession();
 		Query qry;
 		if ((null == status) || (0 >= status.length()))
-			qry = createQuery(session, Qry_proxiesReceivedAll);
+			qry = createQuery(hs, Qry_proxiesReceivedAll);
 		else
 		{
-			qry = createQuery(session, Qry_proxiesReceived);
+			qry = createQuery(hs, Qry_proxiesReceived);
 			qry.setString("status", status);
 		}
 		qry.setLong("granteeKey", granteeId);
@@ -957,10 +1054,12 @@ public class HibernateDB
 		}
 		catch (HibernateException e)
 		{
-			session.close();
-			log.error("Unable to obtain iterator for results");
+			throw new SignetRuntimeException(e);
 		}
-		closeSession(session);
+		finally
+		{
+			closeSession(hs);
+		}
 
 		SignetApiUtil.setEntitysSignetValue(retval, signet);
 
@@ -979,13 +1078,13 @@ public class HibernateDB
 	{
 		Set retval = new HashSet();
 
-		Session session = openSession();
+		Session hs = openSession();
 		Query qry;
 		if ((null == status) || (0 >= status.length()))
-			qry = createQuery(session, Qry_assignmentsGrantedAll);
+			qry = createQuery(hs, Qry_assignmentsGrantedAll);
 		else
 		{
-			qry = createQuery(session, Qry_assignmentsGranted);
+			qry = createQuery(hs, Qry_assignmentsGranted);
 			qry.setString("status", status);
 		}
 		qry.setLong("grantorKey", grantorId);
@@ -996,10 +1095,12 @@ public class HibernateDB
 		}
 		catch (HibernateException e)
 		{
-			session.close();
-			log.error("Unable to obtain iterator for results");
+			throw new SignetRuntimeException(e);
 		}
-		closeSession(session);
+		finally
+		{
+			closeSession(hs);
+		}
 
 		SignetApiUtil.setEntitysSignetValue(retval, signet);
 
@@ -1017,13 +1118,13 @@ public class HibernateDB
 	{
 		Set retval = new HashSet();
 
-		Session session = openSession();
+		Session hs = openSession();
 		Query qry;
 		if ((null == status) || (0 >= status.length()))
-			qry = createQuery(session, Qry_assignmentsReceivedAll);
+			qry = createQuery(hs, Qry_assignmentsReceivedAll);
 		else
 		{
-			qry = createQuery(session, Qry_assignmentsReceived);
+			qry = createQuery(hs, Qry_assignmentsReceived);
 			qry.setString("status", status);
 		}
 		qry.setLong("granteeKey", granteeId);
@@ -1034,10 +1135,12 @@ public class HibernateDB
 		}
 		catch (HibernateException e)
 		{
-			session.close();
-			log.error("Unable to obtain iterator for results");
+			throw new SignetRuntimeException(e);
 		}
-		closeSession(session);
+		finally
+		{
+			closeSession(hs);
+		}
 
 		SignetApiUtil.setEntitysSignetValue(retval, signet);
 
@@ -1054,10 +1157,10 @@ public class HibernateDB
  {
    List resultList;
 
-   Session session = openSession();
+   Session hs = openSession();
    try
    {
-     Query query = session.createQuery(
+     Query query = hs.createQuery(
     		 "from edu.internet2.middleware.signet.ChoiceSetImpl" 
               + " as choiceSet"  
               + " where choiceSetID = :id"); 
@@ -1068,7 +1171,7 @@ public class HibernateDB
     }
     catch (HibernateException e)
     {
-      session.close();
+      closeSession(hs);
       throw new SignetRuntimeException(e);
     }
 
@@ -1083,14 +1186,14 @@ public class HibernateDB
     			ResLoaderApp.getString("Signet.msg.exc.choiceSetId_2") + //$NON-NLS-1$
     			ResLoaderApp.getString("Signet.msg.exc.choiceSetId_3")); //$NON-NLS-1$
 
-    	session.close();
+		closeSession(hs);
 
     	throw new SignetRuntimeException(form.format(formData));
     }
     
     else if (resultList.size() < 1)
     {
-    	session.close();
+		closeSession(hs);
     	Object[] formData = new Object[] { choiceSetId };
     	throw new ObjectNotFoundException(
     			MessageFormat.format(
@@ -1102,7 +1205,7 @@ public class HibernateDB
 	{
 		ChoiceSetImpl choiceSet = (ChoiceSetImpl)resultList.get(0);
 		choiceSet.setSignet(signet);
-		session.close();
+		closeSession(hs);
 		return (choiceSet);
 	}
  }
@@ -1147,18 +1250,18 @@ public class HibernateDB
 			throws ObjectNotFoundException
 	{
 		List resultList;
-		Session session = openSession();
+		Session hs = openSession();
 		try
 		{
 //System.out.println("HibernateDB.getSubject: sourceId=" + sourceId + " subjectId=" + subjectId);
-			Query query = createQuery(session, Qry_subjByIdSrc);
+			Query query = createQuery(hs, Qry_subjByIdSrc);
 			query.setString("subject_id", subjectId); //$NON-NLS-1$
 			query.setString("source_id", sourceId); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException e)
 		{
-			session.close();
+			closeSession(hs);
 			throw new SignetRuntimeException(e);
 		}
 
@@ -1173,7 +1276,7 @@ public class HibernateDB
 				String msgTemplate = ResLoaderApp.getString("HibernateDb.msg.exc.SubjNotFound");  //$NON-NLS-1$
 				msgFmt = new MessageFormat(msgTemplate);
 				String msg = msgFmt.format(msgData);
-				session.close();
+				closeSession(hs);
 				throw new ObjectNotFoundException(msg);
 			case (1):
 				retval = (SignetSubject)resultList.iterator().next();
@@ -1183,11 +1286,11 @@ public class HibernateDB
 				msgFmt = new MessageFormat(ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_1") + //$NON-NLS-1$
 						ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_2") + //$NON-NLS-1$
 						ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_3")); //$NON-NLS-1$
-				session.close();
+				closeSession(hs);
 				throw new SignetRuntimeException(msgFmt.format(msgData));
 		}
 
-		closeSession(session);
+		closeSession(hs);
 
 		return (retval);
 	}
@@ -1197,16 +1300,16 @@ public class HibernateDB
 			throws ObjectNotFoundException
 	{
 		List resultList;
-		Session session = openSession();
+		Session hs = openSession();
 		try
 		{
-			Query query = createQuery(session, QRY_SUBJECTBYID);
+			Query query = createQuery(hs, QRY_SUBJECTBYID);
 			query.setString("subjIdentifier", identifier); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException he)
 		{
-			session.close();
+			closeSession(hs);
 			throw new SignetRuntimeException(he);
 		}
 
@@ -1215,7 +1318,7 @@ public class HibernateDB
 		switch (resultList.size())
 		{
 			case (0):
-				session.close();
+				closeSession(hs);
 				throw new ObjectNotFoundException("object not found");
 //				msgData = new Object[] { identifier };
 //				String msgTemplate = ResLoaderApp.getString("HibernateDb.msg.exc.SubjNotFound");  //$NON-NLS-1$
@@ -1233,7 +1336,7 @@ else
 //				retval = (SignetSubject)resultList.iterator().next();
 				break;
 			default:
-				session.close();
+				closeSession(hs);
 				throw new SignetRuntimeException(new Integer(resultList.size()).toString());
 //				msgData = new Object[] { new Integer(resultList.size()), identifier };
 //				msgFmt = new MessageFormat(ResLoaderApp.getString("HibernateDb.msg.exc.multiSigSubj_1") + //$NON-NLS-1$
@@ -1242,7 +1345,7 @@ else
 //				throw new SignetRuntimeException(msgFmt.format(msgData));
 		}
 
-		closeSession(session);
+		closeSession(hs);
 		return (retval);
 	}
 

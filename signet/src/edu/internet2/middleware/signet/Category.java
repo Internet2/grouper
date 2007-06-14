@@ -1,6 +1,6 @@
 /*--
-$Id: Category.java,v 1.6 2007-02-27 03:01:49 ddonn Exp $
-$Date: 2007-02-27 03:01:49 $
+$Id: Category.java,v 1.7 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,6 +18,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.io.Serializable;
 import java.util.Set;
 
 //import edu.internet2.middleware.subject.Subject;
@@ -30,7 +31,7 @@ import java.util.Set;
 */
 
 public interface Category
-extends SubsystemPart, Name, Comparable
+extends SubsystemPart, Name, Comparable, Serializable
 {
   /**
    * Gets the ID of this entity.

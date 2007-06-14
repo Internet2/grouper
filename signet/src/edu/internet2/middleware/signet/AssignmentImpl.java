@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.43 2007-05-06 07:13:15 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.44 2007-06-14 21:39:04 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -279,8 +279,7 @@ public AssignmentImpl
 
 		this.canGrant = canGrant;
 
-		setGrantorId(actor.getSubject_PK());
-		setProxyForEffectiveEditor(actor);
+		setGrantor(actor);
 	}
   
   /** This method is only for use by Hibernate. */
@@ -320,8 +319,7 @@ public AssignmentImpl
 
 		this.canUse = canUse;
 
-		setGrantorId(actor.getSubject_PK());
-		setProxyForEffectiveEditor(actor);
+		setGrantor(actor);
 	}
 
 
@@ -444,8 +442,7 @@ public AssignmentImpl
 		else
 			this.setLimitValues(limitValues);
 
-		setGrantorId(actor.getSubject_PK());
-		setProxyForEffectiveEditor(actor);
+		setGrantor(actor);
 	}
   
 	/**

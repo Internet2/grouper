@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.hbm.xml,v 1.13 2007-05-07 04:28:36 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.hbm.xml,v 1.14 2007-06-14 21:39:04 ddonn Exp $ -->
 
-<hibernate-mapping
-		default-lazy="false" >
-
+<hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.ProxyImpl"
 		table="signet_proxy" >
@@ -33,11 +31,6 @@
     	</id>
 -->
 
-        <property name="grantorId"		column="grantorKey"		 type="long" />
-        <property name="proxyId"		column="proxySubjectKey" type="long" />
-        <property name="granteeId"		column="granteeKey"		 type="long" />
-        <property name="revokerId"		column="revokerKey"		 type="long" />
-		
 		<set
 			name="history"
 			inverse="true"
@@ -49,7 +42,6 @@
 				class="edu.internet2.middleware.signet.ProxyHistoryImpl"/>
 		</set>
 
-<!-- 
 		<many-to-one
 			name="grantor"
 			class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
@@ -73,7 +65,6 @@
 			class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 			column="proxySubjectKey"
 			not-null="false"/>
--->
 		
 		<many-to-one
 			name="subsystem"

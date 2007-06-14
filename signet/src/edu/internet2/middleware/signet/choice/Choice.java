@@ -1,6 +1,6 @@
 /*--
-$Id: Choice.java,v 1.8 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: Choice.java,v 1.9 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,13 +9,13 @@ see doc/license.txt in this distribution.
 
 package edu.internet2.middleware.signet.choice;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * Represents a single possible choice within a ChoiceSet.
  */
-public interface Choice
-extends Comparable
+public interface Choice extends Comparable, Serializable
 {
 	/**
 	 * Returns the enclosing ChoiceSet of this Choice.

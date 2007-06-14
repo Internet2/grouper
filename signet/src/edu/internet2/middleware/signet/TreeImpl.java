@@ -1,8 +1,8 @@
 /*--
-$Id: TreeImpl.java,v 1.12 2007-04-18 00:11:31 ddonn Exp $
-$Date: 2007-04-18 00:11:31 $
- 
-Copyright 2006 Internet2, Stanford University
+$Id: TreeImpl.java,v 1.13 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
+
+Copyright 2007 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ public class TreeImpl extends EntityImpl implements Tree
 
   private String          adapterClassName;
 
-  public TreeImpl()
+	public TreeImpl()
   {
     super();
     this.nodes = new HashSet();
@@ -129,7 +129,6 @@ public class TreeImpl extends EntityImpl implements Tree
   public Set getSubsystems()
   {
     return this.subsystems;
-    // return UnmodifiableSet.decorate(this.subsystems);
   }
 
   /**
@@ -156,53 +155,53 @@ public class TreeImpl extends EntityImpl implements Tree
 
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.tree#getRoot()
-   */
+	 */
   public Set getRoots()
-  {
+	{
     Set roots = new HashSet();
 
     Iterator nodesIterator = nodes.iterator();
     while (nodesIterator.hasNext())
-    {
+	{
       TreeNodeImpl rootCandidate = (TreeNodeImpl) (nodesIterator.next());
       rootCandidate.setSignet(this.getSignet());
       if (rootCandidate.getParents().size() == 0)
       {
         rootCandidate.setSignet(this.getSignet());
         roots.add(rootCandidate);
-      }
+	}
     }
 
     return roots;
-  }
+	}
 
   /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.tree.Tree#addRoot(edu.internet2.middleware.signet.tree.TreeNode)
-   */
-  public void addRoot(TreeNode rootNode)
-  {
+	 * @see edu.internet2.middleware.signet.tree.Tree#addRoot(edu.internet2.middleware.signet.tree.TreeNode)
+	 */
+	public void addRoot(TreeNode rootNode)
+	{
     if (this.getAdapter().isModifiable())
-    {
+		{
       this.nodes.add(rootNode);
-    }
-    else
-    {
+		}
+		else
+		{
       throw new IllegalArgumentException(
           "Only modifiable trees may have nodes added to them." + " The tree '"
               + this.getId() + "' is not modifiable.");
-    }
-  }
+		}
+	}
 
   /**
    * TODO - Hibernate requires that getters and setters for collections
    * return the EXACT SAME collection, not just an identical one. Failure
    * to do this makes Hibernate think that the collection has been modified,
    * and causes the entire collection to be re-persisted in the database.
-   * 
+	 * 
    * I need to find some way to tell Hibernate to use a specific non-public
    * getter, so that the public getter can resume returning a non-modifiable
    * copy of the collection. 
-   */
+	 */
   public Set getTreeNodes()
   {
     if (null == nodes)
@@ -213,19 +212,6 @@ public class TreeImpl extends EntityImpl implements Tree
 
     return (nodes);
     // return UnmodifiableSet.decorate(nodes);
-  }
-
-  /**
-   * @return A brief description of this TreeImpl. The exact details
-   * 		of the representation are unspecified and subject to change.
-   */
-  public String toString()
-  {
-    return new ToStringBuilder(this)
-    	.append("id", getId())
-    	.append("createDatetime", getCreateDatetime())
-    	.append("modifyDatetime", getModifyDatetime())
-    	.toString();
   }
 
   public TreeNode getNode(String nodeId)
@@ -245,23 +231,6 @@ public class TreeImpl extends EntityImpl implements Tree
     return null;
   }
 
-  public boolean equals(Object obj)
-  {
-    if (!(obj instanceof TreeImpl))
-    {
-      return false;
-    }
-
-    TreeImpl rhs = (TreeImpl) obj;
-    return new EqualsBuilder().append(this.getId(), rhs.getId()).isEquals();
-  }
-
-  public int hashCode()
-  {
-    // you pick a hard-coded, randomly chosen, non-zero, odd number
-    // ideally different for each class
-    return new HashCodeBuilder(17, 37).append(this.getId()).toHashCode();
-  }
 
   public TreeAdapter getAdapter()
   {
@@ -318,4 +287,40 @@ public class TreeImpl extends EntityImpl implements Tree
     throw new UnsupportedOperationException
       ("This method is not yet implemented");
   }
+
+
+	///////////////////////////////////
+	// overrides Object
+	///////////////////////////////////
+
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof TreeImpl))
+		{
+			return false;
+		}
+		TreeImpl rhs = (TreeImpl)obj;
+		return new EqualsBuilder().append(this.getId(), rhs.getId()).isEquals();
+	}
+
+	public int hashCode()
+	{
+		// you pick a hard-coded, randomly chosen, non-zero, odd number
+		// ideally different for each class
+		return new HashCodeBuilder(17, 37).append(this.getId()).toHashCode();
+	}
+
+	/**
+	 * @return A brief description of this TreeImpl. The exact details of the representation are unspecified and subject to
+	 * change.
+	 */
+	public String toString()
+	{
+		return new ToStringBuilder(this)
+				.append("id", getId())
+				.append("createDatetime", getCreateDatetime())
+				.append("modifyDatetime", getModifyDatetime())
+				.toString();
+	}
+
 }

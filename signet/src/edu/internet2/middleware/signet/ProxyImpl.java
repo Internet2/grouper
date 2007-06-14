@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.19 2007-05-11 04:35:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.20 2007-06-14 21:39:04 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -267,8 +267,7 @@ public class ProxyImpl extends GrantableImpl implements Proxy
 
 		this.canExtend = canExtend;
 
-		setGrantorId(editor.getSubject_PK());
-		setProxyForEffectiveEditor(editor);
+		setGrantor(editor);
 	}
 
 	/* (non-Javadoc)
@@ -301,8 +300,7 @@ public class ProxyImpl extends GrantableImpl implements Proxy
 
 		this.canUse = canUse;
 
-		setGrantorId(editor.getSubject_PK());
-		setProxyForEffectiveEditor(editor);
+		setGrantor(editor);
 	}
 
 

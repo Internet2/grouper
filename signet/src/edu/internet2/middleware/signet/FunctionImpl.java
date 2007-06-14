@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.18 2007-05-23 19:15:20 ddonn Exp $
-$Date: 2007-05-23 19:15:20 $
+$Id: FunctionImpl.java,v 1.19 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -133,35 +133,16 @@ public class FunctionImpl extends EntityImpl implements Function
     return this.permissions;
   }
   
-  /**
-   * @return A brief description of this entity. The exact details
-   * 		of the representation are unspecified and subject to change.
-   */
-  public String toString()
-  {
-      StringBuffer outStr = new StringBuffer(super.toString());
-      
-      outStr.append(", subsystemID=");
-      outStr.append
-      	((subsystemId == null? "<<no subsystem>>" : subsystemId));
-      
-      outStr.append(", categoryID=");
-      outStr.append
-      	((category == null? "<<no category>>" : category.getId()));
-      
-      return outStr.toString();
-  }
-
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.SubsystemPart#getSubsystem()
    */
   public Subsystem getSubsystem()
   {
-    if (subsystem == null)
+    if (null == subsystem)
     {
       try
       {
-        Subsystem tmpSubsystem = getSignet().getPersistentDB().getSubsystem(subsystemId);
+        Subsystem tmpSubsystem = signet.getPersistentDB().getSubsystem(subsystemId);
         setSubsystem(tmpSubsystem);
       }
       catch (ObjectNotFoundException onfe)
@@ -169,7 +150,10 @@ public class FunctionImpl extends EntityImpl implements Function
         throw new SignetRuntimeException(onfe);
       }
     }
-    
+
+	if (null != subsystem)
+		((SubsystemImpl)subsystem).setSignet(signet);
+
     return subsystem;
   }
   
@@ -184,16 +168,19 @@ public class FunctionImpl extends EntityImpl implements Function
   public void setSubsystem(Subsystem subsystem)
   {
       this.subsystem = subsystem;
-      this.subsystemId = subsystem.getId();
+      if (null == subsystem)
+    	  subsystemId = null;
+      else
+    	  subsystemId = subsystem.getId();
   }
   
   void setSubsystemId(String subsystemId) throws ObjectNotFoundException
   {
     this.subsystemId = subsystemId;
-    Signet signet = getSignet();
     if (null != signet)
     {
       subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
+      ((SubsystemImpl)subsystem).setSignet(signet);
     }
   }
 
@@ -212,37 +199,6 @@ public class FunctionImpl extends EntityImpl implements Function
   public String getHelpText()
   {
       return this.helpText;
-  }
-
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  public boolean equals(Object o)
-  {
-    if ( !(o instanceof FunctionImpl) )
-    {
-      return false;
-    }
-    
-    FunctionImpl rhs = (FunctionImpl) o;
-    return new EqualsBuilder()
-                 .append(this.getSubsystemId(), rhs.getSubsystemId())
-                 .append(this.getId(), rhs.getId())
-                 .isEquals();
-  }
-
-  
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */   
-  public int hashCode()
-  {
-    // you pick a hard-coded, randomly chosen, non-zero, odd number
-    // ideally different for each class
-    return new HashCodeBuilder(17, 37)
-                 .append(this.getSubsystemId())
-                 .append(this.getId())
-                 .toHashCode();
   }
 
   /* (non-Javadoc)
@@ -356,4 +312,47 @@ public class FunctionImpl extends EntityImpl implements Function
   {
     this.key = key;
   }
+
+
+	////////////////////////////////////
+	// overrides Object
+	////////////////////////////////////
+
+	/**
+	 * @return A brief description of this entity. The exact details
+	 * 		of the representation are unspecified and subject to change.
+	 */
+	public String toString()
+	{
+		StringBuffer outStr = new StringBuffer(super.toString());
+		outStr.append(", subsystemID=");
+		outStr.append((subsystemId == null ? "<<no subsystem>>" : subsystemId));
+		outStr.append(", categoryID=");
+		outStr.append((category == null ? "<<no category>>" : category.getId()));
+		return outStr.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof FunctionImpl))
+		{
+			return false;
+		}
+		FunctionImpl rhs = (FunctionImpl)o;
+		return new EqualsBuilder().append(this.getSubsystemId(), rhs.getSubsystemId()).append(this.getId(), rhs.getId()).isEquals();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode()
+	{
+		// you pick a hard-coded, randomly chosen, non-zero, odd number
+		// ideally different for each class
+		return new HashCodeBuilder(17, 37).append(this.getSubsystemId()).append(this.getId()).toHashCode();
+	}
+
 }

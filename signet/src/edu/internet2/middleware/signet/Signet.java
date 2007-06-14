@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.64 2006-12-16 01:08:53 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.65 2007-06-14 21:39:04 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -17,6 +17,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.reconcile.Reconciler;
 import edu.internet2.middleware.signet.resource.ResLoaderApp;
@@ -43,7 +45,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 * This is the factory class for all Signet entities.
 *  
 */
-public final class Signet
+public final class Signet implements Serializable
 {
 	// Signet version
 	private static final String version = ResLoaderApp.getString("signet_version"); //$NON-NLS-1$
@@ -115,102 +117,79 @@ public final class Signet
    return (log);
  }
 
- /**
-  * Formats a scope-tree for display. This method should probably be
-  * moved to some new, display-oriented class.
-  * 
-  * @param treeNode
-  *     The TreeNode whose ancestry is to be displayed.
-  * @param childSeparatorPrefix
-  *     A String which is to appear before every instance of a
-  *     child-node (that is, before every TreeNode except the root).
-  * @param levelPrefix
-  *     A String which is to appear before every instance of TreeNode
-  *    which is a child of its immediate predecessor (that is,
-  *    between a parent-node and its first child-node).
-  * @param levelSuffix
-  *    A String which is to appear after every instance of TreeNode
-  *    which is a parent of its immediate successor (that is,
-  *    between a parent-node and its first child-node).
-  * @param childSeparatorSuffix
-  *    A String which is to appear after every instance of a
-  *    child-node (that is, after every TreeNode except the root).
-  * 
-  * @return
-  *   A String representation of the specified node and its
-  *  ancestors.
-  * 
-  * @throws ObjectNotFoundException
-  */
- public String displayAncestry
-  (TreeNode treeNode,
-   String   childSeparatorPrefix,
-    String  levelPrefix,
-    String  levelSuffix,
-    String  childSeparatorSuffix)
- {
-   StringBuffer display = new StringBuffer();
-   Set roots = new HashSet();
+	/**
+	 * Formats a scope-tree for display. This method should probably be moved to some new, display-oriented class.
+	 * 
+	 * @param treeNode The TreeNode whose ancestry is to be displayed.
+	 * @param childSeparatorPrefix A String which is to appear before every instance of a child-node (that is, before every TreeNode
+	 * except the root).
+	 * @param levelPrefix A String which is to appear before every instance of TreeNode which is a child of its immediate
+	 * predecessor (that is, between a parent-node and its first child-node).
+	 * @param levelSuffix A String which is to appear after every instance of TreeNode which is a parent of its immediate successor
+	 * (that is, between a parent-node and its first child-node).
+	 * @param childSeparatorSuffix A String which is to appear after every instance of a child-node (that is, after every TreeNode
+	 * except the root).
+	 * 
+	 * @return A String representation of the specified node and its ancestors.
+	 * 
+	 * @throws ObjectNotFoundException
+	 */
+	public String displayAncestry(TreeNode treeNode,
+			String childSeparatorPrefix, String levelPrefix,
+			String levelSuffix, String childSeparatorSuffix)
+	{
+		StringBuffer display = new StringBuffer();
+		Set roots = new HashSet();
 
-   buildAncestry
-    (display,
-     treeNode,
-     childSeparatorPrefix + levelPrefix,
-     levelSuffix + childSeparatorSuffix,
-     roots);
-   
-   Iterator rootsIterator = roots.iterator();
-   while (rootsIterator.hasNext())
-   {
-     TreeNode root = (TreeNode)(rootsIterator.next());
-     display.insert(0, root.getName());  
-   }  
-   
-   display.insert(0, levelPrefix);
-   display.append(levelSuffix);
-   
-   return display.toString();
- }
+		HibernateDB hibr = getPersistentDB();
+		Session hs = hibr.openSession();
 
- /**
-  * 
-  * @param display
-  * @param node
-  * @param prefix
-  * @param suffix
-  * @return a Set of roots of the specified TreeNode.
-  */
- private void buildAncestry
-   (StringBuffer  display,
-    TreeNode      node,
-    String        prefix,
-    String        suffix,
-    Set         roots)
- {
-   if (node.getParents().size() == 0)
-   {
-     // This method does not display the roots of the Tree.
-     // That is handled by this method's caller.
-     roots.add(node);
-     return;
-   }
+		buildAncestry(hs, display, (TreeNodeImpl)treeNode,
+				childSeparatorPrefix + levelPrefix,
+				levelSuffix + childSeparatorSuffix,
+				roots);
 
-   display.insert(0, node.getName());
-   display.insert(0, prefix);
-   display.append(suffix);
+		hibr.closeSession(hs);
 
-   Set parents = node.getParents();
-   Iterator parentsIterator = parents.iterator();
-   while (parentsIterator.hasNext())
-   {
-     buildAncestry
-      (display,
-       (TreeNode)(parentsIterator.next()),
-       prefix,
-        suffix,
-        roots);
-   }
- }
+		for (Iterator iter = roots.iterator(); iter.hasNext(); )
+		{
+			TreeNode root = (TreeNode)(iter.next());
+			display.insert(0, root.getName());
+		}
+
+		display.insert(0, levelPrefix);
+		display.append(levelSuffix);
+
+		return (display.toString());
+	}
+
+	/**
+	 * This method does not display the roots of the Tree. That is handled by this method's caller.
+	 * @param display
+	 * @param node
+	 * @param prefix
+	 * @param suffix
+	 * @return a Set of roots of the specified TreeNode.
+	 */
+	private void buildAncestry(Session hs, StringBuffer display, TreeNodeImpl node,
+			String prefix, String suffix, Set roots)
+	{
+		if (null == node)
+			return;
+
+		Set parents = node.getParents(hs);
+		if (0 < parents.size())
+		{
+			display.insert(0, node.getName());
+			display.insert(0, prefix);
+			display.append(suffix);
+			for (Iterator iter = parents.iterator(); iter.hasNext(); )
+				buildAncestry(hs, display, (TreeNodeImpl)(iter.next()), 
+						prefix, suffix, roots); // recurse
+		}
+		else
+			roots.add(node);
+	}
 
 
  private Set getRootsOfContainingTrees(Set treeNodes)
@@ -233,14 +212,14 @@ public final class Signet
   * Formats a Tree for display, with special handling of specified nodes, the
   * ancestors of those noes, and the descendants of those nodes.
   * 
-  * @param ancestorPrefix
-  * @param selfPrefix
-  * @param descendantPrefix
-  * @param prefixIncrement
-  * @param infix
+  * @param ancestorPrefix The string used to indicate that a node is disabled
+  * @param selfPrefix The string used to indicate that a node is enabled
+  * @param descendantPrefix The string used to indicate that a parent of the node is enabled
+  * @param prefixIncrement 
+  * @param infix Terminator of the xxxPrefix
   * @param infixIncrement
-  * @param suffix
-  * @param treeNodesOfInterest
+  * @param suffix Terminator of the the node
+  * @param treeNodesOfInterest The list of enabled nodes
   * @return a String representation of the Tree
   * @throws TreeNotFoundException
   */
@@ -280,19 +259,12 @@ public final class Signet
      return;
    }
    if (allGrantableScopes.contains(treeNode))
-   {
      scopesDisplay.append(selfPrefix);
-   }
+   else if (treeNode.isDescendantOfAny(allGrantableScopes))
+		scopesDisplay.append(descendantPrefix);
    else
-     if (treeNode.isAncestorOfAll(allGrantableScopes))
-     {
-       scopesDisplay.append(ancestorPrefix);
-     }
-     else
-     {
-       scopesDisplay.append(descendantPrefix);
-     }
-
+		scopesDisplay.append(ancestorPrefix);
+   
    scopesDisplay.append(treeNode);
    scopesDisplay.append(infix);
    scopesDisplay.append(treeNode.getName());

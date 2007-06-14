@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.21 2007-03-19 23:12:10 ddonn Exp $
-$Date: 2007-03-19 23:12:10 $
+$Id: SubsystemImpl.java,v 1.22 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -110,30 +110,6 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
     this.functions = functions;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  public boolean equals(Object o)
-  {
-    if (!(o instanceof SubsystemImpl))
-    {
-      return false;
-    }
-
-    SubsystemImpl rhs = (SubsystemImpl) o;
-    return new EqualsBuilder().append(this.getId(), rhs.getId()).isEquals();
-  }
-
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
-  public int hashCode()
-  {
-    // you pick a hard-coded, randomly chosen, non-zero, odd number
-    // ideally different for each class
-    return new HashCodeBuilder(17, 37).append(this.getId()).toHashCode();
-  }
-
   /**
    * @param helpText A prose description which will appear in help-text and
    * 		other explanatory materials.
@@ -159,7 +135,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
   {
     if (tree instanceof TreeImpl)
     {
-      ((TreeImpl) tree).setSignet(this.getSignet());
+      ((TreeImpl) tree).setSignet(signet);
     }
 
     return this.tree;
@@ -169,7 +145,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
   {
     if (tree instanceof TreeImpl)
     {
-      ((TreeImpl) tree).setSignet(this.getSignet());
+      ((TreeImpl) tree).setSignet(signet);
     }
 
     this.tree = tree;
@@ -230,7 +206,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
     while (functionsIterator.hasNext())
     {
       FunctionImpl function = (FunctionImpl)(functionsIterator.next());
-      function.setSignet(this.getSignet());
+      function.setSignet(signet);
     }
     
     return this.functions;
@@ -293,13 +269,13 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
 //      this.choiceSetsNotYetFetched = false;
 //    }
     
-    if (this.getSignet() != null)
+    if (null != signet)
     {
       Iterator choiceSetsIterator = this.choiceSets.iterator();
       while (choiceSetsIterator.hasNext())
       {
         ChoiceSet choiceSet = (ChoiceSet)(choiceSetsIterator.next());
-        ((ChoiceSetImpl)choiceSet).setSignet(this.getSignet());
+        ((ChoiceSetImpl)choiceSet).setSignet(signet);
       }
     }
     
@@ -399,7 +375,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
       // Limits.
       Map unsavedLimits = limits;
 
-      limits = getSignet().getPersistentDB().getLimitsBySubsystem(this);
+      limits = signet.getPersistentDB().getLimitsBySubsystem(this);
 
       limits.putAll(unsavedLimits);
 
@@ -448,7 +424,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
       // Permissions.
       Map unsavedPermissions = this.permissions;
 
-      permissions = getSignet().getPersistentDB().getPermissionsBySubsystem(this);
+      permissions = signet.getPersistentDB().getPermissionsBySubsystem(this);
 
       this.permissions.putAll(unsavedPermissions);
 
@@ -524,4 +500,33 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
 		}
 		return (retval);
 	}
+
+
+	/////////////////////////////////////
+	// overrides Object
+	/////////////////////////////////////
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object o)
+	{
+		if ( !(o instanceof SubsystemImpl))
+		{
+			return false;
+		}
+		SubsystemImpl rhs = (SubsystemImpl)o;
+		return new EqualsBuilder().append(this.getId(), rhs.getId()).isEquals();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode()
+	{
+		// you pick a hard-coded, randomly chosen, non-zero, odd number
+		// ideally different for each class
+		return new HashCodeBuilder(17, 37).append(this.getId()).toHashCode();
+	}
+
 }

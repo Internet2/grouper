@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: org-browse.jsp,v 1.4 2006-10-25 00:13:31 ddonn Exp $
-  $Date: 2006-10-25 00:13:31 $
+  $Id: org-browse.jsp,v 1.5 2007-06-14 21:39:04 ddonn Exp $
+  $Date: 2007-06-14 21:39:04 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -10,13 +10,13 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <meta name="robots" content="noindex, nofollow" />
     <title>
       <%=ResLoaderUI.getString("signet.title") %>
     </title>
-    <link href="styles/signet.css" rel="stylesheet" type="text/css">
-    <script language="JavaScript" type="text/javascript" src="scripts/signet.js">
+    <link href="styles/signet.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="scripts/signet.js">
     </script>
     </head>
 
@@ -81,7 +81,7 @@
        + currentSubsystem.getId();
 %>
 
-    <form name="form1" action="Conditions.do">  
+    <form name="form1" id="form1" action="Conditions.do">  
       <tiles:insert page="/tiles/header.jsp" flush="true" />
 			 <div id="Navbar">
         <span class="logout">
@@ -136,7 +136,7 @@
            	<h2>
              	<%=ResLoaderUI.getString("org-browse.selscope.hdr") %>
          	 </h2>
-			  <p class="dropback"><label for "scope">
+			  <p class="dropback"><label for="scope">
            	  <%=ResLoaderUI.getString("org-browse.scope.lbl") %>
              	</label>
 			  </p>

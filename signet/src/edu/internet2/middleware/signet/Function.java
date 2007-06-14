@@ -1,6 +1,6 @@
 /*--
-$Id: Function.java,v 1.10 2006-10-27 21:46:35 ddonn Exp $
-$Date: 2006-10-27 21:46:35 $
+$Id: Function.java,v 1.11 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,6 +18,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -29,7 +30,7 @@ import java.util.Set;
 */
 
 public interface Function
-extends SubsystemPart, HelpText, Name, Comparable
+extends SubsystemPart, HelpText, Name, Comparable, Serializable
 {
   /**
    * Gets the ID of this entity.

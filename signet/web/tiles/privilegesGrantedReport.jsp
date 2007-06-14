@@ -1,4 +1,4 @@
-<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.41 2007-05-23 19:15:20 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.42 2007-06-14 21:39:04 ddonn Exp $ -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.util.Set" %>
@@ -213,7 +213,7 @@
           <TD width="60" align="center" ><INPUT
               name="revokeButton"
               type="submit"
-              disabled="true"
+              disabled="disabled"
               class="button1"
               value="<%=ResLoaderUI.getString("privilegesGrantedReport.revoke.bt") %>"
               title="<%=ResLoaderUI.getString("privilegesGrantedReport.revoke.title.bt") %>" />

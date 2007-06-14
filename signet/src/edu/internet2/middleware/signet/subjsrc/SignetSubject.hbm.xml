@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml,v 1.8 2007-04-30 03:56:21 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml,v 1.9 2007-06-14 21:39:04 ddonn Exp $ -->
 
-<hibernate-mapping
-		default-lazy="false" >
-
+<hibernate-mapping>
 	<class
 			name="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 			table="signet_subject" >
@@ -33,7 +31,6 @@
 			<one-to-many class="edu.internet2.middleware.signet.subjsrc.SignetSubjectAttr" />
 		</set>
 
-<!--
 		<set
 			name="assignmentsGranted"
 			inverse="true"
@@ -65,7 +62,6 @@
 			<key column="granteeKey"/>
 			<one-to-many class="edu.internet2.middleware.signet.ProxyImpl"/>
 		</set>
--->
 
 	</class>
 </hibernate-mapping>

@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.14 2007-05-23 19:15:20 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.15 2007-06-14 21:39:04 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -110,6 +110,11 @@ public class SignetSubject implements Subject, Comparable
 	 * Proxies and Assignments. Not a Hibernate field. */
 	protected SignetSubject	actingAs;
 
+	protected Set			assignmentsGranted;
+	protected Set			assignmentsReceived;
+	protected Set			proxiesGranted;
+	protected Set			proxiesReceived;
+
 	/** Logging */
 	protected Log			log = LogFactory.getLog(SignetSubject.class);
 
@@ -129,6 +134,8 @@ public class SignetSubject implements Subject, Comparable
 		signetSubjectAttrs = new HashSet();
 		signetSource = null;
 		actingAs = null;
+
+		initGrantRcv();
 	}
 
 	/**
@@ -144,11 +151,21 @@ public class SignetSubject implements Subject, Comparable
 		signetSource = source;
 		sourceId = source.getId();
 
+		initGrantRcv();
+
 		synchSubject(subject);
 
 		subject_PK = null;
 
 		actingAs = null;
+	}
+
+	protected void initGrantRcv()
+	{
+		assignmentsGranted = new HashSet();
+		assignmentsReceived = new HashSet();
+		proxiesGranted = new HashSet();
+		proxiesReceived = new HashSet();
 	}
 
 
@@ -496,40 +513,74 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getAssignmentsGranted()
 	{
-		return (getAssignmentsGranted(null));
+		if (null != assignmentsGranted)
+		{
+			Signet signet;
+			signet = (null != signetSource) ? signetSource.getSignet() : null;
+			for (Iterator iter = assignmentsGranted.iterator(); iter.hasNext(); )
+				((AssignmentImpl)iter.next()).setSignet(signet);
+		}
+		else
+			setAssignmentsGranted(null);
+
+		return (assignmentsGranted);
+
+//		return (getAssignmentsGranted(null));
 	}
 
 
 	/**
-	 * Get the set of Assignments granted by this Subject.
+	 * Get a filtered Set of Assignments granted by this Subject.
 	 * @param isActive Selector for Active/Pending/Inactive assignments
-	 * @return A Set of Assignment objects that have been granted by Subject.
+	 * @return A Set of Assignment objects that have been granted by Subject
+	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 * May be an empty set but never null.
 	 */
 	public Set getAssignmentsGranted(String isActive)
 	{
-		Set assignsGranted;
-		SignetSources srcs;
-		PersistedSignetSource persistSrc;
+		HashSet retval = new HashSet();
 
-		if ( !isPersisted()) // it's not persisted, ergo no assignments
-			assignsGranted = new HashSet();
-
-		else if ((null != signetSource) &&
-			(null != (srcs = signetSource.getSources())) &&
-			(null != (persistSrc = srcs.getPersistedSource())))
+		if (null != assignmentsGranted)
 		{
-			assignsGranted = persistSrc.getAssignmentsGranted(subject_PK.longValue(), isActive);
-		}
-		else
-		{
-			assignsGranted = new HashSet();
-			log.info("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
+			Signet signet;
+			signet = (null != signetSource) ? signetSource.getSignet() : null;
+			for (Iterator iter = assignmentsGranted.iterator(); iter.hasNext(); )
+			{
+				AssignmentImpl assgn = (AssignmentImpl)iter.next();
+				if (assgn.getStatus().toString().equals(isActive))
+				{
+					assgn.setSignet(signet);
+					retval.add(assgn);
+				}
+			}
 		}
 
-		return (assignsGranted);
+		return (retval);
+
 	}
-	
+
+	/**
+	 * Used by Hibernate to set the Assignments Granted
+	 * @param assignmentsGranted
+	 */
+	public void setAssignmentsGranted(Set assignmentsGranted)
+	{
+		if (null != assignmentsGranted)
+			this.assignmentsGranted = assignmentsGranted;
+		else
+			this.assignmentsGranted = new HashSet();
+	}
+
+	/**
+	 * Add an Assignment to this Subject's list of Granted Assignments
+	 * @param assignment The assignment to add
+	 */
+	protected void addAssignmentGranted(Assignment assignment)
+	{
+		if (null != assignment)
+			getAssignmentsGranted().add(assignment);
+	}
+
 
 	/**
 	 * Get the set of Assignments received (Active, Pending and Inactive) by this Subject.
@@ -538,37 +589,71 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getAssignmentsReceived()
 	{
-		return (getAssignmentsReceived(null));
+		if (null != assignmentsReceived)
+		{
+			Signet signet;
+			signet = (null != signetSource) ? signetSource.getSignet() : null;
+			for (Iterator iter = assignmentsReceived.iterator(); iter.hasNext(); )
+				((AssignmentImpl)iter.next()).setSignet(signet);
+		}
+		else
+			setAssignmentsReceived(null);
+
+		return (assignmentsReceived);
+
+//		return (getAssignmentsReceived(null));
 	}
 
 
 	/**
-	 * Get the set of Assignments received by this subject
+	 * Get a filtered set of Assignments received by this subject
 	 * @param isActive Selector for Active/Pending/Inactive Assignments
 	 * @return Returns the assignmentsReceived.
+	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 */
 	public Set getAssignmentsReceived(String isActive)
 	{
-		Set assignsReceived;
-		SignetSources srcs;
-		PersistedSignetSource persistSrc;
+		HashSet retval = new HashSet();
 
-		if ( !isPersisted()) // it's not persisted, ergo no assignments
-			assignsReceived = new HashSet();
-
-		else if ((null != signetSource) &&
-			(null != (srcs = signetSource.getSources())) &&
-			(null != (persistSrc = srcs.getPersistedSource())))
+		if (null != assignmentsReceived)
 		{
-			assignsReceived = persistSrc.getAssignmentsReceived(subject_PK.longValue(), isActive);
+			Signet signet;
+			signet = (null != signetSource) ? signetSource.getSignet() : null;
+			for (Iterator iter = assignmentsReceived.iterator(); iter.hasNext(); )
+			{
+				AssignmentImpl assgn = (AssignmentImpl)iter.next();
+				if (assgn.getStatus().toString().equals(isActive))
+				{
+					assgn.setSignet(signet);
+					retval.add(assgn);
+				}
+			}
 		}
+
+		return (retval);
+
+	}
+
+	/**
+	 * Used by Hibernate to set the Assignments Recevied
+	 * @param assignmentsReceived
+	 */
+	public void setAssignmentsReceived(Set assignmentsReceived)
+	{
+		if (null != assignmentsReceived)
+			this.assignmentsReceived = assignmentsReceived;
 		else
-		{
-			assignsReceived = new HashSet();
-			log.info("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
-		}
+			this.assignmentsReceived = new HashSet();
+	}
 
-		return (assignsReceived);
+	/**
+	 * Add an Assignment to this Subject's list of Assignments Received
+	 * @param assignment The Assignment to add
+	 */
+	protected void addAssignmentReceived(Assignment assignment)
+	{
+		if (null != assignment)
+			getAssignmentsReceived().add(assignment);
 	}
 
 
@@ -579,38 +664,71 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getProxiesGranted()
 	{
-		return (getProxiesGranted(null));
+		if (null != proxiesGranted)
+		{
+			Signet signet;
+			signet = (null != signetSource) ? signetSource.getSignet() : null;
+			for (Iterator iter = proxiesGranted.iterator(); iter.hasNext(); )
+				((ProxyImpl)iter.next()).setSignet(signet);
+		}
+		else
+			setProxiesGranted(null);
+
+		return (proxiesGranted);
+
+//		return (getProxiesGranted(null));
 	}
 
 
 	/**
-	 * Get the set of Proxies granted by this Subject.
+	 * Get a filtered set of Proxies granted by this Subject.
 	 * @param isActive Selector for Active/Pending/Inactive proxies
 	 * @return A Set of ProxyImpl objects that have been granted by grantor.
 	 * May be an empty set but never null.
+	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 */
 	public Set getProxiesGranted(String isActive)
 	{
-		Set proxiesGranted;
-		SignetSources srcs;
-		PersistedSignetSource persistSrc;
+		HashSet retval = new HashSet();
 
-		if ( !isPersisted()) // it's not persisted, ergo no proxies
-			proxiesGranted = new HashSet();
-
-		else if ((null != signetSource) &&
-			(null != (srcs = signetSource.getSources())) &&
-			(null != (persistSrc = srcs.getPersistedSource())))
+		if (null != proxiesGranted)
 		{
-			proxiesGranted = persistSrc.getProxiesGranted(subject_PK.longValue(), isActive);
+			Signet signet;
+			signet = (null != signetSource) ? signetSource.getSignet() : null;
+			for (Iterator iter = proxiesGranted.iterator(); iter.hasNext(); )
+			{
+				ProxyImpl proxy = (ProxyImpl)iter.next();
+				if (proxy.getStatus().toString().equals(isActive))
+				{
+					proxy.setSignet(signet);
+					retval.add(proxy);
+				}
+			}
 		}
+
+		return (retval);
+	}
+
+	/**
+	 * Used by Hibernate to set Proxies Granted
+	 * @param proxiesGranted
+	 */
+	public void setProxiesGranted(Set proxiesGranted)
+	{
+		if (null != proxiesGranted)
+			this.proxiesGranted = proxiesGranted;
 		else
-		{
-			proxiesGranted = new HashSet();
-			log.info("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
-		}
+			this.proxiesGranted = new HashSet();
+	}
 
-		return (proxiesGranted);
+	/**
+	 * Add a Proxy to this Subject's list of Proxies Granted
+	 * @param proxy The Proxy to add
+	 */
+	protected void addProxyGranted(Proxy proxy)
+	{
+		if (null != proxy)
+			getProxiesGranted().add(proxy);
 	}
 
 
@@ -621,7 +739,19 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getProxiesReceived()
 	{
-		return (getProxiesReceived(null));
+		if (null != proxiesReceived)
+		{
+			Signet signet;
+			signet = (null != signetSource) ? signetSource.getSignet() : null;
+			for (Iterator iter = proxiesReceived.iterator(); iter.hasNext(); )
+				((ProxyImpl)iter.next()).setSignet(signet);
+		}
+		else
+			proxiesReceived = new HashSet();
+
+		return (proxiesReceived);
+
+//		return (getProxiesReceived(null));
 	}
 
 
@@ -633,26 +763,46 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public Set getProxiesReceived(String isActive)
 	{
-		Set proxiesReceived;
-		SignetSources srcs;
-		PersistedSignetSource persistSrc;
+		HashSet retval = new HashSet();
 
-		if ( !isPersisted()) // it's not persisted, ergo no proxies
-			proxiesReceived = new HashSet();
-
-		else if ((null != signetSource) &&
-			(null != (srcs = signetSource.getSources())) &&
-			(null != (persistSrc = srcs.getPersistedSource())))
+		if (null != proxiesReceived)
 		{
-			proxiesReceived = persistSrc.getProxiesReceived(subject_PK.longValue(), isActive);
+			Signet signet;
+			signet = (null != signetSource) ? signetSource.getSignet() : null;
+			for (Iterator iter = proxiesReceived.iterator(); iter.hasNext(); )
+			{
+				ProxyImpl proxy = (ProxyImpl)iter.next();
+				if (proxy.getStatus().toString().equals(isActive))
+				{
+					proxy.setSignet(signet);
+					retval.add(proxy);
+				}
+			}
 		}
+
+		return (retval);
+	}
+
+	/**
+	 * Used by Hibernate to set Proxies Received
+	 * @param proxiesReceived
+	 */
+	public void setProxiesReceived(Set proxiesReceived)
+	{
+		if (null != proxiesReceived)
+			this.proxiesReceived = proxiesReceived;
 		else
-		{
-			proxiesReceived = new HashSet();
-			log.info("No PersistedSource found for SignetSubject with primary key = " + subject_PK);
-		}
+			this.proxiesReceived = new HashSet();
+	}
 
-		return (proxiesReceived);
+	/**
+	 * Add a Proxy to this Subject's list of Proxies Received
+	 * @param proxy The Proxy to add
+	 */
+	protected void addProxyReceived(Proxy proxy)
+	{
+		if (null != proxy)
+			getProxiesReceived().add(proxy);
 	}
 
 
@@ -1631,7 +1781,7 @@ public class SignetSubject implements Subject, Comparable
 	public Set getGrantableSubsystemsForAssignment()
 	{
 		Set grantableSubsystems = new HashSet();
-		if (getEffectiveEditor().equals(this))
+		if (null == actingAs)
 		{
 			// We are acting for no one but ourselves.
 			Collection grantableAssignments = this.getGrantableAssignments((Subsystem)null);
@@ -1678,8 +1828,7 @@ public class SignetSubject implements Subject, Comparable
 		else
 		{
 			// We are acting for some other subject who is not the Signet subject.
-			Set proxies = this.getProxiesReceived();
-			proxies = filterProxies(proxies, Status.ACTIVE);
+			Set proxies = this.getProxiesReceived(Status.ACTIVE.toString());
 			proxies = filterProxiesByGrantor(proxies, this.getEffectiveEditor());
 			Set proxiedSubsystems = new HashSet();
 			Iterator proxiesIterator = proxies.iterator();
@@ -1705,38 +1854,32 @@ public class SignetSubject implements Subject, Comparable
 		}
 	}
 
-	//
-	// First, determine who the effectiveEditor is. That's the PrivilegedSubject we're "acting for", if anyone, or ourself, if we're
-	// not "acting for" another.
-	// 
-	// Then, we have two possibilities to consider:
-	// 
-	// 1) We are "acting for" ourself only.
-	// 
-	// In this case, we can grant a Proxy for any Subsystem, without regard to any Assignments or Proxies we currently hold.
-	// 
-	// 2) We are "acting for" another.
-	// 
-	// In this case, we look through the extensible Proxies that we've received from that other PrivilegedSubject, plucking the
-	// Subsystem from each, keeping in mind that the NULL Subsystem indicates that we can extend a Proxy for any Subsystem.
-	//
 	/**
-	 * Returns A set of Subsystems that are grantable for this subject's Proxies
+	 * Returns a set of Subsystems that are grantable for this Subject's Proxies.
+	 * First, determine who the effectiveEditor is. That's either the PrivilegedSubject
+	 * we're "acting for", if anyone, or ourself, if we're not "acting for" another.
+	 * Then, we have two possibilities to consider:
+	 * 1) We are "acting for" ourself only.
+	 *    In this case, we can grant a Proxy for any Subsystem, without regard to
+	 *    any Assignments or Proxies we currently hold.
+	 * 2) We are "acting for" another.
+	 *    In this case, we look through the extensible Proxies that we've received
+	 *    from that other PrivilegedSubject, plucking the Subsystem from each,
+	 *    keeping in mind that the NULL Subsystem indicates that we can extend a
+	 *    Proxy for any Subsystem.
 	 * @return A set of Subsystems that are grantable for this subject's Proxies
 	 */
 	public Set getGrantableSubsystemsForProxy()
 	{
 		Set grantableSubsystems = new HashSet();
-		if (this.equals(getEffectiveEditor()))
+		if (null == actingAs)
 		{
 			grantableSubsystems = signetSource.getSignet().getPersistentDB().getSubsystems();
 		}
 		else
 		{
-			Set proxiesReceived;
-			proxiesReceived = Common.filterProxies(getProxiesReceived(), Status.ACTIVE);
+			Set proxiesReceived = getProxiesReceived(Status.ACTIVE.toString());
 			proxiesReceived = Common.filterProxiesByGrantor(proxiesReceived, getEffectiveEditor());
-			// Iterator proxiesReceivedIterator = proxiesReceived.iterator();
 			for (Iterator iter = proxiesReceived.iterator(); iter.hasNext();)
 			{
 				Proxy proxy = (Proxy)(iter.next());
@@ -1744,7 +1887,7 @@ public class SignetSubject implements Subject, Comparable
 				{
 					if (proxy.getSubsystem() == null)
 					{
-						grantableSubsystems = signetSource.getSignet().getPersistentDB().getSubsystems();
+						grantableSubsystems.addAll(signetSource.getSignet().getPersistentDB().getSubsystems());
 					}
 					else
 					{
@@ -1834,17 +1977,29 @@ public class SignetSubject implements Subject, Comparable
 	{
 		HibernateDB hibr = signetSource.getSignet().getPersistentDB();
 		Session hs = hibr.openSession();
-		Transaction tx = hs.beginTransaction();
+		Transaction tx;
+//		Transaction tx = hs.beginTransaction();
+
 		if ( !isPersisted())
+{
+tx = hs.beginTransaction();
 			hibr.save(hs, this);
+tx.commit();
+}
 		if ( !grantee.isPersisted())
+{
+tx = hs.beginTransaction();
 			hibr.save(hs, grantee);
-		tx.commit();
+tx.commit();
+}
+//		tx.commit();
 		hibr.closeSession(hs);
 
 		Assignment newAssignment = new AssignmentImpl(
 				signetSource.getSignet(), this, grantee, scope, function, limitValues,
 				canUse, canGrant, effectiveDate, expirationDate);
+		getEffectiveEditor().addAssignmentGranted(newAssignment);
+		grantee.addAssignmentReceived(newAssignment);
 
 		return (newAssignment);
 	}
@@ -1885,6 +2040,8 @@ public class SignetSubject implements Subject, Comparable
 
 		Proxy newProxy = new ProxyImpl(mySignet, this, grantee, subsystem,
 				canUse, canExtend, effectiveDate, expirationDate);
+		getEffectiveEditor().addProxyGranted(newProxy);
+		grantee.addProxyReceived(newProxy);
 
 		return (newProxy);
 	}

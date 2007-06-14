@@ -1,0 +1,19 @@
+Signet  06/14/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_0b
+----------------------------------------------------
+Changes in this version:
+
+1. Bug fix: SIG-23 - Signet Utils do not have exec permissions in Linux build
+2. Bug fix: SIG-22 - Incorrect Scopes are enabled when creating assignments
+3. Performance improvemnt: Side-stepped previous changes to open/close 
+    Hibernate Sessions for each DB transaction. Now a single Session is used
+    but is closed/reopened when a user logs out. 
+    This has enabled the ability to use Hibernate's lazy-loading feature for
+    all DB objects.
+    Eventually, I want to have one semi-permanent Session for DB reads, and one 
+    or more transient Sessions for DB updates, inserts, deletes.
+
+
+
+

@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.16 2007-05-23 19:15:20 ddonn Exp $
-$Date: 2007-05-23 19:15:20 $
+$Id: TreeNodeImpl.java,v 1.17 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -46,18 +46,25 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
   public TreeNodeImpl()
   {
     super();
-    this.parents = new HashSet();
-    this.children = new HashSet();
-    this.setStatus(Status.PENDING);
+    parents = new HashSet();
+    children = new HashSet();
+    setStatus(Status.PENDING);
   }
 
   public TreeNodeImpl(Signet signet, Tree tree, String id, String name)
   {
     super(signet, id, name, Status.ACTIVE);
     this.tree = (TreeImpl) tree;
-    this.treeId = this.tree.getId();
-    this.parents = new HashSet();
-    this.children = new HashSet();
+    if (null != tree)
+    	treeId = tree.getId();
+    parents = new HashSet();
+    children = new HashSet();
+  }
+
+
+  public Set getParents()
+  {
+	  return (getParents(null));
   }
 
   /* (non-Javadoc)
@@ -73,24 +80,15 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
    * getter, so that the public getter can resume returning a non-modifiable
    * copy of the collection. 
    */
-  public Set getParents()
+  public Set getParents(Session hs)
   {
     if ( !parentsAlreadyFetched)
     {
-    	Signet mySignet = getSignet();
-    	if (null != mySignet)
-    	{
-    		HibernateDB hibr = mySignet.getPersistentDB();
-    		if (null != hibr)
-    		{
-    			parents = hibr.getParents(this);
-    			parentsAlreadyFetched = true;
-    		}
-    	}
+    	parents = getSignet().getPersistentDB().getParents(hs, this);
+		parentsAlreadyFetched = true;
     }
 
     return (parents);
-    // return UnmodifiableSet.decorate(this.parents);
   }
 
   /* (non-Javadoc)
@@ -123,7 +121,6 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
     }
 
     return (children);
-    // return UnmodifiableSet.decorate(this.children);
   }
 
   /**
@@ -131,11 +128,11 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
    */
   public Tree getTree()
   {
-    if ((tree == null) && (treeId != null) && (getSignet() != null))
+    if ((null == tree) && (null != treeId) && (null != signet))
     {
       try
       {
-		HibernateDB hibr = getSignet().getPersistentDB();
+		HibernateDB hibr = signet.getPersistentDB();
 		Session hs = hibr.openSession();
 		tree = (TreeImpl)(hibr.getTree(hs, treeId));
 		hibr.closeSession(hs);
@@ -146,12 +143,12 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
       }
     }
 
-    return this.tree;
+    return (tree);
   }
 
   public String getTreeId()
   {
-    return this.treeId;
+    return (treeId);
   }
 
   /**
@@ -160,38 +157,28 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
   void setTree(Tree tree)
   {
     this.tree = (TreeImpl) tree;
-    this.treeId = tree.getId();
+    treeId = (null != tree) ? tree.getId() : null;
   }
 
   void setTreeId(String treeId) throws ObjectNotFoundException
   {
     this.treeId = treeId;
-
-    Signet signet;
-    if (null != (signet = getSignet()))
+    if ((null == treeId) || (0 >= treeId.length()))
+    	tree = null;
+    else if (null != signet)
     {
-    	HibernateDB hibr = signet.getPersistentDB();
-    	Session hs = hibr.openSession();
-      tree = (TreeImpl)(hibr.getTree(hs, treeId));
-      	hibr.closeSession(hs);
+	    if ((null == tree) || ( !tree.getId().equals(treeId)))
+	    {
+	    	HibernateDB hibr = signet.getPersistentDB();
+		    Session hs = hibr.openSession();
+	
+		    tree = (TreeImpl)(hibr.getTree(hs, treeId));
+	
+		    hibr.closeSession(hs);
+	    }
     }
   }
 
-  /**
-   * @param children The children to set.
-   */
-  void setChildren(Set children)
-  {
-    this.children = children;
-
-    Iterator childrenIterator = children.iterator();
-    while (childrenIterator.hasNext())
-    {
-      TreeNode child = (TreeNode) (childrenIterator.next());
-      // Now, save the parent-child relationship info in the db.
-      this.addChild(child);
-    }
-  }
 
   /**
    * @param parents The parents to set.
@@ -206,7 +193,7 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
    */
   public void addChild(TreeNode childNode)
   {
-    this.children.add(childNode);
+    children.add(childNode);
     ((TreeNodeImpl) childNode).parents.add(this);
     saveRelationship(childNode, this);
   }
@@ -250,12 +237,10 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
     }
     else
     {
-      Iterator childrenIterator = children.iterator();
-
-      while (childrenIterator.hasNext() && ( !foundDescendant))
+      for (Iterator iter = children.iterator(); iter.hasNext() && ( !foundDescendant); )
       {
-    	  TreeNodeImpl child = (TreeNodeImpl)childrenIterator.next();
-        foundDescendant = child.isAncestorOf(possibleDescendant);
+		TreeNodeImpl child = (TreeNodeImpl)iter.next();
+		foundDescendant = child.isAncestorOf(possibleDescendant);
       }
     }
 
@@ -330,6 +315,11 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
         this.getId()).toHashCode();
   }
 
+  /**
+   * Returns a String of the form {treeAdapterClassName}:{treeId}:{nodeId}
+   * This is used by UI code to determine which node from the Select Scope tree
+   * was selected.
+   */
   public String toString()
   {
     return this.getTree().getAdapter().getClass().getName()
@@ -353,13 +343,32 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
 				treeNodesIterator.hasNext() && retval; )
 		{
 			TreeNodeImpl otherTreeNode = (TreeNodeImpl)treeNodesIterator.next();
-			retval = this.getTreeId().equals(otherTreeNode.getTreeId()) &&
-					this.isAncestorOf(otherTreeNode);
+			retval = otherTreeNode.getTreeId().equals(getTreeId()) &&
+					otherTreeNode.isAncestorOf(this);
 		}
 	}
 
     return (retval);
   }
+
+	/**
+	 * Determine if this TreeNode is a descendant of any TreeNodes in a Set
+	 * @param treeNodes The list of potential ancestors. May be null or empty set.
+	 * @return true if this is a descendant of any TreeNode, false otherwise
+	 */
+	public boolean isDescendantOfAny(Set treeNodes)
+	{
+		boolean found = false;
+
+		if ((null == treeNodes) || (0 >= treeNodes.size()))
+			return (found);
+
+		for (Iterator iter = treeNodes.iterator(); iter.hasNext() && !found; )
+			found = isDescendantOf((TreeNode)iter.next());
+
+		return (found);
+	}
+
 
   /* (non-Javadoc)
    * @see java.lang.Comparable#compareTo(java.lang.Object)

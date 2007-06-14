@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/tree/TreeAdapter.java,v 1.3 2006-12-16 01:08:53 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/tree/TreeAdapter.java,v 1.4 2007-06-14 21:39:04 ddonn Exp $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -7,6 +7,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.tree;
 
+import java.io.Serializable;
 import javax.naming.OperationNotSupportedException;
 import edu.internet2.middleware.signet.AdapterUnavailableException;
 
@@ -16,7 +17,7 @@ import edu.internet2.middleware.signet.AdapterUnavailableException;
 * one provided with Signet.
 * 
 */
-public interface TreeAdapter
+public interface TreeAdapter extends Serializable
 {
 
 	public Tree getTree(String id)

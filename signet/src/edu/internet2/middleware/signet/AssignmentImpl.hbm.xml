@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.hbm.xml,v 1.29 2007-05-05 01:20:56 lmcrae Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.hbm.xml,v 1.30 2007-06-14 21:39:04 ddonn Exp $ -->
 
-<hibernate-mapping
-		default-lazy="false" >
-
+<hibernate-mapping>
 	<class
 		name="edu.internet2.middleware.signet.AssignmentImpl"
 		table="signet_assignment" >
@@ -32,13 +30,7 @@
        		<generator class="native"/> 
     	</id>
 -->
-    	
-        <property name="grantorId"			column="grantorKey"		type="long" />
-        <property name="proxyId"			column="proxyKey"		type="long" />
-        <property name="granteeId"			column="granteeKey"		type="long" />
-        <property name="revokerId"			column="revokerKey"		type="long" />
 
-<!--
 		<many-to-one
 			name="grantor"
 			class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
@@ -62,7 +54,6 @@
 			class="edu.internet2.middleware.signet.subjsrc.SignetSubject"
 			column="proxyKey"
 			not-null="false"/>
--->
 		
 		<many-to-one
 			name="function"

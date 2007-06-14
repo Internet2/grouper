@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.7 2007-05-04 20:43:03 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.8 2007-06-14 21:39:04 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -19,6 +19,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.subjsrc;
 
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -40,7 +41,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * as a wrapper for the SubjectAPI's Source. The mapping between these objects is
  * defined in the SubjectSources.xml configuration file.
  */
-public class SignetSource implements Source
+public class SignetSource implements Source, Serializable
 {
 	/** Status of this Source */
 	public static final String		STATUS_ACTIVE			= "active";

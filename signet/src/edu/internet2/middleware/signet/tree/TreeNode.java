@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNode.java,v 1.3 2005-05-12 22:04:35 acohen Exp $
-$Date: 2005-05-12 22:04:35 $
+$Id: TreeNode.java,v 1.4 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.tree;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -15,7 +16,7 @@ import java.util.Set;
 * and 0 or more children.
 * 
 */
-public interface TreeNode extends Comparable
+public interface TreeNode extends Comparable, Serializable
 {
   /**
    * @return An analyst-defined string, used as a tag that is
@@ -40,4 +41,5 @@ public interface TreeNode extends Comparable
   public boolean isAncestorOfAll(Set treeNodes);
   
   public boolean isDescendantOf(TreeNode treeNode);
+  public boolean isDescendantOfAny(Set treeNodes);
 }

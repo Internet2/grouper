@@ -1,6 +1,6 @@
 /*--
-$Id: Tree.java,v 1.3 2005-01-12 17:28:05 acohen Exp $
-$Date: 2005-01-12 17:28:05 $
+$Id: Tree.java,v 1.4 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -8,6 +8,7 @@ see doc/license.txt in this distribution.
 */
 package edu.internet2.middleware.signet.tree;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Set;
 * {@link TreeNode}s, each of which may have its own children.
 * 
 */
-public interface Tree
+public interface Tree extends Serializable
 {    
 /**
  * @return Returns a short mnemonic ID which will appear in XML

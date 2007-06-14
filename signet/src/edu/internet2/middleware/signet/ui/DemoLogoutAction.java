@@ -1,6 +1,6 @@
 /*--
-$Id: DemoLogoutAction.java,v 1.3 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: DemoLogoutAction.java,v 1.4 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -90,7 +90,9 @@ public final class DemoLogoutAction extends BaseAction
     {
       return (mapping.findForward("notInitialized"));
     }
-    
+
+	signet.getPersistentDB().reset();
+
     session.removeAttribute(Constants.LOGGEDINUSER_ATTRNAME);
     session.removeAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
     session.removeAttribute(Constants.SUBSYSTEM_ATTRNAME);

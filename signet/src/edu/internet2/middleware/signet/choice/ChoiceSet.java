@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSet.java,v 1.11 2007-02-24 02:11:31 ddonn Exp $
-$Date: 2007-02-24 02:11:31 $
+$Id: ChoiceSet.java,v 1.12 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -9,17 +9,16 @@ see doc/license.txt in this distribution.
 
 package edu.internet2.middleware.signet.choice;
 
+import java.io.Serializable;
 import java.util.Set;
-
 import javax.naming.OperationNotSupportedException;
-
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Subsystem;
 
 /**
  * Represents a collection of possible Choice values.
  */
-public interface ChoiceSet
+public interface ChoiceSet extends Serializable
 {
   /**
    * Returns ID of this ChoiceSet.

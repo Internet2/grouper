@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.10 2007-04-28 01:56:43 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.11 2007-06-14 21:39:04 ddonn Exp $
 TreeXmlLoader.java
 Created on Feb 22, 2005
 
@@ -1052,6 +1052,11 @@ public class TreeXmlLoader
       throw new UnsupportedOperationException();
     }
 
+    public boolean isDescendantOfAny(Set treeNodes)
+    {
+      throw new UnsupportedOperationException();
+    }
+
     public int compareTo(Object o)
     {
       TreeNode otherNode = (TreeNode)o;
@@ -1086,7 +1091,7 @@ public class TreeXmlLoader
 		String[] fileargs = parseArgs(args);
 		if (1 > fileargs.length)
 		{
-			System.out.println("Signet TreeXmlLoader, $Revision: 1.10 $");
+			System.out.println("Signet TreeXmlLoader, $Revision: 1.11 $");
 			System.out.println("Usage:\n\tTreeXmlLoader [-q] <inputfile> [inputfile] ...");
 			System.out.println("\t\t-q : Quiet, do not prompt on overwrite");
 			System.out.println("\t\tinputfile : a file containing Signet Tree data");

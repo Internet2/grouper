@@ -1,6 +1,6 @@
 /*--
-$Id: Limit.java,v 1.15 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: Limit.java,v 1.16 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,6 +19,7 @@ limitations under the License.
 
 package edu.internet2.middleware.signet;
 
+import java.io.Serializable;
 import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
@@ -28,8 +29,7 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
 * 
 */
 
-public interface Limit
-extends Comparable
+public interface Limit extends Comparable, Serializable
 {
   /**
    * Get the ID of this Limit.

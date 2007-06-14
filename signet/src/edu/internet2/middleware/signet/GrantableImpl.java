@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.21 2007-05-23 19:15:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.22 2007-06-14 21:39:04 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -46,18 +46,18 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	/** If this Grantable instance was granted directly by a PrivilegedSubject,
 	 * then this is that PrivilegedSubject. If this Grantable instance was
 	 * granted by an "acting as" Subject, then this is the logged-in PrivilegedSubject. */
-	protected Long			grantorId;
+	protected SignetSubject	grantor;
 
 	/** If this Grantable instance was granted/revoked directly by a PrivilegedSubject,
 	 * then this is null. If this Grantable instance was granted/revoked by an
 	 * "acting as" Subject, then this is the "acting as" PrivilegedSubject. */
-	protected Long			proxyId;
+	protected SignetSubject	proxy;
 
 	/** The recipient of this grant */
-	protected Long			granteeId;
+	protected SignetSubject	grantee;
 
 	/** The revoker of this grant */
-	protected Long			revokerId;
+	protected SignetSubject	revoker;
 
 	protected Date			effectiveDate;
 	protected Date			expirationDate;
@@ -91,9 +91,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 		instanceNumber = MIN_INSTANCE_NUMBER;
 		setHistory(new HashSet());
 
-		setGrantorId(grantor.getSubject_PK());
-		setProxyForEffectiveEditor(grantor);
-		// this.setGrantor(grantor);
+		setGrantor(grantor);
 
 		this.setGrantee(grantee);
 
@@ -122,20 +120,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public SignetSubject getGrantor()
 	{
-		SignetSubject subject = null;
-
-		if (null != grantorId)
-		{
-			Signet signet = getSignet();
-			if (null != signet)
-				subject = signet.getSubject(grantorId.longValue());
-			else
-				log.warn("No Signet found in " + this.getClass().getName() + ".getGrantor()" + " where id=" + id);
-		}
-		else
-			log.warn("No grantorId found in " + this.getClass().getName() + ".getGrantor()" + " where id=" + id);
-
-		return (subject);
+		return (grantor);
 	}
 
 	/**
@@ -144,31 +129,11 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public void setGrantor(SignetSubject grantor)
 	{
-		if (null != grantor)
-		{
-			grantorId = grantor.getSubject_PK();
-			setProxyForEffectiveEditor(grantor);
-		}
+		this.grantor = grantor.getEffectiveEditor();
+		if ( !(grantor.equals(this.grantor)))
+			setProxy(grantor);
 		else
-			grantorId = null;
-	}
-
-	/**
-	 * Set the grantorId of this Grantable. Support for Hibernate.
-	 * @param grantorId The Subject primary key
-	 */
-	protected void setGrantorId(Long grantorId)
-	{
-		this.grantorId = grantorId;
-	}
-
-	/**
-	 *  Support for Hibernate.
-	 * @return The primary key of the Subject that acted as the grantor.
-	 */
-	public Long getGrantorId()
-	{
-		return (grantorId);
+			setProxy(null);
 	}
 
 
@@ -181,20 +146,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public SignetSubject getProxy()
 	{
-		SignetSubject subject = null;
-
-		if (null != proxyId)
-		{
-			Signet signet = getSignet();
-			if (null != signet)
-				subject = signet.getSubject(proxyId.longValue());
-			else
-				log.warn("No Signet found in " + this.getClass().getName() + ".getProxy()" + " where id=" + id);
-		}
-		else
-			log.info("No proxyId found in " + this.getClass().getName() + ".getProxy()" + " where id=" + id);
-
-		return (subject);
+		return (proxy);
 	}
   
 	/**
@@ -203,54 +155,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public void setProxy(SignetSubject proxy)
 	{
-		if (null != proxy)
-			proxyId = proxy.getSubject_PK();
-		else
-			proxyId = null;
-	}
-
-	/** Set the Subject primary key of the Proxy. Support for Hibernate.
-	 * @param proxyId
-	 */
-	public void setProxyId(Long proxyId)
-	{
-		this.proxyId = proxyId;
-	}
-
-	/** Support for Hibernate.
-	 * @return The primary key of the Proxy
-	 */
-	public Long getProxyId()
-	{
-		return (proxyId);
-	}
-	
-	/**
-	 * For the given Subject, determine if it is acting as another subject.
-	 * If so, set this.grantorId to the actingAs Id and proxyId to the Subject's Id.
-	 * Otherwise, set this.grantorId to the Subject's Id and this.proxyId to null.
-	 * @param subject The Subject in question.
-	 */
-	public void setProxyForEffectiveEditor(SignetSubject subject)
-	{
-		if (null == subject)
-			return;
-
-		Long subjKey = subject.getSubject_PK();
-
-		SignetSubject actingAs = subject.getEffectiveEditor();
-		Long actingAsKey = actingAs.getSubject_PK();
-
-		if ( !subjKey.equals(actingAsKey)) // if ids != then Subject is acting as someone else
-		{
-			grantorId = actingAsKey;
-			proxyId = subjKey;
-		}
-		else
-		{
-			grantorId = subjKey;
-			proxyId = null;
-		}
+		this.proxy = proxy;
 	}
 
 
@@ -264,20 +169,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public SignetSubject getGrantee()
 	{
-		SignetSubject subject = null;
-
-		if (null != granteeId)
-		{
-			Signet signet = getSignet();
-			if (null != signet)
-				subject = signet.getSubject(granteeId.longValue());
-			else
-				log.warn("No Signet found in " + this.getClass().getName() + ".getGrantee()" + " where id=" + id);
-		}
-		else
-			log.warn("No granteeId found in " + this.getClass().getName() + ".getGrantee()" + " where id=" + id);
-
-		return (subject);
+		return (grantee);
 	}
 
 	/**
@@ -285,27 +177,9 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public void setGrantee(SignetSubject grantee)
 	{
-		if (null != grantee)
-			granteeId = grantee.getSubject_PK();
-		else
-			granteeId = null;
+		this.grantee = grantee;
 	}
  
-	/** Support for Hibernate.
-	 * @return The Subject primary key for the grantee.
-	 */
-	public Long getGranteeId()
-	{
-		return (granteeId);
-	}
-
-	/** Set the Subject primary key for the grantee. Support for Hibernate.
-	 * @param granteeId
-	 */
-	public void setGranteeId(Long granteeId)
-	{
-		this.granteeId = granteeId;
-	}
 
 	////////////////////////////////////
 	// Revoker methods
@@ -316,21 +190,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public SignetSubject getRevoker()
 	{
-		SignetSubject subject = null;
-
-		if (null != revokerId)
-		{
-			Signet signet = getSignet();
-			if (null != signet)
-			{
-				if (null == (subject = signet.getSubject(revokerId.longValue())))
-					log.warn("GrantableImpl.getRevoker() - No Subject found matching revokerId=" + revokerId);
-			}
-			else
-				log.error("GrantableImpl.getRevoker() - No Signet found");
-		}
-
-		return (subject);
+		return (revoker);
 	}
 
 	/**
@@ -340,30 +200,12 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	{
 		if (null != revoker)
 		{
-			revokerId = revoker.getEffectiveEditor().getSubject_PK();
-			setProxyForEffectiveEditor(revoker);
+			this.revoker = revoker.getEffectiveEditor();
+			if ( !revoker.equals(this.revoker))
+				setProxy(revoker);
 		}
 		else
-		{
-			revokerId = null;
-			proxyId = null;
-		}
-	}
-
-	/** Support for Hibernate.
-	 * @return The Subject primary key of the Revoker
-	 */
-	public Long getRevokerId()
-	{
-		return (revokerId);
-	}
-
-	/** Set the Subject primary key of the Revoker. Support for Hibernate.
-	 * @param revokerId
-	 */
-	public void setRevokerId(Long revokerId)
-	{
-		this.revokerId = revokerId;
+			this.revoker = revoker;
 	}
 
 
@@ -451,8 +293,9 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 		this.effectiveDate = date;
 
-		setGrantorId(actor.getSubject_PK());
-		setProxyForEffectiveEditor(actor);
+		setGrantor(actor);
+//		setGrantorId(actor.getSubject_PK());
+//		setProxyForEffectiveEditor(actor);
 		// this.setGrantor(actor);
   }
 
@@ -486,8 +329,9 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 		this.expirationDate = expirationDate;
 
-		setGrantorId(actor.getSubject_PK());
-		setProxyForEffectiveEditor(actor);
+		setGrantor(actor);
+//		setGrantorId(actor.getSubject_PK());
+//		setProxyForEffectiveEditor(actor);
 		// this.setGrantor(actor);
 	}
 
@@ -654,10 +498,14 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	{
 		StringBuffer buf = new StringBuffer(super.toString());
 		buf.append(", id(GrantableImpl)=" + id.toString()); //$NON-NLS-1$
-		buf.append(", grantorId=" + grantorId); //$NON-NLS-1$
-		buf.append(", granteeId=" + granteeId); //$NON-NLS-1$
-		buf.append(", proxyId=" + (proxyId != null ? proxyId.toString() : "null")); //$NON-NLS-1$ $NON-NLS-2$
-		buf.append(", revokerID=" + (revokerId != null ? revokerId.toString() : "null")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", grantorId=" + grantor.getId()); //$NON-NLS-1$
+		buf.append(", granteeId=" + grantee.getId()); //$NON-NLS-1$
+		buf.append(", proxyId=" + (proxy != null ? proxy.getId() : "none")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", revokerID=" + (revoker != null ? revoker.getId() : "none")); //$NON-NLS-1$ $NON-NLS-2$
+//		buf.append(", grantorId=" + grantorId); //$NON-NLS-1$
+//		buf.append(", granteeId=" + granteeId); //$NON-NLS-1$
+//		buf.append(", proxyId=" + (proxyId != null ? proxyId.toString() : "null")); //$NON-NLS-1$ $NON-NLS-2$
+//		buf.append(", revokerID=" + (revokerId != null ? revokerId.toString() : "null")); //$NON-NLS-1$ $NON-NLS-2$
 		DateFormat df = DateFormat.getDateInstance();
 		buf.append(", effectiveDate=" + (null != effectiveDate ? df.format(effectiveDate) : "null")); //$NON-NLS-1$ $NON-NLS-2$
 		buf.append(", expirationDate=" + (null != expirationDate ? df.format(expirationDate) : "null")); //$NON-NLS-1$ $NON-NLS-2$

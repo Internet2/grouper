@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.8 2007-03-15 00:14:27 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.9 2007-06-14 21:39:04 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -21,6 +21,7 @@ package edu.internet2.middleware.signet.subjsrc;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -48,7 +49,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  *      been previously persisted will be available from this Source.
  *   3) All "ordinary" Sources declared in the SignetSources.xml file
  */
-public class SignetSources
+public class SignetSources implements Serializable
 {
 	/** SubjectSources XML Tag */
 	public static final String		TAG_SEP					= "/";

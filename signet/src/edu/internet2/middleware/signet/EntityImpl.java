@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.15 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.16 2007-06-14 21:39:04 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -35,7 +35,7 @@ public abstract class EntityImpl implements Entity, Name
 {
 	protected Log				log;
 
-  private Signet				signet;
+  protected Signet				signet;
   private String 				id; // see GrantableImpl, has an Integer id defined
   private String 				name;
   private Status 				status;
@@ -279,7 +279,7 @@ public abstract class EntityImpl implements Entity, Name
   }
   
   /**
-   * @return Returns the status.
+   * @return Returns the status as defined in Status (ACTIVE, INACTIVE, PENDING).
    */
   public Status getStatus()
   {

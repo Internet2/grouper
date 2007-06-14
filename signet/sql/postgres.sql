@@ -5,7 +5,7 @@
 --    1/10/2006 - renamed signet_privilegedSubject to signet_subject
 --    3/09/2006 - add categoryKey, functionKey, subjectKey, choiceKey, choiceSetKey
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.30 2007-03-08 07:11:47 lmcrae Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/postgres.sql,v 1.31 2007-06-14 21:39:04 ddonn Exp $
 --
 
 -- Database: signet_db
@@ -72,7 +72,6 @@ drop sequence subjectAttributeSerial;
 -- Local Source Subject tables (optional)
 drop table SubjectAttribute;
 drop table Subject;
-drop table SubjectType;
 
 
 -- Subsystem tables

@@ -1,6 +1,6 @@
 /*--
-$Id: Permission.java,v 1.11 2006-02-09 10:22:43 lmcrae Exp $
-$Date: 2006-02-09 10:22:43 $
+$Id: Permission.java,v 1.12 2007-06-14 21:39:04 ddonn Exp $
+$Date: 2007-06-14 21:39:04 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,6 +18,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import edu.internet2.middleware.subject.Subject;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 */
 
 public interface Permission
-extends SubsystemPart
+extends SubsystemPart, Serializable
 {  
  /**
   * Gets the ID of this entity.
