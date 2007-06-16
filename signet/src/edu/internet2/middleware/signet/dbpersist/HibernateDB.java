@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.10 2007-06-14 21:39:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.11 2007-06-16 00:51:51 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -17,6 +17,8 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.dbpersist;
 
+import java.io.Serializable;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,10 +71,10 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  * @author $Author: ddonn $
  */
-public class HibernateDB
+public class HibernateDB implements Serializable
 {
 	/** logging */
 	protected Log				log;
@@ -165,6 +167,9 @@ public class HibernateDB
 	///////////////////////////////////
 	// class methods
 	///////////////////////////////////
+
+	/** Private constructor for Serializable */
+	private HibernateDB() {  }
 
 	/**
 	 * constructor
@@ -426,12 +431,18 @@ protected Session stdSession = null;
 			try
 			{
 				stdSession = sessionFactory.openSession();
+stdSession.connection().setAutoCommit(false);
 			}
 			catch (HibernateException he)
 			{
 				log.error("HibernateDB.HibernateDB: hibernate error");
 				log.error(he.toString());
 				throw new SignetRuntimeException(he);
+			}
+			catch (SQLException sqle)
+			{
+				log.error("HibernateDB.openSession: SQL exception: " + sqle.toString());
+				throw new SignetRuntimeException(sqle);
 			}
 		}
 		return (stdSession);
@@ -711,9 +722,11 @@ protected Session stdSession = null;
 					subsystemsMatch = true;
 				}
 			}
-			if (subsystemsMatch && !(candidate.getStatus().equals(Status.INACTIVE))
-					&& candidate.getGrantor().equals(proxy.getGrantor()) && (candidate.getId() != null)
-					&& !(candidate.getId().equals(proxy.getId())))
+			if (subsystemsMatch &&
+					!(candidate.getStatus().equals(Status.INACTIVE)) && 
+					candidate.getGrantor().equals(proxy.getGrantor()) && 
+					(candidate.getId() != null)	&& 
+					!(candidate.getId().equals(proxy.getId())))
 			{
 				duplicates.add(candidate);
 			}

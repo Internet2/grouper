@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.8 2007-06-14 21:39:04 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.9 2007-06-16 00:51:51 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -75,7 +75,7 @@ public class SignetSource implements Source, Serializable
 	protected Source		apiSource;
 
 	/** Reference to SignetSources (i.e. back up the chain of command) */
-	protected SignetSources	signetSources;
+	protected transient SignetSources	signetSources;
 
 
 	/** default constructor */

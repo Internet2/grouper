@@ -7,6 +7,7 @@
 
 package edu.internet2.middleware.signet.subjsrc;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,13 +25,11 @@ import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
  * Signet's JDBC Source. The purpose of this class is to override 
  * the SubjectAPI's JDBCSourceAdapter.loadAttributes().
  */
-public class SignetJDBCSourceAdapter extends JDBCSourceAdapter
+public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serializable
 {
 	protected Log	log	= LogFactory.getLog(SignetJDBCSourceAdapter.class);
 
-	/**
-	 * Allocates new JDBCSourceAdapter
-	 */
+	/** default constructor */
 	public SignetJDBCSourceAdapter()
 	{
 		super();

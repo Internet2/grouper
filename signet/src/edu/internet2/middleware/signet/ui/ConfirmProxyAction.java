@@ -1,6 +1,6 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.18 2007-05-23 19:15:20 ddonn Exp $
-$Date: 2007-05-23 19:15:20 $
+$Id: ConfirmProxyAction.java,v 1.19 2007-06-16 00:51:51 ddonn Exp $
+$Date: 2007-06-16 00:51:51 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -29,6 +29,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Proxy;
@@ -162,13 +163,20 @@ public final class ConfirmProxyAction extends BaseAction
     // If we've gotten this far, there must be no duplicate Proxies.
     // Let's save this Proxy in the database.
 
+try
+{
     HibernateDB hibr = signet.getPersistentDB();
     Session hs = hibr.openSession();
     Transaction tx = hs.beginTransaction();
     hibr.save(hs, proxy);
     tx.commit();
     hibr.closeSession(hs);
-  
+}
+catch (HibernateException he)
+{
+  System.out.println("ConfirmProxyAction.execute: Problem saving Proxy, Id=" + proxy.getId() + "The exception was: ");
+  System.out.println(he.toString());
+}
     session.setAttribute(Constants.PROXY_ATTRNAME, proxy);
 
     // Forward to our success page

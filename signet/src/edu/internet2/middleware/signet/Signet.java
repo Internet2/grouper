@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.65 2007-06-14 21:39:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.66 2007-06-16 00:51:51 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -289,7 +289,7 @@ public final class Signet implements Serializable
 //
 ///////////////////////////////////////////////////////////////////////
 
-	protected SignetSources signetSources;
+	protected transient SignetSources signetSources;
 
 
 	/**
