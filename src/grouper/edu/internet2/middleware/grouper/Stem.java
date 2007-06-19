@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.127 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: Stem.java,v 1.128 2007-06-19 18:04:17 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -93,7 +93,7 @@ public class Stem extends GrouperAPI implements Owner {
     throws  GroupAddException,
             InsufficientPrivilegeException
   {
-    return internal_addChildGroup(extension, displayExtension, null);
+    return this.internal_addChildGroup(extension, displayExtension, null);
   } // public Group addChildGroup(extension, displayExtension)
 
   /**
@@ -877,7 +877,8 @@ public class Stem extends GrouperAPI implements Owner {
         .setCreateTime( new Date().getTime() )
         .setCreatorUuid( this.getSession().getMember().getUuid() )
         .setParentUuid( this._getDTO().getUuid() )
-        .setTypes(types);
+        .setTypes(types)
+        ;
       v = NotNullOrEmptyValidator.validate(uuid);
       if (v.isInvalid()) {
         _g.setUuid( GrouperUuid.getUuid() );

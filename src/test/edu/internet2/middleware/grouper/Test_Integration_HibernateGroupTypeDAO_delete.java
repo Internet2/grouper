@@ -22,10 +22,12 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.6 2007-04-18 14:31:59 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.7 2007-06-19 18:04:17 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
+
+  // TODO 20070606 this should not be DAO specific
 
   // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = LogFactory.getLog(Test_Integration_HibernateGroupTypeDAO_delete.class);
@@ -45,12 +47,12 @@ public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
       GroupTypeDTO _gt = (GroupTypeDTO) type.getDTO();
       assertEquals(
         "grouptype has fields before deletion",
-        2, new HibernateFieldDAO().findAllFieldsByGroupType( _gt.getUuid() ).size()
+        2, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( _gt.getUuid() ).size()
       );
       type.delete(s); // fields show be automatically deleted when the parent type is deleted
       assertEquals(
         "grouptype does not have fields after deletion",
-        0, new HibernateFieldDAO().findAllFieldsByGroupType( _gt.getUuid() ).size()
+        0, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( _gt.getUuid() ).size()
       );
     }
     catch (Exception e) {
@@ -70,12 +72,12 @@ public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
       GroupTypeDTO _gt = (GroupTypeDTO) type.getDTO();
       assertEquals(
         "grouptype has fields before reset",
-        2, new HibernateFieldDAO().findAllFieldsByGroupType( _gt.getUuid() ).size()
+        2, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( _gt.getUuid() ).size()
       );
       RegistryReset.reset();  // fields should be deleted when registry is reset
       assertEquals(
         "grouptype does not have fields after reset",
-        0, new HibernateFieldDAO().findAllFieldsByGroupType( _gt.getUuid() ).size()
+        0, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( _gt.getUuid() ).size()
       );
     }
     catch (Exception e) {
