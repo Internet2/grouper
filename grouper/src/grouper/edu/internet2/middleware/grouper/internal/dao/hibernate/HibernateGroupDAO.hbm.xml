@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateGroupDAO.hbm.xml,v 1.1 2007-04-17 14:17:29 blair Exp $ -->
+<!-- $Id: HibernateGroupDAO.hbm.xml,v 1.2 2007-06-19 18:00:52 blair Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hibernate">
   <class name="HibernateGroupDAO" table="grouper_groups">
@@ -53,7 +53,6 @@
     </property>
     <!-- uuid -->
 
-    <!-- TODO 20070130 shouldn't this be indexed? -->
     <!-- parentUuid -->
     <!-- [@since 1.2.0] Refers to parent stem's UUID, not ID -->
     <property name="parentUuid"
@@ -65,6 +64,7 @@
       <column name="parent_stem"
               not-null="true"
               length="128"
+              index="group_parent_idx"
       />
     </property>
     <!-- parentUuid -->
