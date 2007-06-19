@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.168 2007-05-14 16:12:56 blair Exp $ -->
+<!-- $Id: build.xml,v 1.169 2007-06-19 18:14:36 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -309,44 +309,7 @@
     <record name="${basedir}/eg.log" action="start"/>
     <antcall  target="db.reset"/>
     <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap1"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap2"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap3"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap4"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap5"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap6"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap7"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap8"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap9"  /> 
-    </antcall>
-    <antcall  target="eg.run">
-      <param  name="package"  value="bootstrap"   />
-      <param  name="name"     value="Bootstrap10" /> 
+      <param name="name" value="Bootstrap"/> 
     </antcall>
     <record name="${basedir}/eg.log" action="stop"/>
   </target>
@@ -357,7 +320,7 @@
     <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.eg.${package}.${name}"
+          classname="edu.internet2.middleware.grouper.eg.${name}"
           failonerror="true"
     />
   </target>

@@ -10,6 +10,7 @@ Released: 20070619
 ## UPDATED
 * Added index to "grouper_groups.parent_stem" to address performance issues.
 * Added index to "grouper_stems.parent_stem" to address performance issues.
+* "Bootstrap" example code.
 
 ---
 
