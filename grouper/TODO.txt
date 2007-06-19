@@ -1,0 +1,95 @@
+
+# Grouper API Tasks
+
+This file contains the queued tasks that need to be completed during the
+current sprint, the current release and in future releases.
+
+---
+
+## Current Sprint
+
+Dates:  TBD to TBD
+
+* Tasks
+  * TBD
+* 
+  * Estimate:
+  * Source:
+  * Text: 
+  * Acceptance Tests
+
+> Updated:  nil
+
+---
+
+## Current Release
+
+Release:  TBD
+
+* Tasks
+
+> Updated:  nil
+
+---
+
+## Product
+
+* Tasks
+  * "Grouper should work with Hibernate 3"
+    * Estimate:           20 hours
+    * Source:             blair christensen <blair@devclue.com>   
+    * Type:               developer
+    * Acceptance Tests:
+      * [ ] All current Grouper API acceptance tests pass with Hib2 DAO.
+      * [ ] All current Grouper API acceptance tests pass with Hib3 DAO.
+      * [ ] All current Grouper API unit tests pass with Hib2 DAO.
+      * [ ] All current Grouper API unit tests pass with Hib3 DAO.
+    * Notes:  This can be done for the most part by cut-and-pasting the
+              current Hibernate DAO code into a new package and renaming the
+              classes, etc.  Not ideal but it should work.  The idea will be
+              to support both Hib2 and Hib3 for one major release cycle.  Hib2
+              will be eliminated (or shoved out into an extension?) after that.
+  * "Group attributes can have more than one value"
+    * Estimate:           20 hours
+    * Source:             blair christensen <blair@devclue.com>
+    * Type:               developer
+    * Acceptance Tests:
+      * [ ] Can set multiple values for a group attribute.
+      * [ ] Deleting a group attribute deletes all values.
+      * [ ] All current Grouper API acceptance tests pass with Hib2 DAO.
+      * [ ] All current Grouper API acceptance tests pass with Hib3 DAO.
+      * [ ] All current Grouper API unit tests pass with Hib2 DAO.
+      * [ ] All current Grouper API unit tests pass with Hib3 DAO.
+    * Notes:  Add idx and klass columns to the "attributes" table.  To keep
+              things simple all group attributes - unless otherwise enforced
+              by the code - can be multivalued.  
+  * "Fields can be associated with more than one group type"
+    * Estimate:           20 hours
+    * Source:             blair christensen <blair@devclue.com>
+    * Type:               developer
+    * Acceptance Tests:
+      * [ ] Field can be assigned to multiple group types.
+      * [ ] Deleting field from one type does not delete it from other group types.
+      * [ ] All current Grouper API acceptance tests pass with Hib2 DAO.
+      * [ ] All current Grouper API acceptance tests pass with Hib3 DAO.
+      * [ ] All current Grouper API unit tests pass with Hib2 DAO.
+      * [ ] All current Grouper API unit tests pass with Hib3 DAO.
+    * Notes:  Use the now generic "attributes" table to store type-field
+              assignments.
+  * "Create a spike solution for converting the XML import process from DOM to SAX"
+    * Estimate:           5 hours
+    * Source:             blair christensen <blair@devclue.com>
+    * Type:               developer
+    * Acceptance Tests:   
+      * [ ] Must resolve feasibility of implementing a SAX-based importer
+    * Notes:
+  * "Create a spike solution for converting the XML export process so that the XML is not hand-coded"
+    * Estimate:           10 hours
+    * Source:             blair christensen <blair@devclue.com>
+    * Type:               developer
+    * Acceptance Tests:
+      * [ ] Must resolve feasibility of creating alternate XML export process
+    * Notes:  XStream is probably the starting point for exploration
+
+> Updated:  20070619
+
