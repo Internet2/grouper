@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.76 2007-05-23 19:15:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.77 2007-07-06 21:59:20 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -663,7 +663,7 @@ public class Common
   
   /**
    * 
-   * @param currentLoggedInPrivilegedSubject
+   * @param currentSubject
    *    The current PrivilegedSubject who's logged in as the user.
    * @param htmlSelectId
    *    The HTML ID which should be used to identify this SELECT element.
@@ -678,17 +678,15 @@ public class Common
    */
   public static String displayActingForOptions
     (Signet             signet,
-     SignetSubject      currentLoggedInPrivilegedSubject,
+     SignetSubject      currentSubject,
      String             htmlSelectId,
      String             onChange)
   {
     StringBuffer outStr = new StringBuffer();
     
-    Set proxiesReceived
-      = currentLoggedInPrivilegedSubject.getProxiesReceived();
-    proxiesReceived = filterProxies(proxiesReceived, Status.ACTIVE);
+    Set activeProxiesRcvd = currentSubject.getProxiesReceived(Status.ACTIVE.toString());
     
-    if (proxiesReceived.size() > 0)
+    if (activeProxiesRcvd.size() > 0)
     {    
       outStr.append("<LABEL for=\"" + htmlSelectId + "\">\n");
       outStr.append(ResLoaderUI.getString("Common.actas.txt"));
@@ -696,10 +694,10 @@ public class Common
       outStr.append("<SELECT\n");
       outStr.append("  name=\"" + htmlSelectId + "\"\n");
       outStr.append("  id=\"" + htmlSelectId + "\"\n");
-      outStr.append("  onchange=\"" + onChange + "('" + htmlSelectId  + "', '" + Common.buildCompoundId(currentLoggedInPrivilegedSubject.getEffectiveEditor()) + "');" + "\"\n");
+      outStr.append("  onchange=\"" + onChange + "('" + htmlSelectId  + "', '" + Common.buildCompoundId(currentSubject.getEffectiveEditor()) + "');" + "\"\n");
       outStr.append("  class=\"long\">\n");
         
-      outStr.append(Common.displayProxyOptions(signet, currentLoggedInPrivilegedSubject));
+      outStr.append(Common.displayProxyOptions(signet, currentSubject));
 
       outStr.append("</SELECT>\n");
       outStr.append("<INPUT\n");
@@ -1007,7 +1005,7 @@ public class Common
 		else
 		{
 			editAction = "Conditions.do";
-			paramName = "assignmentId";
+			paramName = Constants.ASSIGNMENT_HTTPPARAMNAME;
 		}
 
       outStr.append("<a\n");

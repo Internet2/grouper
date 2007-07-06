@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.15 2007-06-14 21:39:04 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.16 2007-07-06 21:59:20 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -32,7 +32,6 @@ import org.apache.commons.collections.set.UnmodifiableSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.Category;
@@ -1126,16 +1125,12 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public void setActingAs(SignetSubject actingAs) throws SignetAuthorityException
 	{
+		// Acting as yourself is expressed as acting as nobody else.
 		if (equals(actingAs))
-		{
-			// Acting as yourself is expressed as acting as nobody else.
 			actingAs = null;
-		}
     
 		if (canActAs(actingAs, null))
-		{
 			this.actingAs = actingAs;
-		}
 		else
 		{
 			throw new SignetAuthorityException(new DecisionImpl(false, Reason.NO_PROXY, null));
@@ -1975,25 +1970,10 @@ public class SignetSubject implements Subject, Comparable
 			Date effectiveDate, Date expirationDate)
 		throws SignetAuthorityException
 	{
-		HibernateDB hibr = signetSource.getSignet().getPersistentDB();
-		Session hs = hibr.openSession();
-		Transaction tx;
-//		Transaction tx = hs.beginTransaction();
-
-		if ( !isPersisted())
-{
-tx = hs.beginTransaction();
-			hibr.save(hs, this);
-tx.commit();
-}
-		if ( !grantee.isPersisted())
-{
-tx = hs.beginTransaction();
-			hibr.save(hs, grantee);
-tx.commit();
-}
-//		tx.commit();
-		hibr.closeSession(hs);
+		if (grantee == null)
+		{
+			throw new IllegalArgumentException("Cannot grant an Assignment to a NULL grantee.");
+		}
 
 		Assignment newAssignment = new AssignmentImpl(
 				signetSource.getSignet(), this, grantee, scope, function, limitValues,
@@ -2026,19 +2006,20 @@ tx.commit();
 			throw new IllegalArgumentException("Cannot grant a Proxy to a NULL grantee.");
 		}
 
-		Signet mySignet = signetSource.getSignet();
+//		Signet mySignet = signetSource.getSignet();
 
-		if ( !grantee.isPersisted()) // grantee may have just come in from SubjectAPI
-		{
-			HibernateDB hibr = mySignet.getPersistentDB();
-			Session hs = hibr.openSession();
-			Transaction tx = hs.beginTransaction();
-			hibr.save(hs, grantee);
-			tx.commit();
-			hibr.closeSession(hs);
-		}
+//		if ( !grantee.isPersisted()) // grantee may have just come in from SubjectAPI
+//		{
+//			HibernateDB hibr = mySignet.getPersistentDB();
+//			Session hs = hibr.openSession();
+//			Transaction tx = hs.beginTransaction();
+//			hibr.save(hs, grantee);
+//			tx.commit();
+//			hibr.closeSession(hs);
+//		}
 
-		Proxy newProxy = new ProxyImpl(mySignet, this, grantee, subsystem,
+		Proxy newProxy = new ProxyImpl(
+				signetSource.getSignet(), this, grantee, subsystem,
 				canUse, canExtend, effectiveDate, expirationDate);
 		getEffectiveEditor().addProxyGranted(newProxy);
 		grantee.addProxyReceived(newProxy);

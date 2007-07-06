@@ -1,6 +1,6 @@
 /*--
-$Id: PersonViewPrintAction.java,v 1.2 2006-02-09 10:32:51 lmcrae Exp $
-$Date: 2006-02-09 10:32:51 $
+$Id: PersonViewPrintAction.java,v 1.3 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -74,7 +74,7 @@ public final class PersonViewPrintAction extends BaseAction
     }
 
     HttpSession session = request.getSession(); 
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
       
     if (signet == null)
     {

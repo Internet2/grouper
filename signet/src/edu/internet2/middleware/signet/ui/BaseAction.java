@@ -1,6 +1,6 @@
 /*--
-$Id: BaseAction.java,v 1.7 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: BaseAction.java,v 1.8 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -67,7 +67,7 @@ public class BaseAction extends Action
    * @return Return the mapping named "duplicateAssignments" or null if there is no such mapping.
    */
   protected ActionForward findDuplicateAssignments(ActionMapping mapping) {
-      return (mapping.findForward(Constants.DUPLICATE_ASSIGNMENTS));
+      return (mapping.findForward(Constants.DUP_ASSIGNMENTS_ATTRNAME));
   }
 
 

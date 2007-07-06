@@ -1,6 +1,6 @@
 /*--
-$Id: DesignateAction.java,v 1.6 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: DesignateAction.java,v 1.7 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -76,7 +76,7 @@ public final class DesignateAction extends BaseAction
     
     HttpSession session = request.getSession(); 
   
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
   
     if (signet == null)
     {
@@ -102,18 +102,10 @@ public final class DesignateAction extends BaseAction
 
     }
     
-    // Set the "subsystemOwner" attribute if we're designating a subsystem
-    // owner.
-    String subsystemOwnerStr
-      = request.getParameter(Constants.SUBSYSTEM_OWNER_HTTPPARAMNAME);
-    if ((subsystemOwnerStr != null) && (!subsystemOwnerStr.equals("")))
-    {
-      session.setAttribute(Constants.SUBSYSTEM_OWNER_ATTRNAME, Boolean.TRUE);
-    }
-    else
-    {
-      session.setAttribute(Constants.SUBSYSTEM_OWNER_ATTRNAME, Boolean.FALSE);
-    }
+    // Set the "subsystemOwner" attribute if we're designating a subsystem owner
+    String subsystemOwnerStr = request.getParameter(Constants.SUBSYSTEM_OWNER_HTTPPARAMNAME);
+    session.setAttribute(Constants.SUBSYSTEM_OWNER_ATTRNAME,
+    		new Boolean((subsystemOwnerStr != null) && (!subsystemOwnerStr.equals(""))));
 
     // Forward to our success page
     return findSuccess(mapping);

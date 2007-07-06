@@ -1,6 +1,6 @@
 /*--
-$Id: StartAction.java,v 1.18 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: StartAction.java,v 1.19 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -74,14 +74,13 @@ public final class StartAction extends BaseAction
     
     HttpSession session = request.getSession();
     
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
     if (signet == null)
     {
       signet = new Signet();
       signet.setLogger(log);
-      session.setAttribute("signet", signet);
+      session.setAttribute(Constants.SIGNET_ATTRNAME, signet);
     }
-    
 
     SignetSubject loggedInUser = (SignetSubject)session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
     if (loggedInUser == null)

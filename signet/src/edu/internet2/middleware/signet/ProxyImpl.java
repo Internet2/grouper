@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.20 2007-06-14 21:39:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.21 2007-07-06 21:59:20 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -96,7 +96,7 @@ public class ProxyImpl extends GrantableImpl implements Proxy
       }
     }
 
-    if ( !(canUse | canExtend)) // if can't use and can't extend
+    if ( !(canUse | canExtend)) // if can't use and can't extend (yes, I do mean '|' (arithmetic OR))
     {
       throw new IllegalArgumentException(
     		  ResLoaderApp.getString("ProxyImpl.ProxyImpl.CantUseOrExtend")); //$NON-NLS-1$
@@ -108,7 +108,7 @@ public class ProxyImpl extends GrantableImpl implements Proxy
 
     Decision decision = grantor.canEdit(this);
 
-    if (decision.getAnswer() == false)
+    if ( !decision.getAnswer())
     {
       throw new SignetAuthorityException(decision);
     }

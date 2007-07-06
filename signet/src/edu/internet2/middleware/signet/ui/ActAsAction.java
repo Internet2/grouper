@@ -1,6 +1,6 @@
 /*--
-$Id: ActAsAction.java,v 1.7 2006-11-30 04:21:49 ddonn Exp $
-$Date: 2006-11-30 04:21:49 $
+$Id: ActAsAction.java,v 1.8 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -73,7 +73,7 @@ public final class ActAsAction extends BaseAction
     
     HttpSession session = request.getSession(); 
   
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
   
     if (signet == null)
     {
@@ -87,15 +87,10 @@ public final class ActAsAction extends BaseAction
     String idParts[] = Common.parseCompoundId(compoundId);
     SignetSubject actingAs = signet.getSubject(idParts[0], idParts[1]);
 
-    if (loggedInPrivilegedSubject.equals(actingAs))
-      loggedInPrivilegedSubject.setActingAs(null);
-
-    else
-      loggedInPrivilegedSubject.setActingAs(actingAs);
+    loggedInPrivilegedSubject.setActingAs(actingAs);
     
-    session.setAttribute
-      (Constants.CURRENTPSUBJECT_ATTRNAME,
-       loggedInPrivilegedSubject.getEffectiveEditor());
+    session.setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME,
+    		loggedInPrivilegedSubject.getEffectiveEditor());
 
     // Forward to our success page
     return findSuccess(mapping);

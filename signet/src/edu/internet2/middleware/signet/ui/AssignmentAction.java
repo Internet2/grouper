@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentAction.java,v 1.6 2006-06-30 02:04:41 ddonn Exp $
-$Date: 2006-06-30 02:04:41 $
+$Id: AssignmentAction.java,v 1.7 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -55,12 +55,12 @@ public final class AssignmentAction extends BaseAction
    * 
    * This method expects to receive the following HTTP parameters:
    * 
-   *   Name: "assignmentId"
+   *   Name: ASSIGNMENT_HTTPPARAMNAME
    *   Use:  The String representation of a Signet Assignment's ID.
    * 
    * This method updates the followiing attributes in the Session:
    * 
-   *   Name: "currentAssignment"
+   *   Name: Constants.ASSIGNMENT_ATTRNAME
    *   Type: Assignment
    *   Use:  The Assignment which is currently being examined or edited by
    *         the Signet user.
@@ -91,17 +91,17 @@ public final class AssignmentAction extends BaseAction
 
     HttpSession session = request.getSession();
 
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
     
     if (signet == null)
     {
       return (mapping.findForward("notInitialized"));
     }
     
-    String assignmentId = request.getParameter("assignmentId");
+    String assignmentId = request.getParameter(Constants.ASSIGNMENT_HTTPPARAMNAME);
     Assignment assignment
     	= signet.getPersistentDB().getAssignment(Integer.parseInt(assignmentId));
-    session.setAttribute("currentAssignment", assignment);
+    session.setAttribute(Constants.ASSIGNMENT_ATTRNAME, assignment);
 
     // Forward to our success page
     return findSuccess(mapping);

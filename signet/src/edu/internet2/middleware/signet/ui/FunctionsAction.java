@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionsAction.java,v 1.7 2006-02-09 10:31:26 lmcrae Exp $
-$Date: 2006-02-09 10:31:26 $
+$Id: FunctionsAction.java,v 1.8 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -77,7 +77,7 @@ public final class FunctionsAction extends BaseAction
     // First, check to see if we have a Signet instance or not. If we don't,
     // we'll need to redirect this session to the Signet start page.
     HttpSession session = request.getSession(); 
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
     
     if (signet == null)
     {
@@ -105,9 +105,9 @@ public final class FunctionsAction extends BaseAction
     }
     
     // We're creating a new Assignment, not editing an existing one. Let's
-    // make that clear by clearing out any "currentAssignment" attribute from
+    // make that clear by clearing out any Constants.ASSIGNMENT_ATTRNAME attribute from
     // the session.
-    session.setAttribute("currentAssignment", null);
+    session.setAttribute(Constants.ASSIGNMENT_ATTRNAME, null);
 
     // Forward to our success page
     return findSuccess(mapping);

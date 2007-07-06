@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXMLServlet.java,v 1.4 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: PermissionsXMLServlet.java,v 1.5 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -63,7 +63,7 @@ public class PermissionsXMLServlet implements Servlet {
     
     Signet signet
     = (Signet)
-        (httpRequest.getSession().getAttribute("signet"));
+        (httpRequest.getSession().getAttribute(Constants.SIGNET_ATTRNAME));
   
     SignetSubject currentGranteePrivilegedSubject =
     	(SignetSubject)httpRequest.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);

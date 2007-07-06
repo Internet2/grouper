@@ -15,7 +15,8 @@
 		
 		<id name="id"
 				type="string"
-				column="subsystemID" >
+				column="subsystemID"
+				unsaved-value="null" >
 			<generator class="assigned"/>
 		</id>
 		

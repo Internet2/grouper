@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.16 2007-06-14 21:39:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.17 2007-07-06 21:59:20 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -79,6 +79,7 @@ public abstract class EntityImpl implements Entity, Name
 	protected EntityImpl()
 	{
 		log = LogFactory.getLog(this.getClass());
+		this.id = null;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.11 2007-06-16 00:51:51 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.12 2007-07-06 21:59:20 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -18,7 +18,6 @@ limitations under the License.
 package edu.internet2.middleware.signet.dbpersist;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +70,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -431,7 +430,10 @@ protected Session stdSession = null;
 			try
 			{
 				stdSession = sessionFactory.openSession();
-stdSession.connection().setAutoCommit(false);
+// The following line causes problems with Sybase. According to Hibernate 3.2
+// documentation, AutoCommit is 'off' by default, so manually setting it is
+// not necessary.
+//stdSession.connection().setAutoCommit(false);
 			}
 			catch (HibernateException he)
 			{
@@ -439,11 +441,11 @@ stdSession.connection().setAutoCommit(false);
 				log.error(he.toString());
 				throw new SignetRuntimeException(he);
 			}
-			catch (SQLException sqle)
-			{
-				log.error("HibernateDB.openSession: SQL exception: " + sqle.toString());
-				throw new SignetRuntimeException(sqle);
-			}
+//			catch (SQLException sqle)
+//			{
+//				log.error("HibernateDB.openSession: SQL exception: " + sqle.toString());
+//				throw new SignetRuntimeException(sqle);
+//			}
 		}
 		return (stdSession);
 	}

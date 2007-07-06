@@ -21,7 +21,7 @@
 <% 
   Signet signet
      = (Signet)
-         (request.getSession().getAttribute("signet"));
+         (request.getSession().getAttribute(Constants.SIGNET_ATTRNAME));
 
   String searchString = request.getParameter("searchString");
   Set result = signet.getSubjectsByIdentifier(searchString);

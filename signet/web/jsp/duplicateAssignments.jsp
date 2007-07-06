@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: duplicateAssignments.jsp,v 1.3 2006-10-25 00:13:31 ddonn Exp $
-  $Date: 2006-10-25 00:13:31 $
+  $Id: duplicateAssignments.jsp,v 1.4 2007-07-06 21:59:20 ddonn Exp $
+  $Date: 2007-07-06 21:59:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -58,7 +58,7 @@
 <%
   Signet signet
      = (Signet)
-         (request.getSession().getAttribute("signet"));
+         (request.getSession().getAttribute(Constants.SIGNET_ATTRNAME));
          
   SignetSubject loggedInPrivilegedSubject
      = (SignetSubject)
@@ -72,7 +72,7 @@
                (Constants.CURRENTPSUBJECT_ATTRNAME));
                
   Assignment currentAssignment
-    = (Assignment)(request.getSession().getAttribute("currentAssignment"));
+    = (Assignment)(request.getSession().getAttribute(Constants.ASSIGNMENT_ATTRNAME));
     
   Set duplicateAssignments
     = (Set)(request.getSession().getAttribute("duplicateAssignments"));

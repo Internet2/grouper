@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/reconcile/Reconciler.java,v 1.5 2007-05-06 07:13:15 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/reconcile/Reconciler.java,v 1.6 2007-07-06 21:59:20 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -68,13 +68,19 @@ public class Reconciler
 	protected Signet		signet;
 
 	// The Persisted Store Manager
-	protected HibernateDB	persistMgr;
+	protected HibernateDB	hibr;
 
 
-	public Reconciler(Signet signetInstance, HibernateDB persistMgr)
+	/**
+	 * Constructor, creates an object to reconcile Assignments and Proxies
+	 * (Grantables) based upon some criteria (usually "valid until date".
+	 * @param signetInstance The Signet instance
+	 * @param hibr The Signet Persistent Store manager
+	 */
+	public Reconciler(Signet signetInstance, HibernateDB hibr)
 	{
 		this.signet = signetInstance;
-		this.persistMgr = persistMgr;
+		this.hibr = hibr;
 	}
 
 
@@ -123,11 +129,11 @@ public class Reconciler
     //  b) Those whose effective-dates are later than the current Date.
    
     List  assignmentResultList;
-	Session hs = persistMgr.openSession();
+	Session hs = hibr.openSession();
 
     try
     {
-      Query assignmentQuery = persistMgr.createQuery(hs, Qry_assignment);
+      Query assignmentQuery = hibr.createQuery(hs, Qry_assignment);
       assignmentQuery.setParameter(Qry_assign_P1, Status.INACTIVE); 
       assignmentQuery.setParameter(Qry_assign_P2, date); 
 
@@ -135,7 +141,7 @@ public class Reconciler
     }
     catch (HibernateException e)
     {
-    	hs.close();
+    	hibr.closeSession(hs);
       throw new SignetRuntimeException(e);
     }
     
@@ -144,7 +150,7 @@ public class Reconciler
     List  proxyResultList;
     try
     {
-      Query proxyQuery = persistMgr.createQuery(hs, Qry_proxy);
+      Query proxyQuery = hibr.createQuery(hs, Qry_proxy);
       proxyQuery.setParameter(Qry_proxy_P1, Status.INACTIVE); 
       proxyQuery.setParameter(Qry_proxy_P2, date); 
 
@@ -152,13 +158,13 @@ public class Reconciler
     }
     catch (HibernateException e)
     {
-    	hs.close();
+    	hibr.closeSession(hs);
       throw new SignetRuntimeException(e);
     }
 
     changedGrantables.addAll(reconcileGrantables(proxyResultList, date));
 
-	persistMgr.closeSession(hs);
+	hibr.closeSession(hs);
 
     return (changedGrantables);
   }
@@ -195,11 +201,11 @@ public class Reconciler
 
 			if (0 < grantList.size())
 			{
-				Session hs = persistMgr.openSession();
+				Session hs = hibr.openSession();
 				Transaction tx = hs.beginTransaction();
-				persistMgr.save(hs, grantList);
+				hibr.save(hs, grantList);
 				tx.commit();
-				persistMgr.closeSession(hs);
+				hibr.closeSession(hs);
 			}
 		}
 

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitsAction.java,v 1.4 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: LimitsAction.java,v 1.5 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -75,8 +75,8 @@ public final class LimitsAction extends BaseAction
     // Find the Scope specified by the "scope" parameter, and
     // stash it in the Session.
     HttpSession session = request.getSession(); 
-    String currentScopeString = request.getParameter("scope");
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    String currentScopeString = request.getParameter(Constants.SCOPE_HTTPPARAMNAME);
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
     
     if (signet == null)
     {
@@ -84,7 +84,7 @@ public final class LimitsAction extends BaseAction
     }
     
     TreeNode currentScope = SignetFactory.getTreeNode(signet, currentScopeString);
-    session.setAttribute("currentScope", currentScope);
+    session.setAttribute(Constants.SCOPE_ATTRNAME, currentScope);
 
     // Forward to our success page
     return findSuccess(mapping);

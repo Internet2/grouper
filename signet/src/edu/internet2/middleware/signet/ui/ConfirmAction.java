@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.23 2007-05-06 07:13:15 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.24 2007-07-06 21:59:20 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -65,12 +65,12 @@ public final class ConfirmAction extends BaseAction
    * 
    * This method expects to receive the following HTTP parameters:
    * 
-   *   Name: "assignmentId"
+   *   Name: ASSIGNMENT_HTTPPARAMNAME
    *   Use:  The String representation of a Signet Assignment's ID.
    * 
    * This method updates the followiing attributes in the Session:
    * 
-   *   Name: "currentAssignment"
+   *   Name: Constants.ASSIGNMENT_ATTRNAME
    *   Type: Assignment
    *   Use:  The Assignment which is currently being examined or edited by
    *         the Signet user.
@@ -95,7 +95,7 @@ throws Exception
 
   HttpSession session = request.getSession(); 
 
-  Signet signet = (Signet)(session.getAttribute("signet"));
+  Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
   if (signet == null)
   {
     return (mapping.findForward("notInitialized"));
@@ -106,7 +106,7 @@ throws Exception
 
 	// currentAssignment is present in the session only if we are editing
 	// an existing Assignment. Otherwise, we're attempting to create a new one.
-	Assignment assignment = (Assignment)(session.getAttribute("currentAssignment"));
+	Assignment assignment = (Assignment)(session.getAttribute(Constants.ASSIGNMENT_ATTRNAME));
 
 	Date defaultEffectiveDate = Common.getDefaultEffectiveDate(assignment);
 	ActionMessages actionMsgs = new ActionMessages();
@@ -128,12 +128,13 @@ throws Exception
 	boolean canGrant = Common.paramIsPresent(request.getParameter(Constants.CAN_GRANT_HTTPPARAMNAME));
 	boolean canUse = Common.paramIsPresent(request.getParameter(Constants.CAN_USE_HTTPPARAMNAME));
 
+	SignetSubject grantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
+
 	// Creating a new Assignment or editing an existing one?
 	if (assignment == null)
 	{
-		SignetSubject grantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
-		TreeNode scope = (TreeNode)(session.getAttribute("currentScope"));
-		Function function = (Function)(session.getAttribute("currentFunction"));
+		TreeNode scope = (TreeNode)(session.getAttribute(Constants.SCOPE_ATTRNAME));
+		Function function = (Function)(session.getAttribute(Constants.FUNCTION_ATTRNAME));
 
 		assignment = createAssignment(grantor, grantee, scope, function, limitValues,
 				canGrant, canUse, effectiveDate, expirationDate);
@@ -148,9 +149,9 @@ throws Exception
   Set duplicateAssignments = assignment.findDuplicates();
   if ( !duplicateAssignments.isEmpty())
   {
-    session.setAttribute("currentAssignment", assignment);
-    session.setAttribute("currentLimitValues", limitValues);
-    session.setAttribute("duplicateAssignments", duplicateAssignments);
+    session.setAttribute(Constants.ASSIGNMENT_ATTRNAME, assignment);
+    session.setAttribute(Constants.LIMITVALUE_ATTRNAME, limitValues);
+    session.setAttribute(Constants.DUP_ASSIGNMENTS_ATTRNAME, duplicateAssignments);
     return findDuplicateAssignments(mapping);
   }
 
@@ -159,12 +160,38 @@ throws Exception
 	HibernateDB hibr = signet.getPersistentDB();
 	Session hs = hibr.openSession();
 	Transaction tx = hs.beginTransaction();
-	hibr.save(hs, assignment);
-	tx.commit();
-	hibr.closeSession(hs);
+
+	try
+	{
+		hibr.save(hs, assignment.getGrantor());
+		hibr.save(hs, assignment.getGrantee());
+		hibr.save(hs, assignment.getRevoker());
+		hibr.save(hs, assignment.getProxy());
+		hibr.save(hs, assignment);
+
+		tx.commit();
+
+		hs.refresh(assignment);
+		hs.refresh(assignment.getGrantor());
+		if (null != assignment.getProxy())
+			hs.refresh(assignment.getProxy());
+		if (null != assignment.getRevoker())
+			hs.refresh(assignment.getRevoker());
+		hs.refresh(grantor);
+		hs.refresh(grantee);
+
+		hibr.closeSession(hs);
+	}
+	catch (Exception e)
+	{
+		log.error("ConfirmAction.execute: Problem saving Assignment, Id=" + assignment.getId() + ". The exception was: " + e.toString());
+		tx.rollback();
+		hibr.closeSession(hs);
+		return findFailure(mapping);
+	}
 
 	// return the new/edited Assignment to caller
-	session.setAttribute("currentAssignment", assignment);
+	session.setAttribute(Constants.ASSIGNMENT_ATTRNAME, assignment);
 
 	// Forward to our success page
 	return findSuccess(mapping);

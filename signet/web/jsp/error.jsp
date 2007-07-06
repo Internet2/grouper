@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: error.jsp,v 1.2 2006-05-16 17:37:35 ddonn Exp $
-  $Date: 2006-05-16 17:37:35 $
+  $Id: error.jsp,v 1.3 2007-07-06 21:59:20 ddonn Exp $
+  $Date: 2007-07-06 21:59:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -30,6 +30,14 @@
   <%@ page import="edu.internet2.middleware.signet.ui.Common" %>
   <%@ page import="edu.internet2.middleware.signet.ui.Constants" %>
   <%@ page import="edu.internet2.middleware.signet.resource.ResLoaderUI" %>
+  <%@ page import="edu.internet2.middleware.signet.subjsrc.SignetSubject" %>
+
+<%
+  SignetSubject loggedInPrivilegedSubject
+     = (SignetSubject)
+         (request.getSession().getAttribute(Constants.LOGGEDINUSER_ATTRNAME));
+   
+%>
 
   <tiles:insert page="/tiles/header.jsp" flush="true" /> 
       

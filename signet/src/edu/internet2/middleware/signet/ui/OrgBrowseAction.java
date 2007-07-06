@@ -1,6 +1,6 @@
 /*--
-$Id: OrgBrowseAction.java,v 1.7 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: OrgBrowseAction.java,v 1.8 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -80,7 +80,7 @@ throws Exception
   Category currentCategory = null;
   String currentFunctionId = request.getParameter("functionSelectList");
 
-  Signet signet = (Signet)(session.getAttribute("signet"));
+  Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
   Subsystem currentSubsystem
   	= (Subsystem)(session.getAttribute(Constants.SUBSYSTEM_ATTRNAME));
     
@@ -91,8 +91,8 @@ throws Exception
   currentFunction = Common.getFunction(currentSubsystem, currentFunctionId);
   currentCategory = currentFunction.getCategory();
 
-  session.setAttribute("currentFunction", currentFunction);
-  session.setAttribute("currentCategory", currentCategory);
+  session.setAttribute(Constants.FUNCTION_ATTRNAME, currentFunction);
+  session.setAttribute(Constants.CATEGORY_ATTRNAME, currentCategory);
 
   // Forward to our success page
   return findSuccess(mapping);

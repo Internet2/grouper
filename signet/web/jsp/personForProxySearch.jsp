@@ -23,7 +23,7 @@
 <% 
   Signet signet
      = (Signet)
-         (request.getSession().getAttribute("signet"));
+         (request.getSession().getAttribute(Constants.SIGNET_ATTRNAME));
 
   SignetSubject loggedInPrivilegedSubject
     = (SignetSubject)

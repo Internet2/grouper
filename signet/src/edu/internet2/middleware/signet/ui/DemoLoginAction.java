@@ -1,6 +1,6 @@
 /*--
-$Id: DemoLoginAction.java,v 1.3 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: DemoLoginAction.java,v 1.4 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -64,7 +64,7 @@ public final class DemoLoginAction extends BaseAction
 
     HttpSession session = request.getSession();
 
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
     
     if (signet == null)
     {

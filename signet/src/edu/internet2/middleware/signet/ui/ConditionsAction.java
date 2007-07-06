@@ -1,6 +1,6 @@
 /*--
-$Id: ConditionsAction.java,v 1.9 2006-10-25 00:09:40 ddonn Exp $
-$Date: 2006-10-25 00:09:40 $
+$Id: ConditionsAction.java,v 1.10 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -51,29 +51,29 @@ public final class ConditionsAction extends BaseAction
   /**
    * This method expects to find the following attributes in the Session:
    * 
-   *   Name: "signet"
+   *   Name: Constants.SIGNET_ATTRNAME
    *   Type: Signet
    *   Use:  A handle to the current Signet environment.
    * 
    * This method expects to receive the following HTTP parameters:
    * 
-   *   Name: "scope" (optional)
+   *   Name: Constants.SCOPE_HTTPPARAMNAME (optional)
    *   Type: The String representation of a Scope ID.
    *   Use:  If present, this parameter indicates that we are trying to
    *         create a new Assignment.
    * 
-   *   Name: "assignmentId" (optional)
+   *   Name: ASSIGNMENT_HTTPPARAMNAME (optional)
    *   Type: The String representation of an Assignment ID.
    *   Use:  Present only if we are trying to edit an existing Assignment.
    * 
    * This method updates the followiing attributes in the Session:
    * 
-   *   Name: "currentScope"
+   *   Name: Constants.SCOPE_ATTRNAME
    *   Type: TreeNode
    *   Use:  The Scope of the Assignment which is being either created or
    *         edited.
    * 
-   *   Name: "currentAssignment" (optional)
+   *   Name: Constants.ASSIGNMENT_ATTRNAME (optional)
    *   Type: Assignment
    *   Use: Is updated only if we are trying to edit an existing Assignment.
    * 
@@ -85,11 +85,11 @@ public final class ConditionsAction extends BaseAction
    *   Type: Subsystem
    *   Use:  Is updated only if we are trying to edit an existing Assignment.
    * 
-   *   Name: "currentCategory" (optional)
+   *   Name: Constants.CATEGORY_ATTRNAME (optional)
    *   Type: Category
    *   Use:  Is updated only if we are trying to edit an existing Assignment.
    * 
-   *   Name: "currentFunction" (optional)
+   *   Name: Constants.FUNCTION_ATTRNAME (optional)
    *   Type: Function
    *   Use:  Is updated only if we are trying to edit an existing Assignment.
    */
@@ -118,7 +118,7 @@ public final class ConditionsAction extends BaseAction
     }
     
     HttpSession session = request.getSession();
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
     
     if (signet == null)
     {
@@ -129,31 +129,29 @@ public final class ConditionsAction extends BaseAction
     // to create a new Assignment. If we receive an "assignmentID" parameter
     // instead, then it means we're editing an existing Assignment. In either
     // case, we'll stash the received parameter in the Session.
-    
-    if (request.getParameter("scope") != null)
+
+    String scopeParam = request.getParameter(Constants.SCOPE_HTTPPARAMNAME);
+    if (null != scopeParam)
     {
-      TreeNode currentScope = SignetFactory.getTreeNode(signet, request.getParameter("scope"));
-      session.setAttribute("currentScope", currentScope);
+      TreeNode currentScope = SignetFactory.getTreeNode(signet, scopeParam);
+      session.setAttribute(Constants.SCOPE_ATTRNAME, currentScope);
     }
     else
     {
-      Assignment assignment
-        = signet.getPersistentDB().getAssignment
-            (Integer.parseInt
-              (request.getParameter
-                ("assignmentId")));
-      session.setAttribute("currentAssignment", assignment);
+      Assignment assignment = signet.getPersistentDB().getAssignment(
+			Integer.parseInt(request.getParameter(Constants.ASSIGNMENT_HTTPPARAMNAME)));
+      session.setAttribute(Constants.ASSIGNMENT_ATTRNAME, assignment);
 
       session.setAttribute
         (Constants.CURRENTPSUBJECT_ATTRNAME, assignment.getGrantee());
       session.setAttribute
         (Constants.SUBSYSTEM_ATTRNAME, assignment.getFunction().getSubsystem());
       session.setAttribute
-        ("currentCategory", assignment.getFunction().getCategory());
+        (Constants.CATEGORY_ATTRNAME, assignment.getFunction().getCategory());
       session.setAttribute
-        ("currentFunction", assignment.getFunction());
+        (Constants.FUNCTION_ATTRNAME, assignment.getFunction());
       session.setAttribute
-        ("currentScope", assignment.getScope());
+        (Constants.SCOPE_ATTRNAME, assignment.getScope());
     }
 
     // Forward to our success page

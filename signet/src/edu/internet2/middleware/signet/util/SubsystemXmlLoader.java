@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SubsystemXmlLoader.java,v 1.21 2007-04-28 01:56:43 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SubsystemXmlLoader.java,v 1.22 2007-07-06 21:59:20 ddonn Exp $
 Copyright 2007 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ import edu.internet2.middleware.signet.tree.Tree;
 /**
  * Utility application to import Subsystems into Signet's persistent store.
  * 
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  * @author lmcrae@stanford.edu
  *
  */
@@ -135,10 +135,11 @@ public class SubsystemXmlLoader
 		}
 
 		Session hs = hibr.openSession();
+		if (hs.connection().getAutoCommit())
+			hs.connection().setAutoCommit(false);
 
         // Check for existence of named scope tree
 		Transaction tx = hs.beginTransaction();
-//		hs.connection().setAutoCommit(true);
 
 		Tree tempTree = null;
         try { tempTree = hibr.getTree(hs, scopeId); }
@@ -174,6 +175,7 @@ public class SubsystemXmlLoader
         {
 			hs.flush();
 			hibr.closeSession(hs);
+			hibr.reset();
         }
     }
 
@@ -559,7 +561,7 @@ public class SubsystemXmlLoader
         	String[] fileargs = parseArgs(args);
             if (1 > fileargs.length)
             {
-				System.out.println("Signet SubsystemXmlLoader, $Revision: 1.21 $");
+				System.out.println("Signet SubsystemXmlLoader, $Revision: 1.22 $");
 				System.out.println("Usage:\n\tSubsystemXmlLoader [-q] <inputfile> [inputfile] ...");
 				System.out.println("\t\t-q : Quiet, do not prompt on overwrite");
 				System.out.println("\t\tinputfile : a file containing Signet subsystem data");

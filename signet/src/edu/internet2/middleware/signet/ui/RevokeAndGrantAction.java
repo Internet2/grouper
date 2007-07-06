@@ -1,6 +1,6 @@
 /*--
-$Id: RevokeAndGrantAction.java,v 1.8 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: RevokeAndGrantAction.java,v 1.9 2007-07-06 21:59:20 ddonn Exp $
+$Date: 2007-07-06 21:59:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -78,9 +78,9 @@ public final class RevokeAndGrantAction extends BaseAction
     
     HttpSession session = request.getSession(); 
     Assignment assignment
-    = (Assignment)(session.getAttribute("currentAssignment"));
+    = (Assignment)(session.getAttribute(Constants.ASSIGNMENT_ATTRNAME));
   
-    Signet signet = (Signet)(session.getAttribute("signet"));
+    Signet signet = (Signet)(session.getAttribute(Constants.SIGNET_ATTRNAME));
   
     if ((signet == null) || (assignment == null))
     {

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: org-browse.jsp,v 1.5 2007-06-14 21:39:04 ddonn Exp $
-  $Date: 2007-06-14 21:39:04 $
+  $Id: org-browse.jsp,v 1.6 2007-07-06 21:59:20 ddonn Exp $
+  $Date: 2007-07-06 21:59:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -44,7 +44,7 @@
 <% 
   Signet signet
      = (Signet)
-         (request.getSession().getAttribute("signet"));
+         (request.getSession().getAttribute(Constants.SIGNET_ATTRNAME));
          
   SignetSubject loggedInPrivilegedSubject
      = (SignetSubject)
@@ -60,11 +60,11 @@
          
    Category currentCategory
      = (Category)
-         (request.getSession().getAttribute("currentCategory"));
+         (request.getSession().getAttribute(Constants.CATEGORY_ATTRNAME));
          
    Function currentFunction
      = (Function)
-         (request.getSession().getAttribute("currentFunction"));
+         (request.getSession().getAttribute(Constants.FUNCTION_ATTRNAME));
          
    DateFormat dateFormat = DateFormat.getDateInstance();
    

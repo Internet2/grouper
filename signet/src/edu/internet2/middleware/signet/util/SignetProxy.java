@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SignetProxy.java,v 1.9 2007-04-18 00:11:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SignetProxy.java,v 1.10 2007-07-06 21:59:20 ddonn Exp $
 Created on Sep 12, 2005
 
 Copyright 2006 Internet2, Stanford University
@@ -132,6 +132,8 @@ public class SignetProxy
 
 		Session hs = hibr.openSession();
 		Transaction tx = hs.beginTransaction();
+hibr.save(hs, grantorSubj);
+hibr.save(hs, granteeSubj);
 		hibr.save(hs, sysAdminProxy);
 		tx.commit();
 		hibr.closeSession(hs);

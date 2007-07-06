@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.22 2007-06-14 21:39:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.23 2007-07-06 21:59:20 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -44,11 +44,12 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	private Integer			id;
 
 	/** If this Grantable instance was granted directly by a PrivilegedSubject,
-	 * then this is that PrivilegedSubject. If this Grantable instance was
-	 * granted by an "acting as" Subject, then this is the logged-in PrivilegedSubject. */
+	 * then this is that PrivilegedSubject and 'proxy', below, will be null.
+	 * If this Grantable instance was granted by an "acting as" Subject, then
+	 * this is that "acting as" Subject and 'proxy' will be the logged-in Subject. */
 	protected SignetSubject	grantor;
 
-	/** If this Grantable instance was granted/revoked directly by a PrivilegedSubject,
+	/** If this Grantable instance was granted/revoked directly by a Subject,
 	 * then this is null. If this Grantable instance was granted/revoked by an
 	 * "acting as" Subject, then this is the "acting as" PrivilegedSubject. */
 	protected SignetSubject	proxy;
@@ -71,6 +72,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	public GrantableImpl()
 	{
 		super();
+		this.id = null;
 		instanceNumber = MIN_INSTANCE_NUMBER;
 		setHistory(new HashSet());
 	}
@@ -87,7 +89,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 			SignetSubject grantee, Date effectiveDate, Date expirationDate)
 	{
 		super(signet, null, null, null);
-
+		this.id = null;
 		instanceNumber = MIN_INSTANCE_NUMBER;
 		setHistory(new HashSet());
 
@@ -108,7 +110,6 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 		this.effectiveDate = effectiveDate;
 		this.expirationDate = expirationDate;
 		setStatus(determineStatus(effectiveDate, expirationDate));
-		setModifyDatetime(new Date());
 	}
 
 	////////////////////////////////////
@@ -497,7 +498,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer(super.toString());
-		buf.append(", id(GrantableImpl)=" + id.toString()); //$NON-NLS-1$
+		buf.append(", id(GrantableImpl)=" + ((null == id) ? "(null)" : id.toString())); //$NON-NLS-1$
 		buf.append(", grantorId=" + grantor.getId()); //$NON-NLS-1$
 		buf.append(", granteeId=" + grantee.getId()); //$NON-NLS-1$
 		buf.append(", proxyId=" + (proxy != null ? proxy.getId() : "none")); //$NON-NLS-1$ $NON-NLS-2$
