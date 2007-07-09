@@ -3,6 +3,14 @@
 
 ---
 
+# Grouper 1.2.0
+
+Released: 20070711
+
+No changes since Grouper 1.2.0rc4.
+
+---
+
 # Grouper 1.2.0rc4
 
 Released: 20070619
