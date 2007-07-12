@@ -2,7 +2,7 @@
 -- This is the Oracle DDL for the Signet database
 -- Tom Poage, University of California at Davis, 10 Feb 2006
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/oracle_add.sql,v 1.6 2007-03-08 07:10:07 lmcrae Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/oracle_add.sql,v 1.7 2007-07-12 23:01:25 lmcrae Exp $
 --
 
 -- Subsystem tables
@@ -192,13 +192,13 @@ functionKey         NUMERIC(12)         NOT NULL,
 grantorKey          NUMERIC(12)         NOT NULL,
 granteeKey          NUMERIC(12)         NOT NULL,
 proxyKey            NUMERIC(12)         NULL,
+revokerKey          NUMERIC(12)         NULL,
 scopeID             NVARCHAR2(64)       NULL,
 scopeNodeID         NVARCHAR2(64)       NULL,
 canUse              NUMERIC(1)          NOT NULL,
 canGrant            NUMERIC(1)          NOT NULL,
 effectiveDate       TIMESTAMP           NOT NULL,
 expirationDate      TIMESTAMP           NULL,
-revokerKey          NUMERIC(12)         NULL,
 modifyDatetime      TIMESTAMP           DEFAULT SYSDATE,
 PRIMARY KEY (assignmentID),
 FOREIGN KEY (grantorKey) REFERENCES signet_subject (subjectKey),
@@ -247,13 +247,13 @@ functionKey         NUMERIC(12)         NOT NULL,
 grantorKey          NUMERIC(12)         NOT NULL,
 granteeKey          NUMERIC(12)         NOT NULL,
 proxyKey            NUMERIC(12)         NULL,
+revokerKey          NUMERIC(12)         NULL,
 scopeID             NVARCHAR2(64)       NULL,
 scopeNodeID         NVARCHAR2(64)       NULL,
 canUse              NUMERIC(1)          NOT NULL,
 canGrant            NUMERIC(1)          NOT NULL,
 effectiveDate       TIMESTAMP           NOT NULL,
 expirationDate      TIMESTAMP           NULL,
-revokerKey          NUMERIC(12)         NULL,
 historyDatetime     TIMESTAMP           NOT NULL,
 modifyDatetime      TIMESTAMP           DEFAULT SYSDATE,
 PRIMARY KEY (historyID),
