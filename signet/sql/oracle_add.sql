@@ -1,8 +1,8 @@
 --
 -- This is the Oracle DDL for the Signet database
--- Tom Poage, University of California at Davis, 10 Feb 2006
+-- Tom Poage, University of California at Davis, Feb 10, 2006
 --
--- $Header: /home/hagleyj/i2mi/signet/sql/oracle_add.sql,v 1.7 2007-07-12 23:01:25 lmcrae Exp $
+-- $Header: /home/hagleyj/i2mi/signet/sql/oracle_add.sql,v 1.8 2007-07-12 23:13:42 lmcrae Exp $
 --
 
 -- Subsystem tables
