@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.16 2007-07-06 21:59:20 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.17 2007-07-12 01:08:08 ddonn Exp $
  * 
  * Copyright (c) 2006 Internet2, Stanford University
  * 
@@ -262,7 +262,7 @@ public class SignetSubject implements Subject, Comparable
 			}
 			catch (SignetAuthorityException e)
 			{
-				signetSource.getSignet().getLogger().error(e);
+				log.error(e);
 			}
 		}
 
@@ -935,6 +935,32 @@ public class SignetSubject implements Subject, Comparable
 		this.signetSource = signetSource;
 		if (null != signetSource)
 			sourceId = signetSource.getId();
+	}
+
+
+	/**
+	 * Re-synch the SourceId with the Source (see comment in setSourceId() ).
+	 * @param signet The Signet instance, used to get a Source.
+	 */
+	public void refreshSource(Signet signet)
+	{
+		if (null == signet)
+		{
+			log.error("SignetSubject.refreshSource: unable to refresh Source with a null Signet");
+			return;
+		}
+
+		// if there is no Source, but there is a source Id, attempt to get the Source.
+		// See comment in SignetSubject.setSourceId()
+		if (null == signetSource)
+		{
+			if ((null != sourceId) && (0 < sourceId.length()))
+//{
+//System.out.println("SignetSubject.refreshSource: fixing up the Source for Subject " + getName());
+				signetSource = signet.getSource(sourceId);
+//}
+		}
+
 	}
 
 

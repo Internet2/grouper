@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.23 2007-07-06 21:59:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.24 2007-07-12 01:08:08 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -121,6 +121,9 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public SignetSubject getGrantor()
 	{
+		if (null != grantor)
+			grantor.refreshSource(signet);
+
 		return (grantor);
 	}
 
@@ -147,6 +150,9 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public SignetSubject getProxy()
 	{
+		if (null != proxy)
+			proxy.refreshSource(signet);
+
 		return (proxy);
 	}
   
@@ -170,6 +176,9 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public SignetSubject getGrantee()
 	{
+		if (null != grantee)
+			grantee.refreshSource(signet);
+
 		return (grantee);
 	}
 
@@ -191,6 +200,9 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	 */
 	public SignetSubject getRevoker()
 	{
+		if (null != revoker)
+			revoker.refreshSource(signet);
+
 		return (revoker);
 	}
 

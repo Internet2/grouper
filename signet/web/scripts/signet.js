@@ -1,5 +1,6 @@
 function openWindow(theURL,winName,features) { 
-  window.open(theURL,winName,features);
+  var newWin=window.open(theURL,winName,features);
+  newWin.focus();
 }
 
 function showSearch() {
