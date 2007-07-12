@@ -9,8 +9,10 @@ Changes in this version:
 2. Bug fix: SIG-26 - Detail window should be brought to the fore if already opened.
 3. Replaced individual version-information files (README_<version>) with a
    NEWS.txt file (this file) to document changes.
-4. Bug fix: SIG-25 - Details for first edit soon after creating an assignment
-   shows a false effective date change.
+4. Bug fix: SIG-25 - Details for first edit soon after creating an 
+   assignment shows a false effective date change.
+5. Fix Oracle schema inconsistency.  Moved revokerKey to after proxyKey in 
+   signet_assignment, signet_proxy and parallel _history tables.
 
 ======================================== 
 Signet  07/06/07
