@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.24 2007-07-12 01:08:08 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.25 2007-07-18 17:24:39 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -17,7 +17,6 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +36,10 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 {
 	/** Starting number for instance numbering */
 	public static final int		MIN_INSTANCE_NUMBER = 1;
+
+	/** Error message */
+	protected static final String INVALID_EFF_DATE_MSG =
+		"Effective Date must have a non-NULL value.";
 
 	/** Database primary key. GrantableImpl is unusual among Signet entities in
 	 * that it has a numeric, not alphanumeric ID.
@@ -60,8 +63,8 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	/** The revoker of this grant */
 	protected SignetSubject	revoker;
 
-	protected Date			effectiveDate;
-	protected Date			expirationDate;
+	protected Date		    effectiveDate;
+	protected Date    		expirationDate;
 	protected int			instanceNumber;
 	protected Set			history;
 
@@ -95,18 +98,20 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 		setGrantor(grantor);
 
-		this.setGrantee(grantee);
+		setGrantee(grantee);
 
-		if (effectiveDate == null)
+		if ( !isValidDateRange(effectiveDate, expirationDate))
 		{
-			throw new IllegalArgumentException("An effective-date may not be NULL.");
+			StringBuffer buf = new StringBuffer();
+			buf.append("An expiration date must be NULL or later than the effective date. ");
+			buf.append("The requested expiration date '");
+			buf.append(((null != expirationDate) ? expirationDate.toString() : "<null>"));
+			buf.append("' is neither NULL nor later than the requested effective-date '");
+			buf.append(effectiveDate.toString());
+			buf.append("'.");
+			throw new IllegalArgumentException(buf.toString());
 		}
-		if (datesInWrongOrder(effectiveDate, expirationDate))
-		{
-			throw new IllegalArgumentException("An expiration-date must be NULL or later than its"
-					+ " effective-date. The requested expiration-date '" + expirationDate
-					+ "' is neither NULL nor later than the requested effective-date '" + effectiveDate + "'.");
-		}
+
 		this.effectiveDate = effectiveDate;
 		this.expirationDate = expirationDate;
 		setStatus(determineStatus(effectiveDate, expirationDate));
@@ -263,14 +268,6 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
     this.setStatus(Status.INACTIVE);
   }
 
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#getEffectiveDate()
-   */
-  public Date getEffectiveDate()
-  {
-    return this.effectiveDate;
-  }
-
 	/**
 	 * @param actor
 	 * @throws NullPointerException, SignetAuthorityException
@@ -288,6 +285,19 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 		}
 	}
 
+
+	////////////////////////
+	// effectiveDate methods
+	////////////////////////
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Assignment#getEffectiveDate()
+   */
+  public Date getEffectiveDate()
+  {
+    return this.effectiveDate;
+  }
+
 	/*
 	 * (non-Javadoc)
 	 * @see edu.internet2.middleware.signet.Grantable#setEffectiveDate(edu.internet2.middleware.signet.subjsrc.SignetSubject,
@@ -301,18 +311,13 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 		if (date == null)
 		{
-			throw new IllegalArgumentException("effectiveDate must have a non-NULL value.");
+			throw new IllegalArgumentException(INVALID_EFF_DATE_MSG);
 		}
 
-		this.effectiveDate = date;
+		setEffectiveDate(date);
 
 		setGrantor(actor);
-//		setGrantorId(actor.getSubject_PK());
-//		setProxyForEffectiveEditor(actor);
-		// this.setGrantor(actor);
   }
-
-
 
 	  /** This method is for use only by Hibernate.
 	 * @param date
@@ -322,12 +327,25 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
     this.effectiveDate = date;
   }
 
+
+	////////////////////////
+	// expirationDate methods
+	////////////////////////
+
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getExpirationDate()
    */
   public Date getExpirationDate()
   {
     return this.expirationDate;
+  }
+
+	/** This method is for use only by Hibernate.
+	 * @param expirationDate
+	 */
+  protected void setExpirationDate(Date expirationDate)
+  {
+    this.expirationDate = expirationDate;
   }
 
 	/*
@@ -377,21 +395,29 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	}
 
 	/**
-	 * @param effectiveDate
-	 * @param expirationDate
-	 * @return True if expirationDate precedes effectiveDate
+	 * Test whether effectiveDate is later than expirationDate
+	 * @param effectiveDate Required Date
+	 * @param expirationDate May be null (i.e. 'until revoked') or a Date
+	 * @return False if expirationDate is on or before effectiveDate or
+	 * effective Date is before "today"
 	 */
-	protected boolean datesInWrongOrder(Date effectiveDate, Date expirationDate)
+	protected boolean isValidDateRange(Date effectiveDate, Date expirationDate)
 	{
-		boolean result = false;
-		if ((effectiveDate != null) && (expirationDate != null))
+		boolean retval = false; // assume invalid date range
+		if (null != effectiveDate)
 		{
-			if (effectiveDate.compareTo(expirationDate) >= 0)
+			if (retval = (effectiveDate.compareTo(new DateOnly()) >= 0)) // yes, I do mean "="
 			{
-				return true;
+				if (null != expirationDate) // null == 'until revoked'
+					retval = (effectiveDate.compareTo(expirationDate) < 0);
+				else
+					retval = true;
 			}
 		}
-		return result;
+		else
+			throw new IllegalArgumentException(INVALID_EFF_DATE_MSG);
+
+		return (retval);
 	}
 
 
@@ -411,14 +437,6 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
     this.instanceNumber = instanceNumber;
   }
 
-
-	/** This method is for use only by Hibernate.
-	 * @param expirationDate
-	 */
-  protected void setExpirationDate(Date expirationDate)
-  {
-    this.expirationDate = expirationDate;
-  }
 
 	/**
 	 * Increment the instance number
@@ -509,19 +527,17 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 	public String toString()
 	{
-		StringBuffer buf = new StringBuffer(super.toString());
-		buf.append(", id(GrantableImpl)=" + ((null == id) ? "(null)" : id.toString())); //$NON-NLS-1$
+		StringBuffer buf = new StringBuffer();
+
+		buf.append("[GrantableImpl: ");
+		buf.append(super.toString());
+		buf.append(", id(GrantableImpl)=" + ((null == id) ? "<null>" : id.toString())); //$NON-NLS-1$
 		buf.append(", grantorId=" + grantor.getId()); //$NON-NLS-1$
 		buf.append(", granteeId=" + grantee.getId()); //$NON-NLS-1$
-		buf.append(", proxyId=" + (proxy != null ? proxy.getId() : "none")); //$NON-NLS-1$ $NON-NLS-2$
-		buf.append(", revokerID=" + (revoker != null ? revoker.getId() : "none")); //$NON-NLS-1$ $NON-NLS-2$
-//		buf.append(", grantorId=" + grantorId); //$NON-NLS-1$
-//		buf.append(", granteeId=" + granteeId); //$NON-NLS-1$
-//		buf.append(", proxyId=" + (proxyId != null ? proxyId.toString() : "null")); //$NON-NLS-1$ $NON-NLS-2$
-//		buf.append(", revokerID=" + (revokerId != null ? revokerId.toString() : "null")); //$NON-NLS-1$ $NON-NLS-2$
-		DateFormat df = DateFormat.getDateInstance();
-		buf.append(", effectiveDate=" + (null != effectiveDate ? df.format(effectiveDate) : "null")); //$NON-NLS-1$ $NON-NLS-2$
-		buf.append(", expirationDate=" + (null != expirationDate ? df.format(expirationDate) : "null")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", proxyId=" + (proxy != null ? proxy.getId() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", revokerID=" + (revoker != null ? revoker.getId() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", effectiveDate=" + (null != effectiveDate ? effectiveDate.toString() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", expirationDate=" + (null != expirationDate ? expirationDate.toString() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
 		buf.append(", instanceNumber=" + instanceNumber); //$NON-NLS-1$
 		if (null != history)
 		{
@@ -535,6 +551,8 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 			}
 			buf.append("]"); //$NON-NLS-1$
 		}
+		buf.append("]");
+
 		return (buf.toString());
 	}
 

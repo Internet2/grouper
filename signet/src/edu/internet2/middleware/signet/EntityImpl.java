@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.17 2007-07-06 21:59:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.18 2007-07-18 17:24:39 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -17,7 +17,6 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.text.DateFormat;
 import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -343,20 +342,23 @@ public abstract class EntityImpl implements Entity, Name
 
 	public String toString()
 	{
-		DateFormat df = DateFormat.getDateInstance();
 		StringBuffer buf = new StringBuffer();
-		buf.append("name=" + name);
-		buf.append(", id(EntityImpl)=" + id);
-		buf.append(", status=" + status.toString());
-		buf.append(", comment=\"" + comment + "\"");
-		buf.append(", createDate=" + (null != createDatetime ? df.format(createDatetime) : "null"));
-		buf.append(", modifyDate=" + (null != modifyDatetime ? df.format(modifyDatetime) : "null"));
-		buf.append(", createDbAccount=" + createDbAccount);
-		buf.append(", createContext=" + createContext);
-		buf.append(", modifyDbAccount=" + modifyDbAccount);
-		buf.append(", modifyContext=" + modifyContext);
-		buf.append(", createUserID=" + createUserID);
-		buf.append(", modifyUserID=" + modifyUserID);
+
+		buf.append("[EntityImpl: "); //$NON-NLS-1$
+		buf.append("name=" + name); //$NON-NLS-1$
+		buf.append(", id(EntityImpl)=" + id); //$NON-NLS-1$
+		buf.append(", status=" + status.toString()); //$NON-NLS-1$
+		buf.append(", comment=\"" + comment + "\""); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", createDate=" + (null != createDatetime ? createDatetime.toString() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", modifyDate=" + (null != modifyDatetime ? modifyDatetime.toString() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", createDbAccount=" + createDbAccount); //$NON-NLS-1$
+		buf.append(", createContext=" + createContext); //$NON-NLS-1$
+		buf.append(", modifyDbAccount=" + modifyDbAccount); //$NON-NLS-1$
+		buf.append(", modifyContext=" + modifyContext); //$NON-NLS-1$
+		buf.append(", createUserID=" + createUserID); //$NON-NLS-1$
+		buf.append(", modifyUserID=" + modifyUserID); //$NON-NLS-1$
+		buf.append("]"); //$NON-NLS-1$
+
 		return (buf.toString());
 	}
 

@@ -1,6 +1,6 @@
 /*--
-$Id: AssignmentHistoryImpl.java,v 1.3 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: AssignmentHistoryImpl.java,v 1.4 2007-07-18 17:24:39 ddonn Exp $
+$Date: 2007-07-18 17:24:39 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -46,23 +46,23 @@ class AssignmentHistoryImpl extends HistoryImpl implements AssignmentHistory
   
   AssignmentHistoryImpl(AssignmentImpl assignment)
   {
-    // Most information is just copied from the Assignment object to the
-    // AssignmentHistoryImpl object.
-    super(assignment);
+		// Most information is just copied from the Assignment object to the
+		// AssignmentHistoryImpl object.
+		super(assignment);
     
-    this.setAssignment(assignment);
-    this.setScope(assignment.getScope());
-    this.setFunction(assignment.getFunction());
-    this.setLimitValues(assignment.getLimitValues());
-    this.setCanGrant(assignment.canGrant());
-    this.setCanUse(assignment.canUse());
+		setAssignment(assignment);
+		setScope(assignment.getScope());
+		setFunction(assignment.getFunction());
+		setLimitValues(assignment.getLimitValues());
+		setCanGrant(assignment.canGrant());
+		setCanUse(assignment.canUse());
     
-    // We need to make a fresh copy of these limit-values for history
-    // purposes. Otherwise, Hibernate complains that it "Found shared
-    // references to a collection".
-    Set limitValuesCopy = new HashSet(assignment.getLimitValues().size());
-    limitValuesCopy.addAll(assignment.getLimitValues());
-    this.setLimitValues(limitValuesCopy);
+		// We need to make a fresh copy of these limit-values for history
+		// purposes. Otherwise, Hibernate complains that it "Found shared
+		// references to a collection".
+		Set limitValuesCopy = new HashSet(assignment.getLimitValues().size());
+		limitValuesCopy.addAll(assignment.getLimitValues());
+		setLimitValues(limitValuesCopy);
   }
   
 //  private Set buildLimitValueHistory(Assignment assignment)
@@ -142,23 +142,21 @@ class AssignmentHistoryImpl extends HistoryImpl implements AssignmentHistory
     this.limitValues = limitValues;
   }
   
-  public String toString()
-  {
-    return
-      "[instanceNumber="
-      + this.getInstanceNumber()
-      + ", function="
-      + this.getFunction()
-      + ", scope="
-      + this.getScope()
-      + ", limitValues="
-      + this.getLimitValues()
-      + ", canUse="
-      + this.canUse()
-      + ", canGrant="
-      + this.canGrant()
-      + "]";
-  }
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer();
+
+		buf.append("[AssignmentHistoryImpl: "); //$NON-NLS-1$
+		buf.append(super.toString());
+		buf.append(", canUse=" + canUse()); //$NON-NLS-1$
+		buf.append(", canGrant=" + canGrant()); //$NON-NLS-1$
+		buf.append(", function=" + getFunction()); //$NON-NLS-1$
+		buf.append(", scope=" + getScope()); //$NON-NLS-1$
+		buf.append(", limitValues=" + getLimitValues()); //$NON-NLS-1$
+		buf.append("]"); //$NON-NLS-1$
+
+		return (buf.toString());
+	}
   
   Assignment getAssignment()
   {

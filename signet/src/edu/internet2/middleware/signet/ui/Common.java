@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.77 2007-07-06 21:59:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.78 2007-07-18 17:24:39 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -40,6 +40,7 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentHistory;
+import edu.internet2.middleware.signet.DateOnly;
 import edu.internet2.middleware.signet.Decision;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Grantable;
@@ -74,14 +75,14 @@ public class Common
   private static final String DATE_FORMAT = "MM-dd-yyyy";
   private static final String DATE_SAMPLE = "mm-dd-yyyy";
 
-  final private static java.text.SimpleDateFormat[] DATERS =  {
-    new java.text.SimpleDateFormat("MM/d/yy"),
-    new java.text.SimpleDateFormat("MM-d-yy"),
-    new java.text.SimpleDateFormat("MM.d.yy"),
-    new java.text.SimpleDateFormat("dd-MMM-yy"),
-    new java.text.SimpleDateFormat("dd-MMMM-yy"),
-    new java.text.SimpleDateFormat("yyyy-MM-dd"),
-    new java.text.SimpleDateFormat("MMMM d, yyyy")
+  final private static SimpleDateFormat[] DATERS =  {
+    new SimpleDateFormat("MM/d/yy"),
+    new SimpleDateFormat("MM-d-yy"),
+    new SimpleDateFormat("MM.d.yy"),
+    new SimpleDateFormat("dd-MMM-yy"),
+    new SimpleDateFormat("dd-MMMM-yy"),
+    new SimpleDateFormat("yyyy-MM-dd"),
+    new SimpleDateFormat("MMMM d, yyyy")
     };
   
   private static final Set activeAndPendingStatus = new HashSet();
@@ -1324,67 +1325,53 @@ public class Common
     return outStr.toString();
   }
   
-  /*
-   * This code is copied from:
-   * 
-   *    http://javaboutique.internet.com/tutorials/excep_struts/index-3.html
-   */
-  private static String displayErrorMessage
-    (HttpServletRequest request,
-     String             nameRoot)
-  {
-    StringBuffer outStr = new StringBuffer();
-    // Get the ActionMessages 
-    Object o = request.getAttribute(Globals.MESSAGE_KEY);
-    
-    if (o != null)
-    {
-      ActionMessages actionMessages = (ActionMessages)o;
+	/*
+	 * This code is copied from:
+	 * 
+	 * http://javaboutique.internet.com/tutorials/excep_struts/index-3.html
+	 */
+	private static String displayErrorMessage(HttpServletRequest request, String nameRoot)
+	{
+		StringBuffer outStr = new StringBuffer();
+		// Get the ActionMessages
+		Object o = request.getAttribute(Globals.MESSAGE_KEY);
+		if (o != null)
+		{
+			ActionMessages actionMessages = (ActionMessages)o;
+			// Get the locale and message resources bundle
+			request.getSession().getAttribute(Globals.LOCALE_KEY);
+			request.getAttribute(Globals.MESSAGES_KEY);
+			for (Iterator msgs = actionMessages.get(nameRoot); msgs.hasNext();)
+			{
+				ActionMessage msg = (ActionMessage)msgs.next();
+				String key = msg.getKey();
 
-      // Get the locale and message resources bundle
-// DMD - not used
-//      Locale locale = 
-//        (Locale)(request.getSession().getAttribute(Globals.LOCALE_KEY));
-//      MessageResources messageResources
-//        = (MessageResources)(request.getAttribute(Globals.MESSAGES_KEY));
-        request.getSession().getAttribute(Globals.LOCALE_KEY);
-        request.getAttribute(Globals.MESSAGES_KEY);
+				if (key.equals(Constants.DATE_FORMAT_ERROR_KEY))
+				{
+					outStr.append("<FONT COLOR=\"RED\">\n");
+					outStr.append("  <br/>\n");
+					outStr.append("  Dates must be in the format '" + DATE_SAMPLE + "'.\n");
+					outStr.append("  Please try again.");
+					outStr.append("  <br/>\n");
+					outStr.append("</FONT>\n");
+				}
+				else if (key.equals(Constants.DATE_RANGE_ERROR_KEY))
+				{
+					outStr.append("<FONT COLOR=\"RED\">\n");
+					outStr.append("  <br/>\n");
+					if (nameRoot.equals(Constants.EFFECTIVE_DATE_PREFIX))
+						outStr.append("  Effecive date cannot be earlier than either 'today' or Expiration date.\n");
+					else if (nameRoot.equals(Constants.EXPIRATION_DATE_PREFIX))
+						outStr.append("  Expiration date cannot be earlier than either 'today' or Effective date.\n");
+					outStr.append("  Please try again.");
+					outStr.append("  <br/>\n");
+					outStr.append("</FONT>\n");
+				}
+			}
+		}
 
-      // Loop thru all the labels in the ActionMessages  
-      for (Iterator actionMessagesProperties = actionMessages.properties();
-           actionMessagesProperties.hasNext();)
-      {
-        String property = (String)actionMessagesProperties.next();
-        if (property.equals(nameRoot))
-        {
-          // TO DO - This code should really retrieve the text of the
-          // error-message from the ActionMessage. For right now, I'll
-          // just hard-code that error-text.
-          outStr.append("<FONT COLOR=\"RED\">\n");
-          outStr.append("  <br/>\n");
-          outStr.append("  Dates must be in the format '" + DATE_SAMPLE + "'.\n");
-          outStr.append("  Please try again.");
-          outStr.append("  <br/>\n");
-          outStr.append("</FONT>\n");
-
-//          // Get all messages for this label
-//          for (Iterator propertyValuesIterator = actionMessages.get(property);
-//               propertyValuesIterator.hasNext();)
-//          {
-//            ActionMessage actionMessage
-//              = (ActionMessage)propertyValuesIterator.next();
-//            String key = actionMessage.getKey();
-//            Object[] values = actionMessage.getValues();
-//            String messageStr = messageResources.getMessage(locale, key, values);
-//            outStr.append(messageStr);
-//            outStr.append("<br/>");
-//          }
-        }
-      }
-    }
-    
-    return outStr.toString();
-  }
+		return outStr.toString();
+	}
   
   public static String dateSelection(String nameRoot, Date date)
   {
@@ -1462,53 +1449,13 @@ public class Common
     return outStr.toString();
   }
 
-  static public Date getDateParam
-    (HttpServletRequest request,
-     String             nameRoot,
-     Date               defaultDate)
-  throws DataEntryException
-  {
-    Date            date = null;
-    ParseException  parseException = null;
-    
-    // First, let's see if the date is present or not.
-    String dateStringPresence = request.getParameter(nameRoot + HASDATE_SUFFIX);
-    if ((dateStringPresence == null)
-        || dateStringPresence.equals(NODATE_VALUE)
-        || dateStringPresence.equals(""))
-    {
-      return defaultDate;
-    }
-    
-    String dateStr = request.getParameter(nameRoot + DATETEXT_SUFFIX);
-
-    // This date-parsing code was originally written by Craig Jurney for the
-    // Sponsorship Manager.
-    for (int i = 0; i < DATERS.length && date == null; ++i)
-    {
-      DATERS[i].setLenient(false);
-      
-      try
-      {
-        date = DATERS[i].parse(dateStr);
-      }
-      catch (java.text.ParseException pe)
-      {
-        parseException = pe;
-        continue;
-      }
-    }
-
-    if (date == null)
-    {
-      throw new DataEntryException
-        (parseException, nameRoot, dateStr, DATE_SAMPLE);
-    }
-    
-    return date;
-  }
-
-
+	/**
+	 * Return the current effective date of the Grantable, or a normalized
+	 * (to midnight) date equal to 'today'
+	 * @param grantable The Grantable, if null or Grantable is not ACTIVE, then
+	 * returned date is midnight of 'today'
+	 * @return The current effective date or 'today'
+	 */
 	protected static Date getDefaultEffectiveDate(Grantable grantable)
 	{
 		Date retval;
@@ -1517,12 +1464,73 @@ public class Common
 		if ((grantable != null) && (grantable.getStatus().equals(Status.ACTIVE)))
 			retval = grantable.getEffectiveDate();
 		else
-			retval = new Date();
+			retval = new DateOnly();
 	
 		return (retval);
 	}
 
 
+	/**
+	 * Attempt to parse a Date from the HttpServletRequest
+	 * @param request
+	 * @param nameRoot
+	 * @param defaultDate
+	 * @return The parsed Date, or the default date, as a DateOnly object
+	 * @throws DataEntryException
+	 */
+	public static Date getDateParam(HttpServletRequest request, String nameRoot, Date defaultDate)
+					throws DataEntryException
+	{
+		Date tmpDate = null;
+
+		// Check if the date is present
+		String dateStringPresence = request.getParameter(nameRoot + HASDATE_SUFFIX);
+		if ((null == dateStringPresence) ||
+				(0 == dateStringPresence.length()) ||
+				dateStringPresence.equals(NODATE_VALUE))
+		{
+			tmpDate = defaultDate;
+		}
+		else
+		{
+			ParseException parseException = null;
+			String dateStr = request.getParameter(nameRoot + DATETEXT_SUFFIX);
+			// This date-parsing code was originally written by Craig Jurney for the
+			// Sponsorship Manager.
+			for (int i = 0; (i < DATERS.length) && (null == tmpDate); i++)
+			{
+				DATERS[i].setLenient(false);
+				try
+				{
+					tmpDate = DATERS[i].parse(dateStr);
+				}
+				catch (ParseException pe)
+				{
+					parseException = pe;
+					continue;
+				}
+			}
+			if (null == tmpDate)
+			{
+				throw new DataEntryException(parseException, nameRoot, dateStr, DATE_SAMPLE);
+			}
+		}
+
+		if (null == tmpDate)
+			return (null);
+		else
+			return (new DateOnly(tmpDate.getTime()));
+	}
+
+
+	/**
+	 * Attempt to parse a Date from the HttpServletRequest
+	 * @param request
+	 * @param nameRoot
+	 * @param defaultDate
+	 * @param msgs
+	 * @return
+	 */
 	protected static Date getDateParam(HttpServletRequest request,
 			String nameRoot, Date defaultDate, ActionMessages msgs)
 	{
@@ -1531,8 +1539,32 @@ public class Common
 		try { retval = getDateParam(request, nameRoot, defaultDate); }
 		catch (DataEntryException dee)
 		{
-			ActionMessage msg = new ActionMessage("dateformat");
+			ActionMessage msg = new ActionMessage(Constants.DATE_FORMAT_ERROR_KEY);
 			msgs.add(nameRoot, msg);
+		}
+
+		return (retval);
+	}
+
+
+	/**
+	 * Compare a Date to an "earliest possible" date
+	 * @param effDate The Date to test
+	 * @param earliestDate The Date to test against, if null, uses "today, midnight"
+	 * @return False if effDate is earlier than earliestDate, or if effDate is null,
+	 * otherwise returns true
+	 */
+	public static boolean isValidDateRange(Date effDate, DateOnly earliestDate)
+	{
+		boolean retval = false; // assume failure
+
+		if (null != effDate)
+		{
+			if ( !(effDate instanceof DateOnly)) // truncate to midnight
+				effDate = new DateOnly(effDate.getTime());
+			if (null == earliestDate)
+				earliestDate = new DateOnly();
+			retval = (0 <= effDate.compareTo(earliestDate));
 		}
 
 		return (retval);
@@ -2506,49 +2538,51 @@ public class Common
 
     return subset;
   }
-  
-  public static String privilegeStr
-    (Signet     signet,
-     Grantable  grantable)
-  {
-    String privilegeStr;
-    
-    if (grantable instanceof Assignment)
-    {
-      Assignment assignment = (Assignment)grantable;
-      privilegeStr
-        = assignment.getFunction().getSubsystem().getName()
-          + " : "
-          + assignment.getFunction().getCategory().getName()
-          + " : "
-          + assignment.getFunction().getName();
-    }
-    else
-    {
-      Proxy proxy = (Proxy)grantable;
-      privilegeStr = proxyPrivilegeDisplayName(signet, proxy);
-    }
-    
-    return privilegeStr;
-  }
-  
-  public static String scopeStr(Grantable grantable)
-  {
-    String scopeStr;
-    
-    if (grantable instanceof Assignment)
-    {
-      Assignment assignment = (Assignment)grantable;
-      scopeStr = assignment.getScope().getName();
-    }
-    else
-    {
-      scopeStr = "";
-    }
-      
-    return scopeStr;
-  }
-  
+
+
+	/**
+	 * Generate a Privilege string appropriate for the Grantable
+	 * @param signet The Signet instance
+	 * @param grantable The Grantable
+	 * @return A Privilege string appropriate for the Grantable
+	 */
+	public static String privilegeStr(Signet signet, Grantable grantable)
+	{
+		String privilegeStr;
+
+		if (grantable instanceof Assignment)
+		{
+			String sep = " : ";
+			Function f = ((Assignment)grantable).getFunction();
+			privilegeStr = f.getSubsystem().getName() + sep + f.getCategory().getName() + sep + f.getName();
+		}
+		else if (grantable instanceof Proxy)
+			privilegeStr = proxyPrivilegeDisplayName(signet, (Proxy)grantable);
+		else
+			privilegeStr = "<null>";
+
+		return privilegeStr;
+	}
+
+
+	/**
+	 * Generate a Scope string appropriate for the Grantable
+	 * @param grantable The Grantable
+	 * @return A Scope string appropriate for the Grantable
+	 */
+	public static String scopeStr(Grantable grantable)
+	{
+		String scopeStr;
+
+		if (grantable instanceof Assignment)
+			scopeStr = ((Assignment)grantable).getScope().getName();
+		else
+			scopeStr = "";
+
+		return scopeStr;
+	}
+
+
   public static String homepageName(SignetSubject loggedInUser)
   {
     StringBuffer homePageName = new StringBuffer();

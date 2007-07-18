@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.8 2007-06-14 21:39:04 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.9 2007-07-18 17:24:39 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -100,21 +100,21 @@
 				edu.internet2.middleware.signet.subjsrc, 
 				edu.internet2.middleware.signet.tree, 
 				edu.internet2.middleware.signet.util"
-			sourcepathref="javadoc.src.path"
+			access="package"
+			author="true"
+			breakiterator="true"
 			classpathref="source.class.path"
 			destdir="${dist_doc.dir}"
-			access="package"
-			use="true"
-			breakiterator="true"
-			notree="false"
-			nonavbar="false"
-			noindex="false"
-			overview="${source_javadoc_oview}"
-			splitindex="true"
-			author="true"
-			version="true"
+			nodeprecated="false"
 			nodeprecatedlist="false"
-			nodeprecated="false" />
+			noindex="false"
+			nonavbar="false"
+			notree="false"
+			overview="${source_javadoc_oview}"
+			sourcepathref="javadoc.src.path"
+			splitindex="true"
+			use="true"
+			version="true" />
 
 		<delete file="${signet.javadoc.zipfile}" />
 		<delete file="${signet.javadoc.gzipfile}" />

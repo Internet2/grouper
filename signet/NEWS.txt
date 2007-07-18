@@ -1,4 +1,13 @@
 ======================================== 
+Signet  07/18/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_0f
+----------------------------------------------------
+Changes in this version:
+
+1. Bug fix: SIG-28 - Date range check for Grantables
+
+======================================== 
 Signet  07/11/07
 
 Release Notes for CVS-tagged version SIGNET_1_2_0e

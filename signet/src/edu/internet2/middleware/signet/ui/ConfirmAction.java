@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.24 2007-07-06 21:59:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.25 2007-07-18 17:24:39 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -26,11 +26,13 @@ import javax.servlet.http.HttpSession;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.DateOnly;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.Signet;
@@ -108,12 +110,39 @@ throws Exception
 	// an existing Assignment. Otherwise, we're attempting to create a new one.
 	Assignment assignment = (Assignment)(session.getAttribute(Constants.ASSIGNMENT_ATTRNAME));
 
-	Date defaultEffectiveDate = Common.getDefaultEffectiveDate(assignment);
 	ActionMessages actionMsgs = new ActionMessages();
+
+	Date defaultEffectiveDate = Common.getDefaultEffectiveDate(assignment);
 	Date effectiveDate = Common.getDateParam(request, Constants.EFFECTIVE_DATE_PREFIX,
 			defaultEffectiveDate, actionMsgs);
 	Date expirationDate = Common.getDateParam(request, Constants.EXPIRATION_DATE_PREFIX,
 			null, actionMsgs);
+
+	if (actionMsgs.isEmpty())
+	{
+		// Check date ranges:
+		// if new assignment
+		//		effDate must be "today" or later
+		//		expDate must be effDate or later
+		// else, editing assignment
+		//		can't edit effDate, assume it was checked when assignment was created
+		//		expDate must be "today" or later
+		DateOnly earliestExp;
+		if (null == assignment)
+		{
+			if ( !Common.isValidDateRange(effectiveDate, new DateOnly()))
+				actionMsgs.add(Constants.EFFECTIVE_DATE_PREFIX, new ActionMessage(Constants.DATE_RANGE_ERROR_KEY));
+			earliestExp = new DateOnly(effectiveDate.getTime());
+		}
+		else
+			earliestExp = new DateOnly();
+		if ( null != expirationDate)
+		{
+			if ( !Common.isValidDateRange(expirationDate, earliestExp))
+				actionMsgs.add(Constants.EXPIRATION_DATE_PREFIX, new ActionMessage(Constants.DATE_RANGE_ERROR_KEY));
+		}
+	}
+
 	// If we've detected any data-entry errors, bail out now
 	if ( !actionMsgs.isEmpty())
 	{

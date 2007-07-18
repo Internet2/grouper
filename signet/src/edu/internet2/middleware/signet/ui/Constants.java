@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.28 2007-07-06 21:59:20 ddonn Exp $
-$Date: 2007-07-06 21:59:20 $
+$Id: Constants.java,v 1.29 2007-07-18 17:24:39 ddonn Exp $
+$Date: 2007-07-18 17:24:39 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -100,6 +100,8 @@ public final class Constants
 
   public static final String EFFECTIVE_DATE_PREFIX = "effectiveDate";
   public static final String EXPIRATION_DATE_PREFIX = "expirationDate";
+  public static final String DATE_FORMAT_ERROR_KEY = "date.format.error";
+  public static final String DATE_RANGE_ERROR_KEY = "date.range.error";
   
   public static final String ASSIGNMENT_HTTPPARAMPREFIX = "assignment:";
   public static final String PROXY_HTTPPARAMPREFIX = "proxy:";

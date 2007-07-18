@@ -1,6 +1,6 @@
 /*--
-$Id: HistoryImpl.java,v 1.4 2006-10-25 00:08:28 ddonn Exp $
-$Date: 2006-10-25 00:08:28 $
+$Id: HistoryImpl.java,v 1.5 2007-07-18 17:24:39 ddonn Exp $
+$Date: 2007-07-18 17:24:39 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -28,7 +28,6 @@ import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 abstract class HistoryImpl implements History
 {
   protected Integer historyId;
-  private Date historyDatetime = new Date();
 
   private SignetSubject  grantor;
   private SignetSubject  proxySubject;  
@@ -40,31 +39,39 @@ abstract class HistoryImpl implements History
   private Status            status;
   private int               instanceNumber;
   
-  /* The date and time this record was created. */
-  private Date  modifyDatetime = new Date();
-  
-  /**
-   * Hibernate requires the presence of a default constructor.
-   */
-  public HistoryImpl()
-  {
-    super();
-  }
+  private Date				historyDatetime;
 
-  HistoryImpl(GrantableImpl grantableInstance)
-  {
-    this.setGrantor(grantableInstance.getGrantor());
-    this.setProxySubject(grantableInstance.getProxy());
-    this.setGrantee(grantableInstance.getGrantee());    
-    this.setRevoker(grantableInstance.getRevoker());
-    this.setEffectiveDate(grantableInstance.getEffectiveDate());
-    this.setExpirationDate(grantableInstance.getExpirationDate());
-    this.setStatus(grantableInstance.getStatus());
-    this.setInstanceNumber(grantableInstance.getInstanceNumber());
-    
-    this.historyDatetime = new Date();
-  }
+  /* The date and time this record was created. */
+  private Date				modifyDatetime;
   
+	/**
+	 * Hibernate requires the presence of a default constructor.
+	 */
+	public HistoryImpl()
+	{
+		Date now = new Date();
+		modifyDatetime = now;
+		historyDatetime = now;
+	}
+
+	/**
+	 * Create a History record from the provided Grantable
+	 * @param grantableInstance The Proxy or Assignment 
+	 */
+	public HistoryImpl(GrantableImpl grantableInstance)
+	{
+		this();
+		setGrantor(grantableInstance.getGrantor());
+		setProxySubject(grantableInstance.getProxy());
+		setGrantee(grantableInstance.getGrantee());    
+		setRevoker(grantableInstance.getRevoker());
+		setEffectiveDate(grantableInstance.getEffectiveDate());
+		setExpirationDate(grantableInstance.getExpirationDate());
+		setStatus(grantableInstance.getStatus());
+		setInstanceNumber(grantableInstance.getInstanceNumber());
+	}
+
+
   // This method exists only for use by Hibernate.
   protected Date getHistoryDatetime()
   {
@@ -191,4 +198,31 @@ abstract class HistoryImpl implements History
   {
     return this.getHistoryDatetime();
   }
+
+
+  ///////////////////////////////
+  // overrides Object
+  ///////////////////////////////
+
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer();
+
+		buf.append("[HistoryImpl: "); //$NON-NLS-1$
+		buf.append("historyId=" + historyId); //$NON-NLS-1$
+		buf.append(", historyDatetime=" + historyDatetime.toString()); //$NON-NLS-1$
+		buf.append(", instanceNumber=" + instanceNumber); //$NON-NLS-1$
+		buf.append(", status=" + status.toString()); //$NON-NLS-1$
+		buf.append(", grantorId=" + grantor.getId()); //$NON-NLS-1$
+		buf.append(", granteeId=" + grantee.getId()); //$NON-NLS-1$
+		buf.append(", proxyId=" + ((null != proxySubject) ? proxySubject.getId() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", revokerId=" + ((null != revoker) ? revoker.getId() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
+		buf.append(", effectiveDate=" + ((null != effectiveDate) ? effectiveDate.toString() : "<null>")); //$NON-NLS-1$
+		buf.append(", expirationDate=" + ((null != expirationDate) ? expirationDate.toString() : "<null>")); //$NON-NLS-1$
+		buf.append(", modifyDatetime=" +((null != modifyDatetime) ?  modifyDatetime.toString() : "<null>")); //$NON-NLS-1$
+		buf.append("]"); //$NON-NLS-1$
+
+		return (buf.toString());
+	}
+
 }
