@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/DateOnly.java,v 1.1 2007-07-18 17:24:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/DateOnly.java,v 1.2 2007-07-18 19:37:26 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -105,6 +105,7 @@ public class DateOnly extends Date
 	/**
 	 * Overrides Date.setHours and always sets hours to 0 (midnight)
 	 * @see java.util.Date#setHours(int)
+	 * @deprecated
 	 */
 	public void setHours(int hours)
 	{
@@ -114,6 +115,7 @@ public class DateOnly extends Date
 	/**
 	 * Overrides Date.setMinutes and always sets minutes to 0 (on-the-hour)
 	 * @see java.util.Date#setMinutes(int)
+	 * @deprecated
 	 */
 	public void setMinutes(int minutes)
 	{
@@ -123,6 +125,7 @@ public class DateOnly extends Date
 	/**
 	 * Overrides Date.setSeconds and always set seconds to 0 (on-the-minute)
 	 * @see java.util.Date#setSeconds(int)
+	 * @deprecated
 	 */
 	public void setSeconds(int seconds)
 	{
