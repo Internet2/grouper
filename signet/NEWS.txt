@@ -1,4 +1,29 @@
 ======================================== 
+Signet  07/24/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_1a
+----------------------------------------------------
+Changes in this version:
+
+1. Upgrade to SubjectAPI lib subject-0.3.0-rc1-cvs (this is the beginning of
+   synchronizing all of Signet's 3rd-party libs with those used by Grouper) 
+2. Added Java Generics to several classes related to SignetSubject (will be
+   adding more as encounter them)
+3. SignetJDBCSourceAdapter retrieves SignetSubjectAttr recs ordered by
+   name and instance fields
+4. Added Subject AuthId tooltip (mouseover) to Subject Search result list
+
+======================================== 
+Signet  07/20/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_1
+----------------------------------------------------
+Changes in this version:
+
+1. All changes from SIGNET_1_2_0a through SIGNET_1_2_0f
+
+
+======================================== 
 Signet  07/18/07
 
 Release Notes for CVS-tagged version SIGNET_1_2_0f

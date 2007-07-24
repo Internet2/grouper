@@ -1,23 +1,21 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.17 2007-07-12 01:08:08 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.18 2007-07-24 22:41:11 ddonn Exp $
  * 
- * Copyright (c) 2006 Internet2, Stanford University
+ * Copyright (c) 2007 Internet2, Stanford University
  * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
- * governing permissions and limitations under the License.
- * 
- * @author ddonn
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT 
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
  */
 package edu.internet2.middleware.signet.subjsrc;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -102,20 +100,27 @@ public class SignetSubject implements Subject, Comparable
 	protected Date			synchDatetime;
 	/** A Set of SignetSubjectAttribute representing the attributes of interest
 	 * for this Subject. Hibernate collection */
-	protected Set			signetSubjectAttrs;
+	protected Set<SignetSubjectAttr>	signetSubjectAttrs;
 	/** Reference to the Source of this Subject. Not a Hibernate field. */
 	protected SignetSource	signetSource;
 	/** A Subject may act as another Subject for the purpose of managing
 	 * Proxies and Assignments. Not a Hibernate field. */
 	protected SignetSubject	actingAs;
 
-	protected Set			assignmentsGranted;
-	protected Set			assignmentsReceived;
-	protected Set			proxiesGranted;
-	protected Set			proxiesReceived;
+	/** The set of assignments granted BY this subject */
+	protected Set<AssignmentImpl>	assignmentsGranted;
+
+	/** The set of assignments granted TO this subject */
+	protected Set<AssignmentImpl>	assignmentsReceived;
+
+	/** The set of proxies granted BY this subject */
+	protected Set<ProxyImpl>		proxiesGranted;
+
+	/** The set of proxies granted TO this subject */
+	protected Set<ProxyImpl>		proxiesReceived;
 
 	/** Logging */
-	protected Log			log = LogFactory.getLog(SignetSubject.class);
+	protected Log			log;
 
 
 	/**
@@ -123,6 +128,8 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public SignetSubject()
 	{
+		log = initLog();
+
 		subject_PK = null;
 		subjectId = null;
 		sourceId = null;
@@ -130,7 +137,7 @@ public class SignetSubject implements Subject, Comparable
 		subjectName = null;
 		modifyDatetime = new Date(0L);
 		synchDatetime = new Date(0L);
-		signetSubjectAttrs = new HashSet();
+		signetSubjectAttrs = new HashSet<SignetSubjectAttr>();
 		signetSource = null;
 		actingAs = null;
 
@@ -145,7 +152,9 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public SignetSubject(SignetSource source, Subject subject)
 	{
-		signetSubjectAttrs = new HashSet();
+		log = initLog();
+
+		signetSubjectAttrs = new HashSet<SignetSubjectAttr>();
 
 		signetSource = source;
 		sourceId = source.getId();
@@ -161,10 +170,17 @@ public class SignetSubject implements Subject, Comparable
 
 	protected void initGrantRcv()
 	{
-		assignmentsGranted = new HashSet();
-		assignmentsReceived = new HashSet();
-		proxiesGranted = new HashSet();
-		proxiesReceived = new HashSet();
+		assignmentsGranted = new HashSet<AssignmentImpl>();
+		assignmentsReceived = new HashSet<AssignmentImpl>();
+		proxiesGranted = new HashSet<ProxyImpl>();
+		proxiesReceived = new HashSet<ProxyImpl>();
+	}
+
+
+	/** initialize the logger */
+	protected Log initLog()
+	{
+		return (LogFactory.getLog(SignetSubject.class));
 	}
 
 
@@ -510,21 +526,19 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of Assignment objects that have been granted
 	 * May be an empty set but never null.
 	 */
-	public Set getAssignmentsGranted()
+	public Set<AssignmentImpl> getAssignmentsGranted()
 	{
 		if (null != assignmentsGranted)
 		{
 			Signet signet;
 			signet = (null != signetSource) ? signetSource.getSignet() : null;
-			for (Iterator iter = assignmentsGranted.iterator(); iter.hasNext(); )
-				((AssignmentImpl)iter.next()).setSignet(signet);
+			for (Iterator<AssignmentImpl> iter = assignmentsGranted.iterator(); iter.hasNext(); )
+				iter.next().setSignet(signet);
 		}
 		else
 			setAssignmentsGranted(null);
 
 		return (assignmentsGranted);
-
-//		return (getAssignmentsGranted(null));
 	}
 
 
@@ -535,17 +549,17 @@ public class SignetSubject implements Subject, Comparable
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 * May be an empty set but never null.
 	 */
-	public Set getAssignmentsGranted(String isActive)
+	public Set<AssignmentImpl> getAssignmentsGranted(String isActive)
 	{
-		HashSet retval = new HashSet();
+		HashSet<AssignmentImpl> retval = new HashSet();
 
 		if (null != assignmentsGranted)
 		{
 			Signet signet;
 			signet = (null != signetSource) ? signetSource.getSignet() : null;
-			for (Iterator iter = assignmentsGranted.iterator(); iter.hasNext(); )
+			for (Iterator<AssignmentImpl> iter = assignmentsGranted.iterator(); iter.hasNext(); )
 			{
-				AssignmentImpl assgn = (AssignmentImpl)iter.next();
+				AssignmentImpl assgn = iter.next();
 				if (assgn.getStatus().toString().equals(isActive))
 				{
 					assgn.setSignet(signet);
@@ -562,19 +576,19 @@ public class SignetSubject implements Subject, Comparable
 	 * Used by Hibernate to set the Assignments Granted
 	 * @param assignmentsGranted
 	 */
-	public void setAssignmentsGranted(Set assignmentsGranted)
+	public void setAssignmentsGranted(Set<AssignmentImpl> assignmentsGranted)
 	{
 		if (null != assignmentsGranted)
 			this.assignmentsGranted = assignmentsGranted;
 		else
-			this.assignmentsGranted = new HashSet();
+			this.assignmentsGranted = new HashSet<AssignmentImpl>();
 	}
 
 	/**
 	 * Add an Assignment to this Subject's list of Granted Assignments
 	 * @param assignment The assignment to add
 	 */
-	protected void addAssignmentGranted(Assignment assignment)
+	protected void addAssignmentGranted(AssignmentImpl assignment)
 	{
 		if (null != assignment)
 			getAssignmentsGranted().add(assignment);
@@ -586,21 +600,19 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of Assignment objects that have been received by Subject.
 	 * May be an empty set but never null.
 	 */
-	public Set getAssignmentsReceived()
+	public Set<AssignmentImpl> getAssignmentsReceived()
 	{
 		if (null != assignmentsReceived)
 		{
 			Signet signet;
 			signet = (null != signetSource) ? signetSource.getSignet() : null;
-			for (Iterator iter = assignmentsReceived.iterator(); iter.hasNext(); )
-				((AssignmentImpl)iter.next()).setSignet(signet);
+			for (Iterator<AssignmentImpl> iter = assignmentsReceived.iterator(); iter.hasNext(); )
+				iter.next().setSignet(signet);
 		}
 		else
 			setAssignmentsReceived(null);
 
 		return (assignmentsReceived);
-
-//		return (getAssignmentsReceived(null));
 	}
 
 
@@ -610,7 +622,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @return Returns the assignmentsReceived.
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 */
-	public Set getAssignmentsReceived(String isActive)
+	public Set<AssignmentImpl> getAssignmentsReceived(String isActive)
 	{
 		HashSet retval = new HashSet();
 
@@ -618,9 +630,9 @@ public class SignetSubject implements Subject, Comparable
 		{
 			Signet signet;
 			signet = (null != signetSource) ? signetSource.getSignet() : null;
-			for (Iterator iter = assignmentsReceived.iterator(); iter.hasNext(); )
+			for (Iterator<AssignmentImpl> iter = assignmentsReceived.iterator(); iter.hasNext(); )
 			{
-				AssignmentImpl assgn = (AssignmentImpl)iter.next();
+				AssignmentImpl assgn = iter.next();
 				if (assgn.getStatus().toString().equals(isActive))
 				{
 					assgn.setSignet(signet);
@@ -637,19 +649,19 @@ public class SignetSubject implements Subject, Comparable
 	 * Used by Hibernate to set the Assignments Recevied
 	 * @param assignmentsReceived
 	 */
-	public void setAssignmentsReceived(Set assignmentsReceived)
+	public void setAssignmentsReceived(Set<AssignmentImpl> assignmentsReceived)
 	{
 		if (null != assignmentsReceived)
 			this.assignmentsReceived = assignmentsReceived;
 		else
-			this.assignmentsReceived = new HashSet();
+			this.assignmentsReceived = new HashSet<AssignmentImpl>();
 	}
 
 	/**
 	 * Add an Assignment to this Subject's list of Assignments Received
 	 * @param assignment The Assignment to add
 	 */
-	protected void addAssignmentReceived(Assignment assignment)
+	protected void addAssignmentReceived(AssignmentImpl assignment)
 	{
 		if (null != assignment)
 			getAssignmentsReceived().add(assignment);
@@ -661,21 +673,19 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of ProxyImpl objects that have been granted by grantor.
 	 * May be an empty set but never null.
 	 */
-	public Set getProxiesGranted()
+	public Set<ProxyImpl> getProxiesGranted()
 	{
 		if (null != proxiesGranted)
 		{
 			Signet signet;
 			signet = (null != signetSource) ? signetSource.getSignet() : null;
-			for (Iterator iter = proxiesGranted.iterator(); iter.hasNext(); )
-				((ProxyImpl)iter.next()).setSignet(signet);
+			for (Iterator<ProxyImpl> iter = proxiesGranted.iterator(); iter.hasNext(); )
+				iter.next().setSignet(signet);
 		}
 		else
 			setProxiesGranted(null);
 
 		return (proxiesGranted);
-
-//		return (getProxiesGranted(null));
 	}
 
 
@@ -686,17 +696,17 @@ public class SignetSubject implements Subject, Comparable
 	 * May be an empty set but never null.
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 */
-	public Set getProxiesGranted(String isActive)
+	public Set<ProxyImpl> getProxiesGranted(String isActive)
 	{
-		HashSet retval = new HashSet();
+		HashSet<ProxyImpl> retval = new HashSet<ProxyImpl>();
 
 		if (null != proxiesGranted)
 		{
 			Signet signet;
 			signet = (null != signetSource) ? signetSource.getSignet() : null;
-			for (Iterator iter = proxiesGranted.iterator(); iter.hasNext(); )
+			for (Iterator<ProxyImpl> iter = proxiesGranted.iterator(); iter.hasNext(); )
 			{
-				ProxyImpl proxy = (ProxyImpl)iter.next();
+				ProxyImpl proxy = iter.next();
 				if (proxy.getStatus().toString().equals(isActive))
 				{
 					proxy.setSignet(signet);
@@ -712,19 +722,19 @@ public class SignetSubject implements Subject, Comparable
 	 * Used by Hibernate to set Proxies Granted
 	 * @param proxiesGranted
 	 */
-	public void setProxiesGranted(Set proxiesGranted)
+	public void setProxiesGranted(Set<ProxyImpl> proxiesGranted)
 	{
 		if (null != proxiesGranted)
 			this.proxiesGranted = proxiesGranted;
 		else
-			this.proxiesGranted = new HashSet();
+			this.proxiesGranted = new HashSet<ProxyImpl>();
 	}
 
 	/**
 	 * Add a Proxy to this Subject's list of Proxies Granted
 	 * @param proxy The Proxy to add
 	 */
-	protected void addProxyGranted(Proxy proxy)
+	protected void addProxyGranted(ProxyImpl proxy)
 	{
 		if (null != proxy)
 			getProxiesGranted().add(proxy);
@@ -736,21 +746,19 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of ProxyImpl objects that have been received by Subject.
 	 * May be an empty set but never null.
 	 */
-	public Set getProxiesReceived()
+	public Set<ProxyImpl> getProxiesReceived()
 	{
 		if (null != proxiesReceived)
 		{
 			Signet signet;
 			signet = (null != signetSource) ? signetSource.getSignet() : null;
-			for (Iterator iter = proxiesReceived.iterator(); iter.hasNext(); )
-				((ProxyImpl)iter.next()).setSignet(signet);
+			for (Iterator<ProxyImpl> iter = proxiesReceived.iterator(); iter.hasNext(); )
+				iter.next().setSignet(signet);
 		}
 		else
-			proxiesReceived = new HashSet();
+			proxiesReceived = new HashSet<ProxyImpl>();
 
 		return (proxiesReceived);
-
-//		return (getProxiesReceived(null));
 	}
 
 
@@ -760,17 +768,17 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of ProxyImpl objects that have been received by Subject.
 	 * May be an empty set but never null.
 	 */
-	public Set getProxiesReceived(String isActive)
+	public Set<ProxyImpl> getProxiesReceived(String isActive)
 	{
-		HashSet retval = new HashSet();
+		HashSet<ProxyImpl> retval = new HashSet<ProxyImpl>();
 
 		if (null != proxiesReceived)
 		{
 			Signet signet;
 			signet = (null != signetSource) ? signetSource.getSignet() : null;
-			for (Iterator iter = proxiesReceived.iterator(); iter.hasNext(); )
+			for (Iterator<ProxyImpl> iter = proxiesReceived.iterator(); iter.hasNext(); )
 			{
-				ProxyImpl proxy = (ProxyImpl)iter.next();
+				ProxyImpl proxy = iter.next();
 				if (proxy.getStatus().toString().equals(isActive))
 				{
 					proxy.setSignet(signet);
@@ -786,19 +794,19 @@ public class SignetSubject implements Subject, Comparable
 	 * Used by Hibernate to set Proxies Received
 	 * @param proxiesReceived
 	 */
-	public void setProxiesReceived(Set proxiesReceived)
+	public void setProxiesReceived(Set<ProxyImpl> proxiesReceived)
 	{
 		if (null != proxiesReceived)
 			this.proxiesReceived = proxiesReceived;
 		else
-			this.proxiesReceived = new HashSet();
+			this.proxiesReceived = new HashSet<ProxyImpl>();
 	}
 
 	/**
 	 * Add a Proxy to this Subject's list of Proxies Received
 	 * @param proxy The Proxy to add
 	 */
-	protected void addProxyReceived(Proxy proxy)
+	protected void addProxyReceived(ProxyImpl proxy)
 	{
 		if (null != proxy)
 			getProxiesReceived().add(proxy);
@@ -1008,24 +1016,29 @@ public class SignetSubject implements Subject, Comparable
 	/**
 	 * Get an ordered list, by sequence, of all attributes matching the supplied
 	 * attribute name.
+	 * @param String The mappedName (Signet's internal representation)
 	 * @return An ordered list of attributes. May be an empty Vector (never null).
 	 */
-	public Vector getAttributesForName(String mappedName)
+	public Vector<SignetSubjectAttr> getAttributesForName(String mappedName)
 	{
-		Vector retval = new Vector();
+		Vector<SignetSubjectAttr> retval = new Vector<SignetSubjectAttr>();
 
 		if (null != signetSubjectAttrs)
 		{
-			ArrayList tmpList = new ArrayList();
+			SignetSubjectAttr[] tmpList = new SignetSubjectAttr[signetSubjectAttrs.size()];
 
-			for (Iterator attrs = signetSubjectAttrs.iterator(); attrs.hasNext(); )
+			for (Iterator<SignetSubjectAttr> attrs = signetSubjectAttrs.iterator(); attrs.hasNext(); )
 			{
-				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
+				SignetSubjectAttr attr = attrs.next();
 				if (attr.getMappedName().equals(mappedName))
-					tmpList.add(attr.getSequence(), attr);
+					tmpList[attr.getSequence()] = attr;
 			}
-			for (int i = 0; i < tmpList.size(); i++)
-				retval.add(tmpList.get(i));
+			for (int i = 0; i < tmpList.length; i++)
+			{
+				SignetSubjectAttr attr = tmpList[i];
+				if (null != attr)
+					retval.add(attr);
+			}
 		}
 
 		return (retval);
@@ -2001,7 +2014,7 @@ public class SignetSubject implements Subject, Comparable
 			throw new IllegalArgumentException("Cannot grant an Assignment to a NULL grantee.");
 		}
 
-		Assignment newAssignment = new AssignmentImpl(
+		AssignmentImpl newAssignment = new AssignmentImpl(
 				signetSource.getSignet(), this, grantee, scope, function, limitValues,
 				canUse, canGrant, effectiveDate, expirationDate);
 		getEffectiveEditor().addAssignmentGranted(newAssignment);
@@ -2044,7 +2057,7 @@ public class SignetSubject implements Subject, Comparable
 //			hibr.closeSession(hs);
 //		}
 
-		Proxy newProxy = new ProxyImpl(
+		ProxyImpl newProxy = new ProxyImpl(
 				signetSource.getSignet(), this, grantee, subsystem,
 				canUse, canExtend, effectiveDate, expirationDate);
 		getEffectiveEditor().addProxyGranted(newProxy);

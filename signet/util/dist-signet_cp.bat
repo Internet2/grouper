@@ -1,4 +1,4 @@
-REM $Header: /home/hagleyj/i2mi/signet/util/dist-signet_cp.bat,v 1.5 2007-03-19 20:47:24 ddonn Exp $
+REM $Header: /home/hagleyj/i2mi/signet/util/dist-signet_cp.bat,v 1.6 2007-07-24 22:41:11 ddonn Exp $
 REM
 REM This file is intended to be called from each of the run.bat files in
 REM the subdirectories of util. DOS Batch does not provide a dynamic means of
@@ -23,6 +23,7 @@ set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\dom4j-1.6.1.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\ehcache-1.2.3.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\hibernate3.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\hsqldb.jar
+REM set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jconn2.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jdbc2_0-stdext.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jdom.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jta.jar
@@ -38,6 +39,6 @@ set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\@CFG_UTIL_UI_TOKEN@
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\@CFG_UTIL_UTIL_TOKEN@
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\stax-api-1.0.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\struts.jar
-set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\subject-0.2.2-cvs.jar
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\subject-0.3.0-rc1-cvs.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\wstx.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\xml-apis.jar

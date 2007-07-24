@@ -1,7 +1,7 @@
 /*--
 	$Header $
-	 
-	Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
+
+	Copyright 2007 Internet2 and Stanford University.  All Rights Reserved.
 	See doc/license.txt in this distribution.
 */
 
@@ -23,11 +23,26 @@ import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 
 /**
  * Signet's JDBC Source. The purpose of this class is to override 
- * the SubjectAPI's JDBCSourceAdapter.loadAttributes().
+ * the SubjectAPI's JDBCSourceAdapter.loadAttributes(). Signet supports
+ * multiple values for a given attribute name. Therefore, two queries are
+ * needed to fully retrieve a Subject.
  */
 public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serializable
 {
+	protected static final String NAME_FLD = "name";
+	protected static final String VALUE_FLD = "value";
+	protected static final String SUBJID_FLD = "subjectID";
+	protected static final String INSTANCE_FLD = "instance";
+	protected static final String ATTR_TABLE = "SubjectAttribute";
+	protected static final String SUBJ_ATTR_SQL =
+						"SELECT sa." + NAME_FLD + ", " +
+						"sa." + VALUE_FLD + " " +
+						"FROM " + ATTR_TABLE + " sa " +
+						"WHERE sa." + SUBJID_FLD + " = ?" +
+						"ORDER BY sa." + NAME_FLD + ", sa." + INSTANCE_FLD;
+
 	protected Log	log	= LogFactory.getLog(SignetJDBCSourceAdapter.class);
+
 
 	/** default constructor */
 	public SignetJDBCSourceAdapter()
@@ -38,7 +53,6 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 	///////////////////////////////////////
 	// overrides subject.JDBCSourceAdapter
 	///////////////////////////////////////
-
 
 	/**
 	 * Overrides JDBCSourceAdapter#search(java.lang.String), but provides the
@@ -59,18 +73,20 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 
 	/**
 	 * Loads attributes for the argument subject.
+	 * @param rs The ResultSet from the previous 'select subject...'
+	 * @return A Map of HashSets, each HashSet contains one or more instances of
+	 * a given attribute. 
+	 * @see edu.internet2.middleware.subject.provider.JDBCSourceAdapter#loadAttributes(java.sql.ResultSet)
 	 */
-	protected Map loadAttributes(ResultSet rs)
+	protected Map<String, HashSet<String>> loadAttributes(ResultSet rs)
 	{
-		Map attributes = new HashMap();
+		Map<String, HashSet<String>> attributes = new HashMap<String, HashSet<String>>();
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		try
 		{
 			conn = dataSource.getConnection();
-			String sql = "SELECT sa.name, sa.value " +
-						"FROM SubjectAttribute sa " +
-						"WHERE sa.subjectID = ?";
+			String sql = SUBJ_ATTR_SQL;
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, rs.getString(getSubjectIDAttributeName()));
 
@@ -79,12 +95,12 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 			ResultSet attr_rs = stmt.getResultSet();
 			while (attr_rs.next())
 			{
-				String attr_name = attr_rs.getString("name");
-				String attr_value = attr_rs.getString("value");
-				Set values = (Set)attributes.get(attr_name);
-				if (values == null)
+				String attr_name = attr_rs.getString(NAME_FLD);
+				String attr_value = attr_rs.getString(VALUE_FLD);
+				HashSet<String> values = attributes.get(attr_name);
+				if (null == values)
 				{
-					values = new HashSet();
+					values = new HashSet<String>();
 					attributes.put(attr_name, values);
 				}
 				values.add(attr_value);
@@ -92,13 +108,14 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 		}
 		catch (SQLException ex)
 		{
-			log.debug("SignetJDBCSourceAdapter: SQLException occurred: " + ex.getMessage(), ex);
+			log.error("SignetJDBCSourceAdapter: SQLException occurred: " + ex.getMessage(), ex);
 		}
 		finally
 		{
 			closeStatement(stmt);
 			closeConnection(conn);
 		}
+
 		return attributes;
 	}
 
