@@ -1,6 +1,17 @@
 ======================================== 
 Signet  07/24/07
 
+Release Notes for CVS-tagged version SIGNET_1_2_1b
+----------------------------------------------------
+Changes in this version:
+
+1. Upgraded to commons-lang-2.0.jar (also added to project i2mi-common and
+   created tag I2MI-COMMON_0_4_0)
+2. Deleted unused class ExternalSubjectId.java
+
+======================================== 
+Signet  07/24/07
+
 Release Notes for CVS-tagged version SIGNET_1_2_1a
 ----------------------------------------------------
 Changes in this version:
