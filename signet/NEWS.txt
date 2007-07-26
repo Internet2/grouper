@@ -1,4 +1,14 @@
 ======================================== 
+Signet  07/25/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_1c
+----------------------------------------------------
+Changes in this version:
+
+1. Bugfix SIG-30 - Subject search fails on Sybase
+2. Fixed JavaDoc warning message in SignetSubject.java
+
+======================================== 
 Signet  07/24/07
 
 Release Notes for CVS-tagged version SIGNET_1_2_1b

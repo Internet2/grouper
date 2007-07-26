@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.18 2007-07-24 22:41:11 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.19 2007-07-26 02:24:15 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -1016,7 +1016,7 @@ public class SignetSubject implements Subject, Comparable
 	/**
 	 * Get an ordered list, by sequence, of all attributes matching the supplied
 	 * attribute name.
-	 * @param String The mappedName (Signet's internal representation)
+	 * @param mappedName The mappedName (Signet's internal representation)
 	 * @return An ordered list of attributes. May be an empty Vector (never null).
 	 */
 	public Vector<SignetSubjectAttr> getAttributesForName(String mappedName)

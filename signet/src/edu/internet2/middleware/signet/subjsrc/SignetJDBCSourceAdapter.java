@@ -39,15 +39,16 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 						"sa." + VALUE_FLD + " " +
 						"FROM " + ATTR_TABLE + " sa " +
 						"WHERE sa." + SUBJID_FLD + " = ?" +
-						"ORDER BY sa." + NAME_FLD + ", sa." + INSTANCE_FLD;
+						" ORDER BY sa." + NAME_FLD + ", sa." + INSTANCE_FLD;
 
-	protected Log	log	= LogFactory.getLog(SignetJDBCSourceAdapter.class);
+	protected Log	log;
 
 
 	/** default constructor */
 	public SignetJDBCSourceAdapter()
 	{
 		super();
+		log	= LogFactory.getLog(SignetJDBCSourceAdapter.class);
 	}
 
 	///////////////////////////////////////
@@ -83,10 +84,11 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 		Map<String, HashSet<String>> attributes = new HashMap<String, HashSet<String>>();
 		Connection conn = null;
 		PreparedStatement stmt = null;
+		String sql = null;
 		try
 		{
 			conn = dataSource.getConnection();
-			String sql = SUBJ_ATTR_SQL;
+			sql = SUBJ_ATTR_SQL;
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, rs.getString(getSubjectIDAttributeName()));
 
@@ -108,7 +110,9 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 		}
 		catch (SQLException ex)
 		{
-			log.error("SignetJDBCSourceAdapter: SQLException occurred: " + ex.getMessage(), ex);
+			log.error("SignetJDBCSourceAdapter: SQLException occurred: " +
+					ex.getMessage() + "   SQL String was: \"" + sql + "\"",
+					ex);
 		}
 		finally
 		{
