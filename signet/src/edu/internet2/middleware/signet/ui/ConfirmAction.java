@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.25 2007-07-18 17:24:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.26 2007-07-27 07:52:31 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -28,7 +28,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.util.MessageResources;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Assignment;
@@ -85,8 +84,7 @@ public ActionForward execute
 throws Exception
 {
   // Confirm message resources loaded
-  MessageResources resources = getResources(request);
-  if (resources==null)
+  if (null == getResources(request))
   {
 	// Setup message array in case there are errors
 	ArrayList messages = new ArrayList();
@@ -202,10 +200,11 @@ throws Exception
 
 		hs.refresh(assignment);
 		hs.refresh(assignment.getGrantor());
-		if (null != assignment.getProxy())
-			hs.refresh(assignment.getProxy());
-		if (null != assignment.getRevoker())
-			hs.refresh(assignment.getRevoker());
+		SignetSubject tmpSubject;
+		if (null != (tmpSubject = assignment.getProxy()))
+			hs.refresh(tmpSubject);
+		if (null != (tmpSubject = assignment.getRevoker()))
+			hs.refresh(tmpSubject);
 		hs.refresh(grantor);
 		hs.refresh(grantee);
 

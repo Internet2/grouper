@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.19 2007-07-26 02:24:15 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.20 2007-07-27 07:52:31 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -2315,9 +2315,9 @@ public class SignetSubject implements Subject, Comparable
 		if (null == otherAttrs)
 			return (false);
 
-//		// if list sizes are not equal, they're not equal
-//		boolean retval = (signetSubjectAttrs.size() == otherAttrs.size());
-boolean retval = true; // assume success
+		// if list sizes are not equal, they're not equal
+		boolean retval = (signetSubjectAttrs.size() == otherAttrs.size());
+//boolean retval = true; // assume success
 		// for each of my attributes, get the corresponding attribute for
 		// the other SignetSubject, and compare values. Break on
 		// first non-equal value (ie retval == false).

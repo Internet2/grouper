@@ -1,8 +1,7 @@
 /*--
-$Id: ConfirmProxyAction.java,v 1.20 2007-07-06 21:59:20 ddonn Exp $
-$Date: 2007-07-06 21:59:20 $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmProxyAction.java,v 1.21 2007-07-27 07:52:31 ddonn Exp $
 
-Copyright 2006 Internet2, Stanford University
+Copyright 2007 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,9 +27,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.util.MessageResources;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Subsystem;
@@ -62,22 +61,15 @@ public final class ConfirmProxyAction extends BaseAction
      HttpServletResponse response)
   throws Exception
   {
-    // Setup message array in case there are errors
-    ArrayList messages = new ArrayList();
-
-    // Confirm message resources loaded
-    MessageResources resources = getResources(request);
-    if (resources==null)
-    {
-      messages.add(Constants.ERROR_MESSAGES_NOT_LOADED);
-    }
-
-    // If there were errors, forward to our failure page
-    if (messages.size()>0)
-    {
-      request.setAttribute(Constants.ERROR_KEY,messages);
-      return findFailure(mapping);
-    }
+	// Confirm message resources loaded
+	if (null == getResources(request))
+	{
+		// Setup message array in case there are errors
+		ArrayList messages = new ArrayList();
+		messages.add(Constants.ERROR_MESSAGES_NOT_LOADED);
+		request.setAttribute(Constants.ERROR_KEY, messages);
+		return findFailure(mapping);
+	}
 
     HttpSession session = request.getSession();
   
@@ -94,11 +86,11 @@ public final class ConfirmProxyAction extends BaseAction
 
     SignetSubject grantee = null;
     Subsystem subsystem = null;
-    
-    if (proxy == null)
+
+    if (null == proxy)
     {
       grantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
-    
+
       subsystem = Common.getSubsystem(signet, request,
     		  Constants.SUBSYSTEM_HTTPPARAMNAME, Constants.SUBSYSTEM_ATTRNAME);
 
@@ -125,13 +117,16 @@ public final class ConfirmProxyAction extends BaseAction
 
 	// note that grantor may have "acting as" set, which would be the actual grantor
     SignetSubject grantor = (SignetSubject)session.getAttribute(Constants.LOGGEDINUSER_ATTRNAME);
-  
-    if (proxy != null) // We're editing an existing Proxy
+
+    if (null != proxy) // We're editing an existing Proxy
     {
+      grantee = proxy.getGrantee(); // used later during refresh
       proxy.checkEditAuthority(grantor); // throws on error
       proxy.setEffectiveDate(grantor, effectiveDate, false);
       proxy.setExpirationDate(grantor, expirationDate, false);
       proxy.evaluate();
+      History histRecord = proxy.createHistoryRecord();
+      proxy.addHistoryRecord(histRecord);
     }
     else // We're creating a new Proxy
     {
@@ -141,14 +136,14 @@ public final class ConfirmProxyAction extends BaseAction
 			canUse, canExtend,  effectiveDate, expirationDate);
     }
 
-	session.setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME, proxy.getGrantee());
+	session.setAttribute(Constants.CURRENTPSUBJECT_ATTRNAME, grantee);
 
 	// Let's see whether or not the Proxy we want to save has any
 	// duplicates. If it does, we'll sidetrack the user with a warning
 	// screen.
   
 	Set duplicateProxies = proxy.findDuplicates();
-	if (duplicateProxies.size() > 0)
+	if (0 < duplicateProxies.size())
 	{
 		session.setAttribute(Constants.PROXY_ATTRNAME, proxy);
 		session.setAttribute(Constants.DUP_PROXIES_ATTRNAME, duplicateProxies);
@@ -157,15 +152,12 @@ public final class ConfirmProxyAction extends BaseAction
   
     // If we've gotten this far, there must be no duplicate Proxies.
     // Let's save this Proxy in the database.
-	HibernateDB hibr = null;
-	Session hs = null;
-	Transaction tx = null;
+	HibernateDB hibr = signet.getPersistentDB();
+	Session hs = hibr.openSession();
+	Transaction tx = hs.beginTransaction();
+
 	try
 	{
-		hibr = signet.getPersistentDB();
-		hs = hibr.openSession();
-		tx = hs.beginTransaction();
-
 		hibr.save(hs, proxy.getGrantor());
 		hibr.save(hs, proxy.getGrantee());
 		hibr.save(hs, proxy.getRevoker());
@@ -176,10 +168,11 @@ public final class ConfirmProxyAction extends BaseAction
 
 		hs.refresh(proxy);
 		hs.refresh(proxy.getGrantor());
-		if (null != proxy.getProxy())
-			hs.refresh(proxy.getProxy());
-		if (null != proxy.getRevoker())
-			hs.refresh(proxy.getRevoker());
+		SignetSubject tmpSubject;
+		if (null != (tmpSubject = proxy.getProxy()))
+			hs.refresh(tmpSubject);
+		if (null != (tmpSubject = proxy.getRevoker()))
+			hs.refresh(tmpSubject);
 		hs.refresh(grantor);
 		hs.refresh(grantee);
 

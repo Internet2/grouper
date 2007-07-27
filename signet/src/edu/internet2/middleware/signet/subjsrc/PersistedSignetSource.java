@@ -1,7 +1,7 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.9 2007-05-08 08:53:02 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.10 2007-07-27 07:52:31 ddonn Exp $
 
-Copyright (c) 2006 Internet2, Stanford University
+Copyright (c) 2007 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-	@author ddonn
 */
 package edu.internet2.middleware.signet.subjsrc;
 
@@ -24,6 +22,8 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
@@ -388,11 +388,13 @@ public String latencyMinutes;
 		{
 			retval = persistMgr.getSubject(subject_pk);
 			setSubjectSource(retval);
+			if (isStale(retval))
+				resynchSubject(retval);
 		}
 		else
 		{
 			retval = null;
-			log.warn("No Persistence Manager found");
+			log.warn("PersistedSignetSource.getSubject(long): No Persistence Manager found");
 		}
 
 		return (retval);
@@ -415,6 +417,8 @@ public String latencyMinutes;
 		{
 			retval = persistMgr.getSubject(sourceId, subjectId);
 			setSubjectSource(retval);
+			if (isStale(retval))
+				resynchSubject(retval);
 		}
 		catch (ObjectNotFoundException e)
 		{
@@ -440,10 +444,7 @@ public String latencyMinutes;
 			retval = persistMgr.getSubjectByIdentifier(identifier);
 			setSubjectSource(retval);
 			if (isStale(retval))
-			{
-				Subject apiSubject = getSources().getSubjectBySource(retval.getSourceId(), retval.getId());
-				retval.synchSubject(apiSubject);
-			}
+				resynchSubject(retval);
 		}
 		catch (ObjectNotFoundException onfe)
 		{
@@ -475,6 +476,33 @@ public String latencyMinutes;
 System.out.println("PersistedSignetSource.getSubjects: not implemented yet!");
 		return new Vector();
 	}
+
+
+	/**
+	 * Retrieve a copy of the original Subject from the original Source, copy
+	 * it's contents into the supplied Subject, and if the copy worked,
+	 * persist the supplied Subject.
+	 * @param subj The SignetSubject to receive the updated contents
+	 */
+	public void resynchSubject(SignetSubject subj)
+	{
+//System.out.println("PersistedSignetSource.resynchSubject: about to resynch Subject=" + subj.toString());
+		// get a fresh copy of the Subject
+		Subject apiSubject = getSources().getSubjectBySource(subj.getSourceId(), subj.getId());
+		// attempt to copy the fresh one into this one
+		if (subj.synchSubject(apiSubject))
+		{
+			// the copy happened, so persist this one
+			Session hs = persistMgr.openSession();
+			Transaction tx = hs.beginTransaction();
+			persistMgr.save(hs, subj);
+			tx.commit();
+			hs.refresh(subj);
+			persistMgr.closeSession(hs);
+//System.out.println("PersistedSignetSource.resynchSubject: resynch'd Subject=" + subj.toString());
+		}
+	}
+
 
 	/**
 	 * Attempt to lookup the original SubjectAPI Source for the Subject and

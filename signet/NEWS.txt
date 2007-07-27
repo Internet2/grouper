@@ -1,4 +1,16 @@
 ======================================== 
+Signet  07/27/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_1d
+----------------------------------------------------
+Changes in this version:
+
+1. Bugfix SIG-31 - Null ptr exception when modifying duration of a Proxy
+2. Added History record creation when editing a Proxy (no bug filed)
+3. Subject resynchronization (from original Source, see subjectSources.xml
+   "latencyMinutes" property) was not working properly (no bug filed)
+
+======================================== 
 Signet  07/25/07
 
 Release Notes for CVS-tagged version SIGNET_1_2_1c
