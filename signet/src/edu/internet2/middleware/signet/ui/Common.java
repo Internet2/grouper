@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.78 2007-07-18 17:24:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.79 2007-07-31 09:22:08 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -1541,30 +1541,6 @@ public class Common
 		{
 			ActionMessage msg = new ActionMessage(Constants.DATE_FORMAT_ERROR_KEY);
 			msgs.add(nameRoot, msg);
-		}
-
-		return (retval);
-	}
-
-
-	/**
-	 * Compare a Date to an "earliest possible" date
-	 * @param effDate The Date to test
-	 * @param earliestDate The Date to test against, if null, uses "today, midnight"
-	 * @return False if effDate is earlier than earliestDate, or if effDate is null,
-	 * otherwise returns true
-	 */
-	public static boolean isValidDateRange(Date effDate, DateOnly earliestDate)
-	{
-		boolean retval = false; // assume failure
-
-		if (null != effDate)
-		{
-			if ( !(effDate instanceof DateOnly)) // truncate to midnight
-				effDate = new DateOnly(effDate.getTime());
-			if (null == earliestDate)
-				earliestDate = new DateOnly();
-			retval = (0 <= effDate.compareTo(earliestDate));
 		}
 
 		return (retval);

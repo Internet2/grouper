@@ -9,6 +9,15 @@ Changes in this version:
 2. Added History record creation when editing a Proxy (no bug filed)
 3. Subject resynchronization (from original Source, see subjectSources.xml
    "latencyMinutes" property) was not working properly (no bug filed)
+4. Date range during Proxy create/edit was not being validated (no bug filed)
+5. Attribute copy (during SignetSubject synch/resynch) should create copy
+   of attributes, not use references.
+6. Included synchDatetime to SignetSubject.equals()
+7. Standardized Date creates using Calendar throughout application
+8. SignetSubject.hbm.xml erroneously declared synchDatetime as 'date' type
+   instead of 'timestamp' type
+9. Standardized, cleaned up algorithm for date checking in ConfirmAction and
+   ConfirmProxyAction.
 
 ======================================== 
 Signet  07/25/07

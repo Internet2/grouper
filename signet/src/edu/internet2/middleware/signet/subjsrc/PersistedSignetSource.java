@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.10 2007-07-27 07:52:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.11 2007-07-31 09:22:08 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -486,7 +486,6 @@ System.out.println("PersistedSignetSource.getSubjects: not implemented yet!");
 	 */
 	public void resynchSubject(SignetSubject subj)
 	{
-//System.out.println("PersistedSignetSource.resynchSubject: about to resynch Subject=" + subj.toString());
 		// get a fresh copy of the Subject
 		Subject apiSubject = getSources().getSubjectBySource(subj.getSourceId(), subj.getId());
 		// attempt to copy the fresh one into this one
@@ -499,7 +498,6 @@ System.out.println("PersistedSignetSource.getSubjects: not implemented yet!");
 			tx.commit();
 			hs.refresh(subj);
 			persistMgr.closeSession(hs);
-//System.out.println("PersistedSignetSource.resynchSubject: resynch'd Subject=" + subj.toString());
 		}
 	}
 

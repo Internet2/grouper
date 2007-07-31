@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.26 2007-07-27 07:52:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmAction.java,v 1.27 2007-07-31 09:22:08 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -32,6 +32,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.DateOnly;
+import edu.internet2.middleware.signet.DateRangeValidator;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.Signet;
@@ -116,29 +117,15 @@ throws Exception
 	Date expirationDate = Common.getDateParam(request, Constants.EXPIRATION_DATE_PREFIX,
 			null, actionMsgs);
 
-	if (actionMsgs.isEmpty())
+    DateRangeValidator drv;
+	if (null == assignment)
+		drv = new DateRangeValidator(new DateOnly(), effectiveDate, expirationDate);
+	else
+		drv = new DateRangeValidator(effectiveDate, expirationDate);
+	if ( !drv.getStatus())
 	{
-		// Check date ranges:
-		// if new assignment
-		//		effDate must be "today" or later
-		//		expDate must be effDate or later
-		// else, editing assignment
-		//		can't edit effDate, assume it was checked when assignment was created
-		//		expDate must be "today" or later
-		DateOnly earliestExp;
-		if (null == assignment)
-		{
-			if ( !Common.isValidDateRange(effectiveDate, new DateOnly()))
-				actionMsgs.add(Constants.EFFECTIVE_DATE_PREFIX, new ActionMessage(Constants.DATE_RANGE_ERROR_KEY));
-			earliestExp = new DateOnly(effectiveDate.getTime());
-		}
-		else
-			earliestExp = new DateOnly();
-		if ( null != expirationDate)
-		{
-			if ( !Common.isValidDateRange(expirationDate, earliestExp))
-				actionMsgs.add(Constants.EXPIRATION_DATE_PREFIX, new ActionMessage(Constants.DATE_RANGE_ERROR_KEY));
-		}
+		ActionMessage msg = new ActionMessage(drv.getErrMsgKey());
+		actionMsgs.add(drv.getErrField(), msg);
 	}
 
 	// If we've detected any data-entry errors, bail out now

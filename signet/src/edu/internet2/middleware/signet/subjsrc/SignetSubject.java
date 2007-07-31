@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.20 2007-07-27 07:52:31 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.21 2007-07-31 09:22:08 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -16,6 +16,7 @@
 package edu.internet2.middleware.signet.subjsrc;
 
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -186,23 +187,26 @@ public class SignetSubject implements Subject, Comparable
 
 	/**
 	 * Synchronize the data from a SubjectAPI Subject into this Subject. Requires
-	 * this Subject to have a valid Source.
+	 * this Subject to have a valid Source. If data was copied from the 
+	 * incomming apiSubject, the synchDatetime on this Subject is updated to
+	 * 'now'.
 	 * @param apiSubject The SubjectAPI Subject to synchronize with
 	 * @return True if anything changed, otherwise false
 	 */
 	protected boolean synchSubject(Subject apiSubject)
 	{
-		if ((null == signetSource) || (null == apiSubject))
-			return (false);
+		boolean retval = false; // assume failure
 
-		if (this.equals(apiSubject))
-			return(false);
+		if ((null == signetSource) || (null == apiSubject) || (this.equals(apiSubject)))
+			return(retval);
 
-		boolean retval;
 		if (apiSubject instanceof SignetSubject)
 			retval = copy((SignetSubject)apiSubject);
 		else
 			retval = copy(apiSubject);
+
+		if (retval)
+			setSynchDatetime(Calendar.getInstance().getTime());
 
 		return (retval);
 	}
@@ -210,9 +214,11 @@ public class SignetSubject implements Subject, Comparable
 
 	/**
 	 * Copy the values from the Subject-API Subject. Note that this is a deep copy
-	 * in that it also copies the original's attributes. The SynchDate and
-	 * ModifyDate are not copied, instead their values are set to 'now'. Note
-	 * too that the following values ARE NOT copied or changed: signetSource,
+	 * in that it also copies the original's attributes.
+	 * Neither SynchDatetime nor ModifyDate are copied. The caller is responsible
+	 * for setting SynchDatetime and Hibernate will update ModifyDate if/when this
+	 * Subject is (re)persisted.
+	 * Note too that the following values ARE NOT copied or changed: signetSource,
 	 * actingAs, assignmentsGranted, assignmentsReceived, proxiesGranted,
 	 * and proxiesReceived since these values are not part of the Subject
 	 * interface.
@@ -228,10 +234,6 @@ public class SignetSubject implements Subject, Comparable
 		setType(signetSource.getSubjectType()); // Signet only supports 1 type per Source
 		setName(apiSubject.getName());
 
-		Date now = new Date();
-		setSynchDatetime(now);
-		setModifyDatetime(now);
-
 		synchAttributes(apiSubject);
 
 		return (true);
@@ -240,11 +242,13 @@ public class SignetSubject implements Subject, Comparable
 
 	/**
 	 * Copy the values from another SignetSubject. Note that this is a deep copy
-	 * in that it also copies the original's attributes. The SynchDate and
-	 * ModifyDate are not copied, instead their values are set to 'now'. Note
-	 * too that signetSource IS copied or overwritten.
-	 * If the incoming sigSubject is persisted, the the following fields are
-	 * also copied: actingAs, assignmentsGranted, assignmentsReceived,
+	 * in that it also copies the original's attributes.
+	 * Neither SynchDatetime nor ModifyDate are copied. The caller is responsible
+	 * for setting SynchDatetime and Hibernate will update ModifyDate if/when this
+	 * Subject is (re)persisted.
+	 * Note too that signetSource IS copied or overwritten.
+	 * If the incoming sigSubject is already persisted, the the following fields
+	 * are also copied: actingAs, assignmentsGranted, assignmentsReceived,
 	 * proxiesGranted, and proxiesReceived.
 	 * @param otherSubject The SignetSubject to copy the values from
 	 * @return True if successful, otherwise false
@@ -257,10 +261,6 @@ public class SignetSubject implements Subject, Comparable
 		setId(otherSubject.getId());
 		setType(signetSource.getSubjectType()); // Signet only supports 1 type per Source
 		setName(otherSubject.getName());
-
-		Date now = new Date();
-		setSynchDatetime(now);
-		setModifyDatetime(now);
 
 		synchAttributes(otherSubject);
 
@@ -371,17 +371,40 @@ public class SignetSubject implements Subject, Comparable
 		if (null == sigSubject)
 			return;
 
-		if (null != signetSubjectAttrs)
-			signetSubjectAttrs.clear();
-		else
-			signetSubjectAttrs = new HashSet();
+		HashSet<SignetSubjectAttr> tmpAttrs = new HashSet();
 
-		for (Iterator attrs = sigSubject.signetSubjectAttrs.iterator(); attrs.hasNext(); )
+		for (Iterator<SignetSubjectAttr> attrs = sigSubject.signetSubjectAttrs.iterator(); 
+					attrs.hasNext(); )
 		{
-			SignetSubjectAttr newAttr = new SignetSubjectAttr((SignetSubjectAttr)attrs.next());
+			SignetSubjectAttr newAttr = new SignetSubjectAttr(attrs.next());
 			newAttr.setParent(this);
-			signetSubjectAttrs.add(newAttr);
+			tmpAttrs.add(newAttr);
 		}
+
+		if (null != signetSubjectAttrs) // Can't just replace it, because of Hibernate
+		{
+			// copy updates from new
+			for (Iterator<SignetSubjectAttr> iter = tmpAttrs.iterator(); iter.hasNext(); )
+			{
+				SignetSubjectAttr tmpAttr = iter.next();
+				SignetSubjectAttr myAttr = getAttributeForName(tmpAttr.getMappedName(), tmpAttr.getSequence());
+				if (null != myAttr)
+					myAttr.copy(tmpAttr); // don't overwrite primary key or modifyDate!
+				else
+					signetSubjectAttrs.add(tmpAttr);
+			}
+			// remove orphans from old
+			for (Iterator<SignetSubjectAttr> iter = signetSubjectAttrs.iterator(); iter.hasNext(); )
+			{
+				SignetSubjectAttr myAttr = iter.next();
+				SignetSubjectAttr tmpAttr = getAttributeForName(tmpAttrs, myAttr.getMappedName(), myAttr.getSequence());
+				if (null == tmpAttr)
+					signetSubjectAttrs.remove(myAttr);
+			}
+		}
+		else
+			signetSubjectAttrs = tmpAttrs;
+
 	}
 
 
@@ -443,7 +466,7 @@ public class SignetSubject implements Subject, Comparable
 	 * Support for Hibernate
 	 * @param modifyDatetime The modifyDatetime to set.
 	 */
-	private void setModifyDatetime(Date modifyDatetime)
+	protected void setModifyDatetime(Date modifyDatetime)
 	{
 		this.modifyDatetime = modifyDatetime;
 	}
@@ -996,14 +1019,28 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public SignetSubjectAttr getAttributeForName(String mappedName, int sequence)
 	{
+		return (getAttributeForName(signetSubjectAttrs, mappedName, sequence));
+	}
+
+	/**
+	 * Return a SignetSubjectAttr that has a matching mappedName and sequence, or null.
+	 * Pseudo-implementation of Subject interface (related, but not part of the
+	 * interface).
+	 * @param attrSet An arbitrary Set of SignetSubjectAttr
+	 * @param mappedName The mappedName to search for
+	 * @param sequence The sequece (for multi-valued attributes)
+	 * @return a SignetSubjectAttr that has a matching mappedName and sequence, or null
+	 */
+	public SignetSubjectAttr getAttributeForName(Set<SignetSubjectAttr> attrSet, String mappedName, int sequence)
+	{
 		SignetSubjectAttr retval = null;
 
-		if (null != signetSubjectAttrs)
+		if (null != attrSet)
 		{
-			for (Iterator attrs = signetSubjectAttrs.iterator();
+			for (Iterator<SignetSubjectAttr> attrs = attrSet.iterator();
 				attrs.hasNext() && (null == retval); )
 			{
-				SignetSubjectAttr attr = (SignetSubjectAttr)attrs.next();
+				SignetSubjectAttr attr = attrs.next();
 				if ((attr.getMappedName().equals(mappedName)) &&
 						(sequence == attr.getSequence()))
 					retval = attr;
@@ -2161,7 +2198,7 @@ public class SignetSubject implements Subject, Comparable
 		buf.append("Type=\"" + subjectType + "\" ");
 		buf.append("Name=\"" + subjectName + "\" ");
 		buf.append("ModifyDate=\"" + dateToString(modifyDatetime) + "\" ");
-		buf.append("SynchDate=\"" + dateToString(synchDatetime) + "\" ");
+		buf.append("SynchDatetime=\"" + dateToString(synchDatetime) + "\" ");
 		buf.append("SourceId=\"" + getSourceId() + "\" ");
 		buf.append("SubjectAttrs:" + attrsToString());
 
@@ -2241,7 +2278,8 @@ public class SignetSubject implements Subject, Comparable
 				if (retval = valuesEqual(subjectType, sigSubject.getType().getName())) // yes, I do mean "="
 					if (retval = valuesEqual(subjectName, sigSubject.getName())) // yes, I do mean "="
 						if (retval = valuesEqual(sourceId, sigSubject.getSourceId())) // yes, I do mean "="
-							retval = compareAttributes(sigSubject);
+							if (retval = synchDatetime.equals(sigSubject.getSynchDatetime()))
+								retval = compareAttributes(sigSubject);
 		return (retval);
 	}
 

@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.25 2007-07-18 17:24:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.26 2007-07-31 09:22:08 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -17,6 +17,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -100,7 +101,8 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 		setGrantee(grantee);
 
-		if ( !isValidDateRange(effectiveDate, expirationDate))
+		DateRangeValidator drv = new DateRangeValidator(new DateOnly(), effectiveDate, expirationDate);
+		if ( !drv.getStatus())
 		{
 			StringBuffer buf = new StringBuffer();
 			buf.append("An expiration date must be NULL or later than the effective date. ");
@@ -368,58 +370,35 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 
 
 	/**
-	 * Returns a status based upon now, effectiveDate, and expirationDate
+	 * Returns a status based upon now, effectiveDate, and expirationDate. If
+	 * the date range is invalid, returns Status.INACTIVE.
 	 * @param effectiveDate
 	 * @param expirationDate
 	 * @return Status.PENDING, Status.INACTIVE, or Status.ACTIVE
 	 */
 	protected Status determineStatus(Date effectiveDate, Date expirationDate)
 	{
-		Date today = new Date();
-		Status status;
-		if ((effectiveDate != null) && (today.compareTo(effectiveDate) < 0))
-		{
-			// effectiveDate has not yet arrived.
+		Status status = Status.INACTIVE; // assume Inactive
+
+		DateRangeValidator drv = new DateRangeValidator(effectiveDate, expirationDate);
+		if ( !drv.getStatus())
+			return (status);
+
+		Date now = Calendar.getInstance().getTime();
+
+		// effectiveDate has not yet arrived.
+		if (now.compareTo(effectiveDate) < 0)
 			status = Status.PENDING;
-		}
-		else if ((expirationDate != null) && (today.compareTo(expirationDate) > 0))
-		{
-			// expirationDate has already passed.
+
+		// expirationDate has already passed.
+		else if ((expirationDate != null) && (now.compareTo(expirationDate) > 0))
 			status = Status.INACTIVE;
-		}
+
 		else
-		{
 			status = Status.ACTIVE;
-		}
+
 		return status;
 	}
-
-	/**
-	 * Test whether effectiveDate is later than expirationDate
-	 * @param effectiveDate Required Date
-	 * @param expirationDate May be null (i.e. 'until revoked') or a Date
-	 * @return False if expirationDate is on or before effectiveDate or
-	 * effective Date is before "today"
-	 */
-	protected boolean isValidDateRange(Date effectiveDate, Date expirationDate)
-	{
-		boolean retval = false; // assume invalid date range
-		if (null != effectiveDate)
-		{
-			if (retval = (effectiveDate.compareTo(new DateOnly()) >= 0)) // yes, I do mean "="
-			{
-				if (null != expirationDate) // null == 'until revoked'
-					retval = (effectiveDate.compareTo(expirationDate) < 0);
-				else
-					retval = true;
-			}
-		}
-		else
-			throw new IllegalArgumentException(INVALID_EFF_DATE_MSG);
-
-		return (retval);
-	}
-
 
 	  /**
 	 * @return The instance number of this Grantable

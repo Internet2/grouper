@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.11 2007-06-14 21:39:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.12 2007-07-31 09:22:08 ddonn Exp $
 TreeXmlLoader.java
 Created on Feb 22, 2005
 
@@ -30,6 +30,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -154,7 +155,7 @@ public class TreeXmlLoader
       pStmt.setString(1, id);
       pStmt.setString(2, name);
       pStmt.setString(3, adapterClassName);
-      pStmt.setDate(4, new Date(new java.util.Date().getTime()));
+      pStmt.setDate(4, new Date(Calendar.getInstance().getTimeInMillis()));
       pStmt.executeUpdate();
     }
     finally {
@@ -201,7 +202,7 @@ public class TreeXmlLoader
       pStmt.setString(3, nodeType);
       pStmt.setString(4, status.toString());
       pStmt.setString(5, name);
-      pStmt.setDate(6, new Date(new java.util.Date().getTime()));
+      pStmt.setDate(6, new Date(Calendar.getInstance().getTimeInMillis()));
       pStmt.executeUpdate();
     }
     finally {
@@ -1091,7 +1092,7 @@ public class TreeXmlLoader
 		String[] fileargs = parseArgs(args);
 		if (1 > fileargs.length)
 		{
-			System.out.println("Signet TreeXmlLoader, $Revision: 1.11 $");
+			System.out.println("Signet TreeXmlLoader, $Revision: 1.12 $");
 			System.out.println("Usage:\n\tTreeXmlLoader [-q] <inputfile> [inputfile] ...");
 			System.out.println("\t\t-q : Quiet, do not prompt on overwrite");
 			System.out.println("\t\tinputfile : a file containing Signet Tree data");

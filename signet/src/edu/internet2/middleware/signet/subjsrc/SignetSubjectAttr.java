@@ -1,7 +1,7 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.7 2007-03-19 23:12:10 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.8 2007-07-31 09:22:08 ddonn Exp $
  * 
- * Copyright (c) 2006 Internet2, Stanford University
+ * Copyright (c) 2007 Internet2, Stanford University
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,13 +11,11 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- *
- * @author ddonn
- * 
  */
 package edu.internet2.middleware.signet.subjsrc;
 
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -69,7 +67,7 @@ public class SignetSubjectAttr
 		refreshModifyDate();
 		subjectAttr_PK = null;
 		parent = null;
-		modifyDate = new Date(System.currentTimeMillis());
+		modifyDate = Calendar.getInstance().getTime();
 	}
 
 	/**
@@ -79,14 +77,7 @@ public class SignetSubjectAttr
 	public SignetSubjectAttr(SignetSubjectAttr origAttr)
 	{
 		this();
-		if (null != origAttr)
-		{
-			setAttrValue(origAttr.getAttrValue());
-			setAttrType(origAttr.getAttrType());
-			setMappedName(origAttr.getMappedName());
-			setSequence(origAttr.getSequence());
-			setParent(origAttr.getParent());
-		}
+		copy(origAttr);
 	}
 
 	/**
@@ -284,7 +275,7 @@ public class SignetSubjectAttr
 	 */
 	private void refreshModifyDate()
 	{
-		setModifyDate(new Date(System.currentTimeMillis()));
+		setModifyDate(Calendar.getInstance().getTime());
 	}
 
 
@@ -299,6 +290,22 @@ public class SignetSubjectAttr
 	}
 
 	
+	/**
+	 * Deep copy of origAttr, excluding subjectAttr_PK and modifyDate
+	 * @param origAttr The source of the copy
+	 */
+	public void copy(SignetSubjectAttr origAttr)
+	{
+		if (null != origAttr)
+		{
+			setAttrValue(origAttr.getAttrValue());
+			setAttrType(origAttr.getAttrType());
+			setMappedName(origAttr.getMappedName());
+			setSequence(origAttr.getSequence());
+			setParent(origAttr.getParent());
+		}
+	}
+
 	////////////////////////////////////////
 	// overrides Object
 	////////////////////////////////////////

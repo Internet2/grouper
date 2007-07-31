@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.18 2007-07-18 17:24:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.19 2007-07-31 09:22:08 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -17,6 +17,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.util.Calendar;
 import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,6 +80,7 @@ public abstract class EntityImpl implements Entity, Name
 	{
 		log = LogFactory.getLog(this.getClass());
 		this.id = null;
+		setCreateDatetime(Calendar.getInstance().getTime());
 	}
 
 	/**

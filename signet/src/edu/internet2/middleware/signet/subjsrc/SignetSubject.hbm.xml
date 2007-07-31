@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml,v 1.9 2007-06-14 21:39:04 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.hbm.xml,v 1.10 2007-07-31 09:22:08 ddonn Exp $ -->
 
 <hibernate-mapping>
 	<class
@@ -22,7 +22,7 @@
 		<property name="subjectType"	column="type"		type="string" />
 		<property name="name"			column="name"		type="string" />
 		<property name="sourceId"		column="sourceID"	type="string" />
-        <property name="synchDatetime"	column="syncDatetime"	type="date" />
+        <property name="synchDatetime"	column="syncDatetime"	type="timestamp" />
 
 		<set name="subjectAttrs"
 				cascade="all"

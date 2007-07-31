@@ -1,6 +1,6 @@
 /*--
-$Id: HistoryImpl.java,v 1.5 2007-07-18 17:24:39 ddonn Exp $
-$Date: 2007-07-18 17:24:39 $
+$Id: HistoryImpl.java,v 1.6 2007-07-31 09:22:08 ddonn Exp $
+$Date: 2007-07-31 09:22:08 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,6 +18,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
+import java.util.Calendar;
 import java.util.Date;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
@@ -49,7 +50,7 @@ abstract class HistoryImpl implements History
 	 */
 	public HistoryImpl()
 	{
-		Date now = new Date();
+		Date now = Calendar.getInstance().getTime();
 		modifyDatetime = now;
 		historyDatetime = now;
 	}

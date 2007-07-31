@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.19 2007-06-14 21:39:04 ddonn Exp $
-$Date: 2007-06-14 21:39:04 $
+$Id: FunctionImpl.java,v 1.20 2007-07-31 09:22:08 ddonn Exp $
+$Date: 2007-07-31 09:22:08 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -107,21 +107,6 @@ public class FunctionImpl extends EntityImpl implements Function
       this.category = category;
   }
 
-  /**
-   * @param permissions The Permissions to associate with this Function.
-   */
-  public void setPermissionsArray(Permission[] permissions)
-  {
-    int permissionCount = (permissions == null ? 0 : permissions.length);
-    this.permissions = new HashSet(permissionCount);
-      
-    for (int i = 0; i < permissionCount; i++)
-    {
-      permissions[i].addFunction(this);
-      this.permissions.add(permissions[i]);
-    }
-  }
-  
   /* This method exists only for use by Hibernate. */
   void setPermissions(Set permissions)
   {

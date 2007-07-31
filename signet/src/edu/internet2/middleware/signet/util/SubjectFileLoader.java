@@ -28,6 +28,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -136,10 +137,10 @@ public class SubjectFileLoader
 	pStmt.setInt(4, instance);
 	pStmt.setString(5, value);
 	pStmt.setString(6, searchValue);
-	pStmt.setDate(7, new Date(new java.util.Date().getTime()));
+	pStmt.setDate(7, new Date(Calendar.getInstance().getTimeInMillis()));
 	pStmt.executeUpdate();
 	pStmt.close();
-   
+
     ((SubjImpl)subject).addAttribute(name, value);
   }
 

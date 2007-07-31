@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmProxyAction.java,v 1.21 2007-07-27 07:52:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/ConfirmProxyAction.java,v 1.22 2007-07-31 09:22:08 ddonn Exp $
 
 Copyright 2007 Internet2, Stanford University
 
@@ -26,9 +26,12 @@ import javax.servlet.http.HttpSession;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import edu.internet2.middleware.signet.DateOnly;
+import edu.internet2.middleware.signet.DateRangeValidator;
 import edu.internet2.middleware.signet.History;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
@@ -100,13 +103,31 @@ public final class ConfirmProxyAction extends BaseAction
         return (mapping.findForward("notInitialized"));
       }
     }
-    
+
     Date defaultEffectiveDate = Common.getDefaultEffectiveDate(proxy);
     ActionMessages actionMsgs = new ActionMessages();
     Date effectiveDate = Common.getDateParam(request, Constants.EFFECTIVE_DATE_PREFIX,
     		defaultEffectiveDate, actionMsgs);
     Date expirationDate = Common.getDateParam(request, Constants.EXPIRATION_DATE_PREFIX,
     		null, actionMsgs);
+	// If we've detected any data-entry errors, bail out now
+    if ( !actionMsgs.isEmpty())
+    {
+    	saveMessages(request, actionMsgs);
+		return findDataEntryErrors(mapping);
+    }
+
+	DateRangeValidator drv;
+	if (null == proxy)
+		drv = new DateRangeValidator(new DateOnly(), effectiveDate, expirationDate);
+	else
+		drv = new DateRangeValidator(effectiveDate, expirationDate);
+	if ( !drv.getStatus())
+	{
+		ActionMessage msg = new ActionMessage(drv.getErrMsgKey());
+		actionMsgs.add(drv.getErrField(), msg);
+	}
+
 	// If we've detected any data-entry errors, bail out now
     if ( !actionMsgs.isEmpty())
     {
