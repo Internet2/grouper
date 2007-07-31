@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/DateRangeValidator.java,v 1.1 2007-07-31 09:22:08 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/DateRangeValidator.java,v 1.2 2007-07-31 16:51:20 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -95,7 +95,7 @@ public class DateRangeValidator
 	}
 
 	/**
-	 * Test whether effectiveDate is before than expirationDate
+	 * Test whether effectiveDate is before the expirationDate
 	 * @param effectiveDate Required Date
 	 * @param expirationDate May be null (i.e. 'until revoked') or a Date
 	 * @return False if expirationDate is on or before effectiveDate
@@ -107,7 +107,7 @@ public class DateRangeValidator
 		{
 			if (null != expirationDate) // null == 'until revoked'
 			{
-				if ( !(retval = (effectiveDate.compareTo(expirationDate) < 0)))
+				if ( !(retval = (effectiveDate.compareTo(expirationDate) < 0))) // eff before exp
 				{
 					errMsgKey = Constants.DATE_RANGE_ERROR_KEY;
 					errField = Constants.EXPIRATION_DATE_PREFIX;
@@ -139,7 +139,7 @@ public class DateRangeValidator
 		if (retval)
 		{
 			if (retval = (null != setDate))
-				retval = (0 == effectiveDate.compareTo(setDate));
+				retval = (0 <= effectiveDate.compareTo(setDate)); // today, or in future
 
 			if ( !retval)
 			{

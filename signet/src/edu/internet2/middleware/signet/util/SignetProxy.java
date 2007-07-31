@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SignetProxy.java,v 1.10 2007-07-06 21:59:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SignetProxy.java,v 1.11 2007-07-31 16:51:20 ddonn Exp $
 Created on Sep 12, 2005
 
 Copyright 2006 Internet2, Stanford University
@@ -23,13 +23,13 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import edu.internet2.middleware.signet.DateOnly;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.Signet;
@@ -128,7 +128,7 @@ public class SignetProxy
       if ( !error)
       {
 		Proxy sysAdminProxy = grantorSubj.grantProxy(
-				granteeSubj, subsystem, false, true, new Date(), null);
+				granteeSubj, subsystem, false, true, new DateOnly(), null);
 
 		Session hs = hibr.openSession();
 		Transaction tx = hs.beginTransaction();
