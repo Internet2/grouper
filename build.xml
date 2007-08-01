@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.169 2007-06-19 18:14:36 blair Exp $ -->
+<!-- $Id: build.xml,v 1.170 2007-08-01 16:03:51 blair Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -649,17 +649,19 @@
   <!-- target: test.run -->
   <target name="test.run" 
           depends="init, test.compile, ensure.test.name"
-          description="Run the Grouper API test specified with -Dname=NAME"
+          description="Run the Grouper API test specified with -Dtest=NAME"
   >
     <record name="${test.log}" action="start" append="yes"/>
+    <property name="test.class" value="edu.internet2.middleware.grouper.${test}"/>
+    <available  classname="${test.class}"
+                property="test.class.exists"
+                classpathref="project.classpath" 
+    />
+    <fail unless="test.class.exists" message="Could not find test class '${test.class}'"/>
     <junit printsummary="withOutAndErr" fork="true"> 
-        <classpath    refid="project.classpath" />
-        <formatter    type="plain" usefile="false"/>
-      <batchtest>
-        <fileset dir="${src.dir.test}">
-          <include name="**/${test}.java"/>
-        </fileset>
-      </batchtest>
+      <classpath  refid="project.classpath"/>
+      <formatter  type="plain" usefile="false"/>
+      <test       name="${test.class}"/>
     </junit>
     <record name="${test.log}" action="stop"/>
   </target>
