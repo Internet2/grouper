@@ -24,7 +24,7 @@ import  org.apache.commons.lang.*;
  * Grouper configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.47 2007-05-29 14:49:17 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.48 2007-08-02 16:39:19 blair Exp $
  */
 public class GrouperConfig {
 
@@ -56,6 +56,11 @@ public class GrouperConfig {
    * Hibernate configuration file.
    */
   public static final String HIBERNATE_CF         = "/grouper.hibernate.properties";
+  /**
+   * Optional local configuration file to override contents of <i>GROUPER_CF</i>.
+   * @since   @HEAD@
+   */
+  public static final String LOCAL_GROUPER_CF     = "/local.grouper.properties";
   /**
    * Property containing name of DAO implementation to be used.
    * <p>Grouper will default to <code>DEFAULT_DAO_FACTORY</code> if this property is not set.</p>
@@ -129,6 +134,17 @@ public class GrouperConfig {
       String msg = E.CONFIG_READ + eIO.getMessage();
       ErrorLog.fatal(GrouperConfig.class, msg);
       throw new GrouperRuntimeException(msg, eIO);
+    }
+    // Attempt to load optional local Grouper properties
+    // TODO 20070721 can i add a test for this?
+    try {
+      InputStream in = GrouperConfig.class.getResourceAsStream(LOCAL_GROUPER_CF);
+      if (in != null) {
+        grouper_props.load(in);
+      }
+    }
+    catch (IOException eIO) {
+      // ignore.  this is an optional file that does not have to exist.
     }
     // Load Hibernate properties
     try {
