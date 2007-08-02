@@ -20,19 +20,18 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteWheelGroup.java,v 1.4 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteWheelGroup.java,v 1.5 2007-08-02 16:46:51 blair Exp $
  * @since   1.1
  */
 public class SuiteWheelGroup extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestWheelGroup0.class );  // fail: grant ADMIN w/out wheel
     suite.addTestSuite( TestWheelGroup1.class );  // fail: grant ADMIN w/ wheel
     suite.addTestSuite( TestWheelGroup2.class );  // fail: grant ADMIN w/ ALL wheel
     suite.addTestSuite( TestWheelGroup3.class );  // !wheel; grant; wheel
     return suite;
-  } // static public Test suite()
+  } 
 
-} // public class SuiteWheelGroup
+} 
 

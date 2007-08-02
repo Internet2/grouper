@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Unit_API.java,v 1.8 2007-05-21 16:16:41 blair Exp $
+ * @version $Id: Suite_Unit_API.java,v 1.9 2007-08-02 16:46:51 blair Exp $
  * @since   1.2.0
  */
 public class Suite_Unit_API extends GrouperTest {
@@ -30,7 +30,6 @@ public class Suite_Unit_API extends GrouperTest {
     suite.addTest( Suite_Unit_API_CompositeMembershipValidator.suite() ); 
     suite.addTest( Suite_Unit_API_CompositeValidator.suite() ); 
     suite.addTest( Suite_Unit_API_EffectiveMembershipValidator.suite() ); 
-    suite.addTest( Suite_Unit_API_GrouperDAOFactory.suite() );
     suite.addTest( Suite_Unit_API_GrouperSourceAdapter.suite() ); 
     suite.addTest( Suite_Unit_API_ImmediateMembershipValidator.suite() ); 
     suite.addTest( Suite_Unit_API_Stem.suite() ); 
@@ -38,5 +37,5 @@ public class Suite_Unit_API extends GrouperTest {
     return suite;
   }
 
-} // public class Suite_Unit_API extends GrouperTest
+} 
 

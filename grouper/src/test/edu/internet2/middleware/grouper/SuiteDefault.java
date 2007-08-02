@@ -21,12 +21,27 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.24 2007-03-14 18:27:12 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.25 2007-08-02 16:46:51 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
+
+    suite.addTestSuite( Test_api_GrouperConfig.class );
+    suite.addTestSuite( Test_api_GrouperDAOFactory.class );
+    suite.addTestSuite( Test_api_GrouperSession.class );
+
+    suite.addTestSuite( Test_cfg_ApiConfig.class );
+    suite.addTestSuite( Test_cfg_BuildConfig.class );
+    suite.addTestSuite( Test_cfg_ConfigurationHelper.class );
+    suite.addTestSuite( Test_cfg_PropertiesConfiguration.class );
+
+    suite.addTestSuite( Test_dao_hibernate_HibernateDaoConfig.class );
+
+    suite.addTestSuite( Test_uc_WheelGroup.class );
+
+
     suite.addTestSuite( Test_UnresolvedBugs.class );
     suite.addTest( Suite_Unit.suite() );
     suite.addTest( Suite_Integration.suite() );

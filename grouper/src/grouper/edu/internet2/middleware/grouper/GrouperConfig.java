@@ -16,20 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.*;
-import  java.util.*;
-import  org.apache.commons.lang.*;
+import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import  edu.internet2.middleware.grouper.cfg.BuildConfig;
+import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
+
 
 /** 
  * Grouper configuration information.
- * <p/>
+ * <p><b>This class is being deprecated by the {@link Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.48 2007-08-02 16:39:19 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.49 2007-08-02 16:46:51 blair Exp $
+ * @since   ?
  */
 public class GrouperConfig {
+  // TODO 20070724 deprecate
 
-  // PUBLIC CLASS CONSTANTS //
- 
+
   /**
    * Default DAO implementation to be used if an alternative is not configured.
    * <p/>
@@ -104,10 +106,6 @@ public class GrouperConfig {
   protected static final String MSLSEA        = "memberships.log.stem.effective.add";
   protected static final String MSLSED        = "memberships.log.stem.effective.del";
   protected static final String NL            = System.getProperty("line.separator");
-  protected static final String PACI          = "privileges.access.cache.interface";
-  protected static final String PAI           = "privileges.access.interface";
-  protected static final String PNCI          = "privileges.naming.cache.interface";
-  protected static final String PNI           = "privileges.naming.interface";
   protected static final String ROOT          = "GrouperSystem";
   protected static final String SCGAC         = "stems.create.grant.all.create";
   protected static final String SCGAS         = "stems.create.grant.all.stem";
@@ -115,56 +113,22 @@ public class GrouperConfig {
   protected static final String SCIDFRI       = "subjects.cache.identifier.interface";
 
 
-  // PRIVATE CLASS VARIABLES //
-  private static  Properties  build_props   = new Properties();
-  private static  Properties  grouper_props = new Properties();
-  private static  Properties  hib_props     = new Properties();
+  private static  GrouperConfig       cfg;
+  private         ApiConfig           api;
+  private         BuildConfig         build;
+  private         HibernateDaoConfig  hib;
 
 
-  // STATIC //
-  static {
-    // TODO 20070529 why are these static again?
-
-    // Load Grouper properties
-    try {
-      InputStream in = GrouperConfig.class.getResourceAsStream(GROUPER_CF);
-      grouper_props.load(in);
-    }
-    catch (IOException eIO) {
-      String msg = E.CONFIG_READ + eIO.getMessage();
-      ErrorLog.fatal(GrouperConfig.class, msg);
-      throw new GrouperRuntimeException(msg, eIO);
-    }
-    // Attempt to load optional local Grouper properties
-    // TODO 20070721 can i add a test for this?
-    try {
-      InputStream in = GrouperConfig.class.getResourceAsStream(LOCAL_GROUPER_CF);
-      if (in != null) {
-        grouper_props.load(in);
-      }
-    }
-    catch (IOException eIO) {
-      // ignore.  this is an optional file that does not have to exist.
-    }
-    // Load Hibernate properties
-    try {
-      InputStream in = GrouperConfig.class.getResourceAsStream(HIBERNATE_CF);
-      hib_props.load(in);
-    }
-    catch (IOException eIO) {
-      String msg = E.CONFIG_READ_HIBERNATE + eIO.getMessage();
-      ErrorLog.fatal(GrouperConfig.class, msg);
-      throw new GrouperRuntimeException(msg, eIO);
-    }
-  } 
-
-  // CONSTRUCTORS //
+  /**
+   * Default constructor.
+   * @since   ?
+   */
   private GrouperConfig() {
     super();
-  } // private GrouperConfig()
-
-
-  // PUBLIC CLASS METHODS //
+    this.api   = new ApiConfig();
+    this.build = new BuildConfig();
+    this.hib   = new HibernateDaoConfig();
+  } 
 
   /**
    * Get a Grouper build configuration parameter.
@@ -175,8 +139,15 @@ public class GrouperConfig {
    * @since   1.2.0
    */
   public static String getBuildProperty(String property) {
-    return _getProperty( _getProperties(GROUPER_BUILD_CF, build_props), property );
+    return getDefaultValueIfNull( getInstance().build.getProperty(property) );
   } 
+
+  /** 
+   * @since   @HEAD@
+   */
+  private static String getDefaultValueIfNull(String val) {
+    return ( val == null ? GrouperConfig.EMPTY_STRING : val );
+  }
 
   /**
    * Get a Hibernate configuration parameter.
@@ -188,8 +159,18 @@ public class GrouperConfig {
    * @since   1.1.0
    */
   public static String getHibernateProperty(String property) {
-    return _getProperty(hib_props, property);
-  } // public static String getHibernateProperty(property)
+    return getDefaultValueIfNull( getInstance().hib.getProperty(property) );
+  }
+
+  /**
+   * @since   @HEAD@
+   */
+  private static GrouperConfig getInstance() {
+    if (cfg == null) {
+      cfg = new GrouperConfig();
+    }
+    return cfg;
+  }
 
   /**
    * Get a Grouper configuration parameter.
@@ -201,55 +182,13 @@ public class GrouperConfig {
    * @since   1.1.0
    */
   public static String getProperty(String property) {
-    return _getProperty(grouper_props, property);
+    return getDefaultValueIfNull( getInstance().api.getProperty(property) );
   }
 
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static Properties internal_getHibernateProperties() {
-    return hib_props;
-  } // protected static Properties internal_getHibernateProperties()
-
-  // @since   1.2.0
-  protected static Properties internal_getProperties() {
-    return grouper_props;
-  } // protected static Properties internal_getProperties()
-
-  // @since   1.2.0
+  // FIXME 20070725 i need to attach configuration information to sessions before i can eliminate this
   protected static void internal_setProperty(String property, String value) {
-    grouper_props.setProperty(property, value);
-  } 
-
-
-  // PRIVATE CLASS METHODS //
-
-  /**
-   * Load properties in <code>cf</code> into <code>props</code> if not already loaded.
-   * @since   1.2.0
-   */
-  private static Properties _getProperties(String cf, Properties props) {
-    if ( (props != null) && (props.size() > 0) ) {
-      return props;
-    }
-    try {
-      props = new Properties();
-      props.load( GrouperConfig.class.getResourceAsStream(cf) );
-      return props;
-    }
-    catch (IOException eIO) {
-      throw new GrouperRuntimeException( "error reading (" + cf + "): " + eIO.getMessage(), eIO );
-    }
-  }
-
-  // @since   1.1.0
-  private static String _getProperty(Properties props, String property) {
-    String value = GrouperConfig.EMPTY_STRING;
-    if ( (property != null) && (props.containsKey(property)) ) {
-      value = StringUtils.strip( props.getProperty(property) );
-    }
-    return value;
+    //throw new RuntimeException("!!! DEPRECATED !!!");
+    getInstance().api.setProperty(property, value);
   } 
 
 } 
