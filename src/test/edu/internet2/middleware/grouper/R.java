@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
@@ -27,7 +28,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.17 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: R.java,v 1.18 2007-08-02 16:46:51 blair Exp $
  * @since   1.2.0
  */
 public class R {
@@ -61,7 +62,30 @@ public class R {
   } // R()
 
 
-  // PUBLIC CLASS METHODS //
+  /**
+   * Add test subjects to registry.
+   * <p/>
+   * @since   @HEAD@
+   */
+  protected void addSubjects(int number) {
+    RegistrySubject     subj;
+    RegistrySubjectDAO  dao   = GrouperDAOFactory.getFactory().getRegistrySubject();
+    RegistrySubjectDTO  _subj;
+    for (int i=0; i<number; i++) {
+      String  id    = _getSuffix(i);
+      String  name  = "subject " + id;
+      _subj = new RegistrySubjectDTO()
+                .setId(id)
+                .setName(name)
+                .setType("person")
+                ;
+      dao.create(_subj);
+      subj = new RegistrySubject();
+      subj.setDTO(_subj);
+      this.subjects.put(id, subj);  
+      LOG.debug("created subject: " + subj);
+    }
+  }
 
   /**
    * Initializes and returns a pre-defined context.
@@ -235,6 +259,7 @@ public class R {
   private static R _getContextI2MI() {
     R r = new R();
     r.addStem("i2mi", "internet2 middleware initiative");
+    r.addSubjects(2);
     return r;
   } // private static R _getContextI2MI()
   
@@ -305,24 +330,10 @@ public class R {
         r.groups.put(key, g);
       }
     }
-
-    for (int i=0; i<nSubjects; i++) {
-      String              id    = _getSuffix(i);
-      String              name  = "subject " + id;
-      RegistrySubjectDTO  _subj = new RegistrySubjectDTO();
-      _subj.setId(id);
-      _subj.setName(name);
-      _subj.setType("person");
-      GrouperDAOFactory.getFactory().getRegistrySubject().create(_subj);
-      RegistrySubject     subj  = new RegistrySubject();
-      subj.setDTO(_subj);
-      r.subjects.put(id, subj);
-      LOG.debug("created subject: " + subj);
-    }
+    r.addSubjects(nSubjects);
 
     return r;
   } // protected static R populateRegistry(nStems, nGroups, nSubjects)
-
 
   // PROTECTED INSTANCE METHODS //
   protected Group getGroup(String stem, String group) 

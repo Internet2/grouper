@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import  edu.internet2.middleware.grouper.internal.cache.BasePrivilegeCache;
 import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCache;
@@ -31,26 +32,28 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.69 2007-05-31 19:01:11 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.70 2007-08-02 16:46:51 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
-  // PRIVATE CLASS CONSTANTS //
   private static final String KEY_MEMBER = "member"; // for state caching
 
 
-  // PRIVATE INSTANCE VARIABLES //
+  private ApiConfig       cfg;
   private PrivilegeCache  accessCache;
   private PrivilegeCache  namingCache;
   private GrouperSession  rootSession;
   private SimpleCache     stateCache;
 
 
-  // CONSTRUCTORS //
-  
-  // @since   1.2.0
+  /**
+   * Default constructor.
+   * <p/>
+   * @since   1.2.0
+   */
   private GrouperSession() {
     this.rootSession  = null;
+    this.cfg          = new ApiConfig();
     this.stateCache   = new SimpleCache();
   } 
 
@@ -124,15 +127,29 @@ public class GrouperSession extends GrouperAPI {
   } // public boolean equals(other)
 
   /**
-   * Get name of class being used for access privileges.
+   * Get name of class implenting {@link AccessAdapter} privilege interface.
    * <pre class="eg">
    * String klass = s.getAccessClass();
    * </pre>
-   * @return  Name of class implementing naming privileges.
+   * @since   ?
    */
   public String getAccessClass() {
-    return GrouperConfig.getProperty(GrouperConfig.PAI);
-  } // public String getAccessClass()
+    return this.getConfig(ApiConfig.ACCESS_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+  } 
+
+
+  /**
+   * Get specified {@link ApiConfig} property.
+   * <p/>
+   * @return  Value of <i>property</i> or null if not set.
+   * @throws  IllegalArgumentException if <i>property</i> is null.
+   * @since   @HEAD@
+   */
+  protected String getConfig(String property) 
+    throws  IllegalArgumentException
+  {
+    return this.cfg.getProperty(property);
+  }
 
    /**
    * Get the {@link Member} associated with this API session.
@@ -167,15 +184,15 @@ public class GrouperSession extends GrouperAPI {
   } // public Member getMember()
 
   /**
-   * Get name of class being used for naming privileges.
+   * Get name of class implenting {@link NamingAdapter} privilege interface.
    * <pre class="eg">
    * String klass = s.getNamingClass();
    * </pre>
-   * @return  Name of class implementing naming privileges.
+   * @since   ?
    */
   public String getNamingClass() {
-    return GrouperConfig.getProperty(GrouperConfig.PNI);
-  } // public String getNamingClass()
+    return this.getConfig(ApiConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+  } 
 
   /**
    * Get this session's id.
@@ -276,7 +293,7 @@ public class GrouperSession extends GrouperAPI {
   // @since   1.2.0
   protected PrivilegeCache internal_getAccessCache() {
     if (this.accessCache == null) {
-      this.accessCache = BasePrivilegeCache.getCache( GrouperConfig.getProperty(GrouperConfig.PACI) );
+      this.accessCache = BasePrivilegeCache.getCache( this.cfg.getProperty(ApiConfig.ACCESS_PRIVILEGE_CACHE_INTERFACE) );
       DebugLog.info( GrouperSession.class, "using access cache: " + this.accessCache.getClass().getName() );
     }
     return this.accessCache;
@@ -285,7 +302,7 @@ public class GrouperSession extends GrouperAPI {
   // @since   1.2.0
   protected PrivilegeCache internal_getNamingCache() {
     if (this.namingCache == null) {
-      this.namingCache = BasePrivilegeCache.getCache( GrouperConfig.getProperty(GrouperConfig.PNCI) );
+      this.namingCache = BasePrivilegeCache.getCache( this.cfg.getProperty(ApiConfig.NAMING_PRIVILEGE_CACHE_INTERFACE) );
       DebugLog.info( GrouperSession.class, "using naming cache: " + this.namingCache.getClass().getName() );
     }
     return this.namingCache;

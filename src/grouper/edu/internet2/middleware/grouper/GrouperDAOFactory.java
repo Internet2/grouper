@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
@@ -32,33 +33,47 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.7 2007-05-31 19:01:11 blair Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.8 2007-08-02 16:46:51 blair Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
 
-  // PRIVATE CLASS VARIABLES //
+
   private static GrouperDAOFactory gdf;
 
 
-  // PUBLIC CLASS METHODS //
-
   /**
-   * Return default configured {@link GrouperDAOFactory} implementation.
+   * Return singleton {@link GrouperDAOFactory} implementation.
    * <p/>
    * @since   1.2.0
    */
   public static GrouperDAOFactory getFactory() {
     if (gdf == null) {
-      String klass = GrouperConfig.getProperty( GrouperConfig.PROP_DAO_FACTORY );
-      GrouperValidator v = NotNullOrEmptyValidator.validate(klass);
-      if ( v.isInvalid() ) {
-        klass = GrouperConfig.DEFAULT_DAO_FACTORY;
-      }
-      gdf = (GrouperDAOFactory) Realize.instantiate(klass);
+      gdf = getFactory( new ApiConfig() );
     }
     return gdf;
   } 
+
+  /**
+   * Return singleton {@link GrouperDAOFactory} implementation using the specified
+   * configuration.
+   * <p/>
+   * @throws  IllegalArgumentException if <i>cfg</i> is null.
+   * @since   @HEAD@
+   */
+  public static GrouperDAOFactory getFactory(ApiConfig cfg) 
+    throws  IllegalArgumentException
+  {
+    if (cfg == null) {
+      throw new IllegalArgumentException("null configuration");
+    }
+    String            klass = cfg.getProperty(GrouperConfig.PROP_DAO_FACTORY);
+    GrouperValidator  v     = NotNullOrEmptyValidator.validate(klass);
+    if ( v.isInvalid() ) {
+      klass = GrouperConfig.DEFAULT_DAO_FACTORY;
+    }
+    return (GrouperDAOFactory) Realize.instantiate(klass);
+  }
 
 
   // PUBLIC ABSTRACT INSTANCE METHODS //

@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
 import  edu.internet2.middleware.subject.Source;
 import  java.util.Iterator;
 import  java.util.Properties;
@@ -24,17 +26,24 @@ import  java.util.Properties;
  * Report on system and configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperInfo.java,v 1.5 2007-03-29 15:23:26 blair Exp $
+ * @version $Id: GrouperInfo.java,v 1.6 2007-08-02 16:46:51 blair Exp $
  * @since   1.1.0
  */
 public class GrouperInfo {
 
+  private ApiConfig           api;
+  private HibernateDaoConfig  hib;
+
+
   // CONSTRUCTORS //
 
-  // @since   1.1.0
+  /**
+   * @since     1.1.0
+   */
   private GrouperInfo() {
-    super();
-  } // private GrouperInfo()
+    this.api  = new ApiConfig();
+    this.hib  = new HibernateDaoConfig();
+  } 
 
 
   // PUBLIC CLASS METHODS //
@@ -62,34 +71,57 @@ public class GrouperInfo {
 
   // PRIVATE INSTANCE METHODS //
 
-  // @since   1.2.0
-  private void _print(String key, Properties props) {
-    System.out.println(key + ": " + props.getProperty(key, GrouperConfig.EMPTY_STRING));
-  } // private void _print(key, props)
+  /**
+   * @since   1.2.0
+   */
+  private void _print(String key, String val) {
+    if (val == null) {
+      val = GrouperConfig.EMPTY_STRING;
+    }
+    System.out.println(key + ": " + val);
+  }
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   private void _printGrouperInfo() {
-    Properties props = GrouperConfig.internal_getProperties();
-    this._print( "privileges.access.interface"       , props );
-    this._print( "privileges.naming.interface"       , props );
-    this._print( "privileges.access.cache.interface" , props );
-    this._print( "privileges.naming.cache.interface" , props );
-    this._print( "groups.wheel.use"                  , props );
-    this._print( "groups.wheel.group"                , props );
-  } // private void _printGrouperInfo()
+    String key = "privileges.access.interface";
+    this._print( key, this.api.getProperty(key) );
+    key = "privileges.access.interface";
+    this._print( key, this.api.getProperty(key) );
+    key = "privileges.naming.interface";
+    this._print( key, this.api.getProperty(key) );
+    key = "privileges.access.cache.interface";
+    this._print( key, this.api.getProperty(key) );
+    key = "privileges.naming.cache.interface";
+    this._print( key, this.api.getProperty(key) );
+    key = "groups.wheel.use";
+    this._print( key, this.api.getProperty(key) );
+    key = "groups.wheel.group";
+    this._print( key, this.api.getProperty(key) );
+  } 
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   private void _printHibernateInfo() {
-    Properties props = GrouperConfig.internal_getHibernateProperties();
-    this._print( "hibernate.dialect"                 , props );
-    this._print( "hibernate.connection.driver_class" , props );
-    this._print( "hibernate.connection.url"          , props );
-    this._print( "hibernate.dbcp.ps.maxIdle"         , props );
-    this._print( "hibernate.cache.provider_class"    , props );
-  } // private void _printHibernateInfo()
+    String key = "hibernate.dialect";
+    this._print( key, this.hib.getProperty(key) );
+    key = "hibernate.dialect";
+    this._print( key, this.hib.getProperty(key) );
+    key = "hibernate.connection.driver_class";
+    this._print( key, this.hib.getProperty(key) );
+    key = "hibernate.connection.url";
+    this._print( key, this.hib.getProperty(key) );
+    key = "hibernate.dbcp.ps.maxIdle";
+    this._print( key, this.hib.getProperty(key) );
+    key = "hibernate.cache.provider_class";
+    this._print( key, this.hib.getProperty(key) );
+  } 
 
-
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   private void _printSubjectInfo() {
     Source    sa;
     Iterator  it  = SubjectFinder.getSources().iterator();
@@ -102,18 +134,26 @@ public class GrouperInfo {
         + " class=" + sa.getClass().getName()
       );
     }
-  } // private void _printSubjectInfo()
+  } 
 
-  // @since   1.2.0
+  /**
+   * @since   1.2.0
+   */
   private void _printSystemInfo() {
-    Properties props = System.getProperties();  
-    this._print( "os.name"        , props );
-    this._print( "os.arch"        , props );
-    this._print( "os.version"     , props );
-    this._print( "java.version"   , props );
-    this._print( "java.vendor"    , props );
-    this._print( "java.class.path", props );
-  } // private void _printSystemInfo()
+    Properties  props = System.getProperties();  
+    String      key   = "os.name";
+    this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
+    key = "os.arch";
+    this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
+    key = "os.version";
+    this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
+    key = "java.version";
+    this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
+    key = "java.vendor";
+    this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
+    key = "java.class.path";
+    this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
+  } 
 
-} // public class GrouperInfo
+} 
 
