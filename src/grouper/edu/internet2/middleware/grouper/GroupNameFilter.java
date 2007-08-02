@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by group name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupNameFilter.java,v 1.10 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: GroupNameFilter.java,v 1.11 2007-08-02 19:25:15 blair Exp $
  */
 public class GroupNameFilter extends BaseQueryFilter {
 
@@ -42,6 +42,7 @@ public class GroupNameFilter extends BaseQueryFilter {
    * This performs a substring, lowercased query against <i>name</i>,
    * <i>displayName</i>, <i>extension</i> and <i>displayExtension</i>.
    * </p>
+   * <p><b>NOTE:</b> This query will perform a full table scan.</p>
    * @param   name  Find groups matching this name.
    * @param   ns    Restrict results to within this stem.
    */

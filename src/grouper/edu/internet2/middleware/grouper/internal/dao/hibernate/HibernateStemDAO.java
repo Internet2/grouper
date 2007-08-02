@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.9 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.10 2007-08-02 19:25:15 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -395,22 +395,30 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
   } 
   
   /**
-   * @since   1.2.0
+   * @see     StemDAO#findAllChildGroups(StemDTO, Stem.Scope)
+   * @since   @HEAD@
    */
-  public Set findAllChildGroups(Stem ns)
+  public Set<GroupDTO> findAllChildGroups(StemDTO ns, Stem.Scope scope)
     throws  GrouperDAOException
   {
-    Set groups = new LinkedHashSet();
+    Set<GroupDTO> groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.parentUuid = :parent");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindChildGroups");
       qry.setString( "parent", ns.getUuid() );
-      Iterator it = qry.list().iterator();
-      while (it.hasNext()) {
-        groups.add( GroupDTO.getDTO( (GroupDAO) it.next() ) );
+
+      Iterator<GroupDAO> it = qry.list().iterator();
+      while ( it.hasNext() ) {
+        groups.add( GroupDTO.getDTO( it.next() ) );
       }
+      if (Stem.Scope.SUB == scope) { // recurse through child stems looking for child groups
+        for ( StemDTO childStem : this.findAllChildStems(ns, Stem.Scope.SUB) ) {
+          groups.addAll( this.findAllChildGroups(childStem, scope) ); 
+        }
+      }
+
       hs.close();
     }
     catch (HibernateException eH) {
@@ -420,22 +428,38 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
   }
   
   /**
-   * @since   1.2.0
+   * @see     StemDAO#findAllChildStems(StemDTO, Stem.Scope)
+   * @throws  IllegalStateException if unknown scope.
+   * @since   @HEAD@
    */
-  public Set findAllChildStems(Stem ns)
-    throws  GrouperDAOException
+  public Set<StemDTO> findAllChildStems(StemDTO ns, Stem.Scope scope)
+    throws  GrouperDAOException,
+            IllegalStateException
   {
-    Set stems = new LinkedHashSet();
+    Set<StemDTO> stems = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateStemDAO as ns where ns.parentUuid = :parent");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindChildStems");
       qry.setString( "parent", ns.getUuid() );
-      Iterator it = qry.list().iterator();
-      while (it.hasNext()) {
-        stems.add( StemDTO.getDTO( (StemDAO) it.next() ) );
+
+      StemDTO           child;
+      Iterator<StemDAO> it    = qry.list().iterator();
+      while ( it.hasNext() ) {
+        child = StemDTO.getDTO( it.next() );
+        stems.add(child);
+        if      (Stem.Scope.ONE == scope) {
+          continue;
+        }
+        else if (Stem.Scope.SUB == scope) {
+          stems.addAll( this.findAllChildStems(child, scope) ); // recurse and find children-of-child
+        }
+        else {
+          throw new IllegalStateException("unknown search scope: " + scope);
+        }
       }
+
       hs.close();
     }
     catch (HibernateException eH) {

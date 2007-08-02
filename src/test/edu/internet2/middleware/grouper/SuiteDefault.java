@@ -21,16 +21,19 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.25 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.26 2007-08-02 19:25:15 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
 
+    suite.addTestSuite( Test_api_ChildGroupFilter.class );
+    suite.addTestSuite( Test_api_ChildStemFilter.class );
     suite.addTestSuite( Test_api_GrouperConfig.class );
     suite.addTestSuite( Test_api_GrouperDAOFactory.class );
     suite.addTestSuite( Test_api_GrouperSession.class );
+    suite.addTestSuite( Test_api_Stem.class );
 
     suite.addTestSuite( Test_cfg_ApiConfig.class );
     suite.addTestSuite( Test_cfg_BuildConfig.class );
@@ -63,7 +66,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest( SuiteWheelGroup.suite()       );
     suite.addTest( SuitePrivCache.suite()        );
     return suite;
-  } // static public Test suite()
+  }
 
-} // public class SuiteDefault
+} 
 
