@@ -3,6 +3,18 @@
 
 ---
 
+# Grouper @HEAD@
+
+Released: TBD
+
+## NEW
+* ChildGroupFilter - Query filter that retrieves all child groups beneath specified parent stem [GRP-12]
+* ChildStemFilter - Query filter that retrieves all child stems beneath specified parent stem [GRP-12]
+* Stem.getChildGroups(scope) - Can retrieve *all* child groups, not just immediate children [GRP-12]
+* Stem.getChildStems(scope) - Can retrieve *all* child stems, not just immediate children [GRP-12]
+
+---
+
 # Grouper 1.2.0
 
 Released: 20070711

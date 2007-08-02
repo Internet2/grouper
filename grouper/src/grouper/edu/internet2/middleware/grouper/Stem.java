@@ -37,12 +37,16 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.128 2007-06-19 18:04:17 blair Exp $
+ * @version $Id: Stem.java,v 1.129 2007-08-02 19:25:15 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
-  // PUBLIC CLASS CONSTANTS //
-  
+  /**
+   * Search scope: one-level or subtree.
+   * @since   @HEAD@
+   */
+  public enum Scope { ONE, SUB } // TODO 20070802 is this the right location?
+
   /**
    * Hierarchy delimiter.
    */
@@ -179,47 +183,73 @@ public class Stem extends GrouperAPI implements Owner {
   } // public boolean equals(other)
 
   /**
-   * Get child groups of this stem.
-   * <pre class="eg">
-   * // Get child groups 
-   * Set childGroups = ns.getChildGroups();
-   * </pre>
-   * @return  Set of {@link Group} objects
+   * Get groups that are immediate children of this stem.
+   * @return  Set of {@link Group} objects.
+   * @see     Stem#getChildGroups(Scope)
    */
   public Set getChildGroups() {
-    Subject   subj    = this.getSession().getSubject();
-    Set       groups  = new LinkedHashSet();
-    Iterator  it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(this).iterator();
-    while (it.hasNext()) {
-      Group child = new Group();
-      child.setDTO( (GroupDTO) it.next() );
-      child.setSession( this.getSession() );
+    return this.getChildGroups(Scope.ONE);
+  }
+
+  /**
+   * Get groups that are children of this stem.
+   * @param   Scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @return  Child groups.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   @HEAD@
+   */
+  public Set<Group> getChildGroups(Scope scope) 
+    throws  IllegalArgumentException
+  {
+    if (scope == null) {
+      throw new IllegalArgumentException("null Scope");
+    }
+    Subject     subj    = this.getSession().getSubject();
+    Group       child;
+    Set<Group>  groups  = new LinkedHashSet();
+    for ( GroupDTO dto : GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this._getDTO(), scope ) ) {
+      child = new Group();
+      child.setDTO(dto);
+      child.setSession( this.getSession() ); 
       if ( RootPrivilegeResolver.internal_canVIEW(child, subj) ) {
         groups.add(child);
       }
     }
     return groups;
-  } // public Set getChildGroups()
+  }
 
   /**
-   * Get child stems of this stem.
-   * <pre class="eg">
-   * // Get child stems 
-   * Set childStems = ns.getChildStems();
-   * </pre>
-   * @return  Set of {@link Stem} objects
+   * Get stems that are immediate children of this stem.
+   * @return  Set of {@link Stem} objects.
+   * @see     Stem#getChildStems(Scope)
    */
   public Set getChildStems() {
-    Set       stems = new LinkedHashSet();
-    Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllChildStems(this).iterator();
-    while (it.hasNext()) {
-      Stem child = new Stem();
-      child.setDTO( (StemDTO) it.next() );
+    return this.getChildStems(Scope.ONE);
+  }
+
+  /**
+   * Get stems that are children of this stem.
+   * @param   Scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @return  Child stems.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   @HEAD@
+   */
+  public Set<Stem> getChildStems(Scope scope) 
+    throws  IllegalArgumentException
+  {
+    if (scope == null) {
+      throw new IllegalArgumentException("null Scope");
+    }
+    Stem      child;
+    Set<Stem> stems = new LinkedHashSet();
+    for ( StemDTO dto : GrouperDAOFactory.getFactory().getStem().findAllChildStems( this._getDTO(), scope ) ) {
+      child = new Stem();
+      child.setDTO(dto);
       child.setSession( this.getSession() ); 
       stems.add(child);
     }
     return stems;
-  } // public Set getChildStems()
+  }
 
   /**
    * Get (optional and questionable) create source for this stem.
@@ -1090,7 +1120,7 @@ public class Stem extends GrouperAPI implements Owner {
     Map       attrs;
     GroupDTO  _g;
     Set       groups  = new LinkedHashSet();
-    Iterator  it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups(this).iterator();
+    Iterator  it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this._getDTO(), Stem.Scope.ONE ).iterator();
     while (it.hasNext()) {
       _g = (GroupDTO) it.next();
       attrs = _g.getAttributes();
@@ -1132,7 +1162,7 @@ public class Stem extends GrouperAPI implements Owner {
   {
     Set       children  = new LinkedHashSet();
     Stem      child;
-    Iterator  it        = GrouperDAOFactory.getFactory().getStem().findAllChildStems(this).iterator();
+    Iterator  it        = GrouperDAOFactory.getFactory().getStem().findAllChildStems( this._getDTO(), Scope.ONE ).iterator();
     while (it.hasNext()) {
       child = new Stem();
       child.setDTO( (StemDTO) it.next() );
