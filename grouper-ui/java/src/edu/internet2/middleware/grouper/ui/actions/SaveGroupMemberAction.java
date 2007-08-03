@@ -151,7 +151,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupMemberAction.java,v 1.6 2006-07-06 10:40:14 isgwb Exp $
+ * @version $Id: SaveGroupMemberAction.java,v 1.7 2007-08-03 14:38:01 isgwb Exp $
  */
 public class SaveGroupMemberAction extends GrouperCapableAction {
 
@@ -210,7 +210,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		}
 		//TODO: should be transactional
 		//revoke any not selected that were there:
-
+		boolean hasAdmin = curGroup.hasAdmin(grouperSession.getSubject());
 		Iterator it = privs.keySet().iterator();
 		String key;
 		while (it.hasNext()) {
@@ -219,7 +219,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 				if (key.toLowerCase().equals("member")) {
 					if(!membershipField.equals("members") || !curGroup.hasComposite())
 						curGroup.deleteMember(member.getSubject(),mField);
-				} else {
+				} else if(hasAdmin) {
 					try {
 						curGroup.revokePriv(member.getSubject(),Privilege.getInstance(key));
 						
