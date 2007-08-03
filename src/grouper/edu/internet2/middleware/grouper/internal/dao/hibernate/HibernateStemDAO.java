@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.10 2007-08-02 19:25:15 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.11 2007-08-03 14:43:07 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -395,12 +395,29 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
   } 
   
   /**
+   * <p><b>Implementation Notes:</b> This method should perform better with flatter
+   * registry structures as a deep search scope can result in a large number of SQL
+   * queries.  An initial query is done to find groups that are immediate children of
+   * <i>ns</i>.  After that, if <i>scope</i> is <code>SUB</code> additional queries will
+   * be generated to find all child stems within scope and then all child groups within
+   * those child stems.  As an optimization, if <i>ns</i> is the root stem of the registry
+   * and a <code>SUB</code> search scope is being used none of those queries will be performed.  
+   * {@link HibernateGroupDAO.findAllByApproximateAttr(String, String)} will be called
+   * instead.  While that will trigger a full table scan of the Gruop attributes table it
+   * will still probably be faster than recursing through the registry.</p>
    * @see     StemDAO#findAllChildGroups(StemDTO, Stem.Scope)
    * @since   @HEAD@
    */
   public Set<GroupDTO> findAllChildGroups(StemDTO ns, Stem.Scope scope)
     throws  GrouperDAOException
   {
+    // Optimization hack.  See "Implementation Notes" above for more details.
+    // TODO 20070803  the reliance upon ":" is rather fragile.  why can't a StemDTO say
+    //                whether it is the root stem?
+    if ( (Stem.Scope.SUB == scope) && ( ":".equals( ns.getName() ) ) ) {
+      return GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAttr("name", "%");
+    }
+
     Set<GroupDTO> groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
