@@ -40,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.12 2007-05-31 19:01:11 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.13 2007-08-03 16:03:30 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -250,6 +250,13 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   } 
 
   /**
+   * <p><b>Implementation Notes.</b></p>
+   * <ol>
+   * <li>This method will generate a full table scan of the attributes table.  It will not
+   * perform well if there are a large number of groups.</li>
+   * <li>Hibernate caching is <b>not</b> enabled.</li>
+   * </ol>
+   * @see     GroupDAO#findAllByApproximateAttr(String, String)
    * @since   1.2.0
    */
   public Set findAllByApproximateAttr(String attr, String val) 
@@ -284,6 +291,13 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   } 
 
   /**
+   * <p><b>Implementation Notes.</b></p>
+   * <ol>
+   * <li>This method will generate a full table scan of the attributes table.  It will not
+   * perform well if there are a large number of groups.</li>
+   * <li>Hibernate caching is <b>not</b> enabled.</li>
+   * </ol>
+   * @see     GroupDAO#findAllByApproximateName(String)
    * @since   1.2.0
    */
   public Set findAllByApproximateName(String name) 
@@ -501,6 +515,11 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   } 
 
   /**
+   * <p><b>Implementation Notes.</b</p>
+   * <ol>
+   * <li>Hibernate caching is enabled.</li>
+   * </ol>
+   * @see     GroupDAO#findByUuid(String)
    * @since   1.2.0
    */
   public GroupDTO findByUuid(String uuid) 
@@ -510,7 +529,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
     try {
       Session hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery("from HibernateGroupDAO as g where g.uuid = :uuid");
-      qry.setCacheable(false);
+      qry.setCacheable(true);
       qry.setCacheRegion(KLASS + ".FindByUuid");
       qry.setString("uuid", uuid);
       HibernateGroupDAO dao = (HibernateGroupDAO) qry.uniqueResult();
