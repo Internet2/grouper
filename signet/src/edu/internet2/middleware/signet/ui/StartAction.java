@@ -1,6 +1,6 @@
 /*--
-$Id: StartAction.java,v 1.19 2007-07-06 21:59:20 ddonn Exp $
-$Date: 2007-07-06 21:59:20 $
+$Id: StartAction.java,v 1.20 2007-08-07 23:26:18 ddonn Exp $
+$Date: 2007-08-07 23:26:18 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -27,6 +27,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
@@ -138,11 +139,24 @@ public final class StartAction extends BaseAction
            Constants.CURRENTPSUBJECT_HTTPPARAMNAME, // paramName
            Constants.CURRENTPSUBJECT_ATTRNAME,      // attrName
            loggedInUser.getEffectiveEditor());      // defaultValue
-    
-    session.setAttribute
-      (Constants.PRIVDISPLAYTYPE_ATTRNAME, PrivDisplayType.CURRENT_GRANTED);
-    
-//    Subsystem currentSubsystem
+
+		// select a privilege display type?
+		PrivDisplayType sessPdt = (PrivDisplayType)session.getAttribute(Constants.PRIVDISPLAYTYPE_ATTRNAME);
+		if (null == sessPdt)
+		{
+			// nudge the ClassLoader so the static initializers execute
+			PrivDisplayType pdt = PrivDisplayType.CURRENT_GRANTED;
+
+			// If a default privilege type selection is defined in the props file, use it
+			String privDisplay = ResLoaderUI.getString(PrivDisplayType.PrivNameDefaultValue_key);
+			// Otherwise, use 'current assignments to others'
+			if ((null == privDisplay) || (0 >= privDisplay.length()))
+				privDisplay = pdt.getName();
+
+			session.setAttribute(Constants.PRIVDISPLAYTYPE_ATTRNAME, TypeSafeEnumeration.getInstanceByName(privDisplay));
+		}
+
+// Subsystem currentSubsystem
 //      = Common.getAndSetSubsystem
       Common.getAndSetSubsystem
           (signet,

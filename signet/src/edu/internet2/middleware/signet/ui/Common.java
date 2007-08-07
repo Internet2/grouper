@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.79 2007-07-31 09:22:08 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.80 2007-08-07 23:26:18 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -1899,120 +1899,126 @@ public class Common
     
     return outStr.toString();
   }
-  
-  static public String subsystemLinks
-    (SignetSubject  pSubject,
-     PrivDisplayType    privDisplayType,
-     Subsystem          currentSubsystem)
-  {
-    Set subsystems;
-    Set proxies;
-    Set assignments;
-    
-    if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
-    {
-      proxies = pSubject.getProxiesGranted(Status.ACTIVE.toString());
-      
-      assignments = pSubject.getAssignmentsGranted(Status.ACTIVE.toString());
-    }
-    else if (privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
-    {
-      proxies = pSubject.getProxiesGranted(Status.INACTIVE.toString());
-      
-      assignments = pSubject.getAssignmentsGranted(Status.INACTIVE.toString());
-    }
-    else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
-    {
-      proxies = pSubject.getProxiesReceived(Status.ACTIVE.toString());
-      
-      assignments = pSubject.getAssignmentsReceived(Status.ACTIVE.toString());
-    }
-    else if (privDisplayType.equals(PrivDisplayType.FORMER_RECEIVED))
-    {
-      proxies = pSubject.getProxiesReceived(Status.INACTIVE.toString());
-      
-      assignments = pSubject.getAssignmentsReceived(Status.INACTIVE.toString());
-    }
-    else
-    {
-        throw new IllegalArgumentException
-          ("This method needs to be extended to support a PrivDisplayType"
-           + " value of '"
-           + privDisplayType
-           + "'");
-    }
-    
-    subsystems = getSubsystems(assignments, proxies);
-    
-    StringBuffer outStr = new StringBuffer();
-    outStr.append(subsystemLink(Constants.WILDCARD_SUBSYSTEM, currentSubsystem));
-    
-    Iterator subsystemsIterator = subsystems.iterator();
-    while (subsystemsIterator.hasNext())
-    {
-      outStr.append(" | ");
-      Subsystem subsystem = (Subsystem)(subsystemsIterator.next());
-      outStr.append(subsystemLink(subsystem, currentSubsystem));
-    }
-    
-    return outStr.toString();
-  }
-  
-  private static String subsystemLink(Subsystem subsystem, Subsystem currentSubsystem)
-  {
-    StringBuffer outStr = new StringBuffer();
-    String name;
 
-    name = subsystem.equals(Constants.WILDCARD_SUBSYSTEM) ? "All" : subsystem.getName();
 
-    if (subsystem.equals(currentSubsystem))
-    {
-      outStr.append("<b>");
-      outStr.append(name);
-      outStr.append("</b>");
-    }
-    else
-    {
-      outStr.append("<a href=\"PersonView.do?");
-      outStr.append(Constants.SUBSYSTEM_HTTPPARAMNAME);
-      outStr.append("=");
-      outStr.append(subsystem.getId());
-      outStr.append("\">");
-      outStr.append(name);
-      outStr.append("</a>");
-    }
+	/**
+	 * Generate a String of HTML tags (links) for each Subsystem referenced by the
+	 * Assignments and Proxies held by {@link SignetSubject}
+	 * @param pSubject The SignetSubject
+	 * @param privDisplayType (Current or Former) + (Granted or Received)
+	 * @param currentSubsystem The currently selected Subsystem (no link generated)
+	 * @throws IllegalArgumentException If {@code privDisplayType} is not recognized 
+	 * (See {@link PrivDisplayType})
+	 * @return A String of HTML links
+	 */
+	public static String subsystemLinks(SignetSubject pSubject,
+			PrivDisplayType privDisplayType,
+			Subsystem currentSubsystem)
+	{
+		Set proxies;
+		Set assignments;
 
-    return outStr.toString();
-  }
-  
-  // Tosses out any NULL Subsystems.
-  private static Set getSubsystems
-    (Set assignments,
-     Set proxies)
-  {
-    Set subsystems = new TreeSet(new SubsystemNameComparator());
-    
-    Iterator assignmentsIterator = assignments.iterator();
-    while (assignmentsIterator.hasNext())
-    {
-      Assignment assignment = (Assignment)(assignmentsIterator.next());
-      subsystems.add(assignment.getFunction().getSubsystem());
-    }
-    
-    Iterator proxiesIterator = proxies.iterator();
-    while (proxiesIterator.hasNext())
-    {
-      Proxy proxy = (Proxy)(proxiesIterator.next());
-      
-      if (proxy.getSubsystem() != null)
-      {
-        subsystems.add(proxy.getSubsystem());
-      }
-    }
-    
-    return subsystems;
-  }
-  
+		if (privDisplayType.equals(PrivDisplayType.CURRENT_GRANTED))
+		{
+			proxies = pSubject.getProxiesGranted(Status.ACTIVE.toString());
+			assignments = pSubject.getAssignmentsGranted(Status.ACTIVE.toString());
+		}
+		else if (privDisplayType.equals(PrivDisplayType.FORMER_GRANTED))
+		{
+			proxies = pSubject.getProxiesGranted(Status.INACTIVE.toString());
+			assignments = pSubject.getAssignmentsGranted(Status.INACTIVE.toString());
+		}
+		else if (privDisplayType.equals(PrivDisplayType.CURRENT_RECEIVED))
+		{
+			proxies = pSubject.getProxiesReceived(Status.ACTIVE.toString());
+			assignments = pSubject.getAssignmentsReceived(Status.ACTIVE.toString());
+		}
+		else if (privDisplayType.equals(PrivDisplayType.FORMER_RECEIVED))
+		{
+			proxies = pSubject.getProxiesReceived(Status.INACTIVE.toString());
+			assignments = pSubject.getAssignmentsReceived(Status.INACTIVE.toString());
+		}
+		else
+		{
+			throw new IllegalArgumentException(
+					"Common.subsystemLinks: PrivDisplayType '" +
+					privDisplayType + "' is not recognized");
+		}
+
+		StringBuffer outStr = new StringBuffer();
+		outStr.append(subsystemLink(Constants.WILDCARD_SUBSYSTEM, currentSubsystem, privDisplayType));
+
+		Set<Subsystem> subsystems = getSubsystems(assignments, proxies);
+		for (Iterator<Subsystem> subsystemsIterator = subsystems.iterator(); subsystemsIterator.hasNext();)
+		{
+			String newLink = subsystemLink(subsystemsIterator.next(), currentSubsystem, privDisplayType);
+			outStr.append(" | " + newLink);
+		}
+
+		return (outStr.toString());
+	}
+
+
+	/**
+	 * Create an HTML tag, either plain text or a link, for a Subsystem
+	 * @param subsystem
+	 * @param currentSubsystem
+	 * @return Plain text if subsystem == currentSubsystem, or link otherwise
+	 */
+	private static String subsystemLink(Subsystem subsystem,
+			Subsystem currentSubsystem,
+			PrivDisplayType privDisplayType)
+	{
+		StringBuffer outStr = new StringBuffer();
+		if (subsystem.equals(currentSubsystem))
+		{
+			outStr.append("<b>");
+			outStr.append(subsystem.getName());
+			outStr.append("</b>");
+		}
+		else
+		{
+			outStr.append("<a href=\"PersonView.do?");
+			outStr.append(Constants.SUBSYSTEM_HTTPPARAMNAME);
+			outStr.append("=");
+			outStr.append(subsystem.getId());
+			outStr.append("&");
+			outStr.append(Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME);
+			outStr.append("=");
+			outStr.append(privDisplayType.getName());
+			outStr.append("\">");
+			outStr.append(subsystem.getName());
+			outStr.append("</a>");
+		}
+
+		return outStr.toString();
+	}
+
+	/**
+	 * Tosses out NULL and duplicate Subsystems.
+	 * @param assignments
+	 * @param proxies
+	 * @return A sorted Set of Subsystems referenced by the assignments and proxies, or empty Set, never null.
+	 */
+	private static Set<Subsystem> getSubsystems(Set assignments, Set proxies)
+	{
+		Set<Subsystem> subsystems = new TreeSet(new SubsystemNameComparator());
+
+		for (Iterator<Assignment> assigns = assignments.iterator();
+					assigns.hasNext(); )
+			subsystems.add(assigns.next().getFunction().getSubsystem());
+
+		for (Iterator<Proxy> proxiesIterator = proxies.iterator(); proxiesIterator.hasNext(); )
+		{
+			Subsystem subsys = proxiesIterator.next().getSubsystem();
+			if (null != subsys)
+				subsystems.add(subsys);
+		}
+
+		return (subsystems);
+	}
+
+
   public static String displaySubsystem(Subsystem subsystem)
   {
     String    displayStr;
@@ -2278,7 +2284,7 @@ public class Common
 	    {
 	      Proxy candidate = (Proxy)(iter.next());
 	
-	      if (grantor.equals(candidate.getGrantor()))
+	      if (grantor.sameAs(candidate.getGrantor()))
 	        filteredSet.add(candidate);
 	    }
     }

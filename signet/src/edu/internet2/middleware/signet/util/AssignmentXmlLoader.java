@@ -40,6 +40,7 @@ import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
+import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
@@ -323,7 +324,7 @@ public class AssignmentXmlLoader
   {
     SignetSubject pSubject;
     
-    if (SignetSubject.SIGNET_SUBJECT_ID.equals(subjectId))
+    if (SignetAppSource.SIGNET_SUBJECT_ID.equals(subjectId))
     	pSubject = signet.getSignetSubject();
     else
     	pSubject = signet.getSubjectByIdentifier(subjectId);

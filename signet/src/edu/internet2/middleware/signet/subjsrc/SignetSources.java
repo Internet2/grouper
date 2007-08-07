@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.9 2007-06-14 21:39:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.10 2007-08-07 23:26:19 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -41,13 +41,14 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 /**
  * SignetSources is a delegator of SignetSource tasks. It holds references to
  * three significant types of SignetSources:
- *   1) the Signet Application Source - this SignetSource is always present and
+ * <p>  1) the Signet Application Source - this SignetSource is always present and
  *      acts as a container for the Signet "super subject"; the Subject that
- *      represents Signet itself.
- *   2) the Persistent Store Source - this SignetSource allows the application to
+ *      represents Signet itself. (See {@link SignetAppSource})
+ * <p>  2) the Persistent Store Source - this SignetSource allows the application to
  *      treat Signet's persistent store as a Subject source. Subjects that have
- *      been previously persisted will be available from this Source.
- *   3) All "ordinary" Sources declared in the SignetSources.xml file
+ *      been previously persisted will be available from this Source. (See {@link PersistedSignetSource})
+ * <p>  3) All "ordinary" Sources declared in the SignetSources.xml file
+ *      (See {@link SignetJDBCSourceAdapter} for example)
  */
 public class SignetSources implements Serializable
 {
@@ -161,8 +162,9 @@ public class SignetSources implements Serializable
 	////////////////////////////////////////
 
 	/**
-	 * Parse the configuration file
-	 * @param configFile
+	 * Parse the configuration file. For a detailed description of the contents
+	 * of the configuration file, see the comments in file /signet/config/subjectSources.xml
+	 * @param configFile A file containing Source configuration settings
 	 * @return true on success, false otherwise
 	 */
 	protected boolean parseConfigFile(String configFile)

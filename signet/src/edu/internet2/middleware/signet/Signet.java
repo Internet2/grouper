@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.66 2007-06-16 00:51:51 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.67 2007-08-07 23:26:19 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -311,7 +311,7 @@ public final class Signet implements Serializable
 	public SignetSubject getSignetSubject()
 	{
 		SignetSubject retval = getSubject(SignetAppSource.SIGNET_SOURCE_ID,
-				SignetSubject.SIGNET_SUBJECT_ID);
+				SignetAppSource.SIGNET_SUBJECT_ID);
 
 		return (retval);
 	}

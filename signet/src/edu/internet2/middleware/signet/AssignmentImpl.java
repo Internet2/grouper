@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.44 2007-06-14 21:39:04 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.45 2007-08-07 23:26:19 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -93,7 +93,7 @@ public AssignmentImpl
         ("It's illegal to grant an Assignment for a NULL Function.");
     }
     
-    if (!grantor.equals(grantor.getEffectiveEditor()))
+    if ( !grantor.equals(grantor.getEffectiveEditor()))
     {
       // At this point, we know the following things:
       //

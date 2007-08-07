@@ -1,4 +1,4 @@
-<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.42 2007-06-14 21:39:04 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.43 2007-08-07 23:26:19 ddonn Exp $ -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.util.Set" %>
@@ -93,7 +93,8 @@
   </DIV> <!-- tableheader -->
   
   <DIV class="tablecontrols">
-    <%=ResLoaderUI.getString("privilegesGrantedReport.privilegeTypes.lbl") %> <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
+    <%=ResLoaderUI.getString("privilegesGrantedReport.privilegeTypes.lbl") %>
+    <%=Common.subsystemLinks(pSubject, privDisplayType, currentSubsystem)%>
   </DIV> <!-- tablecontrols -->
 
 
@@ -137,7 +138,7 @@
   Set proxySet;
   Subsystem subsystemFilter = null;
   
-  if (!currentSubsystem.equals(Constants.WILDCARD_SUBSYSTEM))
+  if ( !currentSubsystem.equals(Constants.WILDCARD_SUBSYSTEM))
   {
     subsystemFilter = currentSubsystem;
   }

@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.29 2007-07-18 17:24:39 ddonn Exp $
-$Date: 2007-07-18 17:24:39 $
+$Id: Constants.java,v 1.30 2007-08-07 23:26:18 ddonn Exp $
+$Date: 2007-08-07 23:26:18 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -28,6 +28,7 @@ import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.resource.ResLoaderUI;
 import edu.internet2.middleware.signet.tree.Tree;
 
 public final class Constants
@@ -133,8 +134,8 @@ public final class Constants
   public static final String CATEGORY_ATTRNAME = "currentCategory";
 
   public static final String PRIVDISPLAYTYPE_ATTRNAME = "privDisplayTypeAttr";
-  public static final String PRIVDISPLAYTYPE_HTTPPARAMNAME="privDisplayType";
-  
+  public static final String PRIVDISPLAYTYPE_HTTPPARAMNAME = "privDisplayType";
+
   public static final String NEW_PROXY_HTTPPARAMNAME = "newProxy";
   
   public static final String SUBSYSTEM_OWNER_HTTPPARAMNAME = "isSubsystemOwner";
@@ -188,7 +189,10 @@ public final class Constants
         public void inactivate() {}
         public Status getStatus() {return null;}
         public Date getCreateDatetime() {return null;}
-        public String getName() {return null;}
+        public String getName()
+        {
+        	return (ResLoaderUI.getString("Constants.wildcard_subsystem.name"));
+        }
         public int compareTo(Object o) {return 0;}
   };
 }

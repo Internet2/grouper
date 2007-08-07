@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetAppSource.java,v 1.6 2007-02-24 02:11:31 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetAppSource.java,v 1.7 2007-08-07 23:26:19 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -26,11 +26,20 @@ import java.util.Vector;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
-/** A simplified SignetSource that contains the Signet Application Subject (i.e. super subject). */
+/** A simplified SignetSource that contains the Signet Application Subject
+ * (i.e. super subject).
+ * @see SignetSources
+ */
 public class SignetAppSource extends SignetSource
 {
 	/** The Source name for the Signet Application subject source */
 	public static final String	SIGNET_SOURCE_ID = "signetApplicationSource";
+	/** The subject name for the Signet App Subject */
+	public static final String	SIGNET_NAME = "Signet";
+	/** The description value for the Signet App subject */
+	public static final String	SIGNET_DESC	= "The " + SIGNET_NAME + " System";
+	/** The subject ID value for the Signet App Subject */
+	public static final String	SIGNET_SUBJECT_ID = "Super_" + SignetSubject.class.getSimpleName();
 
 	/** the Signet Super Subject */
 	protected SignetSubject		signetSubject;
@@ -78,17 +87,17 @@ public class SignetAppSource extends SignetSource
 	{
 		SignetSubject retval = null;
 
-		if (SignetSubject.SIGNET_SUBJECT_ID.equals(subjectId))
+		if (SignetAppSource.SIGNET_SUBJECT_ID.equals(subjectId))
 		{
 			if (null == signetSubject)
 			{
 				signetSubject = new SignetSubject();
 				signetSubject.setSource(this);
 
-				signetSubject.setId(SignetSubject.SIGNET_SUBJECT_ID);
-				signetSubject.setName(SignetSubject.SIGNET_NAME);
+				signetSubject.setId(SignetAppSource.SIGNET_SUBJECT_ID);
+				signetSubject.setName(SignetAppSource.SIGNET_NAME);
 				signetSubject.setType(SubjectTypeEnum.APPLICATION.getName());
-				signetSubject.setDescription(SignetSubject.SIGNET_DESC);
+				signetSubject.setDescription(SignetAppSource.SIGNET_DESC);
 				signetSubject.setSynchDatetime(new Date(0L));
 			}
 			retval = signetSubject;
@@ -112,7 +121,7 @@ public class SignetAppSource extends SignetSource
 	{
 		Vector retval = new Vector();
 
-		Subject subj = getSubject(SignetSubject.SIGNET_SUBJECT_ID);
+		Subject subj = getSubject(SignetAppSource.SIGNET_SUBJECT_ID);
 		retval.add(subj);
 
 		return (retval);
@@ -125,7 +134,7 @@ public class SignetAppSource extends SignetSource
 	{
 		Set retval = new HashSet();
 
-		if (getSubject(SignetSubject.SIGNET_SUBJECT_ID).getId().equals(searchValue))
+		if (getSubject(SignetAppSource.SIGNET_SUBJECT_ID).getId().equals(searchValue))
 			retval.add(signetSubject);
 
 		return (retval);

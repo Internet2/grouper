@@ -1,4 +1,20 @@
 ======================================== 
+Signet  08/07/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_1e
+----------------------------------------------------
+Changes in this version:
+
+1. Bugfix SIG-29: The current choice of privDisplayType is not reserved when
+   clicking on any privilige
+2. New Feature (per Michael Gettes' request) - Ability to specify the default
+   Privilege type selection in the UI. See comments in
+   /signet/config/signetResUi.properties for more information.
+3. Bugfix (not filed) - A logged-in user would occasionally show as "acting as"
+   themselves (e.g. jpoole logged in, not acting as anyone else, display would
+   show "Poole, Jean acting as Poole, Jean").
+
+======================================== 
 Signet  07/27/07
 
 Release Notes for CVS-tagged version SIGNET_1_2_1d

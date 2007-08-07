@@ -1,6 +1,6 @@
 /*--
-$Id: PrivDisplayType.java,v 1.5 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: PrivDisplayType.java,v 1.6 2007-08-07 23:26:18 ddonn Exp $
+$Date: 2007-08-07 23:26:18 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -27,10 +27,12 @@ import edu.internet2.middleware.signet.resource.ResLoaderUI;
  */
 public class PrivDisplayType extends TypeSafeEnumeration
 {
-	public static final String PrivNameCurrRcvd = "current_received";
-	public static final String PrivNameCurrGrnt = "current_granted";
-	public static final String PrivNameFrmrRcvd = "former_received";
-	public static final String PrivNameFrmrGrnt = "former_granted";
+	public static final String PrivNameCurrRcvd_key = "PrivDisplayType.current_received.txt";
+	public static final String PrivNameCurrGrnt_key = "PrivDisplayType.current_granted.txt";
+	public static final String PrivNameFrmrRcvd_key = "PrivDisplayType.former_received.txt";
+	public static final String PrivNameFrmrGrnt_key = "PrivDisplayType.former_granted.txt";
+	public static final String PrivNameDefaultValue_key = "PrivDisplayType.default_value";
+
 
   /**
    * Constructor is private to prevent instantiation except during
@@ -51,29 +53,31 @@ public class PrivDisplayType extends TypeSafeEnumeration
    * The instance that indicates a display of currently-active Assignments and
    * Proxies received by a specific PrivilegedSubject.
    */
-  public static final PrivDisplayType CURRENT_RECEIVED
-  	= new PrivDisplayType(PrivNameCurrRcvd, ResLoaderUI.getString("PrivDisplayType.current_received.txt"));
+  public static final PrivDisplayType CURRENT_RECEIVED =
+		new PrivDisplayType(PrivNameCurrRcvd_key,
+				ResLoaderUI.getString(PrivNameCurrRcvd_key));
 
   /**
    * The instance that indicates a display of currently-active Assignments and
    * Proxies granted by a specific PrivilegedSubject.
    */
-  public static final PrivDisplayType CURRENT_GRANTED
-  	= new PrivDisplayType
-  			(PrivNameCurrGrnt, ResLoaderUI.getString("PrivDisplayType.current_granted.txt"));
+  public static final PrivDisplayType CURRENT_GRANTED =
+		new PrivDisplayType(PrivNameCurrGrnt_key,
+				ResLoaderUI.getString(PrivNameCurrGrnt_key));
 
   /**
    * The instance that indicates a display of no-longer-active Assignments and
    * Proxies received by a specific PrivilegedSubject.
    */
-  public static final PrivDisplayType FORMER_RECEIVED
-    = new PrivDisplayType(PrivNameFrmrRcvd, ResLoaderUI.getString("PrivDisplayType.former_received.txt"));
+  public static final PrivDisplayType FORMER_RECEIVED =
+		new PrivDisplayType(PrivNameFrmrRcvd_key,
+				ResLoaderUI.getString(PrivNameFrmrRcvd_key));
 
   /**
    * The instance that indicates a display of no-longer-active Assignments and
    * Proxies granted by a specific PrivilegedSubject.
    */
-  public static final PrivDisplayType FORMER_GRANTED
-    = new PrivDisplayType
-        (PrivNameFrmrGrnt, ResLoaderUI.getString("PrivDisplayType.former_granted.txt"));
+  public static final PrivDisplayType FORMER_GRANTED =
+		new PrivDisplayType(PrivNameFrmrGrnt_key,
+				ResLoaderUI.getString(PrivNameFrmrGrnt_key));
 }
