@@ -4,7 +4,7 @@
 		  when searching for subjects in 'Find' mode
 --%><%--
   @author Gary Brown.
-  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.3 2007-03-06 11:05:49 isgwb Exp $
+  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.4 2007-08-08 09:42:13 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -25,31 +25,41 @@
 		<c:if test="${!forStems}">
     	<input type="hidden" name="groupId" value="<c:out value="${SearchFormBean.map.groupId}"/>"/> 
 		</c:if>
+		
+		<c:choose>
+			<c:when test="${empty findForPriv}">
+				<c:set var="memberChecked"> checked="CHECKED"</c:set>
+			</c:when>
+			<c:otherwise>
+				<%pageContext.setAttribute((String)session.getAttribute("findForPriv")+"Checked","checked='CHECKED'");%>
+			</c:otherwise>	
+		</c:choose>
 		<div class="privilegeCheckBoxes">
 			<c:if test="${forStems}">
     			<span class="checkbox"><input type="checkbox" name="privileges" 
-				value="CREATE" id="privCreate"/>&#160;<label for="privCreate"><fmt:message bundle="${nav}" key="priv.create"/></label></span>
+				value="CREATE" id="privCreate"<c:out value="${CREATEChecked}"/>/>&#160;<label for="privCreate"><fmt:message bundle="${nav}" key="priv.create"/></label></span>
     			<span class="checkbox"><input type="checkbox" name="privileges" 
-				value="STEM" id="privStem"/>&#160;<label for="privCreate"><fmt:message bundle="${nav}" key="priv.stem"/></label></span>
+				value="STEM" id="privStem"<c:out value="${STEMChecked}"/>/>&#160;<label for="privCreate"><fmt:message bundle="${nav}" key="priv.stem"/></label></span>
 				<input type="hidden" name="stems" value="true"/>
 			</c:if>
 
                       
 			<c:if test="${!forStems}">
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="member"  id="privMember"/> 
+				
+    			<span class="checkbox"><input type="checkbox" name="privileges" value="member"  id="privMember"<c:out value="${memberChecked}"/>/> 
 					<label for="privMember"><fmt:message bundle="${nav}" key="priv.member"/></label></span>
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="OPTIN"  id="privOptin"/> 
+    			<span class="checkbox"><input type="checkbox" name="privileges" value="OPTIN"  id="privOptin"<c:out value="${OPTINChecked}"/>/> 
 					<label for="privOptin"><fmt:message bundle="${nav}" key="priv.optin"/></label></span>
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="OPTOUT"  id="privOptout"/> 
+    			<span class="checkbox"><input type="checkbox" name="privileges" value="OPTOUT"  id="privOptout"<c:out value="${OPTOUTChecked}"/>/> 
 					<label for="privOptout"><fmt:message bundle="${nav}" key="priv.optout"/></label></span>
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="VIEW"  id="privView"/> 
+    			<span class="checkbox"><input type="checkbox" name="privileges" value="VIEW"  id="privView"<c:out value="${VIEWChecked}"/>/> 
 					<label for="privView"><fmt:message bundle="${nav}" key="priv.view"/></label></span>
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="READ"  id="privRead"/> 
+    			<span class="checkbox"><input type="checkbox" name="privileges" value="READ"  id="privRead"<c:out value="${READChecked}"/>/> 
 					<label for="privRead"><fmt:message bundle="${nav}" key="priv.read"/></label></span>
-    			<span class="checkbox"><input type="checkbox" name="privileges" value="UPDATE"  id="privUpdate"/> 
+    			<span class="checkbox"><input type="checkbox" name="privileges" value="UPDATE"  id="privUpdate"<c:out value="${UPDATEChecked}"/>/> 
 					<label for="privUpdate"><fmt:message bundle="${nav}" key="priv.update"/></label></span>
     			<span class="checkbox"><input type="checkbox" name="privileges" 
-				value="ADMIN"  id="privAdmin"/>&#160;<label for="privAdmin"><fmt:message bundle="${nav}" key="priv.admin"/></label></span>
+				value="ADMIN"  id="privAdmin"<c:out value="${ADMINChecked}"/>/>&#160;<label for="privAdmin"><fmt:message bundle="${nav}" key="priv.admin"/></label></span>
 			</c:if>
 
 
