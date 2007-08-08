@@ -64,6 +64,7 @@
 	  <form-property name="contextSubjectType" type="java.lang.String"/>
 	  <form-property name="callerPageId" type="java.lang.String"/>
 	  <form-property name="importData" type="org.apache.struts.upload.FormFile"/>
+	  <form-property name="importString" type="java.lang.String"/>
 	  <form-property name="exportFormat" type="java.lang.String"/>
 	  <form-property name="importFormat" type="java.lang.String"/>
 	  <form-property name="submit.export" type="java.lang.String"/>
@@ -169,6 +170,7 @@
       <form-property name="asMemberOf" type="java.lang.String"/>
       <form-property name="pageSize" type="java.lang.String"/>
       <form-property name="callerPageId" type="java.lang.String"/>
+	  	  <form-property name="importString" type="java.lang.String"/>
     </form-bean>
     
      <form-bean dynamic="true" name="AssignMembersFormBean"
