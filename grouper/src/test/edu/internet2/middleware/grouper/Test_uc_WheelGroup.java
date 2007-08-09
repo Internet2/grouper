@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.1 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.2 2007-08-09 18:55:21 blair Exp $
  * @since   @HEAD@
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -30,6 +30,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
   private Group   dev, users, wheel;
   private R       r;
+  private Stem    etc;
   private Subject subjA, subjB;
 
 
@@ -37,7 +38,8 @@ public class Test_uc_WheelGroup extends GrouperTest {
     super.setUp();
     try {
       r     = R.getContext("grouper");
-      wheel = r.root.addChildStem("etc", "etc").addChildGroup("wheel", "wheel");
+      etc   = r.root.addChildStem("etc", "etc");
+      wheel = etc.addChildGroup("wheel", "wheel");
       dev   = r.getGroup("i2mi:grouper", "grouper-dev");
       users = r.getGroup("i2mi:grouper", "grouper-users");
       subjA = r.getSubject("a");
@@ -64,6 +66,31 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );  // FIXME 20070725
   }
+
+  public void test_fromNotAMemberOfTheWheelGroupToAMemberOfTheWheelGroup() 
+    throws  InsufficientPrivilegeException,
+            MemberAddException,
+            MemberNotFoundException,
+            SessionException
+  {
+    GrouperSession  s   = GrouperSession.start( SubjectFinder.findRootSubject() );
+    Member          mA  = MemberFinder.findBySubject(s, subjA);
+
+    // Before wheel 
+    assertFalse( "does not have CREATE", etc.hasCreate(subjA) );
+    assertFalse( "cannot CREATE", mA.canCreate(etc) );
+
+    // Enable wheel
+    wheel.addMember(subjA);
+    GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
+    GrouperConfig.internal_setProperty( GrouperConfig.PROP_WHEEL_GROUP, "etc:wheel");
+      
+    // After wheel
+    assertTrue( "now has CREATE", etc.hasCreate(subjA) );
+    assertTrue( "now can CREATE", mA.canCreate(etc) );
+
+    GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );  // FIXME 20070806
+  } 
 
 } 
 

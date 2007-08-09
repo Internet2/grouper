@@ -13,6 +13,11 @@ Released: TBD
 * Stem.getChildGroups(scope) - Can retrieve *all* child groups, not just immediate children [GRP-12]
 * Stem.getChildStems(scope) - Can retrieve *all* child stems, not just immediate children [GRP-12]
 
+## UPDATED
+* Updated to ehcache v1.3.0
+* Fixed subject caching [GRP-6]
+* Subject caching now controlled in "conf/grouper.ehcache.xml", not "conf/grouper.properties".
+
 ---
 
 # Grouper 1.2.0

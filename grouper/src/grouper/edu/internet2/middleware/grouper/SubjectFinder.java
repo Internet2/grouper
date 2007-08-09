@@ -16,85 +16,37 @@
 */
 
 package edu.internet2.middleware.grouper;
-// TODO 20070417 why both?
-import  edu.internet2.middleware.grouper.internal.cache.BaseSubjectCache;
-import  edu.internet2.middleware.grouper.internal.cache.SubjectCache;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
+import  edu.internet2.middleware.grouper.subj.SubjectResolver;
+import  edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
+import  edu.internet2.middleware.subject.Source;
+import  edu.internet2.middleware.subject.SourceUnavailableException;
+import  edu.internet2.middleware.subject.Subject;
+import  edu.internet2.middleware.subject.SubjectNotFoundException;
+import  edu.internet2.middleware.subject.SubjectNotUniqueException;
+import  edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import  edu.internet2.middleware.subject.provider.SourceManager;
+import  java.util.Set;
+
 
 /**
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.33 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.34 2007-08-09 18:55:21 blair Exp $
  */
 public class SubjectFinder {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final Subject        ALL; 
-  private static final SourceManager  MGR;
-  private static final Subject        ROOT;
+
+  private static        Subject         all;
+  private static        Subject         root;
+  private static        SubjectResolver resolver;
+  static                Source          gsa;
 
 
-  // PRIVATE CLASS VARIABLES //
-  private static  SubjectCache  sci     = null;
-  private static  SubjectCache  scidfr  = null;
-
-
-  // PACKAGE CLASS VARIABLES //
-  static Source gsa;
-
-
-  // STATIC //
-  static {
-    DebugLog.info(SubjectFinder.class, "Initializing source manager");
-    try {
-      MGR = SourceManager.getInstance();
-      DebugLog.info(SubjectFinder.class, "Source manager initialized: " + MGR);
-      // Add in internal source adapter
-      BaseSourceAdapter isa = new InternalSourceAdapter(
-        InternalSourceAdapter.ID, InternalSourceAdapter.NAME
-      ); 
-      MGR.loadSource(isa);
-      DebugLog.info(SubjectFinder.class, "Added source: " + isa.getId());
-      // Add in group source adapter
-      DebugLog.info(SubjectFinder.class, "Subject finder initialized");
-      // Initialize GrouperSystem
-      try {
-        ROOT = isa.getSubject(GrouperConfig.ROOT);
-        DebugLog.info(SubjectFinder.class, "ROOT subject initialized");
-      }
-      catch (SubjectNotFoundException eSNF) {
-        String msg = E.SF_ROOT_SUBJECT_NOT_FOUND + eSNF.getMessage();
-        ErrorLog.fatal(SubjectFinder.class, msg);
-        throw new GrouperRuntimeException(msg, eSNF);
-      }
-      // Initialize GrouperAll
-      try {
-        ALL = isa.getSubject(GrouperConfig.ALL);
-        DebugLog.info(SubjectFinder.class, "ALL subject initialized");
-      }
-      catch (SubjectNotFoundException eSNF) {
-        String msg = E.SF_IAS + eSNF.getMessage();
-        ErrorLog.fatal(SubjectFinder.class, msg);
-        throw new GrouperRuntimeException(msg, eSNF);
-      }
-    } 
-    catch (Exception e) {
-      String msg = E.SF_INIT + e.getMessage();
-      ErrorLog.fatal(SubjectFinder.class, msg);
-      throw new GrouperRuntimeException(msg, e);
-    }
-  } // static
-
-
-  // PUBLIC CLASS METHODS //
 
   /**
-   * Get a subject by id.
+   * Search within all configured sources for subject with identified by <i>id</i>.
    * <pre class="eg">
-   * // Find the subject - within all sources - with the specified id.
    * try {
    *   Subject subj = SubjectFinder.findById(subjectID);
    * }
@@ -114,27 +66,12 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = _getIdCache().get(id, null, null);
-    if (subj != null) {
-      return subj;
-    }
-    List subjects  = SubjectFinder._findById(
-      id, MGR.getSources().iterator()
-    );
-    if (subjects.size() == 1) {
-      return (Subject) subjects.get(0);
-    }
-    else if (subjects.size() > 1) {
-      throw new SubjectNotUniqueException(E.SF_SNU + id);
-    }
-    throw new SubjectNotFoundException(E.SF_SNF + id);
-  } // public static Subject findById(id)
+    return getResolver().find(id);
+  } 
 
   /**
-   * Get a subject by id and the specified type.
+   * Search within all configured sources providing <i>type</i> for subject with identified by <i>id</i>.
    * <pre class="eg">
-   * // Find the subject - within all sources - with the specified id
-   * // and type.
    * try {
    *   Subject subj = SubjectFinder.findById(subjectID, type);
    * }
@@ -155,27 +92,11 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = _getIdCache().get(id, type, null);
-    if (subj != null) {
-      return subj;
-    }
-    List subjects  = SubjectFinder._findById(
-      id, MGR.getSources(SubjectTypeEnum.valueOf(type)).iterator()
-    );
-    if (subjects.size() == 1) {
-      return (Subject) subjects.get(0);
-    }
-    else if (subjects.size() > 1) {
-      throw new SubjectNotUniqueException(E.SF_SNU + id + "," + type); 
-    }
-    throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
-  } // public static Subject findById(id, type)
+    return getResolver().find(id, type);
+  } 
 
   /**
-   * Get a subject by id, type and source.
-   * <p>
-   * <b>NOTE:</b> This method does not perform any caching.
-   * </p>
+   * Search for subject by <i>id</i>, <i>type</i> and <i>source</i>.
    * <pre class="eg">
    * try {
    *   Subject subj = SubjectFinder.findById(id, type, source);
@@ -189,8 +110,8 @@ public class SubjectFinder {
    *  </pre>
    * @param   id      Subject ID
    * @param   type    Subject type.
-   * @param   source  {@link Source} adapter to search.
-   * @return  A {@link Subject} object
+   * @param   source  Subject source.
+   * @return  Matching subject.
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException
    * @throws  SubjectNotUniqueException
@@ -200,23 +121,12 @@ public class SubjectFinder {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = _getIdCache().get(id, type, source);
-    if (subj != null) {
-      return subj;
-    }
-    Source  sa    = getSource(source);
-    subj          = sa.getSubject(id);
-    if (subj.getType().getName().equals(type)) {
-      return subj;
-    }
-    throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
-  } // public static Subject findById(id, type, source)
+    return getResolver().find(id, type, source);
+  } 
 
   /**
    * Get a subject by a well-known identifier.
    * <pre class="eg">
-   * // Find the subject - within all sources - with the well-known
-   * // identifier.
    * try {
    *   Subject subj = SubjectFinder.findByIdentifier(identifier);
    * }
@@ -236,27 +146,12 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = _getIdfrCache().get(id, null, null);
-    if (subj != null) {
-      return subj;
-    }
-    List subjects  = SubjectFinder._findByIdentifier(
-      id, MGR.getSources().iterator()
-    );
-    if (subjects.size() == 1) {
-      return (Subject) subjects.get(0);
-    }
-    else if (subjects.size() > 1) {
-      throw new SubjectNotUniqueException(E.SF_SNU + id);
-    }
-    throw new SubjectNotFoundException(E.SF_SNF + id);
-  } // public static Subject findByIdentifier(id)
+    return getResolver().findByIdentifier(id);
+  } 
 
   /**
    * Get a subject by a well-known identifier and the specified type.
    * <pre class="eg">
-   * // Find the subject - within all sources - with the specified id
-   * // and type.
    * try {
    *   Subject subj = SubjectFinder.findByIdentifier(identifier, type);
    * }
@@ -277,21 +172,8 @@ public class SubjectFinder {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = _getIdfrCache().get(id, type, null);
-    if (subj != null) {
-      return subj;
-    }
-    List subjects  = SubjectFinder._findByIdentifier(
-      id, MGR.getSources(SubjectTypeEnum.valueOf(type)).iterator()
-    );
-    if (subjects.size() == 1) {
-      return (Subject) subjects.get(0);
-    }
-    else if (subjects.size() > 1) {
-      throw new SubjectNotUniqueException(E.SF_SNU + id + "," + type); 
-    }
-    throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
-  } // public static Subject findByIdentifier(id, type)
+    return getResolver().findByIdentifier(id, type);
+  } 
 
   /**
    * Get a subject by a well-known identifier, type and source.
@@ -319,17 +201,8 @@ public class SubjectFinder {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = _getIdfrCache().get(id, type, source);
-    if (subj != null) {
-      return subj;
-    }
-    Source  sa    = getSource(source);
-    subj          = sa.getSubjectByIdentifier(id);
-    if (subj.getType().getName().equals(type)) {
-      return subj;
-    }
-    throw new SubjectNotFoundException(E.SF_SNF + id + "," + type);
-  } // public static Subject findByIdentifier(id, type, source)
+    return getResolver().findByIdentifier(id, type, source);
+  } 
 
   /**
    * Find all subjects matching the query.
@@ -351,17 +224,8 @@ public class SubjectFinder {
    * @return  A {@link Set} of {@link Subject} objects.
    */
   public static Set findAll(String query) {
-    Set       subjects  = new LinkedHashSet();
-    Source    sa;
-    Iterator  iter      = MGR.getSources().iterator();
-    while (iter.hasNext()) {
-      sa = (Source) iter.next();
-      Set found = sa.search(query);
-      DebugLog.info(SubjectFinder.class, "Found subjects in " + sa.getId() + ": " + found.size());
-      subjects.addAll(found);
-    }
-    return subjects;
-  } // public static Set findAll(query)
+    return getResolver().findAll(query);
+  } 
 
   /**
    * Find all subjects matching the query within the specified {@link Source}.
@@ -384,9 +248,8 @@ public class SubjectFinder {
   public static Set findAll(String query, String source)
     throws  SourceUnavailableException
   {
-    Source sa = getSource(source);
-    return sa.search(query);
-  } // public static Set findAll(query, source)
+    return getResolver().findAll(query, source);
+  } 
 
   /**
    * Get <i>GrouperAll</i> subject.
@@ -394,25 +257,63 @@ public class SubjectFinder {
    * Subject all = SubjectFinder.findAllSubject();
    *  </pre>
    * @return  The <i>GrouperAll</i> {@link Subject} 
+   * Get <i>GrouperAll</i> subject.
+   * <pre class="eg">
+   * Subject all = SubjectFinder.findAllSubject();
+   *  </pre>
+   * @return  The <i>GrouperAll</i> subject.
+   * @throws  GrouperRuntimeException if unable to retrieve <i>GrouperAll</i>.
+   * @since   1.1.0
    */
-  public static Subject findAllSubject() {
-    return ALL;
-  } // public static Subject findAllSubject()
+  public static Subject findAllSubject() 
+    throws  GrouperRuntimeException
+  {
+    if (all == null) {
+      try {
+        all = getResolver().find( GrouperConfig.ALL, GrouperConfig.IST, InternalSourceAdapter.ID );
+      }
+      catch (Exception e) {
+        throw new GrouperRuntimeException( "unable to retrieve GrouperAll: " + e.getMessage() );
+      }
+    }
+    return all;
+  } 
 
   /**
    * Get <i>GrouperSystem</i> subject.
    * <pre class="eg">
    * Subject root = SubjectFinder.findRootSubject();
    *  </pre>
-   * @return  The <i>GrouperSystem</i> {@link Subject} 
+   * @return  The <i>GrouperSystem</i> subject.
+   * @throws  GrouperRuntimeException if unable to retrieve <i>GrouperSystem</i>.
    * @since   1.1.0
    */
-  public static Subject findRootSubject() {
-    return ROOT;
-  } // public static Subject findRootSubject()
+  public static Subject findRootSubject() 
+    throws  GrouperRuntimeException
+  {
+    if (root == null) {
+      try {
+        root = getResolver().find( GrouperConfig.ROOT, GrouperConfig.IST, InternalSourceAdapter.ID );
+      }
+      catch (Exception e) {
+        throw new GrouperRuntimeException( "unable to retrieve GrouperSystem: " + e.getMessage() );
+      }
+    }
+    return root;
+  } 
 
   /**
-   * Get {@link Source} for specified by id.
+   * @return  Singleton {@link SubjectResolver}.
+   * @since   @HEAD@
+   */
+  private static SubjectResolver getResolver() {
+    if (resolver == null) { 
+      resolver = SubjectResolverFactory.getInstance();
+    }
+    return resolver;
+  }
+
+  /**
    * <pre class="eg">
    * try {
    *   Source sa = SubjectFinder.getSource(id);
@@ -421,149 +322,65 @@ public class SubjectFinder {
    *   // unable to retrieve source
    * }
    * </pre>
-   * @param   id  Name of source to retrieve.
-   * @return  {@link Source} adapter.
-   * @throws  SourceUnavailableException
+   * @return  <i>Source</i> identified by <i>id</i>.
+   * @throws  IllegalArgumentException if <i>id</i> is null.
+   * @throws  SourceUnavailableException if unable to retrieve source.
    */
   public static Source getSource(String id) 
-    throws  SourceUnavailableException
+    throws  IllegalArgumentException,
+            SourceUnavailableException
   {
-    return MGR.getSource(id);  
-  } // public static Source getSource(id)
+    return getResolver().getSource(id);
+  } 
 
   /**
-   * Get all sources.
    * <pre class="eg">
    * Set sources = SubjectFinder.getSources();
    * </pre>
-   * @return  {@link Set} of configured {@link Source} adapters.
+   * @return  Set of all {@link Source} adapters.
    */
   public static Set getSources() {
-    return new LinkedHashSet( MGR.getSources() );
-  } // public static Set getSources()
+    return getResolver().getSources();
+  }
 
   /**
-   * Get all sources that support the specified subject type.
    * <pre class="eg">
    * Set personSources = SubjectFinder.getSources("person");
    * </pre>
-   * @param   type  Find {@link Source} adapters that support this type.
-   * @return  {@link Set} of configured {@link Source} adapters.
+   * @return  Set of <i>Source</i> adapters providing <i>subjectType</i>.
    */
-  public static Set getSources(String type) {
-    return new LinkedHashSet( 
-      MGR.getSources( SubjectTypeEnum.valueOf(type) ) 
-    );
-  } // public static Set getSources(type)
+  public static Set getSources(String subjectType) {
+    return getResolver().getSources(subjectType);
+  }
 
-
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static void internal_flushCache() {
-    _getIdCache().removeAll();
-    _getIdfrCache().removeAll();
-  } // protected static void internal_flushCache()
-
-  // @since   1.2.0
+  /**
+   * TODO 20070803 what is the point of this method?
+   * @since   1.2.0
+   */
   protected static Source internal_getGSA() {
     if (gsa == null) {
-      Iterator iter = MGR.getSources().iterator();
-      while (iter.hasNext()) {
-        Source sa = (Source) iter.next();
+      for ( Source sa : getResolver().getSources() ) {
         if (sa instanceof GrouperSourceAdapter) {
           gsa = sa;
           break;
         }
       }
+      // TODO 20070803 go away.  the exception is wrong as well.
       NotNullValidator v = NotNullValidator.validate(gsa);
       if (v.isInvalid()) {
-        throw new IllegalArgumentException(E.SF_GETSA);
+        throw new IllegalArgumentException(E.SF_GETSA); 
       }
     }
     return gsa;
-  } // protected static Source internal_getGSA()
+  } 
 
+  /**
+   * Reset <code>SubjectResolver</code>.
+   * @since   @HEAD@
+   */
+  protected static void reset() {
+    resolver = null; // TODO 20070807 this could definitely be improved    
+  }
 
-  // PRIVATE CLASS METHODS //
-  private static List _findById(String id, Iterator iter) {
-    Subject subj      = null;
-    Source  sa;
-    List    subjects  = new ArrayList();
-    while (iter.hasNext()) {
-      sa = (Source) iter.next();
-      try {
-        subj = sa.getSubject(id);
-        DebugLog.info(SubjectFinder.class, "Found subject in " + sa.getId() + ": " + id);
-        subjects.add(subj);
-        _getIdCache().put(
-          subj.getId(), subj.getType().getName(), subj.getSource().getId(), subj
-        );
-      }
-      catch (SubjectNotFoundException eSNF)   {
-        DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
-      }
-      catch (SubjectNotUniqueException eSNU)  {
-        DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
-      }
-    }
-    return subjects;
-  } // private static List _findById(id, iter) 
-
-  private static List _findByIdentifier(String id, Iterator iter) {
-    Subject subj      = null;
-    List    subjects  = new ArrayList();
-    Source  sa;
-    while (iter.hasNext()) {
-      sa = (Source) iter.next();
-      try {
-        subj = sa.getSubjectByIdentifier(id);
-        DebugLog.info(SubjectFinder.class, "Found subject in " + sa.getId() + ": " + id);
-        subjects.add(subj);
-        _getIdCache().put(
-          id, subj.getType().getName(), subj.getSource().getId(), subj
-        );
-      }
-      catch (SubjectNotFoundException e) {
-        DebugLog.info(SubjectFinder.class, "Subject not found in " + sa.getId() + ": " + id);
-      }
-      catch (SubjectNotUniqueException e) {
-        DebugLog.info(SubjectFinder.class, "Subject not unique in " + sa.getId() + ": " + id);
-      }
-    }
-    return subjects;
-  } // private static List _findByIdentifier(id, iter) 
-
-  // @since   1.1.0
-  private static SubjectCache _getIdCache() {
-    if (sci == null) {
-      DebugLog.info(SubjectFinder.class, "Initializing subject identity cache");
-      sci = BaseSubjectCache.getCache(GrouperConfig.getProperty(GrouperConfig.SCII));
-      DebugLog.info(
-        SubjectFinder.class, "using subject identity cache: " + sci.getClass().getName()
-      );
-    }
-    if (sci == null) {
-      throw new GrouperRuntimeException("NULL SUBJECT IDENTITY CACHE!");
-    }
-    return sci;
-  } // private static SubjectCache _getIdCache()
-
-  // @since   1.1.0
-  private static SubjectCache _getIdfrCache() {
-    if (scidfr == null) {
-      DebugLog.info(SubjectFinder.class, "Initializing subject identifier cache");
-      scidfr = BaseSubjectCache.getCache(GrouperConfig.getProperty(GrouperConfig.SCIDFRI));
-      DebugLog.info(
-        SubjectFinder.class, "using subject identifier cache: " + scidfr.getClass().getName()
-      );
-    }
-    if (scidfr == null) {
-      throw new GrouperRuntimeException("NULL SUBJECT IDENTIFIER CACHE!");
-    }
-    return scidfr;
-  } // private static SubjectCache _getIdCache()
-
-} // public class SubjectFinder
+}
 

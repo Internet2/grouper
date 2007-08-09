@@ -15,22 +15,34 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+package edu.internet2.middleware.grouper.cache;
+
 
 /**
+ * Cache statistics interface.
  * @author  blair christensen.
- * @version $Id: SuiteWheelGroup.java,v 1.6 2007-08-09 18:55:21 blair Exp $
- * @since   1.1
+ * @version $Id: CacheStats.java,v 1.1 2007-08-09 18:55:21 blair Exp $
+ * @since   @HEAD@
  */
-public class SuiteWheelGroup extends TestCase {
+public interface CacheStats {
 
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestWheelGroup1.class );  // fail: grant ADMIN w/ wheel
-    suite.addTestSuite( TestWheelGroup2.class );  // fail: grant ADMIN w/ ALL wheel
-    return suite;
-  } 
+  /**
+   * @return  Number of cache hits.
+   * @since   @HEAD@
+   */
+  long getHits();
 
-} 
+  /**
+   * @return  Number of cache misses.
+   * @since   @HEAD@
+   */
+  long getMisses();
+
+  /**
+   * @return  Number of objects in cache.
+   * @since   @HEAD@
+   */
+  long getSize();
+
+}
 

@@ -38,14 +38,14 @@ Grouper uses this for benchmarking.
 * License:  Apache License, Version 2.0
 * Updated:  20060907
 
-# ehcache-0.9.jar
+# ehcache-1.3.0.jar
 
 "EHCache is a pure Java, in-process cache"
 
-* Version:  0.9
+* Version:  1.3.0
 * Source:   <http://ehcache.sourceforge.net/>
 * License:  Apache Software License, Version 1.1
-* Updated:  ?
+* Updated:  20070807
 
 # hibernate2-2.1.8.jar
 
@@ -132,5 +132,5 @@ logging services for purposes of application debugging and auditing."
 
 ---
 
-$Id: README.txt,v 1.10 2007-03-16 13:31:50 blair Exp $
+$Id: README.txt,v 1.11 2007-08-09 18:55:21 blair Exp $
 
