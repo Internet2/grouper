@@ -17,6 +17,14 @@ Released: TBD
 * Updated to ehcache v1.3.0
 * Fixed subject caching [GRP-6]
 * Subject caching now controlled in "conf/grouper.ehcache.xml", not "conf/grouper.properties".
+* Modified membership indices [GRP-10]
+  * Removed
+    * membership_owner_idx (owner_id)
+    * membership_type_idx( mship_type )
+    * membership_member_idx (member_id)
+  * Added
+    * membership_member_and_list_idx (member_id, list_name, list_type)
+    * membership_owner_list_and_type_idx (owner_id, list_name, list_type, mship_type)
 
 ---
 
