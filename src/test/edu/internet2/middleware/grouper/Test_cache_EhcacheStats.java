@@ -16,21 +16,37 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+import  edu.internet2.middleware.grouper.cache.EhcacheStats;
+
 
 /**
+ * Test {@link EhcacheStats}.
  * @author  blair christensen.
- * @version $Id: SuiteWheelGroup.java,v 1.6 2007-08-09 18:55:21 blair Exp $
- * @since   1.1
+ * @version $Id: Test_cache_EhcacheStats.java,v 1.1 2007-08-09 18:55:21 blair Exp $
+ * @since   @HEAD@
  */
-public class SuiteWheelGroup extends TestCase {
+public class Test_cache_EhcacheStats extends GrouperTest {
 
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestWheelGroup1.class );  // fail: grant ADMIN w/ wheel
-    suite.addTestSuite( TestWheelGroup2.class );  // fail: grant ADMIN w/ ALL wheel
-    return suite;
-  } 
 
-} 
+  public void setUp() {
+    super.setUp();
+  }
+
+  public void tearDown() {
+    super.tearDown();
+  }
+
+
+
+  public void test_constructor_nullStatistics() {
+    try {
+      new EhcacheStats(null);
+      fail("failed to throw IllegalArgumentException");
+    }
+    catch (IllegalArgumentException eExpected) {
+      assertTrue("threw expected exception", true);
+    }
+  }
+
+}
 

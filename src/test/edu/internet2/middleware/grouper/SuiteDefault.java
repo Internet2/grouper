@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.26 2007-08-02 19:25:15 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.27 2007-08-09 18:55:21 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -35,12 +35,20 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite( Test_api_GrouperSession.class );
     suite.addTestSuite( Test_api_Stem.class );
 
+    suite.addTestSuite( Test_cache_EhcacheStats.class );
+
     suite.addTestSuite( Test_cfg_ApiConfig.class );
     suite.addTestSuite( Test_cfg_BuildConfig.class );
     suite.addTestSuite( Test_cfg_ConfigurationHelper.class );
     suite.addTestSuite( Test_cfg_PropertiesConfiguration.class );
 
     suite.addTestSuite( Test_dao_hibernate_HibernateDaoConfig.class );
+
+    suite.addTestSuite( Test_subj_CachingResolver.class );
+    suite.addTestSuite( Test_subj_SourcesXmlResolver.class );
+    suite.addTestSuite( Test_subj_SubjectResolver.class );
+    suite.addTestSuite( Test_subj_SubjectResolverFactory.class );
+    suite.addTestSuite( Test_subj_ValidatingResolver.class );
 
     suite.addTestSuite( Test_uc_WheelGroup.class );
 
