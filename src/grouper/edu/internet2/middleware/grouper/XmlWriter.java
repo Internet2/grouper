@@ -22,7 +22,7 @@ import  java.io.*;
  * Create XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlWriter.java,v 1.8 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: XmlWriter.java,v 1.9 2007-08-10 20:26:33 blair Exp $
  * @since   1.1.0
  */
 class XmlWriter {
@@ -98,11 +98,9 @@ class XmlWriter {
         "CANNOT UNDENT WHEN PADDING SIZE IS " + this._getPadding().length()
       );
     }
-    else {
-      this.padding = this._getPadding().substring(2);
-    }
-  } // protected void internal_undent();
-
+    this.padding = this._getPadding().substring(2);
+  }
+  
 
   // PRIVATE INSTANCE METHODS //
 

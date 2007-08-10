@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.93 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: Member.java,v 1.94 2007-08-10 20:26:33 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1182,10 +1182,8 @@ public class Member extends GrouperAPI implements Serializable {
       this.g.setSession( this.getSession() ); // in case we are using cached group
       return this.g;
     }
-    else {
-      throw new GroupNotFoundException("member is not a group");
-    }
-  } // public Group toGroup()
+    throw new GroupNotFoundException("member is not a group");
+  }
 
   public String toString() {
     return SubjectHelper.getPretty( this._getDTO() );

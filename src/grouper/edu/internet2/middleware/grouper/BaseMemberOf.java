@@ -26,16 +26,16 @@ import  java.util.Set;
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.6 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: BaseMemberOf.java,v 1.7 2007-08-10 20:26:33 blair Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
 
   // PRIVATE INSTANCE VARIABLES //
   private Composite       c;
-  private Set             deletes         = new LinkedHashSet();
-  private Set             effDeletes      = new LinkedHashSet();
-  private Set             effSaves        = new LinkedHashSet();
+  private Set<GrouperDTO> deletes         = new LinkedHashSet<GrouperDTO>();
+  private Set<GrouperDTO> effDeletes      = new LinkedHashSet<GrouperDTO>();
+  private Set<GrouperDTO> effSaves        = new LinkedHashSet<GrouperDTO>();
   private Field           f               = Group.getDefaultList();
   private Group           g;
   private GrouperSession  s;
@@ -45,7 +45,7 @@ public abstract class BaseMemberOf implements MemberOf {
   private Set             modifiedStems   = new LinkedHashSet();
   private Stem            ns;
   private String          ownerUUID;  
-  private Set             saves           = new LinkedHashSet();
+  private Set<GrouperDTO> saves           = new LinkedHashSet<GrouperDTO>();
 
 
   // CONSTRUCTORS //
@@ -90,32 +90,32 @@ public abstract class BaseMemberOf implements MemberOf {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected Set addDelete(GrouperDTO dto) {
+  protected Set<GrouperDTO> addDelete(GrouperDTO dto) {
     this.deletes.add(dto);
     return this.deletes;
   }
   // @since   1.2.0
-  protected Set addDeletes(Collection c) {
+  protected Set<GrouperDTO> addDeletes(Collection<GrouperDTO> c) {
     this.deletes.addAll(c);
     return this.deletes;
   }
   // @since   1.2.0
-  protected Set addEffectiveDeletes(Collection c) {
+  protected Set<GrouperDTO> addEffectiveDeletes(Collection<GrouperDTO> c) {
     this.effDeletes.addAll(c);
     return this.effDeletes;
   }
   // @since   1.2.0
-  protected Set addEffectiveSaves(Collection c) {
+  protected Set<GrouperDTO> addEffectiveSaves(Collection<GrouperDTO> c) {
     this.effSaves.addAll(c);
     return this.effSaves;
   }
   // @since   1.2.0
-  protected Set addSave(GrouperDTO dto) {
+  protected Set<GrouperDTO> addSave(GrouperDTO dto) {
     this.saves.add(dto);
     return this.saves;
   }
   // @since   1.2.0
-  protected Set addSaves(Collection c) {
+  protected Set<GrouperDTO> addSaves(Collection<GrouperDTO> c) {
     this.saves.addAll(c);
     return this.saves;
   }
@@ -124,11 +124,11 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.c;
   }  
   // @since   1.2.0
-  protected Set getEffectiveDeletes() {
+  protected Set<GrouperDTO> getEffectiveDeletes() {
     return this.effDeletes;
   }
   // @since   1.2.0
-  protected Set getEffectiveSaves() {
+  protected Set<GrouperDTO> getEffectiveSaves() {
     return this.effSaves;
   }
   // @since   1.2.0

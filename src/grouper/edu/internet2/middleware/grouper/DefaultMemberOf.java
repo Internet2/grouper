@@ -34,7 +34,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.5 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.6 2007-08-10 20:26:33 blair Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -123,11 +123,11 @@ public class DefaultMemberOf extends BaseMemberOf {
     long          modifyTime    = new java.util.Date().getTime();
 
     // TODO 20070531 this is horribly ugly.
-    Map           groups        = new HashMap();
+    Map<String, GroupDTO> groups = new HashMap<String, GroupDTO>();
     if (m.containsKey("groups")) {
       groups = (Map) m.get("groups");
     }
-    Map           stems         = new HashMap();
+    Map<String, StemDTO> stems = new HashMap<String, StemDTO>();
     if (m.containsKey("stems")) {
       stems = (Map) m.get("stems");
     }

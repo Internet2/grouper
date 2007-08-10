@@ -23,7 +23,7 @@ import  java.util.*;
  * Composite Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeType.java,v 1.7 2007-01-04 17:17:45 blair Exp $    
+ * @version $Id: CompositeType.java,v 1.8 2007-08-10 20:26:33 blair Exp $    
  * @since   1.0
  */
 public class CompositeType implements Serializable {
@@ -46,7 +46,7 @@ public class CompositeType implements Serializable {
 
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Map TYPES = new HashMap();
+  private static final Map<String, CompositeType> TYPES = new HashMap<String, CompositeType>();
 
 
   // PRIVATE INSTANCE VARIABLES //
