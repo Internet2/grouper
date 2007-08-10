@@ -34,12 +34,12 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.61 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.62 2007-08-10 20:26:33 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
-  // PRIVATE CLASS VARIABLES //
-  private static Map priv2list = new HashMap();
+  
+  private static Map<Privilege, String> priv2list = new HashMap<Privilege, String>();
 
 
   // STATIC //
@@ -100,7 +100,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     throws  SchemaException
   {
     GrouperSession.validate(s);
-    Set stems = new LinkedHashSet();
+    Set<Stem> stems = new LinkedHashSet<Stem>();
     try {
       Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
       // This subject

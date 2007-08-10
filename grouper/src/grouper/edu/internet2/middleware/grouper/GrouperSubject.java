@@ -30,7 +30,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.36 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.37 2007-08-10 20:26:33 blair Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -40,7 +40,7 @@ public class GrouperSubject implements Subject {
 
   // PRIVATE INSTANCE VARIABLES //
   private GrouperSourceAdapter  adapter = null;
-  private Map                   attrs   = new HashMap();
+  private Map<String, String>   attrs   = new HashMap<String, String>();
   private String                id      = null;
   private String                name    = null;
   private SubjectType           type    = SubjectTypeEnum.valueOf("group");

@@ -34,7 +34,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.59 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.60 2007-08-10 20:26:33 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -76,7 +76,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     GrouperSession.validate(s);
     return MembershipFinder.internal_findSubjects(
-      s, g, (Field) FieldFinder.find( (String) priv2list.get(priv) )
+      s, g, FieldFinder.find( (String) priv2list.get(priv) )
     );
   } // public Set getSubjectsWithpriv(s, g, priv)
 

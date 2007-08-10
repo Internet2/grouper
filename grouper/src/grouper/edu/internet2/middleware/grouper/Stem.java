@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.130 2007-08-10 13:19:14 blair Exp $
+ * @version $Id: Stem.java,v 1.131 2007-08-10 20:26:33 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -1117,10 +1117,10 @@ public class Stem extends GrouperAPI implements Owner {
 
   // @since   1.2.0
   private Set _renameChildGroups(String attr, String modifier, long modifyTime) {
-    Map       attrs;
-    GroupDTO  _g;
-    Set       groups  = new LinkedHashSet();
-    Iterator  it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this._getDTO(), Stem.Scope.ONE ).iterator();
+    Map<String, String> attrs;
+    GroupDTO            _g;
+    Set                 groups  = new LinkedHashSet();
+    Iterator            it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this._getDTO(), Stem.Scope.ONE ).iterator();
     while (it.hasNext()) {
       _g = (GroupDTO) it.next();
       attrs = _g.getAttributes();

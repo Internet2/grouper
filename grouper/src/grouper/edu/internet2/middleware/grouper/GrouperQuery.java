@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.25 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.26 2007-08-10 20:26:33 blair Exp $
  */
 public class GrouperQuery {
 
@@ -128,7 +128,7 @@ public class GrouperQuery {
   public Set getMembers() 
     throws QueryException
   {
-    Set         members = new LinkedHashSet();
+    Set<Member> members = new LinkedHashSet<Member>();
     Membership  ms;
     // Retrieve Memberships found by this query and then retrieve Member from each
     try {
@@ -160,7 +160,7 @@ public class GrouperQuery {
   public Set getMemberships() 
     throws QueryException
   {
-    Set       mships      = new LinkedHashSet();
+    Set<Membership>       mships      = new LinkedHashSet<Membership>();
     Set       candidates  = this.filter.getResults(this.s);
     Object    o;
     Iterator  iter        = candidates.iterator();
