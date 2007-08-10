@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.9 2007-07-18 17:24:39 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.10 2007-08-10 01:18:33 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -209,9 +209,6 @@
 		<path id="source.class.path" >
 			<fileset refid="source.lib.fileset" />
 			<fileset refid="i2mi_common_lib.fileset" />
-<!-- SubjectAPI JAR is in Signet CVS for now
-			<fileset refid="subjectApi_lib.fileset" />
--->
 			<fileset refid="custom.lib.fileset" />
 		</path>
 	</target>
@@ -230,36 +227,36 @@
 			depends="create_lib_fileset, create_altlib_fileset_yes" >
 		<copy todir="${dist_lib.dir}" >
 			<fileset refid="source.lib.fileset" />
-			<fileset dir="${source_lib.dir}" includes="**/*license*" />
+			<fileset dir="${source_lib.dir}" includes="*license*" />
 			<fileset refid="i2mi_common_lib.fileset" />
-			<fileset dir="${i2mi_common_lib.dir}" includes="**/*license*" />
-<!-- SubjectAPI JAR is in Signet CVS for now 
-			<fileset refid="subjectApi_lib.fileset" />
--->
+			<fileset dir="${i2mi_common_lib.dir}" includes="*license*" />
 			<fileset refid="custom.lib.fileset" />
 		</copy>
 	</target>
 
 
 	<!-- - - - - - - - - target: create_lib_fileset - - -->
-	<target name="create_lib_fileset" >
-		<fileset id="source.lib.fileset"
-			dir="${source_lib.dir}" >
-			<include name="**/*.jar" />
-		</fileset>
-		<fileset id="i2mi_common_lib.fileset"
-			dir="${i2mi_common_lib.dir}" >
-			<include name="**/*.jar" />
-		</fileset>
-<!-- SubjectAPI JAR is in Signet CVS for now
-		<fileset id="subjectApi_lib.fileset"
-			dir="${subjectApi_lib.dir}" >
-			<include name="**/*.jar" />
-		</fileset>
--->
+	<target name="create_lib_fileset"
+		depends="create_lib_main_fileset, create_lib_i2mi_common_fileset">
 	</target>
 
+	<!-- - - - - - - - - target: create_lib_main_fileset - - - - - - - - - -->
+	<target name="create_lib_main_fileset">
+		<fileset id="source.lib.fileset"
+			dir="${source_lib.dir}" >
+		<include name="*.jar" />
+		</fileset>
+	</target>
 
+	<!-- - - - - - - - - target: create_lib_i2mi_common_fileset - - - - - -->
+	<target name="create_lib_i2mi_common_fileset">
+		<fileset id="i2mi_common_lib.fileset"
+			dir="${i2mi_common_lib.dir}" >
+		<include name="*.jar" />
+		</fileset>
+	</target>
+
+	
 	<!-- - - - - - - - - target: create_altlib_fileset_yes - -->
 	<target name="create_altlib_fileset_yes"
 			depends="create_altlib_fileset_no"

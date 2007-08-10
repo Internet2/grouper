@@ -13,6 +13,8 @@ Changes in this version:
 3. Bugfix (not filed) - A logged-in user would occasionally show as "acting as"
    themselves (e.g. jpoole logged in, not acting as anyone else, display would
    show "Poole, Jean acting as Poole, Jean").
+4. Fixed problem (no bug filed) where the output lib directory was not getting
+   a complete set of JARs with Ant 1.7 (versus Ant 1.6.x).
 
 ======================================== 
 Signet  07/27/07
