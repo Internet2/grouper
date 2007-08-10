@@ -24,13 +24,12 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
  * Test {@link GrouperDAOFactory}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperDAOFactory.java,v 1.1 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: Test_api_GrouperDAOFactory.java,v 1.2 2007-08-10 13:19:14 blair Exp $
  * @since   @HEAD@
  */
 public class Test_api_GrouperDAOFactory extends GrouperTest {
 
 
-  private GrouperDAOFactory gdf;
   private String            invalid = "this class does not exist";
   private String            prop    = "dao.factory";
 

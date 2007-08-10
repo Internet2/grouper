@@ -21,13 +21,12 @@ import  edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 import  edu.internet2.middleware.subject.SourceUnavailableException;
 import  edu.internet2.middleware.subject.SubjectNotFoundException;
 import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
  * Test {@link SubjecResolver} implementation chain.
  * @author  blair christensen.
- * @version $Id: Test_subj_SubjectResolver.java,v 1.1 2007-08-09 18:55:21 blair Exp $
+ * @version $Id: Test_subj_SubjectResolver.java,v 1.2 2007-08-10 13:19:14 blair Exp $
  * @since   @HEAD@
  */
 public class Test_subj_SubjectResolver extends GrouperTest {

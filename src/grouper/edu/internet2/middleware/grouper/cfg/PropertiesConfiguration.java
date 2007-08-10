@@ -20,15 +20,13 @@ import  edu.internet2.middleware.grouper.GrouperException;
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  java.io.IOException;
 import  java.io.InputStream;
-import  java.util.HashMap;
-import  java.util.Map;
 import  java.util.Properties;
 
 /** 
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.1 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.2 2007-08-10 13:19:14 blair Exp $
  * @since   @HEAD@
  */
 public class PropertiesConfiguration implements Configuration {

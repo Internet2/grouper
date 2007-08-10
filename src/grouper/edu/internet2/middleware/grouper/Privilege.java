@@ -23,7 +23,7 @@ import  java.util.*;
  * Privilege schema specification.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.17 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: Privilege.java,v 1.18 2007-08-10 13:19:14 blair Exp $
  */
 public class Privilege implements Serializable {
 
@@ -32,18 +32,18 @@ public class Privilege implements Serializable {
 
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Set        ACCESS  = new LinkedHashSet();
-  private static final Privilege  ADMIN   = new Privilege("admin" );
-  private static final Privilege  CREATE  = new Privilege("create");
-  private static final Set        NAMING  = new LinkedHashSet();
-  private static final Privilege  OPTIN   = new Privilege("optin" );
-  private static final Privilege  OPTOUT  = new Privilege("optout");
-  private static final Map        PRIVS   = new HashMap();
-  private static final Privilege  READ    = new Privilege("read"  );
-  private static final Privilege  STEM    = new Privilege("stem"  );
-  private static final Privilege  SYSTEM  = new Privilege("system");
-  private static final Privilege  UPDATE  = new Privilege("update");
-  private static final Privilege  VIEW    = new Privilege("view"  );
+  private static final Set<Privilege>         ACCESS  = new LinkedHashSet<Privilege>();
+  private static final Privilege              ADMIN   = new Privilege("admin" );
+  private static final Privilege              CREATE  = new Privilege("create");
+  private static final Set<Privilege>         NAMING  = new LinkedHashSet<Privilege>();
+  private static final Privilege              OPTIN   = new Privilege("optin" );
+  private static final Privilege              OPTOUT  = new Privilege("optout");
+  private static final Map<String,Privilege>  PRIVS   = new HashMap<String,Privilege>();
+  private static final Privilege              READ    = new Privilege("read"  );
+  private static final Privilege              STEM    = new Privilege("stem"  );
+  private static final Privilege              SYSTEM  = new Privilege("system");
+  private static final Privilege              UPDATE  = new Privilege("update");
+  private static final Privilege              VIEW    = new Privilege("view"  );
 
 
   // PRIVATE INSTANCE VARIABLES //

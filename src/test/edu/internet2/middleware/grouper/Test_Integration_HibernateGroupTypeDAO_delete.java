@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateFieldDAO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.7 2007-06-19 18:04:17 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.8 2007-08-10 13:19:14 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
