@@ -23,8 +23,6 @@ import  edu.internet2.middleware.subject.SourceUnavailableException;
 import  edu.internet2.middleware.subject.Subject;
 import  edu.internet2.middleware.subject.SubjectNotFoundException;
 import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  edu.internet2.middleware.subject.provider.BaseSourceAdapter;
-import  edu.internet2.middleware.subject.provider.SourceManager;
 import  java.util.Set;
 
 
@@ -32,7 +30,7 @@ import  java.util.Set;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.34 2007-08-09 18:55:21 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.35 2007-08-10 13:19:14 blair Exp $
  */
 public class SubjectFinder {
 

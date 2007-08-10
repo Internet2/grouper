@@ -17,15 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
+
 
 /** 
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.8 2007-06-01 16:14:03 blair Exp $
+ * @version $Id: GrouperAPI.java,v 1.9 2007-08-10 13:19:14 blair Exp $
  * @since   1.2.0
  */
 abstract class GrouperAPI {

@@ -18,8 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.subj.CachingResolver;
 import  edu.internet2.middleware.grouper.subj.SourcesXmlResolver;
-import  edu.internet2.middleware.grouper.subj.SubjectResolver;
-import  edu.internet2.middleware.subject.SourceUnavailableException;
 import  edu.internet2.middleware.subject.SubjectNotFoundException;
 import  edu.internet2.middleware.subject.SubjectNotUniqueException;
 import  edu.internet2.middleware.subject.provider.SourceManager;
@@ -28,7 +26,7 @@ import  edu.internet2.middleware.subject.provider.SourceManager;
 /**
  * Test {@link CachingResolver}.
  * @author  blair christensen.
- * @version $Id: Test_subj_CachingResolver.java,v 1.1 2007-08-09 18:55:21 blair Exp $
+ * @version $Id: Test_subj_CachingResolver.java,v 1.2 2007-08-10 13:19:14 blair Exp $
  * @since   @HEAD@
  */
 public class Test_subj_CachingResolver extends GrouperTest {

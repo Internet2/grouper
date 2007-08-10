@@ -23,11 +23,6 @@ import  edu.internet2.middleware.subject.SourceUnavailableException;
 import  edu.internet2.middleware.subject.Subject;
 import  edu.internet2.middleware.subject.SubjectNotFoundException;
 import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  edu.internet2.middleware.subject.provider.SourceManager;
-import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import  java.util.ArrayList;
-import  java.util.LinkedHashSet;
-import  java.util.List;
 import  java.util.Set;
 import  net.sf.ehcache.Cache;
 import  net.sf.ehcache.CacheManager;
@@ -40,7 +35,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingResolver.java,v 1.1 2007-08-09 18:55:21 blair Exp $
+ * @version $Id: CachingResolver.java,v 1.2 2007-08-10 13:19:14 blair Exp $
  * @since   @HEAD@
  */
 public class CachingResolver extends SubjectResolverDecorator {

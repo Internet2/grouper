@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.129 2007-08-02 19:25:15 blair Exp $
+ * @version $Id: Stem.java,v 1.130 2007-08-10 13:19:14 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -895,7 +895,7 @@ public class Stem extends GrouperAPI implements Owner {
       throw new GroupAddException( v.getErrorMessage() );
     }
     try {
-      Map attrs = new HashMap();
+      Map<String, String> attrs = new HashMap<String, String>();
       attrs.put( GrouperConfig.ATTR_DE, dExtn );
       attrs.put( GrouperConfig.ATTR_DN, U.constructName( this.getDisplayName(), dExtn ) );
       attrs.put( GrouperConfig.ATTR_E,  extn );

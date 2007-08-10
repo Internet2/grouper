@@ -16,19 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
-import  edu.internet2.middleware.subject.Source;
-import  edu.internet2.middleware.subject.SourceUnavailableException;
-import  edu.internet2.middleware.subject.Subject;
-import  edu.internet2.middleware.subject.SubjectNotFoundException;
-import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  java.util.Set;
 
 
 /**
  * Decorator for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectResolverDecorator.java,v 1.1 2007-08-09 18:55:21 blair Exp $
+ * @version $Id: SubjectResolverDecorator.java,v 1.2 2007-08-10 13:19:14 blair Exp $
  * @since   @HEAD@
  */
 public abstract class SubjectResolverDecorator implements SubjectResolver {

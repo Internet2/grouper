@@ -22,16 +22,16 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.2 2007-08-09 18:55:21 blair Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.3 2007-08-10 13:19:14 blair Exp $
  * @since   @HEAD@
  */
 public class Test_uc_WheelGroup extends GrouperTest {
 
 
-  private Group   dev, users, wheel;
+  private Group   dev, wheel;
   private R       r;
   private Stem    etc;
-  private Subject subjA, subjB;
+  private Subject subjA;
 
 
   public void setUp() {
@@ -41,9 +41,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
       etc   = r.root.addChildStem("etc", "etc");
       wheel = etc.addChildGroup("wheel", "wheel");
       dev   = r.getGroup("i2mi:grouper", "grouper-dev");
-      users = r.getGroup("i2mi:grouper", "grouper-users");
       subjA = r.getSubject("a");
-      subjB = r.getSubject("b");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException( "test setUp() error: " + e.getMessage(), e );
@@ -61,7 +59,6 @@ public class Test_uc_WheelGroup extends GrouperTest {
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );   // FIXME 20070725
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_WHEEL_GROUP, "etc:wheel" );  // FIXME 20070725
 
-    GrouperSession s = GrouperSession.start(subjA);
     assertFalse( GrouperSession.start(subjA).getMember().canAdmin(dev) );
 
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );  // FIXME 20070725
