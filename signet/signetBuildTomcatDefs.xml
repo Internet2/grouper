@@ -1,5 +1,5 @@
 <!--
-	$Header: /home/hagleyj/i2mi/signet/signetBuildTomcatDefs.xml,v 1.4 2006-11-30 18:22:33 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/signetBuildTomcatDefs.xml,v 1.5 2007-08-10 23:17:57 ddonn Exp $
 
 	Tomcat-specific Ant tasks
 
@@ -18,6 +18,13 @@
 
 <project name="tomcat-ant-build-defs" basedir="." >
 
+	<!-- The path to Tomcat's Ant Task library
+		You may need to modify this location, or create a soft link to the
+		actual Tomcat Ant Task library
+	-->
+	<path id="catalina_ant_path"
+		location="${ant.home}/lib/catalina-ant.jar" />
+
 	<!-- ================== Custom Ant Task Definitions ======================= -->
 	<!--
 	  These properties define custom tasks for the Ant build tool that interact
@@ -32,12 +39,30 @@
 	  For more information about the Manager web application, and the functionality
 	  of these tasks, see <http://localhost:8080/tomcat-docs/manager-howto.html>.
 	-->
-	<taskdef name="deploy"		classname="org.apache.catalina.ant.DeployTask" />
-	<taskdef name="list"		classname="org.apache.catalina.ant.ListTask" />
-	<taskdef name="reload"		classname="org.apache.catalina.ant.ReloadTask" />
-	<taskdef name="start"		classname="org.apache.catalina.ant.StartTask" />
-	<taskdef name="stop"		classname="org.apache.catalina.ant.StopTask" />
-	<taskdef name="undeploy"	classname="org.apache.catalina.ant.UndeployTask" />
+	<taskdef name="deploy"
+			classname="org.apache.catalina.ant.DeployTask" >
+		<classpath refid="catalina_ant_path" />
+	</taskdef>
+	<taskdef name="list"
+			classname="org.apache.catalina.ant.ListTask" >
+		<classpath refid="catalina_ant_path" />
+	</taskdef>
+	<taskdef name="reload"
+			classname="org.apache.catalina.ant.ReloadTask" >
+		<classpath refid="catalina_ant_path" />
+	</taskdef>
+	<taskdef name="start"
+			classname="org.apache.catalina.ant.StartTask" >
+		<classpath refid="catalina_ant_path" />
+	</taskdef>
+	<taskdef name="stop"
+			classname="org.apache.catalina.ant.StopTask" >
+		<classpath refid="catalina_ant_path" />
+	</taskdef>
+	<taskdef name="undeploy"
+			classname="org.apache.catalina.ant.UndeployTask" >
+		<classpath refid="catalina_ant_path" />
+	</taskdef>
 
 	<!--
 	#
