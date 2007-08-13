@@ -17,13 +17,15 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
+import  java.io.PrintWriter;
+import  java.io.StringWriter;
 
 
 /** 
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.9 2007-08-10 13:19:14 blair Exp $
+ * @version $Id: GrouperAPI.java,v 1.10 2007-08-13 19:39:39 blair Exp $
  * @since   1.2.0
  */
 abstract class GrouperAPI {
@@ -43,25 +45,40 @@ abstract class GrouperAPI {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.2.0
+  /**
+   * @return  This object's DTO.
+   * @throws  IllegalStateException if DTO is null.
+   * @since   1.2.0
+   */
   protected GrouperDTO getDTO() 
     throws  IllegalStateException
   {
     if (this.dto == null) {
-      throw new IllegalStateException( "null dto in class " + this.getClass().getName() );
+      // TODO 20070813 trying to throw a better error message to help resolve GRP-14
+      NullPointerException  e   = new NullPointerException();
+      StringWriter          sw  = new StringWriter(); 
+      e.printStackTrace( new PrintWriter(sw) );
+      throw new IllegalStateException( "null dto in class " + this.getClass().getName() + ": " + sw, e );
     }
     return this.dto;
   } 
 
-  // @since   1.2.0
+  /**
+   * @return  This object's <code>GrouperSession</code>
+   * @throws  IllegalStateException if session is null.
+   * @since   1.2.0
+   */
   protected GrouperSession getSession() 
     throws  IllegalStateException
   {
     if (this.s == null) {
-      throw new IllegalStateException( "null session in class " + this.getClass().getName() );
+      NullPointerException  e   = new NullPointerException();
+      StringWriter          sw  = new StringWriter(); 
+      e.printStackTrace( new PrintWriter(sw) );
+      throw new IllegalStateException( "null session in class " + this.getClass().getName() + ": " + sw, e );
     }
     return this.s;
-  } // protected GrouperSession getSession()
+  } 
 
   // @since   1.2.0
   protected GrouperAPI setDTO(GrouperDTO dto) {

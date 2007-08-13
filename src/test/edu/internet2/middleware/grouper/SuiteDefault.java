@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.27 2007-08-09 18:55:21 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.28 2007-08-13 19:39:39 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -30,6 +30,7 @@ public class SuiteDefault extends TestCase {
 
     suite.addTestSuite( Test_api_ChildGroupFilter.class );
     suite.addTestSuite( Test_api_ChildStemFilter.class );
+    suite.addTestSuite( Test_api_GrouperAPI.class );
     suite.addTestSuite( Test_api_GrouperConfig.class );
     suite.addTestSuite( Test_api_GrouperDAOFactory.class );
     suite.addTestSuite( Test_api_GrouperSession.class );
