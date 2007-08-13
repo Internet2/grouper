@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.13 2007-03-16 18:42:21 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.14 2007-08-13 16:07:04 blair Exp $
  */
 class GroupHelper {
 
@@ -79,7 +79,11 @@ class GroupHelper {
     }
   } // protected static void addMember(g, subj, m)
 
-  protected static void addMemberUpdate(Group g, Subject subj, Member m) {
+  /**
+   * TODO 20070813 deprecate
+   * @since  @HEAD@
+   */
+  protected static void addMemberUpdate(Group g, Subject subj) {
     LOG.debug("addMemberUpdate.0");
     try {
       g.addMember(subj);
@@ -94,24 +98,24 @@ class GroupHelper {
       LOG.debug("addMemberUpdate.3");
       Assert.fail("failed to add member: " + e1.getMessage());
     }
-  } // protected static void addMemberUpdate(g, subj, m)
+  }
 
-  protected static void addMemberUpdateFail(Group g, Subject subj, Member m) {
-    LOG.debug("addMemberUpdateFail.0");
+  /**
+   * TODO 20070813 deprecate
+   * @since  @HEAD@
+   */
+  protected static void addMemberUpdateFail(Group g, Subject subj) {
     try {
       g.addMember(subj);
-      LOG.debug("addMemberUpdateFail.1");
       Assert.fail("added member");
     }
     catch (InsufficientPrivilegeException e0) {
       Assert.assertTrue("failed to add member", true);
-      LOG.debug("addMemberUpdateFail.2");
     }
     catch (MemberAddException e1) {
       Assert.assertTrue("failed to add member", true);
-      LOG.debug("addMemberUpdateFail.3");
     }
-  } // protected static void addMemberUpdateFail(g, subj, m)
+  }
 
   // fail to delete a group attribute
   protected static void delAttrFail(Group g, String attr) {
@@ -156,23 +160,23 @@ class GroupHelper {
     }
   } // protected static void delete(s, g, name)
 
-  // Fail to delete a group
-  protected static void deleteFail(GrouperSession s, Group g, String name) {
-    LOG.debug("deleteFail.0");
+
+  /**
+   * TODO 20070813 deprecate
+   * @since  @HEAD@
+   */
+  protected static void deleteFail(Group g) {
     try {
       g.delete();
-      LOG.debug("deleteFail.1");
       Assert.fail("deleted group");
     }
     catch (GroupDeleteException eGD) {
-      LOG.debug("deleteFail.2");
       Assert.assertTrue("failed to delete group: " + eGD.getMessage(), true);
     }
     catch (InsufficientPrivilegeException eIP) {
-      LOG.debug("deleteFail.3");
       Assert.assertTrue("failed to delete group: " + eIP.getMessage(), true);
     }
-  } // protected static void deleteFail(s, g, name)
+  } 
 
   // Delete a member from a group
   protected static void deleteMember(Group g, Subject subj, Member m) {
@@ -190,39 +194,39 @@ class GroupHelper {
     }
   } // protected static void deleteMember(g, subj, m)
 
-  protected static void delMemberUpdate(Group g, Subject subj, Member m) {
-    LOG.debug("delMemberUpdate.0");
+  /**
+   * TODO 20070813 deprecate
+   * @since  @HEAD@
+   */
+  protected static void delMemberUpdate(Group g, Subject subj) {
     try {
       g.deleteMember(subj);
       Assert.assertTrue("deleted member", true);
-      LOG.debug("delMemberUpdate.1");
     }
     catch (InsufficientPrivilegeException e0) {
-      LOG.debug("delMemberUpdate.2");
       Assert.fail("not privileged to delete member: " + e0.getMessage());
     }
     catch (MemberDeleteException e1) {
-      LOG.debug("delMemberUpdate.3");
       Assert.fail("failed to delete member: " + e1.getMessage());
     }
-  } // protected static void deleteMember(g, subj, m)
+  }
 
-  protected static void delMemberUpdateFail(Group g, Subject subj, Member m) {
-    LOG.debug("delMemberUpdateFail.0");
+  /**
+   * TODO 20070813 deprecate
+   * @since  @HEAD@
+   */
+  protected static void delMemberUpdateFail(Group g, Subject subj) {
     try {
       g.deleteMember(subj);
-      LOG.debug("delMemberUpdateFail.1");
       Assert.fail("deleted member");
     }
     catch (InsufficientPrivilegeException e0) {
-      LOG.debug("delMemberUpdateFail.2");
       Assert.assertTrue("did not delete member (IP)", true);
     }
     catch (MemberDeleteException e1) {
-      LOG.debug("delMemberUpdateFail.3");
       Assert.assertTrue("did not delete member (MD)", true);
     }
-  } // protected static void delMemberUpdateFail(g, subj, m)
+  }
 
   protected static Group findByName(GrouperSession s, String name) {
     LOG.debug("findByName.0 " + name);

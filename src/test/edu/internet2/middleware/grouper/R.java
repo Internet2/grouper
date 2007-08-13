@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.18 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: R.java,v 1.19 2007-08-13 16:07:04 blair Exp $
  * @since   1.2.0
  */
 public class R {
@@ -44,10 +44,10 @@ public class R {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private Map             groups    = new HashMap();
-  private GrouperSession  s;
-  private Map             stems     = new HashMap();
-  private Map             subjects  = new HashMap();
+  private Map<String, Group>  groups    = new HashMap<String, Group>();
+  private GrouperSession      s;
+  private Map<String, Stem>   stems     = new HashMap();
+  private Map                 subjects  = new HashMap<String, Stem>();
 
 
   // CONSTRUCTORS //

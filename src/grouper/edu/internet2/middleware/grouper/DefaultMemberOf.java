@@ -34,7 +34,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.6 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.7 2007-08-13 16:07:04 blair Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -550,7 +550,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     this.addEffectiveDeletes(children);
     // Find all effective memberships that need deletion
     try {
-      this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(s, _ms, children) );
+      this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(_ms, children) );
     }
     catch (SchemaException eS) {
       throw new IllegalStateException( eS.getMessage(), eS );
