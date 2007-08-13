@@ -34,7 +34,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.60 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.61 2007-08-13 16:07:04 blair Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -205,7 +205,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       if ( !FieldType.ACCESS.equals( f.getType() ) ) {
         throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
       }
-      if ( !g.internal_canWriteField( s.getSubject(), f, FieldType.ACCESS ) ) {
+      if ( !g.internal_canWriteField( s.getSubject(), f ) ) {
         throw new InsufficientPrivilegeException();
       }
       Membership.internal_addImmediateMembership(s, g, subj, f);
@@ -277,7 +277,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     if ( !FieldType.ACCESS.equals( f.getType() ) ) {
       throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
     }
-    if ( !g.internal_canWriteField( s.getSubject(), f, FieldType.ACCESS ) ) {
+    if ( !g.internal_canWriteField( s.getSubject(), f ) ) {
       throw new InsufficientPrivilegeException();
     }
     g.internal_setModified();
@@ -322,7 +322,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     if ( !FieldType.ACCESS.equals( f.getType() ) ) {
       throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
     }
-    if ( !g.internal_canWriteField( s.getSubject(), f, FieldType.ACCESS ) ) {
+    if ( !g.internal_canWriteField( s.getSubject(), f ) ) {
       throw new InsufficientPrivilegeException();
     }
     try {

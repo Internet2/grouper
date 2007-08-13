@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.9 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.10 2007-08-13 16:07:04 blair Exp $
  */
 public class PrivHelper {
 
@@ -380,24 +380,12 @@ public class PrivHelper {
       Assert.fail(e.getMessage());
     }
   } // protected static void revokePriv(s, ns, subj, priv)
-
-  protected static void revokePriv(
-    GrouperSession s, Group g, Privilege priv
-  )
-  {
-    try {
-      g.revokePriv(priv);  
-      getSubjsWithPriv(g, new HashSet(), priv);
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // protected static void revokePriv(s, g, priv)
-
-  protected static void revokePriv(
-    GrouperSession s, Stem ns, Privilege priv
-  )
-  {
+  
+  /**
+   * TODO 20070813 deprecate
+   * @since  @HEAD@
+   */
+  protected static void revokePriv(Stem ns, Privilege priv) {
     try {
       ns.revokePriv(priv);  
       getSubjsWithPriv(ns, new HashSet(), priv);
@@ -407,10 +395,11 @@ public class PrivHelper {
     }
   } // protected static void revokePriv(s, ns, priv)
 
-  protected static void revokePrivFail(
-    GrouperSession s, Stem ns, Privilege priv
-  )
-  {
+  /**
+   * TODO 20070813 deprecate
+   * @since  @HEAD@
+   */
+  protected static void revokePrivFail(Stem ns, Privilege priv) {
     LOG.debug("revokePrivFail.0");
     try {
       ns.revokePriv(priv);  
@@ -425,7 +414,7 @@ public class PrivHelper {
       LOG.debug("revokePrivFail.3");
       Assert.fail(e.getMessage());
     }
-  } // protected static void revokePriv(s, ns, priv)
+  }
 
 
   // PRIVATE CLASS METHODS //

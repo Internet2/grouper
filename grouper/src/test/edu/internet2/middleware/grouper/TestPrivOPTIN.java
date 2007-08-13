@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the OPTIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivOPTIN.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestPrivOPTIN.java,v 1.7 2007-08-13 16:07:04 blair Exp $
  */
 public class TestPrivOPTIN extends TestCase {
 
@@ -34,7 +34,6 @@ public class TestPrivOPTIN extends TestCase {
   // Private Class Variables
   private static Stem           edu;
   private static Group          i2;
-  private static Member         m;
   private static GrouperSession nrs;
   private static Stem           root;
   private static GrouperSession s;
@@ -54,7 +53,6 @@ public class TestPrivOPTIN extends TestCase {
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     subj0 = SubjectTestHelper.SUBJ0;
-    m     = MemberHelper.getMemberBySubject(nrs, subj0);
   }
 
   protected void tearDown () {
@@ -68,63 +66,63 @@ public class TestPrivOPTIN extends TestCase {
     LOG.info("testAddSelfAsMemberWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0, m);
+    GroupHelper.addMemberUpdateFail(a, subj0);
   } // public void testAddSelfAsMemberWithoutADMIN
 
   public void testAddSelfAsMemberWithADMIN() {
     LOG.info("testAddSelfAsMemberWithADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
+    GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithADMIN
 
   public void testAddSelfAsMemberWithAllADMIN() {
     LOG.info("testAddSelfAsMemberWithAllADMIN");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
+    GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithAllADMIN
 
   public void testAddSelfAsMemberWithoutOPTIN() {
     LOG.info("testAddSelfAsMemberWithoutOPTIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0, m);
+    GroupHelper.addMemberUpdateFail(a, subj0);
   } // public void testAddSelfAsMemberWithoutOPTIN
  
   public void testAddSelfAsMemberWithOPTIN() {
     LOG.info("testAddSelfAsMemberWithOPTIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.OPTIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
+    GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithOPTIN
 
   public void testAddSelfAsMemberWithAllOPTIN() {
     LOG.info("testAddSelfAsMemberWithAllOPTIN");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
+    GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithAllOPTIN
 
   public void testAddSelfAsMemberWithoutUPDATE() {
     LOG.info("testAddSelfAsMemberWithoutUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0, m);
+    GroupHelper.addMemberUpdateFail(a, subj0);
   } // public void testAddSelfAsMemberWithoutUPDATE
  
   public void testAddSelfAsMemberWithUPDATE() {
     LOG.info("testAddSelfAsMemberWithUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
+    GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithUPDATE
 
   public void testAddSelfAsMemberWithAllUPDATE() {
     LOG.info("testAddSelfAsMemberWithAllUPDATE");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj0, m);
+    GroupHelper.addMemberUpdate(a, subj0);
   } // public void testAddSelfAsMemberWithAllUPDATE
 
 }

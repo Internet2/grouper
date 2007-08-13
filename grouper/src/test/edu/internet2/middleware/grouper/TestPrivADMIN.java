@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.9 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.10 2007-08-13 16:07:04 blair Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -337,7 +337,7 @@ public class TestPrivADMIN extends TestCase {
   public void testDeleteGroupWithoutADMIN() {
     LOG.info("testDeleteGroupWithoutADMIN");
     a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.deleteFail(nrs, a, i2.getName());
+    GroupHelper.deleteFail(a);
   } // public void testDeleteGroupWithoutADMIN()
 
   public void testDeleteGroupWithADMIN() {
@@ -358,7 +358,7 @@ public class TestPrivADMIN extends TestCase {
     LOG.info("testDeleteGroupWithMemberWithoutADMIN");
     GroupHelper.addMember(i2, subj1, m);
     a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.deleteFail(nrs, a, i2.getName());
+    GroupHelper.deleteFail(a);
   } // public void testDeleteGroupWithMemberWithoutADMIN()
 
   public void testDeleteGroupWithMemberWithADMIN() {
@@ -381,7 +381,7 @@ public class TestPrivADMIN extends TestCase {
     LOG.info("testDeleteGroupIsMemberWithoutADMIN");
     GroupHelper.addMember(uofc, i2);
     a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.deleteFail(nrs, a, i2.getName());
+    GroupHelper.deleteFail(a);
   } // public void testDeleteGroupIsMemberWithoutADMIN()
 
   public void testDeleteGroupIsMemberWithADMIN() {

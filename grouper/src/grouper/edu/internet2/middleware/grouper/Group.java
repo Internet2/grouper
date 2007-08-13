@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.162 2007-06-01 15:03:29 blair Exp $
+ * @version $Id: Group.java,v 1.163 2007-08-13 16:07:04 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -401,7 +401,7 @@ public class Group extends GrouperAPI implements Owner {
     throws  IllegalArgumentException,
             SchemaException
   {
-    return this.internal_canWriteField(subj, f, FieldType.LIST);
+    return this.internal_canWriteField(subj, f);
   } // public boolean canWriteField(subj, f)
 
   /**
@@ -2182,11 +2182,11 @@ public class Group extends GrouperAPI implements Owner {
   } // public String toString()
 
 
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  // TODO 20070531 this should probably become a validator
-  protected boolean internal_canWriteField(Subject subj, Field f, FieldType type)
+  /**
+   * TODO 20070531 make into some flavor of validator
+   * @since   @HEAD
+   */
+  protected boolean internal_canWriteField(Subject subj, Field f)
     throws  IllegalArgumentException,
             SchemaException
   {
@@ -2212,7 +2212,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (InsufficientPrivilegeException eIP) {
       return false;
     }
-  } // protected boolean internal_canWriteField(subj, f, type)
+  }
 
   // @since   1.2.0 
   // i dislike this method

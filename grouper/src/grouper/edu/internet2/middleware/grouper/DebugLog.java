@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * Grouper API debug logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DebugLog.java,v 1.5 2007-04-19 16:28:49 blair Exp $
+ * @version $Id: DebugLog.java,v 1.6 2007-08-13 16:07:04 blair Exp $
  * @since   1.0
  */
 public class DebugLog {
@@ -45,7 +45,7 @@ public class DebugLog {
    * @since   1.2.0
    */
   public static void info(Class c, String msg) {
-    LOG.info(msg);
+    LOG.info( LogHelper.internal_formatClass(c) + msg );
   } 
 
 }

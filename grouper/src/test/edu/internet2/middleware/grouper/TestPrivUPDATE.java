@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the UPDATE {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivUPDATE.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestPrivUPDATE.java,v 1.8 2007-08-13 16:07:04 blair Exp $
  */
 public class TestPrivUPDATE extends TestCase {
 
@@ -71,42 +71,42 @@ public class TestPrivUPDATE extends TestCase {
     LOG.info("testAddMembersWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj1, m);
+    GroupHelper.addMemberUpdateFail(a, subj1);
   } // public void testAddMembersWithoutADMIN
  
   public void testAddMembersWithADMIN() {
     LOG.info("testAddMembersWithADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj1, m);
+    GroupHelper.addMemberUpdate(a, subj1);
   } // public void testAddMembersWithADMIN
 
   public void testAddMembersWithAllADMIN() {
     LOG.info("testAddMembersWithAllADMIN");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj1, m);
+    GroupHelper.addMemberUpdate(a, subj1);
   } // public void testAddMembersWithAllADMIN
 
   public void testAddMembersWithoutUPDATE() {
     LOG.info("testAddMembersWithoutUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj1, m);
+    GroupHelper.addMemberUpdateFail(a, subj1);
   } // public void testAddMembersWithoutUPDATE
  
   public void testAddMembersWithUPDATE() {
     LOG.info("testAddMembersWithUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj1, m);
+    GroupHelper.addMemberUpdate(a, subj1);
   } // public void testAddMembersWithUPDATE
 
   public void testAddMembersWithAllUPDATE() {
     LOG.info("testAddMembersWithAllUPDATE");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdate(a, subj1, m);
+    GroupHelper.addMemberUpdate(a, subj1);
   } // public void testAddMembersWithAllUPDATE
 
   public void testDelMembersWithoutADMIN() {
@@ -114,7 +114,7 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdateFail(a, subj1, m);
+    GroupHelper.delMemberUpdateFail(a, subj1);
   } // public void testDelMembersWithoutADMIN
  
   public void testDelMembersWithADMIN() {
@@ -122,7 +122,7 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdate(a, subj1, m);
+    GroupHelper.delMemberUpdate(a, subj1);
   } // public void testDelMembersWithADMIN
 
   public void testDelMembersWithAllADMIN() {
@@ -130,7 +130,7 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdate(a, subj1, m);
+    GroupHelper.delMemberUpdate(a, subj1);
   } // public void testDelMembersWithAllADMIN
 
   public void testDelMembersWithoutUPDATE() {
@@ -138,7 +138,7 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdateFail(a, subj1, m);
+    GroupHelper.delMemberUpdateFail(a, subj1);
   } // public void testDelMembersWithoutUPDATE
  
   public void testDelMembersWithUPDATE() {
@@ -146,7 +146,7 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdate(a, subj1, m);
+    GroupHelper.delMemberUpdate(a, subj1);
   } // public void testDelMembersWithUPDATE
 
   public void testDelMembersWithAllUPDATE() {
@@ -154,7 +154,7 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdate(a, subj1, m);
+    GroupHelper.delMemberUpdate(a, subj1);
   } // public void testDelMembersWithAllUPDATE
 
   public void testGrantOptinWithoutADMIN() {

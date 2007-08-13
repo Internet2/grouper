@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.84 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.85 2007-08-13 16:07:04 blair Exp $
  */
 public class MembershipFinder {
   
@@ -198,11 +198,11 @@ public class MembershipFinder {
     return children;
   } // protected static Set internal_findAllChildrenNoPriv(dto)
 
-  // TODO 20070328 i'm still not sure what all is going on here but at least the method is now smaller
-  // @since   1.2.0
-  protected static Set internal_findAllForwardMembershipsNoPriv(
-    GrouperSession s, MembershipDTO dto, Set children
-  )  
+  /*
+   * TODO 20070813 i really need to figure out what this method does and replace it with something cleaner.              
+   * @since  @HEAD@
+   */
+  protected static Set internal_findAllForwardMembershipsNoPriv(MembershipDTO dto, Set children)  
     throws  SchemaException 
   {
     MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
@@ -226,7 +226,7 @@ public class MembershipFinder {
       mships.add(_eff);
     }
     return mships;
-  } // protected static Set internal_findAllForwardMembershipsNoPriv(s, dto, children)
+  }
 
   // @since   1.2.0
   protected static Set internal_findMembers(GrouperSession s, Group g, Field f)

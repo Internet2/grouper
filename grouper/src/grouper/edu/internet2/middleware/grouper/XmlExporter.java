@@ -41,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.98 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.99 2007-08-13 16:07:04 blair Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1301,7 +1301,7 @@ public class XmlExporter {
       if (isComposite) {
         this._writeComposite( CompositeFinder.findAsOwner(g) );
       }
-      this._writeMembers(members, g, f);
+      this._writeMembers(members, g);
       this.xml.internal_puts(
         "</list> " + this.xml.internal_comment( Quote.single( XML.escape( f.getName() ) ) ) 
       );
@@ -1310,8 +1310,10 @@ public class XmlExporter {
     }
   } // private void _writeList(g, f)
 
-  // @since   1.1.0
-  private void _writeMembers(Collection members, Group group, Field field)
+  /**
+   * @since  @HEAD@
+   */
+  private void _writeMembers(Collection members, Group group)
     throws  IOException,
             MemberNotFoundException,
             SubjectNotFoundException

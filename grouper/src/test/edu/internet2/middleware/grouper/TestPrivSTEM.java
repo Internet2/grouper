@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.8 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.9 2007-08-13 16:07:04 blair Exp $
  */
 public class TestPrivSTEM extends GrouperTest {
 
@@ -129,7 +129,7 @@ public class TestPrivSTEM extends GrouperTest {
     Stem            nrroot  = StemHelper.findRootStem(nrs);
     LOG.debug("testRevokeAllCreateFail.3");
     // Now fail to revoke priv as !root 
-    PrivHelper.revokePrivFail(nrs, nrroot, NamingPrivilege.CREATE); 
+    PrivHelper.revokePrivFail(nrroot, NamingPrivilege.CREATE); 
     LOG.debug("testRevokeAllCreateFail.4");
   } // public void testRevokeCreateFail()
 
@@ -149,7 +149,7 @@ public class TestPrivSTEM extends GrouperTest {
     // Other !root should now have CREATE 
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE, true);
     // Now revoke priv as !root 
-    PrivHelper.revokePriv(nrs, nrroot, NamingPrivilege.CREATE);
+    PrivHelper.revokePriv(nrroot, NamingPrivilege.CREATE);
     // Other !root should now not have CREATE 
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE, false);
   } // public void testRevokeAllCreate()
@@ -161,7 +161,7 @@ public class TestPrivSTEM extends GrouperTest {
     // Now get root as !root subject 
     Stem            nrroot  = StemHelper.findRootStem(nrs);
     // Now fail to revoke priv as !root from another !root
-    PrivHelper.revokePrivFail(nrs, nrroot, PRIV);
+    PrivHelper.revokePrivFail(nrroot, PRIV);
   } // public void testRevokeAllStemFail()
 
   // Revoke all STEM with STEM 
@@ -180,7 +180,7 @@ public class TestPrivSTEM extends GrouperTest {
     // Other !root should now have priv 
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, PRIV, true);
     // Now revoke priv as !root 
-    PrivHelper.revokePriv(nrs, nrroot, PRIV);
+    PrivHelper.revokePriv(nrroot, PRIV);
     // Other !root should no longer have priv 
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, PRIV, false);
   } // public void testRevokeAllStem()
