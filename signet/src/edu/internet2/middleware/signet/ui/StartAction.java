@@ -1,6 +1,6 @@
 /*--
-$Id: StartAction.java,v 1.20 2007-08-07 23:26:18 ddonn Exp $
-$Date: 2007-08-07 23:26:18 $
+$Id: StartAction.java,v 1.21 2007-08-13 23:17:20 ddonn Exp $
+$Date: 2007-08-13 23:17:20 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -27,7 +27,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.util.MessageResources;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.resource.ResLoaderUI;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 /**
@@ -130,40 +129,21 @@ public final class StartAction extends BaseAction
       
       session.setAttribute(Constants.LOGGEDINUSER_ATTRNAME, loggedInUser);
     }
-    
-//    PrivilegedSubject currentPrivilegedSubject
-//      = Common.getAndSetPrivilegedSubject
-      Common.getAndSetPrivilegedSubject
-          (signet,
-           request,
-           Constants.CURRENTPSUBJECT_HTTPPARAMNAME, // paramName
-           Constants.CURRENTPSUBJECT_ATTRNAME,      // attrName
-           loggedInUser.getEffectiveEditor());      // defaultValue
+	
+	Common.getAndSetPrivilegedSubject(signet, request,
+			Constants.CURRENTPSUBJECT_HTTPPARAMNAME, // paramName
+			Constants.CURRENTPSUBJECT_ATTRNAME,      // attrName
+			loggedInUser.getEffectiveEditor());      // defaultValue
 
-		// select a privilege display type?
-		PrivDisplayType sessPdt = (PrivDisplayType)session.getAttribute(Constants.PRIVDISPLAYTYPE_ATTRNAME);
-		if (null == sessPdt)
-		{
-			// nudge the ClassLoader so the static initializers execute
-			PrivDisplayType pdt = PrivDisplayType.CURRENT_GRANTED;
+	Common.getAndSetPrivDisplayType(signet, request,
+			Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME,
+			Constants.PRIVDISPLAYTYPE_ATTRNAME,
+			PrivDisplayType.CURRENT_GRANTED);
 
-			// If a default privilege type selection is defined in the props file, use it
-			String privDisplay = ResLoaderUI.getString(PrivDisplayType.PrivNameDefaultValue_key);
-			// Otherwise, use 'current assignments to others'
-			if ((null == privDisplay) || (0 >= privDisplay.length()))
-				privDisplay = pdt.getName();
-
-			session.setAttribute(Constants.PRIVDISPLAYTYPE_ATTRNAME, TypeSafeEnumeration.getInstanceByName(privDisplay));
-		}
-
-// Subsystem currentSubsystem
-//      = Common.getAndSetSubsystem
-      Common.getAndSetSubsystem
-          (signet,
-           request,
-           Constants.SUBSYSTEM_HTTPPARAMNAME, // paramName
-           Constants.SUBSYSTEM_ATTRNAME,      // attributeName
-           Constants.WILDCARD_SUBSYSTEM);     // default value
+	Common.getAndSetSubsystem(signet, request,
+			Constants.SUBSYSTEM_HTTPPARAMNAME, // paramName
+			Constants.SUBSYSTEM_ATTRNAME,      // attributeName
+			Constants.WILDCARD_SUBSYSTEM);     // default value
     
     // Forward to our success page
     return findSuccess(mapping);

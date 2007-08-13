@@ -15,6 +15,8 @@ Changes in this version:
    show "Poole, Jean acting as Poole, Jean").
 4. Fixed problem (no bug filed) where the output lib directory was not getting
    a complete set of JARs with Ant 1.7 (versus Ant 1.6.x).
+5. CR/LF issue (in the util scripts) with Mac OSX in Ant 1.6.x is fixed by
+   upgrading to Ant 1.7.0.
 
 ======================================== 
 Signet  07/27/07

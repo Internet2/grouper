@@ -1,4 +1,4 @@
-<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.43 2007-08-07 23:26:19 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/web/tiles/privilegesGrantedReport.jsp,v 1.44 2007-08-13 23:17:20 ddonn Exp $ -->
 <%@ taglib uri="http://struts.apache.org/tags-tiles" prefix="tiles" %>
 
 <%@ page import="java.util.Set" %>
@@ -77,10 +77,10 @@
           id="privDisplayType"
 		  onChange="setShowButtonStatus()">
 		  <OPTION value="" selected><%=ResLoaderUI.getString("privilegesGrantedReport.privDisplayType.txt") %></OPTION>
-          <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, null)%>
-          <%=Common.displayOption(PrivDisplayType.FORMER_RECEIVED, null)%>
-          <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, null)%>
-          <%=Common.displayOption(PrivDisplayType.FORMER_GRANTED, null)%>
+          <%=Common.displayOption(PrivDisplayType.CURRENT_RECEIVED, privDisplayType)%>
+          <%=Common.displayOption(PrivDisplayType.FORMER_RECEIVED, privDisplayType)%>
+          <%=Common.displayOption(PrivDisplayType.CURRENT_GRANTED, privDisplayType)%>
+          <%=Common.displayOption(PrivDisplayType.FORMER_GRANTED, privDisplayType)%>
         </SELECT>
         <INPUT
           name="showButton"

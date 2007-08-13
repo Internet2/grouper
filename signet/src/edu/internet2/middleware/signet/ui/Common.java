@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.80 2007-08-07 23:26:18 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ui/Common.java,v 1.81 2007-08-13 23:17:20 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMessage;
@@ -1792,7 +1793,46 @@ public class Common
     request.getSession().setAttribute(attrName, pSubject);
     return pSubject;
   }
-  
+
+
+	public static PrivDisplayType getAndSetPrivDisplayType(
+			Signet signet,
+			HttpServletRequest request,
+			String paramName,
+			String attribName,
+			PrivDisplayType defaultValue)
+	{
+		PrivDisplayType retval;
+
+		HttpSession session = request.getSession();
+
+		// select a privilege display type
+		// if an httpParam with the PrivDisplayType name was sent, use it
+		String pdtHttpParam = request.getParameter(Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME);
+		if ((null != pdtHttpParam) && (0 < pdtHttpParam.length()))
+		{
+			retval = (PrivDisplayType)TypeSafeEnumeration.getInstanceByName(pdtHttpParam);
+		}
+		else // if no httpparam was sent, try using the session's attrib for privDisplayType
+		{
+			retval = (PrivDisplayType)session.getAttribute(Constants.PRIVDISPLAYTYPE_ATTRNAME);
+			if (null == retval) // no PrivDisplayType in httpParam or in session, use a default
+			{
+				// If a default privilege type selection is defined in the props file, use it
+				String privDisplayName = ResLoaderUI.getString(PrivDisplayType.PrivNameDefaultValue_key);
+				// Otherwise, use 'current assignments to others'
+				if ((null == privDisplayName) || (0 >= privDisplayName.length()))
+					privDisplayName = defaultValue.getName();
+
+				retval = (PrivDisplayType)TypeSafeEnumeration.getInstanceByName(privDisplayName);
+			}
+		}
+
+		session.setAttribute(Constants.PRIVDISPLAYTYPE_ATTRNAME, retval);
+		return (retval);
+	}
+
+
   static public Set getSubsystemSelections
     (Signet signet,
      HttpServletRequest request,

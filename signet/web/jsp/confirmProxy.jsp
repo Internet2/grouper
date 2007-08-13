@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
-  $Id: confirmProxy.jsp,v 1.10 2007-07-06 21:59:20 ddonn Exp $
-  $Date: 2007-07-06 21:59:20 $
+  $Id: confirmProxy.jsp,v 1.11 2007-08-13 23:17:20 ddonn Exp $
+  $Date: 2007-08-13 23:17:20 $
   
   Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
   Licensed under the Signet License, Version 1,
@@ -168,14 +168,14 @@
                 <img src="images/arrow_right.gif" alt="" />
                 <%=ResLoaderUI.getString("confirmProxy.editdesignation_href.txt") %></a></p>			
 			<p>
-              <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>">
+              <a href="Start.do?<%=Constants.CURRENTPSUBJECT_HTTPPARAMNAME%>=<%=Common.buildCompoundId(loggedInPrivilegedSubject.getEffectiveEditor())%>&<%=Constants.PRIVDISPLAYTYPE_HTTPPARAMNAME %>=PrivDisplayType.current_granted.txt">
                 <img src="images/arrow_right.gif" alt="" />
             <span class="default"><%=ResLoaderUI.getString("confirmProxy.myview.txt") %> </span> : <%=ResLoaderUI.getString("confirmProxy.assigntoothers.txt") %></a></p>
           
           </div>
-        </div> <!-- Content -->    
-        <div id="Sidebar">
+        </div> <!-- Content -->
 
+        <div id="Sidebar">
           <form
             name="personSearchForm"
             method="post"
