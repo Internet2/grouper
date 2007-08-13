@@ -27,7 +27,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.43 2007-04-18 18:02:04 blair Exp $
+ * @version $Id: StemFinder.java,v 1.44 2007-08-13 17:54:27 blair Exp $
  */
 public class StemFinder {
 
@@ -245,39 +245,5 @@ public class StemFinder {
     return GrouperDAOFactory.getFactory().getStem().findByName(name);
   } // protected static StemDTO internal_findByName(name)
 
-  // @since   1.2.0
-  protected static boolean internal_isChild(Stem ns, Group child) {
-    Stem parent = child.getParentStem();
-    if ( parent.equals(ns) ) {
-      return true;
-    }
-    return internal_isChild(ns, parent);
-  } // protected static boolean internal_isChild(ns, child)
-
-  // @since   1.2.0
-  protected static boolean internal_isChild(Stem ns, Stem child) {
-    if ( Stem.ROOT_NAME.equals( child.getName() ) ) {
-      return false; // child stem is the root stem.  bail out immediately.
-    }
-    StemDAO dao     = GrouperDAOFactory.getFactory().getStem();
-    StemDTO _parent = null;
-    try {
-      _parent = dao.findByUuid( ( (StemDTO) child.getDTO() ).getParentUuid() );
-      while (_parent != null) {
-        if ( _parent.getUuid().equals( ns.getUuid() ) ) {
-          return true;
-        }
-        if ( Stem.ROOT_NAME.equals( _parent.getName() ) ) {
-          return false; // _parent is root.  don't bother searching further.
-        }
-        _parent = dao.findByUuid( _parent.getParentUuid() );
-      }
-    }
-    catch (StemNotFoundException eNSNF) {
-      ErrorLog.error( StemFinder.class, "internal_isChild: " + eNSNF.getMessage() );
-    }
-    return false;
-  } // protected static boolean internal_isChild(ns, child)
-
-} // public class StemFinder
+}
 

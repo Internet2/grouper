@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.131 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: Stem.java,v 1.132 2007-08-13 17:54:27 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -589,12 +589,67 @@ public class Stem extends GrouperAPI implements Owner {
   } // public int hashCode()
 
   /**
-   * @since   1.2.0
+   * TODO 20070813 make public?
+   * @return  True if <i>group</i> is child, at any depth, of this stem.
+   * @throws  IllegalArgumentException if <i>group</i> is null.
+   * @since   @HEAD@
+   */
+  protected boolean isChildGroup(Group group)
+    throws  IllegalArgumentException
+  {
+    if (group == null) { // TODO 20070813 ParameterHelper
+      throw new IllegalArgumentException("null Group");
+    }
+    Stem parent = group.getParentStem();
+    if ( this.equals(parent) ) {
+      return true;
+    }
+    return this.isChildStem(parent);
+  }
+
+  /**
+   * TODO 20070813 make public?
+   * @return  True if <i>stem</i> is child, at any depth, of this stem.
+   * @throws  IllegalArgumentException if <i>stem</i> is null.
+   * @since   @HEAD@
+   */
+  protected boolean isChildStem(Stem stem) 
+    throws  IllegalArgumentException
+  {
+    if (stem == null) { // TODO 20070813 ParameterHelper
+      throw new IllegalArgumentException("null Stem");
+    }
+    if (
+         ( this.getUuid().equals( stem.getUuid() ) )  // can't be child of self
+         ||
+         stem.isRootStem()                            // root stem can't be chilc
+       )
+    {
+      return false;
+    }
+    if ( this.isRootStem() ) {
+      return true; // all stems are children
+    }
+    String parentUUID = stem._getDTO().getParentUuid();
+    if ( this.getUuid().equals(parentUUID) ) {
+      return true; 
+    }
+    try {
+      return this.isChildStem( StemFinder.findByUuid( this.getSession(), parentUUID ) );
+    }
+    catch (StemNotFoundException eThisShouldNotHappen) {
+      eThisShouldNotHappen.printStackTrace();
+      throw new IllegalStateException( "this should not happen: " + eThisShouldNotHappen.getMessage(), eThisShouldNotHappen );
+    }
+  }
+
+  /**
    * @return  Boolean true if this is the root stem of the Groups Registry.
+   * @since   1.2.0
    */
   public boolean isRootStem() {
     return ROOT_INT.equals( this._getDTO().getName() );
-  } // public boolean isRootStem()
+  } 
 
   /**
    * Revoke all privileges of the specified type on this stem.

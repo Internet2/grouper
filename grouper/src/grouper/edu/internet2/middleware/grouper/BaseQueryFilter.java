@@ -23,7 +23,7 @@ import  java.util.*;
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.14 2007-02-28 17:40:44 blair Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.15 2007-08-13 17:54:27 blair Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
@@ -41,21 +41,18 @@ public class BaseQueryFilter implements QueryFilter {
    * @return  A set of filtered objects
    */
   public Set filterByScope(Stem  ns, Set candidates) {
-    Set       filtered  = new LinkedHashSet();
-    Object    o;
-    Iterator  iter      = candidates.iterator();
-    while (iter.hasNext()) {
-      o = iter.next();
-      if      (o.getClass().equals(Group.class))      {
+    Set filtered = new LinkedHashSet();
+    for ( Object o : candidates ) {
+      if      ( o instanceof Group ) {
         Group g = (Group) o;
-        if (StemFinder.internal_isChild(ns, g)) {
+        if ( ns.isChildGroup(g) ) {
           filtered.add(g);
         }
       }
-      else if (o.getClass().equals(Membership.class)) {
+      else if ( o instanceof Membership ) {
         Membership ms = (Membership) o;
         try {
-          if (StemFinder.internal_isChild(ns, ms.getGroup())) {
+          if ( ns.isChildGroup( ms.getGroup() ) ) {
             filtered.add(ms);
           }
         }
@@ -63,9 +60,9 @@ public class BaseQueryFilter implements QueryFilter {
           // Ignore
         } 
       }
-      else if (o.getClass().equals(Stem.class))       {
+      else if ( o instanceof Stem ) {
         Stem stem = (Stem) o;
-        if (StemFinder.internal_isChild(ns, stem)) {
+        if ( ns.isChildStem(stem) ) {
           filtered.add(stem);
         }
       }
@@ -74,7 +71,7 @@ public class BaseQueryFilter implements QueryFilter {
       }
     }
     return filtered;
-  } // public Set filterByScope(ns, candidates)
+  } 
 
   /**
    * Get filter results.
