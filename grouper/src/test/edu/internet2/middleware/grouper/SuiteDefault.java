@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.28 2007-08-13 19:39:39 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.29 2007-08-14 17:15:53 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -34,6 +34,7 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite( Test_api_GrouperConfig.class );
     suite.addTestSuite( Test_api_GrouperDAOFactory.class );
     suite.addTestSuite( Test_api_GrouperSession.class );
+    suite.addTestSuite( Test_api_MembershipFinder.class );
     suite.addTestSuite( Test_api_Stem.class );
 
     suite.addTestSuite( Test_cache_EhcacheStats.class );
@@ -53,27 +54,8 @@ public class SuiteDefault extends TestCase {
 
     suite.addTestSuite( Test_uc_WheelGroup.class );
 
+    suite.addTest( SuiteRefactor.suite() ); 
 
-    suite.addTestSuite( Test_UnresolvedBugs.class );
-    suite.addTest( Suite_Unit.suite() );
-    suite.addTest( Suite_Integration.suite() );
-
-    suite.addTest( SuiteSessions.suite()         );
-    suite.addTest( SuiteStems.suite()            );
-    suite.addTest( SuiteGroupTypes.suite()       );
-    suite.addTest( SuiteGroups.suite()           );
-    suite.addTest( SuiteGrouperQuery.suite()     );
-    suite.addTest( SuiteGroupFinder.suite()      );
-    suite.addTest( SuiteComposites.suite()       );
-    suite.addTest( SuiteSubjects.suite()         );
-    suite.addTest( SuiteMembers.suite()          );
-    suite.addTest( SuiteMemberFinder.suite()     );
-    suite.addTest( SuiteMemberships.suite()      );
-    suite.addTest( SuiteMemberOf.suite()         );
-    suite.addTest( SuiteAccessPrivs.suite()      );
-    suite.addTest( SuiteXml.suite()              );
-    suite.addTest( SuiteWheelGroup.suite()       );
-    suite.addTest( SuitePrivCache.suite()        );
     return suite;
   }
 

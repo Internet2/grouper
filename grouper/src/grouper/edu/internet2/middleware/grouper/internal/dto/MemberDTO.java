@@ -18,13 +18,14 @@
 package edu.internet2.middleware.grouper.internal.dto;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  org.apache.commons.lang.builder.*;
 
 /** 
  * Basic <code>Member</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.5 2007-08-14 17:15:53 blair Exp $
  */
 public class MemberDTO implements GrouperDTO {
 
@@ -67,6 +68,20 @@ public class MemberDTO implements GrouperDTO {
       .setSubjectSourceId( this.getSubjectSourceId() )
       .setSubjectTypeId( this.getSubjectTypeId() )
       .setUuid( this.getUuid() )
+      ;
+  }
+ 
+  /**
+   * @return  <code>MemberDTO</code> from passed <i>dao</i>.
+   * @since   @HEAD@
+   */ 
+  public static MemberDTO getDTO(MemberDAO dao) {
+    return new MemberDTO()
+      .setId( dao.getId() )
+      .setSubjectId( dao.getSubjectId() )
+      .setSubjectSourceId( dao.getSubjectSourceId() )
+      .setSubjectTypeId( dao.getSubjectTypeId() )
+      .setUuid( dao.getUuid() )
       ;
   }
   
