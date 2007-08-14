@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.64 2007-08-14 20:10:04 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.65 2007-08-14 20:24:25 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -546,7 +546,7 @@
 				<include name="buildAltLocal.properties" />
 				<include name="build_QS.xml" />
 				<include name="buildSignet_QS.properties" />
-				<include name="NEWS.TXT" />
+				<include name="NEWS.txt" />
 				<include name="signetBuildTomcatDefs.xml" />
 				<exclude name="${signet.zipfile}" />
 				<exclude name="${signet.gzipfile}" />
@@ -576,7 +576,7 @@
 				<include name="buildAltLocal.properties" />
 				<include name="build_QS.xml" />
 				<include name="buildSignet_QS.properties" />
-				<include name="NEWS.TXT" />
+				<include name="NEWS.txt" />
 				<include name="signetBuildTomcatDefs.xml" />
 				<exclude name="${signet.zipfile}" />
 				<exclude name="${signet.gzipfile}" />
