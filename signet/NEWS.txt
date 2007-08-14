@@ -1,4 +1,51 @@
 ======================================== 
+Signet  08/14/07
+
+Release Notes for CVS-tagged version SIGNET_1_2_2
+----------------------------------------------------
+Changes in this version:
+(All changes from tags SIGNET_1_2_1a through SIGNET_1_2_1f, inclusive)
+
+1.  Bugfix SIG-29: The current choice of privDisplayType is not reserved when
+    clicking on any privilige
+2.  New Feature (per Michael Gettes' request) - Ability to specify the default
+    Privilege type selection in the UI. See comments in
+    /signet/config/signetResUi.properties for more information.
+3.  Bugfix (not filed) - A logged-in user would occasionally show as "acting as"
+    themselves (e.g. jpoole logged in, not acting as anyone else, display would
+    show "Poole, Jean acting as Poole, Jean").
+4.  Fixed problem (no bug filed) where the output lib directory was not getting
+    a complete set of JARs with Ant 1.7 (versus Ant 1.6.x).
+5.  CR/LF issue (in the util scripts) with Mac OSX in Ant 1.6.x is fixed by
+    upgrading to Ant 1.7.0.
+6.  Bugfix SIG-31 - Null ptr exception when modifying duration of a Proxy
+7.  Added History record creation when editing a Proxy (no bug filed)
+8.  Subject resynchronization (from original Source, see subjectSources.xml
+    "latencyMinutes" property) was not working properly (no bug filed)
+9.  Date range during Proxy create/edit was not being validated (no bug filed)
+10. Attribute copy (during SignetSubject synch/resynch) should create copy
+    of attributes, not use references.
+11. Included synchDatetime to SignetSubject.equals()
+12. Standardized Date creates using Calendar throughout application
+13. SignetSubject.hbm.xml erroneously declared synchDatetime as 'date' type
+    instead of 'timestamp' type
+14. Standardized, cleaned up algorithm for date checking in ConfirmAction and
+    ConfirmProxyAction.
+15. Bugfix SIG-30 - Subject search fails on Sybase
+16. Fixed JavaDoc warning message in SignetSubject.java
+17. Upgraded to commons-lang-2.0.jar (also added to project i2mi-common and
+    created tag I2MI-COMMON_0_4_0)
+18. Deleted unused class ExternalSubjectId.java
+20. Upgrade to SubjectAPI lib subject-0.3.0-rc1-cvs (this is the beginning of
+    synchronizing all of Signet's 3rd-party libs with those used by Grouper) 
+21. Added Java Generics to several classes related to SignetSubject (will be
+    adding more as encounter them)
+22. SignetJDBCSourceAdapter retrieves SignetSubjectAttr recs ordered by
+    name and instance fields
+23. Added Subject AuthId tooltip (mouseover) to Subject Search result list
+
+
+======================================== 
 Signet  08/07/07
 
 Release Notes for CVS-tagged version SIGNET_1_2_1e
