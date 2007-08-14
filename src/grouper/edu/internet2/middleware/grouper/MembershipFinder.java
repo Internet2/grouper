@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.85 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.86 2007-08-14 17:15:52 blair Exp $
  */
 public class MembershipFinder {
   
@@ -228,27 +228,40 @@ public class MembershipFinder {
     return mships;
   }
 
-  // @since   1.2.0
-  protected static Set internal_findMembers(GrouperSession s, Group g, Field f)
-    throws  GrouperRuntimeException
+  /** 
+   * @return  A set of all <code>Member</code>'s in <i>group</i>'s list <i>field</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   @HEAD@
+   */
+  protected static Set<Member> findMembers(Group group, Field field)
+    throws  IllegalArgumentException
   {
-    GrouperSession.validate(s);
-    Set       members = new LinkedHashSet();
-    Iterator  it      = PrivilegeResolver.internal_canViewMemberships(
-      s, GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( g.getUuid(), f )
-    ).iterator();
+    if (group == null) { // TODO 20070814 ParameterHelper
+      throw new IllegalArgumentException("null Group");
+    }
+    if (field == null) { // TODO 20070814 ParameterHelper
+      throw new IllegalArgumentException("null Field");
+    }
+    Set<Member> members = new LinkedHashSet();
     try {
-      while (it.hasNext()) {
-        members.add ( ( (Membership) it.next() ).getMember() );
+      Member          m;
+      GrouperSession  s   = group.getSession();
+      PrivilegeResolver.internal_canPrivDispatch( s, group, s.getSubject(), field.getReadPriv() );
+      for ( MemberDTO dto : GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndField( group.getUuid(), field ) ) {
+        m = new Member();
+        m.setSession(s);
+        m.setDTO(dto);
+        members.add(m);
       }
     }
-    catch (MemberNotFoundException eMNF) {
-      String msg = "internal_findMembers: " + eMNF.getMessage();
-      ErrorLog.fatal(MembershipFinder.class, msg);
-      throw new GrouperRuntimeException(msg, eMNF);
+    catch (InsufficientPrivilegeException eIP) {
+      // ignore  
+    }
+    catch (SchemaException eSchema) {
+      // ignore  
     }
     return members;
-  } // protected static Set internal_findMembers(s, g, f)
+  } 
 
   // @since   1.2.0
   protected static Set internal_findSubjects(GrouperSession s, Owner o, Field f) 

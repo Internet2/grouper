@@ -21,7 +21,9 @@ import  edu.internet2.middleware.grouper.DefaultMemberOf;
 import  edu.internet2.middleware.grouper.Membership;
 import  edu.internet2.middleware.grouper.MembershipNotFoundException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
@@ -35,7 +37,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.6 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.7 2007-08-14 17:15:53 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
@@ -311,6 +313,41 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
     }
     return mships;
   } 
+
+  /**
+   * @see     MembershipDAO#findAllMembersByOwnerAndField(String, Field)
+   * @since   @HEAD@
+   */
+  public Set<MemberDTO> findAllMembersByOwnerAndField(String ownerUUID, Field f)
+    throws  GrouperDAOException
+  {
+    Set<MemberDTO> members = new LinkedHashSet();
+    try {
+      Session hs  = HibernateDAO.getSession();
+      Query   qry = hs.createQuery(
+          "select m"
+        + " from HibernateMemberDAO m, HibernateMembershipDAO ms where"
+        + " ms.ownerUuid      = :owner"
+        + " and ms.listName   = :fname"
+        + " and ms.listType   = :ftype"
+        + " and ms.memberUuid = m.uuid"
+      );
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllMembersByOwnerAndField");
+      qry.setString( "owner", ownerUUID ); 
+      qry.setString( "fname", f.getName() );
+      qry.setString( "ftype", f.getType().toString() ); 
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        members.add( MemberDTO.getDTO( (MemberDAO) it.next() ) );
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return members;
+  }
 
   /**
    * @since   1.2.0

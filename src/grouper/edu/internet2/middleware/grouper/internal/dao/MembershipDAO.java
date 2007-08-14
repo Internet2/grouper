@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao;
 import  edu.internet2.middleware.grouper.Field;
 import  edu.internet2.middleware.grouper.DefaultMemberOf;
 import  edu.internet2.middleware.grouper.MembershipNotFoundException;
+import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  java.util.Date;
 import  java.util.Set;
@@ -27,7 +28,7 @@ import  java.util.Set;
  * Basic <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.5 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: MembershipDAO.java,v 1.6 2007-08-14 17:15:53 blair Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -80,6 +81,15 @@ public interface MembershipDAO extends GrouperDAO {
   Set findAllByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f) 
     throws  GrouperDAOException;
 
+  /**
+   * @return  Members from memberships.
+   * @throws  GrouperDAOException if any DAO errors occur.
+   * @see     MembershipDAO#findAllMembersByOwnerAndField(String, Field)
+   * @since   @HEAD@
+   */
+  Set<MemberDTO> findAllMembersByOwnerAndField(String ownerUUID, Field f)
+    throws  GrouperDAOException;
+    
   /**
    * @since   1.2.0
    */
