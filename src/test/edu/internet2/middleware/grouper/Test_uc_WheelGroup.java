@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.3 2007-08-10 13:19:14 blair Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.4 2007-08-15 16:35:10 blair Exp $
  * @since   @HEAD@
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -66,6 +66,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
   public void test_fromNotAMemberOfTheWheelGroupToAMemberOfTheWheelGroup() 
     throws  InsufficientPrivilegeException,
+            InterruptedException,
             MemberAddException,
             MemberNotFoundException,
             SessionException
@@ -81,6 +82,10 @@ public class Test_uc_WheelGroup extends GrouperTest {
     wheel.addMember(subjA);
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_WHEEL_GROUP, "etc:wheel");
+
+    // TODO 20070815  attempted temporary workaround for GRP-24.  unfortunately i don't
+    //                think this actually helps at all.
+    Thread.sleep(2);
       
     // After wheel
     assertTrue( "now has CREATE", etc.hasCreate(subjA) );

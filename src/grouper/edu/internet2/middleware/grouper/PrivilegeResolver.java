@@ -28,7 +28,7 @@ import  java.util.*;
  * Privilege resolution class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrivilegeResolver.java,v 1.87 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: PrivilegeResolver.java,v 1.88 2007-08-15 16:35:10 blair Exp $
  */
  class PrivilegeResolver {
 
@@ -95,6 +95,22 @@ import  java.util.*;
   {
     boolean rv  = false;
     String  msg = GrouperConfig.EMPTY_STRING; 
+
+    // TODO 20070814 hack
+    if      ( Privilege.isAccess(priv) ) {
+      if ( !(o instanceof Group) ) {
+        throw new SchemaException("access privileges only apply to groups");
+      }
+    }
+    else if ( Privilege.isNaming(priv) ) {
+      if ( !(o instanceof Stem) ) {
+        throw new SchemaException("access privileges only apply to stems");
+      }
+    }
+    else if ( !"system".equals( priv.getName() ) ) { // TODO 20070814 fragile
+      throw new IllegalStateException("unknown state in internal_canPrivDispatch: " + priv);
+    }
+
     if      (priv.equals(AccessPrivilege.ADMIN))  {
       rv = internal_canADMIN(s, (Group) o, subj);
       if (!rv) {
