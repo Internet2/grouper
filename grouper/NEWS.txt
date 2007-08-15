@@ -10,8 +10,10 @@ Released: TBD
 ## NEW
 * ChildGroupFilter - Query filter that retrieves all child groups beneath specified parent stem [GRP-12]
 * ChildStemFilter - Query filter that retrieves all child stems beneath specified parent stem [GRP-12]
-* Stem.getChildGroups(scope) - Can retrieve *all* child groups, not just immediate children [GRP-12]
-* Stem.getChildStems(scope) - Can retrieve *all* child stems, not just immediate children [GRP-12]
+* Stem#getChildGroups(Stem.Scope) - Can retrieve *all* child groups, not just immediate children [GRP-12]
+* Stem#getChildGroups(Privilege[], Stem.Scope) - Retrieve child groups where current subject has privilege(s) [GRP-7]
+* Stem#getChildStems(Privilege[], Stem.Scope) - Retrieve child stems where current subject has privilege(s) [GRP-7]
+* Stem#getChildStems(Stem.Scope) - Can retrieve *all* child stems, not just immediate children [GRP-12]
 
 ## UPDATED
 * Updated to ehcache v1.3.0

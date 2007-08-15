@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.132 2007-08-13 17:54:27 blair Exp $
+ * @version $Id: Stem.java,v 1.133 2007-08-15 16:35:10 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -201,7 +201,7 @@ public class Stem extends GrouperAPI implements Owner {
   public Set<Group> getChildGroups(Scope scope) 
     throws  IllegalArgumentException
   {
-    if (scope == null) {
+    if (scope == null) { // TODO 20070815 ParameterHelper
       throw new IllegalArgumentException("null Scope");
     }
     Subject     subj    = this.getSession().getSubject();
@@ -213,6 +213,36 @@ public class Stem extends GrouperAPI implements Owner {
       child.setSession( this.getSession() ); 
       if ( RootPrivilegeResolver.internal_canVIEW(child, subj) ) {
         groups.add(child);
+      }
+    }
+    return groups;
+  }
+
+  /**
+   * @return  Child groups where current subject has any of the specified <i>privileges</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   @HEAD@
+   */
+  public Set<Group> getChildGroups(Privilege[] privileges, Scope scope)
+    throws  IllegalArgumentException 
+  {
+    if (privileges == null) { // TODO 20070814 ParameterHelper
+      throw new IllegalArgumentException("null Privilege array");
+    }
+    Set<Group> groups = new LinkedHashSet();
+    // TODO 200700814 this is hideously ugly and far from optimal
+    for ( Group group : this.getChildGroups(scope) ) {
+      for ( Privilege priv : privileges ) {
+        try {
+          PrivilegeResolver.internal_canPrivDispatch( this.getSession(), group, this.getSession().getSubject(), priv );
+          groups.add(group);
+        }
+        catch (InsufficientPrivilegeException eIP) {
+          // ignore
+        }
+        catch (SchemaException eSchema) {
+          // ignore
+        }
       }
     }
     return groups;
@@ -237,7 +267,7 @@ public class Stem extends GrouperAPI implements Owner {
   public Set<Stem> getChildStems(Scope scope) 
     throws  IllegalArgumentException
   {
-    if (scope == null) {
+    if (scope == null) { // TODO 20070815 ParameterHelper
       throw new IllegalArgumentException("null Scope");
     }
     Stem      child;
@@ -247,6 +277,39 @@ public class Stem extends GrouperAPI implements Owner {
       child.setDTO(dto);
       child.setSession( this.getSession() ); 
       stems.add(child);
+    }
+    return stems;
+  }
+
+  /**
+   * @return  Child stems where current subject has any of the specified <i>privileges</i>.  Will return parent stems for access privileges.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   @HEAD@
+   */
+  public Set<Stem> getChildStems(Privilege[] privileges, Scope scope)
+    throws  IllegalArgumentException 
+  {
+    if (privileges == null) { // TODO 20070814 ParameterHelper
+      throw new IllegalArgumentException("null Privilege array");
+    }
+    Set<Stem> stems = new LinkedHashSet();
+    // TODO 200700814 this is hideously ugly and far from optimal
+    for ( Stem stem : this.getChildStems(scope) ) {
+      for ( Privilege priv : privileges ) {
+        try {
+          PrivilegeResolver.internal_canPrivDispatch( this.getSession(), stem, this.getSession().getSubject(), priv );
+          stems.add(stem);
+        }
+        catch (InsufficientPrivilegeException eIP) {
+          // ignore
+        }
+        catch (SchemaException eSchema) {
+          // ignore
+        }
+      }
+    }
+    for ( Group group : this.getChildGroups(privileges, scope) ) {
+      stems.add( group.getParentStem() );  
     }
     return stems;
   }
