@@ -22,15 +22,13 @@ import  edu.internet2.middleware.subject.*;
  * Test naming privilege use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_NamingPrivs.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: Test_uc_NamingPrivs.java,v 1.2 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public class Test_uc_NamingPrivs extends GrouperTest {
 
 
-  private Group   dev, wheel;
   private R       r;
-  private Stem    etc;
   private Subject subjA, subjB;
 
 
@@ -38,9 +36,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
     super.setUp();
     try {
       r     = R.getContext("grouper");
-      etc   = r.root.addChildStem("etc", "etc");
-      wheel = etc.addChildGroup("wheel", "wheel");
-      dev   = r.getGroup("i2mi:grouper", "grouper-dev");
+      r.root.addChildStem("etc", "etc");
       subjA = r.getSubject("a");
       subjB = r.getSubject("b");
     }

@@ -26,19 +26,16 @@ import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.RevokePrivilegeException;
 import  edu.internet2.middleware.grouper.SchemaException;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
-import  edu.internet2.middleware.grouper.internal.util.Realize;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
-import  java.util.HashSet;
 
 
 /** 
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: AccessWrapper.java,v 1.2 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public class AccessWrapper implements AccessResolver {

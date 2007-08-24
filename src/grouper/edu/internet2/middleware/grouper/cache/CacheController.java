@@ -16,18 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.cache;
-import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
 
 
 /**
  * Interface for common cache operations.
  * @author  blair christensen.
- * @version $Id: CacheController.java,v 1.1 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: CacheController.java,v 1.2 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public interface CacheController {

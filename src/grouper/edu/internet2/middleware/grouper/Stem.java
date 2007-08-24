@@ -38,7 +38,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.138 2007-08-24 19:16:28 blair Exp $
+ * @version $Id: Stem.java,v 1.139 2007-08-24 19:42:50 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -1162,12 +1162,12 @@ public class Stem extends GrouperAPI implements Owner {
       );
 
       // Now optionally grant other privs
-      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.ADMIN, GrouperConfig.GCGAA );
-      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.OPTIN, GrouperConfig.GCGAOI );
-      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
-      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.READ, GrouperConfig.GCGAR );
-      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
-      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
+      this._grantOptionalPrivUponCreate( g, AccessPrivilege.ADMIN, GrouperConfig.GCGAA );
+      this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTIN, GrouperConfig.GCGAOI );
+      this._grantOptionalPrivUponCreate( g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
+      this._grantOptionalPrivUponCreate( g, AccessPrivilege.READ, GrouperConfig.GCGAR );
+      this._grantOptionalPrivUponCreate( g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
+      this._grantOptionalPrivUponCreate( g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
     }
     catch (GrantPrivilegeException eGP)         {
       throw new GroupAddException(eGP.getMessage(), eGP);
@@ -1200,10 +1200,10 @@ public class Stem extends GrouperAPI implements Owner {
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
-        this.getSession(), ns, NamingPrivilege.CREATE, GrouperConfig.SCGAC
+        ns, NamingPrivilege.CREATE, GrouperConfig.SCGAC
       );
       this._grantOptionalPrivUponCreate(
-        this.getSession(), ns, NamingPrivilege.STEM, GrouperConfig.SCGAS
+        ns, NamingPrivilege.STEM, GrouperConfig.SCGAS
       );
     }
     catch (GrantPrivilegeException eGP)         {
@@ -1222,11 +1222,9 @@ public class Stem extends GrouperAPI implements Owner {
 
   /**
    * @throws  IllegalStateException if <i>o</i> is neither group nor stem.
-   * @since   ???
+   * @since   @HEAD@
    */
-  private void _grantOptionalPrivUponCreate(
-    GrouperSession root, Object o, Privilege p, String opt
-  ) 
+  private void _grantOptionalPrivUponCreate(Object o, Privilege p, String opt) 
     throws  GrantPrivilegeException,
             IllegalStateException,
             InsufficientPrivilegeException,

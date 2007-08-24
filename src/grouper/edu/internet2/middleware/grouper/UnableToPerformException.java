@@ -23,12 +23,16 @@ package edu.internet2.middleware.grouper;
  * Exception thrown when an operation cannot be performed.
  * <p/>
  * @author  blair christensen.
- * @version $Id: UnableToPerformException.java,v 1.1 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: UnableToPerformException.java,v 1.2 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public class UnableToPerformException extends GrouperException {
 
+  
+  private static final long serialVersionUID = 7104379437515513940L;
 
+  
+  
   public UnableToPerformException() { 
     super(); 
   }

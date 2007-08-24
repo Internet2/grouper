@@ -16,19 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper.cache;
-import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
 import  edu.internet2.middleware.grouper.cache.CacheStats;
 import  edu.internet2.middleware.grouper.cache.EhcacheStats;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
 import  net.sf.ehcache.Cache;
 import  net.sf.ehcache.CacheManager;
-import  net.sf.ehcache.Element;
 import  net.sf.ehcache.Statistics;
-import  org.apache.commons.collections.keyvalue.MultiKey;
 
 
 /**
@@ -36,7 +28,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * <p>TODO 20070823 this should be an interface with an <i>EhcacheController</i>
  * implementation.</p>
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.1 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: EhcacheController.java,v 1.2 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public class EhcacheController implements CacheController {

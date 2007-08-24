@@ -17,18 +17,14 @@
 
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.AccessAdapter;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.privs.AccessWrapper;
-import  edu.internet2.middleware.grouper.internal.util.Realize;
-import  edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Test {@link AccessWrapper}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_privs_AccessWrapper.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: Test_privs_AccessWrapper.java,v 1.2 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public class Test_privs_AccessWrapper extends GrouperTest {
