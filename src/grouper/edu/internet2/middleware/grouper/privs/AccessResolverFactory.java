@@ -27,7 +27,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
 /** 
  * Factory for returning a <code>AccessResolver</code>.
  * @author  blair christensen.
- * @version $Id: AccessResolverFactory.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: AccessResolverFactory.java,v 1.2 2007-08-24 14:54:26 blair Exp $
  * @since   @HEAD@
  */
 public class AccessResolverFactory {
@@ -53,6 +53,16 @@ public class AccessResolverFactory {
   }
     
   /**
+   * Returns chain of access resolvers.
+   * <p>Order of execution:</p>
+   * <ol>
+   *  <li>{@link ValidatingAccessResolver}</li>
+   *  <li>{@link WheelAccessResolver}</li>
+   *  <li>{@link CachingAccessResolver}</li>
+   *  <li>{@link GrouperSystemAccessResolver}</li>
+   *  <li>{@link GrouperAllAccessResolver}</li>
+   *  <li>{@link AccessWrapper}</li>
+   * </ol>
    * @return  <code>AccessResolver</code> instance.
    * @throws  GrouperRuntimeException if unable to get instance.
    * @throws  IllegalArgumentException if any parameter is null.
@@ -64,9 +74,9 @@ public class AccessResolverFactory {
   {
     param.notNullGrouperSession(session).notNullAccessAdapter(access);
     return new ValidatingAccessResolver(
-      new CachingAccessResolver(
-        new GrouperSystemAccessResolver(
-          new WheelAccessResolver( 
+      new WheelAccessResolver(
+        new CachingAccessResolver(
+          new GrouperSystemAccessResolver(
             new GrouperAllAccessResolver(
               new AccessWrapper(session, access)
             )

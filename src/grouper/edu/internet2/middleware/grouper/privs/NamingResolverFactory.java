@@ -27,7 +27,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
 /** 
  * Factory for returning a <code>NamingResolver</code>.
  * @author  blair christensen.
- * @version $Id: NamingResolverFactory.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: NamingResolverFactory.java,v 1.2 2007-08-24 14:54:26 blair Exp $
  * @since   @HEAD@
  */
 public class NamingResolverFactory {
@@ -54,6 +54,16 @@ public class NamingResolverFactory {
   }
     
   /**
+   * Returns chain of naming resolvers.
+   * <p>Order of execution:</p>
+   * <ol>
+   *  <li>{@link ValidatingNamingResolver}</li>
+   *  <li>{@link WheelNamingResolver}</li>
+   *  <li>{@link CachingNamingResolver}</li>
+   *  <li>{@link GrouperSystemNamingResolver}</li>
+   *  <li>{@link GrouperAllNamingResolver}</li>
+   *  <li>{@link NamingWrapper}</li>
+   * </ol>
    * @return  <code>NamingResolver</code> instance.
    * @throws  GrouperRuntimeException if unable to get instance.
    * @throws  IllegalArgumentException if any parameter is null.
@@ -65,9 +75,9 @@ public class NamingResolverFactory {
   {
     param.notNullGrouperSession(session).notNullNamingAdapter(naming);
     return new ValidatingNamingResolver(
-      new CachingNamingResolver(
-        new GrouperSystemNamingResolver(
-          new WheelNamingResolver( 
+      new WheelNamingResolver( 
+        new CachingNamingResolver(
+          new GrouperSystemNamingResolver(
             new GrouperAllNamingResolver(
               new NamingWrapper(session, naming)
             )

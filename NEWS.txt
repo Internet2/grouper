@@ -32,6 +32,7 @@ Released: TBD
 * Refactored privilege resolution and caching. [GRP-19]
 * Privilege caching now controlled in "conf/grouper.ehcache.xml", not "conf/grouper.properties".  
   Privilege caching is now per session, not per JVM.
+* Changed privilege resolver ordering (wheel before caching) [GRP-24]
 
 ---
 

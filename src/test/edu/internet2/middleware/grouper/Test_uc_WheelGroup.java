@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.5 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.6 2007-08-24 14:54:26 blair Exp $
  * @since   @HEAD@
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -53,6 +53,10 @@ public class Test_uc_WheelGroup extends GrouperTest {
   }
 
 
+
+  /** 
+   * @since   @HEAD@
+   */
   public void test_presenceOfWheelGroupDoesNotAutomaticallyGrantPrivs() 
     throws  SessionException
   {
@@ -111,37 +115,31 @@ public class Test_uc_WheelGroup extends GrouperTest {
     s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   }
 
-/* FIXME 20070816 temporarily disabled.  see GRP-24 for more details.
-  public void test_fromNotAMemberOfTheWheelGroupToAMemberOfTheWheelGroup() 
-    throws  InsufficientPrivilegeException,
-            InterruptedException,
+/* FIXME 20070816 temporarily disabled.  see GRP-24 for more details. */
+  /**
+   * @since   @HEAD@
+   */
+  public void test_addingMemberToWheelGroupShouldElevatePrivilegesWithinSession() 
+    throws  GroupNotFoundException,
+            InsufficientPrivilegeException,
             MemberAddException,
             MemberNotFoundException,
             SessionException
   {
-    GrouperSession  s   = GrouperSession.start( SubjectFinder.findRootSubject() );
-    Member          mA  = MemberFinder.findBySubject(s, subjA);
+    GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
+    s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
 
-    // Before wheel 
-    assertFalse( "does not have CREATE", etc.hasCreate(subjA) );
-    assertFalse( "cannot CREATE", mA.canCreate(etc) );
+    Member  mA  = MemberFinder.findBySubject(s, subjA);
+    Group   g   = GroupFinder.findByUuid( s, wheel.getUuid() );
+    assertFalse( "does not have ADMIN", g.hasAdmin(subjA) );
+    assertFalse( "cannot ADMIN", mA.canAdmin(g) );
 
-    // Enable wheel
-    wheel.addMember(subjA);
-    GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
-    GrouperConfig.internal_setProperty( GrouperConfig.PROP_WHEEL_GROUP, "etc:wheel");
+    g.addMember(subjA);
+    assertTrue( "now has ADMIN", g.hasAdmin(subjA) );
+    assertTrue( "now can ADMIN", mA.canAdmin(g) );
 
-    // TODO 20070815  attempted temporary workaround for GRP-24.  unfortunately i don't
-    //                think this actually helps at all.
-    Thread.sleep(2);
-      
-    // After wheel
-    assertTrue( "now has CREATE", etc.hasCreate(subjA) );
-    assertTrue( "now can CREATE", mA.canCreate(etc) );
-
-    GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );  // FIXME 20070806
+    s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   } 
-*/
 
 } 
 
