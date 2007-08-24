@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.5 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: Test_api_Stem.java,v 1.6 2007-08-24 18:51:08 blair Exp $
  * @since   @HEAD@
  */
 public class Test_api_Stem extends GrouperTest {
@@ -79,7 +79,7 @@ public class Test_api_Stem extends GrouperTest {
 
 
 
-  public void test_getChildGroups_PrivArrayAndScope_nullArray() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_nullArray() {
     try {
       this.root.getChildGroups(null, null);
       fail("failed to throw IllegalArgumentException");
@@ -88,7 +88,7 @@ public class Test_api_Stem extends GrouperTest {
       assertTrue("threw expected exception", true);
     }
   }
-  public void test_getChildGroups_PrivArrayAndScope_nullScope() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_nullScope() {
     try {
       this.root.getChildGroups( new Privilege[0], null );
       fail("failed to throw IllegalArgumentException");
@@ -97,30 +97,30 @@ public class Test_api_Stem extends GrouperTest {
       assertTrue("threw expected exception", true);
     }
   }
-  public void test_getChildGroups_PrivArrayAndScope_emptyArray() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_emptyArray() {
     assertEquals( 0, this.top.getChildGroups( new Privilege[0], Stem.Scope.SUB ).size() );
   }
-  public void test_getChildGroups_PrivArrayAndScope_createPrivAndOneScope() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_createPrivAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
     assertEquals( 0, this.top.getChildGroups( privs, Stem.Scope.ONE ).size() );
   }
-  public void test_getChildGroups_PrivArrayAndScope_createPrivAndSubScope() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_createPrivAndSubScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
     assertEquals( 0, this.top.getChildGroups( privs, Stem.Scope.SUB ).size() );
   }
-  public void test_getChildGroups_PrivArrayAndScope_viewPrivAndOneScope() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_viewPrivAndOneScope() {
     Privilege[] privs = { AccessPrivilege.VIEW };
     assertEquals( 1, this.top.getChildGroups( privs, Stem.Scope.ONE ).size() );
   }
-  public void test_getChildGroups_PrivArrayAndScope_viewPrivAndSubScope() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_viewPrivAndSubScope() {
     Privilege[] privs = { AccessPrivilege.VIEW };
     assertEquals( 2, this.top.getChildGroups( privs, Stem.Scope.SUB ).size() );
   }
-  public void test_getChildGroups_PrivArrayAndScope_createAndViewPrivsAndOneScope() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_createAndViewPrivsAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE, AccessPrivilege.VIEW };
     assertEquals( 1, this.top.getChildGroups( privs, Stem.Scope.ONE ).size() );
   }
-  public void test_getChildGroups_PrivArrayAndScope_createAndViewPrivsAndSubScope() {
+  public void test_getChildGroups_PrivilegeArrayAndScope_createAndViewPrivsAndSubScope() {
     Privilege[] privs = { NamingPrivilege.CREATE, AccessPrivilege.VIEW };
     assertEquals( 2, this.top.getChildGroups( privs, Stem.Scope.SUB ).size() );
   }
@@ -203,7 +203,7 @@ public class Test_api_Stem extends GrouperTest {
 
 
 
-  public void test_getChildStems_PrivArrayAndScope_nullArray() {
+  public void test_getChildStems_PrivilegeArrayAndScope_nullArray() {
     try {
       this.root.getChildStems(null, null);
       fail("failed to throw IllegalArgumentException");
@@ -212,7 +212,7 @@ public class Test_api_Stem extends GrouperTest {
       assertTrue("threw expected exception", true);
     }
   }
-  public void test_getChildStems_PrivArrayAndScope_nullScope() {
+  public void test_getChildStems_PrivilegeArrayAndScope_nullScope() {
     try {
       this.root.getChildStems( new Privilege[0], null );
       fail("failed to throw IllegalArgumentException");
@@ -221,32 +221,46 @@ public class Test_api_Stem extends GrouperTest {
       assertTrue("threw expected exception", true);
     }
   }
-  public void test_getChildStems_PrivArrayAndScope_emptyArray() {
+  public void test_getChildStems_PrivilegeArrayAndScope_emptyArray() {
     assertEquals( 0, this.root.getChildStems( new Privilege[0], Stem.Scope.SUB ).size() );
   }
-  public void test_getChildStems_PrivArrayAndScope_createPrivAndOneScope() {
+  public void test_getChildStems_PrivilegeArrayAndScope_createPrivAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
     assertEquals( 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
   }
-  public void test_getChildStems_PrivArrayAndScope_createPrivAndSubScope() {
+  public void test_getChildStems_PrivilegeArrayAndScope_createPrivAndSubScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
     assertEquals( 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
   }
-  public void test_getChildStems_PrivArrayAndScope_viewPrivAndOneScope() {
+  public void test_getChildStems_PrivilegeArrayAndScope_viewPrivAndOneScope() {
     Privilege[] privs = { AccessPrivilege.VIEW };
     assertEquals( 0, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
   }
-  public void test_getChildStems_PrivArrayAndScope_viewPrivAndSubScope() {
+  public void test_getChildStems_PrivilegeArrayAndScope_viewPrivAndSubScope() {
     Privilege[] privs = { AccessPrivilege.VIEW };
     assertEquals( 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
   }
-  public void test_getChildStems_PrivArrayAndScope_createAndViewPrivsAndOneScope() {
+  public void test_getChildStems_PrivilegeArrayAndScope_createAndViewPrivsAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE, AccessPrivilege.VIEW };
     assertEquals( 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
   }
-  public void test_getChildStems_PrivArrayAndScope_createAndViewPrivsAndSubScope() {
+  public void test_getChildStems_PrivilegeArrayAndScope_createAndViewPrivsAndSubScope() {
     Privilege[] privs = { NamingPrivilege.CREATE, AccessPrivilege.VIEW };
     assertEquals( 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
+  }
+  /**
+   * @since   @HEAD@
+   */
+  public void test_getChildStems_PrivilegeArrayAndScope_OneScopeDoNotReturnThisStem() {
+    Privilege[] privs = { AccessPrivilege.VIEW };
+/*
+System.err.println("CHECKING FROM: " + this.top);
+java.util.Set<Stem> stems = this.top.getChildStems( privs, Stem.Scope.ONE );
+for ( Stem stem : stems ) {
+System.err.println("STEM: " + stem);
+}
+*/
+    assertEquals( 0, this.top.getChildStems( privs, Stem.Scope.ONE ).size() );
   }
 
 
