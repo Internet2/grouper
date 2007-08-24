@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.135 2007-08-24 16:31:54 blair Exp $
+ * @version $Id: Stem.java,v 1.136 2007-08-24 18:33:50 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -233,7 +233,7 @@ public class Stem extends GrouperAPI implements Owner {
     Set<Group> groups = new LinkedHashSet();
     // TODO 200700814 this is hideously ugly and far from optimal
     for ( Group group : this.getChildGroups(scope) ) {
-      for ( Privilege priv : privileges ) {
+      for ( Privilege priv : PrivilegeHelper.getAccessPrivileges(privileges) ) {
         try {
           PrivilegeHelper.dispatch( this.getSession(), group, this.getSession().getSubject(), priv );
           groups.add(group);
@@ -294,10 +294,11 @@ public class Stem extends GrouperAPI implements Owner {
     if (privileges == null) { // TODO 20070814 ParameterHelper
       throw new IllegalArgumentException("null Privilege array");
     }
+
     Set<Stem> stems = new LinkedHashSet();
     // TODO 200700814 this is hideously ugly and far from optimal
     for ( Stem stem : this.getChildStems(scope) ) {
-      for ( Privilege priv : privileges ) {
+      for ( Privilege priv : PrivilegeHelper.getNamingPrivileges(privileges) ) {
         try {
           PrivilegeHelper.dispatch( this.getSession(), stem, this.getSession().getSubject(), priv );
           stems.add(stem);
@@ -311,6 +312,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
     }
+    // filtering out naming privileges will happen in "#getChildGroups(Privilege[], Scope)"
     for ( Group group : this.getChildGroups(privileges, scope) ) {
       stems.add( group.getParentStem() );  
     }
