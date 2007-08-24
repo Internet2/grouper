@@ -25,7 +25,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.49 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.50 2007-08-24 19:45:56 blair Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -185,7 +185,7 @@ public class GrouperConfig {
     return getDefaultValueIfNull( getInstance().api.getProperty(property) );
   }
 
-  // FIXME 20070725 i need to attach configuration information to sessions before i can eliminate this
+  // TODO 20070824 i think GrouperSession now has everything it needs to eliminate this method
   protected static void internal_setProperty(String property, String value) {
     //throw new RuntimeException("!!! DEPRECATED !!!");
     getInstance().api.setProperty(property, value);
