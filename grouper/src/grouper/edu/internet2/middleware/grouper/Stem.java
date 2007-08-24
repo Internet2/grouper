@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.134 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: Stem.java,v 1.135 2007-08-24 16:31:54 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -237,6 +237,7 @@ public class Stem extends GrouperAPI implements Owner {
         try {
           PrivilegeHelper.dispatch( this.getSession(), group, this.getSession().getSubject(), priv );
           groups.add(group);
+          break; // we only care that one privilege matches
         }
         catch (InsufficientPrivilegeException eIP) {
           // ignore
@@ -300,6 +301,7 @@ public class Stem extends GrouperAPI implements Owner {
         try {
           PrivilegeHelper.dispatch( this.getSession(), stem, this.getSession().getSubject(), priv );
           stems.add(stem);
+          break; // we only care that one privilege matches
         }
         catch (InsufficientPrivilegeException eIP) {
           // ignore
