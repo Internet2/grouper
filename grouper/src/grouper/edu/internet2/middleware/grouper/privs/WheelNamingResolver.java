@@ -24,9 +24,7 @@ import  edu.internet2.middleware.grouper.GroupFinder;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.Stem;
 import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.SubjectHelper;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
 
@@ -35,7 +33,7 @@ import  java.util.Set;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.2 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public class WheelNamingResolver extends NamingResolverDecorator {

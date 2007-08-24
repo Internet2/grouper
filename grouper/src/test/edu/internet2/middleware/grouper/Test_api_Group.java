@@ -22,13 +22,13 @@ package edu.internet2.middleware.grouper;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: Test_api_Group.java,v 1.2 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public class Test_api_Group extends GrouperTest {
 
 
-  private Group           child_group, top_group;
+  private Group           top_group;
   private GrouperSession  s;
   private Stem            child, root, top;
 
@@ -42,7 +42,7 @@ public class Test_api_Group extends GrouperTest {
       this.top          = this.root.addChildStem("top", "top");
       this.top_group    = this.top.addChildGroup("top group", "top group");
       this.child        = this.top.addChildStem("child", "child");
-      this.child_group  = this.child.addChildGroup("child group", "child group");
+      this.child.addChildGroup("child group", "child group");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException( "test setUp() error: " + e.getMessage(), e );

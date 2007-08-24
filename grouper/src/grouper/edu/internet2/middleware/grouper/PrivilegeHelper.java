@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Collection;
 import  java.util.Iterator;
@@ -30,7 +29,7 @@ import  java.util.Set;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.2 2007-08-24 18:33:50 blair Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.3 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 class PrivilegeHelper {
@@ -53,7 +52,7 @@ class PrivilegeHelper {
   protected static boolean canCreate(GrouperSession s, Stem ns, Subject subj) {
     // TODO 20070820 deprecate
     // TODO 20070820 perform query for all privs and compare internally
-    return ns.getSession().getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.CREATE);
+    return s.getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.CREATE);
   } 
 
   /**

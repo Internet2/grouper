@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  java.util.Date;
 import  java.util.Iterator;
@@ -27,7 +26,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.44 2007-08-13 17:54:27 blair Exp $
+ * @version $Id: StemFinder.java,v 1.45 2007-08-24 19:42:50 blair Exp $
  */
 public class StemFinder {
 

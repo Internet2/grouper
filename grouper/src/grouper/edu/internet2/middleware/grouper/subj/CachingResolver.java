@@ -18,17 +18,13 @@
 package edu.internet2.middleware.grouper.subj;
 import  edu.internet2.middleware.grouper.cache.CacheStats;
 import  edu.internet2.middleware.grouper.cache.EhcacheController;
-import  edu.internet2.middleware.grouper.cache.EhcacheStats;
 import  edu.internet2.middleware.subject.Source;
 import  edu.internet2.middleware.subject.SourceUnavailableException;
 import  edu.internet2.middleware.subject.Subject;
 import  edu.internet2.middleware.subject.SubjectNotFoundException;
 import  edu.internet2.middleware.subject.SubjectNotUniqueException;
 import  java.util.Set;
-import  net.sf.ehcache.Cache;
-import  net.sf.ehcache.CacheManager;
 import  net.sf.ehcache.Element;
-import  net.sf.ehcache.Statistics;
 import  org.apache.commons.collections.keyvalue.MultiKey;
 
 
@@ -36,7 +32,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingResolver.java,v 1.3 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: CachingResolver.java,v 1.4 2007-08-24 19:42:50 blair Exp $
  * @since   @HEAD@
  */
 public class CachingResolver extends SubjectResolverDecorator {
