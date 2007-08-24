@@ -31,7 +31,7 @@ import  edu.internet2.middleware.subject.Subject;
  * Utility class for validating parameters.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ParameterHelper.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: ParameterHelper.java,v 1.2 2007-08-24 19:16:28 blair Exp $
  * @since   @HEAD@
  */
 public class ParameterHelper {
@@ -115,6 +115,15 @@ public class ParameterHelper {
    */
   public ParameterHelper notNullPrivilege(Privilege privilege) {
     return this.notNull(privilege, "null Privilege");
+  }
+
+  /**
+   * @return  Self for chained calling.
+   * @throws  IllegalArgumentException if <i>privilegeArray</i> is null.
+   * @since   @HEAD@
+   */
+  public ParameterHelper notNullPrivilegeArray(Privilege[] privilegeArray) {
+    return this.notNull(privilegeArray, "null Privilege[]");
   }
 
   /**

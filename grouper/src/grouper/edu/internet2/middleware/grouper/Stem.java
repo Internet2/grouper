@@ -21,6 +21,7 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
@@ -37,9 +38,14 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.137 2007-08-24 18:51:08 blair Exp $
+ * @version $Id: Stem.java,v 1.138 2007-08-24 19:16:28 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
+
+
+  private ParameterHelper param = new ParameterHelper();;
+
+
 
   /**
    * Search scope: one-level or subtree.
@@ -227,9 +233,8 @@ public class Stem extends GrouperAPI implements Owner {
   public Set<Group> getChildGroups(Privilege[] privileges, Scope scope)
     throws  IllegalArgumentException 
   {
-    if (privileges == null) { // TODO 20070814 ParameterHelper
-      throw new IllegalArgumentException("null Privilege array");
-    }
+    this.param.notNullPrivilegeArray(privileges);
+
     Set<Group> groups = new LinkedHashSet();
     // TODO 200700814 this is hideously ugly and far from optimal
     for ( Group group : this.getChildGroups(scope) ) {
@@ -284,20 +289,19 @@ public class Stem extends GrouperAPI implements Owner {
   }
 
   /**
-   * @return  Child stems where current subject has any of the specified <i>privileges</i>.  Will return parent stems for access privileges.
+   * @return  Child (or deeper) stems where current subject has any of the specified <i>privileges</i>.  Parent stems of grandchild (or deeper) groups where the current subject has any of the specified <i>privileges</i>.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   @HEAD@
    */
   public Set<Stem> getChildStems(Privilege[] privileges, Scope scope)
     throws  IllegalArgumentException 
   {
-    if (privileges == null) { // TODO 20070814 ParameterHelper
-      throw new IllegalArgumentException("null Privilege array");
-    }
+    this.param.notNullPrivilegeArray(privileges); 
 
     Set<Stem> stems = new LinkedHashSet();
-    // TODO 200700814 this is hideously ugly and far from optimal
+    // TODO 200700824 this could be a lot prettier
     for ( Stem stem : this.getChildStems(scope) ) {
+
       for ( Privilege priv : PrivilegeHelper.getNamingPrivileges(privileges) ) {
         try {
           PrivilegeHelper.dispatch( this.getSession(), stem, this.getSession().getSubject(), priv );
@@ -311,14 +315,14 @@ public class Stem extends GrouperAPI implements Owner {
           // ignore
         }
       }
-    }
-    // filtering out naming privileges will happen in "#getChildGroups(Privilege[], Scope)"
-    Stem groupParent;
-    for ( Group group : this.getChildGroups(privileges, scope) ) {
-      groupParent = group.getParentStem();
-      if ( !this.equals(groupParent) ) {
-        stems.add(groupParent);
+
+      if ( !stems.contains(stem) ) { // no matching naming privileges so checking access privilegees
+        // filtering out naming privileges will happen in "#getChildGroups(Privilege[], Scope)"
+        for ( Group group : stem.getChildGroups(privileges, scope) ) {
+          stems.add( group.getParentStem() );
+        }
       }
+
     }
     return stems;
   }
