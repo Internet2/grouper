@@ -15,22 +15,35 @@
   limitations under the License.
 */
 
+
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+
 
 /**
+ * Exception thrown when an operation cannot be performed.
+ * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteWheelGroup.java,v 1.6 2007-08-09 18:55:21 blair Exp $
- * @since   1.1
+ * @version $Id: UnableToPerformException.java,v 1.1 2007-08-24 14:18:15 blair Exp $
+ * @since   @HEAD@
  */
-public class SuiteWheelGroup extends TestCase {
+public class UnableToPerformException extends GrouperException {
 
-  static public Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestWheelGroup1.class );  // fail: grant ADMIN w/ wheel
-    suite.addTestSuite( TestWheelGroup2.class );  // fail: grant ADMIN w/ ALL wheel
-    return suite;
-  } 
 
-} 
+  public UnableToPerformException() { 
+    super(); 
+  }
+
+  public UnableToPerformException(String msg) { 
+    super(msg); 
+  }
+
+  public UnableToPerformException(String msg, Throwable cause) { 
+    super(msg, cause); 
+  }
+
+  public UnableToPerformException(Throwable cause) { 
+    super(cause); 
+  }
+
+}
 

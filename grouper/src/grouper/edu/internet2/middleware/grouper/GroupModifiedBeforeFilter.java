@@ -23,7 +23,7 @@ import  java.util.*;
  * Query by groups modified before the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupModifiedBeforeFilter.java,v 1.7 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: GroupModifiedBeforeFilter.java,v 1.8 2007-08-24 14:18:15 blair Exp $
  * @since   1.1.0
  */
 public class GroupModifiedBeforeFilter extends BaseQueryFilter {
@@ -54,7 +54,7 @@ public class GroupModifiedBeforeFilter extends BaseQueryFilter {
     throws QueryException
   {
     GrouperSession.validate(s);
-    Set candidates  = PrivilegeResolver.internal_canViewGroups(
+    Set candidates  = PrivilegeHelper.canViewGroups(
       s, GrouperDAOFactory.getFactory().getGroup().findAllByModifiedBefore(this.d)
     );
     Set results     = this.filterByScope(this.ns, candidates);

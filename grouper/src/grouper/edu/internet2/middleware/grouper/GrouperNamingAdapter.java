@@ -34,7 +34,7 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.62 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.63 2007-08-24 14:18:15 blair Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -199,7 +199,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     try {
       GrouperSession.validate(s);
       Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-      PrivilegeResolver.internal_canPrivDispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
+      PrivilegeHelper.dispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
       if (!f.getType().equals(FieldType.NAMING)) {
         throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
       }  
@@ -269,7 +269,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    PrivilegeResolver.internal_canPrivDispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
+    PrivilegeHelper.dispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
     if (!f.getType().equals(FieldType.NAMING)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
@@ -312,7 +312,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    PrivilegeResolver.internal_canPrivDispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
+    PrivilegeHelper.dispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
     if (!f.getType().equals(FieldType.NAMING)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  

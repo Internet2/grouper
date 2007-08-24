@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Test suites that need to be refactored.
  * @author  blair christensen.
- * @version $Id: SuiteRefactor.java,v 1.1 2007-08-14 17:15:53 blair Exp $
+ * @version $Id: SuiteRefactor.java,v 1.2 2007-08-24 14:18:16 blair Exp $
  * @sincd   @HEAD@
  */
 public class SuiteRefactor extends TestCase {
@@ -45,8 +45,6 @@ public class SuiteRefactor extends TestCase {
     suite.addTest( SuiteMemberOf.suite()         );
     suite.addTest( SuiteAccessPrivs.suite()      );
     suite.addTest( SuiteXml.suite()              );
-    suite.addTest( SuiteWheelGroup.suite()       );
-    suite.addTest( SuitePrivCache.suite()        );
     return suite;
   }
 

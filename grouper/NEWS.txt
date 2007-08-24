@@ -29,6 +29,9 @@ Released: TBD
     * membership_owner_list_and_type_idx (owner_id, list_name, list_type, mship_type)
 * Reduce spurious error when checking if a group-or-stem was child of another stem. [GRP-11]
 * Reduced number of queries required to retrieve Group members [GRP-22]
+* Refactored privilege resolution and caching. [GRP-19]
+* Privilege caching now controlled in "conf/grouper.ehcache.xml", not "conf/grouper.properties".  
+  Privilege caching is now per session, not per JVM.
 
 ---
 

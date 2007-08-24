@@ -30,7 +30,7 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.94 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: Member.java,v 1.95 2007-08-24 14:18:15 blair Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -62,14 +62,12 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeResolver.internal_canADMIN(
-        this.getSession(), g, this.getSubject()
-      );
+      return PrivilegeHelper.canAdmin( this.getSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 
     }
-  } // public boolean canAdmin(g)
+  }
 
   /**
    * Can this {@link Member} <b>CREATE</b> on this {@link Stem}.
@@ -88,14 +86,12 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.STEM_NULL);
     }
     try {
-      return PrivilegeResolver.internal_canCREATE(
-        this.getSession(), ns, this.getSubject()
-      );
+      return PrivilegeHelper.canCreate( this.getSession(), ns, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 
     }
-  } // public boolean canCreate(ns)
+  } 
 
   /**
    * Can this {@link Member} <b>OPTIN</b> on this {@link Group}.
@@ -114,14 +110,12 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeResolver.internal_canOPTIN(
-        this.getSession(), g, this.getSubject()
-      );
+      return PrivilegeHelper.canOptin( this.getSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
     }
-  } // public boolean canOptin(g)
+  } 
 
   /**
    * Can this {@link Member} <b>OPTOUT</b> on this {@link Group}.
@@ -140,14 +134,12 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeResolver.internal_canOPTOUT(
-        this.getSession(), g, this.getSubject()
-      );
+      return PrivilegeHelper.canOptout( this.getSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
     }
-  } // public boolean canOptout(g)
+  } 
 
   /**
    * Can this {@link Member} <b>READ</b> on this {@link Group}.
@@ -166,14 +158,12 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeResolver.internal_canREAD(
-        this.getSession(), g, this.getSubject()
-      );
+      return PrivilegeHelper.canRead( this.getSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
     }
-  } // public boolean canRead(g)
+  } 
 
   /**
    * Can this {@link Member} <b>STEM</b> on this {@link Stem}.
@@ -192,12 +182,12 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.STEM_NULL);
     }
     try {
-      return PrivilegeResolver.internal_canSTEM(ns, this.getSubject());
+      return PrivilegeHelper.canStem( ns, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
     }
-  } // public boolean canStem(ns)
+  } 
 
   /**
    * Can this {@link Member} <b>UPDATE</b> on this {@link Group}.
@@ -216,9 +206,7 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeResolver.internal_canUPDATE(
-        this.getSession(), g, this.getSubject()
-      );
+      return PrivilegeHelper.canUpdate( this.getSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -242,12 +230,12 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeResolver.internal_canVIEW(g, this.getSubject());
+      return PrivilegeHelper.canView( this.getSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 
     }
-  } // public boolean canView(g)
+  } 
 
   /**
    * Get groups where this member has an effective membership.
@@ -412,13 +400,13 @@ public class Member extends GrouperAPI implements Serializable {
   public Set getPrivs(Group g) {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getPrivs(this.getSession(), g, this.getSubject());
+      privs = this.getSession().getAccessResolver().getPrivileges( g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
-  } // public Set getPrivs(g)
+  } 
 
   /**
    * Find naming privileges held by this member on a {@link Stem}.
@@ -431,13 +419,13 @@ public class Member extends GrouperAPI implements Serializable {
   public Set getPrivs(Stem ns) {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getPrivs(this.getSession(), ns, this.getSubject());
+      privs = this.getSession().getNamingResolver().getPrivileges( ns, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
     }
     return privs;
-  } // public Set getPrivs(ns)
+  }
 
   /**
    * Get {@link Subject} that maps to this member.
@@ -565,20 +553,15 @@ public class Member extends GrouperAPI implements Serializable {
 {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.getSession(), this.getSubject(), AccessPrivilege.ADMIN
-      );
-    }
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.ADMIN;
-      ErrorLog.fatal(Member.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.ADMIN
+              );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
-  } // public Set hasAdmin()
+  } 
 
   /**
    * Report whether this member has ADMIN on the specified group.
@@ -608,20 +591,13 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getStemsWhereSubjectHasPriv(
-        this.getSession(), this.getSubject(), NamingPrivilege.CREATE
-      );
-    } 
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.CREATE;
-      ErrorLog.fatal(Member.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      privs = this.getSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.CREATE );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
     }
     return privs;
-  } // public Set hasCreate()
+  } 
 
   /**
    * Report whether this member has CREATE on the specified stem.
@@ -651,20 +627,15 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.getSession(), this.getSubject(), AccessPrivilege.OPTIN
-      );
-    }
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTIN;
-      ErrorLog.fatal(Member.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.OPTIN
+              );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
-  } // public Set hasOptin()
+  } 
 
   /**
    * Report whether this member has OPTIN on the specified group.
@@ -693,6 +664,7 @@ public class Member extends GrouperAPI implements Serializable {
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();
+/*
     try {
       privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
         this.getSession(), this.getSubject(), AccessPrivilege.OPTOUT
@@ -703,11 +675,17 @@ public class Member extends GrouperAPI implements Serializable {
       ErrorLog.fatal(Member.class, msg);
       throw new GrouperRuntimeException(msg, eS);
     }
+*/
+    try {
+      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.OPTOUT
+              );
+    }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
-  } // public Set hasOptout()
+  }
 
   /**
    * Report whether this member has OPTOUT on the specified group.
@@ -737,20 +715,15 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.getSession(), this.getSubject(), AccessPrivilege.READ
-      );
-    }
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.READ;
-      ErrorLog.fatal(Member.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.READ
+              );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
-  } // public Set hasRead()
+  } 
 
   /**
    * Report whether this member has READ on the specified group.
@@ -780,17 +753,10 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getStemsWhereSubjectHasPriv(
-        this.getSession(), this.getSubject(), NamingPrivilege.STEM
-      );
-    }
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.STEM;
-      ErrorLog.fatal(Member.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      privs = this.getSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.STEM );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
     }
     return privs;
   } // public Set hasStem()
@@ -822,20 +788,15 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.getSession(), this.getSubject(), AccessPrivilege.UPDATE
-      );
-    }
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.UPDATE;
-      ErrorLog.fatal(Member.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.UPDATE
+              );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
-  } // public Set hasUpdate()
+  } 
 
   /**
    * Report whether this member has UPDATE on the specified group.
@@ -865,20 +826,15 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.getSession(), this.getSubject(), AccessPrivilege.VIEW
-      );
-    }
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.VIEW;
-      ErrorLog.fatal(Member.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
+      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+                this.getSubject(), AccessPrivilege.VIEW
+              );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
-  } // public Set hasView()
+  } 
 
   /**
    * Report whether this member has VIEW on the specified group.
@@ -1246,27 +1202,33 @@ public class Member extends GrouperAPI implements Serializable {
     return groups;
   } // private Set _getGroups(it)
 
+  /**
+   * @since   ???
+   */
   private boolean _hasPriv(Group g, Privilege priv) {
     boolean rv = false;
     try {
-      rv = PrivilegeResolver.internal_hasPriv(this.getSession(), g, this.getSubject(), priv);
+      rv = this.getSession().getAccessResolver().hasPrivilege( g, this.getSubject(), priv );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
-  } // private boolean _hasPriv(g, priv)
+  } 
 
+  /**
+   * @since   ???
+   */
   private boolean _hasPriv(Stem ns, Privilege priv) {
     boolean rv = false;
     try {
-      rv = PrivilegeResolver.internal_hasPriv(this.getSession(), ns, this.getSubject(), priv);
+      rv = this.getSession().getNamingResolver().hasPrivilege( ns, this.getSubject(), priv );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
-  } // private boolean _hasPriv(ns, priv)
+  }
 
-} // public class Member extends GrouperAPI implements Serializable
+} 
 

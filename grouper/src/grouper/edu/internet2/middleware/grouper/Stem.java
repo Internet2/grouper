@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.133 2007-08-15 16:35:10 blair Exp $
+ * @version $Id: Stem.java,v 1.134 2007-08-24 14:18:15 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -147,7 +147,7 @@ public class Stem extends GrouperAPI implements Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     GrouperSession.validate(this.getSession());
-    if ( !PrivilegeResolver.internal_canSTEM( this, this.getSession().getSubject() ) ) {
+    if ( !PrivilegeHelper.canStem( this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     DeleteStemValidator v = DeleteStemValidator.validate(this);
@@ -211,7 +211,8 @@ public class Stem extends GrouperAPI implements Owner {
       child = new Group();
       child.setDTO(dto);
       child.setSession( this.getSession() ); 
-      if ( RootPrivilegeResolver.internal_canVIEW(child, subj) ) {
+      
+      if ( PrivilegeHelper.canView( this.getSession().internal_getRootSession(), child, subj ) ) {
         groups.add(child);
       }
     }
@@ -234,7 +235,7 @@ public class Stem extends GrouperAPI implements Owner {
     for ( Group group : this.getChildGroups(scope) ) {
       for ( Privilege priv : privileges ) {
         try {
-          PrivilegeResolver.internal_canPrivDispatch( this.getSession(), group, this.getSession().getSubject(), priv );
+          PrivilegeHelper.dispatch( this.getSession(), group, this.getSession().getSubject(), priv );
           groups.add(group);
         }
         catch (InsufficientPrivilegeException eIP) {
@@ -297,7 +298,7 @@ public class Stem extends GrouperAPI implements Owner {
     for ( Stem stem : this.getChildStems(scope) ) {
       for ( Privilege priv : privileges ) {
         try {
-          PrivilegeResolver.internal_canPrivDispatch( this.getSession(), stem, this.getSession().getSubject(), priv );
+          PrivilegeHelper.dispatch( this.getSession(), stem, this.getSession().getSubject(), priv );
           stems.add(stem);
         }
         catch (InsufficientPrivilegeException eIP) {
@@ -377,17 +378,8 @@ public class Stem extends GrouperAPI implements Owner {
   public Set getCreators() 
     throws  GrouperRuntimeException
   {
-    try {
-      return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.getSession(), this, NamingPrivilege.CREATE
-      );
-    }
-    catch (SchemaException eS) {
-      String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.CREATE;
-      ErrorLog.fatal(Stem.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
-    }
-  } // public Set getCreators()
+    return this.getSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.CREATE);
+  }
 
   /**
    * Get stem description.
@@ -554,8 +546,8 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(Subject subj) {
-    return PrivilegeResolver.internal_getPrivs(this.getSession(), this, subj);
-  } // public Set getPrivs(subj)
+    return this.getSession().getNamingResolver().getPrivileges(this, subj);
+  } 
 
   /**
    * Get subjects with STEM privilege on this stem.
@@ -568,17 +560,8 @@ public class Stem extends GrouperAPI implements Owner {
   public Set getStemmers() 
     throws  GrouperRuntimeException
   {
-    try {
-      return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.getSession(), this, NamingPrivilege.STEM
-      );
-    }
-    catch (SchemaException eS) {
-      String msg = E.FIELD_REQNOTFOUND + NamingPrivilege.STEM;
-      ErrorLog.fatal(Stem.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
-    }
-  } // public Set getStemmers()
+    return this.getSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.STEM);
+  } 
 
   /**
    */
@@ -589,7 +572,6 @@ public class Stem extends GrouperAPI implements Owner {
   /**
    * Grant a privilege on this stem.
    * <pre class="eg">
-   * // Grant CREATE to the specified subject
    * try {
    *   ns.grantPriv(subj, NamingPrivilege.CREATE);
    * }
@@ -604,16 +586,21 @@ public class Stem extends GrouperAPI implements Owner {
    * @throws  SchemaException
    */
   public void grantPriv(Subject subj, Privilege priv)
-    throws  GrantPrivilegeException,
-            InsufficientPrivilegeException,
-            SchemaException
+    throws  GrantPrivilegeException,        // TODO 20070820 stop throwing
+            InsufficientPrivilegeException, // TODO 20070820 stop throwing
+            SchemaException                 // TODO 20070820 stop throwing
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_grantPriv(this.getSession(), this, subj, priv);
+    try {
+      this.getSession().getNamingResolver().grantPrivilege(this, subj, priv);
+    }
+    catch (UnableToPerformException eUTP) {
+      throw new GrantPrivilegeException( eUTP.getMessage(), eUTP );
+    }
     sw.stop();
     EL.stemGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
-  } // public void grantPriv(subj, priv)
+  } 
 
   /**
    * Check whether a subject has the CREATE privilege on this stem.
@@ -628,8 +615,8 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Boolean true if the subject has CREATE.
    */
   public boolean hasCreate(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, NamingPrivilege.CREATE);
-  } // public boolean hasCreate(subj)
+    return this.getSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.CREATE);
+  } 
  
   /**
    * Check whether a member has the STEM privilege on this stem.
@@ -644,8 +631,8 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Boolean true if the subject has STEM.
    */
   public boolean hasStem(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, NamingPrivilege.STEM);
-  } // public boolean hasStem(subj)
+    return this.getSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.STEM);
+  } 
  
   public int hashCode() {
     return this.getDTO().hashCode();
@@ -717,7 +704,6 @@ public class Stem extends GrouperAPI implements Owner {
   /**
    * Revoke all privileges of the specified type on this stem.
    * <pre class="eg">
-   * // Revoke CREATE from everyone on this stem.
    * try {
    *   ns.revokePriv(NamingPrivilege.CREATE);
    * }
@@ -734,21 +720,28 @@ public class Stem extends GrouperAPI implements Owner {
    * @throws  SchemaException
    */
   public void revokePriv(Privilege priv) 
-    throws  InsufficientPrivilegeException,
+    throws  InsufficientPrivilegeException, // TODO 20070820 stop throwing this
             RevokePrivilegeException,
-            SchemaException
+            SchemaException                 // TODO 20070820 stop throwing this
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_revokePriv(this.getSession(), this, priv);
+    if ( Privilege.isAccess(priv) ) {
+      throw new SchemaException("attempt to use access privilege");
+    }
+    try {
+      this.getSession().getNamingResolver().revokePrivilege(this, priv);
+    }
+    catch (UnableToPerformException e) {
+      throw new RevokePrivilegeException( e.getMessage(), e );
+    }
     sw.stop();
     EL.stemRevokePriv(this.getSession(), this.getName(), priv, sw);
-  } // public void revokePriv(priv)
+  }
  
   /**
    * Revoke a privilege on this stem.
    * <pre class="eg">
-   * // Revoke CREATE from the specified subject
    * try {
    *   ns.revokePriv(subj, NamingPrivilege.CREATE);
    * }
@@ -766,16 +759,24 @@ public class Stem extends GrouperAPI implements Owner {
    * @throws  SchemaException
    */
   public void revokePriv(Subject subj, Privilege priv)
-    throws  InsufficientPrivilegeException,
+    throws  InsufficientPrivilegeException, // TODO 20070820 stop throwing this
             RevokePrivilegeException,
-            SchemaException
+            SchemaException                 // TODO 20070820 stop throwing this
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_revokePriv(this.getSession(), this, subj, priv);
+    if ( Privilege.isAccess(priv) ) {
+      throw new SchemaException("attempt to use access privilege");
+    }
+    try {
+      this.getSession().getNamingResolver().revokePrivilege(this, subj, priv);
+    }
+    catch (UnableToPerformException e) {
+      throw new RevokePrivilegeException( e.getMessage(), e );
+    }
     sw.stop();
     EL.stemRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
-  } // public void revokePriv(subj, priv)
+  } 
  
   /**
    * Set stem description.
@@ -801,7 +802,7 @@ public class Stem extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (!RootPrivilegeResolver.internal_canSTEM(this, this.getSession().getSubject())) {
+    if ( !PrivilegeHelper.canStem( this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
@@ -814,7 +815,7 @@ public class Stem extends GrouperAPI implements Owner {
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set description: " + eDAO.getMessage(), eDAO );
     }
-  } // public void setDescription(value)
+  }
 
   /**
    * Set <i>displayExtension</i>.
@@ -849,7 +850,7 @@ public class Stem extends GrouperAPI implements Owner {
         throw new StemModifyException( nv.getErrorMessage() );
       }
     }
-    if (!RootPrivilegeResolver.internal_canSTEM(this, this.getSession().getSubject())) {
+    if ( !PrivilegeHelper.canStem( this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
@@ -916,7 +917,7 @@ public class Stem extends GrouperAPI implements Owner {
         throw new StemModifyException( nv.getErrorMessage() );
       }
     }
-    if (!RootPrivilegeResolver.internal_canSTEM(this, this.getSession().getSubject())) {
+    if ( !PrivilegeHelper.canStem( this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
@@ -1005,7 +1006,7 @@ public class Stem extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if ( !RootPrivilegeResolver.internal_canCREATE( this.getSession(), this, this.getSession().getSubject() ) ) {
+    if ( !PrivilegeHelper.canCreate( this.getSession(), this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
     } 
     GrouperValidator v = AddGroupValidator.validate(this, extn, dExtn);
@@ -1085,7 +1086,7 @@ public class Stem extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    if (!RootPrivilegeResolver.internal_canSTEM( this, this.getSession().getSubject() ) ) {
+    if ( !PrivilegeHelper.canStem( this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     } 
     GrouperValidator v = AddStemValidator.validate(this, extn, dExtn);
@@ -1144,20 +1145,17 @@ public class Stem extends GrouperAPI implements Owner {
     //
     // Possibly a bug. The modify* attrs get set when granting ADMIN at creation.
     try {
-      GrouperSession  orig  = this.s;
-      GrouperSession  root  = orig.internal_getRootSession();
-      g.setSession(root);
-      PrivilegeResolver.internal_grantPriv(root, g, orig.getSubject(), AccessPrivilege.ADMIN);
+      this.getSession().internal_getRootSession().getAccessResolver().grantPrivilege(
+        g, this.getSession().getSubject(), AccessPrivilege.ADMIN       
+      );
 
       // Now optionally grant other privs
-      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.ADMIN , GrouperConfig.GCGAA );
-      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.OPTIN , GrouperConfig.GCGAOI);
-      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO);
-      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.READ  , GrouperConfig.GCGAR );
-      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
-      this._grantOptionalPrivUponCreate(root, g, AccessPrivilege.VIEW  , GrouperConfig.GCGAV );
-
-      g.setSession(orig);
+      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.ADMIN, GrouperConfig.GCGAA );
+      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.OPTIN, GrouperConfig.GCGAOI );
+      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.OPTOUT, GrouperConfig.GCGAOO );
+      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.READ, GrouperConfig.GCGAR );
+      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.UPDATE, GrouperConfig.GCGAU );
+      this._grantOptionalPrivUponCreate( this.getSession(), g, AccessPrivilege.VIEW, GrouperConfig.GCGAV );
     }
     catch (GrantPrivilegeException eGP)         {
       throw new GroupAddException(eGP.getMessage(), eGP);
@@ -1168,7 +1166,10 @@ public class Stem extends GrouperAPI implements Owner {
     catch (SchemaException eS)                  {
       throw new GroupAddException(eS.getMessage(), eS);
     }
-  } // private void _grantDefaultPrivsUponCreate(g)
+    catch (UnableToPerformException eUTP) {
+      throw new GroupAddException( eUTP.getMessage(), eUTP );
+    }
+  } 
 
   private void _grantDefaultPrivsUponCreate(Stem ns)
     throws  StemAddException
@@ -1181,20 +1182,17 @@ public class Stem extends GrouperAPI implements Owner {
     //
     // Possibly a bug. The modify* attrs get set when granting privs at creation.
     try {
-      GrouperSession  orig  = this.s;
-      GrouperSession  root  = orig.internal_getRootSession();
-      ns.setSession(root);
-      PrivilegeResolver.internal_grantPriv(root, ns, orig.getSubject(), NamingPrivilege.STEM);
+      this.getSession().internal_getRootSession().getNamingResolver().grantPrivilege(
+        ns, this.getSession().getSubject(), NamingPrivilege.STEM
+      );
 
       // Now optionally grant other privs
       this._grantOptionalPrivUponCreate(
-        root, ns, NamingPrivilege.CREATE, GrouperConfig.SCGAC
+        this.getSession(), ns, NamingPrivilege.CREATE, GrouperConfig.SCGAC
       );
       this._grantOptionalPrivUponCreate(
-        root, ns, NamingPrivilege.STEM  , GrouperConfig.SCGAS
+        this.getSession(), ns, NamingPrivilege.STEM, GrouperConfig.SCGAS
       );
-
-      ns.setSession(orig);
     }
     catch (GrantPrivilegeException eGP)         {
       throw new StemAddException(eGP.getMessage(), eGP);
@@ -1205,33 +1203,45 @@ public class Stem extends GrouperAPI implements Owner {
     catch (SchemaException eS)                  {
       throw new StemAddException(eS.getMessage(), eS);
     }
-  } // private void _grantDefaultPrivsUponCreate(ns)
+    catch (UnableToPerformException eUTP) {
+      throw new StemAddException( eUTP.getMessage(), eUTP );
+    }
+  } 
 
+  /**
+   * @throws  IllegalStateException if <i>o</i> is neither group nor stem.
+   * @since   ???
+   */
   private void _grantOptionalPrivUponCreate(
     GrouperSession root, Object o, Privilege p, String opt
   ) 
     throws  GrantPrivilegeException,
+            IllegalStateException,
             InsufficientPrivilegeException,
-            SchemaException
+            SchemaException,
+            UnableToPerformException
   {
     Subject       all = SubjectFinder.findAllSubject();
     if (GrouperConfig.getProperty(opt).equals(GrouperConfig.BT)) {
       StopWatch sw = new StopWatch();
       sw.start();
-      if      (o.getClass().equals(Group.class)) {
+      if      (o instanceof Group) {
         Group g = (Group) o;
-        PrivilegeResolver.internal_grantPriv(root, g, all, p);
+        this.getSession().getAccessResolver().grantPrivilege(g, all, p);
         sw.stop();
         EL.groupGrantPriv(this.getSession(), g.getName(), all, p, sw);
       }
-      else if (o.getClass().equals(Stem.class)) {
+      else if (o instanceof Stem) {
         Stem ns = (Stem) o;
-        PrivilegeResolver.internal_grantPriv(root, ns, all, p);
+        this.getSession().getNamingResolver().grantPrivilege(ns, all, p);
         sw.stop();
         EL.stemGrantPriv(this.getSession(), ns.getName(), all, p, sw);
       }
+      else {
+        throw new IllegalStateException("unexpected condition: object is not group or stem: " + o);
+      }
     }
-  } // private void _grantOptionalPrivUponCreate(root, o, p, opt)
+  } 
 
   // @since   1.2.0
   private Set _renameChildGroups(String attr, String modifier, long modifyTime) {

@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.86 2007-08-14 17:15:52 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.87 2007-08-24 14:18:15 blair Exp $
  */
 public class MembershipFinder {
   
@@ -68,9 +68,7 @@ public class MembershipFinder {
         ) 
       );
       ms.setSession(s);
-      PrivilegeResolver.internal_canPrivDispatch(
-        s, ms.getGroup(), s.getSubject(), f.getReadPriv()
-      );
+      PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     }
     catch (GroupNotFoundException eGNF)         {
@@ -112,7 +110,7 @@ public class MembershipFinder {
     try {
       Member m = MemberFinder.findBySubject(s, subj);
       try {
-        PrivilegeResolver.internal_canPrivDispatch( s, g, s.getSubject(), f.getReadPriv() );
+        PrivilegeHelper.dispatch( s, g, s.getSubject(), f.getReadPriv() );
         Iterator  it    = GrouperDAOFactory.getFactory().getMembership().findAllEffective(
           g.getUuid(), m.getUuid(), f, via.getUuid(), depth
         ).iterator();
@@ -165,9 +163,7 @@ public class MembershipFinder {
         ) 
       );
       ms.setSession(s);
-      PrivilegeResolver.internal_canPrivDispatch(
-        s, ms.getGroup(), s.getSubject(), f.getReadPriv()
-      );
+      PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     }
     catch (GroupNotFoundException eGNF)         {
@@ -246,7 +242,7 @@ public class MembershipFinder {
     try {
       Member          m;
       GrouperSession  s   = group.getSession();
-      PrivilegeResolver.internal_canPrivDispatch( s, group, s.getSubject(), field.getReadPriv() );
+      PrivilegeHelper.dispatch( s, group, s.getSubject(), field.getReadPriv() );
       for ( MemberDTO dto : GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndField( group.getUuid(), field ) ) {
         m = new Member();
         m.setSession(s);
@@ -269,7 +265,7 @@ public class MembershipFinder {
   {
     GrouperSession.validate(s);
     Set       subjs = new LinkedHashSet();
-    Iterator  it    = PrivilegeResolver.internal_canViewMemberships(
+    Iterator  it    = PrivilegeHelper.canViewMemberships(
       s, GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( o.getUuid(), f )
     ).iterator();
     try {
@@ -374,7 +370,7 @@ public class MembershipFinder {
      // @filtered  true
      // @session   true
     GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewMemberships(
+    return PrivilegeHelper.canViewMemberships(
       s, GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndFieldAndType(o.getUuid(), f, type)
     );
   } // protected static Set internal_findAllByOwnerAndFieldAndType(s, o, f, type)
@@ -387,7 +383,7 @@ public class MembershipFinder {
     // @filtered  true
     // @session   true
     GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewMemberships( 
+    return PrivilegeHelper.canViewMemberships( 
       s, GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByMemberAndField( m.getUuid(), f ) 
     );
   } // protected static Set internal_findAllEffectiveByMemberAndField(s, m, f)
@@ -397,7 +393,7 @@ public class MembershipFinder {
     // @filtered  true
     // @session   true
     GrouperSession.validate(s);
-    return PrivilegeResolver.internal_canViewMemberships( 
+    return PrivilegeHelper.canViewMemberships( 
       s, GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField( m.getUuid(), f ) 
     );
   } // protected static Set internal_findAllImmediateByMemberAndField(s, m, f)
@@ -413,7 +409,7 @@ public class MembershipFinder {
     if ( !m.equals( MemberFinder.internal_findAllMember() ) ) {
       mships.addAll( dao.findMembershipsByMemberAndField( MemberFinder.internal_findAllMember().getUuid(), f ) );
     }
-    return PrivilegeResolver.internal_canViewMemberships(s, mships);
+    return PrivilegeHelper.canViewMemberships(s, mships);
   } // protected static Set internal_findMemberships(s, m, f)
 
 } // public class MembershipFinder

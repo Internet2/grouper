@@ -21,15 +21,13 @@ package edu.internet2.middleware.grouper.internal.cache;
  * Simple cache implementation for holding boolean values.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SimpleBooleanCache.java,v 1.2 2007-04-18 15:56:59 blair Exp $
+ * @version $Id: SimpleBooleanCache.java,v 1.3 2007-08-24 14:18:15 blair Exp $
  * @since   1.2.0     
  */
 public class SimpleBooleanCache extends SimpleCache {
 
-  // PUBLIC INSTANCE METHODS //
+  // TODO 20070820 eliminate-or-refactor
 
-  // TODO 20070412 merge back into "SimpleCache"?
-  
   /**
    * Retrieve a cached {@link Object}.
    * <p/>

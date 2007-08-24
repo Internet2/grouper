@@ -20,7 +20,7 @@ import  edu.internet2.middleware.subject.Subject;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CanOptinValidator.java,v 1.2 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: CanOptinValidator.java,v 1.3 2007-08-24 14:18:15 blair Exp $
  * @since   1.2.0
  */
 class CanOptinValidator extends GrouperValidator {
@@ -39,14 +39,14 @@ class CanOptinValidator extends GrouperValidator {
     {
       v.setErrorMessage(E.GROUP_COI);
     }
-    else if ( !PrivilegeResolver.internal_canOPTIN(g.getSession(), g, subj) ) {
+    else if ( !PrivilegeHelper.canOptin(g.getSession(), g, subj) ) {
       v.setErrorMessage(E.CANNOT_OPTIN);
     }
     else {
       v.setIsValid(true);
     }
     return v;
-  } // protected static CanOptinValidator validate(g, subj, f)
+  } 
 
-} // class CanOptinValidator extends GrouperValidator
+} 
 

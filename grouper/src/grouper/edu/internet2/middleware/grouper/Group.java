@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.164 2007-08-14 17:15:52 blair Exp $
+ * @version $Id: Group.java,v 1.165 2007-08-24 14:18:15 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -110,9 +110,7 @@ public class Group extends GrouperAPI implements Owner {
       StopWatch sw  = new StopWatch();
       sw.start();
 
-      PrivilegeResolver.internal_canPrivDispatch( 
-        this.getSession(), this, this.getSession().getSubject(), Group.getDefaultList().getWritePriv() 
-      );
+      PrivilegeHelper.dispatch( this.getSession(), this, this.getSession().getSubject(), Group.getDefaultList().getWritePriv() );
 
       Composite     c   = new Composite();
       CompositeDTO  _c  = new CompositeDTO()
@@ -262,7 +260,7 @@ public class Group extends GrouperAPI implements Owner {
     if ( type.isSystemType() ) {
       throw new SchemaException("cannot edit system group types");
     }
-    if ( !PrivilegeResolver.internal_canADMIN( this.getSession(), this, this.getSession().getSubject() ) ) {
+    if ( !PrivilegeHelper.canAdmin( this.getSession(), this, this.getSession().getSubject() ) ) {
       throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
     }
     try {
@@ -348,7 +346,7 @@ public class Group extends GrouperAPI implements Owner {
       throw new SchemaException(E.INVALID_GROUP_TYPE + f.getGroupType().toString());
     }
     try {
-      PrivilegeResolver.internal_canPrivDispatch( this.getSession(), this, subj, f.getReadPriv() );
+      PrivilegeHelper.dispatch( this.getSession(), this, subj, f.getReadPriv() );
       return true;
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -427,7 +425,7 @@ public class Group extends GrouperAPI implements Owner {
     StopWatch sw = new StopWatch();
     sw.start();
     GrouperSession.validate( this.getSession() );
-    if ( !PrivilegeResolver.internal_canADMIN( this.getSession(), this, this.getSession().getSubject() ) )
+    if ( !PrivilegeHelper.canAdmin( this.getSession(), this, this.getSession().getSubject() ) )
     {
       throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
     }
@@ -693,7 +691,7 @@ public class Group extends GrouperAPI implements Owner {
       if ( type.isSystemType() ) {
         throw new SchemaException("cannot edit system group types");
       }
-      if ( !PrivilegeResolver.internal_canADMIN( this.getSession(), this, this.getSession().getSubject() ) ) {
+      if ( !PrivilegeHelper.canAdmin( this.getSession(), this, this.getSession().getSubject() ) ) {
         throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
       }
 
@@ -739,17 +737,8 @@ public class Group extends GrouperAPI implements Owner {
   public Set getAdmins() 
     throws  GrouperRuntimeException
   {
-    try {
-      return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.ADMIN
-      );
-    }
-    catch (SchemaException eS) {
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.ADMIN;
-      ErrorLog.fatal(Group.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
-    }
-  } // public Set getAdmins()
+    return this.getSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.ADMIN);
+  }
 
   /**
    * Get attribute value.
@@ -1208,7 +1197,7 @@ public class Group extends GrouperAPI implements Owner {
     throws  SchemaException
   {
     return new LinkedHashSet( 
-      PrivilegeResolver.internal_canViewMemberships( 
+      PrivilegeHelper.canViewMemberships( 
         this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( this.getUuid(), f )
       )
     );
@@ -1310,17 +1299,8 @@ public class Group extends GrouperAPI implements Owner {
   public Set getOptins() 
     throws  GrouperRuntimeException
   {
-    try {
-      return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.OPTIN
-      );
-    } 
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTIN;
-      ErrorLog.fatal(Group.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
-    }
-  } // public Set getOptins()
+    return this.getSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.OPTIN);
+  } 
 
   /**
    * Get subjects with the OPTOUT privilege on this group.
@@ -1333,17 +1313,8 @@ public class Group extends GrouperAPI implements Owner {
   public Set getOptouts() 
     throws  GrouperRuntimeException
   {
-    try {
-      return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.OPTOUT
-      );
-    } 
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTOUT;
-      ErrorLog.fatal(Group.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
-    }
-  } // public Set getOptouts()
+    return this.getSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.OPTOUT);
+  } 
 
   /**
    * Get parent stem.
@@ -1382,10 +1353,8 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Set of {@link AccessPrivilege} objects.
    */
   public Set getPrivs(Subject subj) {
-    return PrivilegeResolver.internal_getPrivs(
-      this.getSession(), this, subj
-    );
-  } // public Set getPrivs(subj)
+    return this.getSession().getAccessResolver().getPrivileges(this, subj);
+  } 
 
 
   /**
@@ -1399,17 +1368,8 @@ public class Group extends GrouperAPI implements Owner {
   public Set getReaders() 
     throws  GrouperRuntimeException
   {
-    try {
-      return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.READ
-      );
-    } 
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.READ;
-      ErrorLog.fatal(Group.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
-    }
-  } // public Set getReaders()
+    return this.getSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.READ);
+  } 
 
   /**
    * Get removable group types for this group.
@@ -1422,7 +1382,7 @@ public class Group extends GrouperAPI implements Owner {
   public Set getRemovableTypes() {
     Set types = new LinkedHashSet();
     // Must have ADMIN to remove types.
-    if (PrivilegeResolver.internal_canADMIN(this.s, this, this.s.getSubject())) {
+    if (PrivilegeHelper.canAdmin(this.s, this, this.s.getSubject())) {
       GroupType t;
       Iterator  iter  = this.getTypes().iterator();
       while (iter.hasNext()) {
@@ -1467,17 +1427,8 @@ public class Group extends GrouperAPI implements Owner {
   public Set getUpdaters() 
     throws  GrouperRuntimeException
   {
-    try {
-      return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.UPDATE
-      );
-    } 
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.UPDATE;
-      ErrorLog.fatal(Group.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
-    }
-  } // public set getUpdateres()
+    return this.getSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.UPDATE);
+  } 
 
   /**
    */
@@ -1496,17 +1447,8 @@ public class Group extends GrouperAPI implements Owner {
   public Set getViewers() 
     throws  GrouperRuntimeException
   {
-    try {
-      return PrivilegeResolver.internal_getSubjectsWithPriv(
-        this.getSession(), this, AccessPrivilege.VIEW
-      );
-    } 
-    catch (SchemaException eS) { 
-      String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.VIEW;
-      ErrorLog.fatal(Group.class, msg);
-      throw new GrouperRuntimeException(msg, eS);
-    }
-  } // public Set getViewers()
+    return this.getSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.VIEW);
+  } 
 
   /**
    * Grant privilege to a subject on this group.
@@ -1534,10 +1476,15 @@ public class Group extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_grantPriv(this.getSession(), this, subj, priv);
+    try {
+      this.getSession().getAccessResolver().grantPrivilege(this, subj, priv);
+    }
+    catch (UnableToPerformException eUTP) {
+      throw new GrantPrivilegeException( eUTP.getMessage(), eUTP );
+    }
     sw.stop();
     EL.groupGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
-  }  // public void grantPriv(subj, priv)
+  } 
 
   /**
    * Check whether the subject has ADMIN on this group.
@@ -1553,8 +1500,8 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if subject has ADMIN.
    */
   public boolean hasAdmin(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.ADMIN);
-  } // public boolean hasAdmin(subj)
+    return this.getSession().getAccessResolver().hasPrivilege(this, subj, AccessPrivilege.ADMIN);
+  } 
 
   /**
    * Does this {@link Group} have a {@link Composite} membership.
@@ -1764,8 +1711,8 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if subject has OPTIN.
    */
   public boolean hasOptin(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.OPTIN);
-  } // public boolean hasOption(subj)
+    return this.getSession().getAccessResolver().hasPrivilege(this, subj, AccessPrivilege.OPTIN);
+  }
 
   /**
    * Check whether the subject has OPTOUT on this group.
@@ -1781,8 +1728,8 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if subject has OPTOUT.
    */
   public boolean hasOptout(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.OPTOUT);
-  } // public boolean hasOptout(subj)
+    return this.getSession().getAccessResolver().hasPrivilege(this, subj, AccessPrivilege.OPTOUT);
+  } 
 
   /**
    * Check whether the subject has READ on this group.
@@ -1798,8 +1745,8 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if subject has READ.
    */
   public boolean hasRead(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv( this.getSession(), this, subj, AccessPrivilege.READ );
-  } // public boolean hasRead(subj)
+    return this.getSession().getAccessResolver().hasPrivilege(this, subj, AccessPrivilege.READ);
+  } 
 
   /**
    * Check whether group has the specified type.
@@ -1829,8 +1776,8 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if subject has UPDATE.
    */
   public boolean hasUpdate(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.UPDATE);
-  } // public boolean hasUpdate(subj)
+    return this.getSession().getAccessResolver().hasPrivilege(this, subj, AccessPrivilege.UPDATE);
+  } 
 
   /**
    * Check whether the subject has VIEW on this group.
@@ -1846,8 +1793,8 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if subject has VIEW.
    */
   public boolean hasView(Subject subj) {
-    return PrivilegeResolver.internal_hasPriv(this.getSession(), this, subj, AccessPrivilege.VIEW);
-  } // public boolean hasView(subj)
+    return this.getSession().getAccessResolver().hasPrivilege(this, subj, AccessPrivilege.VIEW);
+  } 
 
   /**
    * Is this {@link Group} a factor in a {@link Composite} membership.
@@ -1890,10 +1837,18 @@ public class Group extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_revokePriv(this.getSession(), this, priv);
+    if ( Privilege.isNaming(priv) ) {
+      throw new SchemaException("attempt to use naming privilege");
+    }
+    try {
+      this.getSession().getAccessResolver().revokePrivilege(this, priv);
+    }
+    catch (UnableToPerformException eUTP) {
+      throw new RevokePrivilegeException( eUTP.getMessage(), eUTP );
+    }
     sw.stop();
     EL.groupRevokePriv(this.getSession(), this.getName(), priv, sw);
-  } // public void revokePriv(priv)
+  } 
 
   /**
    * Revoke a privilege from the specified subject.
@@ -1921,10 +1876,18 @@ public class Group extends GrouperAPI implements Owner {
   {
     StopWatch sw = new StopWatch();
     sw.start();
-    PrivilegeResolver.internal_revokePriv(this.getSession(), this, subj, priv);
+    if ( Privilege.isNaming(priv) ) {
+      throw new SchemaException("attempt to use naming privilege");
+    }
+    try {
+      this.getSession().getAccessResolver().revokePrivilege(this, subj, priv);
+    }
+    catch (UnableToPerformException eUTP) {
+      throw new RevokePrivilegeException( eUTP.getMessage(), eUTP );
+    }
     sw.stop();
     EL.groupRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
-  } // public void revokePriv(subj, priv)
+  } 
 
   /**
    * Set an attribute value.
@@ -2206,7 +2169,7 @@ public class Group extends GrouperAPI implements Owner {
       throw new SchemaException( E.INVALID_GROUP_TYPE + f.getGroupType().toString() );
     }
     try {
-      PrivilegeResolver.internal_canPrivDispatch( this.getSession(), this, subj, f.getWritePriv() );
+      PrivilegeHelper.dispatch( this.getSession(), this, subj, f.getWritePriv() );
       return true;
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -2228,9 +2191,7 @@ public class Group extends GrouperAPI implements Owner {
   private boolean _canReadField(String name) {
     boolean rv = false;
     try {
-      PrivilegeResolver.internal_canPrivDispatch( 
-        this.getSession(), this, this.getSession().getSubject(), FieldFinder.find(name).getReadPriv()
-      );
+      PrivilegeHelper.dispatch( this.getSession(), this, this.getSession().getSubject(), FieldFinder.find(name).getReadPriv() );
       rv = true;
     }
     catch (InsufficientPrivilegeException eIP) {
