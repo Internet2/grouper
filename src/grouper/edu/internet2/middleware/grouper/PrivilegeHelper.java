@@ -30,7 +30,7 @@ import  java.util.Set;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.1 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.2 2007-08-24 18:33:50 blair Exp $
  * @since   @HEAD@
  */
 class PrivilegeHelper {
@@ -309,6 +309,38 @@ class PrivilegeHelper {
       throw new InsufficientPrivilegeException(msg);
     }
   } 
+
+  /**
+   * TODO 20070824 add tests
+   * @return  Given an array of privileges return an array of access privileges.
+   * @since   @HEAD@
+   */
+  protected static Privilege[] getAccessPrivileges(Privilege[] privileges) {
+    Set<Privilege> accessPrivs = new LinkedHashSet();
+    for ( Privilege priv : privileges ) {
+      if ( Privilege.isAccess(priv) ) {
+        accessPrivs.add(priv);
+      }
+    } 
+    Privilege[] template = {};
+    return accessPrivs.toArray(template);
+  }
+
+  /**
+   * TODO 20070824 add tests
+   * @return  Given an array of privileges return an array of naming privileges.
+   * @since   @HEAD@
+   */
+  protected static Privilege[] getNamingPrivileges(Privilege[] privileges) {
+    Set<Privilege> namingPrivs = new LinkedHashSet();
+    for ( Privilege priv : privileges ) {
+      if ( Privilege.isNaming(priv) ) {
+        namingPrivs.add(priv);
+      }
+    } 
+    Privilege[] template = {};
+    return namingPrivs.toArray(template);
+  }
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
