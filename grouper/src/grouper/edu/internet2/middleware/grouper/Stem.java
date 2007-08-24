@@ -38,7 +38,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.139 2007-08-24 19:42:50 blair Exp $
+ * @version $Id: Stem.java,v 1.140 2007-08-24 19:45:56 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -236,7 +236,7 @@ public class Stem extends GrouperAPI implements Owner {
     this.param.notNullPrivilegeArray(privileges);
 
     Set<Group> groups = new LinkedHashSet();
-    // TODO 200700814 this is hideously ugly and far from optimal
+    // TODO 20070814 this is hideously ugly and far from optimal
     for ( Group group : this.getChildGroups(scope) ) {
       for ( Privilege priv : PrivilegeHelper.getAccessPrivileges(privileges) ) {
         try {
@@ -299,7 +299,7 @@ public class Stem extends GrouperAPI implements Owner {
     this.param.notNullPrivilegeArray(privileges); 
 
     Set<Stem> stems = new LinkedHashSet();
-    // TODO 200700824 this could be a lot prettier
+    // TODO 20070824 this could be a lot prettier
     for ( Stem stem : this.getChildStems(scope) ) {
 
       for ( Privilege priv : PrivilegeHelper.getNamingPrivileges(privileges) ) {

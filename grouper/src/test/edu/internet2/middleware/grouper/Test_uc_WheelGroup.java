@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.6 2007-08-24 14:54:26 blair Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.7 2007-08-24 19:45:56 blair Exp $
  * @since   @HEAD@
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -115,7 +115,6 @@ public class Test_uc_WheelGroup extends GrouperTest {
     s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   }
 
-/* FIXME 20070816 temporarily disabled.  see GRP-24 for more details. */
   /**
    * @since   @HEAD@
    */
