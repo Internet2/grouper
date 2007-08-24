@@ -35,7 +35,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.71 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.72 2007-08-24 14:54:26 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -364,6 +364,7 @@ public class GrouperSession extends GrouperAPI {
     // TODO 20070417 deprecate if possible
     if (this.rootSession == null) {
       GrouperSession rs = new GrouperSession();
+      rs.cfg = this.cfg;
       rs.setDTO(
         new GrouperSessionDTO()
           .setMemberUuid( MemberFinder.internal_findRootMember().getUuid() )
