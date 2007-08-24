@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by all group attributes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupAnyAttributeFilter.java,v 1.9 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: GroupAnyAttributeFilter.java,v 1.10 2007-08-24 14:18:15 blair Exp $
  */
 public class GroupAnyAttributeFilter extends BaseQueryFilter {
 
@@ -57,7 +57,7 @@ public class GroupAnyAttributeFilter extends BaseQueryFilter {
     throws QueryException
   {
     GrouperSession.validate(s);
-    Set candidates = PrivilegeResolver.internal_canViewGroups(
+    Set candidates = PrivilegeHelper.canViewGroups(
       s, GrouperDAOFactory.getFactory().getGroup().findAllByAnyApproximateAttr(this.val)
     );
     Set results     = this.filterByScope(this.ns, candidates);

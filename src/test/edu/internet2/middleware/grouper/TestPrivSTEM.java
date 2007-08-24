@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.9 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.10 2007-08-24 14:18:16 blair Exp $
  */
 public class TestPrivSTEM extends GrouperTest {
 
@@ -47,32 +47,6 @@ public class TestPrivSTEM extends GrouperTest {
 
   // Tests
 
-  public void testGrantedToCreator() {
-    LOG.info("testGrantedToCreator");
-    // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    // Get root stem and grant STEM on it to !root subject
-    Stem            root    = StemHelper.findRootStem(s);
-    PrivHelper.grantPriv(s, root, nrs.getSubject(), PRIV);
-    // Now get root as !root subject 
-    Stem            nrroot  = StemHelper.findRootStem(nrs);
-    // Create stem as !root subject.  
-    Stem            edu     = StemHelper.addChildStem(nrroot, "edu", "education");
-    // !root subject should have STEM on the new child stem.
-    PrivHelper.hasPriv(nrs, edu, nrs.getSubject(), PRIV, true);
-  } // public void testGrantedToCreator()
-
-  // Grant CREATE without STEM 
-  public void testGrantCreateFail() {
-    LOG.info("testGranteCreateFail");
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    // Now get root as !root subject 
-    Stem            nrroot  = StemHelper.findRootStem(nrs);
-    // Now fail to grant priv as !root to another !root
-    PrivHelper.grantPrivFail(nrs, nrroot, SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE); 
-  } // public void testGrantCreateFail()
-
   // Grant CREATE with STEM 
   public void testGrantCreate() {
     LOG.info("testGrantCreate");
@@ -90,16 +64,6 @@ public class TestPrivSTEM extends GrouperTest {
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE, true);
   } // public void testGrantCreate()
 
-  // Grant STEM without STEM 
-  public void testGrantStemFail() {
-    LOG.info("testGrantStemFail");
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    // Now get root as !root subject 
-    Stem            nrroot  = StemHelper.findRootStem(nrs);
-    // Now fail to grant priv as !root to another !root
-    PrivHelper.grantPrivFail(nrs, nrroot, SubjectTestHelper.SUBJ1, PRIV); 
-  } // public void testGrantStemFail()
-
   // Grant STEM with STEM 
   public void testGrantStem() {
     LOG.info("testGrantStem");
@@ -116,22 +80,6 @@ public class TestPrivSTEM extends GrouperTest {
     // Other !root should now have STEM 
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, PRIV, true);
   } // public void testGrantStem()
-
-  // Revoke all CREATE without STEM 
-  public void testRevokeAllCreateFail() {
-    LOG.info("testRevokeAllCreateFail");
-    // Get root and !root sessions
-    LOG.debug("testRevokeAllCreateFail.0");
-    LOG.debug("testRevokeAllCreateFail.1");
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    LOG.info("testRevokeAllCreateFail.2");
-    // Now get root as !root subject 
-    Stem            nrroot  = StemHelper.findRootStem(nrs);
-    LOG.debug("testRevokeAllCreateFail.3");
-    // Now fail to revoke priv as !root 
-    PrivHelper.revokePrivFail(nrroot, NamingPrivilege.CREATE); 
-    LOG.debug("testRevokeAllCreateFail.4");
-  } // public void testRevokeCreateFail()
 
   // Revoke all CREATE with STEM 
   public void testRevokeAllCreate() {
@@ -154,16 +102,6 @@ public class TestPrivSTEM extends GrouperTest {
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE, false);
   } // public void testRevokeAllCreate()
 
-  // Revoke all STEM without STEM 
-  public void testRevokeAllStemFail() {
-    LOG.info("testRevokeAllStemFail");
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    // Now get root as !root subject 
-    Stem            nrroot  = StemHelper.findRootStem(nrs);
-    // Now fail to revoke priv as !root from another !root
-    PrivHelper.revokePrivFail(nrroot, PRIV);
-  } // public void testRevokeAllStemFail()
-
   // Revoke all STEM with STEM 
   public void testRevokeAllStem() {
     LOG.info("testRevokeAllStem");
@@ -185,16 +123,6 @@ public class TestPrivSTEM extends GrouperTest {
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, PRIV, false);
   } // public void testRevokeAllStem()
 
-  // Revoke CREATE without STEM 
-  public void testRevokeCreateFail() {
-    LOG.info("testRevokeCreateFail");
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    // Now get root as !root subject 
-    Stem            nrroot  = StemHelper.findRootStem(nrs);
-    // Now fail to revoke priv as !root from another !root
-    PrivHelper.revokePrivFail(nrs, nrroot, SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE); 
-  } // public void testRevokeCreateFail()
-
   // Revoke CREATE with STEM 
   public void testRevokeCreate() {
     LOG.info("testRevokeCreate");
@@ -215,17 +143,6 @@ public class TestPrivSTEM extends GrouperTest {
     // Other !root should now not have CREATE 
     PrivHelper.hasPriv(nrs, nrroot, SubjectTestHelper.SUBJ1, NamingPrivilege.CREATE, false);
   } // public void testRevokeCreate()
-
-  // Revoke STEM without STEM 
-  public void testRevokeStemFail() {
-    LOG.info("testRevokeStemFail");
-    // Get !root session
-    GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
-    // Now get root as !root subject 
-    Stem            nrroot  = StemHelper.findRootStem(nrs);
-    // Now fail to revoke priv as !root from another !root
-    PrivHelper.revokePrivFail(nrs, nrroot, SubjectTestHelper.SUBJ1, PRIV);
-  } // public void testRevokeStemFail()
 
   // Revoke STEM with STEM 
   public void testRevokeStem() {

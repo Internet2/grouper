@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.4 2007-08-15 16:35:10 blair Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.5 2007-08-24 14:18:16 blair Exp $
  * @since   @HEAD@
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -56,14 +56,62 @@ public class Test_uc_WheelGroup extends GrouperTest {
   public void test_presenceOfWheelGroupDoesNotAutomaticallyGrantPrivs() 
     throws  SessionException
   {
-    GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );   // FIXME 20070725
-    GrouperConfig.internal_setProperty( GrouperConfig.PROP_WHEEL_GROUP, "etc:wheel" );  // FIXME 20070725
-
-    assertFalse( GrouperSession.start(subjA).getMember().canAdmin(dev) );
-
-    GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );  // FIXME 20070725
+    GrouperSession s = GrouperSession.start(this.subjA);
+    s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
+    assertFalse( s.getMember().canAdmin(dev) );
+    s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   }
 
+
+  /** 
+   * @since   @HEAD@
+   */
+  public void test_canAdminWhenMemberOfWheel()
+    throws  GrantPrivilegeException,
+            GroupNotFoundException,
+            InsufficientPrivilegeException,
+            MemberAddException,
+            SchemaException,
+            SessionException
+  {
+    // make this.subjA a member of wheel
+    GroupFinder.findByUuid( 
+      GrouperSession.start( SubjectFinder.findRootSubject() ), wheel.getUuid()
+    ).addMember( this.subjA );
+
+    // start session and turn on wheel
+    GrouperSession s = GrouperSession.start(this.subjA);
+    s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
+    // now should be able to grant admin 
+    assertTrue( s.getMember().canAdmin(dev) );
+    s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
+  }
+
+  /** 
+   * @since   @HEAD@
+   */
+  public void test_allCanAdminWhenMemberOfWheel()
+    throws  GrantPrivilegeException,
+            GroupNotFoundException,
+            InsufficientPrivilegeException,
+            MemberAddException,
+            SchemaException,
+            SessionException
+  {
+    // make ALL a member of wheel
+    GroupFinder.findByUuid( 
+      GrouperSession.start( SubjectFinder.findRootSubject() ), wheel.getUuid()
+    ).addMember( SubjectFinder.findAllSubject() );
+
+    // start session and turn on wheel
+    GrouperSession s = GrouperSession.start( SubjectFinder.findAllSubject() );
+    s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
+    // now should be able to grant admin 
+    assertTrue( s.getMember().canAdmin(dev) );
+    s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
+  }
+
+/* FIXME 20070816 temporarily disabled.  see GRP-24 for more details.
   public void test_fromNotAMemberOfTheWheelGroupToAMemberOfTheWheelGroup() 
     throws  InsufficientPrivilegeException,
             InterruptedException,
@@ -93,6 +141,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     GrouperConfig.internal_setProperty( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );  // FIXME 20070806
   } 
+*/
 
 } 
 

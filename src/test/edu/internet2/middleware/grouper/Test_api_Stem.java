@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.4 2007-08-15 16:35:10 blair Exp $
+ * @version $Id: Test_api_Stem.java,v 1.5 2007-08-24 14:18:16 blair Exp $
  * @since   @HEAD@
  */
 public class Test_api_Stem extends GrouperTest {
@@ -316,6 +316,24 @@ public class Test_api_Stem extends GrouperTest {
 
   public void test_isRootStem_notRootStem() {
     assertFalse( this.top.isRootStem() );
+  }
+
+
+
+  /**
+   * @since   @HEAD@
+   */
+  public void test_revokePriv_Priv_accessPrivilege() 
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException
+  {
+    try {
+      this.root.revokePriv(AccessPrivilege.ADMIN);
+      fail("failed to throw expected SchemaException");
+    }
+    catch (SchemaException eExpected) {
+      assertTrue(true);
+    }
   }
 
 }

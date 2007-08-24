@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroup.java,v 1.8 2007-08-24 14:18:16 blair Exp $
  */
 public class TestGroup extends GrouperTest {
 
@@ -339,9 +339,9 @@ public class TestGroup extends GrouperTest {
       s.stop();
     }
     catch (Exception e) {
-      Assert.fail(e.getMessage());
+      T.e(e);
     }
-  } // public void testGetAndHasPrivs()
+  }
 
   public void testSetDescription() {
     LOG.info("testSetDescription");

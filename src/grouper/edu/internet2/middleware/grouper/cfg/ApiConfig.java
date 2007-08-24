@@ -22,7 +22,7 @@ import  edu.internet2.middleware.grouper.GrouperRuntimeException;
  * Grouper API configuration.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.1 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: ApiConfig.java,v 1.2 2007-08-24 14:18:15 blair Exp $
  * @since   @HEAD@
  */
 public class ApiConfig implements Configuration {
@@ -47,9 +47,9 @@ public class ApiConfig implements Configuration {
    * Property name for {@link NamingAdapter} implementation.
    * @since   @HEAD@
    */ 
-  public    static  final String                  NAMING_PRIVILEGE_INTERFACE  = "privileges.naming.interface";
-  private                 boolean                 useLocal;
-  private                 PropertiesConfiguration defaultCfg, localCfg;
+  public    static  final   String                  NAMING_PRIVILEGE_INTERFACE  = "privileges.naming.interface";
+  private                   boolean                 useLocal;
+  private                   PropertiesConfiguration defaultCfg, localCfg;
 
 
   /**

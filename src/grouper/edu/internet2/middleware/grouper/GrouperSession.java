@@ -18,11 +18,14 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import  edu.internet2.middleware.grouper.internal.cache.BasePrivilegeCache;
-import  edu.internet2.middleware.grouper.internal.cache.PrivilegeCache;
 import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
+import  edu.internet2.middleware.grouper.privs.AccessResolver;
+import  edu.internet2.middleware.grouper.privs.AccessResolverFactory;
+import  edu.internet2.middleware.grouper.privs.NamingResolver;
+import  edu.internet2.middleware.grouper.privs.NamingResolverFactory;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
+import  edu.internet2.middleware.grouper.internal.util.Realize;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  org.apache.commons.lang.builder.*;
@@ -32,16 +35,18 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.70 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.71 2007-08-24 14:18:15 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
   private static final String KEY_MEMBER = "member"; // for state caching
 
 
+  private AccessAdapter   access;         // TODO 20070816 eliminate
+  private AccessResolver  accessResolver; 
   private ApiConfig       cfg;
-  private PrivilegeCache  accessCache;
-  private PrivilegeCache  namingCache;
+  private NamingAdapter   naming;         // TODO 20070816 eliminate
+  private NamingResolver  namingResolver;
   private GrouperSession  rootSession;
   private SimpleCache     stateCache;
 
@@ -137,6 +142,30 @@ public class GrouperSession extends GrouperAPI {
     return this.getConfig(ApiConfig.ACCESS_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
 
+  /**
+   * Get {@link AccessAdapter} implementation.
+   * <p/>
+   * @since   @HEAD@
+   */
+  public AccessAdapter getAccessImpl() {
+    if (this.access == null) {
+      this.access = (AccessAdapter) Realize.instantiate(
+        new ApiConfig().getProperty( ApiConfig.ACCESS_PRIVILEGE_INTERFACE ) 
+      );
+    }
+    return this.access;
+  }
+
+  /**
+   * @return  <code>AccessResolver</code> used by this session.
+   * @since   @HEAD@
+   */
+  protected AccessResolver getAccessResolver() {
+    if (this.accessResolver == null) {
+      this.accessResolver = AccessResolverFactory.getInstance(this);
+    }
+    return this.accessResolver;
+  }
 
   /**
    * Get specified {@link ApiConfig} property.
@@ -145,7 +174,7 @@ public class GrouperSession extends GrouperAPI {
    * @throws  IllegalArgumentException if <i>property</i> is null.
    * @since   @HEAD@
    */
-  protected String getConfig(String property) 
+  public String getConfig(String property) 
     throws  IllegalArgumentException
   {
     return this.cfg.getProperty(property);
@@ -195,6 +224,31 @@ public class GrouperSession extends GrouperAPI {
   } 
 
   /**
+   * Get {@link NamingAdapter} implementation.
+   * <p/>
+   * @since   @HEAD@
+   */
+  public NamingAdapter getNamingImpl() {
+    if (this.naming == null) {
+      this.naming = (NamingAdapter) Realize.instantiate(
+        new ApiConfig().getProperty( ApiConfig.NAMING_PRIVILEGE_INTERFACE ) 
+      );
+    }
+    return this.naming;
+  }
+
+  /**
+   * @return  <code>AccessResolver</code> used by this session.
+   * @since   @HEAD@
+   */
+  protected NamingResolver getNamingResolver() {
+    if (this.namingResolver == null) {
+      this.namingResolver = NamingResolverFactory.getInstance(this);
+    }
+    return this.namingResolver;
+  }
+
+  /**
    * Get this session's id.
    * <pre class="eg">
    * String id = s.internal_getSessionId();
@@ -238,6 +292,19 @@ public class GrouperSession extends GrouperAPI {
   public int hashCode() {
     return this.getDTO().hashCode();
   } // public int hashCode()
+
+  /**
+   * Currently just a testing hack.
+   * <p/>
+   * @return  Value of <i>property</i> or null if not set.
+   * @throws  IllegalArgumentException if <i>property</i> is null.
+   * @since   @HEAD@
+   */
+  protected void setConfig(String property, String value) 
+    throws  IllegalArgumentException
+  {
+    this.cfg.setProperty(property, value);
+  }
 
   /**
    * Stop this API session.
@@ -289,24 +356,6 @@ public class GrouperSession extends GrouperAPI {
 
 
   // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
-  protected PrivilegeCache internal_getAccessCache() {
-    if (this.accessCache == null) {
-      this.accessCache = BasePrivilegeCache.getCache( this.cfg.getProperty(ApiConfig.ACCESS_PRIVILEGE_CACHE_INTERFACE) );
-      DebugLog.info( GrouperSession.class, "using access cache: " + this.accessCache.getClass().getName() );
-    }
-    return this.accessCache;
-  }
-
-  // @since   1.2.0
-  protected PrivilegeCache internal_getNamingCache() {
-    if (this.namingCache == null) {
-      this.namingCache = BasePrivilegeCache.getCache( this.cfg.getProperty(ApiConfig.NAMING_PRIVILEGE_CACHE_INTERFACE) );
-      DebugLog.info( GrouperSession.class, "using naming cache: " + this.namingCache.getClass().getName() );
-    }
-    return this.namingCache;
-  }
 
   // @since   1.2.0
   protected GrouperSession internal_getRootSession() 

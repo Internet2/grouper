@@ -21,7 +21,7 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.29 2007-08-14 17:15:53 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.30 2007-08-24 14:18:16 blair Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -30,6 +30,7 @@ public class SuiteDefault extends TestCase {
 
     suite.addTestSuite( Test_api_ChildGroupFilter.class );
     suite.addTestSuite( Test_api_ChildStemFilter.class );
+    suite.addTestSuite( Test_api_Group.class );
     suite.addTestSuite( Test_api_GrouperAPI.class );
     suite.addTestSuite( Test_api_GrouperConfig.class );
     suite.addTestSuite( Test_api_GrouperDAOFactory.class );
@@ -52,7 +53,19 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite( Test_subj_SubjectResolverFactory.class );
     suite.addTestSuite( Test_subj_ValidatingResolver.class );
 
+    suite.addTestSuite( Test_privs_AccessResolver.class );
+    suite.addTestSuite( Test_privs_AccessResolverFactory.class );
+    suite.addTestSuite( Test_privs_AccessWrapper.class );
+    suite.addTestSuite( Test_privs_CachingAccessResolver.class );
+    suite.addTestSuite( Test_privs_CachingNamingResolver.class );
+    suite.addTestSuite( Test_privs_NamingResolver.class );
+    suite.addTestSuite( Test_privs_NamingResolverFactory.class );
+    suite.addTestSuite( Test_privs_NamingWrapper.class );
+
+    suite.addTestSuite( Test_uc_NamingPrivs.class );
     suite.addTestSuite( Test_uc_WheelGroup.class );
+
+    suite.addTestSuite( Test_util_ParameterHelper.class );
 
     suite.addTest( SuiteRefactor.suite() ); 
 

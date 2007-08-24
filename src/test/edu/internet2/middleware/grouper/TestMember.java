@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestMember.java,v 1.8 2007-08-24 14:18:16 blair Exp $
  */
 public class TestMember extends TestCase {
 
@@ -202,74 +202,76 @@ public class TestMember extends TestCase {
     }
   } // public void testGetMembershipsAndGroups()
 
-  public void testGetAndHasPrivs() {
+  public void testGetAndHasPrivs()
+    throws  GrantPrivilegeException,
+            GroupAddException,
+            InsufficientPrivilegeException,
+            MemberNotFoundException,
+            SchemaException,
+            SessionException,
+            StemAddException
+  {
     LOG.info("testGetAndHasPrivs");
-    try {
-      Subject         subj  = SubjectTestHelper.SUBJ0;
-      Subject         all   = SubjectTestHelper.SUBJA;
-      GrouperSession  s     = SessionHelper.getRootSession();
-      Stem            root  = StemFinder.findRootStem(s);
-      Stem            edu   = root.addChildStem("edu", "edu");
-      Group           i2    = edu.addChildGroup("i2", "i2");
-      Group           uofc  = edu.addChildGroup("uofc", "uofc");
-      GroupHelper.addMember(uofc, subj, "members");
-      GroupHelper.addMember(i2, uofc.toSubject(), "members");
-      Member          m     = MemberFinder.findBySubject(s, subj);
-      PrivHelper.grantPriv(s, root, subj, NamingPrivilege.CREATE);
-      PrivHelper.grantPriv(s, edu,  all,  NamingPrivilege.STEM); 
-      PrivHelper.grantPriv(s, i2,   all,  AccessPrivilege.OPTIN);
-      PrivHelper.grantPriv(s, uofc, subj, AccessPrivilege.UPDATE);
 
-      FieldFinder.find("members");
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    Subject         all   = SubjectTestHelper.SUBJA;
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    Group           i2    = edu.addChildGroup("i2", "i2");
+    Group           uofc  = edu.addChildGroup("uofc", "uofc");
+    GroupHelper.addMember(uofc, subj, "members");
+    GroupHelper.addMember(i2, uofc.toSubject(), "members");
+    Member          m     = MemberFinder.findBySubject(s, subj);
+    root.grantPriv( subj, NamingPrivilege.CREATE );
+    edu.grantPriv( all, NamingPrivilege.STEM );
+    i2.grantPriv( all, AccessPrivilege.OPTIN );
+    uofc.grantPriv( subj, AccessPrivilege.UPDATE );
 
-      // Get naming privs
-      Assert.assertTrue("getprivs/root  == 1",  m.getPrivs(root).size() == 1);
-      Assert.assertTrue("getprivs/edu   == 1",  m.getPrivs(edu).size()  == 1);
+    // Get naming privs
+    assertEquals( "getPrivs/root", 1, m.getPrivs(root).size() );
+    assertEquals( "getprivs/edu", 1, m.getPrivs(edu).size() ); 
 
-      // Get access privs
-      Assert.assertTrue("getprivs/i2    == 1",  m.getPrivs(i2).size()   == 3);
-      Assert.assertTrue("getprivs/uofc  == 1",  m.getPrivs(uofc).size() == 3);;
+    // Get access privs
+    assertEquals( "getprivs/i2", 3, m.getPrivs(i2).size() );
+    assertEquals( "getprivs/uofc", 3, m.getPrivs(uofc).size() );
 
-      // Has naming privs
-      Assert.assertTrue("hasCreate == 1",   m.hasCreate().size() == 1);
-      Assert.assertTrue("hasCreate: root",  m.hasCreate(root));
-      Assert.assertTrue("!hasCreate: edu",  !m.hasCreate(edu));
+    // Has naming privs
+    Assert.assertTrue("hasCreate == 1",   m.hasCreate().size() == 1);
+    Assert.assertTrue("hasCreate: root",  m.hasCreate(root));
+    Assert.assertTrue("!hasCreate: edu",  !m.hasCreate(edu));
 
-      Assert.assertTrue("hasStem == 1",     m.hasStem().size() == 1);
-      Assert.assertTrue("!hasStem: root",   !m.hasStem(root));
-      Assert.assertTrue("hasStem: edu",     m.hasStem(edu));
+    Assert.assertTrue("hasStem == 1",     m.hasStem().size() == 1);
+    Assert.assertTrue("!hasStem: root",   !m.hasStem(root));
+    Assert.assertTrue("hasStem: edu",     m.hasStem(edu));
 
-      // Has access privs
-      Assert.assertTrue("hasAdmin == 0",    m.hasAdmin().size() == 0);
-      Assert.assertTrue("!hasAdmin: i2",    !m.hasAdmin(i2));
-      Assert.assertTrue("!hasAdmin: uofc",  !m.hasAdmin(uofc));
+    // Has access privs
+    Assert.assertTrue("hasAdmin == 0",    m.hasAdmin().size() == 0);
+    Assert.assertTrue("!hasAdmin: i2",    !m.hasAdmin(i2));
+    Assert.assertTrue("!hasAdmin: uofc",  !m.hasAdmin(uofc));
 
-      Assert.assertTrue("hasOptin == 1",    m.hasOptin().size() == 1);
-      Assert.assertTrue("hasOptin: i2",     m.hasOptin(i2));
-      Assert.assertTrue("!hasOptin: uofc",  !m.hasOptin(uofc));
+    Assert.assertTrue("hasOptin == 1",    m.hasOptin().size() == 1);
+    Assert.assertTrue("hasOptin: i2",     m.hasOptin(i2));
+    Assert.assertTrue("!hasOptin: uofc",  !m.hasOptin(uofc));
 
-      Assert.assertTrue("hasOptout == 0",   m.hasOptout().size() == 0);
-      Assert.assertTrue("!hasOptout: i2",   !m.hasOptout(i2));
-      Assert.assertTrue("!hasOptout: uofc", !m.hasOptout(uofc));
+    Assert.assertTrue("hasOptout == 0",   m.hasOptout().size() == 0);
+    Assert.assertTrue("!hasOptout: i2",   !m.hasOptout(i2));
+    Assert.assertTrue("!hasOptout: uofc", !m.hasOptout(uofc));
 
-      Assert.assertTrue("hasRead == 2",     m.hasRead().size() == 2);
-      Assert.assertTrue("hasRead: i2",      m.hasRead(i2));
-      Assert.assertTrue("hasRead: uofc",    m.hasRead(uofc));
+    Assert.assertTrue("hasRead == 2",     m.hasRead().size() == 2);
+    Assert.assertTrue("hasRead: i2",      m.hasRead(i2));
+    Assert.assertTrue("hasRead: uofc",    m.hasRead(uofc));
 
-      Assert.assertTrue("hasUpdate == 1",   m.hasUpdate().size() == 1);
-      Assert.assertTrue("!hasUpdate: i2",   !m.hasUpdate(i2));
-      Assert.assertTrue("hasUpdate: uofc",  m.hasUpdate(uofc));
+    Assert.assertTrue("hasUpdate == 1",   m.hasUpdate().size() == 1);
+    Assert.assertTrue("!hasUpdate: i2",   !m.hasUpdate(i2));
+    Assert.assertTrue("hasUpdate: uofc",  m.hasUpdate(uofc));
 
-      Assert.assertTrue("hasView == 2",     m.hasView().size() == 2);
-      Assert.assertTrue("hasView: i2",      m.hasView(i2));
-      Assert.assertTrue("hasView: uofc",    m.hasView(uofc));
+    Assert.assertTrue("hasView == 2",     m.hasView().size() == 2);
+    Assert.assertTrue("hasView: i2",      m.hasView(i2));
+    Assert.assertTrue("hasView: uofc",    m.hasView(uofc));
 
-      s.stop();
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // public void testGetAndHasPrivs()
+    s.stop();
+  } 
 
 }
 

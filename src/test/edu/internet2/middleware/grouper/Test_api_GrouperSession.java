@@ -23,7 +23,7 @@ import  edu.internet2.middleware.grouper.cfg.ApiConfig;
  * Test {@link GrouperSession}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperSession.java,v 1.1 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: Test_api_GrouperSession.java,v 1.2 2007-08-24 14:18:16 blair Exp $
  * @since   @HEAD@
  */
 public class Test_api_GrouperSession extends GrouperTest {
@@ -60,6 +60,31 @@ public class Test_api_GrouperSession extends GrouperTest {
   }
 
 
+
+  public void test_getAccessImpl_instanceOf() {
+    assertTrue( this.s.getAccessImpl() instanceof AccessAdapter );
+  }
+
+
+
+  /**
+   * @since   @HEAD@
+   */
+  public void test_getAccessResolver_notNull() {
+    assertNotNull( this.s.getAccessResolver() );
+  }
+  /**
+   * @since   @HEAD@
+   */
+  public void test_getAccessResolver_equals() {
+    assertEquals(
+      this.s.getAccessResolver(),
+      this.s.getAccessResolver()
+    );
+  }
+
+
+
   public void test_getConfig_null() {
     try {
       this.s.getConfig(null);
@@ -85,6 +110,29 @@ public class Test_api_GrouperSession extends GrouperTest {
 
   public void test_getNamingClass_defaultAccessAdapter() {
     assertEquals( this.cfg.getProperty(ApiConfig.NAMING_PRIVILEGE_INTERFACE), this.s.getNamingClass() );
+  }
+
+
+  public void test_getNamingImpl_instanceOf() {
+    assertTrue( this.s.getNamingImpl() instanceof NamingAdapter );
+  }
+
+
+
+  /**
+   * @since   @HEAD@
+   */
+  public void test_getNamingResolver_notNull() {
+    assertNotNull( this.s.getNamingResolver() );
+  }
+  /**
+   * @since   @HEAD@
+   */
+  public void test_getNamingResolver_equals() {
+    assertEquals(
+      this.s.getNamingResolver(),
+      this.s.getNamingResolver()
+    );
   }
 
 }

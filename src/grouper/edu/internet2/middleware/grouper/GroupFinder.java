@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.47 2007-04-19 16:48:43 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.48 2007-08-24 14:18:15 blair Exp $
  */
 public class GroupFinder {
 
@@ -104,12 +104,12 @@ public class GroupFinder {
     Group g = new Group();
     g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByName(name) );
     g.setSession(s);
-    if (RootPrivilegeResolver.internal_canVIEW(g, s.getSubject())) {
+    if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }
     ErrorLog.error(GroupFinder.class, E.GF_FBNAME + E.CANNOT_VIEW);
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
-  } // public static Group findByName(s, name)
+  } 
 
   /**
    * Find a group within the registry by its {@link GroupType}.
@@ -139,7 +139,7 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null type");
     }
-    Set groups = PrivilegeResolver.internal_canViewGroups(
+    Set groups = PrivilegeHelper.canViewGroups(
       s, GrouperDAOFactory.getFactory().getGroup().findAllByType( (GroupTypeDTO) type.getDTO() )
     );
     if (groups.size() == 1) {
@@ -170,7 +170,7 @@ public class GroupFinder {
     Group g = new Group();
     g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
     g.setSession(s);
-    if (RootPrivilegeResolver.internal_canVIEW(g, s.getSubject())) {
+    if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }
     ErrorLog.error(GroupFinder.class, E.GF_FBUUID + E.CANNOT_VIEW);

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.8 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.9 2007-08-24 14:18:16 blair Exp $
  */
 public class TestBugsClosed extends GrouperTest {
 
@@ -304,168 +304,171 @@ public class TestBugsClosed extends GrouperTest {
 
   // @source  Gary Brown, 20051216, <39C7E27B4A5BE4494B39A93F@cse-gwb.cse.bris.ac.uk>>
   // @status  fixed
-  public void testHasAccessPrivButCannotReadPriv() {
+  public void testHasAccessPrivButCannotReadPriv() 
+    throws  GroupAddException,
+            GroupNotFoundException,
+            InsufficientPrivilegeException,
+            MemberNotFoundException,
+            SessionException,
+            StemAddException
+  {
     LOG.info("testHasAccessPrivButCannotReadPriv");
-    try {
-      // Setup
-      Subject         all   = SubjectFinder.findAllSubject();
-      GrouperSession  s     = SessionHelper.getRootSession();
-      Stem            root  = StemFinder.findRootStem(s);
-      Stem            edu   = root.addChildStem("edu", "edu");
-      Group           a     = edu.addChildGroup("a", "a");
-      Group           b     = edu.addChildGroup("b", "b");
-      Group           c     = edu.addChildGroup("c", "c");
-      edu.addChildGroup("d", "d");
-      PrivHelper.grantPriv(s, a, all, AccessPrivilege.OPTIN);
-      PrivHelper.grantPriv(s, b, all, AccessPrivilege.OPTOUT);
-      PrivHelper.grantPriv(s, c, all, AccessPrivilege.UPDATE);
-      s.stop();
+    // Setup
+    Subject         all   = SubjectFinder.findAllSubject();
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    Group           a     = edu.addChildGroup("a", "a");
+    Group           b     = edu.addChildGroup("b", "b");
+    Group           c     = edu.addChildGroup("c", "c");
+    edu.addChildGroup("d", "d");
+    PrivHelper.grantPriv(s, a, all, AccessPrivilege.OPTIN);
+    PrivHelper.grantPriv(s, b, all, AccessPrivilege.OPTOUT);
+    PrivHelper.grantPriv(s, c, all, AccessPrivilege.UPDATE);
+    s.stop();
 
-      // Test
-      Subject         subj  = SubjectTestHelper.SUBJ0;
-      GrouperSession  nrs   = GrouperSession.start(subj);
-      Member          m     = MemberFinder.findBySubject(nrs, subj);
-      Group           A     = GroupFinder.findByName(nrs, "edu:a");
-      Group           B     = GroupFinder.findByName(nrs, "edu:b");
-      Group           C     = GroupFinder.findByName(nrs, "edu:c");
-      Group           D     = GroupFinder.findByName(nrs, "edu:d");
+    // Test
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    GrouperSession  nrs   = GrouperSession.start(subj);
+    Member          m     = MemberFinder.findBySubject(nrs, subj);
+    Group           A     = GroupFinder.findByName(nrs, "edu:a");
+    Group           B     = GroupFinder.findByName(nrs, "edu:b");
+    Group           C     = GroupFinder.findByName(nrs, "edu:c");
+    Group           D     = GroupFinder.findByName(nrs, "edu:d");
 
-      Set view    = m.hasView();
-      Assert.assertTrue(
-        "VIEW/4 ("    + view.size()   + ")", view.size()    == 4
-      );
-      Assert.assertTrue("VIEW/A/HAS",   A.hasView(subj)   );
-      Assert.assertTrue("VIEW/B/HAS",   B.hasView(subj)   );
-      Assert.assertTrue("VIEW/C/HAS",   C.hasView(subj)   );
-      Assert.assertTrue("VIEW/D/HAS",   D.hasView(subj)   );
-      Assert.assertTrue("VIEW/A/IS" ,   m.hasView(A)      );
-      Assert.assertTrue("VIEW/B/IS" ,   m.hasView(B)      );
-      Assert.assertTrue("VIEW/C/IS" ,   m.hasView(C)      );
-      Assert.assertTrue("VIEW/D/IS" ,   m.hasView(D)      );
+    Set view    = m.hasView();
+    Assert.assertTrue(
+      "VIEW/4 ("    + view.size()   + ")", view.size()    == 4
+    );
+    Assert.assertTrue("VIEW/A/HAS",   A.hasView(subj)   );
+    Assert.assertTrue("VIEW/B/HAS",   B.hasView(subj)   );
+    Assert.assertTrue("VIEW/C/HAS",   C.hasView(subj)   );
+    Assert.assertTrue("VIEW/D/HAS",   D.hasView(subj)   );
+    Assert.assertTrue("VIEW/A/IS" ,   m.hasView(A)      );
+    Assert.assertTrue("VIEW/B/IS" ,   m.hasView(B)      );
+    Assert.assertTrue("VIEW/C/IS" ,   m.hasView(C)      );
+    Assert.assertTrue("VIEW/D/IS" ,   m.hasView(D)      );
 
-      Set read    = m.hasRead();
-      Assert.assertTrue(
-        "READ/4 ("    + read.size()   + ")", read.size()    == 4
-      );
-      Assert.assertTrue("READ/A/HAS",   A.hasRead(subj)   );
-      Assert.assertTrue("READ/B/HAS",   B.hasRead(subj)   );
-      Assert.assertTrue("READ/C/HAS",   C.hasRead(subj)   );
-      Assert.assertTrue("READ/D/HAS",   D.hasRead(subj)   );
-      Assert.assertTrue("READ/A/IS" ,   m.hasRead(A)      );
-      Assert.assertTrue("READ/B/IS" ,   m.hasRead(B)      );
-      Assert.assertTrue("READ/C/IS" ,   m.hasRead(C)      );
-      Assert.assertTrue("READ/D/IS" ,   m.hasRead(D)      );
+    Set read    = m.hasRead();
+    Assert.assertTrue(
+      "READ/4 ("    + read.size()   + ")", read.size()    == 4
+    );
+    Assert.assertTrue("READ/A/HAS",   A.hasRead(subj)   );
+    Assert.assertTrue("READ/B/HAS",   B.hasRead(subj)   );
+    Assert.assertTrue("READ/C/HAS",   C.hasRead(subj)   );
+    Assert.assertTrue("READ/D/HAS",   D.hasRead(subj)   );
+    Assert.assertTrue("READ/A/IS" ,   m.hasRead(A)      );
+    Assert.assertTrue("READ/B/IS" ,   m.hasRead(B)      );
+    Assert.assertTrue("READ/C/IS" ,   m.hasRead(C)      );
+    Assert.assertTrue("READ/D/IS" ,   m.hasRead(D)      );
 
-      Set optin   = m.hasOptin();
-      Assert.assertTrue(
-        "OPTIN/1 ("   + optin.size()  + ")", optin.size()   == 1
-      );
-      Assert.assertTrue("OPTIN/A/HAS",  A.hasOptin(subj)  );
-      Assert.assertTrue("OPTIN/B/HAS",  !B.hasOptin(subj) );
-      Assert.assertTrue("OPTIN/C/HAS",  !C.hasOptin(subj) );
-      Assert.assertTrue("OPTIN/D/HAS",  !D.hasOptin(subj) );
-      Assert.assertTrue("OPTIN/A/IS" ,  m.hasOptin(A)     );
-      Assert.assertTrue("OPTIN/B/IS" ,  !m.hasOptin(B)    );
-      Assert.assertTrue("OPTIN/C/IS" ,  !m.hasOptin(C)    );
-      Assert.assertTrue("OPTIN/D/IS" ,  !m.hasOptin(D)    );
+    Set optin   = m.hasOptin();
+    Assert.assertTrue(
+      "OPTIN/1 ("   + optin.size()  + ")", optin.size()   == 1
+    );
+    Assert.assertTrue("OPTIN/A/HAS",  A.hasOptin(subj)  );
+    Assert.assertTrue("OPTIN/B/HAS",  !B.hasOptin(subj) );
+    Assert.assertTrue("OPTIN/C/HAS",  !C.hasOptin(subj) );
+    Assert.assertTrue("OPTIN/D/HAS",  !D.hasOptin(subj) );
+    Assert.assertTrue("OPTIN/A/IS" ,  m.hasOptin(A)     );
+    Assert.assertTrue("OPTIN/B/IS" ,  !m.hasOptin(B)    );
+    Assert.assertTrue("OPTIN/C/IS" ,  !m.hasOptin(C)    );
+    Assert.assertTrue("OPTIN/D/IS" ,  !m.hasOptin(D)    );
 
-      Set optout  = m.hasOptout();
-      Assert.assertTrue(
-        "OPTOUT/1 ("  + optout.size() + ")", optout.size()  == 1
-      );
-      Assert.assertTrue("OPTOUT/A/HAS", !A.hasOptout(subj));
-      Assert.assertTrue("OPTOUT/B/HAS", B.hasOptout(subj) );
-      Assert.assertTrue("OPTOUT/C/HAS", !C.hasOptout(subj));
-      Assert.assertTrue("OPTOUT/D/HAS", !D.hasOptout(subj));
-      Assert.assertTrue("OPTOUT/A/IS" , !m.hasOptout(A)   );
-      Assert.assertTrue("OPTOUT/B/IS" , m.hasOptout(B)    );
-      Assert.assertTrue("OPTOUT/C/IS" , !m.hasOptout(C)   );
-      Assert.assertTrue("OPTOUT/D/IS" , !m.hasOptout(D)   );
+    Set optout  = m.hasOptout();
+    Assert.assertTrue(
+      "OPTOUT/1 ("  + optout.size() + ")", optout.size()  == 1
+    );
+    Assert.assertTrue("OPTOUT/A/HAS", !A.hasOptout(subj));
+    Assert.assertTrue("OPTOUT/B/HAS", B.hasOptout(subj) );
+    Assert.assertTrue("OPTOUT/C/HAS", !C.hasOptout(subj));
+    Assert.assertTrue("OPTOUT/D/HAS", !D.hasOptout(subj));
+    Assert.assertTrue("OPTOUT/A/IS" , !m.hasOptout(A)   );
+    Assert.assertTrue("OPTOUT/B/IS" , m.hasOptout(B)    );
+    Assert.assertTrue("OPTOUT/C/IS" , !m.hasOptout(C)   );
+    Assert.assertTrue("OPTOUT/D/IS" , !m.hasOptout(D)   );
 
-      Set update  = m.hasUpdate();
-      Assert.assertTrue(
-        "UPDATE/1 ("  + update.size() + ")", update.size()  == 1
-      );
-      Assert.assertTrue("UPDATE/A/HAS", !A.hasUpdate(subj));
-      Assert.assertTrue("UPDATE/B/HAS", !B.hasUpdate(subj));
-      Assert.assertTrue("UPDATE/C/HAS", C.hasUpdate(subj) );
-      Assert.assertTrue("UPDATE/D/HAS", !D.hasUpdate(subj));
-      Assert.assertTrue("UPDATE/A/IS" , !m.hasUpdate(A)   );
-      Assert.assertTrue("UPDATE/B/IS" , !m.hasUpdate(B)   );
-      Assert.assertTrue("UPDATE/C/IS" , m.hasUpdate(C)    );
-      Assert.assertTrue("UPDATE/D/IS" , !m.hasUpdate(D)   );
+    Set update  = m.hasUpdate();
+    Assert.assertTrue(
+      "UPDATE/1 ("  + update.size() + ")", update.size()  == 1
+    );
+    Assert.assertTrue("UPDATE/A/HAS", !A.hasUpdate(subj));
+    Assert.assertTrue("UPDATE/B/HAS", !B.hasUpdate(subj));
+    Assert.assertTrue("UPDATE/C/HAS", C.hasUpdate(subj) );
+    Assert.assertTrue("UPDATE/D/HAS", !D.hasUpdate(subj));
+    Assert.assertTrue("UPDATE/A/IS" , !m.hasUpdate(A)   );
+    Assert.assertTrue("UPDATE/B/IS" , !m.hasUpdate(B)   );
+    Assert.assertTrue("UPDATE/C/IS" , m.hasUpdate(C)    );
+    Assert.assertTrue("UPDATE/D/IS" , !m.hasUpdate(D)   );
 
-      Set admin   = m.hasAdmin();
-      Assert.assertTrue(
-        "ADMIN/0 ("   + admin.size()  + ")", admin.size()   == 0
-      );
-      Assert.assertTrue("ADMIN/A/HAS",  !A.hasAdmin(subj) );
-      Assert.assertTrue("ADMIN/B/HAS",  !B.hasAdmin(subj) );
-      Assert.assertTrue("ADMIN/C/HAS",  !C.hasAdmin(subj) );
-      Assert.assertTrue("ADMIN/D/HAS",  !D.hasAdmin(subj) );
-      Assert.assertTrue("ADMIN/A/IS" ,  !m.hasAdmin(A)    );
-      Assert.assertTrue("ADMIN/B/IS" ,  !m.hasAdmin(B)    );
-      Assert.assertTrue("ADMIN/C/IS" ,  !m.hasAdmin(C)    );
-      Assert.assertTrue("ADMIN/D/IS" ,  !m.hasAdmin(D)    );
+    Set admin   = m.hasAdmin();
+    Assert.assertTrue(
+      "ADMIN/0 ("   + admin.size()  + ")", admin.size()   == 0
+    );
+    Assert.assertTrue("ADMIN/A/HAS",  !A.hasAdmin(subj) );
+    Assert.assertTrue("ADMIN/B/HAS",  !B.hasAdmin(subj) );
+    Assert.assertTrue("ADMIN/C/HAS",  !C.hasAdmin(subj) );
+    Assert.assertTrue("ADMIN/D/HAS",  !D.hasAdmin(subj) );
+    Assert.assertTrue("ADMIN/A/IS" ,  !m.hasAdmin(A)    );
+    Assert.assertTrue("ADMIN/B/IS" ,  !m.hasAdmin(B)    );
+    Assert.assertTrue("ADMIN/C/IS" ,  !m.hasAdmin(C)    );
+    Assert.assertTrue("ADMIN/D/IS" ,  !m.hasAdmin(D)    );
 
-      nrs.stop();
+    nrs.stop();
 
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // public void testHasAccessPrivButCannotReadPriv()
+  } 
 
   // @source  Gary Brown, 20051216, <39C7E27B4A5BE4494B39A93F@cse-gwb.cse.bris.ac.uk>>
   // @status  fixed
-  public void testHasNamingPrivButCannotReadPriv() {
+  public void testHasNamingPrivButCannotReadPriv() 
+    throws  InsufficientPrivilegeException,
+            MemberNotFoundException,
+            SessionException,
+            StemAddException,
+            StemNotFoundException
+  {
     LOG.info("testHasNamingPrivButCannotReadPriv");
-    try {
-      // Setup
-      Subject         all   = SubjectFinder.findAllSubject();
-      GrouperSession  s     = SessionHelper.getRootSession();
-      Stem            root  = StemFinder.findRootStem(s);
-      Stem            edu   = root.addChildStem("edu", "edu");
-      Stem            a     = edu.addChildStem("a", "a");
-      Stem            b     = edu.addChildStem("b", "b");
-      edu.addChildStem("c", "c");
-      PrivHelper.grantPriv(s, a, all, NamingPrivilege.CREATE);
-      PrivHelper.grantPriv(s, b, all, NamingPrivilege.STEM);
-      s.stop();
 
-      // Test
-      Subject         subj  = SubjectTestHelper.SUBJ0;
-      GrouperSession  nrs   = GrouperSession.start(subj);
-      Member          m     = MemberFinder.findBySubject(nrs, subj);
-      Stem            A     = StemFinder.findByName(nrs, "edu:a");
-      Stem            B     = StemFinder.findByName(nrs, "edu:b");
-      Stem            C     = StemFinder.findByName(nrs, "edu:c");
+    // Setup
+    Subject         all   = SubjectFinder.findAllSubject();
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    Stem            a     = edu.addChildStem("a", "a");
+    Stem            b     = edu.addChildStem("b", "b");
+    edu.addChildStem("c", "c");
+    PrivHelper.grantPriv(s, a, all, NamingPrivilege.CREATE);
+    PrivHelper.grantPriv(s, b, all, NamingPrivilege.STEM);
+    s.stop();
 
-      Set create  = m.hasCreate();
-      T.amount( "CREATE", 1, create.size() );
-      Assert.assertTrue("CREATE/A/HAS", A.hasCreate(subj) );
-      Assert.assertTrue("CREATE/B/HAS", !B.hasCreate(subj));
-      Assert.assertTrue("CREATE/C/HAS", !C.hasCreate(subj));
-      Assert.assertTrue("CREATE/A/IS" , m.hasCreate(A)    );
-      Assert.assertTrue("CREATE/B/IS" , !m.hasCreate(B)   );
-      Assert.assertTrue("CREATE/C/IS" , !m.hasCreate(C)   );
+    // Test
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    GrouperSession  nrs   = GrouperSession.start(subj);
+    Member          m     = MemberFinder.findBySubject(nrs, subj);
+    Stem            A     = StemFinder.findByName(nrs, "edu:a");
+    Stem            B     = StemFinder.findByName(nrs, "edu:b");
+    Stem            C     = StemFinder.findByName(nrs, "edu:c");
 
-      Set stem    = m.hasStem();
-      T.amount( "STEM", 1, stem.size() );
-      Assert.assertTrue("STEM/A/HAS"  , !A.hasStem(subj)  );
-      Assert.assertTrue("STEM/B/HAS"  , B.hasStem(subj)   );
-      Assert.assertTrue("STEM/C/HAS"  , !C.hasStem(subj)  );
-      Assert.assertTrue("STEM/A/IS"   , !m.hasStem(A)     );
-      Assert.assertTrue("STEM/B/IS"   , m.hasStem(B)      );
-      Assert.assertTrue("STEM/C/IS"   , !m.hasStem(C)     );
+    Set create  = m.hasCreate();
+    T.amount( "CREATE", 1, create.size() );
+    Assert.assertTrue("CREATE/A/HAS", A.hasCreate(subj) );
+    Assert.assertTrue("CREATE/B/HAS", !B.hasCreate(subj));
+    Assert.assertTrue("CREATE/C/HAS", !C.hasCreate(subj));
+    Assert.assertTrue("CREATE/A/IS" , m.hasCreate(A)    );
+    Assert.assertTrue("CREATE/B/IS" , !m.hasCreate(B)   );
+    Assert.assertTrue("CREATE/C/IS" , !m.hasCreate(C)   );
 
-      nrs.stop();
+    Set stem    = m.hasStem();
+    T.amount( "STEM", 1, stem.size() );
+    Assert.assertTrue("STEM/A/HAS"  , !A.hasStem(subj)  );
+    Assert.assertTrue("STEM/B/HAS"  , B.hasStem(subj)   );
+    Assert.assertTrue("STEM/C/HAS"  , !C.hasStem(subj)  );
+    Assert.assertTrue("STEM/A/IS"   , !m.hasStem(A)     );
+    Assert.assertTrue("STEM/B/IS"   , m.hasStem(B)      );
+    Assert.assertTrue("STEM/C/IS"   , !m.hasStem(C)     );
 
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // public void testHasNamingPrivButCannotReadPriv()
+    nrs.stop();
+  } 
 
   // @source  Gary Brown, 20051216, <39C7E27B4A5BE4494B39A93F@cse-gwb.cse.bris.ac.uk>>
   // @status  fixed

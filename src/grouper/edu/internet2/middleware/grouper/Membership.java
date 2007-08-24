@@ -30,7 +30,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.83 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: Membership.java,v 1.84 2007-08-24 14:18:15 blair Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -67,7 +67,7 @@ public class Membership extends GrouperAPI {
     // Ideally I would use a Hibernate mapping for this, but...
     //   * It wasn't working and I didn't have time to debug it at the time.
     //   * I still need to filter
-    return PrivilegeResolver.internal_canViewMemberships(
+    return PrivilegeHelper.canViewMemberships(
       this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this._getDTO() )
     );
   } // public Set getChildMemberships()

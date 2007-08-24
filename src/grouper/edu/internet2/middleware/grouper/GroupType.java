@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.53 2007-06-01 15:03:29 blair Exp $
+ * @version $Id: GroupType.java,v 1.54 2007-08-24 14:18:15 blair Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -193,7 +193,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     } 
-    if (!RootPrivilegeResolver.internal_isRoot(s)) {
+    if (!PrivilegeHelper.isRoot(s)) {
       String msg = E.GROUPTYPE_NODEL;
       ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);
@@ -350,7 +350,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       throws  InsufficientPrivilegeException,
               SchemaException
   { 
-    if (!RootPrivilegeResolver.internal_isRoot(s)) {
+    if (!PrivilegeHelper.isRoot(s)) {
       String msg = E.GROUPTYPE_NOADD;
       ErrorLog.error(GroupType.class, msg);
       throw new InsufficientPrivilegeException(msg);

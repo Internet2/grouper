@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType4.java,v 1.6 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroupType4.java,v 1.7 2007-08-24 14:18:16 blair Exp $
  */
 public class TestGroupType4 extends GrouperTest {
 
@@ -69,9 +69,9 @@ public class TestGroupType4 extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      Assert.fail("unexpected exception: " + e.getMessage());
+      T.e(e);
     }
-  } // public void testAddAndDeleteCustomTypeAsNonRoot()
+  } 
 
 }
 

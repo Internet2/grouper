@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test using the wrong field type in various operations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWrongFieldType.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestWrongFieldType.java,v 1.7 2007-08-24 14:18:16 blair Exp $
  */
 public class TestWrongFieldType extends TestCase {
 
@@ -60,34 +60,6 @@ public class TestWrongFieldType extends TestCase {
 
 
   // Tests
-
-  public void testNaming() {
-    LOG.info("testNaming");
-    try {
-      root.revokePriv(AccessPrivilege.ADMIN); 
-      Assert.fail("revoked access privilege on a stem");
-    }
-    catch (SchemaException eS) {
-      Assert.assertTrue(eS.getMessage(), true);
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // public void testNaming()
-
-  public void testAccess() {
-    LOG.info("testAccess");
-    try {
-      i2.revokePriv(NamingPrivilege.STEM); 
-      Assert.fail("revoked naming privilege on a group");
-    }
-    catch (SchemaException eS) {
-      Assert.assertTrue(eS.getMessage(), true);
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // public void testAccess()
 
   public void testGroupAttrs() {
     LOG.info("testGroupAttrs");

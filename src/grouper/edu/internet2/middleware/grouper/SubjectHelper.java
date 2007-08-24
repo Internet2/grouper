@@ -24,18 +24,19 @@ import  edu.internet2.middleware.subject.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.21 2007-04-17 17:13:26 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.22 2007-08-24 14:18:15 blair Exp $
  */
-class SubjectHelper {
+public class SubjectHelper {
 
-  // PRIVATE CLASS CONSTANTS //
   private static final String SUBJECT_DELIM = "/";
 
 
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  protected static boolean eq(Object a, Object b) {
+  /**
+   * @return  True if both objects are <code>Subject</code>s and equal.
+   * @since   @HEAD@
+   */
+  public static boolean eq(Object a, Object b) {
+    // TODO 20070816 add tests
     if ( (a == null) || (b == null) ) {
       return false;
     }
@@ -56,7 +57,7 @@ class SubjectHelper {
       return true;
     }
     return false;
-  } // protected static boolean eq(a, b)
+  } 
  
   // @since   1.2.0
   protected static String getPretty(MemberDTO _m) {
