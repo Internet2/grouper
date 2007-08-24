@@ -37,7 +37,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.136 2007-08-24 18:33:50 blair Exp $
+ * @version $Id: Stem.java,v 1.137 2007-08-24 18:51:08 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -313,8 +313,12 @@ public class Stem extends GrouperAPI implements Owner {
       }
     }
     // filtering out naming privileges will happen in "#getChildGroups(Privilege[], Scope)"
+    Stem groupParent;
     for ( Group group : this.getChildGroups(privileges, scope) ) {
-      stems.add( group.getParentStem() );  
+      groupParent = group.getParentStem();
+      if ( !this.equals(groupParent) ) {
+        stems.add(groupParent);
+      }
     }
     return stems;
   }
