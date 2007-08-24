@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouper;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.6 2007-08-24 18:51:08 blair Exp $
+ * @version $Id: Test_api_Stem.java,v 1.7 2007-08-24 18:51:46 blair Exp $
  * @since   @HEAD@
  */
 public class Test_api_Stem extends GrouperTest {
@@ -253,13 +253,6 @@ public class Test_api_Stem extends GrouperTest {
    */
   public void test_getChildStems_PrivilegeArrayAndScope_OneScopeDoNotReturnThisStem() {
     Privilege[] privs = { AccessPrivilege.VIEW };
-/*
-System.err.println("CHECKING FROM: " + this.top);
-java.util.Set<Stem> stems = this.top.getChildStems( privs, Stem.Scope.ONE );
-for ( Stem stem : stems ) {
-System.err.println("STEM: " + stem);
-}
-*/
     assertEquals( 0, this.top.getChildStems( privs, Stem.Scope.ONE ).size() );
   }
 
