@@ -19,39 +19,33 @@ package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.MemberNotFoundException;
 import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
-import  edu.internet2.middleware.grouper.internal.cache.SimpleBooleanCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  edu.internet2.middleware.subject.Subject;
 import  java.io.Serializable;
+import  java.util.HashMap;
 import  net.sf.hibernate.*;
 
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.3 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.4 2007-08-27 17:08:47 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = HibernateMemberDAO.class.getName();
 
-
-  // PRIVATE CLASS VARIABLES //
-  private static SimpleBooleanCache existsCache   = new SimpleBooleanCache();
-  private static SimpleCache        uuid2dtoCache = new SimpleCache();
-
-
-  // HIBERNATE PROPERTIES //
-  private String  id;
-  private String  subjectID;
-  private String  subjectSourceID;
-  private String  subjectTypeID;
-  private String  uuid;
+  private static        HashMap<String, Boolean>  existsCache     = new HashMap<String, Boolean>();
+  private               String                    id;
+  private static final  String                    KLASS           = HibernateMemberDAO.class.getName();
+  private static        SimpleCache               uuid2dtoCache   = new SimpleCache();
+  private               String                    subjectID;
+  private               String                    subjectSourceID;
+  private               String                    subjectTypeID;
+  private               String                    uuid;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -91,7 +85,7 @@ public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,Member
     throws  GrouperDAOException
   {
     if ( existsCache.containsKey(uuid) ) {
-      return existsCache.getBoolean(uuid).booleanValue();
+      return existsCache.get(uuid).booleanValue();
     }
     try {
       Session hs  = HibernateDAO.getSession();
@@ -240,12 +234,12 @@ public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,Member
     existsCache.put( this.getUuid(), false );
     uuid2dtoCache.remove( this.getUuid() );
     return Lifecycle.NO_VETO;
-  } // public boolean onDelete(hs)
+  } 
 
   // @since   1.2.0
   public void onLoad(Session hs, Serializable id) {
     // nothing
-  } // public void onLoad(hs, id)
+  }
 
   // @since   1.2.0
   public boolean onSave(Session hs) 
@@ -253,7 +247,7 @@ public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,Member
   {
     existsCache.put( this.getUuid(), true );
     return Lifecycle.NO_VETO;
-  } // public boolean onSave(hs)
+  } 
 
   // @since   1.2.0
   public boolean onUpdate(Session hs) 
@@ -337,8 +331,8 @@ public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,Member
     throws  HibernateException
   {
     hs.delete("from HibernateMemberDAO as m where m.subjectId != 'GrouperSystem'");
-    existsCache.removeAll(); 
-  } // protected static void reset(hs)
+    existsCache = new HashMap<String, Boolean>();
+  } 
 
 } 
 
