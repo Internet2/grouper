@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.12 2007-08-03 16:03:30 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.13 2007-08-27 15:46:24 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -403,7 +403,7 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
    * and then all child groups within those child stems.  As an optimization, if <i>ns</i> is 
    * the root stem of the registry and a <code>SUB</code> search scope is being used none of 
    * those queries will be performed.  
-   * {@link HibernateGroupDAO.findAllByApproximateAttr(String, String)} will be called
+   * {@link HibernateGroupDAO#findAllByApproximateAttr(String, String)} will be called
    * instead.  While that will trigger a full table scan of the Gruop attributes table it
    * will still probably be faster than recursing through the registry.</p>
    * @see     StemDAO#findAllChildGroups(StemDTO, Stem.Scope)

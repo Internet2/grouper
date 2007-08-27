@@ -35,7 +35,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.2 2007-08-24 19:42:50 blair Exp $
+ * @version $Id: AccessWrapper.java,v 1.3 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class AccessWrapper implements AccessResolver {
@@ -48,7 +48,7 @@ public class AccessWrapper implements AccessResolver {
 
 
   /**
-   * @return  Facade around {@link AccessAdapter} that implements {@link AccessResolver}.
+   * Facade around {@link AccessAdapter} that implements {@link AccessResolver}.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   @HEAD@
    */

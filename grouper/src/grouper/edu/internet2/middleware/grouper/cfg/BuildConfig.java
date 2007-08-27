@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper.cfg;
  * Grouper API build configuration.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BuildConfig.java,v 1.1 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: BuildConfig.java,v 1.2 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class BuildConfig implements Configuration {
@@ -42,7 +42,7 @@ public class BuildConfig implements Configuration {
 
 
   /**
-   * @see     edu.internet2.middleware.grouper.Configuration#getProperty(String)
+   * @see     edu.internet2.middleware.grouper.cfg.Configuration#getProperty(String)
    * @since   @HEAD@
    */
   public String getProperty(String property) 
@@ -52,7 +52,7 @@ public class BuildConfig implements Configuration {
   }
 
   /**
-   * @see     edu.internet2.middleware.grouper.Configuration#setProperty(String, String)
+   * @see     edu.internet2.middleware.grouper.cfg.Configuration#setProperty(String, String)
    * @since   @HEAD@
    */
   public String setProperty(String property, String value) {

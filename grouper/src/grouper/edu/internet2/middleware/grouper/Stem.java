@@ -38,7 +38,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.140 2007-08-24 19:45:56 blair Exp $
+ * @version $Id: Stem.java,v 1.141 2007-08-27 15:46:24 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -199,7 +199,7 @@ public class Stem extends GrouperAPI implements Owner {
 
   /**
    * Get groups that are children of this stem.
-   * @param   Scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
    * @return  Child groups.
    * @throws  IllegalArgumentException if null scope.
    * @since   @HEAD@
@@ -266,7 +266,7 @@ public class Stem extends GrouperAPI implements Owner {
 
   /**
    * Get stems that are children of this stem.
-   * @param   Scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
    * @return  Child stems.
    * @throws  IllegalArgumentException if null scope.
    * @since   @HEAD@

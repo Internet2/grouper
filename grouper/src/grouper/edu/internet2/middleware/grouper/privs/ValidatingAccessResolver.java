@@ -28,7 +28,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingAccessResolver.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: ValidatingAccessResolver.java,v 1.2 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class ValidatingAccessResolver extends AccessResolverDecorator {
@@ -38,7 +38,6 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
 
 
   /**
-   * @see     AccessResolverDecorator(AccessResolver)
    * @since   @HEAD@
    */
   public ValidatingAccessResolver(AccessResolver resolver) {

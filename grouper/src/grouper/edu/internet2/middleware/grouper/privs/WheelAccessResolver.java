@@ -32,7 +32,7 @@ import  java.util.Set;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.2 2007-08-24 19:42:50 blair Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.3 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -44,7 +44,6 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   
   /**
-   * @see     AccessResolverDecorator(AccessResolver)
    * @since   @HEAD@
    */
   public WheelAccessResolver(AccessResolver resolver) {

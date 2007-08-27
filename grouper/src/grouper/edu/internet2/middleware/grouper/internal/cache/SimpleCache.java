@@ -31,9 +31,7 @@ import  java.util.Map;
  * <p><b>Other Implementations</b></p>
  * <p>
  * {@link SimpleBooleanCache} is a wrapper around {@link SimpleCache} that allows
- * <i>boolean</i> values to be stored-and-retrieved in the cache.  {@link SimplePrivilegeCache},
- * {@link SimpleWheelPrivilegeCache} and {@link SimpleSubjectCache} all use {@link SimpleCache}
- * internally.
+ * <i>boolean</i> values to be stored-and-retrieved in the cache.
  * </p>
  * <p><b>Using {@link SimpleCache}</b></p>
  * <pre class="eg">
@@ -56,7 +54,7 @@ import  java.util.Map;
  * cache.removeAll();
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.3 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.4 2007-08-27 15:46:24 blair Exp $
  * @since   1.2.0     
  */
 public class SimpleCache {

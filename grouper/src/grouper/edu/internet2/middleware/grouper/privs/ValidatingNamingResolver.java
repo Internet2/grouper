@@ -28,7 +28,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingNamingResolver.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: ValidatingNamingResolver.java,v 1.2 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class ValidatingNamingResolver extends NamingResolverDecorator {
@@ -39,7 +39,6 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
 
 
   /**
-   * @see     NamingResolverDecorator(NamingResolver)
    * @since   @HEAD@
    */
   public ValidatingNamingResolver(NamingResolver resolver) {
@@ -72,7 +71,7 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   }
 
   /**
-   * @see     NamingResolver#getPrivileges(Group, Subject)
+   * @see     NamingResolver#getPrivileges(Stem, Subject)
    * @since   @HEAD@
    */
   public Set<Privilege> getPrivileges(Stem stem, Subject subject)
@@ -83,7 +82,7 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   }
 
   /**
-   * @see     NamingResolver#getSubjectsWithPrivilege(Group, Privilege)
+   * @see     NamingResolver#getSubjectsWithPrivilege(Stem, Privilege)
    * @since   @HEAD@
    */
   public Set<Subject> getSubjectsWithPrivilege(Stem stem, Privilege privilege)
@@ -94,7 +93,7 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   }
 
   /**
-   * @see     NamingResolver#grantPrivilege(Group, Subject, Privilege)
+   * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege)
    * @since   @HEAD@
    */
   public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
@@ -106,7 +105,7 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   }
 
   /**
-   * @see     NamingResolver#hasPrivilege(Group, Subject, Privilege)
+   * @see     NamingResolver#hasPrivilege(Stem, Subject, Privilege)
    * @since   @HEAD@
    */
   public boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
@@ -117,7 +116,7 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   }
 
   /**
-   * @see     NamingResolver#revokePrivilege(Group, Privilege)
+   * @see     NamingResolver#revokePrivilege(Stem, Privilege)
    * @since   @HEAD@
    */
   public void revokePrivilege(Stem stem, Privilege privilege)
@@ -130,7 +129,7 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
             
 
   /**
-   * @see     NamingResolver#revokePrivilege(Group, Subject, Privilege)
+   * @see     NamingResolver#revokePrivilege(Stem, Subject, Privilege)
    * @since   @HEAD@
    */
   public void revokePrivilege(Stem stem, Subject subject, Privilege privilege)

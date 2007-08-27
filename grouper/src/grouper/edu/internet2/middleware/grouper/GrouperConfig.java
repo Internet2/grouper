@@ -23,9 +23,9 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
 
 /** 
  * Grouper configuration information.
- * <p><b>This class is being deprecated by the {@link Configuration} interface.</b></p>
+ * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.50 2007-08-24 19:45:56 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.51 2007-08-27 15:46:24 blair Exp $
  * @since   ?
  */
 public class GrouperConfig {
