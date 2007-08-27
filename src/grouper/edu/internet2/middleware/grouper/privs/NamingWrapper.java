@@ -35,7 +35,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.2 2007-08-24 19:42:50 blair Exp $
+ * @version $Id: NamingWrapper.java,v 1.3 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class NamingWrapper implements NamingResolver {
@@ -59,7 +59,7 @@ public class NamingWrapper implements NamingResolver {
   }
 
   /**
-   * @return  Facade around {@link NamingAdapter} that implements {@link NamingResolver}.
+   * Facade around {@link NamingAdapter} that implements {@link NamingResolver}.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   @HEAD@
    */

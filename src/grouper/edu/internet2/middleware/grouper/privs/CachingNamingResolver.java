@@ -31,7 +31,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingNamingResolver.java,v 1.2 2007-08-24 19:42:50 blair Exp $
+ * @version $Id: CachingNamingResolver.java,v 1.3 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
@@ -45,7 +45,6 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
  
   /**
-   * @see     NamingResolverDecorator(NamingResolver)
    * @since   @HEAD@
    */
   public CachingNamingResolver(NamingResolver resolver) {

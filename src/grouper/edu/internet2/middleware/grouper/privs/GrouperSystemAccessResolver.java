@@ -29,7 +29,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemAccessResolver.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: GrouperSystemAccessResolver.java,v 1.2 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class GrouperSystemAccessResolver extends AccessResolverDecorator {
@@ -40,7 +40,6 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
 
 
   /**
-   * @see     AccessResolverDecorator(AccessResolver)
    * @since   @HEAD@
    */
   public GrouperSystemAccessResolver(AccessResolver resolver) {

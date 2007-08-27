@@ -32,7 +32,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingResolver.java,v 1.4 2007-08-24 19:42:50 blair Exp $
+ * @version $Id: CachingResolver.java,v 1.5 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class CachingResolver extends SubjectResolverDecorator {
@@ -45,7 +45,6 @@ public class CachingResolver extends SubjectResolverDecorator {
 
 
   /**
-   * @see     SubjectResolverDecorator(SubjectResolver)
    * @since   @HEAD@
    */
   public CachingResolver(SubjectResolver resolver) {

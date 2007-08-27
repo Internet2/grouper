@@ -28,7 +28,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.1 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: GrouperAllAccessResolver.java,v 1.2 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
@@ -39,7 +39,6 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
 
   /**
-   * @see     AccessResolverDecorator(AccessResolver)
    * @since   @HEAD@
    */
   public GrouperAllAccessResolver(AccessResolver resolver) {

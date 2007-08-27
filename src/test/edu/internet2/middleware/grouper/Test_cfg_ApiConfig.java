@@ -23,36 +23,30 @@ import  edu.internet2.middleware.grouper.cfg.ApiConfig;
  * Test {@link ApiConfig}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_cfg_ApiConfig.java,v 1.1 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: Test_cfg_ApiConfig.java,v 1.2 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class Test_cfg_ApiConfig extends GrouperTest {
+
 
   Configuration cfg;
   String        prop_invalid  = "this.property.should.not.exist";
   String        prop_valid    = "dao.factory";
 
 
+
   public void setUp() {
     super.setUp();
     this.cfg = new ApiConfig();
   }
-
   public void tearDown() {
     super.tearDown();
   }
 
 
-  public void test_constant_ACCESS_PRIVILEGE_CACHE_INTERFACE() {
-    assertEquals( "privileges.access.cache.interface", ApiConfig.ACCESS_PRIVILEGE_CACHE_INTERFACE );
-  }
 
   public void test_constant_ACCESS_PRIVILEGE_INTERFACE() {
     assertEquals( "privileges.access.interface", ApiConfig.ACCESS_PRIVILEGE_INTERFACE );
-  }
-
-  public void test_constant_NAMING_PRIVILEGE_CACHE_INTERFACE() {
-    assertEquals( "privileges.naming.cache.interface", ApiConfig.NAMING_PRIVILEGE_CACHE_INTERFACE );
   }
 
   public void test_constant_NAMING_PRIVILEGE_INTERFACE() {

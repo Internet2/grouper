@@ -26,7 +26,7 @@ import  java.util.Properties;
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.2 2007-08-10 13:19:14 blair Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.3 2007-08-27 15:46:24 blair Exp $
  * @since   @HEAD@
  */
 public class PropertiesConfiguration implements Configuration {
@@ -68,7 +68,7 @@ public class PropertiesConfiguration implements Configuration {
   }
 
   /**
-   * @see     edu.internet2.middleware.grouper.Configuration#getProperty(String)
+   * @see     edu.internet2.middleware.grouper.cfg.Configuration#getProperty(String)
    * @since   @HEAD@
    */
   public String getProperty(String property) 
@@ -101,7 +101,7 @@ public class PropertiesConfiguration implements Configuration {
   /**
    * Does not persist value to <i>properties</i> file.
    * <p/>
-   * @see     edu.internet2.middleware.grouper.Configuration#setProperty(String, String)
+   * @see     edu.internet2.middleware.grouper.cfg.Configuration#setProperty(String, String)
    * @since   @HEAD@
    */
   public String setProperty(String property, String value) {
