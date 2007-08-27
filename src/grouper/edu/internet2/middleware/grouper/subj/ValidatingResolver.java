@@ -28,7 +28,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingResolver.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: ValidatingResolver.java,v 1.5 2007-08-27 15:58:24 blair Exp $
  * @since   1.2.1
  */
 public class ValidatingResolver extends SubjectResolverDecorator {
@@ -45,7 +45,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#find(String)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Subject find(String id)
     throws  IllegalArgumentException,
@@ -61,7 +61,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#find(String, String)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Subject find(String id, String type)
     throws  IllegalArgumentException,
@@ -80,7 +80,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#find(String, String, String)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Subject find(String id, String type, String source)
     throws  IllegalArgumentException,
@@ -102,7 +102,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#findAll(String)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Set<Subject> findAll(String query)
     throws  IllegalArgumentException
@@ -115,7 +115,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#findAll(String, String)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Set<Subject> findAll(String query, String source)
     throws  IllegalArgumentException,
@@ -132,7 +132,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#findByIdentifier(String)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Subject findByIdentifier(String id)
     throws  IllegalArgumentException,
@@ -148,7 +148,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#findByIdentifier(String, String)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Subject findByIdentifier(String id, String type)
     throws  IllegalArgumentException,
@@ -167,7 +167,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#findByIdentifier(String, String, String)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Subject findByIdentifier(String id, String type, String source)
     throws  IllegalArgumentException,

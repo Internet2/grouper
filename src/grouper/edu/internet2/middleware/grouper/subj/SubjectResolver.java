@@ -28,7 +28,7 @@ import  java.util.Set;
  * Subject resolution interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectResolver.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: SubjectResolver.java,v 1.3 2007-08-27 15:58:24 blair Exp $
  * @since   1.2.1
  */
 public interface SubjectResolver {
@@ -40,7 +40,7 @@ public interface SubjectResolver {
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  SubjectNotFoundException if no matching subject is found.
    * @throws  SubjectNotUniqueException if more than one matching subject is found.
-   * @since   @HEAD
+   * @since   1.2.1
    */
   Subject find(String id)
     throws  IllegalArgumentException,
@@ -55,7 +55,7 @@ public interface SubjectResolver {
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  SubjectNotFoundException if no matching subject is found.
    * @throws  SubjectNotUniqueException if more than one matching subject is found.
-   * @since   @HEAD
+   * @since   1.2.1
    */
   Subject find(String id, String type)
     throws  IllegalArgumentException,
@@ -72,7 +72,7 @@ public interface SubjectResolver {
    * @throws  SourceUnavailableException if source is unavailable.
    * @throws  SubjectNotFoundException if no matching subject is found.
    * @throws  SubjectNotUniqueException if more than one matching subject is found.
-   * @since   @HEAD
+   * @since   1.2.1
    */
   Subject find(String id, String type, String source)
     throws  IllegalArgumentException,
@@ -85,7 +85,7 @@ public interface SubjectResolver {
    * @param   query   A source-appropraite query string.
    * @return  All subjects matching <i>query</i>.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD
+   * @since   1.2.1
    */
   Set findAll(String query)
     throws  IllegalArgumentException;
@@ -96,7 +96,7 @@ public interface SubjectResolver {
    * @return  All subjects matching <i>query</i>.
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  SourceUnavailableException if source is unavailable.
-   * @since   @HEAD
+   * @since   1.2.1
    */
   Set findAll(String query, String source)
     throws  IllegalArgumentException,
@@ -109,7 +109,7 @@ public interface SubjectResolver {
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  SubjectNotFoundException if no matching subject is found.
    * @throws  SubjectNotUniqueException if more than one matching subject is found.
-   * @since   @HEAD
+   * @since   1.2.1
    */
   Subject findByIdentifier(String id)
     throws  IllegalArgumentException,
@@ -124,7 +124,7 @@ public interface SubjectResolver {
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  SubjectNotFoundException if no matching subject is found.
    * @throws  SubjectNotUniqueException if more than one matching subject is found.
-   * @since   @HEAD
+   * @since   1.2.1
    */
   Subject findByIdentifier(String id, String type)
     throws  IllegalArgumentException,
@@ -141,7 +141,7 @@ public interface SubjectResolver {
    * @throws  SourceUnavailableException if source is unavailable.
    * @throws  SubjectNotFoundException if no matching subject is found.
    * @throws  SubjectNotUniqueException if more than one matching subject is found.
-   * @since   @HEAD
+   * @since   1.2.1
    */
   Subject findByIdentifier(String id, String type, String source)
     throws  IllegalArgumentException,
