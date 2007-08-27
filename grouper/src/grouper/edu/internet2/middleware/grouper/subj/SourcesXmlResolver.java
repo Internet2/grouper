@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.subj;
 import  edu.internet2.middleware.grouper.InternalSourceAdapter;
+import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Source;
 import  edu.internet2.middleware.subject.SourceUnavailableException;
 import  edu.internet2.middleware.subject.Subject;
@@ -34,13 +35,14 @@ import  java.util.Set;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.3 2007-08-27 15:58:24 blair Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.4 2007-08-27 16:40:16 blair Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
 
 
-  private SourceManager mgr;
+  private static  ParameterHelper param = new ParameterHelper();
+  private         SourceManager   mgr;
 
 
   /**
@@ -51,9 +53,7 @@ public class SourcesXmlResolver implements SubjectResolver {
   public SourcesXmlResolver(SourceManager mgr) 
     throws  IllegalArgumentException
   {
-    if (mgr == null) { // TODO 20070803 ParameterHelper
-      throw new IllegalArgumentException("null SourceManager");
-    }
+    param.notNullSourceManager(mgr); 
     this.mgr = mgr;
     // TODO 20070809 this isn't the ideal or right place for this but in the interest of getting things going...
     this.mgr.loadSource(
@@ -71,7 +71,6 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // TODO 20070806 DRY w/ SourcesXmlResolver#find(String, String)
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources() ) {
       try {
@@ -81,13 +80,7 @@ public class SourcesXmlResolver implements SubjectResolver {
         // ignore.  subject might be in another source.
       }
     }    
-    if      (subjects.size() == 0) {
-      throw new SubjectNotFoundException("subject not found: " + id);
-    }
-    else if (subjects.size() == 1) {
-      return subjects.get(0);
-    }
-    throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() );
+    return this.thereCanOnlyBeOne(subjects, id);
   }            
 
   /**
@@ -99,7 +92,6 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // TODO 20070806 DRY w/ SourcesXmlResolver#find(String)
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources(type) ) {
       try {
@@ -109,13 +101,7 @@ public class SourcesXmlResolver implements SubjectResolver {
         // ignore.  subject might be in another source.
       }
     }    
-    if      (subjects.size() == 0) {
-      throw new SubjectNotFoundException("subject not found: " + id);
-    }
-    else if (subjects.size() == 1) {
-      return subjects.get(0);
-    }
-    throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() );
+    return this.thereCanOnlyBeOne(subjects, id);
   }
 
   /**
@@ -169,7 +155,6 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // TODO 20070806 DRY w/ SourcesXmlResolver#findByIdentifier(String, String)
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources() ) {
       try {
@@ -179,13 +164,7 @@ public class SourcesXmlResolver implements SubjectResolver {
         // ignore.  subject might be in another source.
       }
     }    
-    if      (subjects.size() == 0) {
-      throw new SubjectNotFoundException("subject not found: " + id);
-    }
-    else if (subjects.size() == 1) {
-      return subjects.get(0);
-    }
-    throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() );
+    return this.thereCanOnlyBeOne(subjects, id);
   }            
 
   /**
@@ -197,7 +176,6 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // TODO 20070806 DRY w/ SourcesXmlResolver#findByIdentifier(String)
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources(type) ) {
       try {
@@ -207,13 +185,7 @@ public class SourcesXmlResolver implements SubjectResolver {
         // ignore.  subject might be in another source.
       }
     }    
-    if      (subjects.size() == 0) {
-      throw new SubjectNotFoundException("subject not found: " + id);
-    }
-    else if (subjects.size() == 1) {
-      return subjects.get(0);
-    }
-    throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() );
+    return this.thereCanOnlyBeOne(subjects, id);
   }
 
   /**
@@ -260,6 +232,27 @@ public class SourcesXmlResolver implements SubjectResolver {
     throws  IllegalArgumentException
   {
     return new LinkedHashSet( this.mgr.getSources( SubjectTypeEnum.valueOf(subjectType) ) );
+  }
+
+  /**
+   * @param   subjects  List of found subjects.
+   * @param   id        Subject identifier used in query.
+   * @return  Matching subject if there is only one.
+   * @throws  SubjectNotFoundException if less than 1 matching subjects found.
+   * @throws  SubjectNotUniqueException if more than 1 matching subjects found.
+   * @since   1.2.1
+   */
+  private Subject thereCanOnlyBeOne(List<Subject> subjects, String id) 
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    if      (subjects.size() == 0) {
+      throw new SubjectNotFoundException("subject not found: " + id);
+    }
+    else if (subjects.size() == 1) {
+      return subjects.get(0);
+    }
+    throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() );
   }
 
 }
