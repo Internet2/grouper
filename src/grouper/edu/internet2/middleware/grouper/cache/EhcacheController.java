@@ -25,10 +25,8 @@ import  net.sf.ehcache.Statistics;
 
 /**
  * Base class for common cache operations.
- * <p>TODO 20070823 this should be an interface with an <i>EhcacheController</i>
- * implementation.</p>
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: EhcacheController.java,v 1.4 2007-08-27 16:48:25 blair Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
