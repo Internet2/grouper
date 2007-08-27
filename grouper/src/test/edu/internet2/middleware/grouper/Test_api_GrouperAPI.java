@@ -23,8 +23,8 @@ import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
  * Test {@link GrouperAPI}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperAPI.java,v 1.1 2007-08-13 19:39:39 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_api_GrouperAPI.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_api_GrouperAPI extends GrouperTest {
 

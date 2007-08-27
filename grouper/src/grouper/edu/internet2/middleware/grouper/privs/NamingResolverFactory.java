@@ -27,8 +27,8 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
 /** 
  * Factory for returning a <code>NamingResolver</code>.
  * @author  blair christensen.
- * @version $Id: NamingResolverFactory.java,v 1.2 2007-08-24 14:54:26 blair Exp $
- * @since   @HEAD@
+ * @version $Id: NamingResolverFactory.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class NamingResolverFactory {
   // TODO 20070820 DRY w/ access resolution
@@ -42,7 +42,7 @@ public class NamingResolverFactory {
   /**
    * @return  <code>NamingResolver</code> instance.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static NamingResolver getInstance(GrouperSession session)
     throws  IllegalArgumentException
@@ -67,7 +67,7 @@ public class NamingResolverFactory {
    * @return  <code>NamingResolver</code> instance.
    * @throws  GrouperRuntimeException if unable to get instance.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static NamingResolver getInstance(GrouperSession session, NamingAdapter naming) 
     throws  GrouperRuntimeException,
@@ -91,7 +91,7 @@ public class NamingResolverFactory {
    * @return  Singleton <code>NamingResolver</code>.
    * @throws  GrouperRuntimeException if unable to get resolver.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static NamingResolver getResolver(GrouperSession session) 
     throws  GrouperRuntimeException,

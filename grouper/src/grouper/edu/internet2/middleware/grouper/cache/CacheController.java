@@ -21,27 +21,27 @@ package edu.internet2.middleware.grouper.cache;
 /**
  * Interface for common cache operations.
  * @author  blair christensen.
- * @version $Id: CacheController.java,v 1.2 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: CacheController.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public interface CacheController {
 
  
   /**
    * Flush all caches.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   void flushCache();
 
   /**
    * @return  ehcache statistics for <i>cache</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   CacheStats getStats(String cache);
 
   /** 
    * Initialize privilege cache.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   void initialize();
   

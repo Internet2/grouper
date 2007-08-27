@@ -24,8 +24,8 @@ import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
  * Test {@link ParameterHelper}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_util_ParameterHelper.java,v 1.2 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_util_ParameterHelper.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_util_ParameterHelper extends GrouperTest {
 
@@ -45,7 +45,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_accessAdapterNull() {
     try {
@@ -57,7 +57,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_accessAdapterNotNull() {
     assertEquals( this.param, this.param.notNullAccessAdapter( new GrouperAccessAdapter() ) ); 
@@ -66,7 +66,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_accessResolverNull() {
     try {
@@ -78,7 +78,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_accessResolverNotNull() {
     assertEquals( this.param, this.param.notNullAccessResolver( new MockAccessResolver() ) ); 
@@ -88,7 +88,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_groupNull() {
     try {
@@ -100,7 +100,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_groupNotNull() {
     assertEquals( this.param, this.param.notNullGroup( new Group() ) );
@@ -109,7 +109,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_grouperSessionNull() {
     try {
@@ -121,7 +121,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_grouperSessionNotNull() 
     throws  SessionException
@@ -133,7 +133,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_namingAdapterNull() {
     try {
@@ -145,7 +145,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_namingAdapterNotNull() {
     assertEquals( this.param, this.param.notNullNamingAdapter( new GrouperNamingAdapter() ) ); 
@@ -154,7 +154,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_namingResolverNull() {
     try {
@@ -166,7 +166,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_namingResolverNotNull() {
     assertEquals( this.param, this.param.notNullNamingResolver( new MockNamingResolver() ) );
@@ -191,7 +191,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_stemNull() {
     try {
@@ -203,7 +203,7 @@ public class Test_util_ParameterHelper extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_notNull_stemNotNull() {
     assertEquals( this.param, this.param.notNullStem( new Stem() ) ); 

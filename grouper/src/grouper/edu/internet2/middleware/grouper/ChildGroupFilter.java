@@ -23,8 +23,8 @@ import  java.util.Set;
  * Query filter that retrieves child groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ChildGroupFilter.java,v 1.2 2007-08-10 13:19:14 blair Exp $
- * @since   @HEAD@
+ * @version $Id: ChildGroupFilter.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class ChildGroupFilter extends BaseQueryFilter {
 
@@ -35,7 +35,7 @@ public class ChildGroupFilter extends BaseQueryFilter {
   /**
    * @param   ns      Retrieves all child groups beneath <i>stem</i>.
    * @throws  IllegalArgumentException if <i>ns</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ChildGroupFilter(Stem ns) 
     throws  IllegalArgumentException

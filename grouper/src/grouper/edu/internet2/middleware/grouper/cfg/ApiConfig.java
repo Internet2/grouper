@@ -22,20 +22,20 @@ import  edu.internet2.middleware.grouper.GrouperRuntimeException;
  * Grouper API configuration.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.3 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: ApiConfig.java,v 1.4 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
 
 
   /**
    * Property name for <code>AccessAdapter</code> implementation.
-   * @since   @HEAD@
+   * @since   1.2.1
    */ 
   public static final String ACCESS_PRIVILEGE_INTERFACE = "privileges.access.interface";
   /**
    * Property name for <code>NamingAdapter</code> implementation.
-   * @since   @HEAD@
+   * @since   1.2.1
    */ 
   public static final String NAMING_PRIVILEGE_INTERFACE = "privileges.naming.interface";
 
@@ -46,7 +46,7 @@ public class ApiConfig implements Configuration {
   /**
    * Access Grouper API configuration.
    * <p/>
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ApiConfig() {
     this.initializeConfiguration();
@@ -55,7 +55,7 @@ public class ApiConfig implements Configuration {
 
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#getProperty(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String getProperty(String property) 
     throws  IllegalArgumentException
@@ -71,7 +71,7 @@ public class ApiConfig implements Configuration {
   }
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private void initializeConfiguration() {
     this.useLocal   = true;
@@ -88,7 +88,7 @@ public class ApiConfig implements Configuration {
 
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#setProperty(String, String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String setProperty(String property, String value) {
     if (this.useLocal) {

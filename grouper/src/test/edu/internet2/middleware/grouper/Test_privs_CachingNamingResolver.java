@@ -25,8 +25,8 @@ import  edu.internet2.middleware.grouper.privs.NamingWrapper;
 /**
  * Test {@link CachingNamingResolver}.
  * @author  blair christensen.
- * @version $Id: Test_privs_CachingNamingResolver.java,v 1.1 2007-08-24 14:18:16 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_privs_CachingNamingResolver.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_privs_CachingNamingResolver extends GrouperTest {
 
@@ -75,7 +75,7 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_cacheMiss() {
     long before = resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getMisses();
@@ -83,7 +83,7 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
     assertEquals( before + 1, resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getMisses() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_cacheHit() {
     long before = resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getHits();
@@ -93,13 +93,13 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
     assertEquals( before + 1, resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getHits() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_emptyCache() {
     assertEquals( 0, resolver.getStats(CachingNamingResolver.CACHE_HASPRIV).getSize() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_cacheSize() {
     resolver.hasPrivilege( this.ns, SubjectFinder.findAllSubject(), NamingPrivilege.STEM );

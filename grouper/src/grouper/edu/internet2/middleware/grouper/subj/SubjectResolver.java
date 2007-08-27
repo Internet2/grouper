@@ -28,8 +28,8 @@ import  java.util.Set;
  * Subject resolution interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectResolver.java,v 1.1 2007-08-09 18:55:21 blair Exp $
- * @since   @HEAD@
+ * @version $Id: SubjectResolver.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public interface SubjectResolver {
 
@@ -154,7 +154,7 @@ public interface SubjectResolver {
    * @return  Subject source identified by <i>id</i>.
    * @throws  IllegalArgumentException if <i>id</i> is null.
    * @throws  SourceUnavailableException if source cannot be returned.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   Source getSource(String id) 
     throws  IllegalArgumentException,
@@ -163,7 +163,7 @@ public interface SubjectResolver {
   
   /**
    * @return  All Subject sources.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   Set<Source> getSources();
 
@@ -171,7 +171,7 @@ public interface SubjectResolver {
    * @param   subjectType   Only return sources that provide this type.
    * @return  All Subject sources that provide <i>subjectType</i>.
    * @throws  IllegalArgumentException if <i>subjectType</i> is null or invalid.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   Set<Source> getSources(String subjectType) throws IllegalArgumentException;
   

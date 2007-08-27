@@ -23,8 +23,8 @@ import  edu.internet2.middleware.subject.provider.SourceManager;
 /** 
  * Factory for returning a <code>SubjectResolver</code>.
  * @author  blair christensen.
- * @version $Id: SubjectResolverFactory.java,v 1.1 2007-08-09 18:55:21 blair Exp $
- * @since   @HEAD@
+ * @version $Id: SubjectResolverFactory.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class SubjectResolverFactory {
 
@@ -35,7 +35,7 @@ public class SubjectResolverFactory {
   /**
    * @return  <code>SubjectResolver</code> instance.
    * @throws  GrouperRuntimeException if unable to get <code>SourceManager</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static SubjectResolver getInstance() 
     throws  GrouperRuntimeException
@@ -54,7 +54,7 @@ public class SubjectResolverFactory {
 
   /**
    * @return  Singleton <code>SubjectResolver</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static SubjectResolver getResolver() {
     if (resolver == null) {

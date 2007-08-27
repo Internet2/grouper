@@ -22,8 +22,8 @@ import  edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 /**
  * Test {@link SubjectResolverFactory}.
  * @author  blair christensen.
- * @version $Id: Test_subj_SubjectResolverFactory.java,v 1.3 2007-08-24 14:18:16 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_subj_SubjectResolverFactory.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_subj_SubjectResolverFactory extends GrouperTest {
 

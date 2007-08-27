@@ -23,8 +23,8 @@ import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
  * Decorator for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolverDecorator.java,v 1.1 2007-08-24 14:18:16 blair Exp $
- * @since   @HEAD@
+ * @version $Id: AccessResolverDecorator.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public abstract class AccessResolverDecorator implements AccessResolver {
 
@@ -37,7 +37,7 @@ public abstract class AccessResolverDecorator implements AccessResolver {
   /**
    * @param   resolver  <i>AccessResolver</i> to decorate.
    * @throws  IllegalArgumentException if <i>resolver</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public AccessResolverDecorator(AccessResolver resolver) 
     throws  IllegalArgumentException
@@ -51,7 +51,7 @@ public abstract class AccessResolverDecorator implements AccessResolver {
   /**
    * @return  Decorated <i>AccessResolver</i>.
    * @throws  IllegalStateException if no decorated <i>AccessResolver</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public AccessResolver getDecoratedResolver() 
     throws  IllegalStateException

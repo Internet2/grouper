@@ -23,8 +23,8 @@ import  edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
  * Hibernate DAO configuration.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDaoConfig.java,v 1.2 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: HibernateDaoConfig.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class HibernateDaoConfig implements Configuration {
 
@@ -36,7 +36,7 @@ public class HibernateDaoConfig implements Configuration {
   /**
    * Access Hibernate configuration.
    * <p/>
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public HibernateDaoConfig() {
     this.cfg = new PropertiesConfiguration("/grouper.hibernate.properties");
@@ -45,7 +45,7 @@ public class HibernateDaoConfig implements Configuration {
 
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#getProperty(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String getProperty(String property) 
     throws  IllegalArgumentException
@@ -55,7 +55,7 @@ public class HibernateDaoConfig implements Configuration {
 
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#setProperty(String, String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String setProperty(String property, String value) {
     return this.cfg.setProperty(property, value);

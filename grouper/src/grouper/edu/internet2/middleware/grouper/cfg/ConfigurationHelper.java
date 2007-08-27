@@ -21,15 +21,15 @@ package edu.internet2.middleware.grouper.cfg;
  * Helper class for {@link Configuration} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ConfigurationHelper.java,v 1.1 2007-08-02 16:46:51 blair Exp $
- * @since   @HEAD@
+ * @version $Id: ConfigurationHelper.java,v 1.2 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class ConfigurationHelper {
 
   /**
    * Validate that <i>property</i> is not null.
    * @throws  IllegalArgumentException if null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void validateParamsNotNull(String property) 
     throws  IllegalArgumentException
@@ -42,7 +42,7 @@ public class ConfigurationHelper {
   /**
    * Validate that <i>property</i> and <i>value</i> are not null.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void validateParamsNotNull(String property, String value) 
     throws  IllegalArgumentException

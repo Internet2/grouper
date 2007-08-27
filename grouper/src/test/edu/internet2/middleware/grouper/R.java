@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.19 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: R.java,v 1.20 2007-08-27 15:53:53 blair Exp $
  * @since   1.2.0
  */
 public class R {
@@ -65,7 +65,7 @@ public class R {
   /**
    * Add test subjects to registry.
    * <p/>
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected void addSubjects(int number) {
     RegistrySubject     subj;

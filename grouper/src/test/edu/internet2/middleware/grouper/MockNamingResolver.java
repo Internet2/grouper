@@ -27,8 +27,8 @@ import  java.util.Set;
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.2 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: MockNamingResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {
 
@@ -39,7 +39,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * @return  New <code>MockNamingResolver</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public MockNamingResolver() {
     super();
@@ -50,7 +50,7 @@ public class MockNamingResolver implements NamingResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String getConfig(String property) 
     throws  IllegalArgumentException
@@ -61,7 +61,7 @@ public class MockNamingResolver implements NamingResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Stem> getStemsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -72,7 +72,7 @@ public class MockNamingResolver implements NamingResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException
@@ -83,7 +83,7 @@ public class MockNamingResolver implements NamingResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Stem stem, Privilege privilege)
     throws  IllegalArgumentException
@@ -94,7 +94,7 @@ public class MockNamingResolver implements NamingResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -106,7 +106,7 @@ public class MockNamingResolver implements NamingResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -117,7 +117,7 @@ public class MockNamingResolver implements NamingResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Privilege privilege)
     throws  IllegalArgumentException,
@@ -130,7 +130,7 @@ public class MockNamingResolver implements NamingResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

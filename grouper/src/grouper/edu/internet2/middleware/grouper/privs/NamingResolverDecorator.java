@@ -23,8 +23,8 @@ import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
  * Decorator for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolverDecorator.java,v 1.1 2007-08-24 14:18:16 blair Exp $
- * @since   @HEAD@
+ * @version $Id: NamingResolverDecorator.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public abstract class NamingResolverDecorator implements NamingResolver {
   // TODO 20070820 DRY w/ access resolution
@@ -38,7 +38,7 @@ public abstract class NamingResolverDecorator implements NamingResolver {
   /**
    * @param   resolver  <i>NamingResolver</i> to decorate.
    * @throws  IllegalArgumentException if <i>resolver</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public NamingResolverDecorator(NamingResolver resolver) 
     throws  IllegalArgumentException
@@ -52,7 +52,7 @@ public abstract class NamingResolverDecorator implements NamingResolver {
   /**
    * @return  Decorated <i>NamingResolver</i>.
    * @throws  IllegalStateException if no decorated <i>NamingResolver</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public NamingResolver getDecoratedResolver() 
     throws  IllegalStateException

@@ -31,8 +31,8 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.3 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: CachingAccessResolver.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
     // TODO 20070816 DRY caching w/ subject caching
@@ -44,7 +44,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
  
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public CachingAccessResolver(AccessResolver resolver) {
     super(resolver);
@@ -66,7 +66,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   /**
    * Retrieve boolean from cache for <code>hasPrivilege(...)</code>.
    * @return  Cached return value or null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private Boolean getFromHasPrivilegeCache(Group g, Subject subj, Privilege priv) {
     // TODO 20070823 are these the right element keys to use?
@@ -79,7 +79,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getGroupsWhereSubjectHasPrivilege(Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -90,7 +90,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getPrivileges(Group, Subject)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
@@ -101,7 +101,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * @return  ehcache statistics for <i>cache</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public CacheStats getStats(String cache) {
     return this.cc.getStats(cache);
@@ -109,7 +109,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getSubjectsWithPrivilege(Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException
@@ -120,7 +120,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#grantPrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -134,7 +134,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#hasPrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -149,7 +149,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * Put boolean into cache for <code>hasPrivilege(...)</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private void putInHasPrivilegeCache(Group g, Subject subj, Privilege priv, Boolean rv) {
     this.cc.getCache(CACHE_HASPRIV).put( new Element( new MultiKey( g.getUuid(), subj, priv ), rv ) );
@@ -157,7 +157,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#revokePrivilege(Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException,
@@ -171,7 +171,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#revokePrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

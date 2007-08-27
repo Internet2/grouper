@@ -28,8 +28,8 @@ import  java.util.Set;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.1 2007-08-24 14:18:16 blair Exp $
- * @since   @HEAD@
+ * @version $Id: AccessResolver.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public interface AccessResolver {
 
@@ -44,7 +44,7 @@ public interface AccessResolver {
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
    * @see     AccessAdapter#getGroupsWhereSubjectHasPriv(GrouperSession, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException;
@@ -54,7 +54,7 @@ public interface AccessResolver {
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
    * @see     AccessAdapter#getPrivs(GrouperSession, Group, Subject)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException;
@@ -64,7 +64,7 @@ public interface AccessResolver {
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
    * @see     AccessAdapter#getSubjectsWithPriv(GrouperSession, Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   Set<Subject> getSubjectsWithPrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException;
@@ -75,7 +75,7 @@ public interface AccessResolver {
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be granted.
    * @see     AccessAdapter#grantPriv(GrouperSession, Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   void grantPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -87,7 +87,7 @@ public interface AccessResolver {
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
    * @see     AccessAdapter#hasPriv(GrouperSession, Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException;
@@ -98,7 +98,7 @@ public interface AccessResolver {
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be revoked.
    * @see     AccessAdapter#revokePriv(GrouperSession, Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   void revokePrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException,
@@ -111,7 +111,7 @@ public interface AccessResolver {
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be revoked.
    * @see     AccessAdapter#revokePriv(GrouperSession, Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   void revokePrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

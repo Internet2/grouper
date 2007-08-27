@@ -22,8 +22,8 @@ package edu.internet2.middleware.grouper.subj;
  * Decorator for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectResolverDecorator.java,v 1.2 2007-08-10 13:19:14 blair Exp $
- * @since   @HEAD@
+ * @version $Id: SubjectResolverDecorator.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public abstract class SubjectResolverDecorator implements SubjectResolver {
 
@@ -34,7 +34,7 @@ public abstract class SubjectResolverDecorator implements SubjectResolver {
   /**
    * @param   resolver  <i>SubjectResolver</i> to decorate.
    * @throws  IllegalArgumentException if <i>resolver</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public SubjectResolverDecorator(SubjectResolver resolver) 
     throws  IllegalArgumentException
@@ -49,7 +49,7 @@ public abstract class SubjectResolverDecorator implements SubjectResolver {
   /**
    * @return  Decorated <i>SubjectResolver</i>.
    * @throws  IllegalStateException if no decorated <i>SubjectResolver</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public SubjectResolver getDecoratedResolver() 
     throws  IllegalStateException

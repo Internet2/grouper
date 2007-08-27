@@ -21,8 +21,8 @@ package edu.internet2.middleware.grouper.cfg;
  * Grouper configuration interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Configuration.java,v 1.1 2007-08-02 16:46:51 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Configuration.java,v 1.2 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public interface Configuration {
 
@@ -32,7 +32,7 @@ public interface Configuration {
    * @param   property    Get this property.
    * @return  Value of property or null.
    * @throws  IllegalArgumentException if <i>property</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   String getProperty(String property)
     throws  IllegalArgumentException;
@@ -44,7 +44,7 @@ public interface Configuration {
    * @param   value       Value to set on this property.
    * @return  New value of property.
    * @throws  IllegalArgumentException if either param is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   String setProperty(String property, String value)
     throws  IllegalArgumentException;

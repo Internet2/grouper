@@ -23,8 +23,8 @@ import  java.util.Set;
  * Query filter that retrieves child stems.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ChildStemFilter.java,v 1.2 2007-08-10 13:19:14 blair Exp $
- * @since   @HEAD@
+ * @version $Id: ChildStemFilter.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class ChildStemFilter extends BaseQueryFilter {
 
@@ -35,7 +35,7 @@ public class ChildStemFilter extends BaseQueryFilter {
   /**
    * @param   ns      Retrieves all child stems beneath <i>stem</i>.
    * @throws  IllegalArgumentException if <i>ns</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ChildStemFilter(Stem ns) 
     throws  IllegalArgumentException

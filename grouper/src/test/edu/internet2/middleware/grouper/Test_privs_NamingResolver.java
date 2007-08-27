@@ -25,8 +25,8 @@ import  edu.internet2.middleware.grouper.privs.NamingResolverFactory;
  * Test {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_privs_NamingResolver.java,v 1.2 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_privs_NamingResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_privs_NamingResolver extends GrouperTest {
 
@@ -54,7 +54,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getStemsWhereSubjectHasPrivilege_nullSubject() {
     try {
@@ -66,7 +66,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getStemsWhereSubjectHasPrivilege_nullPrivilege() {
     try {
@@ -81,7 +81,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getPrivileges_nullStem() {
     try {
@@ -93,7 +93,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getPrivileges_nullSubject() {
     try {
@@ -108,7 +108,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getSubjectsWithPrivilege_nullStem() {
     try {
@@ -120,7 +120,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getSubjectsWithPrivilege_nullPrivilege() {
     try {
@@ -134,7 +134,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
 
 
   /** 
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_grantPrivilege_nullStem()
     throws  UnableToPerformException
@@ -148,7 +148,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_grantPrivilege_nullSubject()
     throws  UnableToPerformException
@@ -162,7 +162,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_grantPrivilege_nullPrivilege() 
     throws  UnableToPerformException
@@ -179,7 +179,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_nullStem() {
     try {
@@ -191,7 +191,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_nullSubject() {
     try {
@@ -203,7 +203,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /** 
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_nullPrivilege() {
     try {
@@ -218,7 +218,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revokePrivilege_groupAndPrivilege_nullStem() 
     throws  UnableToPerformException
@@ -232,7 +232,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revokePrivilege_groupAndPrivilege_nullPrivilege() 
     throws  UnableToPerformException
@@ -249,7 +249,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revokePrivilege_groupAndSubjectAndPrivilege_nullStem() 
     throws  UnableToPerformException
@@ -263,7 +263,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revokePrivilege_groupAndSubjectAndPrivilege_nullSubject() 
     throws  UnableToPerformException
@@ -277,7 +277,7 @@ public class Test_privs_NamingResolver extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revokePrivilege_groupAndSubjectAndPrivilege_nullPrivilege() 
     throws  UnableToPerformException

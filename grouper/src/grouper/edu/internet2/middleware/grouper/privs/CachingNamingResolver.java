@@ -31,8 +31,8 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingNamingResolver.java,v 1.3 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: CachingNamingResolver.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
   // TODO 20070816 DRY caching w/ subject caching
@@ -45,7 +45,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
  
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public CachingNamingResolver(NamingResolver resolver) {
     super(resolver);
@@ -67,7 +67,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
   /**
    * Retrieve boolean from cache for <code>hasPrivilege(...)</code>.
    * @return  Cached return value or null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private Boolean getFromHasPrivilegeCache(Stem ns, Subject subj, Privilege priv) {
     // TODO 20070823 are these the right element keys to use?
@@ -80,7 +80,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * @return  ehcache statistics for <i>cache</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public CacheStats getStats(String cache) {
     return this.cc.getStats(cache);
@@ -88,7 +88,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#getStemsWhereSubjectHasPrivilege(Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Stem> getStemsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -99,7 +99,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#getPrivileges(Stem, Subject)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException
@@ -110,7 +110,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#getSubjectsWithPrivilege(Stem, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Stem stem, Privilege privilege)
     throws  IllegalArgumentException
@@ -121,7 +121,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -135,7 +135,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#hasPrivilege(Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -150,7 +150,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * Put boolean into cache for <code>hasPrivilege(...)</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private void putInHasPrivilegeCache(Stem ns, Subject subj, Privilege priv, Boolean rv) {
     this.cc.getCache(CACHE_HASPRIV).put( new Element( new MultiKey( ns.getUuid(), subj, priv ), rv ) );
@@ -158,7 +158,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#revokePrivilege(Stem, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Privilege privilege)
     throws  IllegalArgumentException,
@@ -172,7 +172,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#revokePrivilege(Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

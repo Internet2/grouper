@@ -25,7 +25,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic <code>Member</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.5 2007-08-14 17:15:53 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.6 2007-08-27 15:53:52 blair Exp $
  */
 public class MemberDTO implements GrouperDTO {
 
@@ -73,7 +73,7 @@ public class MemberDTO implements GrouperDTO {
  
   /**
    * @return  <code>MemberDTO</code> from passed <i>dao</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */ 
   public static MemberDTO getDTO(MemberDAO dao) {
     return new MemberDTO()

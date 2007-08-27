@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.14 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.15 2007-08-27 15:53:53 blair Exp $
  */
 class GroupHelper {
 
@@ -81,7 +81,7 @@ class GroupHelper {
 
   /**
    * TODO 20070813 deprecate
-   * @since  @HEAD@
+   * @since  1.2.1
    */
   protected static void addMemberUpdate(Group g, Subject subj) {
     LOG.debug("addMemberUpdate.0");
@@ -102,7 +102,7 @@ class GroupHelper {
 
   /**
    * TODO 20070813 deprecate
-   * @since  @HEAD@
+   * @since  1.2.1
    */
   protected static void addMemberUpdateFail(Group g, Subject subj) {
     try {
@@ -163,7 +163,7 @@ class GroupHelper {
 
   /**
    * TODO 20070813 deprecate
-   * @since  @HEAD@
+   * @since  1.2.1
    */
   protected static void deleteFail(Group g) {
     try {
@@ -196,7 +196,7 @@ class GroupHelper {
 
   /**
    * TODO 20070813 deprecate
-   * @since  @HEAD@
+   * @since  1.2.1
    */
   protected static void delMemberUpdate(Group g, Subject subj) {
     try {
@@ -213,7 +213,7 @@ class GroupHelper {
 
   /**
    * TODO 20070813 deprecate
-   * @since  @HEAD@
+   * @since  1.2.1
    */
   protected static void delMemberUpdateFail(Group g, Subject subj) {
     try {

@@ -32,8 +32,8 @@ import  java.util.Set;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.3 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: WheelAccessResolver.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
 
@@ -44,7 +44,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public WheelAccessResolver(AccessResolver resolver) {
     super(resolver);
@@ -78,7 +78,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getGroupsWhereSubjectHasPrivilege(Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -88,7 +88,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getPrivileges(Group, Subject)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
@@ -98,7 +98,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getSubjectsWithPrivilege(Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException
@@ -108,7 +108,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#grantPrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -119,7 +119,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#hasPrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -134,7 +134,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#revokePrivilege(Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException,
@@ -146,7 +146,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#revokePrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

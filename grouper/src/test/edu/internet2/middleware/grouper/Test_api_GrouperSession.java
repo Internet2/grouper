@@ -23,8 +23,8 @@ import  edu.internet2.middleware.grouper.cfg.ApiConfig;
  * Test {@link GrouperSession}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperSession.java,v 1.2 2007-08-24 14:18:16 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_api_GrouperSession.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_api_GrouperSession extends GrouperTest {
 
@@ -68,13 +68,13 @@ public class Test_api_GrouperSession extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getAccessResolver_notNull() {
     assertNotNull( this.s.getAccessResolver() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getAccessResolver_equals() {
     assertEquals(
@@ -120,13 +120,13 @@ public class Test_api_GrouperSession extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getNamingResolver_notNull() {
     assertNotNull( this.s.getNamingResolver() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getNamingResolver_equals() {
     assertEquals(
