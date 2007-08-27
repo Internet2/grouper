@@ -28,11 +28,6 @@ import  java.util.Map;
  * current implementations and extensions to {@link SimpleCache} use a {@link HashMap} in
  * some form, in theory other mechanisms can be used.
  * </p>
- * <p><b>Other Implementations</b></p>
- * <p>
- * {@link SimpleBooleanCache} is a wrapper around {@link SimpleCache} that allows
- * <i>boolean</i> values to be stored-and-retrieved in the cache.
- * </p>
  * <p><b>Using {@link SimpleCache}</b></p>
  * <pre class="eg">
  * // Create a new cache
@@ -54,7 +49,7 @@ import  java.util.Map;
  * cache.removeAll();
  * </pre>
  * @author  blair christensen.
- * @version $Id: SimpleCache.java,v 1.4 2007-08-27 15:46:24 blair Exp $
+ * @version $Id: SimpleCache.java,v 1.5 2007-08-27 17:08:47 blair Exp $
  * @since   1.2.0     
  */
 public class SimpleCache {

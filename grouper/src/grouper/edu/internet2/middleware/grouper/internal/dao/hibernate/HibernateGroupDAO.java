@@ -20,7 +20,6 @@ import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.GroupNotFoundException;
 import  edu.internet2.middleware.grouper.DefaultMemberOf;
 import  edu.internet2.middleware.grouper.SchemaException;
-import  edu.internet2.middleware.grouper.internal.cache.SimpleBooleanCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
@@ -40,30 +39,24 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.13 2007-08-03 16:03:30 blair Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.14 2007-08-27 17:08:47 blair Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KLASS = HibernateGroupDAO.class.getName();
 
-
-  // PRIVATE CLASS VARIABLES //
-  private static SimpleBooleanCache existsCache = new SimpleBooleanCache();
-
-
-  // PRIVATE INSTANCE VARIABLES //
-  private Map     attributes;
-  private String  createSource;
-  private long    createTime;
-  private String  creatorUUID;
-  private String  id;
-  private String  modifierUUID;
-  private String  modifySource;
-  private long    modifyTime;
-  private String  parentUUID;
-  private String  uuid;
+  private               Map                       attributes;
+  private               String                    createSource;
+  private               long                      createTime;
+  private               String                    creatorUUID;
+  private static        HashMap<String, Boolean>  existsCache = new HashMap<String, Boolean>();
+  private static  final String                    KLASS                         = HibernateGroupDAO.class.getName();
+  private               String                    id;
+  private               String                    modifierUUID;
+  private               String                    modifySource;
+  private               long                      modifyTime;
+  private               String                    parentUUID;
+  private               String                    uuid;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -170,7 +163,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
     throws  GrouperDAOException
   {
     if ( existsCache.containsKey(uuid) ) {
-      return existsCache.getBoolean(uuid).booleanValue();
+      return existsCache.get(uuid).booleanValue();
     }
     try {
       Session hs  = HibernateDAO.getSession();
@@ -627,7 +620,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   {
     existsCache.put( this.getUuid(), false );
     return Lifecycle.NO_VETO;
-  } // public boolean onDelete(hs)
+  } 
 
   // @since   1.2.0
   public void onLoad(Session hs, Serializable id) {
@@ -646,7 +639,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
     catch (HibernateException eH) {
       throw new CallbackException( eH.getMessage(), eH );
     }
-  } // public boolean onSave(hs)
+  } 
 
   // @since   1.2.0
   public boolean onUpdate(Session hs) 
@@ -854,7 +847,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
     hs.delete("from HibernateGroupTypeTupleDAO");
     hs.delete("from HibernateAttributeDAO"); 
     hs.delete("from HibernateGroupDAO");
-    existsCache.removeAll(); 
+    existsCache = new HashMap<String, Boolean>();
   } 
 
 
