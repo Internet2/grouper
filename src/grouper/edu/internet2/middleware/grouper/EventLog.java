@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import  java.util.HashMap;
+import  java.util.Iterator;
+import  java.util.Set;
 import  org.apache.commons.lang.time.*;
 import  org.apache.commons.logging.*;
 
@@ -30,21 +31,17 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.51 2007-05-31 19:35:02 blair Exp $
+ * @version $Id: EventLog.java,v 1.52 2007-08-27 17:49:26 blair Exp $
  */
 class EventLog {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(EventLog.class);
-
-
-  // PRIVATE INSTANCE VARIALBES //
-  private boolean     log_eff_group_add = false;
-  private boolean     log_eff_group_del = false;
-  private boolean     log_eff_stem_add  = false;
-  private boolean     log_eff_stem_del  = false;
-  private SimpleCache groupCache        = new SimpleCache();
-  private SimpleCache stemCache         = new SimpleCache();
+  private               HashMap<String, Group>  groupCache        = new HashMap<String, Group>();
+  private static final  Log                     LOG               = LogFactory.getLog(EventLog.class);
+  private               boolean                 log_eff_group_add = false;
+  private               boolean                 log_eff_group_del = false;
+  private               boolean                 log_eff_stem_add  = false;
+  private               boolean                 log_eff_stem_del  = false;
+  private               HashMap<String, Stem>   stemCache         = new HashMap<String, Stem>();
 
 
   // CONSTRUCTORS //
@@ -382,10 +379,10 @@ class EventLog {
     Group   g     = null;
     Stem    ns    = null;
     if      ( this.groupCache.containsKey(uuid) )   {
-      g = (Group) this.groupCache.get(uuid);
+      g = this.groupCache.get(uuid);
     }
     else if ( this.stemCache.containsKey(uuid) )  {
-      ns = (Stem) this.stemCache.get(uuid);
+      ns = this.stemCache.get(uuid);
     }
     else {
       try {
@@ -399,6 +396,7 @@ class EventLog {
           StemDTO _ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
           ns          = new Stem();
           ns.setDTO(_ns);
+          this.stemCache.put(uuid, ns);
         }
         catch (StemNotFoundException eSNF) {
           ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());

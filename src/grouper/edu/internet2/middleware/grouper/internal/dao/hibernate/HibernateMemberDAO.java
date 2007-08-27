@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.MemberNotFoundException;
-import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
@@ -32,20 +31,20 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.4 2007-08-27 17:08:47 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.5 2007-08-27 17:49:26 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
 
 
-  private static        HashMap<String, Boolean>  existsCache     = new HashMap<String, Boolean>();
-  private               String                    id;
-  private static final  String                    KLASS           = HibernateMemberDAO.class.getName();
-  private static        SimpleCache               uuid2dtoCache   = new SimpleCache();
-  private               String                    subjectID;
-  private               String                    subjectSourceID;
-  private               String                    subjectTypeID;
-  private               String                    uuid;
+  private static        HashMap<String, Boolean>    existsCache     = new HashMap<String, Boolean>();
+  private               String                      id;
+  private static final  String                      KLASS           = HibernateMemberDAO.class.getName();
+  private static        HashMap<String, MemberDTO>  uuid2dtoCache   = new HashMap<String, MemberDTO>();
+  private               String                      subjectID;
+  private               String                      subjectSourceID;
+  private               String                      subjectTypeID;
+  private               String                      uuid;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -164,7 +163,7 @@ public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,Member
             MemberNotFoundException
   {
     if ( uuid2dtoCache.containsKey(uuid) ) {
-      return (MemberDTO) uuid2dtoCache.get(uuid);
+      return uuid2dtoCache.get(uuid);
     }
     try {
       Session hs  = HibernateDAO.getSession();

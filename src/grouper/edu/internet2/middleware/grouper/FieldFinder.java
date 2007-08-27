@@ -16,23 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
+import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Map;
 import  java.util.Set;
 
+
 /**
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.35 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.36 2007-08-27 17:49:26 blair Exp $
  */
 public class FieldFinder {
 
-  // PRIVATE CLASS VARIABLES //
-  private static SimpleCache fieldCache = new SimpleCache();
+  private static HashMap<String, Field> fieldCache = new HashMap<String, Field>();
+  
 
 
   // PUBLIC CLASS METHODS //
@@ -49,14 +50,14 @@ public class FieldFinder {
     throws  SchemaException
   {
     if ( fieldCache.containsKey(name) ) {
-      return (Field) fieldCache.get(name);
+      return fieldCache.get(name);
     }
     internal_updateKnownFields();
     if ( fieldCache.containsKey(name) ) {
-      return (Field) fieldCache.get(name);
+      return fieldCache.get(name);
     }
     throw new SchemaException("field not found: " + name);
-  } // public static Field find(name)
+  } 
 
   /**
    * Find all fields.
@@ -113,11 +114,8 @@ public class FieldFinder {
     }
 
     // find fields to remove from the cache
-    Set       toDel = new LinkedHashSet();
-    Map.Entry kv;
-    it              = ( (Map) fieldCache.getCache() ).entrySet().iterator();
-    while (it.hasNext()) {
-      kv = (Map.Entry) it.next();
+    Set toDel = new LinkedHashSet();
+    for ( Map.Entry kv : fieldCache.entrySet() ) {
       if ( !fieldsInRegistry.contains( (Field) kv.getValue() ) ) {
         toDel.add( kv.getKey() );
       }
@@ -127,7 +125,7 @@ public class FieldFinder {
     while (it.hasNext()) {
       fieldCache.remove( (String) it.next() );
     }
-  } // protected static void internal_updateKnownFields()
+  } 
 
 }
 
