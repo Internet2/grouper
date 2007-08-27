@@ -25,8 +25,8 @@ import  edu.internet2.middleware.grouper.privs.AccessWrapper;
 /**
  * Test {@link CachingAccessResolver}.
  * @author  blair christensen.
- * @version $Id: Test_privs_CachingAccessResolver.java,v 1.1 2007-08-24 14:18:16 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_privs_CachingAccessResolver.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_privs_CachingAccessResolver extends GrouperTest {
 
@@ -78,7 +78,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_cacheMiss() {
     long before = resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getMisses();
@@ -86,7 +86,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
     assertEquals( before + 1, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getMisses() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_cacheHit() {
     long before = resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits();
@@ -96,13 +96,13 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
     assertEquals( before + 1, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_emptyCache() {
     assertEquals( 0, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getSize() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_hasPrivilege_cacheSize() {
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );

@@ -34,8 +34,8 @@ import  java.util.Set;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.1 2007-08-09 18:55:21 blair Exp $
- * @since   @HEAD@
+ * @version $Id: SourcesXmlResolver.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
 
@@ -46,7 +46,7 @@ public class SourcesXmlResolver implements SubjectResolver {
   /**
    * Initialize a new <i>SourcesXmlResolver</i>.
    * @throws  IllegalArgumentException if <i>mgr</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public SourcesXmlResolver(SourceManager mgr) 
     throws  IllegalArgumentException
@@ -235,7 +235,7 @@ public class SourcesXmlResolver implements SubjectResolver {
 
   /**
    * @see     SubjectResolver#getSource(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Source getSource(String id) 
     throws  IllegalArgumentException,
@@ -246,7 +246,7 @@ public class SourcesXmlResolver implements SubjectResolver {
  
   /**
    * @see     SubjectResolver#getSources()
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Source> getSources() {
     return new LinkedHashSet( this.mgr.getSources() );
@@ -254,7 +254,7 @@ public class SourcesXmlResolver implements SubjectResolver {
 
   /**
    * @see     SubjectResolver#getSources(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Source> getSources(String subjectType) 
     throws  IllegalArgumentException

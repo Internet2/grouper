@@ -22,8 +22,8 @@ package edu.internet2.middleware.grouper;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.8 2007-08-24 19:16:28 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_api_Stem.java,v 1.9 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
 
@@ -249,7 +249,7 @@ public class Test_api_Stem extends GrouperTest {
     assertEquals( 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_getChildStems_PrivilegeArrayAndScope_OneScopeDoNotReturnThisStem() {
     Privilege[] privs = { AccessPrivilege.VIEW };
@@ -328,7 +328,7 @@ public class Test_api_Stem extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revokePriv_Priv_accessPrivilege() 
     throws  InsufficientPrivilegeException,

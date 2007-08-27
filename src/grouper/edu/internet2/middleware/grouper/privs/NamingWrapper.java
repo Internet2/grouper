@@ -35,8 +35,8 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.3 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: NamingWrapper.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
   // TODO 20070820 DRY w/ access resolution
@@ -61,7 +61,7 @@ public class NamingWrapper implements NamingResolver {
   /**
    * Facade around {@link NamingAdapter} that implements {@link NamingResolver}.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public NamingWrapper(GrouperSession session, NamingAdapter naming) 
     throws  IllegalArgumentException
@@ -77,7 +77,7 @@ public class NamingWrapper implements NamingResolver {
   /**
    * @see     NamingResolver#getStemsWhereSubjectHasPrivilege(Subject, Privilege)
    * @see     NamingAdapter#getStemsWhereSubjectHasPriv(GrouperSession, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Stem> getStemsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -93,7 +93,7 @@ public class NamingWrapper implements NamingResolver {
   /**
    * @see     NamingResolver#getPrivileges(Stem, Subject)
    * @see     NamingAdapter#getPrivs(GrouperSession, Stem, Subject)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException
@@ -104,7 +104,7 @@ public class NamingWrapper implements NamingResolver {
   /**
    * @see     NamingResolver#getSubjectsWithPrivilege(Stem, Privilege)
    * @see     NamingAdapter#getSubjectsWithPriv(GrouperSession, Stem, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Stem stem, Privilege privilege)
     throws  IllegalArgumentException
@@ -120,7 +120,7 @@ public class NamingWrapper implements NamingResolver {
   /**
    * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege)
    * @see     NamingAdapter#grantPriv(GrouperSession, Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -143,7 +143,7 @@ public class NamingWrapper implements NamingResolver {
   /**
    * @see     NamingResolver#hasPrivilege(Stem, Subject, Privilege)
    * @see     NamingAdapter#hasPriv(GrouperSession, Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -159,7 +159,7 @@ public class NamingWrapper implements NamingResolver {
   /**
    * @see     NamingResolver#revokePrivilege(Stem, Privilege)
    * @see     NamingAdapter#revokePriv(GrouperSession, Stem, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Privilege privilege)
     throws  IllegalArgumentException,
@@ -183,7 +183,7 @@ public class NamingWrapper implements NamingResolver {
   /**
    * @see     NamingResolver#revokePrivilege(Stem, Subject, Privilege)
    * @see     NamingAdapter#revokePriv(GrouperSession, Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

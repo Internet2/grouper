@@ -25,7 +25,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.51 2007-08-27 15:46:24 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.52 2007-08-27 15:53:52 blair Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -60,7 +60,7 @@ public class GrouperConfig {
   public static final String HIBERNATE_CF         = "/grouper.hibernate.properties";
   /**
    * Optional local configuration file to override contents of <i>GROUPER_CF</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static final String LOCAL_GROUPER_CF     = "/local.grouper.properties";
   /**
@@ -143,7 +143,7 @@ public class GrouperConfig {
   } 
 
   /** 
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private static String getDefaultValueIfNull(String val) {
     return ( val == null ? GrouperConfig.EMPTY_STRING : val );
@@ -163,7 +163,7 @@ public class GrouperConfig {
   }
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private static GrouperConfig getInstance() {
     if (cfg == null) {

@@ -3,7 +3,7 @@
 
 ---
 
-# Grouper @HEAD@
+# Grouper 1.2.1
 
 Released: TBD
 

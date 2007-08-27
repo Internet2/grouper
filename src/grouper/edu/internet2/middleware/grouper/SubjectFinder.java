@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.35 2007-08-10 13:19:14 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.36 2007-08-27 15:53:52 blair Exp $
  */
 public class SubjectFinder {
 
@@ -302,7 +302,7 @@ public class SubjectFinder {
 
   /**
    * @return  Singleton {@link SubjectResolver}.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private static SubjectResolver getResolver() {
     if (resolver == null) { 
@@ -374,7 +374,7 @@ public class SubjectFinder {
 
   /**
    * Reset <code>SubjectResolver</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static void reset() {
     resolver = null; // TODO 20070807 this could definitely be improved    

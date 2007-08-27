@@ -26,8 +26,8 @@ import  java.util.Properties;
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.3 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: PropertiesConfiguration.java,v 1.4 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class PropertiesConfiguration implements Configuration {
 
@@ -42,7 +42,7 @@ public class PropertiesConfiguration implements Configuration {
    * Access a <i>Properties</i>-based {@link Configuration}.
    * <p/>
    * @param   resource  Resource to use for opening properties file as an <i>InputStream</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public PropertiesConfiguration(String resource) {
     this.resource = resource;
@@ -51,7 +51,7 @@ public class PropertiesConfiguration implements Configuration {
 
   /**
    * Retrieve a properties file, opening it if necessary.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private Properties getProperties() {
     if ( this.cfg == null ) {
@@ -69,7 +69,7 @@ public class PropertiesConfiguration implements Configuration {
 
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#getProperty(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String getProperty(String property) 
     throws  IllegalArgumentException
@@ -80,7 +80,7 @@ public class PropertiesConfiguration implements Configuration {
 
   /**
    * Load properties from file.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private Properties readProperties(Properties props) 
     throws  GrouperException
@@ -102,7 +102,7 @@ public class PropertiesConfiguration implements Configuration {
    * Does not persist value to <i>properties</i> file.
    * <p/>
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#setProperty(String, String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String setProperty(String property, String value) {
     this.helper.validateParamsNotNull(property, value);

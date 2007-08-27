@@ -24,8 +24,8 @@ import  edu.internet2.middleware.grouper.privs.AccessWrapper;
  * Test {@link AccessWrapper}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_privs_AccessWrapper.java,v 1.2 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_privs_AccessWrapper.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_privs_AccessWrapper extends GrouperTest {
 
@@ -51,7 +51,7 @@ public class Test_privs_AccessWrapper extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_constructor_nullSession() {
     try {
@@ -63,7 +63,7 @@ public class Test_privs_AccessWrapper extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_constructor_nullAdapter() {
     try {

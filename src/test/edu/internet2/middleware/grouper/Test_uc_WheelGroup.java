@@ -22,8 +22,8 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.7 2007-08-24 19:45:56 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_uc_WheelGroup.java,v 1.8 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_uc_WheelGroup extends GrouperTest {
 
@@ -55,7 +55,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
 
   /** 
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_presenceOfWheelGroupDoesNotAutomaticallyGrantPrivs() 
     throws  SessionException
@@ -68,7 +68,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
 
   /** 
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_canAdminWhenMemberOfWheel()
     throws  GrantPrivilegeException,
@@ -92,7 +92,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
   }
 
   /** 
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_allCanAdminWhenMemberOfWheel()
     throws  GrantPrivilegeException,
@@ -116,7 +116,7 @@ public class Test_uc_WheelGroup extends GrouperTest {
   }
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_addingMemberToWheelGroupShouldElevatePrivilegesWithinSession() 
     throws  GroupNotFoundException,

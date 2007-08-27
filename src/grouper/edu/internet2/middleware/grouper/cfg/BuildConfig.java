@@ -21,8 +21,8 @@ package edu.internet2.middleware.grouper.cfg;
  * Grouper API build configuration.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BuildConfig.java,v 1.2 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: BuildConfig.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class BuildConfig implements Configuration {
 
@@ -34,7 +34,7 @@ public class BuildConfig implements Configuration {
   /**
    * Access Grouper API build configuration.
    * <p/>
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public BuildConfig() {
     this.cfg = new PropertiesConfiguration("/buildGrouper.properties");
@@ -43,7 +43,7 @@ public class BuildConfig implements Configuration {
 
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#getProperty(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String getProperty(String property) 
     throws  IllegalArgumentException
@@ -53,7 +53,7 @@ public class BuildConfig implements Configuration {
 
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#setProperty(String, String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String setProperty(String property, String value) {
     return this.cfg.setProperty(property, value);

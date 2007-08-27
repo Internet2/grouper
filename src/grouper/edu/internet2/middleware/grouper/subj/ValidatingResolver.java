@@ -28,14 +28,14 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingResolver.java,v 1.3 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: ValidatingResolver.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class ValidatingResolver extends SubjectResolverDecorator {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ValidatingResolver(SubjectResolver resolver) {
     super(resolver);
@@ -189,7 +189,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#getSource(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Source getSource(String id) 
     throws  IllegalArgumentException,
@@ -203,7 +203,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
  
   /**
    * @see     SubjectResolver#getSources()
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Source> getSources() {
     return super.getDecoratedResolver().getSources();
@@ -211,7 +211,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#getSources(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Source> getSources(String subjectType) 
     throws  IllegalArgumentException

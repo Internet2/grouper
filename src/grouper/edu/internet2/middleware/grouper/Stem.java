@@ -38,7 +38,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.141 2007-08-27 15:46:24 blair Exp $
+ * @version $Id: Stem.java,v 1.142 2007-08-27 15:53:52 blair Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -49,7 +49,7 @@ public class Stem extends GrouperAPI implements Owner {
 
   /**
    * Search scope: one-level or subtree.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public enum Scope { ONE, SUB } // TODO 20070802 is this the right location?
 
@@ -202,7 +202,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
    * @return  Child groups.
    * @throws  IllegalArgumentException if null scope.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Group> getChildGroups(Scope scope) 
     throws  IllegalArgumentException
@@ -228,7 +228,7 @@ public class Stem extends GrouperAPI implements Owner {
   /**
    * @return  Child groups where current subject has any of the specified <i>privileges</i>.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Group> getChildGroups(Privilege[] privileges, Scope scope)
     throws  IllegalArgumentException 
@@ -269,7 +269,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
    * @return  Child stems.
    * @throws  IllegalArgumentException if null scope.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Stem> getChildStems(Scope scope) 
     throws  IllegalArgumentException
@@ -291,7 +291,7 @@ public class Stem extends GrouperAPI implements Owner {
   /**
    * @return  Child (or deeper) stems where current subject has any of the specified <i>privileges</i>.  Parent stems of grandchild (or deeper) groups where the current subject has any of the specified <i>privileges</i>.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Stem> getChildStems(Privilege[] privileges, Scope scope)
     throws  IllegalArgumentException 
@@ -654,7 +654,7 @@ public class Stem extends GrouperAPI implements Owner {
    * TODO 20070813 make public?
    * @return  True if <i>group</i> is child, at any depth, of this stem.
    * @throws  IllegalArgumentException if <i>group</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected boolean isChildGroup(Group group)
     throws  IllegalArgumentException
@@ -673,7 +673,7 @@ public class Stem extends GrouperAPI implements Owner {
    * TODO 20070813 make public?
    * @return  True if <i>stem</i> is child, at any depth, of this stem.
    * @throws  IllegalArgumentException if <i>stem</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected boolean isChildStem(Stem stem) 
     throws  IllegalArgumentException
@@ -1222,7 +1222,7 @@ public class Stem extends GrouperAPI implements Owner {
 
   /**
    * @throws  IllegalStateException if <i>o</i> is neither group nor stem.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private void _grantOptionalPrivUponCreate(Object o, Privilege p, String opt) 
     throws  GrantPrivilegeException,

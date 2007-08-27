@@ -32,8 +32,8 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingResolver.java,v 1.5 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: CachingResolver.java,v 1.6 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class CachingResolver extends SubjectResolverDecorator {
 
@@ -45,7 +45,7 @@ public class CachingResolver extends SubjectResolverDecorator {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public CachingResolver(SubjectResolver resolver) {
     super(resolver);
@@ -193,7 +193,7 @@ public class CachingResolver extends SubjectResolverDecorator {
   /**
    * Retrieve set of subjects from cache for <code>findAll(...)</code>.
    * @return  Cached set of subjects or null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private Set<Subject> getFromFindAllCache(String query, String source) {
     Element el = this.cc.getCache(CACHE_FINDALL).get( new MultiKey(query, source) );
@@ -206,7 +206,7 @@ public class CachingResolver extends SubjectResolverDecorator {
   /**
    * Retrieve subject from cache for <code>findByIdentifier(...)</code>.
    * @return  Cached subject or null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private Subject getFromFindByIdentifierCache(String id, String type, String source) {
     // TODO 20070807 DRY w/ getFromFindCache(String, String, String)
@@ -220,7 +220,7 @@ public class CachingResolver extends SubjectResolverDecorator {
   /**
    * Retrieve subject from cache for <code>find(...)</code>.
    * @return  Cached subject or null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private Subject getFromFindCache(String id, String type, String source) {
     // TODO 20070807 DRY w/ getFromFindByIdentifierCache(String, String, String)
@@ -233,7 +233,7 @@ public class CachingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#getSource(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Source getSource(String id) 
     throws  IllegalArgumentException,
@@ -244,7 +244,7 @@ public class CachingResolver extends SubjectResolverDecorator {
  
   /**
    * @see     SubjectResolver#getSources()
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Source> getSources() {
     return super.getDecoratedResolver().getSources();
@@ -252,7 +252,7 @@ public class CachingResolver extends SubjectResolverDecorator {
 
   /**
    * @see     SubjectResolver#getSources(String)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Source> getSources(String subjectType) 
     throws  IllegalArgumentException
@@ -262,7 +262,7 @@ public class CachingResolver extends SubjectResolverDecorator {
 
   /**
    * @return  ehcache statistics for <i>cache</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public CacheStats getStats(String cache) {
     return this.cc.getStats(cache);
@@ -270,7 +270,7 @@ public class CachingResolver extends SubjectResolverDecorator {
 
   /**
    * Put set of subjects into cache for <code>findAll(...)</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private void putInFindAllCache(String query, String source, Set<Subject> subjects) {
     this.cc.getCache(CACHE_FINDALL).put( new Element( new MultiKey(query, source), subjects ) );
@@ -278,7 +278,7 @@ public class CachingResolver extends SubjectResolverDecorator {
 
   /**
    * Put subject into cache for <code>findByIdentifier(...)</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private void putInFindByIdentifierCache(String idfr, Subject subj) {
     this.cc.getCache(CACHE_FINDBYIDENTIFIER).put( 
@@ -301,7 +301,7 @@ public class CachingResolver extends SubjectResolverDecorator {
 
   /**
    * Put subject into cache for <code>find(...)</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private void putInFindCache(Subject subj) {
     this.cc.getCache(CACHE_FIND).put( 

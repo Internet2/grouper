@@ -24,8 +24,8 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
  * Test {@link GrouperDAOFactory}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperDAOFactory.java,v 1.2 2007-08-10 13:19:14 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_api_GrouperDAOFactory.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_api_GrouperDAOFactory extends GrouperTest {
 

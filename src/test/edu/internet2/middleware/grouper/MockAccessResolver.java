@@ -27,8 +27,8 @@ import  java.util.Set;
 /**
  * Mock {@link AccessResolver}.
  * @author  blair christensen.
- * @version $Id: MockAccessResolver.java,v 1.2 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: MockAccessResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class MockAccessResolver implements AccessResolver {
 
@@ -39,7 +39,7 @@ public class MockAccessResolver implements AccessResolver {
 
   /**
    * @return  New <code>MockAccessResolver</code>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public MockAccessResolver() {
     super();
@@ -50,7 +50,7 @@ public class MockAccessResolver implements AccessResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String getConfig(String property) 
     throws  IllegalArgumentException
@@ -61,7 +61,7 @@ public class MockAccessResolver implements AccessResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -72,7 +72,7 @@ public class MockAccessResolver implements AccessResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
@@ -83,7 +83,7 @@ public class MockAccessResolver implements AccessResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException
@@ -94,7 +94,7 @@ public class MockAccessResolver implements AccessResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -106,7 +106,7 @@ public class MockAccessResolver implements AccessResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -117,7 +117,7 @@ public class MockAccessResolver implements AccessResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException,
@@ -130,7 +130,7 @@ public class MockAccessResolver implements AccessResolver {
   /**
    * Not implemented.
    * @throws  GrouperRuntimeException
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

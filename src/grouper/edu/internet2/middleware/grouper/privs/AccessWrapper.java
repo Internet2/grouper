@@ -35,8 +35,8 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.3 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: AccessWrapper.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
 
@@ -50,7 +50,7 @@ public class AccessWrapper implements AccessResolver {
   /**
    * Facade around {@link AccessAdapter} that implements {@link AccessResolver}.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public AccessWrapper(GrouperSession session, AccessAdapter access) 
     throws  IllegalArgumentException
@@ -76,7 +76,7 @@ public class AccessWrapper implements AccessResolver {
   /**
    * @see     AccessResolver#getGroupsWhereSubjectHasPrivilege(Subject, Privilege)
    * @see     AccessAdapter#getGroupsWhereSubjectHasPriv(GrouperSession, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -92,7 +92,7 @@ public class AccessWrapper implements AccessResolver {
   /**
    * @see     AccessResolver#getPrivileges(Group, Subject)
    * @see     AccessAdapter#getPrivs(GrouperSession, Group, Subject)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
@@ -103,7 +103,7 @@ public class AccessWrapper implements AccessResolver {
   /**
    * @see     AccessResolver#getSubjectsWithPrivilege(Group, Privilege)
    * @see     AccessAdapter#getSubjectsWithPriv(GrouperSession, Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException
@@ -119,7 +119,7 @@ public class AccessWrapper implements AccessResolver {
   /**
    * @see     AccessResolver#grantPrivilege(Group, Subject, Privilege)
    * @see     AccessAdapter#grantPriv(GrouperSession, Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -142,7 +142,7 @@ public class AccessWrapper implements AccessResolver {
   /**
    * @see     AccessResolver#hasPrivilege(Group, Subject, Privilege)
    * @see     AccessAdapter#hasPriv(GrouperSession, Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -158,7 +158,7 @@ public class AccessWrapper implements AccessResolver {
   /**
    * @see     AccessResolver#revokePrivilege(Group, Privilege)
    * @see     AccessAdapter#revokePriv(GrouperSession, Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException,
@@ -182,7 +182,7 @@ public class AccessWrapper implements AccessResolver {
   /**
    * @see     AccessResolver#revokePrivilege(Group, Subject, Privilege)
    * @see     AccessAdapter#revokePriv(GrouperSession, Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

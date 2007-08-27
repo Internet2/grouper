@@ -21,8 +21,8 @@ import  junit.framework.*;
 /**
  * Test suites that need to be refactored.
  * @author  blair christensen.
- * @version $Id: SuiteRefactor.java,v 1.2 2007-08-24 14:18:16 blair Exp $
- * @sincd   @HEAD@
+ * @version $Id: SuiteRefactor.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @sincd   1.2.1
  */
 public class SuiteRefactor extends TestCase {
 

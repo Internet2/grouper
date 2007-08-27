@@ -22,8 +22,8 @@ import  edu.internet2.middleware.grouper.cfg.ConfigurationHelper;
  * Test {@link ConfigurationHelper}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_cfg_ConfigurationHelper.java,v 1.1 2007-08-02 16:46:51 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_cfg_ConfigurationHelper.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_cfg_ConfigurationHelper extends GrouperTest {
 

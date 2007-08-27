@@ -22,8 +22,8 @@ import  net.sf.ehcache.Statistics;
 /**
  * Wrapper around ehcache <i>Statistics</i> class.
  * @author  blair christensen.
- * @version $Id: EhcacheStats.java,v 1.1 2007-08-09 18:55:21 blair Exp $
- * @since   @HEAD@
+ * @version $Id: EhcacheStats.java,v 1.2 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class EhcacheStats implements CacheStats {
 
@@ -35,7 +35,7 @@ public class EhcacheStats implements CacheStats {
   /**
    * Instantiate new <i>EhcacheStats</i> object.
    * @throws  IllegalArgumentException if <i>stats</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public EhcacheStats(Statistics stats) 
     throws  IllegalArgumentException
@@ -50,7 +50,7 @@ public class EhcacheStats implements CacheStats {
 
   /**
    * @return  Number of cache hits.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public long getHits() {
     return this.stats.getCacheHits();
@@ -58,7 +58,7 @@ public class EhcacheStats implements CacheStats {
 
   /**
    * @return  Number of cache misses.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public long getMisses() {
     return this.stats.getCacheMisses();
@@ -66,7 +66,7 @@ public class EhcacheStats implements CacheStats {
 
   /**
    * @return  Number of objects in cache.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public long getSize() {
     return this.stats.getObjectCount();

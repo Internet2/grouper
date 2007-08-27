@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.13 2007-08-27 15:46:24 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.14 2007-08-27 15:53:52 blair Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -407,7 +407,7 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
    * instead.  While that will trigger a full table scan of the Gruop attributes table it
    * will still probably be faster than recursing through the registry.</p>
    * @see     StemDAO#findAllChildGroups(StemDTO, Stem.Scope)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<GroupDTO> findAllChildGroups(StemDTO ns, Stem.Scope scope)
     throws  GrouperDAOException
@@ -448,7 +448,7 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
   /**
    * @see     StemDAO#findAllChildStems(StemDTO, Stem.Scope)
    * @throws  IllegalStateException if unknown scope.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<StemDTO> findAllChildStems(StemDTO ns, Stem.Scope scope)
     throws  GrouperDAOException,

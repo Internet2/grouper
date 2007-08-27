@@ -31,8 +31,8 @@ import  edu.internet2.middleware.subject.Subject;
  * Utility class for validating parameters.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ParameterHelper.java,v 1.2 2007-08-24 19:16:28 blair Exp $
- * @since   @HEAD@
+ * @version $Id: ParameterHelper.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class ParameterHelper {
 
@@ -40,7 +40,7 @@ public class ParameterHelper {
   /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   private ParameterHelper notNull(Object object, String msg) 
     throws  IllegalArgumentException
@@ -57,7 +57,7 @@ public class ParameterHelper {
   /** 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>accessAdapter</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullAccessAdapter(AccessAdapter accessAdapter) {
     return this.notNull(accessAdapter, "null AccessAdapter");
@@ -66,7 +66,7 @@ public class ParameterHelper {
   /** 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>accessResolver</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullAccessResolver(AccessResolver accessResolver) {
     return this.notNull(accessResolver, "null AccessAdapter");
@@ -75,7 +75,7 @@ public class ParameterHelper {
   /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>group</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullGroup(Group group) {
     return this.notNull(group, "null Group");
@@ -84,7 +84,7 @@ public class ParameterHelper {
   /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>session</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullGrouperSession(GrouperSession session) {
     return this.notNull(session, "null GrouperSession");
@@ -93,7 +93,7 @@ public class ParameterHelper {
   /** 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>namingAdapter</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullNamingAdapter(NamingAdapter namingAdapter) {
     return this.notNull(namingAdapter, "null NamingAdapter");
@@ -102,7 +102,7 @@ public class ParameterHelper {
   /** 
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>namingResolver</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullNamingResolver(NamingResolver namingResolver) {
     return this.notNull(namingResolver, "null NamingResolver");
@@ -111,7 +111,7 @@ public class ParameterHelper {
   /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>privilege</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullPrivilege(Privilege privilege) {
     return this.notNull(privilege, "null Privilege");
@@ -120,7 +120,7 @@ public class ParameterHelper {
   /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>privilegeArray</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullPrivilegeArray(Privilege[] privilegeArray) {
     return this.notNull(privilegeArray, "null Privilege[]");
@@ -129,7 +129,7 @@ public class ParameterHelper {
   /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>stem</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullStem(Stem stem) {
     return this.notNull(stem, "null Stem");
@@ -138,7 +138,7 @@ public class ParameterHelper {
   /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>stem</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullString(String string) {
     return this.notNull(string, "null String");
@@ -147,7 +147,7 @@ public class ParameterHelper {
   /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if <i>subject</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public ParameterHelper notNullSubject(Subject subject) {
     return this.notNull(subject, "null Subject");

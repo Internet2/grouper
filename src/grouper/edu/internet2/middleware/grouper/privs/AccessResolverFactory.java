@@ -27,8 +27,8 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
 /** 
  * Factory for returning a <code>AccessResolver</code>.
  * @author  blair christensen.
- * @version $Id: AccessResolverFactory.java,v 1.2 2007-08-24 14:54:26 blair Exp $
- * @since   @HEAD@
+ * @version $Id: AccessResolverFactory.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class AccessResolverFactory {
 
@@ -41,7 +41,7 @@ public class AccessResolverFactory {
   /**
    * @return  <code>AccessResolver</code> instance.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static AccessResolver getInstance(GrouperSession session)
     throws  IllegalArgumentException
@@ -66,7 +66,7 @@ public class AccessResolverFactory {
    * @return  <code>AccessResolver</code> instance.
    * @throws  GrouperRuntimeException if unable to get instance.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static AccessResolver getInstance(GrouperSession session, AccessAdapter access) 
     throws  GrouperRuntimeException,
@@ -90,7 +90,7 @@ public class AccessResolverFactory {
    * @return  Singleton <code>AccessResolver</code>.
    * @throws  GrouperRuntimeException if unable to get resolver.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static AccessResolver getResolver(GrouperSession session) 
     throws  GrouperRuntimeException,

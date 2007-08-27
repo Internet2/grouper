@@ -35,7 +35,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.72 2007-08-24 14:54:26 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.73 2007-08-27 15:53:52 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -145,7 +145,7 @@ public class GrouperSession extends GrouperAPI {
   /**
    * Get {@link AccessAdapter} implementation.
    * <p/>
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public AccessAdapter getAccessImpl() {
     if (this.access == null) {
@@ -158,7 +158,7 @@ public class GrouperSession extends GrouperAPI {
 
   /**
    * @return  <code>AccessResolver</code> used by this session.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected AccessResolver getAccessResolver() {
     if (this.accessResolver == null) {
@@ -172,7 +172,7 @@ public class GrouperSession extends GrouperAPI {
    * <p/>
    * @return  Value of <i>property</i> or null if not set.
    * @throws  IllegalArgumentException if <i>property</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public String getConfig(String property) 
     throws  IllegalArgumentException
@@ -226,7 +226,7 @@ public class GrouperSession extends GrouperAPI {
   /**
    * Get {@link NamingAdapter} implementation.
    * <p/>
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public NamingAdapter getNamingImpl() {
     if (this.naming == null) {
@@ -239,7 +239,7 @@ public class GrouperSession extends GrouperAPI {
 
   /**
    * @return  <code>AccessResolver</code> used by this session.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected NamingResolver getNamingResolver() {
     if (this.namingResolver == null) {
@@ -298,7 +298,7 @@ public class GrouperSession extends GrouperAPI {
    * <p/>
    * @return  Value of <i>property</i> or null if not set.
    * @throws  IllegalArgumentException if <i>property</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected void setConfig(String property, String value) 
     throws  IllegalArgumentException

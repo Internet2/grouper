@@ -29,15 +29,15 @@ import  java.util.Set;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.3 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: PrivilegeHelper.java,v 1.4 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 class PrivilegeHelper {
 
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static boolean canAdmin(GrouperSession s, Group g, Subject subj) {
     // TODO 20070816 deprecate
@@ -47,7 +47,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static boolean canCreate(GrouperSession s, Stem ns, Subject subj) {
     // TODO 20070820 deprecate
@@ -57,7 +57,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static boolean canOptin(GrouperSession s, Group g, Subject subj) {
     // TODO 20070816 deprecate
@@ -77,7 +77,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static boolean canOptout(GrouperSession s, Group g, Subject subj) {
     // TODO 20070816 deprecate
@@ -97,7 +97,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static boolean canRead(GrouperSession s, Group g, Subject subj) {
     // TODO 20070816 deprecate
@@ -115,7 +115,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static boolean canStem(Stem ns, Subject subj) {
     // TODO 20070820 deprecate
@@ -125,7 +125,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static boolean canUpdate(GrouperSession s, Group g, Subject subj) {
     // TODO 20070816 deprecate
@@ -143,7 +143,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static boolean canView(GrouperSession s, Group g, Subject subj) {
     // TODO 20070816 deprecate
@@ -169,7 +169,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static Set canViewGroups(GrouperSession s, Set candidates) {
     Set       groups  = new LinkedHashSet();
@@ -187,7 +187,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @SINCE   @HEAD@
+   * @SINCE   1.2.1
    */
   protected static Set canViewMemberships(GrouperSession s, Collection c) {
     Set         mships  = new LinkedHashSet();
@@ -212,7 +212,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @SINCE   @HEAD@
+   * @SINCE   1.2.1
    */
   protected static void dispatch(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  InsufficientPrivilegeException,
@@ -275,7 +275,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @SINCE   @HEAD@
+   * @SINCE   1.2.1
    */
   protected static void dispatch(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  InsufficientPrivilegeException,
@@ -312,7 +312,7 @@ class PrivilegeHelper {
   /**
    * TODO 20070824 add tests
    * @return  Given an array of privileges return an array of access privileges.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static Privilege[] getAccessPrivileges(Privilege[] privileges) {
     Set<Privilege> accessPrivs = new LinkedHashSet();
@@ -328,7 +328,7 @@ class PrivilegeHelper {
   /**
    * TODO 20070824 add tests
    * @return  Given an array of privileges return an array of naming privileges.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static Privilege[] getNamingPrivileges(Privilege[] privileges) {
     Set<Privilege> namingPrivs = new LinkedHashSet();
@@ -343,7 +343,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @SINCE   @HEAD@
+   * @SINCE   1.2.1
    */
   protected static boolean isRoot(GrouperSession s) {
     // TODO 20070823 this is ugly
@@ -359,7 +359,7 @@ class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
-   * @SINCE   @HEAD@
+   * @SINCE   1.2.1
    */
   protected static boolean isWheel(GrouperSession s) {
     // TODO 20070823 this is ugly

@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.87 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.88 2007-08-27 15:53:52 blair Exp $
  */
 public class MembershipFinder {
   
@@ -196,7 +196,7 @@ public class MembershipFinder {
 
   /*
    * TODO 20070813 i really need to figure out what this method does and replace it with something cleaner.              
-   * @since  @HEAD@
+   * @since  1.2.1
    */
   protected static Set internal_findAllForwardMembershipsNoPriv(MembershipDTO dto, Set children)  
     throws  SchemaException 
@@ -227,7 +227,7 @@ public class MembershipFinder {
   /** 
    * @return  A set of all <code>Member</code>'s in <i>group</i>'s list <i>field</i>.
    * @throws  IllegalArgumentException if any parameter is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   protected static Set<Member> findMembers(Group group, Field field)
     throws  IllegalArgumentException

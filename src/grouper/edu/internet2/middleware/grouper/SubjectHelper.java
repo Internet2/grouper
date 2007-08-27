@@ -24,7 +24,7 @@ import  edu.internet2.middleware.subject.*;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.22 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.23 2007-08-27 15:53:52 blair Exp $
  */
 public class SubjectHelper {
 
@@ -33,7 +33,7 @@ public class SubjectHelper {
 
   /**
    * @return  True if both objects are <code>Subject</code>s and equal.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static boolean eq(Object a, Object b) {
     // TODO 20070816 add tests

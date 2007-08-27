@@ -33,7 +33,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.8 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.9 2007-08-27 15:53:52 blair Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -59,7 +59,7 @@ public abstract class GrouperDAOFactory {
    * configuration.
    * <p/>
    * @throws  IllegalArgumentException if <i>cfg</i> is null.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public static GrouperDAOFactory getFactory(ApiConfig cfg) 
     throws  IllegalArgumentException

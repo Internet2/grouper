@@ -22,8 +22,8 @@ import  edu.internet2.middleware.subject.*;
  * Test naming privilege use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_NamingPrivs.java,v 1.2 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_uc_NamingPrivs.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_uc_NamingPrivs extends GrouperTest {
 
@@ -52,7 +52,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_grant_stemGrantedToCreator() 
     throws  GrantPrivilegeException,
@@ -66,7 +66,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
     assertTrue( top.hasStem(this.subjA) );
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_grant_cannotGrantCreateWithoutStem() 
     throws  InsufficientPrivilegeException,
@@ -82,7 +82,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_grant_cannotGrantStemWithoutStem() 
     throws  InsufficientPrivilegeException,
@@ -101,7 +101,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
 
 
   /** 
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revokeAll_cannotRevokeAllCreateWithoutStem() 
     throws  InsufficientPrivilegeException,
@@ -117,7 +117,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revokeAll_cannotRevokeAllStemWithoutStem() 
     throws  InsufficientPrivilegeException,
@@ -136,7 +136,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revoke_cannotRevokeCreateWithoutStem()
     throws  InsufficientPrivilegeException,
@@ -152,7 +152,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
     }
   }
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void test_revoke_cannotRevokeStemWithoutStem()
     throws  InsufficientPrivilegeException,

@@ -37,7 +37,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.7 2007-08-14 17:15:53 blair Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.8 2007-08-27 15:53:52 blair Exp $
  * @since   1.2.0
  */
 public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
@@ -316,7 +316,7 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
 
   /**
    * @see     MembershipDAO#findAllMembersByOwnerAndField(String, Field)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<MemberDTO> findAllMembersByOwnerAndField(String ownerUUID, Field f)
     throws  GrouperDAOException

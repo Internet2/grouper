@@ -22,8 +22,8 @@ import  edu.internet2.middleware.grouper.cache.EhcacheStats;
 /**
  * Test {@link EhcacheStats}.
  * @author  blair christensen.
- * @version $Id: Test_cache_EhcacheStats.java,v 1.1 2007-08-09 18:55:21 blair Exp $
- * @since   @HEAD@
+ * @version $Id: Test_cache_EhcacheStats.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class Test_cache_EhcacheStats extends GrouperTest {
 

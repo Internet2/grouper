@@ -28,8 +28,8 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllNamingResolver.java,v 1.2 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: GrouperAllNamingResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class GrouperAllNamingResolver extends NamingResolverDecorator {
   // TODO 20070820 DRY w/ access resolution
@@ -40,7 +40,7 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public GrouperAllNamingResolver(NamingResolver resolver) {
     super(resolver);
@@ -61,7 +61,7 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#getStemsWhereSubjectHasPrivilege(Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Stem> getStemsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -73,7 +73,7 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#getPrivileges(Stem, Subject)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException
@@ -84,7 +84,7 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#getSubjectsWithPrivilege(Stem, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Stem stem, Privilege privilege)
     throws  IllegalArgumentException
@@ -94,7 +94,7 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#grantPrivilege(Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -105,7 +105,7 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#hasPrivilege(Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -118,7 +118,7 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#revokePrivilege(Stem, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Privilege privilege)
     throws  IllegalArgumentException,
@@ -130,7 +130,7 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
 
   /**
    * @see     NamingResolver#revokePrivilege(Stem, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,

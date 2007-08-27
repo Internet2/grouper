@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.10 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.11 2007-08-27 15:53:53 blair Exp $
  */
 public class PrivHelper {
 
@@ -383,7 +383,7 @@ public class PrivHelper {
   
   /**
    * TODO 20070813 deprecate
-   * @since  @HEAD@
+   * @since  1.2.1
    */
   protected static void revokePriv(Stem ns, Privilege priv) {
     try {
@@ -397,7 +397,7 @@ public class PrivHelper {
 
   /**
    * TODO 20070813 deprecate
-   * @since  @HEAD@
+   * @since  1.2.1
    */
   protected static void revokePrivFail(Stem ns, Privilege priv) {
     LOG.debug("revokePrivFail.0");

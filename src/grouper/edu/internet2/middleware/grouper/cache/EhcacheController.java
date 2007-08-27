@@ -28,8 +28,8 @@ import  net.sf.ehcache.Statistics;
  * <p>TODO 20070823 this should be an interface with an <i>EhcacheController</i>
  * implementation.</p>
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.2 2007-08-24 19:42:50 blair Exp $
- * @since   @HEAD@
+ * @version $Id: EhcacheController.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
 
@@ -40,7 +40,7 @@ public class EhcacheController implements CacheController {
  
   /**
    * Initialize caching.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public EhcacheController() {
     this.initialize();
@@ -50,7 +50,7 @@ public class EhcacheController implements CacheController {
 
   /**
    * Flush all caches.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void flushCache() {
     this.mgr.clearAll(); // TODO 20070823 how much of a performance hit is calling this method?
@@ -59,7 +59,7 @@ public class EhcacheController implements CacheController {
   /**
    * @return  Cache <i>name</i>.
    * @throws  IllegalStateException if cache not found.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Cache getCache(String name) 
     throws  IllegalStateException
@@ -72,7 +72,7 @@ public class EhcacheController implements CacheController {
 
   /**
    * @return  ehcache statistics for <i>cache</i>.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public CacheStats getStats(String cache) {
     Cache c = this.getCache(cache);
@@ -82,7 +82,7 @@ public class EhcacheController implements CacheController {
 
   /** 
    * Initialize privilege cache.
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void initialize() {
     this.mgr = new CacheManager( this.getClass().getResource("/grouper.ehcache.xml") );

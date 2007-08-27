@@ -28,8 +28,8 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.2 2007-08-27 15:46:24 blair Exp $
- * @since   @HEAD@
+ * @version $Id: GrouperAllAccessResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @since   1.2.1
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
@@ -39,7 +39,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
 
   /**
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public GrouperAllAccessResolver(AccessResolver resolver) {
     super(resolver);
@@ -60,7 +60,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getGroupsWhereSubjectHasPrivilege(Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -72,7 +72,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getPrivileges(Group, Subject)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
@@ -83,7 +83,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#getSubjectsWithPrivilege(Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException
@@ -93,7 +93,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#grantPrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void grantPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
@@ -104,7 +104,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#hasPrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
@@ -117,7 +117,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#revokePrivilege(Group, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Privilege privilege)
     throws  IllegalArgumentException,
@@ -129,7 +129,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
   /**
    * @see     AccessResolver#revokePrivilege(Group, Subject, Privilege)
-   * @since   @HEAD@
+   * @since   1.2.1
    */
   public void revokePrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException,
