@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
@@ -35,24 +34,21 @@ import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
+
 /** 
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.166 2007-08-27 15:58:24 blair Exp $
+ * @version $Id: Group.java,v 1.167 2007-08-27 17:49:26 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final EventLog EL            = new EventLog();
-  private static final String   KEY_CREATOR   = "creator";  // for state caching 
-  private static final String   KEY_MEMBER    = "member";   // for state caching  
-  private static final String   KEY_MODIFIER  = "modifier"; // for state caching
-  private static final String   KEY_SUBJECT   = "subject";  // for state caching
-
-
-  // PRIVATE INSTANCE VARIABLES //
-  private SimpleCache stateCache = new SimpleCache();
+  private static final  EventLog                  EL            = new EventLog();
+  private static final  String                    KEY_CREATOR   = "creator";  // for state caching 
+  private static final  String                    KEY_MODIFIER  = "modifier"; // for state caching
+  private static final  String                    KEY_SUBJECT   = "subject";  // for state caching
+  private               Member                    cachedMember  = null;
+  private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
 
   
   // PUBLIC CLASS METHODS //
@@ -855,16 +851,16 @@ public class Group extends GrouperAPI implements Owner {
   public Subject getCreateSubject() 
     throws SubjectNotFoundException
   {
-    if ( this.stateCache.containsKey(KEY_CREATOR) ) {
-      return (Subject) this.stateCache.get(KEY_CREATOR);
+    if ( this.subjectCache.containsKey(KEY_CREATOR) ) {
+      return this.subjectCache.get(KEY_CREATOR);
     }
     try {
       // when called from "GrouperSubject" there is no attached session
       MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getCreatorUuid() );
-      this.stateCache.put(
-        KEY_CREATOR, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
+      this.subjectCache.put( 
+        KEY_CREATOR, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() ) 
       );
-      return (Subject) this.stateCache.get(KEY_CREATOR);
+      return this.subjectCache.get(KEY_CREATOR);
     }
     catch (MemberNotFoundException eMNF) {
       throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
@@ -1230,8 +1226,8 @@ public class Group extends GrouperAPI implements Owner {
   public Subject getModifySubject() 
     throws SubjectNotFoundException
   {
-    if ( this.stateCache.containsKey(KEY_MODIFIER) ) {
-      return (Subject) this.stateCache.get(KEY_MODIFIER);
+    if ( this.subjectCache.containsKey(KEY_MODIFIER) ) {
+      return this.subjectCache.get(KEY_MODIFIER);
     }
     if ( this._getDTO().getModifierUuid() == null ) {
       throw new SubjectNotFoundException("group has not been modified");
@@ -1239,10 +1235,10 @@ public class Group extends GrouperAPI implements Owner {
     try {
       // when called from "GrouperSubject" there is no attached session
       MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getModifierUuid() );
-      this.stateCache.put(
+      this.subjectCache.put(
         KEY_MODIFIER, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
-      return (Subject) this.stateCache.get(KEY_MODIFIER);
+      return this.subjectCache.get(KEY_MODIFIER);
     }
     catch (MemberNotFoundException eMNF) {
       throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
@@ -2078,16 +2074,16 @@ public class Group extends GrouperAPI implements Owner {
   public Member toMember() 
     throws  GrouperRuntimeException
   {
-    if ( this.stateCache.containsKey(KEY_MEMBER) ) {
-      return (Member) this.stateCache.get(KEY_MEMBER);
+    if ( this.cachedMember != null ) {
+      return this.cachedMember;
     }
     try {
       GrouperSession.validate( this.getSession() );
       Member m = new Member();
       m.setDTO( GrouperDAOFactory.getFactory().getMember().findBySubject( this.toSubject() ) );
       m.setSession( this.getSession() );
-      this.stateCache.put(KEY_MEMBER, m);
-      return m;
+      this.cachedMember = m;
+      return this.cachedMember;
     }  
     catch (MemberNotFoundException eMNF) {
       // If we can't convert a group to a member we have major issues
@@ -2110,14 +2106,14 @@ public class Group extends GrouperAPI implements Owner {
   public Subject toSubject() 
     throws  GrouperRuntimeException
   {
-    if ( this.stateCache.containsKey(KEY_SUBJECT) ) {
-      return (Subject) this.stateCache.get(KEY_SUBJECT);
+    if ( this.subjectCache.containsKey(KEY_SUBJECT) ) {
+      return this.subjectCache.get(KEY_SUBJECT);
     }
     try {
-      this.stateCache.put( 
+      this.subjectCache.put(
         KEY_SUBJECT, SubjectFinder.findById( this.getUuid(), "group", SubjectFinder.internal_getGSA().getId() )
       );
-      return (Subject) this.stateCache.get(KEY_SUBJECT);
+      return this.subjectCache.get(KEY_SUBJECT);
     }
     catch (SourceUnavailableException eShouldNeverHappen0)  {
       String msg = E.GROUP_G2S + eShouldNeverHappen0.getMessage();

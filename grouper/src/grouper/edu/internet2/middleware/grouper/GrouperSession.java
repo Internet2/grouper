@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.privs.AccessResolver;
 import  edu.internet2.middleware.grouper.privs.AccessResolverFactory;
 import  edu.internet2.middleware.grouper.privs.NamingResolver;
@@ -31,24 +30,22 @@ import  java.util.Date;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
+
 /** 
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.73 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.74 2007-08-27 17:49:26 blair Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
-  private static final String KEY_MEMBER = "member"; // for state caching
-
-
   private AccessAdapter   access;         // TODO 20070816 eliminate
-  private AccessResolver  accessResolver; 
+  private AccessResolver  accessResolver;
+  private Member          cachedMember;
   private ApiConfig       cfg;
   private NamingAdapter   naming;         // TODO 20070816 eliminate
   private NamingResolver  namingResolver;
   private GrouperSession  rootSession;
-  private SimpleCache     stateCache;
 
 
   /**
@@ -57,9 +54,9 @@ public class GrouperSession extends GrouperAPI {
    * @since   1.2.0
    */
   private GrouperSession() {
-    this.rootSession  = null;
+    this.cachedMember = null;
     this.cfg          = new ApiConfig();
-    this.stateCache   = new SimpleCache();
+    this.rootSession  = null;
   } 
 
   
@@ -195,22 +192,22 @@ public class GrouperSession extends GrouperAPI {
   public Member getMember() 
     throws  IllegalStateException
   {
-    if ( this.stateCache.containsKey(KEY_MEMBER) ) {
-      return (Member) this.stateCache.get(KEY_MEMBER);
+    if ( this.cachedMember != null ) {
+      return this.cachedMember;
     }
     try {
       Member m = new Member();
       m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getMemberUuid() ) );
       m.setSession(this);
-      this.stateCache.put(KEY_MEMBER, m);
-      return m;
+      this.cachedMember = m;
+      return this.cachedMember;
     }
     catch (MemberNotFoundException eShouldNeverHappen) {
       throw new IllegalStateException( 
         "this should never happen: " + eShouldNeverHappen.getMessage(), eShouldNeverHappen
       );
     }
-  } // public Member getMember()
+  } 
 
   /**
    * Get name of class implenting {@link NamingAdapter} privilege interface.
@@ -326,8 +323,8 @@ public class GrouperSession extends GrouperAPI {
       EventLog.info( this.toString(), "session: stop duration=" + + dur + "ms", sw );
     }
     this.setDTO(null);
-    this.stateCache.removeAll();
-  } // public void stop()
+    this.cachedMember = null;
+  } 
 
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
@@ -335,7 +332,7 @@ public class GrouperSession extends GrouperAPI {
       .append( "subject_id",   Quote.single( this._getDTO().getSubject().getId() )             )
       .append( "subject_type", Quote.single( this._getDTO().getSubject().getType().getName() ) )
       .toString();
-  } // public String toString()
+  } 
 
   /**
    * @throws  IllegalStateException

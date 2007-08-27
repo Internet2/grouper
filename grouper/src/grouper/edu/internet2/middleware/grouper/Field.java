@@ -16,28 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.cache.SimpleCache;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  java.io.Serializable;
+
 
 /** 
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.24 2007-04-17 17:13:26 blair Exp $    
+ * @version $Id: Field.java,v 1.25 2007-08-27 17:49:26 blair Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 
-  // PUBLIC CLASS CONSTANTS //
-  public static final long serialVersionUID = 2072790175332537149L;
 
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final String KEY_GROUPTYPE = "grouptype"; // for state cache
-
-
-  // PRIVATE TRANSIENT INSTANCE VARIABLES //
-  private transient SimpleCache stateCache = new SimpleCache();
+  private               GroupType cachedGroupType   = null;
+  public  static final  long      serialVersionUID  = 2072790175332537149L;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -59,20 +52,18 @@ public class Field extends GrouperAPI implements Serializable {
   public GroupType getGroupType() 
     throws  IllegalStateException
   {
-    String uuid = this._getDTO().getGroupTypeUuid();
-    if ( this.stateCache.containsKey(KEY_GROUPTYPE) ) {
-      return (GroupType) this.stateCache.get(KEY_GROUPTYPE);
+    if ( this.cachedGroupType == null ) {
+      try {
+        GroupType type = new GroupType();
+        type.setDTO( GrouperDAOFactory.getFactory().getGroupType().findByUuid( this._getDTO().getGroupTypeUuid() ) );
+        this.cachedGroupType = type;
+      }
+      catch (SchemaException eS) {
+        throw new IllegalStateException( "unable to fetch GroupType: " + eS.getMessage() );
+      }
     }
-    try {
-      GroupType type = new GroupType();
-      type.setDTO( GrouperDAOFactory.getFactory().getGroupType().findByUuid(uuid) );
-      this.stateCache.put(KEY_GROUPTYPE, type);
-      return type;
-    }
-    catch (SchemaException eS) {
-      throw new IllegalStateException( "unable to fetch GroupType: " + eS.getMessage() );
-    }
-  } // public GroupType getGroupType()
+    return this.cachedGroupType;
+  } 
 
   /**
    */
