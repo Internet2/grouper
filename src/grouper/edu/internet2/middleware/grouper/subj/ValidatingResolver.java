@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Source;
 import  edu.internet2.middleware.subject.SourceUnavailableException;
 import  edu.internet2.middleware.subject.Subject;
@@ -28,10 +29,13 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingResolver.java,v 1.5 2007-08-27 15:58:24 blair Exp $
+ * @version $Id: ValidatingResolver.java,v 1.6 2007-08-27 16:40:16 blair Exp $
  * @since   1.2.1
  */
 public class ValidatingResolver extends SubjectResolverDecorator {
+
+  private ParameterHelper param;
+
 
 
   /**
@@ -39,6 +43,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
    */
   public ValidatingResolver(SubjectResolver resolver) {
     super(resolver);
+    this.param = new ParameterHelper();
   }
 
 
@@ -52,10 +57,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // TODO 20070806 DRY w/ SourcesXmlResolver#find(String, String)
-    if (id == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Id");
-    }
+    this.param.notNullString(id, "null Subject Id"); 
     return super.getDecoratedResolver().find(id);
   }            
 
@@ -68,13 +70,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // TODO 20070806 DRY w/ SourcesXmlResolver#find(String)
-    if (id == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Id");
-    }
-    if (type == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Type");
-    }
+    this.param.notNullString(id, "null Subject Id").notNullString(type, "null Subject Type");
     return super.getDecoratedResolver().find(id, type);
   }
 
@@ -88,15 +84,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (id == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Id");
-    }
-    if (type == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Type");
-    }
-    if (source == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Source Id");
-    }
+    this.param.notNullString(id, "null Subject Id").notNullString(type, "null Subject Type").notNullString(source, "null Source Id");
     return super.getDecoratedResolver().find(id, type, source);
   }
 
@@ -107,9 +95,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
   public Set<Subject> findAll(String query)
     throws  IllegalArgumentException
   {
-    if (query == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null query string");
-    }
+    this.param.notNullString(query, "null query string");
     return super.getDecoratedResolver().findAll(query);
   }
 
@@ -121,12 +107,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
     throws  IllegalArgumentException,
             SourceUnavailableException
   {
-    if (query == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null query string");
-    }
-    if (source == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Source Id");
-    }
+    this.param.notNullString(query, "null query string").notNullString(source, "null Source Id");
     return super.getDecoratedResolver().findAll(query);
   }
 
@@ -139,10 +120,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // TODO 20070806 DRY w/ SourcesXmlResolver#findByIdentifier(String, String)
-    if (id == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Id");
-    }
+    this.param.notNullString(id, "null Subject Id");
     return super.getDecoratedResolver().findByIdentifier(id);
   }            
 
@@ -155,13 +133,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    // TODO 20070806 DRY w/ SourcesXmlResolver#findByIdentifier(String)
-    if (id == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Id");
-    }
-    if (type == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Type");
-    }
+    this.param.notNullString(id, "null Subject Id").notNullString(type, "null Subject Type");
     return super.getDecoratedResolver().findByIdentifier(id, type);
   }
 
@@ -175,15 +147,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    if (id == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Id");
-    }
-    if (type == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Subject Type");
-    }
-    if (source == null) { // TODO 20070806 ParameterHelper
-      throw new IllegalArgumentException("null Source Id");
-    }
+    this.param.notNullString(id, "null Subject Id").notNullString(type, "null Subject Type").notNullString(source, "null Source Id");
     return super.getDecoratedResolver().findByIdentifier(id, type, source);
   }
 
@@ -195,9 +159,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
     throws  IllegalArgumentException,
             SourceUnavailableException
   {
-    if (id == null) { // TODO 20070803 ParameterHelper
-      throw new IllegalArgumentException("null source id");
-    }
+    this.param.notNullString(id, "null Source Id");
     return super.getDecoratedResolver().getSource(id);
   }
  
@@ -216,9 +178,7 @@ public class ValidatingResolver extends SubjectResolverDecorator {
   public Set<Source> getSources(String subjectType) 
     throws  IllegalArgumentException
   {
-    if (subjectType == null) { // TODO 20070803 ParameterHelper
-      throw new IllegalArgumentException("null SubjectType");
-    }
+    this.param.notNullString(subjectType, "null Subject Type");
     return super.getDecoratedResolver().getSources(subjectType);
   }
 
