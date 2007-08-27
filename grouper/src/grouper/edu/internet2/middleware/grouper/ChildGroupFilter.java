@@ -23,7 +23,7 @@ import  java.util.Set;
  * Query filter that retrieves child groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ChildGroupFilter.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: ChildGroupFilter.java,v 1.4 2007-08-27 15:58:24 blair Exp $
  * @since   1.2.1
  */
 public class ChildGroupFilter extends BaseQueryFilter {
@@ -49,7 +49,7 @@ public class ChildGroupFilter extends BaseQueryFilter {
 
   /**
    * @see     BaseQueryFilter#getResults(GrouperSession)
-   * @since   @HEAD
+   * @since   1.2.1
    */
   public Set getResults(GrouperSession s) 
     throws QueryException

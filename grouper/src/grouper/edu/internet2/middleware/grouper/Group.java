@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.165 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: Group.java,v 1.166 2007-08-27 15:58:24 blair Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -2147,7 +2147,7 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * TODO 20070531 make into some flavor of validator
-   * @since   @HEAD
+   * @since   1.2.1
    */
   protected boolean internal_canWriteField(Subject subj, Field f)
     throws  IllegalArgumentException,
