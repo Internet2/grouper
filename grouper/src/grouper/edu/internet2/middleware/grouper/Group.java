@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.167 2007-08-27 17:49:26 blair Exp $
+ * @version $Id: Group.java,v 1.168 2007-08-28 14:04:17 shilen Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -753,8 +753,24 @@ public class Group extends GrouperAPI implements Owner {
   public String getAttribute(String attr) 
     throws  AttributeNotFoundException
   {
+    String emptyString = GrouperConfig.EMPTY_STRING;
+
+    // check to see if attribute exists in Map returned by getAttributes()
+    Map attrs = this._getDTO().getAttributes();
+    if (attrs.containsKey(attr)) {
+      String val = (String) attrs.get(attr);
+      if (val == null) {
+        return emptyString;
+      } else { 
+        return val;
+      }
+    }
+    
+    // Group does not have attribute.  If attribute is not valid for Group,
+    // throw AttributeNotFoundException.  Otherwise, return an empty string.
+    
     try {
-      Field f = FieldFinder.find(attr);
+      Field f = FieldFinder.find(attr); 
       if ( !FieldType.ATTRIBUTE.equals( f.getType() ) ) {
         throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() );
       }
@@ -762,12 +778,7 @@ public class Group extends GrouperAPI implements Owner {
       if (v.isInvalid()) {
         throw new AttributeNotFoundException( v.getErrorMessage() );
       }
-      String  val   = GrouperConfig.EMPTY_STRING;
-      Map     attrs = this._getDTO().getAttributes();
-      if (attrs.containsKey(attr)) {
-        return (String) attrs.get(attr);
-      }
-      return val;
+      return emptyString;
     }
     catch (SchemaException eS) {
       throw new AttributeNotFoundException( eS.getMessage() );
