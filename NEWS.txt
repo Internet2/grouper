@@ -14,6 +14,7 @@ Released: TBD
 * Stem#getChildGroups(Privilege[], Stem.Scope) - Retrieve child groups where current subject has privilege(s) [GRP-7]
 * Stem#getChildStems(Privilege[], Stem.Scope) - Retrieve child stems where current subject has privilege(s) [GRP-7]
 * Stem#getChildStems(Stem.Scope) - Can retrieve *all* child stems, not just immediate children [GRP-12]
+* Added experimental Hibernate3 support [GRP-32]
 
 ## UPDATED
 * Updated to ehcache v1.3.0

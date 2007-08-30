@@ -4,6 +4,18 @@ with *Grouper*.
 
 ---
 
+# antlr-2.7.6.jar
+
+"ANTLR, ANother Tool for Language Recognition, (formerly PCCTS) is a language tool that
+provides a framework for constructing recognizers, compilers, and translators from
+grammatical descriptions containing Java, C#, C++, or Python actions."
+
+* Version:  2.7.6
+* Source:   <http://www.antlr2.org/>
+* License:  Public Domain
+* Updated:  20070830
+* Use:      Runtime requirement of Hibernate3
+
 # commons-discovery-0.4.jar
 
 "The Discovery component is about discovering, or finding, implementations for pluggable
@@ -56,6 +68,15 @@ persistence and query service for Java."
 * Source:   <http://www.hibernate.org/>
 * License:  LGPL
 * Updated:  ?
+
+# hibernate-3.2.5.jar
+
+"Hibernate is a powerful, ultra-high performance object/relational persistence and query service for Java."
+
+* Version:  3.2.5
+* Source:   <http://www.hibernate.org/>
+* License:  LGPL
+* Updated:  20070828
 
 # hsqldb-1.7.2.11.jar
 
@@ -132,5 +153,5 @@ logging services for purposes of application debugging and auditing."
 
 ---
 
-$Id: README.txt,v 1.11 2007-08-09 18:55:21 blair Exp $
+$Id: README.txt,v 1.12 2007-08-30 15:52:22 blair Exp $
 
