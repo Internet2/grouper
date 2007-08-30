@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateGroupTypeTupleDAO;
@@ -25,7 +26,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.7 2007-04-18 16:57:30 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.8 2007-08-30 15:52:22 blair Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
@@ -85,9 +86,14 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
 
   // TODO 20070418  refactor test so that "HibernateGroupTypeTuple" and
   //                "findByGroupAndType" do not need to be public
-  public void testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted() {
-    try {
-      LOG.info("testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted");
+  public void testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted() 
+    throws  GroupDeleteException,
+            Exception,
+            SchemaException
+  {
+    LOG.info("testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted");
+    // TODO 20070828 this check is ugly AND don't make this test dao specific
+    if ( new ApiConfig().getProperty("dao.factory").equals("edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFactory") ) {
       R         r     = R.getContext("grouper");
       Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
       GroupType type  = GroupTypeFinder.find("base");
@@ -105,14 +111,15 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
         assertTrue("group no longer has type tuple after group deletion", true);
       }
     }
-    catch (Exception e) {
-      unexpectedException(e);
-    }
-  } // public void testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted()
+  } 
 
-  public void testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset() {
-    try {
-      LOG.info("testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset");
+  public void testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset() 
+    throws  Exception,
+            SchemaException
+  {
+    LOG.info("testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset");
+    // TODO 20070828 this check is ugly AND don't make this test dao specific
+    if ( new ApiConfig().getProperty("dao.factory").equals("edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFactory") ) {
       R         r     = R.getContext("grouper");
       Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
       GroupType type  = GroupTypeFinder.find("base");
@@ -130,10 +137,7 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
         assertTrue("group no longer has type tuple after reset", true);
       }
     }
-    catch (Exception e) {
-      unexpectedException(e);
-    }
-  } // public void testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset()
+  } 
 
-} // public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest
+} 
 
