@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Source;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.7 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.8 2007-09-11 10:18:44 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -154,7 +154,7 @@ public class LoginCheckFilter implements Filter {
 		boolean noCheck = ignore.indexOf(":" + actionStr + ":") > -1;
 		if (noCheck || authUser != null || loggedOut) {
 			if (authUser != null
-					&& session.getAttribute("sessionInited") == null) {
+					&& (session.getAttribute("sessionInited") == null || session.getAttribute("sessionInited").equals(Boolean.FALSE))) {
 
 				try {
 					SessionInitialiser.init(request);
