@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.17 2007-06-14 21:39:04 ddonn Exp $
-$Date: 2007-06-14 21:39:04 $
+$Id: TreeNodeImpl.java,v 1.18 2007-09-12 15:41:57 ddonn Exp $
+$Date: 2007-09-12 15:41:57 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -322,9 +322,47 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
    */
   public String toString()
   {
-    return this.getTree().getAdapter().getClass().getName()
-           + SignetFactory.SCOPE_PART_DELIMITER + this.getTreeId()
-           + SignetFactory.SCOPE_PART_DELIMITER + this.getId();
+	StringBuffer buf = new StringBuffer();
+
+	buf.append("[TreeNodeImpl: "); //$NON-NLS-1$
+	buf.append(super.toString());
+	buf.append(", TreeId=" + treeId); //$NON-NLS-1$
+	buf.append(", ParentIds=["); //$NON-NLS-1$
+	if ((null != parents) && (0 < parents.size()))
+	{
+		for (Iterator iter = parents.iterator(); iter.hasNext(); )
+		{
+			TreeNode parent = (TreeNode)iter.next();
+			buf.append(parent.getId());
+			if (iter.hasNext())
+				buf.append(", "); //$NON-NLS-1$
+		}
+	}
+	else
+		buf.append("none"); //$NON-NLS-1$
+	buf.append("]"); //$NON-NLS-1$
+
+	buf.append(", ChildrenIds=["); //$NON-NLS-1$
+	if ((null != children) && (0 < children.size()))
+	{
+		for (Iterator iter = children.iterator(); iter.hasNext(); )
+		{
+			TreeNode child = (TreeNode)iter.next();
+			buf.append(child.getId());
+			if (iter.hasNext())
+				buf.append(", "); //$NON-NLS-1$
+		}
+	}
+	else
+		buf.append("none"); //$NON-NLS-1$
+	buf.append("]"); //$NON-NLS-1$
+
+	buf.append("]"); //$NON-NLS-1$
+
+	return (buf.toString());
+//    return this.getTree().getAdapter().getClass().getName()
+//           + SignetFactory.SCOPE_PART_DELIMITER + this.getTreeId()
+//           + SignetFactory.SCOPE_PART_DELIMITER + this.getId();
   }
 
   /**

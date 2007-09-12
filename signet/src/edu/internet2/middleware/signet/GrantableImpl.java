@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.26 2007-07-31 09:22:08 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/GrantableImpl.java,v 1.27 2007-09-12 15:41:56 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -216,7 +216,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	/**
 	 * @param revoker
 	 */
-	void setRevoker(SignetSubject revoker)
+	public void setRevoker(SignetSubject revoker)
 	{
 		if (null != revoker)
 		{
@@ -232,7 +232,7 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
   /**
    * @param id The id to set.
    */
-  void setNumericId(Integer id)
+  public void setNumericId(Integer id)
   {
     this.id = id;
   }
@@ -403,15 +403,15 @@ public abstract class GrantableImpl extends EntityImpl implements Grantable
 	  /**
 	 * @return The instance number of this Grantable
 	 */
-  int getInstanceNumber()
+  public int getInstanceNumber()
   {
-    return this.instanceNumber;
+    return (instanceNumber);
   }
 
 	  /** This method is for use only by Hibernate.
 	 * @param instanceNumber
 	 */
-  protected void setInstanceNumber(int instanceNumber)
+  public void setInstanceNumber(int instanceNumber)
   {
     this.instanceNumber = instanceNumber;
   }

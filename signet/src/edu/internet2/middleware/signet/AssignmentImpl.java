@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.45 2007-08-07 23:26:19 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.46 2007-09-12 15:41:56 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -216,7 +216,7 @@ public AssignmentImpl
   /**
    * @param function The function to set.
    */
-  void setFunction(Function function)
+  public void setFunction(Function function)
   {
     this.function = (FunctionImpl)function;
   }
@@ -224,7 +224,7 @@ public AssignmentImpl
   /**
    * @param scope The scope to set.
    */
-  void setScope(TreeNode scope)
+  public void setScope(TreeNode scope)
   {
     this.scope = scope;
   }
@@ -234,8 +234,8 @@ public AssignmentImpl
    */
   public TreeNode getScope()
   {
-    ((TreeNodeImpl)this.scope).setSignet(getSignet());
-    return this.scope;
+    ((TreeNodeImpl)scope).setSignet(getSignet());
+    return (scope);
   }
   
   /* (non-Javadoc)
@@ -244,11 +244,9 @@ public AssignmentImpl
   public Function getFunction()
   {
     if (getSignet() != null)
-    {
-      this.function.setSignet(getSignet());
-    }
+      function.setSignet(getSignet());
     
-    return this.function;
+    return (function);
   }
   
   /**
@@ -257,10 +255,28 @@ public AssignmentImpl
    */
   public String toString()
   {
-    return
-      "[id=" + getId()
-      + ",instance=" + getInstanceNumber()
-      + ",scope=" + getScope() + "]";
+	StringBuffer buf = new StringBuffer();
+
+	buf.append("[AssignmentImpl: "); //$NON-NLS-1$
+	buf.append(super.toString());
+	buf.append(", canGrant=" + canGrant); //$NON-NLS-1$
+	buf.append(", canUse=" + canUse); //$NON-NLS-1$
+	buf.append(", scope=" + ((null != scope) ? (scope.toString()) : ("null"))); //$NON-NLS-1$ $NON-NLS-2$
+	buf.append(", function=" + ((null != function) ? (function.toString()) : ("null"))); //$NON-NLS-2$ //$NON-NLS-2$
+	buf.append(", limitValues=["); //$NON-NLS-1$
+	if ((null != limitValues) && (0 < limitValues.size()))
+		for (Iterator<LimitValue> values = limitValues.iterator(); values.hasNext(); )
+			buf.append(values.next().toString());
+	else
+		buf.append("none"); //$NON-NLS-1$
+	buf.append("]"); //$NON-NLS-1$
+	buf.append("]"); //$NON-NLS-1$
+
+	return (buf.toString());
+//    return
+//      "[id=" + getId()
+//      + ",instance=" + getInstanceNumber()
+//      + ",scope=" + getScope() + "]";
   }
 
   public boolean canGrant()

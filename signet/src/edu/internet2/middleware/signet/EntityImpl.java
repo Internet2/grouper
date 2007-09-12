@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.19 2007-07-31 09:22:08 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.20 2007-09-12 15:41:57 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -110,7 +110,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param id The id to set.
    */
-  protected void setStringId(String id)
+  public void setStringId(String id)
   {
     if ((this.id != null) && !(this.id.equals(id)))
     {
@@ -139,17 +139,17 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the account which created this entity.
    */
-  protected String getCreateDbAccount()
+  public String getCreateDbAccount()
   {
-    return this.createDbAccount;
+    return (createDbAccount);
   }
   
   /**
    * @return Returns the source of this entity's creation.
    */
-  protected String getCreateContext()
+  public String getCreateContext()
   {
-    return this.createContext;
+    return (createContext);
   }
   
   /**
@@ -163,31 +163,31 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return Returns the account which last modified this entity.
    */
-  protected String getModifyDbAccount()
+  public String getModifyDbAccount()
   {
-    return this.modifyDbAccount;
+    return (modifyDbAccount);
   }
   
   /**
    * @return Returns the source of this entity's last modification.
    */
-  protected String getModifyContext()
+  public String getModifyContext()
   {
-    return this.modifyContext;
+    return (modifyContext);
   }
   
   /**
    * @return Returns the date and time this entity was last modified.
    */
-  protected Date getModifyDatetime()
+  public Date getModifyDatetime()
   {
-    return this.modifyDatetime;
+    return (modifyDatetime);
   }
   
   /**
    * @param createDbAccount The createDbAccount to set.
    */
-  protected void setCreateDbAccount(String createDbAccount)
+  public void setCreateDbAccount(String createDbAccount)
   {
     this.createDbAccount = createDbAccount;
   }
@@ -195,7 +195,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param createContext The createContext to set.
    */
-  protected void setCreateContext(String createContext)
+  public void setCreateContext(String createContext)
   {
     this.createContext = createContext;
   }
@@ -203,7 +203,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param createDatetime The createDatetime to set.
    */
-  protected void setCreateDatetime(Date createDatetime)
+  public void setCreateDatetime(Date createDatetime)
   {
     this.createDatetime = createDatetime;
   }
@@ -211,7 +211,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param modifyDbAccount The modifyDbAccount to set.
    */
-  protected void setModifyDbAccount(String modifyDbAccount)
+  public void setModifyDbAccount(String modifyDbAccount)
   {
     this.modifyDbAccount = modifyDbAccount;
   }
@@ -219,7 +219,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param modifyContext The modifyContext to set.
    */
-  protected void setModifyContext(String modifyContext)
+  public void setModifyContext(String modifyContext)
   {
     this.modifyContext = modifyContext;
   }
@@ -227,7 +227,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param modifyDatetime The modifyDatetime to set.
    */
-  protected void setModifyDatetime(Date modifyDatetime)
+  public void setModifyDatetime(Date modifyDatetime)
   {
     this.modifyDatetime = modifyDatetime;
   }
@@ -235,7 +235,7 @@ public abstract class EntityImpl implements Entity, Name
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Entity#setCreateUserID(java.lang.String)
    */
-  protected void setCreateUserID(String userID)
+  public void setCreateUserID(String userID)
   {
     this.createUserID = userID;
   }
@@ -243,7 +243,7 @@ public abstract class EntityImpl implements Entity, Name
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Entity#setModifyUserID(java.lang.String)
    */
-  protected void setModifyUserID(String userID)
+  public void setModifyUserID(String userID)
   {
     this.modifyUserID = userID;
   }
@@ -251,7 +251,7 @@ public abstract class EntityImpl implements Entity, Name
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Entity#getCreateUserID()
    */
-  protected String getCreateUserID()
+  public String getCreateUserID()
   {
     return this.createUserID;
   }
@@ -259,7 +259,7 @@ public abstract class EntityImpl implements Entity, Name
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Entity#getModifyUserID()
    */
-  protected String getModifyUserID()
+  public String getModifyUserID()
   {
     return this.modifyUserID;
   }
@@ -267,7 +267,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param comment A comment for the use of metadata maintainers.
    */
-  protected void setComment(String comment)
+  public void setComment(String comment)
   {
     this.comment = comment;
   }
@@ -275,7 +275,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @return A comment for the use of metadata maintainers.
    */
-  protected String getComment()
+  public String getComment()
   {
     return this.comment;
   }
@@ -310,7 +310,7 @@ public abstract class EntityImpl implements Entity, Name
   /**
    * @param name The name to set.
    */
-  protected void setName(String name)
+  public void setName(String name)
   {
     this.name = name;
   }

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.12 2007-07-06 21:59:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.13 2007-09-12 15:41:57 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -39,6 +39,7 @@ import edu.internet2.middleware.signet.Assignment;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.ChoiceSetImpl;
 import edu.internet2.middleware.signet.EntityImpl;
+import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.FunctionImpl;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitImpl;
@@ -70,7 +71,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -160,8 +161,18 @@ public class HibernateDB implements Serializable
 				" attr.mappedName, " +							//$NON-NLS-1$
 				" attr.sequence ";								//$NON-NLS-1$
 
+	protected static final String Qry_functionByIdAndSubsys =
+			"from " + FunctionImpl.class.getName() +	//$NON-NLS-1$
+			" as function " +							//$NON-NLS-1$
+			" where " +									//$NON-NLS-1$
+			" functionID = :function_id " +				//$NON-NLS-1$
+			" and " +									//$NON-NLS-1$
+			" subsystemID = :subsys_id ";				//$NON-NLS-1$
+
+
 	/** Cache the Tree for performance */
 	protected TreeImpl cachedTree = null;
+
 
 	///////////////////////////////////
 	// class methods
@@ -217,11 +228,11 @@ public class HibernateDB implements Serializable
 		Object retval = null;
 
 		if (null == hs)
-			throw new ObjectNotFoundException("No 'session' provided for load()");
+			throw new ObjectNotFoundException("No 'session' provided for load()"); //$NON-NLS-1$
 		else if (null == id)
-			throw new ObjectNotFoundException("No 'id' provided for load()");
+			throw new ObjectNotFoundException("No 'id' provided for load()"); //$NON-NLS-1$
 		else if (null == loadClass)
-			throw new ObjectNotFoundException("No 'loadClass' provided for load()");
+			throw new ObjectNotFoundException("No 'loadClass' provided for load()"); //$NON-NLS-1$
 
 		try { retval = hs.load(loadClass, id); }
 		catch (HibernateException he)
@@ -273,11 +284,11 @@ public class HibernateDB implements Serializable
 		Object retval = null;
 
 		if (null == hs)
-			throw new ObjectNotFoundException("No 'session' provided for load()");
+			throw new ObjectNotFoundException("No 'session' provided for load()"); //$NON-NLS-1$
 		else if (null == id)
-			throw new ObjectNotFoundException("No 'id' provided for load()");
+			throw new ObjectNotFoundException("No 'id' provided for load()"); //$NON-NLS-1$
 		else if (null == loadClass)
-			throw new ObjectNotFoundException("No 'loadClass' provided for load()");
+			throw new ObjectNotFoundException("No 'loadClass' provided for load()"); //$NON-NLS-1$
 
 		try { retval = hs.load(loadClass, id); }
 		catch (HibernateException he)
@@ -327,11 +338,11 @@ public class HibernateDB implements Serializable
 		Object retval = null;
 
 		if (null == hs)
-			throw new ObjectNotFoundException("No 'session' provided for load()");
+			throw new ObjectNotFoundException("No 'session' provided for load()"); //$NON-NLS-1$
 		else if (null == id)
-			throw new ObjectNotFoundException("No 'id' provided for load()");
+			throw new ObjectNotFoundException("No 'id' provided for load()"); //$NON-NLS-1$
 		else if (null == loadClass)
-			throw new ObjectNotFoundException("No 'loadClass' provided for load()");
+			throw new ObjectNotFoundException("No 'loadClass' provided for load()"); //$NON-NLS-1$
 
 		try { retval = hs.load(loadClass, id); }
 		catch (HibernateException he)
@@ -437,7 +448,7 @@ protected Session stdSession = null;
 			}
 			catch (HibernateException he)
 			{
-				log.error("HibernateDB.HibernateDB: hibernate error");
+				log.error("HibernateDB.HibernateDB: hibernate error"); //$NON-NLS-1$
 				log.error(he.toString());
 				throw new SignetRuntimeException(he);
 			}
@@ -478,7 +489,7 @@ protected Session stdSession = null;
 			if (null != stdSession)
 			{
 				if (stdSession.isDirty())
-					log.warn("HibernateDB.reset: Outstanding transactions have been lost");
+					log.warn("HibernateDB.reset: Outstanding transactions have been lost"); //$NON-NLS-1$
 				stdSession.close();
 				stdSession = null;
 			}
@@ -511,7 +522,7 @@ protected Session stdSession = null;
 		}
 		catch (HibernateException e)
 		{
-			log.error("HibernateDB.save(Session, Object): Error occurred processing Object " + o.toString());
+			log.error("HibernateDB.save(Session, Object): Error occurred processing Object " + o.toString()); //$NON-NLS-1$
 			throw new SignetRuntimeException(e);
 		}
 	}
@@ -527,7 +538,7 @@ protected Session stdSession = null;
 			try { hs.saveOrUpdate(o); }
 			catch (HibernateException e)
 			{
-				log.error("HibernateDB.save(Session, List): Error occurred processing Object " + o.toString());
+				log.error("HibernateDB.save(Session, List): Error occurred processing Object " + o.toString()); //$NON-NLS-1$
 				throw new SignetRuntimeException(e);
 			}
 		}
@@ -569,7 +580,8 @@ protected Session stdSession = null;
 	/**
 	 * Gets a single Tree by ID.
 	 * 
-	 * @param id
+	 * @param hs The Hibernate Session to use
+	 * @param id The ID of the Tree
 	 * @return the specified Tree
 	 * @throws ObjectNotFoundException
 	 */
@@ -651,19 +663,19 @@ protected Session stdSession = null;
 		try
 		{
 			query = createQuery(hs,
-					"from " +
+					"from " + //$NON-NLS-1$
 					AssignmentImpl.class.getName() +
-					" as assignment " + 
-					" where granteeKey = :granteeKey " + 
-					" and functionKey = :functionKey " + 
-					" and scopeID = :scopeId " + 
-					" and scopeNodeID = :scopeNodeId " +
-					" and assignmentID != :assignmentId ");
-			query.setParameter("granteeKey", assignment.getGrantee().getSubject_PK(), Hibernate.LONG);
-			query.setParameter("functionKey", ((FunctionImpl)(assignment.getFunction())).getKey(), Hibernate.INTEGER);
-			query.setString("scopeId", assignment.getScope().getTree().getId());
-			query.setString("scopeNodeId", assignment.getScope().getId());
-			query.setParameter("assignmentId", assignment.getId(), Hibernate.INTEGER);
+					" as assignment " +  //$NON-NLS-1$
+					" where granteeKey = :granteeKey " +  //$NON-NLS-1$
+					" and functionKey = :functionKey " +  //$NON-NLS-1$
+					" and scopeID = :scopeId " +  //$NON-NLS-1$
+					" and scopeNodeID = :scopeNodeId " + //$NON-NLS-1$
+					" and assignmentID != :assignmentId "); //$NON-NLS-1$
+			query.setParameter("granteeKey", assignment.getGrantee().getSubject_PK(), Hibernate.LONG); //$NON-NLS-1$
+			query.setParameter("functionKey", ((FunctionImpl)(assignment.getFunction())).getKey(), Hibernate.INTEGER); //$NON-NLS-1$
+			query.setString("scopeId", assignment.getScope().getTree().getId()); //$NON-NLS-1$
+			query.setString("scopeNodeId", assignment.getScope().getId()); //$NON-NLS-1$
+			query.setParameter("assignmentId", assignment.getId(), Hibernate.INTEGER); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException e)
@@ -757,13 +769,13 @@ protected Session stdSession = null;
 		try
 		{
 			Query query = createQuery(session,
-					"from " +
+					"from " + //$NON-NLS-1$
 					TreeNodeRelationship.class.getName() +
-					" as treeNodeRelationship" +
-					" where treeID = :treeId" +
-					" and nodeID = :childNodeId");
-			query.setString("treeId", treeId);
-			query.setString("childNodeId", childNode.getId());
+					" as treeNodeRelationship" + //$NON-NLS-1$
+					" where treeID = :treeId" + //$NON-NLS-1$
+					" and nodeID = :childNodeId"); //$NON-NLS-1$
+			query.setString("treeId", treeId); //$NON-NLS-1$
+			query.setString("childNodeId", childNode.getId()); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException e)
@@ -837,13 +849,13 @@ protected Session stdSession = null;
 		try
 		{
 			Query query = createQuery(session,
-					"from " +
+					"from " + //$NON-NLS-1$
 					TreeNodeRelationship.class.getName() +
-					" as treeNodeRelationship"
-					+ " where treeID = :treeId" +
-					" and parentNodeID = :parentNodeId");
-			query.setString("treeId", treeId);
-			query.setString("parentNodeId", parentNode.getId());
+					" as treeNodeRelationship" //$NON-NLS-1$
+					+ " where treeID = :treeId" + //$NON-NLS-1$
+					" and parentNodeID = :parentNodeId"); //$NON-NLS-1$
+			query.setString("treeId", treeId); //$NON-NLS-1$
+			query.setString("parentNodeId", parentNode.getId()); //$NON-NLS-1$
 			resultList = query.list();
 
 			Tree tree = getTree(session, treeId);
@@ -881,10 +893,10 @@ protected Session stdSession = null;
 		try
 		{
 			Query query = createQuery(hs,
-					"from " +
+					"from " + //$NON-NLS-1$
 					LimitImpl.class.getName() +
-					" as limit where subsystemID = :id");
-			query.setString("id", subsystem.getId());
+					" as limit where subsystemID = :id"); //$NON-NLS-1$
+			query.setString("id", subsystem.getId()); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException e)
@@ -918,10 +930,10 @@ protected Session stdSession = null;
 		try
 		{
 			query = createQuery(hs,
-					"from " +
+					"from " + //$NON-NLS-1$
 					PermissionImpl.class.getName() +
-					" as limit where subsystemID = :id");
-			query.setString("id", subsystem.getId());
+					" as limit where subsystemID = :id"); //$NON-NLS-1$
+			query.setString("id", subsystem.getId()); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException e)
@@ -1018,9 +1030,9 @@ protected Session stdSession = null;
 		else
 		{
 			qry = createQuery(hs, Qry_proxiesGranted);
-			qry.setString("status", status);
+			qry.setString("status", status); //$NON-NLS-1$
 		}
-		qry.setLong("grantorKey", grantorId);
+		qry.setLong("grantorKey", grantorId); //$NON-NLS-1$
 
 		try
 		{
@@ -1059,9 +1071,9 @@ protected Session stdSession = null;
 		else
 		{
 			qry = createQuery(hs, Qry_proxiesReceived);
-			qry.setString("status", status);
+			qry.setString("status", status); //$NON-NLS-1$
 		}
-		qry.setLong("granteeKey", granteeId);
+		qry.setLong("granteeKey", granteeId); //$NON-NLS-1$
 
 		try
 		{
@@ -1100,9 +1112,9 @@ protected Session stdSession = null;
 		else
 		{
 			qry = createQuery(hs, Qry_assignmentsGranted);
-			qry.setString("status", status);
+			qry.setString("status", status); //$NON-NLS-1$
 		}
-		qry.setLong("grantorKey", grantorId);
+		qry.setLong("grantorKey", grantorId); //$NON-NLS-1$
 
 		try
 		{
@@ -1140,9 +1152,9 @@ protected Session stdSession = null;
 		else
 		{
 			qry = createQuery(hs, Qry_assignmentsReceived);
-			qry.setString("status", status);
+			qry.setString("status", status); //$NON-NLS-1$
 		}
-		qry.setLong("granteeKey", granteeId);
+		qry.setLong("granteeKey", granteeId); //$NON-NLS-1$
 
 		try
 		{
@@ -1163,6 +1175,57 @@ protected Session stdSession = null;
 	}
 
 
+	/**
+	 * Gets a single Function by primary key.
+	 * 
+	 * @param pkey The DB primary key
+	 * @return The Function object matching the primary key
+	 * @throws ObjectNotFoundException
+	 */
+	public Function getFunction(int pkey) throws ObjectNotFoundException
+	{
+		FunctionImpl function = (FunctionImpl)(load(FunctionImpl.class, pkey));
+		function.setSignet(signet);
+		return (function);
+	}
+
+	/**
+	 * Gets a single Function by Function Id and Subsystem Id.
+	 * 
+	 * @param functionId The functionId field value to match
+	 * @param subsystemId The subsystemId field value to match
+	 * @return The Function matching the unique id/subsystem, or null
+	 * @throws ObjectNotFoundException
+	 */
+	public Function getFunction(String functionId, String subsystemId)
+			throws ObjectNotFoundException
+	{
+		FunctionImpl retval = null;
+
+		Session hs = openSession();
+		Query qry = createQuery(hs, Qry_functionByIdAndSubsys);
+		qry.setString("function_id", functionId); //$NON-NLS-1$
+		qry.setString("subsys_id", subsystemId); //$NON-NLS-1$
+
+		try
+		{
+			retval = (FunctionImpl)qry.list().get(0);
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		if (null != retval)
+			retval.setSignet(signet);
+
+		return (retval);
+	}
+
 	///////////////////////////////////
 	// unit test support
 	///////////////////////////////////
@@ -1176,11 +1239,11 @@ protected Session stdSession = null;
    try
    {
      Query query = hs.createQuery(
-    		 "from edu.internet2.middleware.signet.ChoiceSetImpl" 
-              + " as choiceSet"  
-              + " where choiceSetID = :id"); 
+    		 "from edu.internet2.middleware.signet.ChoiceSetImpl"  //$NON-NLS-1$
+              + " as choiceSet"   //$NON-NLS-1$
+              + " where choiceSetID = :id");  //$NON-NLS-1$
 
-      query.setString("id", choiceSetId); 
+      query.setString("id", choiceSetId);  //$NON-NLS-1$
 
       resultList = query.list();
     }
@@ -1247,7 +1310,7 @@ protected Session stdSession = null;
 		}
 		catch (ObjectNotFoundException e)
 		{
-			log.error("No SignetSubject found with subjectkey=" + subject_pk);
+			log.error("No SignetSubject found with subjectkey=" + subject_pk); //$NON-NLS-1$
 			subject = null;
 		}
 
@@ -1268,7 +1331,7 @@ protected Session stdSession = null;
 		Session hs = openSession();
 		try
 		{
-//System.out.println("HibernateDB.getSubject: sourceId=" + sourceId + " subjectId=" + subjectId);
+//System.out.println("HibernateDB.getSubject: sourceId=" + sourceId + " subjectId=" + subjectId); //$NON-NLS-1$
 			Query query = createQuery(hs, Qry_subjByIdSrc);
 			query.setString("subject_id", subjectId); //$NON-NLS-1$
 			query.setString("source_id", sourceId); //$NON-NLS-1$
@@ -1334,7 +1397,7 @@ protected Session stdSession = null;
 		{
 			case (0):
 				closeSession(hs);
-				throw new ObjectNotFoundException("object not found");
+				throw new ObjectNotFoundException("object not found"); //$NON-NLS-1$
 //				msgData = new Object[] { identifier };
 //				String msgTemplate = ResLoaderApp.getString("HibernateDb.msg.exc.SubjNotFound");  //$NON-NLS-1$
 //				msgFmt = new MessageFormat(msgTemplate);

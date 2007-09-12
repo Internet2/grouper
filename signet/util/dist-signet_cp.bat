@@ -1,4 +1,4 @@
-REM $Header: /home/hagleyj/i2mi/signet/util/dist-signet_cp.bat,v 1.7 2007-07-25 01:01:11 ddonn Exp $
+REM $Header: /home/hagleyj/i2mi/signet/util/dist-signet_cp.bat,v 1.8 2007-09-12 15:41:57 ddonn Exp $
 REM
 REM This file is intended to be called from each of the run.bat files in
 REM the subdirectories of util. DOS Batch does not provide a dynamic means of
@@ -6,7 +6,13 @@ REM generating a classpath as done in each run.sh.
 REM
 REM You may need to change SIGNET_LIBS to point to YOUR installation!
 REM
+IF NOT "%1"=="" GOTO :SETPARAM
 set SIGNET_LIBS=..\lib
+GOTO :DOSETS
+:SETPARAM
+set SIGNET_LIBS=%1
+:DOSETS
+echo Setting SIGNET_LIBS to %SIGNET_LIBS%
 set CLASSPATH=%CLASSPATH%;..\config
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\antlr-2.7.6.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\asm-attrs.jar

@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.19 2007-03-19 23:12:10 ddonn Exp $
-$Date: 2007-03-19 23:12:10 $
+$Id: LimitImpl.java,v 1.20 2007-09-12 15:41:56 ddonn Exp $
+$Date: 2007-09-12 15:41:56 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -110,7 +110,7 @@ public final class LimitImpl implements Limit
     return this.id;
   }
   
-  void setId(String id)
+  public void setId(String id)
   {
     this.id = id;
   }
@@ -123,7 +123,7 @@ public final class LimitImpl implements Limit
     return this.name;
   }
   
-  void setName(String name)
+  public void setName(String name)
   {
     this.name = name;
   }
@@ -203,9 +203,9 @@ public final class LimitImpl implements Limit
     return choiceSet;
   }
   
-  String getChoiceSetId()
+  public String getChoiceSetId()
   {
-    return this.choiceSetId;
+    return (choiceSetId);
   }
 
   public void setChoiceSet(ChoiceSet choiceSet)
@@ -214,9 +214,11 @@ public final class LimitImpl implements Limit
       this.choiceSetId = choiceSet.getId();
   }
   
-  void setChoiceSetId(String choiceSetId) throws ObjectNotFoundException
+  public void setChoiceSetId(String choiceSetId)
   {
     this.choiceSetId = choiceSetId;
+    choiceSet = null;
+    getChoiceSet();
   }
   
   void setValueType(String valueType)
@@ -287,7 +289,7 @@ public final class LimitImpl implements Limit
   /**
    * @param valueType The dataType to set.
    */
-  void setDataType(DataType valueType)
+  public void setDataType(DataType valueType)
   {
     this.dataType = valueType;
   }
@@ -344,7 +346,7 @@ public final class LimitImpl implements Limit
     return this.displayOrder;
   }
 
-  void setDisplayOrder(int displayOrder)
+  public void setDisplayOrder(int displayOrder)
   {
     this.displayOrder = displayOrder;
   }
@@ -415,7 +417,7 @@ public final class LimitImpl implements Limit
   /* This method is for use only by Hibernate.
    * 
    */
-  protected Integer getKey()
+  public Integer getKey()
   {
     return this.key;
   }

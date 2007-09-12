@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.22 2007-08-07 23:26:19 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.23 2007-09-12 15:41:57 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -299,19 +299,19 @@ public class SignetSubject implements Subject, Comparable
 		if (apiSubject instanceof SignetSubject)
 		{
 			log.info(
-				"SignetSubject.synchAttributes(Subject)" +
-				" is redirecting to method synchAttributes(SignetSubject) " +
-				"where SignetSubject = \n" + ((SignetSubject)apiSubject).toString());
+				"SignetSubject.synchAttributes(Subject)" + //$NON-NLS-1$
+				" is redirecting to method synchAttributes(SignetSubject) " + //$NON-NLS-1$
+				"where SignetSubject = \n" + ((SignetSubject)apiSubject).toString()); //$NON-NLS-1$
 			synchAttributes((SignetSubject)apiSubject);
 			return;
 		}
 
 		if (null == signetSource) // can't continue without a Source's mapped attributes
 		{
-			log.warn("SignetSubject.synchAttributes(Subject)" +
-				": SignetSubject has a null Source " +
-				"where SignetSubject = \n" + toString() +
-				"\nUnable to synchronize attributes.");
+			log.warn("SignetSubject.synchAttributes(Subject)" + //$NON-NLS-1$
+				": SignetSubject has a null Source " + //$NON-NLS-1$
+				"where SignetSubject = \n" + toString() + //$NON-NLS-1$
+				"\nUnable to synchronize attributes."); //$NON-NLS-1$
 			return;
 		}
 
@@ -337,9 +337,9 @@ public class SignetSubject implements Subject, Comparable
 
 			if ((null == apiAttrValues) || (0 == apiAttrValues.size()))
 			{
-				log.info("SignetSubject.synchAttributes: No apiAttrValues for Subject \"" +
+				log.info("SignetSubject.synchAttributes: No apiAttrValues for Subject \"" + //$NON-NLS-1$
 						getName() + "\" " +
-						"and Attribute \"" + sigAttrName + "\".");
+						"and Attribute \"" + sigAttrName + "\"."); //$NON-NLS-1$
 			}
 			else
 			{
@@ -566,6 +566,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of Assignment objects that have been granted by Subject
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 * May be an empty set but never null.
+	 * @see edu.internet2.middleware.signet.Status#getInstanceByName() Status.getInstanceByName()
 	 */
 	public Set<AssignmentImpl> getAssignmentsGranted(String isActive)
 	{
@@ -639,6 +640,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param isActive Selector for Active/Pending/Inactive Assignments
 	 * @return Returns the assignmentsReceived.
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
+	 * @see edu.internet2.middleware.signet.Status#getInstanceByName() Status.getInstanceByName()
 	 */
 	public Set<AssignmentImpl> getAssignmentsReceived(String isActive)
 	{
@@ -713,6 +715,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of ProxyImpl objects that have been granted by grantor.
 	 * May be an empty set but never null.
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
+	 * @see edu.internet2.middleware.signet.Status#getInstanceByName() Status.getInstanceByName()
 	 */
 	public Set<ProxyImpl> getProxiesGranted(String isActive)
 	{
@@ -785,6 +788,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param isActive Selector for Active/Pending/Inactive proxies
 	 * @return A Set of ProxyImpl objects that have been received by Subject.
 	 * May be an empty set but never null.
+	 * @see edu.internet2.middleware.signet.Status#getInstanceByName() Status.getInstanceByName()
 	 */
 	public Set<ProxyImpl> getProxiesReceived(String isActive)
 	{
@@ -1209,7 +1213,19 @@ public class SignetSubject implements Subject, Comparable
 	}
 
 	/**
-	 * @return The "acting as" Subject
+	 * Return the raw value of actingAs
+	 * @see SignetSubject#getEffectiveEditor() getEffectiveEditor()
+	 * @see SignetSubject#actingAs actingAs
+	 * @return The raw value of actingAs, may be null.
+	 */
+	public SignetSubject getActingAs()
+	{
+		return (actingAs);
+	}
+
+	/**
+	 * Return the "acting as" Subject, or "this" if actingAs is not set
+	 * @return The "acting as" Subject or "this"
 	 */
 	public SignetSubject getEffectiveEditor()
 	{
