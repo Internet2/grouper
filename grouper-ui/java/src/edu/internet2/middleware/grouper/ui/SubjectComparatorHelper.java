@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectComparatorHelper.java,v 1.4 2007-09-25 14:46:09 isgwb Exp $
+ * @version $Id: SubjectComparatorHelper.java,v 1.5 2007-09-26 15:03:55 isgwb Exp $
  */
 
 public class SubjectComparatorHelper implements GrouperComparatorHelper{
@@ -162,8 +162,11 @@ public class SubjectComparatorHelper implements GrouperComparatorHelper{
 			partsCache.put(type + ".sort." + context+ "." + subject.getSource().getId(),parts);
 		}
 		StringBuffer sb=new StringBuffer();
-		String sourceSort = config.getString("subject.pre-sort."  +subject.getSource().getId());
-		if(sourceSort !=null) sb.append(sourceSort);
+		String sourceSort = null;
+		try {
+			sourceSort=config.getString("subject.pre-sort."  +subject.getSource().getId());
+		}catch(Exception e){}
+			if(sourceSort !=null) sb.append(sourceSort);
 		String val="";
 		for(int i=0;i<parts.length;i++) {
 			val="";
