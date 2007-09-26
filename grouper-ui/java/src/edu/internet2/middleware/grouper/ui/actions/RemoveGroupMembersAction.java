@@ -121,7 +121,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: RemoveGroupMembersAction.java,v 1.2 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: RemoveGroupMembersAction.java,v 1.3 2007-09-26 15:04:54 isgwb Exp $
  */
 public class RemoveGroupMembersAction extends GrouperCapableAction {
 
@@ -171,22 +171,27 @@ public class RemoveGroupMembersAction extends GrouperCapableAction {
 			}else if(!isEmpty(request.getParameter("submit.remove.selected"))){
 				Map map = new HashMap();
 				String[] ids = request.getParameterValues("subjectIds");
-				for(int i=0;i<ids.length;i++) {
-					map.put(ids[i],Boolean.TRUE);
-				}
-				Set members = group.getImmediateMembers(mField);
-				Iterator it = members.iterator();
-				Member member;
-				int count=0;
-				while(it.hasNext()) {
-					member = (Member)it.next();
-					if(map.get(member.getSubject().getId())!=null) {
-						group.deleteMember(member.getSubject(),mField);
-						count++;
+				if(ids==null) {
+					request.setAttribute("message", new Message(
+							"groups.remove.none-selected",true));
+				}else{
+					for(int i=0;i<ids.length;i++) {
+						map.put(ids[i],Boolean.TRUE);
 					}
+					Set members = group.getImmediateMembers(mField);
+					Iterator it = members.iterator();
+					Member member;
+					int count=0;
+					while(it.hasNext()) {
+						member = (Member)it.next();
+						if(map.get(member.getSubject().getId())!=null) {
+							group.deleteMember(member.getSubject(),mField);
+							count++;
+						}
+					}
+					request.setAttribute("message", new Message(
+					"groups.remove.selected.success",""+count));
 				}
-				request.setAttribute("message", new Message(
-				"groups.remove.selected.success",""+count));
 				
 				
 			}else {
