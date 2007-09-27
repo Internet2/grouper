@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.32 2007-09-27 14:07:16 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.33 2007-09-27 15:41:31 isgwb Exp $
  */
 
 
@@ -1118,6 +1118,13 @@ public class GrouperHelper {
 	 */
 	public static List searchGroups(GrouperSession s, String query, String from,String searchInDisplayNameOrExtension,String searchInNameOrExtension) 
 	throws StemNotFoundException,QueryException{
+
+		if(searchInDisplayNameOrExtension==null && searchInNameOrExtension==null) {
+			GrouperQuery q = GrouperQuery.createQuery(s,new GroupAnyAttributeFilter(query,StemFinder.findByName(s,from)));
+			Set res = q.getGroups();
+			return new ArrayList(res);
+		}
+		
 		List displayResults = null;
 		List nonDisplayResults=null; 
 		String attr = null;
@@ -1160,8 +1167,8 @@ public class GrouperHelper {
 	 * @param s GrouperSession for authenticated user
 	 * @param query to search for
 	 * @param from Stem which scopes search
-	 * @param searchInDisplayNameOrExtension name=displayName / extemsion=displayExtension
-	 * @param searchInNameOrExtension name=name / extemsion=extension
+	 * @param searchInDisplayNameOrExtension name=displayName / extension=displayExtension
+	 * @param searchInNameOrExtension name=name / extension=extension
 	 * @param browseMode UI browse mode to filter results by
 	 * @return List of GrouperGroups matched
 	 */

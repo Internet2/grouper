@@ -59,6 +59,12 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">Derived from media ResourceBundle 
       and set on DynaActionForm </font></td>
   </tr>
+    <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">searchIn</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Derived from media ResourceBundle 
+      and set on DynaActionForm - unless in session as searchGroupDefault</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -99,6 +105,12 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">To obtain search defaults from 
       media ResourceBundle</font></td>
   </tr>
+    <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">searchGroupDefault</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">= 'any' or 'name' (if anything). Stored in session
+    if selected in a previous search</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -113,7 +125,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareGroupSearchFormAction.java,v 1.9 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PrepareGroupSearchFormAction.java,v 1.10 2007-09-27 15:41:31 isgwb Exp $
  */
 public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 
@@ -127,8 +139,18 @@ public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 		List browsePath = (List) request.getAttribute("browsePath");
 		String searchDisplayNameOrExtension = getMediaResources(request).getString("search.default.search-in-display-name-or-extension");
 		String searchNameOrExtension = getMediaResources(request).getString("search.default.search-in-name-or-extension");
+		String searchInAny=getMediaResources(request).getString("search.default.any");
+		String searchDefault=getMediaResources(request).getString("search.default");
 		searchForm.set("searchInDisplayNameOrExtension",searchDisplayNameOrExtension);
 		searchForm.set("searchInNameOrExtension",searchNameOrExtension);
+		if(session.getAttribute("searchGroupDefault")!=null) {
+			searchDefault=(String)session.getAttribute("searchGroupDefault");
+		}
+		if("true".equals(searchInAny)) {
+			searchForm.set("searchIn",searchDefault);
+		}
+		
+		
 		request.setAttribute("fields",GrouperHelper.getSearchableFields(getNavResources(request)));
 		Set groupTypes=GroupTypeFinder.findAllAssignable();
 		List stemFields = GrouperHelper.getSearchableStemFields(getNavResources(request));

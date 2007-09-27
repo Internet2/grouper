@@ -135,6 +135,7 @@
 	        <form-property name="subjectSource" type="java.lang.String"/>
 	        <form-property name="searchInDisplayNameOrExtension" type="java.lang.String"/>
 	        <form-property name="searchInNameOrExtension" type="java.lang.String"/>
+		   <form-property name="searchIn" type="java.lang.String"/>
 	        <form-property name="pageSize" type="java.lang.String"/>
 	        <form-property name="callerPageId" type="java.lang.String"/>
 			<form-property name="groupSearchResultField" type="java.lang.String"/>

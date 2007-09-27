@@ -87,6 +87,11 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">Identifies which attribute to 
       search </font></td>
   </tr>
+    <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">searchIn=name or any</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates whether to do name or a ny attribute search</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -118,6 +123,11 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Maintain user selection</font></td>
   </tr>
+    <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">searchGroupDefaultd</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">puts searchIn into session for future default</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -130,7 +140,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.7 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.8 2007-09-27 15:41:31 isgwb Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {
@@ -157,6 +167,9 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		String searchFrom = (String) searchForm.get("searchFrom");
 		String searchInNameOrExtension = (String) searchForm.get("searchInNameOrExtension");
 		String searchInDisplayNameOrExtension = (String) searchForm.get("searchInDisplayNameOrExtension");
+		String searchIn=(String)searchForm.get("searchIn");
+		if(!isEmpty(searchIn)) session.setAttribute("searchGroupDefault",searchIn);
+		
 		String groupSearchResultField = (String) searchForm.get("groupSearchResultField");
 		String sortContext="search";
 		if(!isEmpty(groupSearchResultField)) {

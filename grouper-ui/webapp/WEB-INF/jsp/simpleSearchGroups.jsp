@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearchGroups.jsp,v 1.5 2007-03-06 11:05:49 isgwb Exp $
+  @version $Id: simpleSearchGroups.jsp,v 1.6 2007-09-27 15:41:31 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -17,7 +17,14 @@
 		<html:hidden property="searchInDisplayNameOrExtension"/>
 		<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	<fieldset>
-		<label for="searchTerm" class="noCSSOnly"><fmt:message bundle="${nav}" key="find.search-term"/></label><html:text property="searchTerm" size="25" styleId="searchTerm"/><br/>
+		<label for="searchTerm" class="noCSSOnly"><fmt:message bundle="${nav}" key="find.search-term"/></label><html:text property="searchTerm" size="25" styleId="searchTerm"/>
+		<c:if test="${mediaMap['search.default.any']=='true'}">
+		<fmt:message bundle="${nav}" key="find.groups.search-in"/> <html:radio property="searchIn" value="name"/> 
+		
+		<fmt:message bundle="${nav}" key="find.groups.search-in.name"/> 
+		<html:radio property="searchIn" value="any"/> <fmt:message bundle="${nav}" key="find.groups.search-in.any"/> 
+		</c:if>
+		<br/>
 		<tiles:insert definition="searchFromDef"/><br/>
 		<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
 		<html:submit property="submit.search" value="${navMap['groups.action.search']}"/>
