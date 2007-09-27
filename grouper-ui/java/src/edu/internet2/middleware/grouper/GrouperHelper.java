@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.31 2007-05-01 08:42:01 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.32 2007-09-27 14:07:16 isgwb Exp $
  */
 
 
@@ -2222,12 +2222,13 @@ public class GrouperHelper {
 	 * Trims down input so that the 'same' membership does not occur twice
 	 * @param memberships
 	 * @param type
-	 * @param count - keeps track of the numbe rof times a membership occurred
+	 * @param count - keeps track of the number of times a membership occurred
+	 * @param sources - keeps track of different sources providing subjects
 	 * @return List with one item per subject, but also update specified Map with count of how many memberships a member has
 	 * @throws MemberNotFoundException
 	 * @throws GroupNotFoundException
 	 */
-	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count) 
+	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count,Map sources) 
 		throws MemberNotFoundException,GroupNotFoundException{
 		//won't pass back values but will give 'unique' list
 		if(count==null) count=new HashMap();
@@ -2259,6 +2260,7 @@ public class GrouperHelper {
 				curCount = new Integer(curCount.intValue()+1);
 			}
 			count.put(id,curCount);
+			sources.put(m.getMember().getSubjectSource().getId(), m.getMember().getSubjectSource().getName());
 		}
 		return res;
 	}

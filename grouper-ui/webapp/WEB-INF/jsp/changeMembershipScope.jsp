@@ -6,7 +6,7 @@
 		If configured, an dthe user has appropriate privileges, it is possible to import/export members from/to flat files
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.5 2007-03-21 11:09:49 isgwb Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.6 2007-09-27 14:07:16 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -39,6 +39,12 @@
 				<html:options name="listFields"/>
 			</html:select> <fmt:message bundle="${nav}" key="groups.list-members.scope.select-list"/>
 		</span>
+	</c:if>
+	<c:if test="${mediaMap['members.filter.by-source']=='true' && sourcesSize > 1}">
+	<fmt:message bundle="${nav}" key="groups.list-members.filter-by-source"/> <html:select property="selectedSource">
+	<html:option value="_void_"><fmt:message bundle="${nav}" key="groups.list-members.any-source"/></html:option>
+	<html:options collection="sources" property="key" labelProperty="value"/>
+	</html:select>
 	</c:if>
 	<span class="membershipListScope">
 		<input name="submit.changeScope" type="submit" value="<fmt:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
