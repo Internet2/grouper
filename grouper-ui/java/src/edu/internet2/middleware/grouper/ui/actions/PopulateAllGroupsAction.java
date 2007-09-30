@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * AllGroups. 
  * <p/>
  
- <table width="75%" border="1">
+<table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
       Parameter</font></strong></td>
@@ -48,9 +48,16 @@ import edu.internet2.middleware.grouper.GrouperSession;
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
+    <td><font face="Arial, Helvetica, sans-serif">fromSubjectSummary</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Boolean indicating that we ar 
+      searching for groups so that we can display privileges for a specific Subject</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">subjectOfInterest</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">SubjectAsMap which came from 
+      populateSubjectSummary </font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
@@ -88,6 +95,17 @@ import edu.internet2.middleware.grouper.GrouperSession;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Removed</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td height="28"><font face="Arial, Helvetica, sans-serif">subtitle=subject.action.search-groups</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Set if `fromSubjectSummary`</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td height="28"><font face="Arial, Helvetica, sans-serif">groupSearchSubjectMap</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">SubjectAsMap for subject we 
+      want to show privileges for, assuming `fromSubjectSummary`</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -101,7 +119,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateAllGroupsAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
+ * @version $Id: PopulateAllGroupsAction.java,v 1.4 2007-09-30 08:58:18 isgwb Exp $
  */
 public class PopulateAllGroupsAction extends GrouperCapableAction {
 
@@ -117,9 +135,15 @@ public class PopulateAllGroupsAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
+		if(!Boolean.TRUE.equals(request.getAttribute("fromSubjectSummary"))){
+			initMode(session);
+			saveAsCallerPage(request,null,"");
+		}else{
+			setAdvancedSearchMode(true, session);
+			session.setAttribute("subtitle", "subject.action.search-groups");
 
-		initMode(session);
-		saveAsCallerPage(request,null,"");
+			request.setAttribute("subjectOfInterest",session.getAttribute("groupSearchSubjectMap"));
+		}
 		return mapping.findForward(FORWARD_AllGroups);
 	}
 	

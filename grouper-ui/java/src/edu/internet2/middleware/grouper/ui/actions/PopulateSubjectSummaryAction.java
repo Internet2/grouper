@@ -17,7 +17,6 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,6 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Top level Strut's action which retrieves and makes available a Subject.  
  * <p/>
-
 <table width="75%" border="1">
   <tr bgcolor="#CCCCCC"> 
     <td width="51%"><strong><font face="Arial, Helvetica, sans-serif">Request 
@@ -117,6 +115,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">User selected list field</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">advancedSearch</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">If false, cancels group search 
+      for privileges</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -187,6 +191,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Map of parameters for link allowing 
       Subject to be saved to list</font></td>
   </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><p><font face="Arial, Helvetica, sans-serif">fromSubjectSummary</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Boolean which indicates to group 
+      search that user is finding privileges for group search results</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -207,20 +217,32 @@ import edu.internet2.middleware.subject.Subject;
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subjectMembershipListScope</font></td>
     <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">if request parameter for membershipListScope 
+    <td><font face="Arial, Helvetica, sans-serif">If request parameter for membershipListScope 
       is not present, read this session attribute. Save current value to session</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subjectSummaryAccessPriv</font></td>
     <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">if request parameter for accessPriv 
+    <td><font face="Arial, Helvetica, sans-serif">If request parameter for accessPriv 
       is not present, read this session attribute. Save current value to session</font></td>
   </tr>
   <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">subjectSummaryNamingPriv</font></td>
     <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">if request parameter for namingPriv 
+    <td><font face="Arial, Helvetica, sans-serif">If request parameter for namingPriv 
       is not present, read this session attribute. Save current value to session</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">groupSearchSubject</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">A Subject object so that group 
+      search machinery can find appropriate privileges</font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">groupSearchSubjectMap</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">A SubjectAsMap object so that 
+      group search UI can indicate in the UI who the privileges belong to</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
@@ -233,14 +255,16 @@ import edu.internet2.middleware.subject.Subject;
     <td>&nbsp;</td>
   </tr>
 </table>
+
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.14 2007-09-27 14:07:16 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.15 2007-09-30 08:58:18 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_SubjectSummary = "SubjectSummary";
+	static final private String FORWARD_GroupSearch = "GroupSearch";
 
 	//------------------------------------------------------------ Action
 	// Methods
@@ -287,6 +311,18 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		request.setAttribute("subjectAttributeNames",subject.getAttributes().keySet());
 		
 		String membershipListScope = (String) subjectForm.get("membershipListScope");
+		
+		if("any-access".equals(membershipListScope)) {
+			if("false".equals(request.getParameter("advancedSearch"))) {
+				membershipListScope=null;
+			}else{
+				request.setAttribute("fromSubjectSummary",Boolean.TRUE);
+				
+				session.setAttribute("groupSearchSubject", subject);
+				session.setAttribute("groupSearchSubjectMap", subjectMap);
+				return mapping.findForward(FORWARD_GroupSearch);
+			}
+		}
 		if (":all:imm:eff:access:naming:".indexOf(":" + membershipListScope + ":") == -1) {
 			membershipListScope = (String) session
 				.getAttribute("subjectMembershipListScope");

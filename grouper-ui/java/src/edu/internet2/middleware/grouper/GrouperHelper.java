@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.33 2007-09-27 15:41:31 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.34 2007-09-30 08:58:17 isgwb Exp $
  */
 
 
@@ -1808,7 +1808,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groupOrStem
 	 * @param member
-	 * @return Map keyed on privilege name forindirect privileges for member on the group or stem, and how derived
+	 * @return Map keyed on privilege name for indirect privileges for member on the group or stem, and how derived
 	 */
 	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
 		Map map  =getAllHas(s,groupOrStem,member,field);
@@ -2778,6 +2778,65 @@ public class GrouperHelper {
 		}
 		return res;
 	}
+	
+	/**
+	 * Filter groups according to privileges of session subject and whether 
+	 * provided subject has any privileges for this group
+	 * @param s
+	 * @param groups
+	 * @param subject
+	 * @return
+	 */
+	public static List filterGroupsForSubject(GrouperSession s,List groups,Subject subject) {
+		List ok = new ArrayList();
+		Group group;
+		for (int i=0;i<groups.size();i++) {
+			group = (Group)groups.get(i);
+			if(group.hasAdmin(s.getSubject())) {
+				if(group.hasMember(subject)||
+						group.hasView(subject)||
+						group.hasAdmin(subject)||
+						group.hasUpdate(subject)||
+						group.hasRead(subject)||
+						group.hasOptin(subject)||
+						group.hasOptout(subject)
+						) {
+					ok.add(group);
+				}
+			}
+		}
+		
+		return ok;
+	
+	}
+	
+	/**
+	 * Supplement group maps with privilege info for provided subject 
+	 * assuming subject has any privileges for this group
+	 * @param s
+	 * @param groups
+	 * @param subject
+	 * @return
+	 */
+	public static List embellishGroupMapsWithSubjectPrivs(GrouperSession s,List groups,Subject subject) throws Exception{
+		
+		GroupAsMap group;
+		Map privs=null;
+		Member member = MemberFinder.findBySubject(s,subject);
+		GroupOrStem gs = null;
+		
+		for (int i=0;i<groups.size();i++) {
+			group = (GroupAsMap)groups.get(i);
+			gs=GroupOrStem.findByGroup(s, (Group)group.getWrappedObject());
+			privs=getAllHas(s,gs,member);
+			group.put("subjectPrivs", privs);
+			group.put("privsSubject", subject.getId());
+		}
+		
+		return groups;
+	
+	}
+	
 	
 	
 	
