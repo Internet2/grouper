@@ -1,3 +1,25 @@
+# i2mi-common 0.5.0
+
+Released: 20071005
+## Changes
+activation.jar [outgoing addition]
+jaxb.license.txt [outgoing addition]
+jaxb-api.jar [outgoing addition]
+jaxb-impl.jar [outgoing addition]
+jaxb-xjc.jar [outgoing addition]
+jsr173_1.0_api.jar [outgoing addition]
+NEWS.txt [outgoing change]
+
+## CVS tags
+signet_1_2_2 [created]
+i2mi-common_0_5_0 [created]
+
+## Comments
+Added JAXB 2.1.5 (20070915) libs
+
+
+---
+
 # i2mi-common 0.3.0
 
 Released: 20070307
@@ -74,5 +96,5 @@ Released: 20060807
 
 ---
 
-$Id: NEWS.txt,v 1.6 2007-03-07 23:20:44 ddonn Exp $
+$Id: NEWS.txt,v 1.7 2007-10-05 08:00:37 ddonn Exp $
 
