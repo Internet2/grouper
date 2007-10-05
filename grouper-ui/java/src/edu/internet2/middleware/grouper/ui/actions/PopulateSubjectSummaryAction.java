@@ -17,10 +17,12 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -257,7 +259,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.15 2007-09-30 08:58:18 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.16 2007-10-05 10:19:42 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -308,8 +310,18 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		Map subjectMap = GrouperHelper.subject2Map(subject);
 		
 		request.setAttribute("subject",subjectMap);
-		request.setAttribute("subjectAttributeNames",subject.getAttributes().keySet());
 		
+		String order=null;
+		try {
+			order=getMediaResources(request).getString("subject.attributes.order." + subject.getSource().getId());
+			request.setAttribute("subjectAttributeNames",order.split(","));
+		}catch(Exception e){
+			//No order specified, so go with all, in whatever order they come
+			List extendedAttr  = new ArrayList(subject.getAttributes().keySet());
+			extendedAttr.add("subjectType");
+			extendedAttr.add("id");
+			request.setAttribute("subjectAttributeNames",extendedAttr);
+		}
 		String membershipListScope = (String) subjectForm.get("membershipListScope");
 		
 		if("any-access".equals(membershipListScope)) {
