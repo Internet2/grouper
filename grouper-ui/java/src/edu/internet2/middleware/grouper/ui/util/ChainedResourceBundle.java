@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ChainedResourceBundle.java,v 1.2 2005-12-08 15:31:42 isgwb Exp $
+ * @version $Id: ChainedResourceBundle.java,v 1.3 2007-10-05 10:17:09 isgwb Exp $
  */
 
 public class ChainedResourceBundle extends ResourceBundle implements
@@ -38,6 +38,8 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	private String name = null;
 
 	private String mapName = null;
+	
+	private HashMap cache = new HashMap();
 
 	/**
 	 * Constructor - ensures atleast one bundle!
@@ -80,7 +82,8 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	protected Object handleGetObject(String key) {
 		UIThreadLocal.put(name, key);
 		ResourceBundle bundle = null;
-		Object obj = null;
+		Object obj = cache.get(key);
+		if(obj != null) return obj;
 		for (int i = 0; i < chain.size(); i++) {
 			bundle = (ResourceBundle) chain.get(i);
 			try {
@@ -97,7 +100,8 @@ public class ChainedResourceBundle extends ResourceBundle implements
 		if (doShowResourcesInSitu != null
 				&& doShowResourcesInSitu.booleanValue()
 				&& name.startsWith("nav"))
-			return "???" + key + "???";
+			obj= "???" + key + "???";
+		cache.put(key, obj);
 		return obj;
 	}
 
