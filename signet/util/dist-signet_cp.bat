@@ -1,4 +1,4 @@
-REM $Header: /home/hagleyj/i2mi/signet/util/dist-signet_cp.bat,v 1.8 2007-09-12 15:41:57 ddonn Exp $
+REM $Header: /home/hagleyj/i2mi/signet/util/dist-signet_cp.bat,v 1.9 2007-10-05 08:40:13 ddonn Exp $
 REM
 REM This file is intended to be called from each of the run.bat files in
 REM the subdirectories of util. DOS Batch does not provide a dynamic means of
@@ -14,6 +14,7 @@ set SIGNET_LIBS=%1
 :DOSETS
 echo Setting SIGNET_LIBS to %SIGNET_LIBS%
 set CLASSPATH=%CLASSPATH%;..\config
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\activation.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\antlr-2.7.6.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\asm-attrs.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\asm.jar
@@ -29,9 +30,13 @@ set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\dom4j-1.6.1.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\ehcache-1.2.3.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\hibernate3.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\hsqldb.jar
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jaxb-api.jar
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jaxb-impl.jar
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jaxb-xjc.jar
 REM set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jconn2.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jdbc2_0-stdext.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jdom.jar
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jsr173_1.0_api.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jta.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\jTDS2.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\junit-4.1.jar
@@ -43,6 +48,8 @@ set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\servlet-api.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\@CFG_UTIL_API_TOKEN@
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\@CFG_UTIL_UI_TOKEN@
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\@CFG_UTIL_UTIL_TOKEN@
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\@CFG_UTIL_XA_TOKEN@
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\@CFG_UTIL_XB_TOKEN@
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\stax-api-1.0.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\struts.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\subject-0.3.0-rc1-cvs.jar

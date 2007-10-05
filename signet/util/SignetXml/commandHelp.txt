@@ -1,0 +1,77 @@
+SignetXml [options] command [command-args]
+
+    options
+        -c[=commandFile] : read commands from the specified file. Each line in
+            the file corresponds to a separate command (i.e. export, append,
+            or import). If no commandFile is specified, stdin is used. All
+            options and commands following -c are ignored.
+        -v : display program version information and exit.
+        -h or -? : display this help and exit.
+
+    command
+        export[=xmlFilename] : create an XML containing values as specified in
+            command-args. Overwrites xmlFilename if it already exists. If
+            xmlFilename is not specified, stdout is used.
+        append[=xmlFilename] : create an XML containing values as specified in
+            command-args. Appends to xmlFilename if it already exists. If
+            xmlFilename is not specified, stdout is used.
+        import[=xmlFilename] : read an XML and perform action(s) specified in
+            command-args. If xmlFilename is not specified, stdin is used.
+
+    'export' command-args
+        assignment | permission* | proxy* | scopeTree* | subject* | subsystem*
+
+    'export assignment' command-args
+        status=[active | inactive | pending] : filter selected assignments by
+            status. Default is all. May be used with 'subjId' 'scopeId' or
+            'functionId' (which are mutually exclusive).
+
+        subjId="subject Id" : selects assignments for specified subject
+        subjId*=all : selects assignments for all subjects (default)
+        subjId*="subj 1, subj2, ..., subject n" : selects assignments for each
+            subject in the comma-separated list
+
+        scopeId*="scope Id" : selects all assignments for given scope
+        scopeId*="scope Id 1, scope id 2, scope id n, ..." : selects assignments
+            for each scope in the comma-separated list
+         
+        functionId*="function Id" : selects all assignments for a given function
+        functionId*="func 1, func2, func n, ..." : selects assignments for each
+            specified function in the comma-separated list
+
+	'export permission' command-args
+
+	'export proxy' command-args
+
+	'export scopeTree' command-args
+		treeId="tree id"
+		treeId=all
+		subsystemId="subsystem id"
+		functionId="function id"
+
+    'export subject*' command-args
+
+    'export proxy*' command-args
+
+    'import*' command-args
+        add | update | deactivate | delete
+
+  Examples:
+
+  SignetXml export=MyAssigns.xml assignment subjId="Arthur Dent" status=active
+    Create, or overwrite, a file called MyAssigns.xml containing all active
+    Assignments belonging to Arthur Dent.
+
+  SignetXml export=JpFdSa.xml assignment subjId="jpoole, fdewey, susan.albright"
+    Create, or overwrite, a file called JpFdSa.xml containing any Assignments
+    granted to Jean Poole, Francis Dewey, or Susan Albright. Note the use of
+    double-quotes to contain the subjId command-arg because the comma-
+    separated list contains spaces.
+
+  SignetXml import=MyAssigns.xml add
+    Import the contents of file MyAssigns.xml and add them to the Signet
+    database. Do not overwrite records that have primary keys that match the
+    imported records.
+
+-------------
+* = Not implemented yet.

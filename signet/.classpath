@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="util"/>
+	<classpathentry excluding="SignetXml/xmlstubs/" kind="src" path="util"/>
 	<classpathentry exported="true" kind="lib" path="config"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/i2mi-common_libs"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/signet_3rdParty_libs"/>
