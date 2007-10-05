@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.22 2007-06-14 21:39:04 ddonn Exp $
-$Date: 2007-06-14 21:39:04 $
+$Id: SubsystemImpl.java,v 1.23 2007-10-05 08:27:42 ddonn Exp $
+$Date: 2007-10-05 08:27:42 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -325,7 +325,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
     this.limits.put(limit.getId(), limit);
   }
   
-  void add(Permission permission)
+  public void add(Permission permission)
   {
     this.permissions.put(permission.getId(), permission);
   }

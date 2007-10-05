@@ -1,6 +1,6 @@
 /*--
-$Id: CategoryImpl.java,v 1.11 2007-03-19 23:12:10 ddonn Exp $
-$Date: 2007-03-19 23:12:10 $
+$Id: CategoryImpl.java,v 1.12 2007-10-05 08:27:42 ddonn Exp $
+$Date: 2007-10-05 08:27:42 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -33,9 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 */
 /* Hibernate requires this class to be non-final. */
 
-class CategoryImpl
-extends EntityImpl
-implements Category
+public class CategoryImpl extends EntityImpl implements Category
 {
   // This field is a simple synthetic key for this record in the database.
   private Integer   key;
@@ -200,7 +198,7 @@ implements Category
       ("This method is not yet implemented");
   }
   
-  Integer getKey()
+  public Integer getKey()
   {
     return this.key;
   }
@@ -208,7 +206,7 @@ implements Category
   /* This method is for use only by Hibernate.
    * 
    */
-  protected void setKey(Integer key)
+  public void setKey(Integer key)
   {
     this.key = key;
   }

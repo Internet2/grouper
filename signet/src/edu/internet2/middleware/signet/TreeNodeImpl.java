@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.18 2007-09-12 15:41:57 ddonn Exp $
-$Date: 2007-09-12 15:41:57 $
+$Id: TreeNodeImpl.java,v 1.19 2007-10-05 08:27:42 ddonn Exp $
+$Date: 2007-10-05 08:27:42 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -37,7 +37,9 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
   private String   treeId;
   private Set      parents;
   private Set      children;
+  /* for runtime optimization only */
   private boolean  parentsAlreadyFetched  = false;
+  /* for runtime optimization only */
   private boolean  childrenAlreadyFetched = false;
 
   /**

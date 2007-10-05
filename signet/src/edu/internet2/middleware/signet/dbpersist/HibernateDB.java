@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.13 2007-09-12 15:41:57 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.14 2007-10-05 08:27:42 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -71,7 +71,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -992,8 +992,17 @@ protected Session stdSession = null;
 	 */
 	public Assignment getAssignment(int id) throws ObjectNotFoundException
 	{
-		AssignmentImpl assignment = (AssignmentImpl)(load(AssignmentImpl.class, id));
-		assignment.setSignet(signet);
+		AssignmentImpl assignment = null;
+		try
+		{
+			assignment = (AssignmentImpl)(load(AssignmentImpl.class, id));
+			assignment.setSignet(signet);
+		}
+		catch (org.hibernate.ObjectNotFoundException honfe)
+		{
+			throw new edu.internet2.middleware.signet.ObjectNotFoundException(honfe);
+		}
+
 		return assignment;
 	}
 

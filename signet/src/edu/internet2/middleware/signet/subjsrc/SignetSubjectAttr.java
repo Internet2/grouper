@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.8 2007-07-31 09:22:08 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.9 2007-10-05 08:27:42 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -17,6 +17,8 @@ package edu.internet2.middleware.signet.subjsrc;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * An "attribute of interest" that is persisted with it's corresponding Subject.
@@ -24,10 +26,21 @@ import java.util.Date;
  */
 public class SignetSubjectAttr
 {
+//TODO - Use enum instead of Strings
+//	public enum ATTR_TYPE
+//	{
+//		STRING("string"), INTEGER("integer"), FLOAT("float"), DATE("date");
+//		ATTR_TYPE(String value) { this.value = value; }
+//		protected final String value;
+//		public String value() { return (value); }
+//	};
 	public static final String ATTR_TYPE_STRING = "string";
 	public static final String ATTR_TYPE_INT = "integer";
 	public static final String ATTR_TYPE_FLOAT = "float";
 	public static final String ATTR_TYPE_DATE = "date";
+	public static final String ATTR_TYPE_DEFAULT = ATTR_TYPE_STRING;
+
+	protected Log log;
 
 	/** DB primary key */
 	protected Long		subjectAttr_PK;
@@ -61,9 +74,10 @@ public class SignetSubjectAttr
 	/** default constructor */
 	public SignetSubjectAttr()
 	{
+		log = LogFactory.getLog(SignetSubjectAttr.class);
 		mappedName = null;
 		attrValue = null;
-		attrType = ATTR_TYPE_STRING;
+		attrType = ATTR_TYPE_DEFAULT;
 		refreshModifyDate();
 		subjectAttr_PK = null;
 		parent = null;
@@ -189,10 +203,20 @@ public class SignetSubjectAttr
 		return (attrValue);
 	}
 
-	public void setValue(String newValue)
+	/**
+	 * Set the value and type of this attribute
+	 * @param newValue the value to set
+	 * @param attrType the attribute type
+	 */
+	public void setValue(String newValue, String attrType)
 	{
 		attrValue = newValue;
-		setAttrType(ATTR_TYPE_STRING);
+		setAttrType(attrType);
+	}
+
+	public void setValue(String newValue)
+	{
+		setValue(newValue, ATTR_TYPE_STRING);
 	}
 
 	public void setValue(int newValue)
@@ -202,8 +226,7 @@ public class SignetSubjectAttr
 
 	public void setValue(Integer newValue)
 	{
-		attrValue = newValue.toString();
-		setAttrType(ATTR_TYPE_INT);
+		setValue(newValue.toString(), ATTR_TYPE_INT);
 	}
 
 	public void setValue(float newValue)
@@ -213,14 +236,12 @@ public class SignetSubjectAttr
 
 	public void setValue(Float newValue)
 	{
-		attrValue = newValue.toString();
-		setAttrType(ATTR_TYPE_FLOAT);
+		setValue(newValue.toString(), ATTR_TYPE_FLOAT);
 	}
 
 	public void setValue(Date newValue)
 	{
-		attrValue = DateFormat.getInstance().format(newValue);
-		setAttrType(ATTR_TYPE_DATE);
+		setValue(DateFormat.getInstance().format(newValue), ATTR_TYPE_DATE);
 	}
 
 
@@ -237,11 +258,27 @@ public class SignetSubjectAttr
 	}
 
 	/** for Hibernate only */
-	private void setAttrType(String _attr_type)
+	public void setAttrType(String attrType)
 	{
-		attrType = _attr_type;
+		boolean ok = false;
+		if ((null != attrType) && (0 < attrType.length()))
+			if ( ! (ok = attrType.equalsIgnoreCase(ATTR_TYPE_STRING)))
+				if ( ! (ok = attrType.equalsIgnoreCase(ATTR_TYPE_INT)))
+					if ( ! (ok = attrType.equalsIgnoreCase(ATTR_TYPE_FLOAT)))
+						ok = attrType.equalsIgnoreCase(ATTR_TYPE_DATE);
+		if (ok)
+			this.attrType = attrType.toLowerCase();
+		else
+		{
+			log.error("Invalid Attribute Type specified (" + attrType + "). Converting to default type \"" + ATTR_TYPE_DEFAULT + "\" instead.");
+			this.attrType = ATTR_TYPE_DEFAULT;
+		}
 	}
 
+//	private void setAttrType(ATTR_TYPE _attr_type)
+//	{
+//		attrType = _attr_type.value();
+//	}
 
 	/** @return the sequence number of this attribute (0 for single-valued attribute) */
 	public int getSequence()
@@ -249,7 +286,7 @@ public class SignetSubjectAttr
 		return (sequence);
 	}
 
-	protected void setSequence(int sequence)
+	public void setSequence(int sequence)
 	{
 		this.sequence = sequence;
 	}
@@ -265,7 +302,7 @@ public class SignetSubjectAttr
 	/**
 	 * @param modifyDate The modifyDate to set.
 	 */
-	private void setModifyDate(Date modifyDate)
+	public void setModifyDate(Date modifyDate)
 	{
 		this.modifyDate = modifyDate;
 	}

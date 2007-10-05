@@ -1,6 +1,6 @@
 /*--
-$Id: LimitValue.java,v 1.12 2006-12-16 01:08:53 ddonn Exp $
-$Date: 2006-12-16 01:08:53 $
+$Id: LimitValue.java,v 1.13 2007-10-05 08:27:42 ddonn Exp $
+$Date: 2007-10-05 08:27:42 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -64,7 +64,7 @@ implements Comparable
   /**
    * @param limit The limit to set.
    */
-  void setLimit(Limit limit)
+  public void setLimit(Limit limit)
   {
     this.limit = limit;
   }
@@ -80,7 +80,7 @@ implements Comparable
   /**
    * @param value The value to set.
    */
-  void setValue(String value)
+  public void setValue(String value)
   {
     this.value = value;
   }

@@ -1,6 +1,6 @@
 /*--
-$Id: TreeImpl.java,v 1.13 2007-06-14 21:39:04 ddonn Exp $
-$Date: 2007-06-14 21:39:04 $
+$Id: TreeImpl.java,v 1.14 2007-10-05 08:27:42 ddonn Exp $
+$Date: 2007-10-05 08:27:42 $
 
 Copyright 2007 Internet2, Stanford University
 
@@ -67,7 +67,7 @@ public class TreeImpl extends EntityImpl implements Tree
 {
   private Set             subsystems;
 
-  private Set             nodes;
+  protected Set<TreeNodeImpl>		nodes;
 
   private TreeAdapter adapter;
 
@@ -76,14 +76,14 @@ public class TreeImpl extends EntityImpl implements Tree
 	public TreeImpl()
   {
     super();
-    this.nodes = new HashSet();
+    nodes = new HashSet<TreeNodeImpl>();
   }
 
   TreeImpl(Signet signet, TreeAdapter adapter, String id, String name)
   {
     super(signet, id, name, Status.ACTIVE);
     this.setAdapter(adapter);
-    this.nodes = new HashSet();
+    nodes = new HashSet<TreeNodeImpl>();
     this.subsystems = new HashSet();
   }
 
@@ -100,15 +100,15 @@ public class TreeImpl extends EntityImpl implements Tree
   /**
    * @return Returns the nodes.
    */
-  Set getNodes()
+  public Set<TreeNodeImpl> getNodes()
   {
-    return this.nodes;
+    return (nodes);
   }
 
   /**
    * @param nodes The nodes to set.
    */
-  void setNodes(Set nodes)
+  public void setNodes(Set<TreeNodeImpl> nodes)
   {
     this.nodes = nodes;
   }
@@ -160,16 +160,17 @@ public class TreeImpl extends EntityImpl implements Tree
 	{
     Set roots = new HashSet();
 
-    Iterator nodesIterator = nodes.iterator();
-    while (nodesIterator.hasNext())
+//    Iterator nodesIterator = nodes.iterator();
+//    while (nodesIterator.hasNext())
+    for (TreeNodeImpl rootCandidate : nodes)
 	{
-      TreeNodeImpl rootCandidate = (TreeNodeImpl) (nodesIterator.next());
+//      TreeNodeImpl rootCandidate = (TreeNodeImpl) (nodesIterator.next());
       rootCandidate.setSignet(this.getSignet());
       if (rootCandidate.getParents().size() == 0)
       {
         rootCandidate.setSignet(this.getSignet());
         roots.add(rootCandidate);
-	}
+      }
     }
 
     return roots;
@@ -180,15 +181,15 @@ public class TreeImpl extends EntityImpl implements Tree
 	 */
 	public void addRoot(TreeNode rootNode)
 	{
-    if (this.getAdapter().isModifiable())
+    if (getAdapter().isModifiable())
 		{
-      this.nodes.add(rootNode);
+      nodes.add((TreeNodeImpl)rootNode);
 		}
 		else
 		{
       throw new IllegalArgumentException(
           "Only modifiable trees may have nodes added to them." + " The tree '"
-              + this.getId() + "' is not modifiable.");
+              + getId() + "' is not modifiable.");
 		}
 	}
 

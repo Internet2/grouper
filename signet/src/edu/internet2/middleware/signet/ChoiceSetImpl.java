@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.12 2007-03-19 23:12:10 ddonn Exp $
-$Date: 2007-03-19 23:12:10 $
+$Id: ChoiceSetImpl.java,v 1.13 2007-10-05 08:27:42 ddonn Exp $
+$Date: 2007-10-05 08:27:42 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -54,7 +54,7 @@ public class ChoiceSetImpl implements ChoiceSet
    * Every Hibernate-persistable class must have a default,
    * parameterless constructor.
    */
-  ChoiceSetImpl()
+  public ChoiceSetImpl()
   {
     choices = new HashSet();
   }
@@ -66,7 +66,7 @@ public class ChoiceSetImpl implements ChoiceSet
    * @param choiceSetAdapter The choiceSetAdapter
    * @param id The id
    */
-  ChoiceSetImpl
+  public ChoiceSetImpl
   	(Signet           signet,
      Subsystem        subsystem,
      ChoiceSetAdapter choiceSetAdapter,

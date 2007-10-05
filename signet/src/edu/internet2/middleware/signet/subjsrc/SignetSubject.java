@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.23 2007-09-12 15:41:57 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.24 2007-10-05 08:27:42 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -461,7 +461,7 @@ public class SignetSubject implements Subject, Comparable
 	 * Support for Hibernate
 	 * @param modifyDatetime The modifyDatetime to set.
 	 */
-	protected void setModifyDatetime(Date modifyDatetime)
+	public void setModifyDatetime(Date modifyDatetime)
 	{
 		this.modifyDatetime = modifyDatetime;
 	}
@@ -566,7 +566,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of Assignment objects that have been granted by Subject
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 * May be an empty set but never null.
-	 * @see edu.internet2.middleware.signet.Status#getInstanceByName() Status.getInstanceByName()
+	 * @see edu.internet2.middleware.signet.Status#getInstanceByName(String) Status.getInstanceByName(String)
 	 */
 	public Set<AssignmentImpl> getAssignmentsGranted(String isActive)
 	{
@@ -640,7 +640,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param isActive Selector for Active/Pending/Inactive Assignments
 	 * @return Returns the assignmentsReceived.
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
-	 * @see edu.internet2.middleware.signet.Status#getInstanceByName() Status.getInstanceByName()
+	 * @see edu.internet2.middleware.signet.Status#getInstanceByName(String) Status.getInstanceByName(String)
 	 */
 	public Set<AssignmentImpl> getAssignmentsReceived(String isActive)
 	{
@@ -715,7 +715,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @return A Set of ProxyImpl objects that have been granted by grantor.
 	 * May be an empty set but never null.
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
-	 * @see edu.internet2.middleware.signet.Status#getInstanceByName() Status.getInstanceByName()
+	 * @see edu.internet2.middleware.signet.Status#getInstanceByName(String) Status.getInstanceByName(String)
 	 */
 	public Set<ProxyImpl> getProxiesGranted(String isActive)
 	{
@@ -788,7 +788,7 @@ public class SignetSubject implements Subject, Comparable
 	 * @param isActive Selector for Active/Pending/Inactive proxies
 	 * @return A Set of ProxyImpl objects that have been received by Subject.
 	 * May be an empty set but never null.
-	 * @see edu.internet2.middleware.signet.Status#getInstanceByName() Status.getInstanceByName()
+	 * @see edu.internet2.middleware.signet.Status#getInstanceByName(String) Status.getInstanceByName(String)
 	 */
 	public Set<ProxyImpl> getProxiesReceived(String isActive)
 	{

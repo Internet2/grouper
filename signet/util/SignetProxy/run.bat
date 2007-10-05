@@ -2,7 +2,7 @@
 if "%OS%" == "Windows_NT" setlocal
 
 rem -----------------------------------------------------------------------------
-rem Script for command line utilility to assign System Administrator proxy
+rem Script for command line utility to assign System Administrator proxy
 rem
 rem Takes two arguments
 rem    1 - Action to take -- grant | revoke | list
