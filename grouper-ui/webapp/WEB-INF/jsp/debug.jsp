@@ -2,7 +2,7 @@
 			Tile which displays debug information if dbug mode is on
 --%><%--
   @author Gary Brown.
-  @version $Id: debug.jsp,v 1.3 2006-02-24 13:43:05 isgwb Exp $
+  @version $Id: debug.jsp,v 1.4 2007-10-15 10:04:47 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -74,7 +74,7 @@ function show(id) {
 <br/>
 <c:if test="${debugPrefs.doShowResources}">
 <%
-	List navList = (List)UIThreadLocal.get("navResource");
+	Collection navList = (Collection)UIThreadLocal.get("navResource");
 	Map navMap = (Map)UIThreadLocal.get("navResourceMap");
 	pageContext.setAttribute("navList",navList);
 	pageContext.setAttribute("navMap",navMap);

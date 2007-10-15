@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -56,7 +57,7 @@ import edu.internet2.middleware.subject.Source;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.8 2007-09-11 10:18:44 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.9 2007-10-15 10:04:47 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -100,7 +101,7 @@ public class LoginCheckFilter implements Filter {
 		HttpServletResponse response = (HttpServletResponse) res;
 		HttpSession session = request.getSession();
 		UIThreadLocal.clear();
-		UIThreadLocal.put("navResource", new ArrayList());
+		UIThreadLocal.put("navResource", new LinkedHashSet());
 		UIThreadLocal.put("dynamicTiles", new ArrayList());
 		Map debugPrefs = (Map) session.getAttribute("debugPrefs");
 		if(debugPrefs==null && LowLevelGrouperCapableAction.getCookie("grouperDebugPrefs",request)!=null) {
