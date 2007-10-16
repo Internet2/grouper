@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.48 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: GroupFinder.java,v 1.49 2007-10-16 13:24:05 isgwb Exp $
  */
 public class GroupFinder {
 
@@ -104,6 +104,13 @@ public class GroupFinder {
     Group g = new Group();
     g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByName(name) );
     g.setSession(s);
+    //2007-10-16: Gary Brown
+    //https://bugs.internet2.edu/jira/browse/GRP-36
+    //Ugly... and probably breaks the abstraction but quick and easy to 
+    //remove when a more elegant solution found.
+    if(s.getSubject().equals(SubjectFinder.findRootSubject()))
+    	return g;
+    
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }
