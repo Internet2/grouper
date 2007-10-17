@@ -29,7 +29,7 @@ import  java.util.Set;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.4 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.5 2007-10-17 14:54:52 isgwb Exp $
  * @since   1.2.1
  */
 class PrivilegeHelper {
@@ -198,9 +198,13 @@ class PrivilegeHelper {
       ms.setDTO( (MembershipDTO) it.next() );
       ms.setSession(s);
       try {
-        if ( FieldType.ACCESS.equals( ms.getList().getType() ) ) {
+    	//2007-10-17: Gary Brown
+    	//https://bugs.internet2.edu/jira/browse/GRP-38
+        //Cannot see reason for if statement - which fails do all memberships added
+    	//Removing the conditional should mean that the membership is only added if an exception is not thrown
+        //if ( FieldType.ACCESS.equals( ms.getList().getType() ) ) {
           dispatch( s, ms.getGroup(), s.getSubject(), ms.getList().getReadPriv() );
-        }
+        //}
         mships.add(ms);
       }
       catch (Exception e) {
