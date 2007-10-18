@@ -30,7 +30,7 @@ import  java.util.Set;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.84 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: Membership.java,v 1.85 2007-10-18 06:30:14 isgwb Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -508,6 +508,10 @@ public class Membership extends GrouperAPI {
     return deletes;
   } // protected static Set internal_deleteAllFieldType(s, ns, f)
 
+//@since   1.2.1
+  protected String getMemberUuid() {
+	  return this._getDTO().getMemberUuid();  
+  }
 
   // PRIVATE INSTANCE METHODS //
 
