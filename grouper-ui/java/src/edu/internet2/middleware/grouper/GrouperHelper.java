@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.34 2007-09-30 08:58:17 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.35 2007-10-18 08:40:06 isgwb Exp $
  */
 
 
@@ -2235,7 +2235,7 @@ public class GrouperHelper {
 	 * @throws MemberNotFoundException
 	 * @throws GroupNotFoundException
 	 */
-	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count,Map sources) 
+	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count,Map sources,int membersFilterLimit) 
 		throws MemberNotFoundException,GroupNotFoundException{
 		//won't pass back values but will give 'unique' list
 		if(count==null) count=new HashMap();
@@ -2255,7 +2255,9 @@ public class GrouperHelper {
 			if("subject".equals(type)){
 				id = m.getGroup().getUuid();
 			}else if("group".equals(type)) {
-				id =m.getMember().getSubjectId();
+				//id =m.getMember().getSubjectId();
+				id=m.getMemberUuid();
+				
 			}else{
 				throw new IllegalArgumentException("type must be 'subject' or 'group'");
 			}
@@ -2267,7 +2269,7 @@ public class GrouperHelper {
 				curCount = new Integer(curCount.intValue()+1);
 			}
 			count.put(id,curCount);
-			sources.put(m.getMember().getSubjectSource().getId(), m.getMember().getSubjectSource().getName());
+			if(memberships.size() < membersFilterLimit) sources.put(m.getMember().getSubjectSource().getId(), m.getMember().getSubjectSource().getName());
 		}
 		return res;
 	}
@@ -2284,21 +2286,24 @@ public class GrouperHelper {
 	public static void setMembershipCountPerSubjectOrGroup(List membershipMaps,String type,Map count)
 		throws GroupNotFoundException,MemberNotFoundException{
 		if(count==null) return;
-		Map mMap;
+		MembershipAsMap mMap;
 		Map gMap;
 		Map sMap;
 		
 		String id;
 		Integer curCount;
+		Membership m=null;
 		for(int i=0;i<membershipMaps.size();i++) {
-			mMap = (Map)membershipMaps.get(i);
+			mMap = (MembershipAsMap)membershipMaps.get(i);
 			gMap = (Map)mMap.get("group");
 			sMap = (Map)mMap.get("subject");
 		
 			if("subject".equals(type)){
 				id = (String)gMap.get("id");
 			}else if("group".equals(type)) {
-				id = (String)sMap.get("id");
+				//id = (String)sMap.get("memberUuid");
+				m=(Membership)mMap.getWrappedObject();
+				id=m.getMemberUuid();
 			}else{
 				throw new IllegalArgumentException("type must be 'subject' or 'group'");
 			}
@@ -2835,6 +2840,16 @@ public class GrouperHelper {
 		
 		return groups;
 	
+	}
+	
+	/**
+	 * Rather than force a client to  call getMember which involves a SQL query
+	 * expose the memberUuid where that is sufficient
+	 * @param m
+	 * @return
+	 */
+	public static String getMemberUuid(Membership m) {
+		return m.getMemberUuid();
 	}
 	
 	

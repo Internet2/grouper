@@ -255,7 +255,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.18 2007-09-27 14:07:16 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.19 2007-10-18 08:40:06 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -377,7 +377,13 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		Map countMap = new HashMap();
 		Map sources = new HashMap();
-		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap,sources);
+		int membersFilterLimit=500;
+		String mfl = getMediaResources(request).getString("members.filter.limit");
+		try {
+			membersFilterLimit = Integer.parseInt(mfl);
+		}catch(Exception e){}
+		
+		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap,sources,membersFilterLimit);
 		uniqueMemberships=sort(uniqueMemberships,request,"members");
 		Map.Entry entry = null;
 		Iterator sIterator = sources.entrySet().iterator();
@@ -390,7 +396,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			}catch(Exception e){}
 		}
 		if("_void_".equals(selectedSource)) selectedSource=null;
-		if(!isEmpty(selectedSource) && sources.get(selectedSource)!=null) {
+		if(!isEmpty(selectedSource) && sources.get(selectedSource)!=null && members.size()<membersFilterLimit) {
 			Iterator it = uniqueMemberships.iterator();
 			Membership mShip=null;
 			while(it.hasNext()) {

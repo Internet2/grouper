@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipAsMap.java,v 1.3 2007-03-12 09:49:08 isgwb Exp $
+ * @version $Id: MembershipAsMap.java,v 1.4 2007-10-18 08:40:06 isgwb Exp $
  */
 public class MembershipAsMap extends ObjectAsMap {
 
@@ -59,6 +59,7 @@ public class MembershipAsMap extends ObjectAsMap {
 		this.withParents=withParents;
 		wrappedObject = membership;
 		try {
+			put("memberUuid",GrouperHelper.getMemberUuid(membership));
 			put("subject",GrouperHelper.subject2Map(membership.getMember().getSubject()));
 			put("group",GrouperHelper.group2Map(null,membership.getGroup()));
 			put("field",membership.getList());

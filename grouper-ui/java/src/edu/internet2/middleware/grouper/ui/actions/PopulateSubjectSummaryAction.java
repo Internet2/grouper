@@ -259,7 +259,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.16 2007-10-05 10:19:42 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.17 2007-10-18 08:40:06 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -409,7 +409,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		if(subjectScopeMaps==null) {
 			Map countMap = new HashMap();
 			Map sources=new HashMap();
-			List uniqueSubjectScopes = GrouperHelper.getOneMembershipPerSubjectOrGroup(subjectScopes,"subject",countMap,sources);
+			List uniqueSubjectScopes = GrouperHelper.getOneMembershipPerSubjectOrGroup(subjectScopes,"subject",countMap,sources,0);
 			subjectScopeMaps = GrouperHelper.memberships2Maps(grouperSession,uniqueSubjectScopes);
 			GrouperHelper.setMembershipCountPerSubjectOrGroup(subjectScopeMaps,"subject",countMap);
 		}
