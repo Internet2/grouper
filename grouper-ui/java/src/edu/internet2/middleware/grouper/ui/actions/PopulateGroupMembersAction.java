@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -255,7 +256,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.19 2007-10-18 08:40:06 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.20 2007-10-18 09:10:04 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -279,6 +280,10 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		if(!isEmpty(request.getParameter("submit.import"))) {
 			return mapping.findForward(FORWARD_ImportMembers);
 		}
+		boolean membersFilterBySource = false;
+		try {
+			membersFilterBySource = "true".equals(getMediaResources(request).getString("members.filter.by-source"));
+		}catch(Exception e) {}
 		String selectedSource=null;
 		session.setAttribute("subtitle","groups.action.show-members");
 		String noResultsKey="groups.list-members.none";
@@ -378,12 +383,22 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		Map countMap = new HashMap();
 		Map sources = new HashMap();
 		int membersFilterLimit=500;
-		String mfl = getMediaResources(request).getString("members.filter.limit");
-		try {
-			membersFilterLimit = Integer.parseInt(mfl);
-		}catch(Exception e){}
+		if(!membersFilterBySource) {
+			membersFilterLimit=0;
+		}else{
+			String mfl = getMediaResources(request).getString("members.filter.limit");
+			try {
+				membersFilterLimit = Integer.parseInt(mfl);
+			}catch(Exception e){}
+		}
 		
-		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap,sources,membersFilterLimit);
+		List uniqueMemberships = null;
+		if("imm".equals(membershipListScope) && membersFilterLimit<members.size()) {
+			uniqueMemberships=new ArrayList(members);
+		}else{
+			uniqueMemberships=GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap,sources,membersFilterLimit);
+		}
+		
 		uniqueMemberships=sort(uniqueMemberships,request,"members");
 		Map.Entry entry = null;
 		Iterator sIterator = sources.entrySet().iterator();
