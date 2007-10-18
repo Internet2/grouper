@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
+
+import java.util.HashSet;
 import  java.util.Iterator;
 import  java.util.HashMap;
 import  java.util.LinkedHashSet;
@@ -30,7 +32,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.37 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: GrouperSubject.java,v 1.38 2007-10-18 11:20:01 isgwb Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -76,8 +78,19 @@ public class GrouperSubject implements Subject {
     return GrouperConfig.EMPTY_STRING;
   } // public String getAttributevalue(name)
 
-  public Set getAttributeValues(String name) {
-    return ATTR_VALUES;
+  /* (non-Javadoc)
+ * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
+ */
+public Set getAttributeValues(String name) {
+	//https://bugs.internet2.edu/jira/browse/GRP-40
+	//2007-10-18: Gary Brown
+	//Simply put value in a Set, however, would
+	//need to revisit if Grouper had multi-value String attributes
+	Set values = new LinkedHashSet();
+	String value = this.getAttributeValue(name);
+	if(!GrouperConfig.EMPTY_STRING.equals(value)) 
+		values.add(value);
+    return values;
   } // public Set getAttributeValues(name)
 
   public String getDescription() {
