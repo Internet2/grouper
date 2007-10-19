@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.14 2007-10-05 08:27:42 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.15 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -71,7 +71,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -169,7 +169,21 @@ public class HibernateDB implements Serializable
 			" and " +									//$NON-NLS-1$
 			" subsystemID = :subsys_id ";				//$NON-NLS-1$
 
+	protected static final String Qry_limitByPK =
+			"from " + LimitImpl.class.getName() +	//$NON-NLS-1$
+			" as limit " +							//$NON-NLS-1$
+			" where " +								//$NON-NLS-1$
+			" limitKey = :limit_key";				//$NON-NLS-1$
 
+	protected static final String Qry_limitBySubsysAndId =
+			"from " + LimitImpl.class.getName() +	//$NON-NLS-1$
+			" as limit " +							//$NON-NLS-1$
+			" where " +								//$NON-NLS-1$
+			" subsystemID = :subsystemId" +			//$NON-NLS-1$
+			" and " +								//$NON-NLS-1$
+			" limitID = :limitId";					//$NON-NLS-1$
+			
+			
 	/** Cache the Tree for performance */
 	protected TreeImpl cachedTree = null;
 
@@ -882,6 +896,72 @@ protected Session stdSession = null;
 		return children;
 	}
 
+
+	/**
+	 * Get a LimitImpl by primary key
+	 * @param limit_pk DB primary key
+	 * @return The LimitImpl or null
+	 */
+	public LimitImpl getLimit(int limit_pk)
+	{
+		LimitImpl retval = null;
+
+		Session hs = openSession();
+		Query qry = createQuery(hs, Qry_limitByPK);
+		qry.setInteger("limit_key", limit_pk); //$NON-NLS-1$
+
+		try
+		{
+			retval = (LimitImpl)qry.list().get(0);
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		if (null != retval)
+			retval.setSignet(signet);
+
+		return (retval);
+	}
+
+	/**
+	 * Get a LimitImpl by SubsystemId and LimitId
+	 * @param subsysId The Subsystem Id
+	 * @param limitId The Limit Id
+	 * @return The LimitImpl or null
+	 */
+	public LimitImpl getLimit(String subsysId, String limitId)
+	{
+		LimitImpl retval = null;
+
+		Session hs = openSession();
+		Query qry = createQuery(hs, Qry_limitBySubsysAndId);
+		qry.setString("subsystemId", subsysId);	//$NON-NLS-1$
+		qry.setString("limitId", limitId);		//$NON-NLS-1$
+
+		try
+		{
+			retval = (LimitImpl)qry.list().get(0);
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		if (null != retval)
+			retval.setSignet(signet);
+
+		return (retval);
+	}
 
 	// I really want to do away with this method, having the Subsystem
 	// pick up its associated Limits via Hibernate object-mapping.

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PermissionImplXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PermissionImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -23,13 +23,17 @@ import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.PermissionImplXb;
 
 /**
- * PermissionImplXa 
- * 
+ * PermissionImplXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a PermissionImpl and a PermissionImplXb.
+ * @see PermissionImpl
+ * @see PermissionImplXb
  */
 public class PermissionImplXa extends EntityImplXa
 {
 	public PermissionImplXa()
 	{
+		super();
 	}
 
 	public PermissionImplXa(Signet signet)

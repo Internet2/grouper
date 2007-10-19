@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplRefXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplRefXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -26,8 +26,11 @@ import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.ProxyImplRefXb;
 
 /**
- * ProxyImplRefXa 
- * 
+ * ProxyImplRefXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a ProxyImpl and a ProxyImplRefXb.
+ * @see ProxyImpl
+ * @see ProxyImplRefXb
  */
 public class ProxyImplRefXa
 {

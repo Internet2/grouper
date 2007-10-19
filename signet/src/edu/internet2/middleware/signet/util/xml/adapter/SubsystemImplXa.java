@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SubsystemImplXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SubsystemImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -42,13 +42,17 @@ import edu.internet2.middleware.signet.util.xml.binder.PermissionImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.SubsystemImplXb;
 
 /**
- * SubsystemImplXa 
- * 
+ * SubsystemImplXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a SubsystemImpl and a SubsystemImplXb.
+ * @see SubsystemImpl
+ * @see SubsystemImplXb
  */
 public class SubsystemImplXa extends EntityImplXa
 {
 	public SubsystemImplXa()
 	{
+		super();
 	}
 
 	public SubsystemImplXa(Signet signet)
@@ -58,6 +62,7 @@ public class SubsystemImplXa extends EntityImplXa
 
 	public SubsystemImplXa(SubsystemImpl signetSubsystem, Signet signet)
 	{
+		this(signet);
 		signetEntity = signetSubsystem;
 		xmlEntity = new ObjectFactory().createSubsystemImplXb();
 		setValues(signetSubsystem, signet);
@@ -65,6 +70,7 @@ public class SubsystemImplXa extends EntityImplXa
 
 	public SubsystemImplXa(SubsystemImplXb xmlSubsystem, Signet signet)
 	{
+		this(signet);
 		xmlEntity = xmlSubsystem;
 		signetEntity = new SubsystemImpl();
 		setValues(xmlSubsystem, signet);

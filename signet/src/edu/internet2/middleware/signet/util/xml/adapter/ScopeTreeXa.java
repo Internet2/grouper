@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ScopeTreeXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ScopeTreeXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -31,8 +31,11 @@ import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeXb;
 import edu.internet2.middleware.signet.util.xml.binder.TreeNodeImplXb;
 
 /**
- * ScopeTreeXa 
- * 
+ * ScopeTreeXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a TreeImpl and a ScopeTreeXb.
+ * @see TreeImpl
+ * @see ScopeTreeXb
  */
 public class ScopeTreeXa extends EntityImplXa
 {
@@ -42,6 +45,7 @@ public class ScopeTreeXa extends EntityImplXa
 	 */
 	public ScopeTreeXa()
 	{
+		super();
 	}
 
 	/**
@@ -60,6 +64,7 @@ public class ScopeTreeXa extends EntityImplXa
 	 */
 	public ScopeTreeXa(TreeImpl signetScopeTree, Signet signet)
 	{
+		this(signet);
 		signetEntity = signetScopeTree;
 		xmlEntity = new ObjectFactory().createScopeTreeXb();
 		setValues(signetScopeTree, signet);
@@ -72,6 +77,7 @@ public class ScopeTreeXa extends EntityImplXa
 	 */
 	public ScopeTreeXa(ScopeTreeXb xmlScopeTree, Signet signet)
 	{
+		this(signet);
 		xmlEntity = xmlScopeTree;
 		signetEntity = new TreeImpl();
 		setValues(xmlScopeTree, signet);

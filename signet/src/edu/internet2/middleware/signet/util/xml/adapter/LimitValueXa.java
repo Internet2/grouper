@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitValueXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitValueXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -20,13 +20,17 @@ package edu.internet2.middleware.signet.util.xml.adapter;
 import edu.internet2.middleware.signet.LimitImpl;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.util.xml.binder.LimitImplRefXb;
 import edu.internet2.middleware.signet.util.xml.binder.LimitImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.LimitValueXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 
 /**
- * LimitValueXa 
- * 
+ * LimitValueXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a LimitValue and a LimitValueXb
+ * @see LimitValue
+ * @see LimitValueXb
  */
 public class LimitValueXa
 {
@@ -60,8 +64,8 @@ public class LimitValueXa
 
 	public void setValues(LimitValue signetLimitValue)
 	{
-		LimitImplXa adapter = new LimitImplXa((LimitImpl)signetLimitValue.getLimit(), signet);
-		xmlLimitValue.setLimit(adapter.getXmlLimitImpl());
+		LimitImplRefXa adapter = new LimitImplRefXa((LimitImpl)signetLimitValue.getLimit(), signet);
+		xmlLimitValue.setLimit(adapter.getXmlLimitImplRef());
 		xmlLimitValue.setValue(signetLimitValue.getValue());
 	}
 
@@ -74,8 +78,8 @@ public class LimitValueXa
 	public void setValues(LimitValueXb xmlLimitValue)
 	{
 		// fetch the Limit, by Id, from Signet
-		LimitImplXb xmlLimitImpl = xmlLimitValue.getLimit();
-		LimitImplXa limitImplAdapter = new LimitImplXa(xmlLimitImpl, signet);
+		LimitImplRefXb xmlLimitImpl = xmlLimitValue.getLimit();
+		LimitImplRefXa limitImplAdapter = new LimitImplRefXa(xmlLimitImpl, signet);
 		signetLimitValue = new LimitValue(limitImplAdapter.getSignetLimitImpl(), xmlLimitValue.getValue());
 	}
 

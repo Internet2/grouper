@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -22,10 +22,11 @@ import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 
 /**
- * SignetXa - An adapter for Signet's Signet and an XML binder, SignetXb,
- * which is the top-level parent for all Signet XML.
- * @see edu.internet2.middleware.signet.Signet edu.internet2.middleware.signet.Signet
- * @see edu.internet2.middleware.signet.util.xml.binder.SignetXb SignetXb
+ * SignetXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a Signet and a SignetXb.
+ * @see Signet
+ * @see SignetXb
  */
 public class SignetXa
 {

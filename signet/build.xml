@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.66 2007-10-05 08:40:13 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.67 2007-10-19 23:27:11 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -213,7 +213,7 @@
 				includes="**/*.java"
 				destdir="${schema.dir}"
 				classpath="${java.class.path}" >
-			<schema file="${schema.filename}" namespace="" />
+			<schema namespace="${signetxml.namespace.value}" file="${schema.filename}" /> 
 		</schemagen>
 		<!-- episode="${schema.dir}/${episode.filename}" -->
 	</target>
@@ -224,8 +224,10 @@
 			depends="delete_xmlbinds" >
 		<tstamp/>
 		<xjc schema="${schema.dir}/${schema.filename}"
-			destdir="${source_java.dir}"
-			package="${xml.bindings.package}" >
+				destdir="${source_java.dir}"
+				package="${xml.bindings.package}" >
+			<produces dir="${xml.bindings.fullpath}"
+				includes="**/*.java" />
 		</xjc>
 	</target>
 

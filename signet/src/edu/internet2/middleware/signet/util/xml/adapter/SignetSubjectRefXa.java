@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectRefXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectRefXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -32,11 +32,11 @@ import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectRefXb;
 
 
 /**
- * SignetSubjectRefXa - An adapter class for Signet's SignetSubject and an
- * XML binder (SignetSubjectRefXb). This represents a _reference_ to a Subject,
- * not a full Subject definition.
- * @see edu.internet2.middleware.signet.subjsrc.SignetSubject SignetSubject
- * @see edu.internet2.middleware.signet.util.xml.binder.SignetSubjectRefXb SignetSubjectRefXb
+ * SignetSubjectRefXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a SignetSubject and a SignetSubjectRefXb.
+ * @see SignetSubject
+ * @see SignetSubjectRefXb
  */
 public class SignetSubjectRefXa
 {
@@ -137,23 +137,23 @@ public class SignetSubjectRefXa
 		xmlSubject.setSourceId(signetSubject.getSourceId());
 
 //	protected String		subjectType;
-		xmlSubject.setSubjectType(signetSubject.getSubjectType());
+//		xmlSubject.setSubjectType(signetSubject.getSubjectType());
 
 //	protected String		subjectName;
-		xmlSubject.setSubjectName(signetSubject.getName());
+//		xmlSubject.setSubjectName(signetSubject.getName());
 
 //	protected Date			modifyDatetime;
-		xmlSubject.setModifyDatetime(Util.convertDateToString(signetSubject.getModifyDatetime()));
+//		xmlSubject.setModifyDatetime(Util.convertDateToString(signetSubject.getModifyDatetime()));
 
 //	protected Date			synchDatetime;
-		xmlSubject.setSynchDatetime(Util.convertDateToString(signetSubject.getSynchDatetime()));
+//		xmlSubject.setSynchDatetime(Util.convertDateToString(signetSubject.getSynchDatetime()));
 
 //	protected Set<SignetSubjectAttr>	signetSubjectAttrs;
-		// (empty) list of newly-created XML attribute binders
-		List<SignetSubjectAttrXb> xmlAttrs = xmlSubject.getSignetSubjectAttrs();
-		// get the set of SignetSubjectAttrs
-		for (SignetSubjectAttr attr : (Set<SignetSubjectAttr>)signetSubject.getSubjectAttrs())
-			xmlAttrs.add(new SignetSubjectAttrXa(attr).getXmlSubjectAttr());
+//		// (empty) list of newly-created XML attribute binders
+//		List<SignetSubjectAttrXb> xmlAttrs = xmlSubject.getSignetSubjectAttrs();
+//		// get the set of SignetSubjectAttrs
+//		for (SignetSubjectAttr attr : (Set<SignetSubjectAttr>)signetSubject.getSubjectAttrs())
+//			xmlAttrs.add(new SignetSubjectAttrXa(attr).getXmlSubjectAttr());
 
 //	protected Set<AssignmentImpl>	assignmentsGranted;
 //	protected Set<AssignmentImpl>	assignmentsReceived;

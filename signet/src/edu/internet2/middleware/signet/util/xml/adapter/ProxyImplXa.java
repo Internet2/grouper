@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -23,13 +23,17 @@ import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.ProxyImplXb;
 
 /**
- * ProxyImplXa 
- * 
+ * ProxyImplXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a ProxyImpl and a ProxyImplXb.
+ * @see ProxyImpl
+ * @see ProxyImplXb
  */
 public class ProxyImplXa extends GrantableImplXa
 {
 	public ProxyImplXa()
 	{
+		super();
 	}
 
 	public ProxyImplXa(Signet signet)
@@ -39,7 +43,7 @@ public class ProxyImplXa extends GrantableImplXa
 
 	public ProxyImplXa(ProxyImpl signetProxyImpl, Signet signet)
 	{
-		super(signet);
+		this(signet);
 		signetEntity = signetProxyImpl;
 		xmlEntity = new ObjectFactory().createProxyImplXb();
 		setValues(signetProxyImpl);
@@ -47,7 +51,7 @@ public class ProxyImplXa extends GrantableImplXa
 
 	public ProxyImplXa(ProxyImplXb xmlProxyImpl, Signet signet)
 	{
-		super(signet);
+		this(signet);
 		xmlEntity = xmlProxyImpl;
 		signetEntity = new ProxyImpl();
 		setValues(xmlProxyImpl);

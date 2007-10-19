@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/Util.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/Util.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -30,10 +30,10 @@ import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.TreeNodeImpl;
 
 /**
- * Util 
- * 
- * @version $Revision: 1.1 $
- * @author $Author: ddonn $
+ * Util<p>
+ * Utilities to support Signet XML Adapter and Binder classes.
+ * @see edu.internet2.middleware.signet.util.xml.adapter
+ * @see edu.internet2.middleware.signet.util.xml.binder
  */
 public class Util
 {

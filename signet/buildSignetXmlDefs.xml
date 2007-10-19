@@ -1,31 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	$Header: /home/hagleyj/i2mi/signet/buildSignetXmlDefs.xml,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/buildSignetXmlDefs.xml,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 	JAXB-specific Ant tasks
 	This section contains the Ant task definitions for using the JAXB
 	schemagen and xjc utilities.
+	
+	NOTE: Class SchemaGenTask relies on 
+	  com/sun/mirror/apt/AnnotationProcessorFactory
+	which is only available in the JDK (not JRE) libs in file tools.jar.
+	To point to YOUR tools.jar, change the value of "tools_jar_path", below.
 
 -->
 
 <project name="SignetXml" basedir="." >
 
-	<fileset id="jaxb.jars" dir="${i2mi_common_lib.dir}" >
-    	<include name="activation.jar, jaxb-api.jar, jaxb-impl.jar, jsr173_1.0_api.jar, jaxb-xjc.jar" />
-	</fileset>
+	<!--
+		Global Properties
+		This file contains required properties.
+	-->
+	<property file="buildSignet.properties" />
+	<property name="tools_jar_path" value="/JavaDev/jdk1.5.0_12/lib/tools.jar" />
+
+	<path id="jaxb.jars" >
+		<fileset dir="${i2mi_common_lib.dir}" includes="activation.jar, jaxb-api.jar, jaxb-impl.jar, jsr173_1.0_api.jar, jaxb-xjc.jar" />
+		<pathelement path="${tools_jar_path}" />
+	</path>
 
 	<!-- Task to create the binding classes from a schema -->
 	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" >
-		<classpath>
-			<fileset refid="jaxb.jars" />
-		</classpath>
+		<classpath refid="jaxb.jars" />
 	</taskdef>
 
 	<!-- Task to create a schema file -->
 	<taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask" >
-		<classpath >
-			<fileset refid="jaxb.jars" />
-		</classpath>
+		<classpath refid="jaxb.jars" />
 	</taskdef>
 
 </project>

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -38,8 +38,9 @@ import edu.internet2.middleware.signet.util.xml.binder.LimitValueXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 
 /**
- * AssignmentImplXa - An adapter class for Signet's AssignmentImpl and an
- * XML binder (AssignmentImplXb).
+ * AssignmentImplXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps an AssignmentImpl and an AssignmentImplXb.
  * @see edu.internet2.middleware.signet.AssignmentImpl AssignmentImpl
  * @see edu.internet2.middleware.signet.util.xml.binder.AssignmentImplXb AssignmentImplXb
  */
@@ -50,7 +51,7 @@ public class AssignmentImplXa extends GrantableImplXa
 	 */
 	public AssignmentImplXa()
 	{
-		initLog();
+		super();
 	}
 
 	/**
@@ -60,7 +61,6 @@ public class AssignmentImplXa extends GrantableImplXa
 	public AssignmentImplXa(Signet signet)
 	{
 		super(signet);
-		initLog();
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class AssignmentImplXa extends GrantableImplXa
 	 */
 	public AssignmentImplXa(AssignmentImpl signetAssignment, Signet signet)
 	{
-		initLog();
+		this(signet);
 		signetEntity = signetAssignment;
 		xmlEntity = new ObjectFactory().createAssignmentImplXb();
 		setValues(signetAssignment, signet);
@@ -85,16 +85,12 @@ public class AssignmentImplXa extends GrantableImplXa
 	 */
 	public AssignmentImplXa(AssignmentImplXb xmlAssignment, Signet signet)
 	{
-		initLog();
+		this(signet);
 		xmlEntity = xmlAssignment;
 		signetEntity = new AssignmentImpl();
 		setValues(xmlAssignment, signet);
 	}
 
-	protected void initLog()
-	{
-		log = LogFactory.getLog(AssignmentImplXa.class);
-	}
 
 	/**
 	 * @return The Signet Assignment

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/TreeNodeImplXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/TreeNodeImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -22,25 +22,32 @@ import edu.internet2.middleware.signet.TreeNodeImpl;
 import edu.internet2.middleware.signet.util.xml.binder.TreeNodeImplXb;
 
 /**
- * TreeNodeImplXa 
- * 
+ * TreeNodeImplXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a TreeNodeImpl and a TreeNodeImplXb.
+ * @see TreeNodeImpl
+ * @see TreeNodeImplXb
  */
 public class TreeNodeImplXa extends EntityImplXa
 {
 	public TreeNodeImplXa()
 	{
+		super();
 	}
 
 	public TreeNodeImplXa(Signet signet)
 	{
+		super(signet);
 	}
 
 	public TreeNodeImplXa(TreeNodeImpl signetTreeNode, Signet signet)
 	{
+		this(signet);
 	}
 
 	public TreeNodeImplXa(TreeNodeImplXb xmlTreeNode, Signet signet)
 	{
+		this(signet);
 	}
 
 	public TreeNodeImpl getSignetTreeNodeImpl()

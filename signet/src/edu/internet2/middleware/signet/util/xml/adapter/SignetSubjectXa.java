@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -31,10 +31,11 @@ import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectAttrXb;
 import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectXb;
 
 /**
- * SignetSubjectXa - An adapter class for Signet's SignetSubject and an
- * XML binder (SignetSubjectXb).
- * @see edu.internet2.middleware.signet.subjsrc.SignetSubject SignetSubject
- * @see edu.internet2.middleware.signet.util.xml.binder.SignetSubjectXb SignetSubjectXb
+ * SignetSubjectXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a SignetSubject and a SignetSubjectXb.
+ * @see SignetSubject
+ * @see SignetSubjectXb
  */
 public class SignetSubjectXa extends SignetSubjectRefXa
 {

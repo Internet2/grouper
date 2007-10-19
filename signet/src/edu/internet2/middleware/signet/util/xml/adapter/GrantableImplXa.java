@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/GrantableImplXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/GrantableImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -26,28 +26,23 @@ import edu.internet2.middleware.signet.util.xml.binder.GrantableImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectRefXb;
 
 /**
- * GrantableImplXa - Adapter for Signet's GrantableImpl and and XML binder,
- * GrantableImplXb
- * @see edu.internet2.middleware.signet.GrantableImpl GrantableImpl
- * @see edu.internet2.middleware.signet.util.xml.binder.GrantableImplXb GrantableImplXb
+ * GrantableImplXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps a GrantableImpl and a GrantableImplXb
+ * @see GrantableImpl
+ * @see GrantableImplXb
  */
 public abstract class GrantableImplXa extends EntityImplXa
 {
 
 	protected GrantableImplXa()
 	{
-		initLog();
+		super();
 	}
 
 	protected GrantableImplXa(Signet signet)
 	{
 		super(signet);
-		initLog();
-	}
-
-	protected void initLog()
-	{
-		log = LogFactory.getLog(GrantableImplXa.class);
 	}
 
 	public void setValues(GrantableImpl signetGrantable)

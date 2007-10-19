@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/EntityImplXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/EntityImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -25,9 +25,11 @@ import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.util.xml.binder.EntityImplXb;
 
 /**
- * EntityImplXa - Adapter for Signet's EntityImpl and an XML binder (EntityImplXb)
- * @see edu.internet2.middleware.signet.EntityImpl EntityImpl
- * @see edu.internet2.middleware.signet.util.xml.binder.EntityImplXb EntityImplXb
+ * EntityImplXa<p>
+ * Adapter class for Signet XML Binding.
+ * Maps an EntityImpl and an EntityImplXb.
+ * @see EntityImpl
+ * @see EntityImplXb
  */
 public abstract class EntityImplXa
 {
@@ -50,7 +52,7 @@ public abstract class EntityImplXa
 
 	protected void initLog()
 	{
-		log = LogFactory.getLog(EntityImplXa.class);
+		log = LogFactory.getLog(this.getClass());
 	}
 
 	public void setValues(EntityImpl signetEntity)

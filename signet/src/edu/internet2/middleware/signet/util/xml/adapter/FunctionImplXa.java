@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/FunctionImplXa.java,v 1.1 2007-10-05 08:40:13 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/FunctionImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -23,13 +23,17 @@ import edu.internet2.middleware.signet.util.xml.binder.FunctionImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 
 /**
- * FunctionImplXa 
- * 
+ * FunctionImplXa <p>
+ * Adapter class for Signet XML Binding.
+ * Maps a FunctionImpl and a FunctionImplXb.
+ * @see FunctionImpl
+ * @see FunctionImplXb
  */
 public class FunctionImplXa extends EntityImplXa
 {
 	public FunctionImplXa()
 	{
+		super();
 	}
 
 	public FunctionImplXa(Signet signet)
