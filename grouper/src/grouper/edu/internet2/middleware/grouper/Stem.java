@@ -38,7 +38,7 @@ import  org.apache.commons.lang.builder.*;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.142 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: Stem.java,v 1.143 2007-10-24 15:57:21 shilen Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -662,11 +662,23 @@ public class Stem extends GrouperAPI implements Owner {
     if (group == null) { // TODO 20070813 ParameterHelper
       throw new IllegalArgumentException("null Group");
     }
-    Stem parent = group.getParentStem();
-    if ( this.equals(parent) ) {
+
+    if (this.isRootStem()) {
+      return true;
+    } 
+
+    String stemName = this.getName();
+    String groupName = group.getName();
+
+    if (groupName.length() <= (stemName.length() + DELIM.length())) {
+      return false;
+    }
+    
+    if ((stemName + DELIM).equals(groupName.substring(0, stemName.length() + DELIM.length()))) {
       return true;
     }
-    return this.isChildStem(parent);
+
+    return false;
   }
 
   /**
@@ -681,10 +693,14 @@ public class Stem extends GrouperAPI implements Owner {
     if (stem == null) { // TODO 20070813 ParameterHelper
       throw new IllegalArgumentException("null Stem");
     }
+
+    String thisName = this.getName();
+    String stemName = stem.getName();
+
     if (
-         ( this.getUuid().equals( stem.getUuid() ) )  // can't be child of self
+         ( thisName.equals( stemName ) )  // can't be child of self
          ||
-         stem.isRootStem()                            // root stem can't be chilc
+         stem.isRootStem()                            // root stem can't be child
        )
     {
       return false;
@@ -692,17 +708,16 @@ public class Stem extends GrouperAPI implements Owner {
     if ( this.isRootStem() ) {
       return true; // all stems are children
     }
-    String parentUUID = stem._getDTO().getParentUuid();
-    if ( this.getUuid().equals(parentUUID) ) {
-      return true; 
+
+    if (stemName.length() <= (thisName.length() + DELIM.length())) {
+      return false;
     }
-    try {
-      return this.isChildStem( StemFinder.findByUuid( this.getSession(), parentUUID ) );
+    
+    if ((thisName + DELIM).equals(stemName.substring(0, thisName.length() + DELIM.length()))) {
+      return true;
     }
-    catch (StemNotFoundException eThisShouldNotHappen) {
-      eThisShouldNotHappen.printStackTrace();
-      throw new IllegalStateException( "this should not happen: " + eThisShouldNotHappen.getMessage(), eThisShouldNotHappen );
-    }
+
+    return false;
   }
 
   /**
