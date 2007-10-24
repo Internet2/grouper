@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.19 2007-10-05 08:27:42 ddonn Exp $
-$Date: 2007-10-05 08:27:42 $
+$Id: TreeNodeImpl.java,v 1.20 2007-10-24 21:48:10 ddonn Exp $
+$Date: 2007-10-24 21:48:10 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -125,27 +125,30 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
     return (children);
   }
 
-  /**
-   * @return Returns the tree.
-   */
-  public Tree getTree()
-  {
-    if ((null == tree) && (null != treeId) && (null != signet))
-    {
-      try
-      {
-		HibernateDB hibr = signet.getPersistentDB();
-		Session hs = hibr.openSession();
-		tree = (TreeImpl)(hibr.getTree(hs, treeId));
-		hibr.closeSession(hs);
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new SignetRuntimeException(onfe);
-      }
-    }
+	/**
+	 * @return Returns the tree.
+	 */
+	public Tree getTree()
+	{
+		if ((null == tree) && (null != treeId) && (null != signet))
+		{
+			HibernateDB hibr = signet.getPersistentDB();
+			Session hs = hibr.openSession();
+			try
+			{
+				tree = (TreeImpl)(hibr.getTree(hs, treeId));
+			}
+			catch (ObjectNotFoundException onfe)
+			{
+				throw new SignetRuntimeException(onfe);
+			}
+			finally
+			{
+				hibr.closeSession(hs);
+			}
+		}
 
-    return (tree);
+		return (tree);
   }
 
   public String getTreeId()
@@ -322,6 +325,25 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
    * This is used by UI code to determine which node from the Select Scope tree
    * was selected.
    */
+	public String getScopePath()
+	{
+		StringBuffer buf = new StringBuffer();
+
+		Tree tree = getTree(); // just in case it's not pre-fetched
+		buf.append(tree.getAdapter().getClass().getName());
+		buf.append(SignetFactory.SCOPE_PART_DELIMITER);
+		buf.append(tree.getId());
+		buf.append(SignetFactory.SCOPE_PART_DELIMITER);
+		buf.append(getId());
+
+		return (buf.toString());
+	}
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.EntityImpl#toString()
+	 */
   public String toString()
   {
 	StringBuffer buf = new StringBuffer();

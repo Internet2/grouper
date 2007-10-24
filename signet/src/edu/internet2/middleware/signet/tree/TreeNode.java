@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNode.java,v 1.4 2007-06-14 21:39:04 ddonn Exp $
-$Date: 2007-06-14 21:39:04 $
+$Id: TreeNode.java,v 1.5 2007-10-24 21:48:10 ddonn Exp $
+$Date: 2007-10-24 21:48:10 $
 
 Copyright 2004 Internet2 and Stanford University.  All Rights Reserved.
 Licensed under the Signet License, Version 1,
@@ -42,4 +42,12 @@ public interface TreeNode extends Comparable, Serializable
   
   public boolean isDescendantOf(TreeNode treeNode);
   public boolean isDescendantOfAny(Set treeNodes);
+
+  /**
+   * Returns a String of the form {treeAdapterClassName}:{treeId}:{nodeId}
+   * This is used by UI code to determine which node from the Select Scope tree
+   * was selected.
+   */
+	public String getScopePath();
+
 }

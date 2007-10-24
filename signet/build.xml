@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.67 2007-10-19 23:27:11 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.68 2007-10-24 21:48:10 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -39,11 +39,39 @@
 	<!-- <import file="signetBuildTomcatDefs.xml" /> -->
 
 
-	<!-- 
-		SignetXml properties and taskdefs
-		This import depends on values defined in buildSignet.properties.
+	<!--
+		JAXB-specific Ant tasks
+		This section contains the Ant task definitions for using the JAXB
+		schemagen and xjc utilities.
+		
+		NOTE: Class SchemaGenTask relies on 
+		  com/sun/mirror/apt/AnnotationProcessorFactory
+		which is only available in the JDK libs (not JRE) in file tools.jar.
+		If you experience problems in the schema_gen target you mignt try
+		adding tools.jar to the classpath.
+		1. Uncomment and enter an appropriate value for "tools_jar_path", below.
+		2. Also, uncomment the pathelement in jaxb.jars, below.
 	-->
-	<import file="buildSignetXmlDefs.xml" />
+	<!-- <property name="tools_jar_path" value="/JavaDev/jdk1.5.0_12/lib/tools.jar" /> -->
+
+	<path id="jaxb.jars" >
+		<fileset dir="${i2mi_common_lib.dir}"
+			includes="activation.jar, jaxb-api.jar, jaxb-impl.jar,
+				jsr173_1.0_api.jar, jaxb-xjc.jar" />
+		<!-- <pathelement path="${tools_jar_path}" /> -->
+	</path>
+
+	<!-- Task to create the binding classes from a schema -->
+	<taskdef name="xjc"
+			classname="com.sun.tools.xjc.XJCTask" >
+			<classpath refid="jaxb.jars" />
+	</taskdef>
+
+	<!-- Task to create a schema file -->
+	<taskdef name="schemagen"
+			classname="com.sun.tools.jxc.SchemaGenTask" >
+			<classpath refid="jaxb.jars" />
+	</taskdef>
 
 
 	<!-- ======================== Public Targets =========================== -->
@@ -68,7 +96,7 @@
 	<!-- =============== target: clean ==================== -->
 	<target name="clean"
 			description="Clean out (delete) previous build products including Java classes and the signet dist directory" 
-			depends="delete_classes, clean_distdirs" >
+			depends="delete_classes, clean_distdirs, signetxml_clean" >
 	</target>
 
 
@@ -208,6 +236,7 @@
 			description="Generate XML Schema from stub source files"
 			depends="delete_schemas" >
 		<tstamp/>
+		<mkdir dir="${schema.dir}"/>
 		<schemagen
 				srcdir="${src.stubs.dir}"
 				includes="**/*.java"
@@ -223,6 +252,7 @@
 			description="Generate the XML binding classes from the Schema file"
 			depends="delete_xmlbinds" >
 		<tstamp/>
+		<mkdir dir="${xml.bindings.fullpath}" />
 		<xjc schema="${schema.dir}/${schema.filename}"
 				destdir="${source_java.dir}"
 				package="${xml.bindings.package}" >
@@ -1034,13 +1064,11 @@
 	<!-- - - - - - - - - target: delete_schemas - - - - - - - - - - - - -->
 	<target name="delete_schemas" >
 		<delete dir="${schema.dir}" />
-		<mkdir dir="${schema.dir}"/>
 	</target>
 
 	<!-- - - - - - - - - target: delete_xmlbinds - - - - - - - - - - - - -->
 	<target name="delete_xmlbinds">
 		<delete dir="${xml.bindings.fullpath}" />
-		<mkdir dir="${xml.bindings.fullpath}" />
 	</target>
 
 

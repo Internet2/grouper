@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.10 2007-08-10 01:18:33 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.11 2007-10-24 21:48:10 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -24,14 +24,44 @@
 	<property file="buildSignet_QS.properties" />
 
 
+	<!-- 
+		SignetXml properties and taskdefs / JAXB-specific Ant tasks
+		This section contains the Ant task definitions for using the JAXB
+		schemagen and xjc utilities.
+		
+		NOTE: Class SchemaGenTask relies on 
+		  com/sun/mirror/apt/AnnotationProcessorFactory
+		which is only available in the JDK (not JRE) libs in file tools.jar.
+		If you experience problems in the schema_gen target you mignt try
+		adding tools.jar to the classpath.
+		1. Uncomment and enter an appropriate value for "tools_jar_path", below.
+		2. Also, uncomment the pathelement in jaxb.jars, below.
+	-->
+	<!-- <property name="tools_jar_path" value="/JavaDev/jdk1.5.0_12/lib/tools.jar" /> -->
+
+	<path id="jaxb.jars" >
+		<fileset dir="${i2mi_common_lib.dir}" includes="activation.jar, jaxb-api.jar, jaxb-impl.jar, jsr173_1.0_api.jar, jaxb-xjc.jar" />
+		<!-- <pathelement path="${tools_jar_path}" /> -->
+	</path>
+
+	<!-- Task to create the binding classes from a schema -->
+	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" >
+		<classpath refid="jaxb.jars" />
+	</taskdef>
+
+	<!-- Task to create a schema file -->
+	<taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask" >
+		<classpath refid="jaxb.jars" />
+	</taskdef>
+
+
 	<!-- ======================== Public Targets =========================== -->
 
 
     <!-- =============== target: quickstart =================== -->
 	<target name="quickstart"
 			description="Create a QuickStart Demo distribution zip and/or gzip"
-			depends="clean, compile, assemble_prod, deploy_prod" >
-		<property file="buildSignetQS.properties" />
+			depends="clean, signetXml, compile, assemble_prod, deploy_prod" >
 	</target>
 
 
@@ -40,7 +70,7 @@
 
 	<!-- - - - - - - - - target: clean - - - - - - - - - -  -->
 	<target name="clean"
-			depends="delete_classes, clean_distdirs" >
+			depends="delete_classes, clean_distdirs, signetxml_clean" >
 	</target>
 
 
@@ -99,7 +129,9 @@
 				edu.internet2.middleware.signet.resource, 
 				edu.internet2.middleware.signet.subjsrc, 
 				edu.internet2.middleware.signet.tree, 
-				edu.internet2.middleware.signet.util"
+				edu.internet2.middleware.signet.util,
+				${xml.bindings.package},
+				${xml.adapter.package}"
 			access="package"
 			author="true"
 			breakiterator="true"
@@ -139,6 +171,57 @@
 			</tarfileset>
 		</tar>
 	</target>
+
+
+	<!-- ======================== target: signetXml ====================== -->
+	<target name="signetXml"
+			description="Create SignetXml libraries: SignetXmlXa.jar and SignetXmlXb.jar."
+			depends="signetxml_clean, schema_gen, bindings_gen" >
+		<tstamp/>
+	</target>
+
+	<!-- =============== target: schema_gen ============================= -->
+	<target name="schema_gen"
+			description="Generate XML Schema from stub source files"
+			depends="delete_schemas" >
+		<tstamp/>
+		<mkdir dir="${schema.dir}"/>
+		<schemagen
+				srcdir="${src.stubs.dir}"
+				includes="**/*.java"
+				destdir="${schema.dir}"
+				classpath="${java.class.path}" >
+			<schema namespace="${signetxml.namespace.value}" file="${schema.filename}" /> 
+		</schemagen>
+		<!-- episode="${schema.dir}/${episode.filename}" -->
+	</target>
+
+	<!-- ================= target: bindings_gen ========================= -->
+	<target name="bindings_gen"
+			description="Generate the XML binding classes from the Schema file"
+			depends="delete_xmlbinds" >
+		<tstamp/>
+		<mkdir dir="${xml.bindings.fullpath}" />
+		<xjc schema="${schema.dir}/${schema.filename}"
+				destdir="${source_java.dir}"
+				package="${xml.bindings.package}" >
+			<produces dir="${xml.bindings.fullpath}"
+				includes="**/*.java" />
+		</xjc>
+	</target>
+
+	<!-- =============== target: signetxml_clean ======================= -->
+	<target name="signetxml_clean"
+			description="Delete any previous build products" 
+			depends="signetxml_delete_jars, delete_schemas, delete_xmlbinds" >
+		<tstamp/>
+	</target>
+
+	<!-- =============== target: signetxml_create_jars ================== -->
+    <target name="signetxml_create_jars"
+			description="Create Adapter and Binder jars"
+			depends="schema_gen, bindings_gen, compile, create_xml_binder_jar, create_xml_adapter_jar" >
+    </target>
 
 
     <!-- - - - - - - - - target: copy_readmes - -->
@@ -385,6 +468,8 @@
 				<include name="SubjectFileLoader/*" />
 				<include name="SubsystemXmlLoader/*" />
 				<include name="TreeXmlLoader/*" />
+				<include name="SignetXml/*" />
+				<exclude name="SignetXml/xmlstubs" />
 				<include name="dist-signet_cp.bat" />
 			</fileset>
 		</copy>
@@ -417,7 +502,7 @@
 
 	<!-- - - - - - - - - target: create_signet_jars - -->
 	<target name="create_signet_jars" 
-			depends="create_signet_api_jar, create_signet_ui_jar, create_signet_util_jar" >
+			depends="create_signet_api_jar, create_signet_ui_jar, create_signet_util_jar, create_xml_binder_jar, create_xml_adapter_jar" >
 	</target>
 
 
@@ -467,6 +552,56 @@
 		<jar destfile="${signet.jar.util}" >
 			<fileset dir="${classes.dir}" >
 				<include name="${signet.jar.util.files}" />
+			</fileset>
+		</jar>
+	</target>
+
+
+	<!-- - - - - - - - - target: create_xml_binder_jar - - - - - - - - - -->
+	<target name="create_xml_binder_jar"
+			description="Create Signet XML Bindings jar, SignetXmlXb.jar" >
+		<jar destfile="${signet.jar.xmlbind}" > 
+			<manifest>
+				<section name="edu/internet2/middleware/signet/xml/binder" >
+					<attribute name="Built-By"                value="${user.name}"/>
+					<attribute name="Implementation-Title"    value="${signet_basename}" />
+					<attribute name="Implementation-Version"  value="${signet_version}" />
+					<attribute name="Implementation-BuildDate" value="${TODAY}" />
+					<attribute name="Implementation-Vendor"   value="${signet_vendor}" />
+					<attribute name="Implementation-URL"      value="${signet_url}" />
+					<attribute name="Dependencies" value="Standard Java JRE and JAXB, NOT dependent on any Signet jars." />
+				</section>
+			</manifest>
+			<fileset dir="${classes.dir}" >
+				<include name="${xml.bindings.relpath}/*" />
+			</fileset>
+			<fileset dir="${basedir}" >
+				<include name="${schema.dir}/${schema.filename}"/>
+			</fileset>
+		</jar>
+	</target>
+
+	<!-- - - - - - - - - target: create_xml_adapter_jar - - - - - - - - - -->
+	<target name="create_xml_adapter_jar"
+			description="Create Signet XML Adapters jar, SignetXmlXa.jar" >
+		<jar destfile="${signet.jar.xmladapt}" > 
+			<manifest> 
+				<attribute name="Main-Class" value="${signetxml.main.path}.${signetxml.main.class}" />
+				<section name="edu/internet2/middleware/signet/xml/adapter" >
+					<attribute name="Built-By"                value="${user.name}"/>
+					<attribute name="Implementation-Title"    value="${signet_basename}" />
+					<attribute name="Implementation-Version"  value="${signet_version}" />
+					<attribute name="Implementation-BuildDate" value="${TODAY}" />
+					<attribute name="Implementation-Vendor"   value="${signet_vendor}" />
+					<attribute name="Implementation-URL"      value="${signet_url}" />
+					<attribute name="Dependencies" value="Standard Java JRE, JAXB, ${signet.jar.api}." />
+				</section>
+			</manifest>
+			<fileset dir="${classes.dir}" >
+				<include name="${signetxml.main.relpath}/*.class" />
+			</fileset>
+			<fileset dir="${classes.dir}" >
+				<include name="${xml.adapter.relpath}/*" />
 			</fileset>
 		</jar>
 	</target>
@@ -992,6 +1127,24 @@
 			</or>
 		</condition>
 	</target>
+
+
+	<!-- - - - - - - - - target: signetxml_delete_jars - - - - - - - - - -->
+    <target name="signetxml_delete_jars">
+		<delete file="${signet.jar.xmlbind}" />
+    	<delete file="${signet.jar.xmladapt}" />
+    </target>
+
+	<!-- - - - - - - - - target: delete_schemas - - - - - - - - - - - - -->
+	<target name="delete_schemas" >
+		<delete dir="${schema.dir}" />
+	</target>
+
+	<!-- - - - - - - - - target: delete_xmlbinds - - - - - - - - - - - - -->
+	<target name="delete_xmlbinds">
+		<delete dir="${xml.bindings.fullpath}" />
+	</target>
+
 
 </project>
 

@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.67 2007-08-07 23:26:19 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.68 2007-10-24 21:48:10 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -265,7 +265,7 @@ public final class Signet implements Serializable
    else
 		scopesDisplay.append(ancestorPrefix);
    
-   scopesDisplay.append(treeNode);
+   scopesDisplay.append(treeNode.getScopePath());
    scopesDisplay.append(infix);
    scopesDisplay.append(treeNode.getName());
    scopesDisplay.append(suffix);

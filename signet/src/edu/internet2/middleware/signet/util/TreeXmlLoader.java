@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.12 2007-07-31 09:22:08 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/TreeXmlLoader.java,v 1.13 2007-10-24 21:48:10 ddonn Exp $
 TreeXmlLoader.java
 Created on Feb 22, 2005
 
@@ -46,6 +46,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import edu.internet2.middleware.signet.SignetFactory;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeAdapter;
@@ -1064,6 +1065,26 @@ public class TreeXmlLoader
       return this.id.compareTo(otherNode.getId());
     }
     
+  /**
+   * Returns a String of the form {treeAdapterClassName}:{treeId}:{nodeId}
+   * This is used by UI code to determine which node from the Select Scope tree
+   * was selected.
+   */
+	public String getScopePath()
+	{
+		StringBuffer buf = new StringBuffer();
+
+		Tree tree = getTree(); // just in case it's not pre-fetched
+		buf.append(tree.getAdapter().getClass().getName());
+		buf.append(SignetFactory.SCOPE_PART_DELIMITER);
+		buf.append(tree.getId());
+		buf.append(SignetFactory.SCOPE_PART_DELIMITER);
+		buf.append(getId());
+
+		return (buf.toString());
+	}
+
+
     public int hashCode()
     {
       return this.id.hashCode();
@@ -1092,7 +1113,7 @@ public class TreeXmlLoader
 		String[] fileargs = parseArgs(args);
 		if (1 > fileargs.length)
 		{
-			System.out.println("Signet TreeXmlLoader, $Revision: 1.12 $");
+			System.out.println("Signet TreeXmlLoader, $Revision: 1.13 $");
 			System.out.println("Usage:\n\tTreeXmlLoader [-q] <inputfile> [inputfile] ...");
 			System.out.println("\t\t-q : Quiet, do not prompt on overwrite");
 			System.out.println("\t\tinputfile : a file containing Signet Tree data");

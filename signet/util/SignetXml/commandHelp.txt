@@ -1,7 +1,7 @@
 SignetXml [options] command [command-args]
 
     options
-        -c[=commandFile] : read commands from the specified file. Each line in
+       * -c[=commandFile] : read commands from the specified file. Each line in
             the file corresponds to a separate command (i.e. export, append,
             or import). If no commandFile is specified, stdin is used. All
             options and commands following -c are ignored.
@@ -28,7 +28,7 @@ SignetXml [options] command [command-args]
 
         subjId="subject Id" : selects assignments for specified subject
         subjId*=all : selects assignments for all subjects (default)
-        subjId*="subj 1, subj2, ..., subject n" : selects assignments for each
+        subjId="subj 1, subj2, ..., subject n" : selects assignments for each
             subject in the comma-separated list
 
         scopeId*="scope Id" : selects all assignments for given scope
@@ -39,21 +39,21 @@ SignetXml [options] command [command-args]
         functionId*="func 1, func2, func n, ..." : selects assignments for each
             specified function in the comma-separated list
 
-	'export permission' command-args
+	'export permission'* command-args
 
-	'export proxy' command-args
+	'export proxy'* command-args
 
-	'export scopeTree' command-args
+	'export scopeTree'* command-args
 		treeId="tree id"
 		treeId=all
 		subsystemId="subsystem id"
 		functionId="function id"
 
-    'export subject*' command-args
+    'export subject'* command-args
 
-    'export proxy*' command-args
+    'export proxy'* command-args
 
-    'import*' command-args
+    'import'* command-args
         add | update | deactivate | delete
 
   Examples:
@@ -75,3 +75,4 @@ SignetXml [options] command [command-args]
 
 -------------
 * = Not implemented yet.
+
