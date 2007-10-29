@@ -31,7 +31,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.5 2007-08-27 17:49:26 blair Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.6 2007-10-29 15:09:33 shilen Exp $
  * @since   1.2.0
  */
 public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
@@ -131,8 +131,8 @@ public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,Member
         + "and  m.subjectSourceId = :source "
         + "and  m.subjectTypeId   = :type"
       );
-      qry.setCacheable(false); // but i probably should - or at least permit it
-      //qry.setCacheRegion(KLASS + ".FindBySubject");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindBySubject");
       qry.setString( "sid",    id   );
       qry.setString( "type",   type );
       qry.setString( "source", src  );
