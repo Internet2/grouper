@@ -20,6 +20,8 @@ package edu.internet2.middleware.grouper.ui;
 import java.util.*;
 import javax.servlet.http.*;
 
+import org.w3c.dom.Document;
+
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.ui.util.*;
 
@@ -29,7 +31,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.9 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.10 2007-10-30 10:53:06 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -170,6 +172,37 @@ public class SessionInitialiser {
 		session.setAttribute("fieldList",GrouperHelper.getFieldsAsMap(chainedBundle));
 		session.setAttribute("MembershipExporter",new MembershipExporter(chainedMediaBundle));
 		session.setAttribute("MembershipImportManager",new MembershipImportManager(chainedMediaBundle,chainedBundle));
+		Document doc = null;
+		try {
+			doc = DOMHelper.getDomFromResourceOnClassPath("resources/grouper/ui-permissions.xml");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		if(doc==null) {
+			doc=DOMHelper.newDocument();
+		}
+		if(s==null) return;
+		UiPermissions uip = new UiPermissions(s,doc);
+		session.setAttribute("uiPermissions", uip);
+		Set menuFilters = new LinkedHashSet();
+		session.setAttribute("menuFilters",menuFilters);
+		String mFilters = null;
+		try {
+			mFilters=chainedMediaBundle.getString("menu.filters");
+			String[] parts = mFilters.split(" ");
+			Class claz;
+			MenuFilter filter;
+			for(int i=0;i<parts.length;i++) {
+				try {
+					claz=Class.forName(parts[i]);
+					filter=(MenuFilter)claz.newInstance();
+					menuFilters.add(filter);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		}catch(Exception e){}
+		
 	}
 
 	/**
@@ -184,6 +217,30 @@ public class SessionInitialiser {
 		GrouperSession s = (GrouperSession) session
 				.getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
 		return s;
+	}
+	
+	/**
+	 * Proper way to get UiPermissions from HttpSession
+	 * 
+	 * @param session
+	 *            current HttpSession
+	 * @return the current UiPermissions
+	 */
+	public static UiPermissions getUiPermissions(HttpSession session) {
+		UiPermissions uip = (UiPermissions)session.getAttribute("uiPermissions");
+		return uip;
+	}
+	
+	/**
+	 * Proper way to get MenuFilters from HttpSession
+	 * 
+	 * @param session
+	 *            current HttpSession
+	 * @return the current MenuFilters
+	 */
+	public static Set getMenuFilters(HttpSession session) {
+		Set mf = (Set)session.getAttribute("menuFilters");
+		return mf;
 	}
 
 	/**

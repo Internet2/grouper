@@ -166,7 +166,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.11 2007-03-21 11:47:24 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.12 2007-10-30 10:53:06 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -454,6 +454,8 @@ public abstract class GrouperCapableAction
 		}else{
 			session.setAttribute("activeWheelGroupMember",Boolean.FALSE);
 		}
+		//Ensure the menu is recalculated if switching admin mode
+		session.removeAttribute("cachedMenu");
 	}	
 	
 	

@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.35 2007-10-18 08:40:06 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.36 2007-10-30 10:53:06 isgwb Exp $
  */
 
 
@@ -2790,7 +2790,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groups
 	 * @param subject
-	 * @return
+	 * @return filtered List
 	 */
 	public static List filterGroupsForSubject(GrouperSession s,List groups,Subject subject) {
 		List ok = new ArrayList();
@@ -2821,7 +2821,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groups
 	 * @param subject
-	 * @return
+	 * @return a List of embellished groups
 	 */
 	public static List embellishGroupMapsWithSubjectPrivs(GrouperSession s,List groups,Subject subject) throws Exception{
 		
@@ -2846,13 +2846,20 @@ public class GrouperHelper {
 	 * Rather than force a client to  call getMember which involves a SQL query
 	 * expose the memberUuid where that is sufficient
 	 * @param m
-	 * @return
+	 * @return memberUuid
 	 */
 	public static String getMemberUuid(Membership m) {
 		return m.getMemberUuid();
 	}
 	
+
+	public static boolean isRoot(GrouperSession s) {
+		return PrivilegeHelper.isRoot(s);
+	}
 	
+	public static GrouperSession getRootGrouperSession(GrouperSession s) {
+		return s.internal_getRootSession();	
+	}
 	
 	
 	/*public static List query(String sql) throws Exception{
