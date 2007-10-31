@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.36 2007-10-30 10:53:06 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.37 2007-10-31 09:53:37 isgwb Exp $
  */
 
 
@@ -2288,7 +2288,7 @@ public class GrouperHelper {
 		if(count==null) return;
 		MembershipAsMap mMap;
 		Map gMap;
-		Map sMap;
+		//Map sMap;
 		
 		String id;
 		Integer curCount;
@@ -2296,7 +2296,7 @@ public class GrouperHelper {
 		for(int i=0;i<membershipMaps.size();i++) {
 			mMap = (MembershipAsMap)membershipMaps.get(i);
 			gMap = (Map)mMap.get("group");
-			sMap = (Map)mMap.get("subject");
+			//sMap = (Map)mMap.get("subject");
 		
 			if("subject".equals(type)){
 				id = (String)gMap.get("id");

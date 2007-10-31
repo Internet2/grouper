@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2007 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -31,13 +32,14 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.8 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: GroupAsMap.java,v 1.9 2007-10-31 09:53:37 isgwb Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
 	protected Group group = null;
 	protected String objType="GrouperGroup";
 	private GrouperSession grouperSession = null;
+	private static Source source;
 	
 	/**
 	 * @param group GrouperGroup to wrap
@@ -52,18 +54,11 @@ public class GroupAsMap extends ObjectAsMap {
 		put("subjectType","group");
 		put("isGroup",Boolean.TRUE);
 		put("id",group.getUuid());
-		put("stem",group.getParentStem().getName());
+		
 		put("groupId",group.getUuid());
 		put("subjectId",group.getUuid());
 		put("desc",get("displayExtension"));
-		put("composite", new Boolean(group.hasComposite()));
-		try {
-			Subject subj = SubjectFinder.findById(group.getUuid(),"group");
-			//put("source",subj.getSource().getName());
-			put("source",subj.getSource());
-		}catch(Exception e) {
-			
-		}
+		
 	}
 	
 	/* (non-Javadoc)
@@ -75,8 +70,26 @@ public class GroupAsMap extends ObjectAsMap {
 		
 		if(obj==null) {
 			//No value, so check the wrapped group
+			if("composite".equals(key)) {
+				obj = new Boolean(group.hasComposite());
+				put(key,obj);
+			}else if("stem".equals(key)) {
+				obj=group.getParentStem().getName();
+				put(key,obj);
+			}else if("source".equals(key)) {
+				if(source==null) {
+					try {
+						source=group.toSubject().getSource();
+					}catch(Exception e) {
+						
+					}
+					put("source",source);
+				}
+				return source;
+			}
+			if(obj!=null) return obj;
 			try{
-			obj = group.getAttribute((String)key);
+				obj = group.getAttribute((String)key);
 			}catch(Exception e){}
 			
 		}
