@@ -28,7 +28,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: GrouperAllAccessResolver.java,v 1.4 2007-11-02 10:42:43 isgwb Exp $
  * @since   1.2.1
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
@@ -78,7 +78,13 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
     throws  IllegalArgumentException
   {
     // TODO 20070820 include GrouperAll privs?
-    return super.getDecoratedResolver().getPrivileges(group, subject);
+    //2007-11-02 Gary Brown
+    //I assume this is what blair intended - have removed
+    //the All privileges from the GrouperAccessAdapter
+    
+	  Set<Privilege> allPrivs = super.getDecoratedResolver().getPrivileges(group, this.all);
+	  allPrivs.addAll(super.getDecoratedResolver().getPrivileges(group, subject));
+    return allPrivs;
   }
 
   /**
