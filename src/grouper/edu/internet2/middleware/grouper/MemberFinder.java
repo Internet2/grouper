@@ -24,9 +24,14 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.46 2007-04-18 15:02:11 blair Exp $
+ * @version $Id: MemberFinder.java,v 1.47 2007-11-02 10:30:02 isgwb Exp $
  */
 public class MemberFinder {
+	
+	//Added by Gary Brown 2007-11-02
+	//GouperAll / GrouperSystem ought not to change...
+	private static Member all;
+	private static Member root;
 
   // PUBLIC CLASS METHODS //
 
@@ -88,8 +93,10 @@ public class MemberFinder {
   protected static Member internal_findAllMember() 
     throws  GrouperRuntimeException
   {
+	  if(all !=null) return all;
     try {
-      return MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject() ); 
+      all= MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject() ); 
+      return all;
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.MEMBERF_FINDALLMEMBER + eMNF.getMessage();
@@ -102,8 +109,10 @@ public class MemberFinder {
   protected static Member internal_findRootMember() 
     throws  GrouperRuntimeException
   {
+	if(root != null) return root;
     try {
-      return MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject() ); 
+      root= MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject() ); 
+      return root;
     }
     catch (MemberNotFoundException eShouldNeverHappen) {
       String msg = "unable to fetch GrouperSystem as member: " + eShouldNeverHappen.getMessage();
