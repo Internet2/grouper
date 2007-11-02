@@ -16,12 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
 import  edu.internet2.middleware.grouper.cache.CacheStats;
 import  edu.internet2.middleware.grouper.cache.EhcacheController;
 import  edu.internet2.middleware.subject.Subject;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import  java.util.Set;
 import  net.sf.ehcache.Element;
 import  org.apache.commons.collections.keyvalue.MultiKey;
@@ -31,7 +36,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.5 2007-11-02 10:45:04 isgwb Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -95,8 +100,26 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   public Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
-    // TODO 20070816 add caching
-    return super.getDecoratedResolver().getPrivileges(group, subject);
+    //2007-11-02 Gary Brown
+    //https://bugs.internet2.edu/jira/browse/GRP-30
+    //Needs to return actual privileges but also
+    //cache true/false for each possible Privilege
+	Set<Privilege> privs = super.getDecoratedResolver().getPrivileges(group, subject);
+	Map<String, Object> privsMap = new HashMap<String, Object>();
+	AccessPrivilege ap = null;
+	Iterator it = privs.iterator();
+	while(it.hasNext()) {
+		ap = (AccessPrivilege) it.next();
+		privsMap.put(ap.getName(), null);
+	}
+	Set<Privilege> accessPrivs = Privilege.getAccessPrivs();
+	Iterator<Privilege> accessPrivsIterator = accessPrivs.iterator();
+	Privilege p=null;
+	while(accessPrivsIterator.hasNext()) {
+		p=accessPrivsIterator.next();
+		putInHasPrivilegeCache(group, subject, p, new Boolean(privsMap.containsKey(p.getName())));
+	}
+    return privs;
   }
 
   /**
@@ -141,9 +164,19 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   {
     Boolean rv = this.getFromHasPrivilegeCache(group, subject, privilege);
     if (rv == null) {
-      rv = super.getDecoratedResolver().hasPrivilege(group, subject, privilege);
-      this.putInHasPrivilegeCache(group, subject, privilege, rv);
+      //2007-11-02 Gary Brown
+      //https://bugs.internet2.edu/jira/browse/GRP-30
+      //Get all the privileges - which will then be cached
+      //on the assumption we will be checking other privileges
+      getPrivileges(group, subject);
+      //must be in the cache now
+      rv = this.getFromHasPrivilegeCache(group, subject, privilege);
     }
+    //Hopefully redundant
+    if (rv == null) {
+        rv = super.getDecoratedResolver().hasPrivilege(group, subject, privilege);
+        this.putInHasPrivilegeCache(group, subject, privilege, rv);
+      }
     return rv;
   }
 
