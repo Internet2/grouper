@@ -24,15 +24,20 @@ import  edu.internet2.middleware.grouper.GroupFinder;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.SubjectFinder;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
+
+import net.sf.ehcache.Element;
+
+import org.apache.commons.collections.keyvalue.MultiKey;
 
 
 /**
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.5 2007-11-02 09:45:46 isgwb Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -40,6 +45,11 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 
   private boolean useWheel    = false;
   private Group   wheelGroup;
+  //2007-11-02 Gary Brown
+  //Provide cache for wheel group members
+  //Profiling showed lots of time rechecking memberships
+  public  static final  String            CACHE_IS_WHEEL_MEMBER = WheelAccessResolver.class.getName() + ".isWheelMember";
+  private               EhcacheController cc;
 
 
   
@@ -48,6 +58,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
    */
   public WheelAccessResolver(AccessResolver resolver) {
     super(resolver);
+    this.cc = new EhcacheController();
     // TODO 20070816 this is ugly
     this.useWheel = Boolean.valueOf( this.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue();
     // TODO 20070816 and this is even worse
@@ -125,7 +136,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
     throws  IllegalArgumentException
   {
     if (this.useWheel) {
-      if ( this.wheelGroup.hasMember(subject) ) {
+      if ( isWheelMember(subject) ) {
         return true;
       }
     }
@@ -153,7 +164,41 @@ public class WheelAccessResolver extends AccessResolverDecorator {
             UnableToPerformException
   {
     super.getDecoratedResolver().revokePrivilege(group, subject, privilege);
-  }            
+  } 
+  
+  /**
+   * Retrieve boolean from cache for <code>isWheelMember(...)</code>.
+   * @return  Cached return value or null.
+   * @since   1.2.1
+   */
+  private Boolean getFromIsWheelMemberCache(Subject subj) {
+    Element el = this.cc.getCache(CACHE_IS_WHEEL_MEMBER).get(subj);
+    if (el != null) {
+      return (Boolean) el.getObjectValue();
+    }
+    return null;
+  }
+  
+  /**
+   * Put boolean into cache for <code>isWheelMember(...)</code>.
+   * @since   1.2.1
+   */
+  private void putInHasPrivilegeCache(Subject subj,  Boolean rv) {
+    this.cc.getCache(CACHE_IS_WHEEL_MEMBER).put( new Element( subj,rv) );
+  }
+  
+  /**
+   * Put boolean into cache for <code>isWheelMember(...)</code>.
+   * @since   1.2.1
+   */
+  private boolean isWheelMember(Subject subj) {
+	  Boolean rv = getFromIsWheelMemberCache(subj);
+	  if(rv==null) {
+		  rv = this.wheelGroup.hasMember(subj);
+		  putInHasPrivilegeCache(subj, rv);
+	  }
+	  return rv;
+  }
 
 }
 
