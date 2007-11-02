@@ -16,12 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.SubjectFinder;
 import  edu.internet2.middleware.grouper.SubjectHelper;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
 import  edu.internet2.middleware.subject.Subject;
+
+import java.util.HashSet;
 import  java.util.Set;
 
 
@@ -29,7 +34,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemAccessResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: GrouperSystemAccessResolver.java,v 1.4 2007-11-02 10:28:39 isgwb Exp $
  * @since   1.2.1
  */
 public class GrouperSystemAccessResolver extends AccessResolverDecorator {
@@ -75,7 +80,22 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
    */
   public Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
-  {
+  { 
+    //2007-11-02 Gary Brown
+    //If you are the root user you automatically have
+    //all Access privileges
+	  if ( SubjectHelper.eq( this.root, subject ) ) {
+	      Set<Privilege> privs = Privilege.getAccessPrivs();
+	      Set accessPrivs = new HashSet();
+	      AccessPrivilege ap = null;
+	      for(Privilege p : privs) {
+	    	//Not happy about the klass but will do for now in the absence of a GrouperSession
+	    	ap = new AccessPrivilege(group,subject,subject,p,GrouperConfig.getProperty("privileges.access.interface"),false);
+	    	accessPrivs.add(ap);
+	      }
+	      
+	      return accessPrivs;
+	    }
     return super.getDecoratedResolver().getPrivileges(group, subject);
   }
 
