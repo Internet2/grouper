@@ -23,10 +23,26 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.15 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.16 2007-11-02 10:40:27 isgwb Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
+	
+	// PRIVATE CLASS VARIABLES //
+	  private static Map<String,Privilege> list2priv = new HashMap();
+
+
+	  // STATIC //
+	  //2007-11-02 Gary Brown
+	  //Not ideal but need to lookup privilege for list
+	  static {
+	    list2priv.put( "admins",  AccessPrivilege.ADMIN      );
+	    list2priv.put( "optins",  AccessPrivilege.OPTIN    );
+	    list2priv.put( "optouts", AccessPrivilege.OPTOUT   );
+	    list2priv.put( "readers", AccessPrivilege.READ   );
+	    list2priv.put( "updaters",AccessPrivilege.UPDATE   );
+	    list2priv.put( "viewers",AccessPrivilege.VIEW      );
+	  } // static
 
   // PROTECTED CLASS METHODS //
 
@@ -41,6 +57,9 @@ class GrouperPrivilegeAdapter {
   } // protected static Field internal_getField(priv2list, p)
 
   // @since   1.2.0
+  //2007-11-02 Gary Brown
+  //If p==null determine by looking at the Membership list
+  //Discard those which are not privileges i.e. members / custom lists
   protected static Set internal_getPrivs(
     GrouperSession s, Subject subj, Member m, Privilege p, Iterator it
   )
@@ -51,10 +70,19 @@ class GrouperPrivilegeAdapter {
     Subject     owner   = subj;
     Set         privs   = new LinkedHashSet();
     boolean     revoke  = true;
+    Privilege localP = null;
     while (it.hasNext()) {
       ms = new Membership();
       ms.setDTO( (MembershipDTO) it.next() );
       ms.setSession(s);
+      if(p!=null) {
+    	  localP=p;
+      }else{
+    	  localP=list2priv.get(ms.getList().getName());
+      }
+      
+      //Since we are getting everything, could get members or custom lists which do not correspond to privileges
+      if(localP==null) continue;
       try {
         if (!SubjectHelper.eq(m.getSubject(), subj)) {
           owner   = m.getSubject();
@@ -74,14 +102,14 @@ class GrouperPrivilegeAdapter {
         }
       }
       try {
-        if (Privilege.isAccess(p))  {
+        if (Privilege.isAccess(localP))  {
           privs.add(
-            new AccessPrivilege(ms.getGroup(), subj, owner, p, s.getAccessClass(), revoke)
+            new AccessPrivilege(ms.getGroup(), subj, owner, localP, s.getAccessClass(), revoke)
           );
         }
         else                        {
           privs.add(
-            new NamingPrivilege( ms.getStem(), subj, owner, p, s.getNamingClass(), revoke )
+            new NamingPrivilege( ms.getStem(), subj, owner, localP, s.getNamingClass(), revoke )
           );
         }
       }
