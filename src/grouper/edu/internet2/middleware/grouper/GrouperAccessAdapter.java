@@ -34,7 +34,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.61 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.62 2007-11-02 10:40:27 isgwb Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -149,17 +149,22 @@ public class GrouperAccessAdapter implements AccessAdapter {
       Field         f;
       Privilege     p;
       Iterator      it;
-      Iterator      iterP = Privilege.getAccessPrivs().iterator();
-      while (iterP.hasNext()) {
-        p   = (Privilege) iterP.next();
-        f   = GrouperPrivilegeAdapter.internal_getField(priv2list, p);
-        it  = dao.findAllByOwnerAndMemberAndField( g.getUuid(), ( (MemberDTO) m.getDTO() ).getUuid(), f ).iterator();
-        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, m, p, it) );
-        if (!m.equals(all)) {
+
+		
+	   //2007-11-02 Gary Brown
+	   //Avoid doing 6 queries - get everything at once
+	   //Also don't add GropuperAll privs - do that in 
+	   //GrouperAllAccessResolver
+       f   = GrouperPrivilegeAdapter.internal_getField(priv2list, p);
+        it  = dao.findAllByOwnerAndMember( g.getUuid(), ( (MemberDTO) m.getDTO() ).getUuid()).iterator(); 
+        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, m, null, it) );
+        /*
+         * Done through GrouperAllAccessAdapter
+         * if (!m.equals(all)) {
           it  = dao.findAllByOwnerAndMemberAndField( g.getUuid(), ( (MemberDTO) all.getDTO() ).getUuid(), f ).iterator();
           privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, all, p, it) );
-        }
-      }
+        }*/
+     
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.GPA_MNF + eMNF.getMessage();

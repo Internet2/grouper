@@ -23,6 +23,7 @@ import  edu.internet2.middleware.grouper.MembershipNotFoundException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
@@ -37,7 +38,7 @@ import  org.hibernate.*;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.2 2007-11-02 10:40:27 isgwb Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -519,6 +520,37 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     return mships;
   } 
+  
+  /**
+   * @since   1.2.1
+   */
+  public Set findAllByOwnerAndMember(String ownerUUID, String memberUUID) 
+    throws  GrouperDAOException
+  {
+	//Added by Gary Brown 2007-11-01 so that getPrivs can do one query rather than 6
+    Set mships = new LinkedHashSet();
+    try {
+      Session hs  = Hib3DAO.getSession();
+      Query   qry = hs.createQuery(
+        "from HibernateMembershipDAO as ms where  "
+        + "     ms.ownerUuid   = :owner            "  
+        + "and  ms.memberUuid  = :member           "
+      );
+      qry.setCacheable(false);
+      qry.setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField");
+      qry.setString( "owner",  ownerUUID              );
+      qry.setString( "member", memberUUID             );
+      Iterator it = qry.list().iterator();
+      while (it.hasNext()) {
+        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
+      }
+      hs.close();
+    }
+    catch (HibernateException eH) {
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return mships;
+  }
 
   /**
    * @since   @HEAD@
