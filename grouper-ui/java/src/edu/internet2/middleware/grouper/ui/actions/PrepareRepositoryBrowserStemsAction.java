@@ -213,7 +213,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.10 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.11 2007-11-05 13:58:49 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -227,7 +227,10 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		
 		DynaActionForm browseForm = (DynaActionForm) form;
 		String browseMode = getBrowseMode(session);
-		RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance(browseMode,grouperSession,getNavResources(request),getMediaResources(request));
+		RepositoryBrowser repositoryBrowser = (RepositoryBrowser)request.getAttribute("re-entrantBrowser");
+		if(repositoryBrowser==null) {
+			repositoryBrowser=RepositoryBrowserFactory.getInstance(browseMode,grouperSession,getNavResources(request),getMediaResources(request));
+		}
 		Group curNodeGroup = null;
 		Stem curNodeStem = null;
 		GroupOrStem curGroupOrStem =null;
@@ -374,6 +377,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				if(!wStem.hasStem(grouperSession.getSubject())
 						&&!wStem.hasCreate(grouperSession.getSubject())) {
 					((DynaActionForm)form).set("currentNode",stemId);
+					request.setAttribute("re-entrantBrowser",repositoryBrowser);
 					return grouperExecute(mapping,form,request,response,session,grouperSession);
 				}
 			}
