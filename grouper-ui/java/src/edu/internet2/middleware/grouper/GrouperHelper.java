@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.37 2007-10-31 09:53:37 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.38 2007-11-06 16:46:06 isgwb Exp $
  */
 
 
@@ -1147,13 +1147,12 @@ public class GrouperHelper {
 		if(displayResults==null && nonDisplayResults==null) return new ArrayList();
 		if(displayResults==null && nonDisplayResults!=null) return nonDisplayResults;
 		if(displayResults!=null && nonDisplayResults==null) return displayResults;
-		Object obj;
-		for(int i=0;i<nonDisplayResults.size();i++) {
-			obj = nonDisplayResults.get(i);
-			if(!displayResults.contains(obj)) displayResults.add(obj);
-		}
+		Set unique = new HashSet();
+		unique.addAll(displayResults);
+		unique.addAll(nonDisplayResults);
+
 			
-		return displayResults;
+		return new ArrayList(unique);
 		
 	}
 
