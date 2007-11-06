@@ -34,7 +34,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.63 2007-11-02 10:48:36 isgwb Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.64 2007-11-06 16:52:15 isgwb Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -154,7 +154,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
 	   //Also don't add GropuperAll privs - do that in 
 	   //GrouperAllAccessResolver
         it  = dao.findAllByOwnerAndMember( g.getUuid(), ( (MemberDTO) m.getDTO() ).getUuid()).iterator(); 
-        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, m, null, it) );
+        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, g,subj, m, null, it) );
         /*
          * Done through GrouperAllAccessAdapter
          * if (!m.equals(all)) {

@@ -23,7 +23,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.16 2007-11-02 10:40:27 isgwb Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.17 2007-11-06 16:52:15 isgwb Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -60,8 +60,10 @@ class GrouperPrivilegeAdapter {
   //2007-11-02 Gary Brown
   //If p==null determine by looking at the Membership list
   //Discard those which are not privileges i.e. members / custom lists
+  //Added Owner to signature so we don't need to compute it 
+  //consequently all Memberships must be of the same Owner
   protected static Set internal_getPrivs(
-    GrouperSession s, Subject subj, Member m, Privilege p, Iterator it
+    GrouperSession s, Owner ownerGroupOrStem,Subject subj, Member m, Privilege p, Iterator it
   )
     throws  SchemaException
   {
@@ -101,24 +103,18 @@ class GrouperPrivilegeAdapter {
           ErrorLog.error( GrouperPrivilegeAdapter.class, eGNF.getMessage() );
         }
       }
-      try {
+      
         if (Privilege.isAccess(localP))  {
           privs.add(
-            new AccessPrivilege(ms.getGroup(), subj, owner, localP, s.getAccessClass(), revoke)
+            new AccessPrivilege((Group)ownerGroupOrStem, subj, owner, localP, s.getAccessClass(), revoke)
           );
         }
-        else                        {
+        else{
           privs.add(
-            new NamingPrivilege( ms.getStem(), subj, owner, localP, s.getNamingClass(), revoke )
+            new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, s.getNamingClass(), revoke )
           );
         }
-      }
-      catch (GroupNotFoundException eGNF) {
-        ErrorLog.error(GrouperPrivilegeAdapter.class, eGNF.getMessage());
-      }
-      catch (StemNotFoundException eNSNF) {
-        ErrorLog.error(GrouperPrivilegeAdapter.class, eNSNF.getMessage());
-      }
+
     }
     return privs;
   } // protected Set internal_getPrivs(s, subj, m, p, it)
