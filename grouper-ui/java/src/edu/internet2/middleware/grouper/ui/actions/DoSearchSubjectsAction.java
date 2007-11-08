@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
+import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -110,7 +112,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.8 2007-03-27 12:09:24 isgwb Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.9 2007-11-08 14:40:03 isgwb Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 
@@ -125,6 +127,8 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
+		
+		System.out.println("*********************");
 		DynaActionForm searchForm = (DynaActionForm)form;
 		String browseMode = getBrowseMode(session);
 		if (browseMode == null)
@@ -155,11 +159,20 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		session.setAttribute("lastSubjectSource",sourceId);
 		
 		String searchTerm = (String) searchForm.get("searchTerm");
-		if("all".equals(sourceId)) {
-			results=SubjectFinder.findAll(searchTerm);
-		}else{
-			Source source = sm.getSource(sourceId);
-			results = source.search(searchTerm);
+		
+		if ((searchTerm != null) && (!searchTerm.equals(""))) {
+			if("all".equals(sourceId)) {
+				results=SubjectFinder.findAll(searchTerm);
+			}else{
+				
+					Source source = sm.getSource(sourceId);
+					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
+					String processedSearchTerm = processSearchTerm.processSearchTerm(source, searchTerm, request);
+					results = source.search(processedSearchTerm);
+				
+			}
+		} else {
+			results = new LinkedHashSet();
 		}
 		Map addAttr = new HashMap();
 		addAttr.put("returnTo","/doSearchSubjects.do");

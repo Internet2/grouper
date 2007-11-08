@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
+import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -175,7 +177,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.7 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.8 2007-11-08 14:40:03 isgwb Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -260,13 +262,21 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			//TODO: implement true subject interface when available
 			//Do search  + get page worth of results
 			Set results = null;
-			if("all".equals(subjectSource)) {
-				results = SubjectFinder.findAll(query);
-			}else{
-				SourceManager sm= SourceManager.getInstance();
-				Source personSourceImpl = sm.getSource(subjectSource);
-				
-				results = personSourceImpl.search(query);
+			
+			if ((query != null) && (!query.equals(""))) {
+				if("all".equals(subjectSource)) {
+					results = SubjectFinder.findAll(query);
+				}else{
+					SourceManager sm= SourceManager.getInstance();
+					Source personSourceImpl = sm.getSource(subjectSource);
+					
+					ProcessSearchTerm processSearchTerm = new ProcessSearchTerm();
+					String processedSearchTerm = processSearchTerm.processSearchTerm(personSourceImpl, query, request);
+					
+					results = personSourceImpl.search(processedSearchTerm);
+				}
+			} else {
+				results = new LinkedHashSet();
 			}
 			subjectRes = GrouperHelper.subjects2Maps(results.toArray());
 			resultSize = subjectRes.size();
