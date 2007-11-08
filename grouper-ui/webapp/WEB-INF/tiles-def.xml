@@ -689,6 +689,12 @@
 	  </description>
 	 </definition>
 	 
+	 <definition name="subjectSearchGroupFragmentDef" path="/WEB-INF/jsp/subjectSearchGroupFragment.jsp">
+		<description>
+			Called from subject search pages to allow source specific search screen
+	  </description>
+	 </definition>
+	 
 	 <definition name="groupMathHelpDef" path="/WEB-INF/jsp/groupMathHelp.jsp">
 		<description>
 			Help text for Group Math
