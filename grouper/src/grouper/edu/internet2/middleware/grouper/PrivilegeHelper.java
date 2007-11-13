@@ -29,7 +29,7 @@ import  java.util.Set;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.5 2007-10-17 14:54:52 isgwb Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.6 2007-11-13 13:43:39 shilen Exp $
  * @since   1.2.1
  */
 class PrivilegeHelper {
@@ -176,7 +176,13 @@ class PrivilegeHelper {
     Group     g;
     Iterator  it      = candidates.iterator();
     while (it.hasNext()) {
-      g = (Group) new Group().setDTO( (GroupDTO) it.next() );
+      Object obj = it.next();
+      if (obj instanceof GroupDTO) {
+        g = (Group) new Group().setDTO( (GroupDTO) obj );
+      }
+      else {
+        g = (Group) obj;
+      }
       g.setSession(s);
       if ( canView( s, g, s.getSubject() ) ) {
         groups.add(g);
