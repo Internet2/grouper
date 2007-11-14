@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.38 2007-11-06 16:46:06 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.39 2007-11-14 17:00:38 isgwb Exp $
  */
 
 
@@ -1128,7 +1128,7 @@ public class GrouperHelper {
 		List displayResults = null;
 		List nonDisplayResults=null; 
 		String attr = null;
-		if(!"".equals(searchInDisplayNameOrExtension)) {
+		if(searchInDisplayNameOrExtension != null && !"".equals(searchInDisplayNameOrExtension)) {
 			if("name".equals(searchInDisplayNameOrExtension)) {
 				attr="displayName";
 			}else{
@@ -1136,7 +1136,7 @@ public class GrouperHelper {
 			}
 			displayResults = searchGroupsByAttribute(s,query,from,attr);	
 		}
-		if(!"".equals(searchInNameOrExtension)) {
+		if(searchInNameOrExtension !=null && !"".equals(searchInNameOrExtension)) {
 			if("name".equals(searchInNameOrExtension)) {
 				attr="name";
 			}else{
