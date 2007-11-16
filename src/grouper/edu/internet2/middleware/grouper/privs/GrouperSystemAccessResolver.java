@@ -34,7 +34,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemAccessResolver.java,v 1.4 2007-11-02 10:28:39 isgwb Exp $
+ * @version $Id: GrouperSystemAccessResolver.java,v 1.5 2007-11-16 15:29:11 isgwb Exp $
  * @since   1.2.1
  */
 public class GrouperSystemAccessResolver extends AccessResolverDecorator {
@@ -83,15 +83,17 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
   { 
     //2007-11-02 Gary Brown
     //If you are the root user you automatically have
-    //all Access privileges
+    //all Access privileges exception OPTIN / OPTOUT
 	  if ( SubjectHelper.eq( this.root, subject ) ) {
 	      Set<Privilege> privs = Privilege.getAccessPrivs();
 	      Set accessPrivs = new HashSet();
 	      AccessPrivilege ap = null;
 	      for(Privilege p : privs) {
 	    	//Not happy about the klass but will do for now in the absence of a GrouperSession
-	    	ap = new AccessPrivilege(group,subject,subject,p,GrouperConfig.getProperty("privileges.access.interface"),false);
-	    	accessPrivs.add(ap);
+	    	if(!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
+	    		ap = new AccessPrivilege(group,subject,subject,p,GrouperConfig.getProperty("privileges.access.interface"),false);
+	    		accessPrivs.add(ap);
+	    	}
 	      }
 	      
 	      return accessPrivs;
@@ -127,8 +129,13 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
   public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
   {
-    if ( SubjectHelper.eq( this.root, subject ) ) {
+    if ( SubjectHelper.eq( this.root, subject )) {
+    	if(!privilege.equals(AccessPrivilege.OPTIN) 
+    		&& !privilege.equals(AccessPrivilege.OPTOUT)) {
       return true;
+    	}else{
+    		return false;
+    	}
     }
     return super.getDecoratedResolver().hasPrivilege(group, subject, privilege);
   }

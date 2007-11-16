@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GrouperConfig;
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
@@ -26,6 +27,8 @@ import  edu.internet2.middleware.grouper.SubjectFinder;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import  edu.internet2.middleware.subject.Subject;
+
+import java.util.HashSet;
 import  java.util.Set;
 
 import net.sf.ehcache.Element;
@@ -37,7 +40,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.5 2007-11-02 09:45:46 isgwb Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.6 2007-11-16 15:29:11 isgwb Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -104,7 +107,20 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   public Set<Privilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
-    return super.getDecoratedResolver().getPrivileges(group, subject);
+	//Get any user privs
+	Set accessPrivs =super.getDecoratedResolver().getPrivileges(group, subject);
+	
+	//Add any due to Wheel.
+    Set<Privilege> privs = Privilege.getAccessPrivs();
+    AccessPrivilege ap = null;
+    for(Privilege p : privs) {
+	  	//Not happy about the klass but will do for now in the absence of a GrouperSession
+	  	if(!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
+	  		ap = new AccessPrivilege(group,subject,subject,p,GrouperConfig.getProperty("privileges.access.interface"),false);
+	  		accessPrivs.add(ap);
+	  	}
+    }
+    return accessPrivs;
   }
 
   /**
@@ -135,9 +151,15 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   public boolean hasPrivilege(Group group, Subject subject, Privilege privilege)
     throws  IllegalArgumentException
   {
+	//Admin incorporates other privileges - except optin /optout
+	//Which we don't want to assume
     if (this.useWheel) {
       if ( isWheelMember(subject) ) {
-        return true;
+    	  if(!AccessPrivilege.OPTOUT.equals(privilege) 
+    			  && !AccessPrivilege.OPTIN.equals(privilege)) {
+    		  return true;
+    	  
+    	  }
       }
     }
     return super.getDecoratedResolver().hasPrivilege(group, subject, privilege);
@@ -154,7 +176,6 @@ public class WheelAccessResolver extends AccessResolverDecorator {
     super.getDecoratedResolver().revokePrivilege(group, privilege);
   }
             
-
   /**
    * @see     AccessResolver#revokePrivilege(Group, Subject, Privilege)
    * @since   1.2.1
