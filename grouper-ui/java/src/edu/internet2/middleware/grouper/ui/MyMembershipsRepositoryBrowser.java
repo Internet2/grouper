@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,11 +33,11 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.6 2007-11-16 14:55:22 isgwb Exp $
  */
 
 public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
-	
+	private Map<Group, Object> groups=null;
 	public MyMembershipsRepositoryBrowser(){
 		prefix = "repository.browser.my.";
 		browseMode = "";
@@ -50,7 +51,9 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 	 * @throws Exception
 	 */
 	protected boolean isValidSearchResult(Group searchResult) throws Exception {
-		return searchResult.hasMember(getGrouperSession().getSubject());
+		
+		return getGroups().containsKey(searchResult);
+		//return searchResult.hasMember(getGrouperSession().getSubject());
 	}
 
 	/* (non-Javadoc)
@@ -76,5 +79,17 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 		groups = member.getGroups();
 
 		return getStems(groups);
+	}
+	
+	protected Map getGroups() throws Exception{
+		if(groups!=null) return groups;
+		groups=new HashMap<Group, Object>();
+		GrouperSession s = getGrouperSession();
+		Member member = MemberFinder.findBySubject(s,s.getSubject());
+		Set<Group> groupsSet = member.getGroups();
+		for(Group g : groupsSet) {
+			groups.put(g,"");
+		}
+		return groups;
 	}
 }
