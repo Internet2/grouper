@@ -40,7 +40,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.6 2007-11-16 15:29:11 isgwb Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.7 2007-12-04 09:58:56 isgwb Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -111,15 +111,19 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 	Set accessPrivs =super.getDecoratedResolver().getPrivileges(group, subject);
 	
 	//Add any due to Wheel.
-    Set<Privilege> privs = Privilege.getAccessPrivs();
-    AccessPrivilege ap = null;
-    for(Privilege p : privs) {
-	  	//Not happy about the klass but will do for now in the absence of a GrouperSession
-	  	if(!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
-	  		ap = new AccessPrivilege(group,subject,subject,p,GrouperConfig.getProperty("privileges.access.interface"),false);
-	  		accessPrivs.add(ap);
-	  	}
-    }
+	if (this.useWheel) {
+	      if ( isWheelMember(subject) ) {
+		    Set<Privilege> privs = Privilege.getAccessPrivs();
+		    AccessPrivilege ap = null;
+		    for(Privilege p : privs) {
+			  	//Not happy about the klass but will do for now in the absence of a GrouperSession
+			  	if(!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
+			  		ap = new AccessPrivilege(group,subject,SubjectFinder.findRootSubject(),p,GrouperConfig.getProperty("privileges.access.interface"),false);
+			  		accessPrivs.add(ap);
+			  	}
+		    }
+	      }
+	}
     return accessPrivs;
   }
 

@@ -16,11 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.SubjectFinder;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
 import  edu.internet2.middleware.subject.Subject;
+
+import java.util.HashSet;
+import java.util.Iterator;
 import  java.util.Set;
 
 
@@ -28,7 +32,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.4 2007-11-02 10:42:43 isgwb Exp $
+ * @version $Id: GrouperAllAccessResolver.java,v 1.5 2007-12-04 09:58:56 isgwb Exp $
  * @since   1.2.1
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
@@ -82,7 +86,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
     //I assume this is what blair intended - have removed
     //the All privileges from the GrouperAccessAdapter
     
-	  Set<Privilege> allPrivs = super.getDecoratedResolver().getPrivileges(group, this.all);
+	  Set<Privilege> allPrivs = fixPrivs(super.getDecoratedResolver().getPrivileges(group, this.all),subject);
 	  allPrivs.addAll(super.getDecoratedResolver().getPrivileges(group, subject));
     return allPrivs;
   }
@@ -142,7 +146,26 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
             UnableToPerformException
   {
     super.getDecoratedResolver().revokePrivilege(group, subject, privilege);
-  }            
+  }  
+  
+  private Set<Privilege> fixPrivs(Set privs,Subject subj) {
+	Set fixed = new HashSet();
+	Iterator it = privs.iterator();
+	AccessPrivilege oldPriv;
+	AccessPrivilege newPriv;
+	while(it.hasNext()) {
+		oldPriv=(AccessPrivilege)it.next();
+		newPriv= new AccessPrivilege(
+					oldPriv.getGroup(),
+					subj,
+					oldPriv.getOwner(),
+					Privilege.getInstance(oldPriv.getName()),
+					oldPriv.getImplementationName(),
+					false);
+		fixed.add(newPriv);
+	}
+	return fixed;
+  }
 
 }
 
