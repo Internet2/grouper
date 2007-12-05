@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.10 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.11 2007-12-05 11:25:10 isgwb Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -366,6 +366,9 @@ public class TestPrivADMIN extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
+    try {
+    	Thread.currentThread().sleep(3000);
+    }catch(InterruptedException e){}
     GroupHelper.delete(nrs, a, i2.getName());
   } // public void testDeleteGroupWithMemberWithADMIN()
 
@@ -374,6 +377,9 @@ public class TestPrivADMIN extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
+    try {
+    	Thread.currentThread().sleep(3000);
+    }catch(InterruptedException e){}
     GroupHelper.delete(nrs, a, i2.getName());
   } // public void testDeleteGroupWithMemberWithAllADMIN()
 

@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test use of the UPDATE {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivUPDATE.java,v 1.8 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: TestPrivUPDATE.java,v 1.9 2007-12-05 11:25:10 isgwb Exp $
  */
 public class TestPrivUPDATE extends TestCase {
 
@@ -122,6 +122,9 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
+    try {
+    	Thread.currentThread().sleep(2000);
+    }catch(InterruptedException e){}
     GroupHelper.delMemberUpdate(a, subj1);
   } // public void testDelMembersWithADMIN
 
@@ -130,6 +133,9 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     Group a = GroupHelper.findByName(nrs, i2.getName());
+    try {
+    	Thread.currentThread().sleep(3000);
+    }catch(InterruptedException e){}
     GroupHelper.delMemberUpdate(a, subj1);
   } // public void testDelMembersWithAllADMIN
 
@@ -146,6 +152,9 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
+    try {
+    	Thread.currentThread().sleep(3000);
+    }catch(InterruptedException e){}
     GroupHelper.delMemberUpdate(a, subj1);
   } // public void testDelMembersWithUPDATE
 
@@ -154,6 +163,9 @@ public class TestPrivUPDATE extends TestCase {
     GroupHelper.addMember(i2, subj1, m);
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.UPDATE);
     Group a = GroupHelper.findByName(nrs, i2.getName());
+    try {
+    	Thread.currentThread().sleep(3000);
+    }catch(InterruptedException e){}
     GroupHelper.delMemberUpdate(a, subj1);
   } // public void testDelMembersWithAllUPDATE
 

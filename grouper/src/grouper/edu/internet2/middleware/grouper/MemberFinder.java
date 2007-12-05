@@ -24,7 +24,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.47 2007-11-02 10:30:02 isgwb Exp $
+ * @version $Id: MemberFinder.java,v 1.48 2007-12-05 11:25:10 isgwb Exp $
  */
 public class MemberFinder {
 	
@@ -166,6 +166,15 @@ public class MemberFinder {
     }
     return m;
   } // protected static Member internal_findViewableMemberBySubject(s, subj)
+  
+  // @since   1.2.1
+  protected static void clearInternalMembers()
+    
+  {
+    all=null;
+    root=null;
+    
+  } // protected static void clearInternalMembers()
 
 } // public class MemberFinder
 
