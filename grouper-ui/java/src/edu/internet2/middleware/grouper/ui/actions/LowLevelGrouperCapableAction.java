@@ -71,7 +71,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.13 2007-04-17 08:40:07 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.14 2007-12-05 11:32:22 isgwb Exp $
  */
 
 /**
@@ -412,7 +412,7 @@ public abstract class LowLevelGrouperCapableAction
 					obj=GroupFinder.findByName(s,GrouperConfig.getProperty("groups.wheel.group"));
 					session.getServletContext().setAttribute("wheelGroup",obj);
 				}catch(Exception e) {
-					session.setAttribute("isWheelGroupMember",Boolean.TRUE);
+					session.setAttribute("isWheelGroupMember",Boolean.FALSE);
 					return false;
 				}
 			}
