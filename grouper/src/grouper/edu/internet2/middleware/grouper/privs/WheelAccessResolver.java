@@ -17,7 +17,9 @@
 
 package edu.internet2.middleware.grouper.privs;
 import edu.internet2.middleware.grouper.AccessPrivilege;
+import edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import  edu.internet2.middleware.grouper.GrouperConfig;
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.GrouperSession;
@@ -40,7 +42,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.7 2007-12-04 09:58:56 isgwb Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.8 2007-12-05 11:20:54 isgwb Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -73,7 +75,9 @@ public class WheelAccessResolver extends AccessResolverDecorator {
                           );
       }
       catch (Exception e) {
-        throw new GrouperRuntimeException( "error initializing WheelAccessResolver: " + e.getMessage(), e );
+    	//OK, so wheel group does not exist. Not fatal...
+    	ErrorLog.error(this.getClass(), "Initialisation error: " + e.getClass().getSimpleName());
+    	this.useWheel=false;
       }
     }
   }
