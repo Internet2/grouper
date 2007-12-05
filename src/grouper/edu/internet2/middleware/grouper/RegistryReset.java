@@ -26,7 +26,7 @@ import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.49 2007-08-09 18:55:21 blair Exp $
+ * @version $Id: RegistryReset.java,v 1.50 2007-12-05 11:25:10 isgwb Exp $
  */
 public class RegistryReset {
 
@@ -66,6 +66,7 @@ public class RegistryReset {
   public static void reset() {
     RegistryReset rr = new RegistryReset();
     try {
+      MemberFinder.clearInternalMembers();
       GrouperDAOFactory.internal_resetFactory();  // as it is static and cached
       rr._emptyTables();
     }
@@ -94,6 +95,7 @@ public class RegistryReset {
   protected static void internal_resetRegistryAndAddTestSubjects() { 
     RegistryReset rr = new RegistryReset();
     try {
+      MemberFinder.clearInternalMembers();
       rr._emptyTables();
       rr._addSubjects();
     }

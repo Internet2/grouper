@@ -25,7 +25,7 @@ import  edu.internet2.middleware.grouper.privs.AccessWrapper;
 /**
  * Test {@link CachingAccessResolver}.
  * @author  blair christensen.
- * @version $Id: Test_privs_CachingAccessResolver.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_privs_CachingAccessResolver.java,v 1.3 2007-12-05 11:25:10 isgwb Exp $
  * @since   1.2.1
  */
 public class Test_privs_CachingAccessResolver extends GrouperTest {
@@ -89,9 +89,11 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
    * @since   1.2.1
    */
   public void test_hasPrivilege_cacheHit() {
-    long before = resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits();
+   //2007/12/03: Gary Brown
+   //hasPrivilege now first calls getPrivileges. If cacheMiss is called first it sets the cache for all privs
+   //so only check after 2nd explicit check
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
-    assertEquals( before, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits() );
+    long before = resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits();
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
     assertEquals( before + 1, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getHits() );
   }
@@ -106,7 +108,9 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
    */
   public void test_hasPrivilege_cacheSize() {
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
-    assertEquals( 1, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getSize() );
+    //2007/12/03: Gary Brown
+	//hasPrivilege calls getPrivileges which caches all 6 ACCESS privs
+	assertEquals( 6, resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getSize() );
   }
 
 }

@@ -22,7 +22,7 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.8 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.9 2007-12-05 11:25:10 isgwb Exp $
  * @since   1.2.1
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -118,6 +118,9 @@ public class Test_uc_WheelGroup extends GrouperTest {
   /**
    * @since   1.2.1
    */
+   // 2007/12/03: Gary Brown
+   //Since I added caching for wheel group members it can take up to 2 minutes before 
+   //privileges will work
   public void test_addingMemberToWheelGroupShouldElevatePrivilegesWithinSession() 
     throws  GroupNotFoundException,
             InsufficientPrivilegeException,
@@ -130,15 +133,20 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     Member  mA  = MemberFinder.findBySubject(s, subjA);
     Group   g   = GroupFinder.findByUuid( s, wheel.getUuid() );
+    //WheelAccessResolver caches wheel group membership
+    //so doing a pre-check breaks the subsequent ADMIN check
     assertFalse( "does not have ADMIN", g.hasAdmin(subjA) );
     assertFalse( "cannot ADMIN", mA.canAdmin(g) );
-
+    try {
+    	Thread.currentThread().sleep(3000);
+    }catch(InterruptedException e){}
     g.addMember(subjA);
     assertTrue( "now has ADMIN", g.hasAdmin(subjA) );
     assertTrue( "now can ADMIN", mA.canAdmin(g) );
 
     s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   } 
+  
 
 } 
 
