@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GrouperConfig;
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
@@ -33,7 +34,7 @@ import  java.util.Set;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.5 2007-12-05 11:20:54 isgwb Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -61,7 +62,9 @@ public class WheelNamingResolver extends NamingResolverDecorator {
                           );
       }
       catch (Exception e) {
-        throw new GrouperRuntimeException( "error initializing WheelNamingResolver: " + e.getMessage(), e );
+    	//OK, so wheel group does not exist. Not fatal...
+      	ErrorLog.error(this.getClass(), "Initialisation error: " + e.getClass().getSimpleName());
+        this.useWheel=false;  
       }
     }
   }
