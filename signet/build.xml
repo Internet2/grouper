@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.68 2007-10-24 21:48:10 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.69 2007-12-06 01:18:32 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -227,7 +227,7 @@
 	<!-- ======================== target: signetXml ====================== -->
 	<target name="signetXml"
 			description="Create SignetXml libraries: SignetXmlXa.jar and SignetXmlXb.jar."
-			depends="signetxml_clean, schema_gen, bindings_gen" >
+			depends="signetxml_clean, create_classpath, schema_gen, bindings_gen" >
 		<tstamp/>
 	</target>
 
@@ -241,7 +241,7 @@
 				srcdir="${src.stubs.dir}"
 				includes="**/*.java"
 				destdir="${schema.dir}"
-				classpath="${java.class.path}" >
+				classpathref="source.class.path" >
 			<schema namespace="${signetxml.namespace.value}" file="${schema.filename}" /> 
 		</schemagen>
 		<!-- episode="${schema.dir}/${episode.filename}" -->
@@ -771,6 +771,17 @@
 
 		<war destfile="${signet.war}" 
 				webxml="${source_webapp.config.dir}/web.xml" >
+			<manifest> 
+				<section name="${source_webapp.config.dir}/web.xml" >
+					<attribute name="Built-By"                value="${user.name}"/>
+					<attribute name="Implementation-Title"    value="${signet_basename}" />
+					<attribute name="Implementation-Version"  value="${signet_version}" />
+					<attribute name="Implementation-BuildDate" value="${TODAY}" />
+					<attribute name="Implementation-Vendor"   value="${signet_vendor}" />
+					<attribute name="Implementation-URL"      value="${signet_url}" />
+					<attribute name="Dependencies" value="Standard Java JRE, JAXB, Apache Tomcat5.5." />
+				</section>
+			</manifest>
 
 			<fileset dir="${source_webapp.dir}" includes="index.jsp" />
 

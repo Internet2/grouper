@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitValueXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitValueXa.java,v 1.3 2007-12-06 01:18:32 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -21,7 +21,6 @@ import edu.internet2.middleware.signet.LimitImpl;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.util.xml.binder.LimitImplRefXb;
-import edu.internet2.middleware.signet.util.xml.binder.LimitImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.LimitValueXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 

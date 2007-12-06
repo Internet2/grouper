@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.20 2007-07-31 09:22:08 ddonn Exp $
-$Date: 2007-07-31 09:22:08 $
+$Id: FunctionImpl.java,v 1.21 2007-12-06 01:18:32 ddonn Exp $
+$Date: 2007-12-06 01:18:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -267,12 +267,35 @@ public class FunctionImpl extends EntityImpl implements Function
   {
     return super.getStringId();
   }
-  
 
   // This method is only for use by Hibernate.
   protected void setId(String id)
   {
     super.setStringId(id);
+  }
+
+  /** Hibernate "intelligently" hard-codes the xxx.id reference in HQL to map
+   * to the <id> element in the mapping file (xxx.hbm.xml) regardless of
+   * whether there is a <property> element that happens to have name="id".
+   * Therefore, any Java class that has a property named "id" cannot be
+   * accessed using HQL because the query will always reference the <id>
+   * property regardless of its name. Way to go Hibernate!
+   */
+  public String getFuncId()
+  {
+	  return (this.getId());
+  }
+
+  /** Hibernate "intelligently" hard-codes the xxx.id reference in HQL to map
+   * to the <id> element in the mapping file (xxx.hbm.xml) regardless of
+   * whether there is a <property> element that happens to have name="id".
+   * Therefore, any Java class that has a property named "id" cannot be
+   * accessed using HQL because the query will always reference the <id>
+   * property regardless of its name. Way to go Hibernate!
+   */
+  public void setFuncId(String id)
+  {
+	  this.setId(id);
   }
 
   /* (non-Javadoc)

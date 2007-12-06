@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.46 2007-09-12 15:41:56 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.47 2007-12-06 01:18:32 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -27,7 +27,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class AssignmentImpl extends GrantableImpl implements Assignment
 {
-  private TreeNode			scope;
+  private TreeNodeImpl			scope;
   private FunctionImpl		function;
   private Set				limitValues;
   private boolean			canGrant;
@@ -132,7 +132,7 @@ public AssignmentImpl
     
     this.limitValues = limitValues;
     
-    this.scope = scope;
+    this.scope = (TreeNodeImpl)scope;
     this.function = (FunctionImpl)function;
     this.canUse = canUse;
     this.canGrant = canGrant;
@@ -224,7 +224,7 @@ public AssignmentImpl
   /**
    * @param scope The scope to set.
    */
-  public void setScope(TreeNode scope)
+  public void setScope(TreeNodeImpl scope)
   {
     this.scope = scope;
   }
@@ -232,9 +232,9 @@ public AssignmentImpl
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.Assignment#getScope()
    */
-  public TreeNode getScope()
+  public TreeNodeImpl getScope()
   {
-    ((TreeNodeImpl)scope).setSignet(getSignet());
+    scope.setSignet(getSignet());
     return (scope);
   }
   
@@ -262,7 +262,7 @@ public AssignmentImpl
 	buf.append(", canGrant=" + canGrant); //$NON-NLS-1$
 	buf.append(", canUse=" + canUse); //$NON-NLS-1$
 	buf.append(", scope=" + ((null != scope) ? (scope.toString()) : ("null"))); //$NON-NLS-1$ $NON-NLS-2$
-	buf.append(", function=" + ((null != function) ? (function.toString()) : ("null"))); //$NON-NLS-2$ //$NON-NLS-2$
+	buf.append(", function=" + ((null != function) ? (function.toString()) : ("null"))); //$NON-NLS-1$ $NON-NLS-2$
 	buf.append(", limitValues=["); //$NON-NLS-1$
 	if ((null != limitValues) && (0 < limitValues.size()))
 		for (Iterator<LimitValue> values = limitValues.iterator(); values.hasNext(); )

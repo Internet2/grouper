@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.3 2007-12-06 01:18:32 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -20,7 +20,6 @@ package edu.internet2.middleware.signet.util.xml.adapter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.Function;
@@ -32,7 +31,6 @@ import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.TreeNodeImpl;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.tree.Tree;
-import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.signet.util.xml.binder.AssignmentImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.LimitValueXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
@@ -122,7 +120,7 @@ public class AssignmentImplXa extends GrantableImplXa
 		AssignmentImplXb xmlAssignment = (AssignmentImplXb)xmlEntity;
 
 //  private TreeNode			scope;
-		TreeNodeImpl treeNode = (TreeNodeImpl)signetAssignment.getScope();
+		TreeNodeImpl treeNode = signetAssignment.getScope();
 		xmlAssignment.setScope(Util.getScopePath(treeNode));
 
 //  private FunctionImpl		function;
@@ -214,7 +212,7 @@ log.info("AssignmentImplXa.setValues(AssignmentImplXb): Caught general Exception
 			{
 				String[] path = Util.parseScopePath(xmlAssignment.getScope());
 				Tree tree = hibr.getTree(hs, path[0]);
-				TreeNode node = tree.getNode(path[1]);
+				TreeNodeImpl node = (TreeNodeImpl)tree.getNode(path[1]);
 				signetAssignment.setScope(node);
 			}
 			catch (ObjectNotFoundException e2)

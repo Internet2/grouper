@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/GrantableImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/GrantableImplXa.java,v 1.3 2007-12-06 01:18:32 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,7 +17,6 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml.adapter;
 
-import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.GrantableImpl;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;

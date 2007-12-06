@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/SignetApiUtil.java,v 1.1 2007-02-24 02:11:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/SignetApiUtil.java,v 1.2 2007-12-06 01:18:32 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,30 +17,26 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Collection;
 
 /**
- * SignetApiUtil 
- * 
- * @version $Revision: 1.1 $
- * @author $Author: ddonn $
+ * SignetApiUtil - Utilities for the Signet API
  */
 public class SignetApiUtil
 {
 
 	/**
-	 * Assuming each item in the Set implements Entity, set its Signet value. 
+	 * Assuming each item in the Set extends EntityImpl, set its Signet value. 
 	 * @param entities A Set of Entity objects
 	 */
-	public static void setEntitysSignetValue(Set entities, Signet signet)
+	public static void setEntitysSignetValue(Collection<EntityImpl> entities, Signet signet)
 	{
 		if (null == entities)
 			return;
 
 		// make sure each entity knows its Signet instance
-		for (Iterator iter = entities.iterator(); iter.hasNext(); )
-			((EntityImpl)iter.next()).setSignet(signet);
+		for (EntityImpl entity : entities)
+			entity.setSignet(signet);
 	}
 
 

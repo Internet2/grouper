@@ -15,7 +15,7 @@
 		<timestamp name="modifyDatetime"/>
 		
 		<property
-			name="id"
+			name="funcId"
 			column="functionID"/>
 		
 		<many-to-one

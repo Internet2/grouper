@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.15 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.16 2007-12-06 01:18:32 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -41,10 +41,8 @@ import edu.internet2.middleware.signet.ChoiceSetImpl;
 import edu.internet2.middleware.signet.EntityImpl;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.FunctionImpl;
-import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitImpl;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.PermissionImpl;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.ProxyImpl;
@@ -61,7 +59,6 @@ import edu.internet2.middleware.signet.TreeNodeRelationship;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.resource.ResLoaderApp;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
-import edu.internet2.middleware.signet.subjsrc.SignetSubjectAttr;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.tree.TreeNode;
 
@@ -71,7 +68,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -85,105 +82,6 @@ public class HibernateDB implements Serializable
 	/** The Hibernate SessionFactory */
 	protected SessionFactory	sessionFactory;
 
-	protected static final String	Qry_subjectByPK =
-			"from " + SignetSubject.class.getName() + //$NON-NLS-1$
-			" as subject " + //$NON-NLS-1$
-			" where subjectkey = :subjectkey "; //$NON-NLS-1$
-
-	protected static final String	Qry_proxiesGrantedAll =
-			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
-			" as proxy " +  //$NON-NLS-1$
-			" where grantorKey = :grantorKey "; //$NON-NLS-1$
-
-	protected static final String	Qry_proxiesGranted =
-			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
-			" as proxy " +  //$NON-NLS-1$
-			" where grantorKey = :grantorKey " + //$NON-NLS-1$
-			" and " + //$NON-NLS-1$
-			" status = :status "; //$NON-NLS-1$
-
-	protected static final String	Qry_proxiesReceivedAll =
-			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
-			" as proxy " +  //$NON-NLS-1$
-			" where granteeKey = :granteeKey "; //$NON-NLS-1$
-	
-	protected static final String	Qry_proxiesReceived =
-			"from " + ProxyImpl.class.getName() + //$NON-NLS-1$
-			" as proxy " +  //$NON-NLS-1$
-			" where granteeKey = :granteeKey " + //$NON-NLS-1$
-			" and " + //$NON-NLS-1$
-			" status = :status "; //$NON-NLS-1$
-
-	protected static final String	Qry_assignmentsGrantedAll =
-			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
-			" as assignment " +  //$NON-NLS-1$
-			" where grantorKey = :grantorKey "; //$NON-NLS-1$
-
-	protected static final String	Qry_assignmentsGranted =
-			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
-			" as assignment " +  //$NON-NLS-1$
-			" where grantorKey = :grantorKey " + //$NON-NLS-1$
-			" and " + //$NON-NLS-1$
-			" status = :status "; //$NON-NLS-1$
-
-	protected static final String	Qry_assignmentsReceivedAll =
-			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
-			" as assignment " +  //$NON-NLS-1$
-			" where granteeKey = :granteeKey "; //$NON-NLS-1$
-
-	protected static final String	Qry_assignmentsReceived =
-			"from " + AssignmentImpl.class.getName() + //$NON-NLS-1$
-			" as assignment " +  //$NON-NLS-1$
-			" where granteeKey = :granteeKey " + //$NON-NLS-1$
-			" and " + //$NON-NLS-1$
-			" status = :status "; //$NON-NLS-1$
-
-	protected static final String Qry_subjByIdSrc =
-			"from " + SignetSubject.class.getName() + //$NON-NLS-1$
-			" as signetSubject " + //$NON-NLS-1$
-			"where " + //$NON-NLS-1$
-			"sourceID = :source_id " + //$NON-NLS-1$
-			"and " + //$NON-NLS-1$
-			"subjectID = :subject_id "; //$NON-NLS-1$
-
-	protected static final String QRY_SUBJECTBYID =
-			"from " + //$NON-NLS-1$
-				SignetSubject.class.getName() + " subj, " +		//$NON-NLS-1$
-				SignetSubjectAttr.class.getName() + " attr " +	//$NON-NLS-1$
-			" where " + 										//$NON-NLS-1$
-				" attr.attrValue = :subjIdentifier " +			//$NON-NLS-1$
-				" and " + 										//$NON-NLS-1$
-				" attr.mappedName = 'subjectAuthId' " +			//$NON-NLS-1$
-				" and " + 										//$NON-NLS-1$
-				" attr.parent.subject_PK = subj.subject_PK " +	//$NON-NLS-1$
-			" order by " + 										//$NON-NLS-1$
-				" attr.parent.subject_PK, " + 					//$NON-NLS-1$
-				" attr.mappedName, " +							//$NON-NLS-1$
-				" attr.sequence ";								//$NON-NLS-1$
-
-	protected static final String Qry_functionByIdAndSubsys =
-			"from " + FunctionImpl.class.getName() +	//$NON-NLS-1$
-			" as function " +							//$NON-NLS-1$
-			" where " +									//$NON-NLS-1$
-			" functionID = :function_id " +				//$NON-NLS-1$
-			" and " +									//$NON-NLS-1$
-			" subsystemID = :subsys_id ";				//$NON-NLS-1$
-
-	protected static final String Qry_limitByPK =
-			"from " + LimitImpl.class.getName() +	//$NON-NLS-1$
-			" as limit " +							//$NON-NLS-1$
-			" where " +								//$NON-NLS-1$
-			" limitKey = :limit_key";				//$NON-NLS-1$
-
-	protected static final String Qry_limitBySubsysAndId =
-			"from " + LimitImpl.class.getName() +	//$NON-NLS-1$
-			" as limit " +							//$NON-NLS-1$
-			" where " +								//$NON-NLS-1$
-			" subsystemID = :subsystemId" +			//$NON-NLS-1$
-			" and " +								//$NON-NLS-1$
-			" limitID = :limitId";					//$NON-NLS-1$
-			
-			
 	/** Cache the Tree for performance */
 	protected TreeImpl cachedTree = null;
 
@@ -270,15 +168,18 @@ public class HibernateDB implements Serializable
 
 		if (null != id)
 		{
+			Session hs = openSession();
 			try 
 			{
-				Session s = openSession();
-				retval = load(s, loadClass, id);
-				closeSession(s);
+				retval = load(hs, loadClass, id);
 			}
 			catch (ObjectNotFoundException onfe)
 			{
 				throw onfe;
+			}
+			finally
+			{
+				closeSession(hs);
 			}
 		}
 
@@ -324,15 +225,18 @@ public class HibernateDB implements Serializable
 	{
 		Object retval = null;
 
+		Session hs = openSession();
 		try
 		{
-			Session s = openSession();
-			retval = load(s, loadClass, new Integer(id));
-			closeSession(s);
+			retval = load(hs, loadClass, new Integer(id));
 		}
 		catch (ObjectNotFoundException e)
 		{
 			throw e;
+		}
+		finally
+		{
+			closeSession(hs);
 		}
 
 		return (retval);
@@ -378,15 +282,18 @@ public class HibernateDB implements Serializable
 	{
 		Object retval = null;
 
+		Session hs = openSession();
 		try
 		{
-			Session hs = openSession();
 			retval = load(hs, loadClass, new Long(id));
-			closeSession(hs);
 		}
 		catch (ObjectNotFoundException e)
 		{
 			throw e;
+		}
+		finally
+		{
+			closeSession(hs);
 		}
 
 		return (retval);
@@ -676,15 +583,7 @@ protected Session stdSession = null;
 		Session hs = openSession();
 		try
 		{
-			query = createQuery(hs,
-					"from " + //$NON-NLS-1$
-					AssignmentImpl.class.getName() +
-					" as assignment " +  //$NON-NLS-1$
-					" where granteeKey = :granteeKey " +  //$NON-NLS-1$
-					" and functionKey = :functionKey " +  //$NON-NLS-1$
-					" and scopeID = :scopeId " +  //$NON-NLS-1$
-					" and scopeNodeID = :scopeNodeId " + //$NON-NLS-1$
-					" and assignmentID != :assignmentId "); //$NON-NLS-1$
+			query = createQuery(hs, HibernateQry.Qry_assignmentDuplicates);
 			query.setParameter("granteeKey", assignment.getGrantee().getSubject_PK(), Hibernate.LONG); //$NON-NLS-1$
 			query.setParameter("functionKey", ((FunctionImpl)(assignment.getFunction())).getKey(), Hibernate.INTEGER); //$NON-NLS-1$
 			query.setString("scopeId", assignment.getScope().getTree().getId()); //$NON-NLS-1$
@@ -782,12 +681,7 @@ protected Session stdSession = null;
 		List resultList;
 		try
 		{
-			Query query = createQuery(session,
-					"from " + //$NON-NLS-1$
-					TreeNodeRelationship.class.getName() +
-					" as treeNodeRelationship" + //$NON-NLS-1$
-					" where treeID = :treeId" + //$NON-NLS-1$
-					" and nodeID = :childNodeId"); //$NON-NLS-1$
+			Query query = createQuery(session, HibernateQry.Qry_treeNodeParents);
 			query.setString("treeId", treeId); //$NON-NLS-1$
 			query.setString("childNodeId", childNode.getId()); //$NON-NLS-1$
 			resultList = query.list();
@@ -848,6 +742,8 @@ protected Session stdSession = null;
 	 * @param hs A Hibernate Session, for improved performance
 	 * @param parentNode the prospective parent
 	 * @return A Set of child nodes, may be empty but never null.
+	 * @throws SignetRuntimeException If a HibernateException occurs or if the
+	 * parent Tree is not found.
 	 */
 	public Set getChildren(Session hs, TreeNode parentNode)
 	{
@@ -859,25 +755,17 @@ protected Session stdSession = null;
 
 		String treeId = ((TreeNodeImpl)parentNode).getTreeId();
 
-		List resultList;
 		try
 		{
-			Query query = createQuery(session,
-					"from " + //$NON-NLS-1$
-					TreeNodeRelationship.class.getName() +
-					" as treeNodeRelationship" //$NON-NLS-1$
-					+ " where treeID = :treeId" + //$NON-NLS-1$
-					" and parentNodeID = :parentNodeId"); //$NON-NLS-1$
+			Query query = createQuery(session, HibernateQry.Qry_treeNodeChildren);
 			query.setString("treeId", treeId); //$NON-NLS-1$
 			query.setString("parentNodeId", parentNode.getId()); //$NON-NLS-1$
-			resultList = query.list();
+			List<TreeNodeRelationship> result = query.list();
 
 			Tree tree = getTree(session, treeId);
-			for (Iterator iter = resultList.iterator(); iter.hasNext(); )
-			{
-				TreeNodeRelationship tnr = (TreeNodeRelationship)(iter.next());
+
+			for (TreeNodeRelationship tnr : result)
 				children.add(tree.getNode(tnr.getChildNodeId()));
-			}
 		}
 		catch (HibernateException e)
 		{
@@ -907,7 +795,7 @@ protected Session stdSession = null;
 		LimitImpl retval = null;
 
 		Session hs = openSession();
-		Query qry = createQuery(hs, Qry_limitByPK);
+		Query qry = createQuery(hs, HibernateQry.Qry_limitByPK);
 		qry.setInteger("limit_key", limit_pk); //$NON-NLS-1$
 
 		try
@@ -940,7 +828,7 @@ protected Session stdSession = null;
 		LimitImpl retval = null;
 
 		Session hs = openSession();
-		Query qry = createQuery(hs, Qry_limitBySubsysAndId);
+		Query qry = createQuery(hs, HibernateQry.Qry_limitBySubsysAndId);
 		qry.setString("subsystemId", subsysId);	//$NON-NLS-1$
 		qry.setString("limitId", limitId);		//$NON-NLS-1$
 
@@ -966,35 +854,40 @@ protected Session stdSession = null;
 	// I really want to do away with this method, having the Subsystem
 	// pick up its associated Limits via Hibernate object-mapping.
 	// I just haven't figured out how to do that yet.
+	/**
+	 * Return a Map of LimitImpl, keyed by LimitImpl.id, for a given Subsystem
+	 * @param subsystem The Subsystem filter
+	 * @return A Map of LimitImpl, keyed by LimitImpl.id
+	 * @throws SignetRuntimeException If a HibernateException occurs
+	 */
 	public Map getLimitsBySubsystem(Subsystem subsystem)
 	{
-		List resultList;
+		List<LimitImpl> resultList;
 		Session hs = openSession();
 		try
 		{
-			Query query = createQuery(hs,
-					"from " + //$NON-NLS-1$
-					LimitImpl.class.getName() +
-					" as limit where subsystemID = :id"); //$NON-NLS-1$
-			query.setString("id", subsystem.getId()); //$NON-NLS-1$
+			Query query = createQuery(hs, HibernateQry.Qry_limitBySubsys);
+			query.setString("subsystemId", subsystem.getId()); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException e)
 		{
-			closeSession(hs);
 			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
 		}
 
 		Map limits = new HashMap(resultList.size());
-		Iterator resultListIterator = resultList.iterator();
-		while (resultListIterator.hasNext())
+		for (LimitImpl limit : resultList)
 		{
-			Limit limit = (Limit)(resultListIterator.next());
-			((LimitImpl)limit).setSignet(signet);
+			//LimitImpl does not extend EntityImpl, so can't use
+			// SignetApiUtil.setEntitysSignetValue()
+			limit.setSignet(signet);
 			limits.put(limit.getId(), limit);
 		}
 
-		closeSession(hs);
 		return limits;
 	}
 
@@ -1002,36 +895,36 @@ protected Session stdSession = null;
 	// I really want to do away with this method, having the Subsystem
 	// pick up its associated Permissions via Hibernate object-mapping.
 	// I just haven't figured out how to do that yet.
+	/**
+	 * Return a Map of PermissionImpl, keyed by PermissionImpl.id, for a given Subsystem
+	 * @param subsystem The Subsystem filter
+	 * @return A Map of PermissionImpl, keyed by PermissionImpl.id
+	 * @throws SignetRuntimeException If a HibernateException occurs
+	 */
 	public Map getPermissionsBySubsystem(Subsystem subsystem)
 	{
-		Query query;
-		List resultList;
+		List<PermissionImpl> resultList;
 		Session hs = openSession();
 		try
 		{
-			query = createQuery(hs,
-					"from " + //$NON-NLS-1$
-					PermissionImpl.class.getName() +
-					" as limit where subsystemID = :id"); //$NON-NLS-1$
-			query.setString("id", subsystem.getId()); //$NON-NLS-1$
+			Query query = createQuery(hs, HibernateQry.Qry_permissionBySubsys);
+			query.setString("subsystemId", subsystem.getId()); //$NON-NLS-1$
 			resultList = query.list();
 		}
 		catch (HibernateException e)
 		{
-			closeSession(hs);
 			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
 		}
 
 		Map permissions = new HashMap(resultList.size());
-		Iterator resultListIterator = resultList.iterator();
-		while (resultListIterator.hasNext())
-		{
-			Permission permission = (Permission)(resultListIterator.next());
-			((PermissionImpl)permission).setSignet(signet);
+		for (PermissionImpl permission : resultList)
 			permissions.put(permission.getId(), permission);
-		}
+		SignetApiUtil.setEntitysSignetValue(permissions.values(), signet);
 
-		closeSession(hs);
 		return permissions;
 	}
 
@@ -1064,9 +957,8 @@ protected Session stdSession = null;
 
 
 	/**
-	 * Gets a single Assignment by ID.
-	 * 
-	 * @param id
+	 * Gets a single Assignment by ID (DB primary key).
+	 * @param id The DB primary key
 	 * @return the fetched Assignment object
 	 * @throws ObjectNotFoundException
 	 */
@@ -1085,6 +977,250 @@ protected Session stdSession = null;
 
 		return assignment;
 	}
+
+	/**
+	 * Get all assignments with optional Status filter
+	 * @param status One of: null, active, inactive, pending
+	 * @return A Set of AssignmentImpl. If 'status' is null, all Assignments
+	 * will be returned. Otherwise, only assignments matching 'status' are
+	 * returned. If no matching Assignments are found, the an empty Set is
+	 * returned (never null).
+	 */
+	public Set getAssignments(String status)
+	{
+		Set retval = new HashSet();
+
+		Session hs = openSession();
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsAll);
+		else
+		{
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsAllByStatus);
+			qry.setString("status", status); //$NON-NLS-1$
+		}
+
+		try
+		{
+			retval.addAll(qry.list());
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		SignetApiUtil.setEntitysSignetValue(retval, signet);
+
+		return (retval);
+	}
+
+	/**
+	 * Get the set of Assignments granted by the grantor.
+	 * @param grantorId The primary key of the assignment grantor
+	 * @param status The status of the assignment, if null or empty string, selects _all_
+	 * @return A Set of AssignmentImpl objects that have been granted by grantor.
+	 * May be an empty set but never null.
+	 */
+	public Set getAssignmentsGranted(long grantorId, String status)
+	{
+		Set retval = new HashSet();
+
+		Session hs = openSession();
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsGrantedAll);
+		else
+		{
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsGranted);
+			qry.setString("status", status); //$NON-NLS-1$
+		}
+		qry.setLong("grantorKey", grantorId); //$NON-NLS-1$
+
+		try
+		{
+			retval.addAll(qry.list());
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		SignetApiUtil.setEntitysSignetValue(retval, signet);
+
+		return (retval);
+	}
+
+	/**
+	 * Get the set of Assignments granted to the grantee.
+	 * @param granteeId The primary key of the assignment grantee
+	 * @param status The status of the assignment, if null or empty string, selects _all_
+	 * @return A Set of AssignmentImpl objects that have been granted to grantee.
+	 * May be an empty set but never null.
+	 * @see AssignmentImpl
+	 * @see Status
+	 */
+	public Set getAssignmentsReceived(long granteeId, String status)
+	{
+		Set retval = new HashSet();
+
+		Session hs = openSession();
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsReceivedAll);
+		else
+		{
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsReceived);
+			qry.setString("status", status); //$NON-NLS-1$
+		}
+		qry.setLong("granteeKey", granteeId); //$NON-NLS-1$
+
+		try
+		{
+			retval.addAll(qry.list());
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		SignetApiUtil.setEntitysSignetValue(retval, signet);
+
+		return (retval);
+	}
+
+	/**
+	 * Get the set of Assignments for a given Subsystem and optional Status
+	 * @param subsysId The Subsystem primary DB key
+	 * @param status Optional Status (e.g. active, inactive, pending). If null,
+	 * then all records are returned.
+	 * @return A Set of Assignments granted within the given subsystem, or an
+	 * empty Set (never null).
+	 * @see AssignmentImpl
+	 * @see SubsystemImpl
+	 * @see Status
+	 */
+	public Set getAssignmentsBySubsystem(String subsysId, String status)
+	{
+		Set retval = new HashSet();
+
+		Session hs = openSession();
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsBySubsystemAll);
+		else
+		{
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsBySubsystem);
+			qry.setString("status", status); //$NON-NLS-1$
+		}
+		qry.setString("subsysId", subsysId); //$NON-NLS-1$
+
+		try
+		{
+			retval.addAll(qry.list());
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		SignetApiUtil.setEntitysSignetValue(retval, signet);
+
+		return (retval);
+	}
+
+	/**
+	 * Get the set of Assignments for a given Subsystem/Function and optional Status
+	 * @param subfunc A pair of Strings representing SubsystemId and FunctionId
+	 * @param status Optional Status (e.g. active, inactive, pending). If null,
+	 * then all records are returned.
+	 * @return A Set of Assignments granted with the given subsystem/function,
+	 * or an empty Set (never null).
+	 * @see AssignmentImpl
+	 * @see FunctionImpl
+	 * @see Status
+	 */
+	public Set getAssignmentsByFunction(String[] subfunc, String status)
+	{
+		Set retval = new HashSet();
+
+		Session hs = openSession();
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsByFunctionAll);
+		else
+		{
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsByFunction);
+			qry.setString("status", status); //$NON-NLS-1$
+		}
+		qry.setString("functionId", subfunc[1]); //$NON-NLS-1$
+		qry.setString("subsysId", subfunc[0]); //$NON-NLS-1$
+		try
+		{
+			retval.addAll(qry.list());
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		SignetApiUtil.setEntitysSignetValue(retval, signet);
+
+		return (retval);
+	}
+
+	public Set getAssignmentsByScope(String[] scopeAndNodeIds, String status)
+	{
+		Set retval = new HashSet();
+
+		Session hs = openSession();
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsByScopeAll);
+		else
+		{
+			qry = createQuery(hs, HibernateQry.Qry_assignmentsByScope);
+			qry.setString("status", status); //$NON-NLS-1$
+		}
+		qry.setString("scopeId", scopeAndNodeIds[0]); //$NON-NLS-1$
+		qry.setString("nodeId", scopeAndNodeIds[1]); //$NON-NLS-1$
+		try
+		{
+			retval.addAll(qry.list());
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		SignetApiUtil.setEntitysSignetValue(retval, signet);
+
+		return (retval);
+	}
+
 
 	/**
 	 * Gets a single Proxy by ID.
@@ -1115,10 +1251,10 @@ protected Session stdSession = null;
 		Session hs = openSession();
 		Query qry;
 		if ((null == status) || (0 >= status.length()))
-			qry = createQuery(hs, Qry_proxiesGrantedAll);
+			qry = createQuery(hs, HibernateQry.Qry_proxiesGrantedAll);
 		else
 		{
-			qry = createQuery(hs, Qry_proxiesGranted);
+			qry = createQuery(hs, HibernateQry.Qry_proxiesGranted);
 			qry.setString("status", status); //$NON-NLS-1$
 		}
 		qry.setLong("grantorKey", grantorId); //$NON-NLS-1$
@@ -1156,91 +1292,10 @@ protected Session stdSession = null;
 		Session hs = openSession();
 		Query qry;
 		if ((null == status) || (0 >= status.length()))
-			qry = createQuery(hs, Qry_proxiesReceivedAll);
+			qry = createQuery(hs, HibernateQry.Qry_proxiesReceivedAll);
 		else
 		{
-			qry = createQuery(hs, Qry_proxiesReceived);
-			qry.setString("status", status); //$NON-NLS-1$
-		}
-		qry.setLong("granteeKey", granteeId); //$NON-NLS-1$
-
-		try
-		{
-			retval.addAll(qry.list());
-		}
-		catch (HibernateException e)
-		{
-			throw new SignetRuntimeException(e);
-		}
-		finally
-		{
-			closeSession(hs);
-		}
-
-		SignetApiUtil.setEntitysSignetValue(retval, signet);
-
-		return (retval);
-	}
-
-
-	/**
-	 * Get the set of Assignments granted by the grantor.
-	 * @param grantorId The primary key of the assignment grantor
-	 * @param status The status of the assignment, if null or empty string, selects _all_
-	 * @return A Set of AssignmentImpl objects that have been granted by grantor.
-	 * May be an empty set but never null.
-	 */
-	public Set getAssignmentsGranted(long grantorId, String status)
-	{
-		Set retval = new HashSet();
-
-		Session hs = openSession();
-		Query qry;
-		if ((null == status) || (0 >= status.length()))
-			qry = createQuery(hs, Qry_assignmentsGrantedAll);
-		else
-		{
-			qry = createQuery(hs, Qry_assignmentsGranted);
-			qry.setString("status", status); //$NON-NLS-1$
-		}
-		qry.setLong("grantorKey", grantorId); //$NON-NLS-1$
-
-		try
-		{
-			retval.addAll(qry.list());
-		}
-		catch (HibernateException e)
-		{
-			throw new SignetRuntimeException(e);
-		}
-		finally
-		{
-			closeSession(hs);
-		}
-
-		SignetApiUtil.setEntitysSignetValue(retval, signet);
-
-		return (retval);
-	}
-
-	/**
-	 * Get the set of Assignments granted to the grantee.
-	 * @param granteeId The primary key of the assignment grantee
-	 * @param status The status of the assignment, if null or empty string, selects _all_
-	 * @return A Set of AssignmentImpl objects that have been granted to grantee.
-	 * May be an empty set but never null.
-	 */
-	public Set getAssignmentsReceived(long granteeId, String status)
-	{
-		Set retval = new HashSet();
-
-		Session hs = openSession();
-		Query qry;
-		if ((null == status) || (0 >= status.length()))
-			qry = createQuery(hs, Qry_assignmentsReceivedAll);
-		else
-		{
-			qry = createQuery(hs, Qry_assignmentsReceived);
+			qry = createQuery(hs, HibernateQry.Qry_proxiesReceived);
 			qry.setString("status", status); //$NON-NLS-1$
 		}
 		qry.setLong("granteeKey", granteeId); //$NON-NLS-1$
@@ -1292,7 +1347,7 @@ protected Session stdSession = null;
 		FunctionImpl retval = null;
 
 		Session hs = openSession();
-		Query qry = createQuery(hs, Qry_functionByIdAndSubsys);
+		Query qry = createQuery(hs, HibernateQry.Qry_functionByIdAndSubsys);
 		qry.setString("function_id", functionId); //$NON-NLS-1$
 		qry.setString("subsys_id", subsystemId); //$NON-NLS-1$
 
@@ -1421,7 +1476,7 @@ protected Session stdSession = null;
 		try
 		{
 //System.out.println("HibernateDB.getSubject: sourceId=" + sourceId + " subjectId=" + subjectId); //$NON-NLS-1$
-			Query query = createQuery(hs, Qry_subjByIdSrc);
+			Query query = createQuery(hs, HibernateQry.Qry_subjByIdSrc);
 			query.setString("subject_id", subjectId); //$NON-NLS-1$
 			query.setString("source_id", sourceId); //$NON-NLS-1$
 			resultList = query.list();
@@ -1470,7 +1525,7 @@ protected Session stdSession = null;
 		Session hs = openSession();
 		try
 		{
-			Query query = createQuery(hs, QRY_SUBJECTBYID);
+			Query query = createQuery(hs, HibernateQry.Qry_subjectById);
 			query.setString("subjIdentifier", identifier); //$NON-NLS-1$
 			resultList = query.list();
 		}
