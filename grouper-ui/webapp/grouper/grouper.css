@@ -259,3 +259,7 @@ fieldset.nested {
 div.memberLink {
 	display:inline;
 }
+
+.jspError{
+	color:#ff0000;
+}

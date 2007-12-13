@@ -14,13 +14,16 @@
   </tr>
   <tr> 
     <td>Purpose</td>
-    <td>Ensures that the current Strut's 'module' is maintained in links and internal 
-      forwards / includes. This enables Strut's modules to be used to provide 
-      multiple user interfaces in one web application instance</td>
+    <td><p>Ensures that the current Strut's 'module' is maintained in links and 
+        internal forwards / includes. This enables Strut's modules to be used 
+        to provide multiple user interfaces in one web application instance.</p>
+      <p>Also includes a modified InsertTag.java which forces the original type 
+        of any Exception to be included in the message when a new JspException 
+        is used to 'wrap' an Exception.</p></td>
   </tr>
   <tr> 
     <td>How it works</td>
-    <td>Replaces 3 source files from the Strut's distribution</td>
+    <td>Replaces 4 source files from the Strut's distribution</td>
   </tr>
   <tr> 
     <td>Instructions</td>

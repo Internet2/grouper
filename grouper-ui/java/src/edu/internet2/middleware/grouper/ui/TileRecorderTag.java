@@ -26,6 +26,7 @@ import java.util.Stack;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
+import javax.servlet.jsp.tagext.TryCatchFinally;
 
 /**
  * Used in conjunction with ELTileRecorderTag to print a comment in current page
@@ -33,10 +34,26 @@ import javax.servlet.jsp.tagext.TagSupport;
  * indicates the object type, view, selected key and template name
  * 
  * @author Gary Brown.
- * @version $Id: TileRecorderTag.java,v 1.5 2006-07-17 10:01:28 isgwb Exp $
+ * @version $Id: TileRecorderTag.java,v 1.6 2007-12-13 09:33:25 isgwb Exp $
  */
 
-public class TileRecorderTag extends TagSupport {
+public class TileRecorderTag extends TagSupport implements TryCatchFinally{
+	public void doCatch(Throwable ex) throws Throwable {
+		try {
+			Map navMap = (Map)pageContext.findAttribute("navMap");
+			Object errMsg=navMap.get("jsp.error");
+			String output="<span class=\"jspError\">" + errMsg + "</span>\n" + 
+			"<!-- " + ex.getClass().getSimpleName() + ":" + ex.getMessage()+" -->";
+			pageContext.getOut().println(output);
+			List parent = (List) stack.peek();
+			HttpServletRequest request = (HttpServletRequest)pageContext.getRequest();
+			Map thisTemplate = (Map) parent.get(parent.size()-1);
+			thisTemplate.put("jspErr", ex);
+			
+		} catch (Exception e) {
+		}
+		
+	}
 	private Stack stack = new Stack();
 
 	private String view = null;
@@ -45,6 +62,10 @@ public class TileRecorderTag extends TagSupport {
 
 	private String key = null;
 
+	public void doFinally() {
+		// TODO Auto-generated method stub
+		
+	}
 	private String tile = null;
 	
 	private String silent = null;
@@ -133,6 +154,13 @@ public class TileRecorderTag extends TagSupport {
 	public int doEndTag() throws JspException {
 		printEnd();
 		List parent = (List) stack.pop();
+		HttpServletRequest request = (HttpServletRequest)pageContext.getRequest();
+		Throwable t = (Throwable)request.getAttribute("uiException");
+		if(t!=null) {
+			request.removeAttribute("uiException");
+			Map thisTemplate = (Map) parent.get(0);
+			thisTemplate.put("jspErr", t);
+		}
 		UIThreadLocal.replace("dynamicTiles", parent);
 		return super.doEndTag();
 	}
