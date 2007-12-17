@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
@@ -26,11 +27,13 @@ import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 
+import net.sf.ehcache.Element;
+
 /** 
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.85 2007-10-18 06:30:14 isgwb Exp $
+ * @version $Id: Membership.java,v 1.86 2007-12-17 15:23:30 isgwb Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -42,8 +45,12 @@ public class Membership extends GrouperAPI {
 
   // PRIVATE CLASS CONSTANTS //
   private static final EventLog EL = new EventLog();
-
-
+  
+  // Cache groups and stems
+  public  static final  String            CACHE_GET_GROUP = Membership.class.getName() + ".getGroup";
+  private static        EhcacheController cc= new EhcacheController();
+  public  static final  String            CACHE_GET_STEM = Membership.class.getName() + ".getStem";
+ 
   // PUBLIC INSTANCE METHODS //
 
   public boolean equals(Object other) {
@@ -116,9 +123,13 @@ public class Membership extends GrouperAPI {
     if (uuid == null) {
       throw new GroupNotFoundException();
     }
-    Group g = new Group();
+	Group g = getGroupFromCache(uuid);
+	if(g !=null) return g;
+    
+    g = new Group();
     g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
     g.setSession( this.getSession() );
+    putGroupInCache(g);
     return g;
   } // public Group getGroup()
 
@@ -195,9 +206,13 @@ public class Membership extends GrouperAPI {
     if (uuid == null) {
       throw new StemNotFoundException("membership stem not found");
     }
-    Stem ns = new Stem();
+    Stem ns = getStemFromCache(uuid);
+	if(ns != null) return ns;
+    
+     ns = new Stem();
     ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
     ns.setSession( this.getSession() );
+    putStemInCache(ns);
     return ns;
   } // public Stem getStem()
 
@@ -519,5 +534,33 @@ public class Membership extends GrouperAPI {
   private MembershipDTO _getDTO() {
     return (MembershipDTO) super.getDTO();
   } 
+  
+  //@since   1.3.0
+  private Group getGroupFromCache(String uuid) {
+	  Element el = this.cc.getCache(CACHE_GET_GROUP).get(uuid);
+	    if (el != null) {
+	      return (Group) el.getObjectValue();
+	    }
+	    return null;
+  } 
+  
+  //@since   1.3.0
+  private Stem getStemFromCache(String uuid) {
+	  Element el = this.cc.getCache(CACHE_GET_STEM).get(uuid);
+	    if (el != null) {
+	      return (Stem) el.getObjectValue();
+	    }
+	    return null;
+  } 
+  
+  //@since   1.3.0
+  private void putGroupInCache(Group g) {
+	  this.cc.getCache(CACHE_GET_GROUP).put( new Element( g.getUuid(),g) );
+  }
+  
+  //@since   1.3.0
+  private void putStemInCache(Stem stem) {
+	  this.cc.getCache(CACHE_GET_STEM).put( new Element( stem.getUuid(),stem) );
+  }
   
 }
