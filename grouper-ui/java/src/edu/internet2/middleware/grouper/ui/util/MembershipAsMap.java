@@ -17,10 +17,6 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
-import java.util.Set;
-
-import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -32,7 +28,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipAsMap.java,v 1.5 2007-10-31 09:53:37 isgwb Exp $
+ * @version $Id: MembershipAsMap.java,v 1.3 2007-03-12 09:49:08 isgwb Exp $
  */
 public class MembershipAsMap extends ObjectAsMap {
 
@@ -63,45 +59,19 @@ public class MembershipAsMap extends ObjectAsMap {
 		this.withParents=withParents;
 		wrappedObject = membership;
 		try {
-			put("memberUuid",GrouperHelper.getMemberUuid(membership));
+			put("subject",GrouperHelper.subject2Map(membership.getMember().getSubject()));
+			put("group",GrouperHelper.group2Map(null,membership.getGroup()));
 			put("field",membership.getList());
+			try{
+				put("viaGroup",GrouperHelper.group2Map(null,membership.getViaGroup()));
+			}catch(Exception igex){}
+			try{
+				put("parentMembership",new MembershipAsMap(membership.getParentMembership()));
+			}catch(Exception igex){}
 		}catch(Exception e) {
 			throw new RuntimeException(membershipToString(membership) + e.getMessage());
 		}
 	}
-	
-	
-	/* (non-Javadoc)
-	 * @see java.util.Map#get(java.lang.Object)
-	 */
-	public Object get(Object key) {
-		//Map would override GrouperGroup values
-		Object obj=super.get(key);
-		
-		if(obj==null) {
-			//No value, so check the wrapped group
-			try {
-			if("subject".equals(key)) {
-				obj = GrouperHelper.subject2Map(membership.getMember().getSubject());
-				put(key,obj);
-			}else if("group".equals(key)) {
-				obj=GrouperHelper.group2Map(null,membership.getGroup());
-				put(key,obj);
-			}else if("viaGroup".equals(key)) {
-				obj=GrouperHelper.group2Map(null,membership.getViaGroup());
-				put(key,obj);
-			}else if("parentMembership".equals(key)) {
-				obj=new MembershipAsMap(membership.getParentMembership());
-				put(key,obj);
-			}
-			}catch(Exception e){}
-			if(obj!=null) return obj;			
-		}
-		
-		if(obj==null) obj="";
-		return obj;
-	}
-	
 	
 	public String membershipToString(Membership mship) {
 		Member m=null;

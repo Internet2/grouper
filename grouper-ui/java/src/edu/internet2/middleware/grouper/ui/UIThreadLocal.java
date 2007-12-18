@@ -25,7 +25,7 @@ import java.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: UIThreadLocal.java,v 1.5 2007-10-15 10:04:47 isgwb Exp $
+ * @version $Id: UIThreadLocal.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $
  */
 public class UIThreadLocal {
 	private static ThreadLocal threadLocal = new ThreadLocal();
@@ -65,8 +65,8 @@ public class UIThreadLocal {
 	public static void put(String key, Object value) {
 		Map map = init();
 		Object current = map.get(key);
-		if (current instanceof Collection) {
-			((Collection) current).add(value);
+		if (current instanceof List) {
+			((List) current).add(value);
 			return;
 		}
 		map.put(key, value);

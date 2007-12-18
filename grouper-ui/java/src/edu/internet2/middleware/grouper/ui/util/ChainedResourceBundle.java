@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ChainedResourceBundle.java,v 1.4 2007-10-15 10:04:47 isgwb Exp $
+ * @version $Id: ChainedResourceBundle.java,v 1.2 2005-12-08 15:31:42 isgwb Exp $
  */
 
 public class ChainedResourceBundle extends ResourceBundle implements
@@ -38,8 +38,6 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	private String name = null;
 
 	private String mapName = null;
-	
-	private HashMap cache = new HashMap();
 
 	/**
 	 * Constructor - ensures atleast one bundle!
@@ -81,22 +79,8 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	 */
 	protected Object handleGetObject(String key) {
 		UIThreadLocal.put(name, key);
-		Object obj = null;
-		Boolean doShowResourcesInSitu = (Boolean) UIThreadLocal
-		.get("doShowResourcesInSitu");
-		if (doShowResourcesInSitu != null
-				&& doShowResourcesInSitu.booleanValue()
-				&& name.startsWith("nav")) {
-			obj= "???" + key + "???";
-			return obj;
-		}
-		
 		ResourceBundle bundle = null;
-		obj = cache.get(key);
-		if(obj != null) {
-			UIThreadLocal.put(mapName, key, obj);
-			return obj;
-		}
+		Object obj = null;
 		for (int i = 0; i < chain.size(); i++) {
 			bundle = (ResourceBundle) chain.get(i);
 			try {
@@ -108,12 +92,12 @@ public class ChainedResourceBundle extends ResourceBundle implements
 			} catch (Exception e) {
 			}
 		}
-		
+		Boolean doShowResourcesInSitu = (Boolean) UIThreadLocal
+				.get("doShowResourcesInSitu");
 		if (doShowResourcesInSitu != null
 				&& doShowResourcesInSitu.booleanValue()
 				&& name.startsWith("nav"))
-			obj= "???" + key + "???";
-		
+			return "???" + key + "???";
 		return obj;
 	}
 
