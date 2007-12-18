@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find memberships within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.88 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: MembershipFinder.java,v 1.89 2007-12-18 10:33:09 isgwb Exp $
  */
 public class MembershipFinder {
   
@@ -270,7 +270,22 @@ public class MembershipFinder {
     ).iterator();
     try {
       while (it.hasNext()) {
-        subjs.add ( ( (Membership) it.next() ).getMember().getSubject() );
+    	//2007-12-18 Gary Brown
+        //Instantiating all the Subjects can be very slow. LazySubjects
+    	//only make expensive calls when necessary - so a client can page 
+        //results.
+    	//A partial alternative may have been to always instantiate the Member of
+    	//a Membership when the latter is created - assuming one query.
+    	try {
+    		subjs.add ( new LazySubject((Membership) it.next()) );
+    	}catch(GrouperRuntimeException gre) {
+    		if(gre.getCause() instanceof MemberNotFoundException) {
+    			throw (MemberNotFoundException) gre.getCause();
+    		}
+    		if(gre.getCause() instanceof SubjectNotFoundException) {
+    			throw (SubjectNotFoundException) gre.getCause();
+    		}
+    	}
       }
     }
     catch (MemberNotFoundException eMNF) {
