@@ -108,17 +108,7 @@ Framework and with full support for DOM, SAX and JAXP."
 * License:  LGPL (?)
 * Updated:  20060807
 
-
-# hibernate2.jar, hibernate-tools.jar, hibernate.license.txt
-
-"Object-Relational mapping"
-
-* Version:  2.6.1 (?)
-* Source:   <http://www.hibernate.org/>
-* License:  LGPL (see local file hibernate.license.txt)
-* Updated:  20061207
-
 ---
 
-$Id: README.txt,v 1.3 2006-12-08 01:43:16 ddonn Exp $
+$Id: README.txt,v 1.2 2006-08-07 19:12:09 blair Exp $
 
