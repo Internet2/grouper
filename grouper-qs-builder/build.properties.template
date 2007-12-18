@@ -1,5 +1,3 @@
-qs.version=1-0-RC2
-
 #If grouper.folder is not set to an existing installation
 #the build script will export grouper from CVS
 
@@ -13,8 +11,8 @@ qs.version=1-0-RC2
 
 
 #The directory where the QuickStart distribution will be created
-qs.dirname=grouper-qs
-quickstart.dir=${basedir}/../${qs.dirname=grouper-qs}
+
+quickstart.dir=${basedir}/../grouper-qs
 
 
 #true=include build.xml and java/src and java/lib

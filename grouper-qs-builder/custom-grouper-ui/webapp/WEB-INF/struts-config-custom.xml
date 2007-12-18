@@ -20,13 +20,6 @@
 
       <forward name="easyLoginForm" path="EasyLoginFormDef" redirect="true"/>
     </action>
-
-<action path="/home" scope="request"
-            type="edu.internet2.middleware.grouper.ui.actions.HomeAction"
-            unknown="false" validate="false">
-                  <forward name="home" path="/populateAllGroups.do"
-               redirect="false"/>
-    </action>
   </action-mappings>
   <plug-in className="org.apache.struts.tiles.TilesPlugin">
     <set-property property="moduleAware" value="true"/>

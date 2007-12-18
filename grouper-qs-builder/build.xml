@@ -10,17 +10,7 @@
 		<antcall target="-export-grouper-ui-from-cvs"/>
 		<antcall target="complete-quickstart"/>
 		<antcall target="make-javadoc"/>
-		<antcall target="-tar"/>
 		
-		
-	</target>
-	
-	<target name="-tar">
-		<tar basedir="${quickstart.dir}/../" 
-			 includes="${qs.dirname}/**"
-			 compression="gzip" 
-			 destfile="${quickstart.dir}/../grouper-quickstart_${qs.version}.tgz" 
-			 longfile="gnu"/>
 	</target>
 	
 	<target name="copydb" description="Ensures baseline database">
@@ -53,15 +43,7 @@
 			<copy todir="${grouper.folder}/conf" overwrite="true">
 				<fileset dir=".">
 					<include name="sources.xml"/>
-					<include name="grouper.hibernate.properties"/>
-					
-				</fileset>
-			</copy>
-			<copy todir="${grouper.folder}/src/conf" overwrite="true">
-				<fileset dir=".">
-					<include name="sources.xml"/>
-					<include name="grouper.hibernate.properties"/>
-					
+					<include name="hibernate.properties"/>
 				</fileset>
 			</copy>
 			<copy tofile="${grouper.folder}/conf/grouper.properties" file="grouper.app.properties"/>
@@ -77,8 +59,8 @@
 			 <mkdir dir="${quickstart.dir}/grouper/dist"/>
 			 <mkdir dir="${quickstart.dir}/grouper/dist/lib"/>
 			 <mkdir dir="${quickstart.dir}/grouper/dist/run"/>
-			
-			<!--<copy file="${grouper.folder}/dist/lib/grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/grouper.jar"/>-->
+			<ant dir="${grouper.folder}" target="dist"/>
+			<copy file="${grouper.folder}/dist/lib/grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/grouper.jar"/>
 			 <copy todir="${quickstart.dir}/grouper/dist/lib">
 				 <fileset dir="${grouper.folder}/lib"/>
 			 </copy>
@@ -87,27 +69,18 @@
 			<copy todir="${quickstart.dir}/grouper/conf">
 				<fileset dir="${grouper.folder}/conf"></fileset>
 			</copy>
-
+			<copy todir="${quickstart.dir}/grouper/doc">
+				<fileset dir="${grouper.folder}/doc"></fileset>
+			</copy>
 			<copy todir="${quickstart.dir}/grouper">
 				<fileset dir="${grouper.folder}">
 					<include name="contrib/**/*"/>
 					<include name="sql/**/*"/>
-					<include name="ext/**/*"/>
 					<include name="LICENSE"/>
 					<include name="README"/>
 					<include name="build.xml"/>
-					<include name="buildGrouper.properties"/>
-					<include name="*.txt"/>
 					<exclude name="src"/>
 					<exclude name="lib"/>
-				</fileset>
-			</copy>
-			<mkdir dir="${quickstart.dir}/grouper/doc"/>
-			<copy todir="${quickstart.dir}/grouper/doc">
-				<fileset dir="${grouper.folder}">
-					<include name="LICENSE"/>
-					<include name="README"/>
-					<include name="*.txt"/>
 				</fileset>
 			</copy>
 			<antcall target="-make-grouper-complete"/>
@@ -134,7 +107,7 @@
 			 </target>
 			 
 		<target name="complete-quickstart">			 
-			  <copy todir="${quickstart.dir}" overwrite="true">
+			  <copy todir="${quickstart.dir}">
 				  <fileset dir=".">
 						 <include name="*.bat"/>
 						 <include name="*.jar"/>
@@ -143,15 +116,11 @@
 						 <include name="subjects.sql"/>
 				  </fileset>
 			  </copy>
-			  <copy todir="${quickstart.dir}/grouper-ui" file="tomcat-users.xml" overwrite="true"/>
 			  <copy todir="${quickstart.dir}" file="doc/README.html"/>
 			  <copy tofile="${quickstart.dir}/build.xml" file="build-db.xml"/>
-			  <copy file="${quickstart.dir}/grouper-ui/build.properties.template" tofile="${quickstart.dir}/grouper-ui/build.properties"/>
-		 	<copy file="${quickstart.dir}/grouper-ui/template-tomcat-context.xml" tofile="${quickstart.dir}/grouper-ui/tomcat-context.xml"/>
 			 <!-- <copy tofile="${quickstart.dir}/grouper/build.xml" file="grouper-bin-build.xml"/>-->
-			  
+			  <copy tofile="${quickstart.dir}/grouper-ui/contrib/quick-start/build.properties" file="quickstart-contrib-build.properties"/>
 			  <chmod dir="${quickstart.dir}" perm="+x" includes="*.sh"/>
-			  <touch><fileset dir="${quickstart.dir}/grouper/conf"/></touch>
 	 </target>
 	 
 	 <target name="-make-grouper-complete" if="grouper.complete">
@@ -247,11 +216,9 @@
 				</and>
 		 </condition>
 		 <fail unless="grouper.folder.for.javadoc">Cannot determine a grouper folder to generate Javadoc</fail>
-		 
 		 <ant dir="${quickstart.dir}/grouper-ui" target="html">
 			 <property name="grouper.folder" value="${grouper.folder.for.javadoc}"/>
 		 </ant>
-		 
 	 </target>
 	 
 </project>
