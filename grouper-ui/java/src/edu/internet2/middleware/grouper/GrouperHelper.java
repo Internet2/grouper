@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.39 2007-11-14 17:00:38 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.40 2007-12-18 10:37:01 isgwb Exp $
  */
 
 
@@ -2858,6 +2858,10 @@ public class GrouperHelper {
 	
 	public static GrouperSession getRootGrouperSession(GrouperSession s) {
 		return s.internal_getRootSession();	
+	}
+	
+	public static boolean isDirect(LazySubject ls) {
+		return ls.getMembership().getDepth()==0;
 	}
 	
 	
