@@ -2,7 +2,7 @@
 			Displays subject attributes
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectInfo.jsp,v 1.7 2007-10-05 10:19:42 isgwb Exp $
+  @version $Id: subjectInfo.jsp,v 1.6 2007-03-12 09:55:25 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -21,7 +21,22 @@
 </div>
  
 </c:forEach>
-
+<div class="formRow">
+	<div class="formLeft">
+		<fmt:message bundle="${nav}" key="subject.summary.subject-type"/>
+	</div>
+	<div class="formRight">
+		<c:out value="${subject.subjectType}"/>
+	</div>
+</div>
+<div class="formRow">
+	<div class="formLeft">
+		<c:out value="ID"/>
+	</div>
+	<div class="formRight">
+		<c:out value="${subject['id']}"/>
+	</div>
+</div>
 
 	<c:set target="${listFieldParams}" property="groupId" value="${listFieldParams.subjectId}"/>
 	<c:set target="${listFieldParams}" property="asMemberOf" value="${listFieldParams.subjectId}"/>

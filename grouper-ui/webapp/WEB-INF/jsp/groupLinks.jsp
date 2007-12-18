@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.8 2007-10-16 11:26:07 isgwb Exp $
+  @version $Id: groupLinks.jsp,v 1.7 2006-07-19 11:08:52 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -54,7 +54,7 @@
 		</c:if>
 		<c:if test="${groupPrivs.ADMIN}">
 		
-			<html:link page="/deleteGroup.do"  name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
+			<html:link page="/deleteGroup.do"  name="group">
 				<fmt:message bundle="${nav}" key="groups.action.delete"/>
 			</html:link>
 		

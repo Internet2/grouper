@@ -2,7 +2,7 @@
 		Tile which displays the generic subject search functionality. Designed to be embedded in actual forms
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectSearchFragment.jsp,v 1.4 2007-11-08 14:40:03 isgwb Exp $
+  @version $Id: subjectSearchFragment.jsp,v 1.3 2006-02-21 16:36:14 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute/>
@@ -42,15 +42,12 @@
 	)</label>
 		</div>
 </div>
-<c:set var="insertFragmentKey" value="subject.search.form-fragment.${source.id}"/>
-<c:set var="insertFragment" value="${mediaMap[insertFragmentKey]}"/>
-<% 
-if (!pageContext.getAttribute("insertFragment").toString().matches("^\\?\\?.*")) {
-%>	
-	<tiles:insert definition="${insertFragment}"/>
-<%
-}
-%>
+<c:if test="${source.id=='g:gsa'}">
+	<c:if test="${!empty groupInsert}">
+		<tiles:insert definition="${groupInsert}"/>
+	</c:if>
+	<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
+</c:if>
 <c:remove var="checked"/>
 <div class="formRow"><hr/></div>
 </c:forEach>
