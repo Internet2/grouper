@@ -35,14 +35,14 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CreateRepositoryBrowser.java,v 1.6 2007-11-06 16:44:28 isgwb Exp $
+ * @version $Id: CreateRepositoryBrowser.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
  */
 
 
 public class CreateRepositoryBrowser extends AbstractRepositoryBrowser{
 	
 	
-	
+	private Map savedValidStems=null;
 	public CreateRepositoryBrowser(){
 		prefix = "repository.browser.create.";
 		browseMode="Create";

@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.StemNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: StemAsMap.java,v 1.5 2007-10-05 09:23:13 isgwb Exp $
+ * @version $Id: StemAsMap.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $
  */
 public class StemAsMap extends ObjectAsMap {
 	
@@ -59,7 +59,9 @@ public class StemAsMap extends ObjectAsMap {
 		put("isStem", Boolean.TRUE);
 		put("id", stem.getUuid());
 		put("stemId", stem.getUuid());
-		
+		try{
+		put("stem",stem.getParentStem().getName());
+		}catch(StemNotFoundException e){}
 	}
 
 	/*
@@ -71,17 +73,9 @@ public class StemAsMap extends ObjectAsMap {
 		//Map would override GrouperGroup values
 		Object obj = super.get(key);
 		if (obj == null) {
-			if("stem".equals(key)) {
-				try{
-					put("stem",stem.getParentStem().getName());
-					}catch(StemNotFoundException e){
-						int a=0;
-					}
-					obj = super.get(key);
-			}else{
 			//No value, so check the wrapped stem
-				obj = getByIntrospection(key);
-			}
+			Class stemClass = stem.getClass();
+			obj = getByIntrospection(key);
 			
 		}
 		if (obj == null)

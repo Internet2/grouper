@@ -3,14 +3,13 @@
 		  of tiles used to construct current page
 --%><%--
   @author Gary Brown.
-  @version $Id: dynamicTileHistory.jsp,v 1.3 2007-12-13 09:33:25 isgwb Exp $
+  @version $Id: dynamicTileHistory.jsp,v 1.2 2005-11-08 15:56:28 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:forEach var="tile" items="${dynamicTiles}">
 	<ul><li><c:if test="${!empty tile.view}"><span style="text-width:50px;text-align:right">view</span>=<span style="text-align:left"><c:out value="${tile.view}"/></span><br/>
 	<span style="text-width:50px;text-align:right">type</span>=<span style="text-align:left"><c:out value="${tile.type}"/></span><br/>
 	<span style="text-width:50px;text-align:right">key</span>=<span style="text-align:left"><c:out value="${tile.key}"/></span><br/>
-	
 	</c:if>
 	<span style="text-width:50px;text-align:right">tile</span>=
 	
@@ -34,9 +33,6 @@
 			<span style="text-align:left"><c:out value="${tile.tile}"/></span><br/>
 		</c:otherwise>
 	</c:choose>
-	<c:if test="${!empty tile.jspErr}">
-		<span style="text-width:50px;text-align:right" class="jspError">Error</span>=<span style="text-align:left"><c:out value="${tile.jspErr.class.simpleName}"/>:<c:out value="${tile.jspErr.message}"/></span><br/>
-	</c:if>
 	<%
 		Map tile = (Map)pageContext.getAttribute("tile");
 		List children = (List)tile.get("children");
