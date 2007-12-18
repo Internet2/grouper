@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Source;
  * message.
  * 
  * @author Catherine Jewell.
- * @version $Id: ProcessSearchTerm.java,v 1.2 2007-12-05 11:29:32 isgwb Exp $
+ * @version $Id: ProcessSearchTerm.java,v 1.1 2007-11-08 14:40:03 isgwb Exp $
  */
 
 public class ProcessSearchTerm {
@@ -47,11 +47,7 @@ public class ProcessSearchTerm {
   		ResourceBundle mediaBundle = LowLevelGrouperCapableAction.getMediaResources(request);
   		
   		try{
-  			String keyValue = null;
-  			
-  			try {
-  				keyValue=(String) mediaBundle.getString("subject.search.term.process." + sourceId);
-  			}catch(MissingResourceException mre) {}
+  			String keyValue = (String) mediaBundle.getString("subject.search.term.process." + sourceId);
   			
   			if (keyValue != null){
   				
