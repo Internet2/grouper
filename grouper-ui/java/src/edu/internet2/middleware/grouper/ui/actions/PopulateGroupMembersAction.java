@@ -21,8 +21,6 @@ package edu.internet2.middleware.grouper.ui.actions;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +42,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 
@@ -112,11 +109,6 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Indicates that user has clicked 
       'Export members' button</font></td>
-  </tr>
-  <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">selectedSource</font></p></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Filters members by source. Retrieved from session if not present</font></td>
   </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
@@ -204,18 +196,6 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">Collection of memberships to 
       be exported</font></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">sources</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Map of source ids - display 
-      names. If &gt;1 then let user filter</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">sourcesSize</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Number of sources represented 
-      in result set</font></td>
-  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -238,11 +218,6 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Use if groupId not set</font></td>
   </tr>
-  <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">selectedSource</font></p></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN/OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">See Request parameter of same name</font></td>
-  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -256,7 +231,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.20 2007-10-18 09:10:04 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.17 2007-04-11 08:19:24 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -280,11 +255,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		if(!isEmpty(request.getParameter("submit.import"))) {
 			return mapping.findForward(FORWARD_ImportMembers);
 		}
-		boolean membersFilterBySource = false;
-		try {
-			membersFilterBySource = "true".equals(getMediaResources(request).getString("members.filter.by-source"));
-		}catch(Exception e) {}
-		String selectedSource=null;
+		
 		session.setAttribute("subtitle","groups.action.show-members");
 		String noResultsKey="groups.list-members.none";
 		DynaActionForm groupForm = (DynaActionForm) form;
@@ -303,15 +274,6 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		Group group = null;
 		String listField = request.getParameter("listField");
 		String membershipField = "members";
-		
-		selectedSource = (String)groupForm.get("selectedSource");
-		
-		if(isEmpty(selectedSource)) {
-			selectedSource=(String)session.getAttribute("selectedSource");
-			groupForm.set("selectedSource",selectedSource);
-		}else{
-			session.setAttribute("selectedSource",selectedSource);
-		}
 		
 		if(!isEmpty(listField)) membershipField=listField;
 		Field mField = FieldFinder.find(membershipField);
@@ -379,50 +341,9 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			}
 			
 		}
-		
 		Map countMap = new HashMap();
-		Map sources = new HashMap();
-		int membersFilterLimit=500;
-		if(!membersFilterBySource) {
-			membersFilterLimit=0;
-		}else{
-			String mfl = getMediaResources(request).getString("members.filter.limit");
-			try {
-				membersFilterLimit = Integer.parseInt(mfl);
-			}catch(Exception e){}
-		}
-		
-		List uniqueMemberships = null;
-		if("imm".equals(membershipListScope) && membersFilterLimit<members.size()) {
-			uniqueMemberships=new ArrayList(members);
-		}else{
-			uniqueMemberships=GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap,sources,membersFilterLimit);
-		}
-		
+		List uniqueMemberships = GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap);
 		uniqueMemberships=sort(uniqueMemberships,request,"members");
-		Map.Entry entry = null;
-		Iterator sIterator = sources.entrySet().iterator();
-		String lookupKey=null;
-		while(sIterator.hasNext()) {
-			entry=(Map.Entry) sIterator.next();
-			try {
-				lookupKey="subject-source."+ entry.getKey()+".display-name";
-				entry.setValue(getNavResources(request).getString(lookupKey));
-			}catch(Exception e){}
-		}
-		if("_void_".equals(selectedSource)) selectedSource=null;
-		if(!isEmpty(selectedSource) && sources.get(selectedSource)!=null && members.size()<membersFilterLimit) {
-			Iterator it = uniqueMemberships.iterator();
-			Membership mShip=null;
-			while(it.hasNext()) {
-				mShip=(Membership)it.next();
-				if(!mShip.getMember().getSubjectSourceId().equals(selectedSource)) {
-					it.remove();
-				}
-			}
-		}
-		request.setAttribute("sources",sources);
-		request.setAttribute("sourcesSize", sources.size());
 		request.setAttribute("browseParent", GrouperHelper.group2Map(
 				grouperSession, group));
 		if(!isEmpty(request.getParameter("submit.export"))) {

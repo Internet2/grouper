@@ -2,7 +2,7 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePriv.jsp,v 1.4 2007-12-03 12:01:41 isgwb Exp $
+  @version $Id: effectivePriv.jsp,v 1.3 2006-07-06 14:31:00 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -11,16 +11,9 @@
 <c:set target="${params}" property="subjectType" value="${subject.subjectType}"/>
 	<c:set var="privMap" value="${groupOrStemPrivEntry.value}"/>
 	<c:set var="group" value="${privMap.group}"/>
-	<c:if test="${groupOrStemPrivEntry.key!='subject'}"> 
+	<c:if test="${groupOrStemPrivEntry.key!='subject'}">
 	<div class="effectivePriv">
 	<c:choose>
-	<c:when test="${groupOrStemPrivEntry.key=='GrouperSystem'}">
-					<c:set target="${params}" property="subjectId" value="GrouperSystem"/>
-				<c:set target="${params}" property="subjectType" value="application"/>
-				<c:set target="${params}" property="asMemberOf" value="${browseParent.id}"/>
-				<c:set var="memberPage" value="/populateGroupMember.do"/>
-			<fmt:message bundle="${nav}" key="subject.privileges.from-groupersystem"/>
-	</c:when>
 		<c:when test="${groupOrStemPrivEntry.key!='GrouperAll'}">
 			<c:set target="${params}" property="asMemberOf" value="${group.id}"/>
 			<%--  Use params to make link title descriptive for accessibility --%>		
@@ -76,19 +69,17 @@
 		</c:choose>
 		<c:out value="${linkSeparator}" escapeXml="false"/>
 		<c:set target="${params}" property="listField" value="${listField}"/>
-		
-			<tiles:insert definition="dynamicTileDef" flush="false">
-				  <tiles:put name="viewObject" beanName="subject"/>
-				  <tiles:put name="view" value="hasPrivilege"/>
-				  <tiles:put name="params" beanName="params"/>
-		  		  <tiles:put name="linkTitle" beanName="linkTitle"/>
-				  <tiles:put name="memberPage" beanName="memberPage"/>
-				  <tiles:put name="privMap" beanName="privMap"/>
-				  <tiles:put name="linkSeparator" beanName="linkSeparator"/>
-				</tiles:insert>
-	
+		<tiles:insert definition="dynamicTileDef" flush="false">
+			  <tiles:put name="viewObject" beanName="subject"/>
+			  <tiles:put name="view" value="hasPrivilege"/>
+			  <tiles:put name="params" beanName="params"/>
+	  		  <tiles:put name="linkTitle" beanName="linkTitle"/>
+			  <tiles:put name="memberPage" beanName="memberPage"/>
+			  <tiles:put name="privMap" beanName="privMap"/>
+			  <tiles:put name="linkSeparator" beanName="linkSeparator"/>
+			</tiles:insert>
 			<c:set target="${params}" property="listField" value=""/>
 		</div>
 	</c:if>
 
-</grouper:recordTile>  
+</grouper:recordTile>

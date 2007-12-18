@@ -3,16 +3,9 @@
 		  except 'Find' mode 
 --%><%--
   @author Gary Brown.
-  @version $Id: SearchGroupResults.jsp,v 1.4 2007-09-30 08:58:17 isgwb Exp $
+  @version $Id: SearchGroupResults.jsp,v 1.3 2006-02-24 13:44:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<c:if test="${!empty subjectOfInterest}">
-	<div class="groupSearchSubject"><fmt:message bundle="${nav}" key="subject.action.search-groups.info"/> 
-	<tiles:insert definition="dynamicTileDef" flush="false">
-	  			<tiles:put name="viewObject" beanName="subjectOfInterest"/>
-	  			<tiles:put name="view" value="groupSearchForPrivileges"/>
-  			</tiles:insert></div>
-</c:if>
 <c:set var="termMode" value="query"/>
 <c:set var="termText" value=""/>
 <c:forEach var="outTerm" items="${queryOutTerms}">
@@ -47,16 +40,7 @@
 	<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
 	<tiles:put name="view" value="searchResult"/>
 	<tiles:put name="headerView" value="searchResultHeader"/>
-	<c:choose>
-		<c:when test="${browseMode=='SubjectSearch'}">
-			<tiles:put name="itemView" value="groupSearchResultWithPrivs"/>
-			<tiles:put name="useTable" value="true"/>
-			<tiles:put name="tableClass" value="groupSearchResultsWithPrivsTable"/>
-		</c:when>
-		<c:otherwise>
-			<tiles:put name="itemView" value="groupSearchResultLink"/>
-		</c:otherwise>
-	</c:choose>
+	<tiles:put name="itemView" value="groupSearchResultLink"/>
 	<tiles:put name="footerView" value="searchResultFooter"/>
 	<tiles:put name="pager" beanName="pager"/>
 	<tiles:put name="listInstruction" value="list.instructions.search-result-group"/>
@@ -71,13 +55,6 @@
 	<tiles:put name="buttonText"><fmt:message bundle="${nav}" key="find.results.search-again"/></tiles:put>
 </tiles:insert>
 <c:if test="${grouperForm.map.advSearch=='Y'}">
-<c:choose>
-	<c:when test="${browseMode=='SubjectSearch'}">
-		<a href="populateSubjectSummary.do?advancedSearch=false"><fmt:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
-	</c:when>
-	<c:otherwise>
-		<a href="populate<c:out value="${browseMode}"/>Groups.do?advancedSearch=false"><fmt:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
-	</c:otherwise>
-	</c:choose>
+<a href="populate<c:out value="${browseMode}"/>Groups.do?advancedSearch=false"><fmt:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
 </c:if>
 </div>

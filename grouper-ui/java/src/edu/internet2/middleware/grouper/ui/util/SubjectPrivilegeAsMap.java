@@ -21,7 +21,6 @@ import java.util.Map;
 
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.LazySubject;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.subject.Subject;
@@ -32,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectPrivilegeAsMap.java,v 1.4 2007-12-18 10:37:01 isgwb Exp $
+ * @version $Id: SubjectPrivilegeAsMap.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
  */
 public class SubjectPrivilegeAsMap extends ObjectAsMap {
 
@@ -90,7 +89,6 @@ public class SubjectPrivilegeAsMap extends ObjectAsMap {
 		if (obj == null) {
 			//No value, so check the wrapped stem
 			if("isDirect".equals(key)) {
-				if(subject instanceof LazySubject) return GrouperHelper.isDirect((LazySubject)subject);
 				try {
 					Map tmpPrivMap = GrouperHelper.getImmediateHas(s,groupOrStem,MemberFinder.findBySubject(s,subject));
 					Boolean answer = new Boolean(tmpPrivMap.containsKey(privilege.toUpperCase()));
