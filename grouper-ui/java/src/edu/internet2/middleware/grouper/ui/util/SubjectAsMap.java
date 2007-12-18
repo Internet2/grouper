@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.8 2007-12-18 10:37:01 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.7 2007-04-11 08:21:25 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
@@ -51,14 +51,14 @@ public class SubjectAsMap extends ObjectAsMap {
 					"Cannot create SubjectAsMap with a null Subject");
 		this.subject = subject;
 		wrappedObject = subject;
-		//put("subjectType", subject.getType().getName());
-		//put("subjectId", subject.getId());
-		//if (subject.getType().getName().equals("person")) {
+		put("subjectType", subject.getType().getName());
+		put("subjectId", subject.getId());
+		if (subject.getType().getName().equals("person")) {
 
 			//put("subjectTypeAdapter",subject.getType().getAdapter().getClass().getName());
 			
-			//put("isMember", Boolean.TRUE);
-		//}
+			put("isMember", Boolean.TRUE);
+		}
 
 	}
 
@@ -81,7 +81,7 @@ public class SubjectAsMap extends ObjectAsMap {
 			//if (values != null && values.size() != 0)
 			//	obj = values.iterator().next();
 		
-				if ("id".equals(key)||"subjectId".equals(key))
+				if ("id".equals(key))
 					obj = subject.getId();
 				else if ("description".equals(key) || "desc".equals(key)) {
 					obj = subject.getDescription();

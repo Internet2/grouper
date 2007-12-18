@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.io.FilterReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +39,6 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Top level Strut's action which searches groups for current browseMode. 
@@ -87,12 +87,6 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Identifies which attribute to 
       search </font></td>
   </tr>
-  <tr> 
-    <td><p><font face="Arial, Helvetica, sans-serif">searchIn=name or any</font></p></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Indicates whether to do name 
-      or a ny attribute search</font></td>
-  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Request Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -109,11 +103,6 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">List of (query,field,and / or 
       / not) used to display what was searched for</font></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">subjectOfInterest</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">SubjectAsMap - from groupSearchSubjectMap</font></td>
-  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -129,33 +118,19 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Maintain user selection</font></td>
   </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">searchGroupDefault</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">puts searchIn into session for 
-      future default</font></td>
-  </tr>
-  <tr bgcolor="#FFFFFF"> 
-    <td><font face="Arial, Helvetica, sans-serif">groupSearchSubjectMap</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Subject from populateSubjectSummary 
-      for who we are finding groups to display privileges</font></td>
-  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
   <tr> 
-    <td><font face="Arial, Helvetica, sans-serif">forSubject</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
-    <td><font face="Arial, Helvetica, sans-serif">Indicates to group search machinery 
-      that results should be filtered i.e. only show groups where session subject 
-      has ADMIN and where the groupSearchSubject has at least one privilege</font></td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.9 2007-09-30 08:58:18 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.7 2007-03-15 15:30:16 isgwb Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {
@@ -178,14 +153,10 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		String browseMode = getBrowseMode(session);
 		DynaActionForm searchForm = (DynaActionForm) form;
 		//Determine what we are searching for
-		saveAsCallerPage(request,searchForm,"browseMode subjectOfInterest");
 		String query = (String) searchForm.get("searchTerm");
 		String searchFrom = (String) searchForm.get("searchFrom");
 		String searchInNameOrExtension = (String) searchForm.get("searchInNameOrExtension");
 		String searchInDisplayNameOrExtension = (String) searchForm.get("searchInDisplayNameOrExtension");
-		String searchIn=(String)searchForm.get("searchIn");
-		if(!isEmpty(searchIn)) session.setAttribute("searchGroupDefault",searchIn);
-		
 		String groupSearchResultField = (String) searchForm.get("groupSearchResultField");
 		String sortContext="search";
 		if(!isEmpty(groupSearchResultField)) {
@@ -211,13 +182,6 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		try {
 			groupRes = repositoryBrowser.search(grouperSession, query,
 				searchFrom, request.getParameterMap(),outTerms);
-			if("forSubject".equals(mapping.getParameter())) {
-				session.setAttribute("subtitle", "subject.action.search-groups");
-				request.setAttribute("subjectOfInterest",session.getAttribute("groupSearchSubjectMap"));
-				groupRes=GrouperHelper.filterGroupsForSubject(grouperSession,groupRes,(Subject)session.getAttribute("groupSearchSubject"));
-			}else{
-				session.setAttribute("subtitle", "groups.action.search");
-			}
 			groupRes=sort(groupRes,request,sortContext);
 		}catch(IllegalArgumentException e) {
 			request.setAttribute("message",new Message("find.results.empty-search",true));
@@ -228,10 +192,7 @@ public class SearchGroupsAction extends GrouperCapableAction {
 			end = groupRes.size();
 		List groupResMaps = GrouperHelper.groups2Maps(grouperSession, groupRes
 				.subList(start, end));
-		if("forSubject".equals(mapping.getParameter())) {
-			groupResMaps=GrouperHelper.embellishGroupMapsWithSubjectPrivs(grouperSession, groupResMaps,(Subject)session.getAttribute("groupSearchSubject"));
-		}
-			//Set up the CollectionPager for the view
+		//Set up the CollectionPager for the view
 		CollectionPager pager = new CollectionPager(groupResMaps, groupRes
 				.size(), null, start, null, pageSize);
 

@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AllRepositoryBrowser.java,v 1.7 2007-10-21 13:22:11 isgwb Exp $
+ * @version $Id: AllRepositoryBrowser.java,v 1.6 2007-04-11 08:19:24 isgwb Exp $
  */
 
 
@@ -75,8 +75,13 @@ public class AllRepositoryBrowser extends AbstractRepositoryBrowser{
 	 * @throws Exception
 	 */
 	protected boolean isValidSearchResult(Group searchResult) throws Exception {
-		//The API now does a canView check...
-		return true;
+		Subject subj = getGrouperSession().getSubject();
+		return (searchResult.hasView(subj)|| 
+				searchResult.hasRead(subj)||
+				searchResult.hasUpdate(subj)||
+				searchResult.hasAdmin(subj)||
+				searchResult.hasOptin(subj)||
+				searchResult.hasOptout(subj));
 	}
 
 	/* (non-Javadoc)
