@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.7 2007-11-16 16:57:09 isgwb Exp $
+$Id: sources.xml,v 1.5 2006-07-20 14:46:33 isgwb Exp $
 -->
 
 <sources>
@@ -41,8 +41,7 @@ $Id: sources.xml,v 1.7 2007-11-16 16:57:09 isgwb Exp $
      </init-param>
      <init-param>
        <param-name>dbUrl</param-name>
- <!--<param-value>jdbc:hsqldb:C:/projects/GrouperI2MI_1-2/grouper/dist/run/grouper</param-value>-->
-  <param-value>jdbc:hsqldb:hsql://localhost:9001</param-value>
+ <param-value>jdbc:hsqldb:hsql://localhost:9001</param-value>
      </init-param>
      <init-param>
        <param-name>dbUser</param-name>
@@ -67,10 +66,6 @@ $Id: sources.xml,v 1.7 2007-11-16 16:57:09 isgwb Exp $
 
      <search>
          <searchType>searchSubject</searchType>
-		  <param>
-        	<param-name>numParameters</param-name>
-        	<param-value>1</param-value>
-        </param>
          <param>
              <param-name>sql</param-name>
              <param-value>
@@ -81,25 +76,21 @@ select
 from
    subject
    left join (select subjectid, value as lfname from subjectattribute
-     where name='name')  lfnamet
+     where name='name') as lfnamet
      on subject.subjectid=lfnamet.subjectid
    left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid')  loginidt
+     where name='loginid') as loginidt
      on subject.subjectid=loginidt.subjectid
    left join (select subjectid, value as description from subjectattribute
-      where name='description')  desct
+      where name='description') as desct
      on subject.subjectid=desct.subjectid
 where
-   subject.subjectid = ?
-            </param-value>
+   subject.subjectid = '%TERM%'
+             </param-value>
          </param>
      </search>
      <search>
          <searchType>searchSubjectByIdentifier</searchType>
-		  <param>
-        	<param-name>numParameters</param-name>
-        	<param-value>1</param-value>
-        </param>
          <param>
              <param-name>sql</param-name>
              <param-value>
@@ -110,25 +101,21 @@ select
 from
    subject
    left join (select subjectid, value as lfname from subjectattribute
-     where name='name')  lfnamet
+     where name='name') as lfnamet
      on subject.subjectid=lfnamet.subjectid
    left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid')  loginidt
+     where name='loginid') as loginidt
      on subject.subjectid=loginidt.subjectid
    left join (select subjectid, value as description from subjectattribute
-      where name='description')  desct
+      where name='description') as desct
      on subject.subjectid=desct.subjectid
 where
-   loginidt.loginid = ?
+   loginidt.loginid = '%TERM%'
              </param-value>
          </param>
      </search>
      <search>
         <searchType>search</searchType>
-		 <param>
-        	<param-name>numParameters</param-name>
-        	<param-value>4</param-value>
-        </param>
          <param>
              <param-name>sql</param-name>
              <param-value>
@@ -139,19 +126,19 @@ select
 from
    subject
    left join (select subjectid, value as lfname from subjectattribute
-     where name='name')  lfnamet
+     where name='name') as lfnamet
      on subject.subjectid=lfnamet.subjectid
    left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid')  loginidt
+     where name='loginid') as loginidt
      on subject.subjectid=loginidt.subjectid
    left join (select subjectid, value as description from subjectattribute
-      where name='description')  desct
+      where name='description') as desct
      on subject.subjectid=desct.subjectid
 where
-   (lower(name) like concat('%',concat(?,'%')))
-   or (lower(lfnamet.lfname) like concat('%',concat(?,'%')))
-   or (lower(loginidt.loginid) like concat('%',concat(?,'%')))
-   or (lower(desct.description) like concat('%',concat(?,'%')))
+   (lower(name) like '%%TERM%%')
+   or (lower(lfnamet.lfname) like '%%TERM%%')
+   or (lower(loginidt.loginid) like '%%TERM%%')
+   or (lower(desct.description) like '%%TERM%%')
              </param-value>
          </param>
      </search>
