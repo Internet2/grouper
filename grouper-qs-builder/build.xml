@@ -87,27 +87,18 @@
 			<copy todir="${quickstart.dir}/grouper/conf">
 				<fileset dir="${grouper.folder}/conf"></fileset>
 			</copy>
-
+			<copy todir="${quickstart.dir}/grouper/doc">
+				<fileset dir="${grouper.folder}/doc"></fileset>
+			</copy>
 			<copy todir="${quickstart.dir}/grouper">
 				<fileset dir="${grouper.folder}">
 					<include name="contrib/**/*"/>
 					<include name="sql/**/*"/>
-					<include name="ext/**/*"/>
 					<include name="LICENSE"/>
 					<include name="README"/>
 					<include name="build.xml"/>
-					<include name="buildGrouper.properties"/>
-					<include name="*.txt"/>
 					<exclude name="src"/>
 					<exclude name="lib"/>
-				</fileset>
-			</copy>
-			<mkdir dir="${quickstart.dir}/grouper/doc"/>
-			<copy todir="${quickstart.dir}/grouper/doc">
-				<fileset dir="${grouper.folder}">
-					<include name="LICENSE"/>
-					<include name="README"/>
-					<include name="*.txt"/>
 				</fileset>
 			</copy>
 			<antcall target="-make-grouper-complete"/>
