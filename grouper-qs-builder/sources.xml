@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.7 2007-11-16 16:57:09 isgwb Exp $
+$Id: sources.xml,v 1.6 2007-04-17 13:59:09 isgwb Exp $
 -->
 
 <sources>
@@ -81,17 +81,17 @@ select
 from
    subject
    left join (select subjectid, value as lfname from subjectattribute
-     where name='name')  lfnamet
+     where name='name') as lfnamet
      on subject.subjectid=lfnamet.subjectid
    left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid')  loginidt
+     where name='loginid') as loginidt
      on subject.subjectid=loginidt.subjectid
    left join (select subjectid, value as description from subjectattribute
-      where name='description')  desct
+      where name='description') as desct
      on subject.subjectid=desct.subjectid
 where
    subject.subjectid = ?
-            </param-value>
+             </param-value>
          </param>
      </search>
      <search>
@@ -110,13 +110,13 @@ select
 from
    subject
    left join (select subjectid, value as lfname from subjectattribute
-     where name='name')  lfnamet
+     where name='name') as lfnamet
      on subject.subjectid=lfnamet.subjectid
    left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid')  loginidt
+     where name='loginid') as loginidt
      on subject.subjectid=loginidt.subjectid
    left join (select subjectid, value as description from subjectattribute
-      where name='description')  desct
+      where name='description') as desct
      on subject.subjectid=desct.subjectid
 where
    loginidt.loginid = ?
@@ -139,13 +139,13 @@ select
 from
    subject
    left join (select subjectid, value as lfname from subjectattribute
-     where name='name')  lfnamet
+     where name='name') as lfnamet
      on subject.subjectid=lfnamet.subjectid
    left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid')  loginidt
+     where name='loginid') as loginidt
      on subject.subjectid=loginidt.subjectid
    left join (select subjectid, value as description from subjectattribute
-      where name='description')  desct
+      where name='description') as desct
      on subject.subjectid=desct.subjectid
 where
    (lower(name) like concat('%',concat(?,'%')))
