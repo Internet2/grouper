@@ -132,7 +132,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.16 2007-09-27 15:41:31 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.15 2007-04-17 08:40:07 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -197,18 +197,6 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	protected  String getProperty(String key) {
 		try {
 			return mediaBundle.getString(getPrefix() + key);
-		}catch(MissingResourceException e){}
-		return "";
-	}
-	
-	/**
-	 * Returns configuration settings
-	 * @param key
-	 * @return
-	 */
-	protected  String getMediaProperty(String key) {
-		try {
-			return mediaBundle.getString(key);
 		}catch(MissingResourceException e){}
 		return "";
 	}
@@ -461,13 +449,6 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			if(isAdvancedSearch) {
 				results = advancedSearch(s,from,attr,outTerms);
 			}else {
-				String searchInAny=getMediaProperty("search.default.any");
-				if("only".equals(searchInAny) || ("true".equals(searchInAny) && "any".equals(getSingle("searchIn",attr)))) {
-					searchInDisplayNameOrExtension=null;
-					searchInNameOrExtension=null;
-					
-				}
-				
 				results = GrouperHelper.searchGroups(s,query,from,searchInDisplayNameOrExtension,searchInNameOrExtension,browseMode);
 				if(outTerms!=null) outTerms.add(query);
 			}

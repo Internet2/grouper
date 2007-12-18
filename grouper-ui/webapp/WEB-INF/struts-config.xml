@@ -64,12 +64,10 @@
 	  <form-property name="contextSubjectType" type="java.lang.String"/>
 	  <form-property name="callerPageId" type="java.lang.String"/>
 	  <form-property name="importData" type="org.apache.struts.upload.FormFile"/>
-	  <form-property name="importString" type="java.lang.String"/>
 	  <form-property name="exportFormat" type="java.lang.String"/>
 	  <form-property name="importFormat" type="java.lang.String"/>
 	  <form-property name="submit.export" type="java.lang.String"/>
 	  <form-property name="submit.import" type="java.lang.String"/>
-	  	   <form-property name="selectedSource" type="java.lang.String"/>
 	  
     </form-bean>
     
@@ -119,7 +117,6 @@
 	   <form-property name="contextSubjectId" type="java.lang.String"/>
 	   <form-property name="contextSubjectType" type="java.lang.String"/>
 	   <form-property name="callerPageId" type="java.lang.String"/>
-	   <form-property name="selectedSource" type="java.lang.String"/>
     </form-bean>
     
     <form-bean dynamic="true" name="SearchFormBean"
@@ -135,7 +132,6 @@
 	        <form-property name="subjectSource" type="java.lang.String"/>
 	        <form-property name="searchInDisplayNameOrExtension" type="java.lang.String"/>
 	        <form-property name="searchInNameOrExtension" type="java.lang.String"/>
-		   <form-property name="searchIn" type="java.lang.String"/>
 	        <form-property name="pageSize" type="java.lang.String"/>
 	        <form-property name="callerPageId" type="java.lang.String"/>
 			<form-property name="groupSearchResultField" type="java.lang.String"/>
@@ -173,7 +169,6 @@
       <form-property name="asMemberOf" type="java.lang.String"/>
       <form-property name="pageSize" type="java.lang.String"/>
       <form-property name="callerPageId" type="java.lang.String"/>
-	  	  <form-property name="importString" type="java.lang.String"/>
     </form-bean>
     
      <form-bean dynamic="true" name="AssignMembersFormBean"
@@ -565,7 +560,6 @@
             type="edu.internet2.middleware.grouper.ui.actions.PopulateSubjectSummaryAction"
             unknown="false" validate="false">
                   <forward name="SubjectSummary" path="SubjectSummaryDef" redirect="false"/>
-				  <forward name="GroupSearch" path="/populateAllGroups.do" redirect="false"/>
     </action>
 	
 
@@ -791,12 +785,6 @@
     </action>
     
     <action name="SearchFormBean" path="/searchGroupsAll" scope="request"
-            type="edu.internet2.middleware.grouper.ui.actions.SearchGroupsAction"
-            unknown="false" validate="false">
-      <forward name="Results" path="SearchGroupResultsDef" redirect="false"/>
-    </action>
-	
-	   <action name="SearchFormBean" parameter="forSubject" path="/searchGroupsSubjectSearch" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.SearchGroupsAction"
             unknown="false" validate="false">
       <forward name="Results" path="SearchGroupResultsDef" redirect="false"/>

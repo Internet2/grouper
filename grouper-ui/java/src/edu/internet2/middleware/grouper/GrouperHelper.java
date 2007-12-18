@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-
+import net.sf.hibernate.Session;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.40 2007-12-18 10:37:01 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.30 2007-04-17 08:40:07 isgwb Exp $
  */
 
 
@@ -1118,17 +1118,10 @@ public class GrouperHelper {
 	 */
 	public static List searchGroups(GrouperSession s, String query, String from,String searchInDisplayNameOrExtension,String searchInNameOrExtension) 
 	throws StemNotFoundException,QueryException{
-
-		if(searchInDisplayNameOrExtension==null && searchInNameOrExtension==null) {
-			GrouperQuery q = GrouperQuery.createQuery(s,new GroupAnyAttributeFilter(query,StemFinder.findByName(s,from)));
-			Set res = q.getGroups();
-			return new ArrayList(res);
-		}
-		
 		List displayResults = null;
 		List nonDisplayResults=null; 
 		String attr = null;
-		if(searchInDisplayNameOrExtension != null && !"".equals(searchInDisplayNameOrExtension)) {
+		if(!"".equals(searchInDisplayNameOrExtension)) {
 			if("name".equals(searchInDisplayNameOrExtension)) {
 				attr="displayName";
 			}else{
@@ -1136,7 +1129,7 @@ public class GrouperHelper {
 			}
 			displayResults = searchGroupsByAttribute(s,query,from,attr);	
 		}
-		if(searchInNameOrExtension !=null && !"".equals(searchInNameOrExtension)) {
+		if(!"".equals(searchInNameOrExtension)) {
 			if("name".equals(searchInNameOrExtension)) {
 				attr="name";
 			}else{
@@ -1147,12 +1140,13 @@ public class GrouperHelper {
 		if(displayResults==null && nonDisplayResults==null) return new ArrayList();
 		if(displayResults==null && nonDisplayResults!=null) return nonDisplayResults;
 		if(displayResults!=null && nonDisplayResults==null) return displayResults;
-		Set unique = new HashSet();
-		unique.addAll(displayResults);
-		unique.addAll(nonDisplayResults);
-
+		Object obj;
+		for(int i=0;i<nonDisplayResults.size();i++) {
+			obj = nonDisplayResults.get(i);
+			if(!displayResults.contains(obj)) displayResults.add(obj);
+		}
 			
-		return new ArrayList(unique);
+		return displayResults;
 		
 	}
 
@@ -1166,8 +1160,8 @@ public class GrouperHelper {
 	 * @param s GrouperSession for authenticated user
 	 * @param query to search for
 	 * @param from Stem which scopes search
-	 * @param searchInDisplayNameOrExtension name=displayName / extension=displayExtension
-	 * @param searchInNameOrExtension name=name / extension=extension
+	 * @param searchInDisplayNameOrExtension name=displayName / extemsion=displayExtension
+	 * @param searchInNameOrExtension name=name / extemsion=extension
 	 * @param browseMode UI browse mode to filter results by
 	 * @return List of GrouperGroups matched
 	 */
@@ -1807,7 +1801,7 @@ public class GrouperHelper {
 	 * @param s
 	 * @param groupOrStem
 	 * @param member
-	 * @return Map keyed on privilege name for indirect privileges for member on the group or stem, and how derived
+	 * @return Map keyed on privilege name forindirect privileges for member on the group or stem, and how derived
 	 */
 	public static Map getExtendedHas(GrouperSession s,GroupOrStem groupOrStem,Member member,Field field) throws SchemaException{
 		Map map  =getAllHas(s,groupOrStem,member,field);
@@ -2228,13 +2222,12 @@ public class GrouperHelper {
 	 * Trims down input so that the 'same' membership does not occur twice
 	 * @param memberships
 	 * @param type
-	 * @param count - keeps track of the number of times a membership occurred
-	 * @param sources - keeps track of different sources providing subjects
+	 * @param count - keeps track of the numbe rof times a membership occurred
 	 * @return List with one item per subject, but also update specified Map with count of how many memberships a member has
 	 * @throws MemberNotFoundException
 	 * @throws GroupNotFoundException
 	 */
-	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count,Map sources,int membersFilterLimit) 
+	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count) 
 		throws MemberNotFoundException,GroupNotFoundException{
 		//won't pass back values but will give 'unique' list
 		if(count==null) count=new HashMap();
@@ -2254,9 +2247,7 @@ public class GrouperHelper {
 			if("subject".equals(type)){
 				id = m.getGroup().getUuid();
 			}else if("group".equals(type)) {
-				//id =m.getMember().getSubjectId();
-				id=m.getMemberUuid();
-				
+				id =m.getMember().getSubjectId();
 			}else{
 				throw new IllegalArgumentException("type must be 'subject' or 'group'");
 			}
@@ -2268,7 +2259,6 @@ public class GrouperHelper {
 				curCount = new Integer(curCount.intValue()+1);
 			}
 			count.put(id,curCount);
-			if(memberships.size() < membersFilterLimit) sources.put(m.getMember().getSubjectSource().getId(), m.getMember().getSubjectSource().getName());
 		}
 		return res;
 	}
@@ -2285,24 +2275,21 @@ public class GrouperHelper {
 	public static void setMembershipCountPerSubjectOrGroup(List membershipMaps,String type,Map count)
 		throws GroupNotFoundException,MemberNotFoundException{
 		if(count==null) return;
-		MembershipAsMap mMap;
+		Map mMap;
 		Map gMap;
-		//Map sMap;
+		Map sMap;
 		
 		String id;
 		Integer curCount;
-		Membership m=null;
 		for(int i=0;i<membershipMaps.size();i++) {
-			mMap = (MembershipAsMap)membershipMaps.get(i);
+			mMap = (Map)membershipMaps.get(i);
 			gMap = (Map)mMap.get("group");
-			//sMap = (Map)mMap.get("subject");
+			sMap = (Map)mMap.get("subject");
 		
 			if("subject".equals(type)){
 				id = (String)gMap.get("id");
 			}else if("group".equals(type)) {
-				//id = (String)sMap.get("memberUuid");
-				m=(Membership)mMap.getWrappedObject();
-				id=m.getMemberUuid();
+				id = (String)sMap.get("id");
 			}else{
 				throw new IllegalArgumentException("type must be 'subject' or 'group'");
 			}
@@ -2783,89 +2770,9 @@ public class GrouperHelper {
 		return res;
 	}
 	
-	/**
-	 * Filter groups according to privileges of session subject and whether 
-	 * provided subject has any privileges for this group
-	 * @param s
-	 * @param groups
-	 * @param subject
-	 * @return filtered List
-	 */
-	public static List filterGroupsForSubject(GrouperSession s,List groups,Subject subject) {
-		List ok = new ArrayList();
-		Group group;
-		for (int i=0;i<groups.size();i++) {
-			group = (Group)groups.get(i);
-			if(group.hasAdmin(s.getSubject())) {
-				if(group.hasMember(subject)||
-						group.hasView(subject)||
-						group.hasAdmin(subject)||
-						group.hasUpdate(subject)||
-						group.hasRead(subject)||
-						group.hasOptin(subject)||
-						group.hasOptout(subject)
-						) {
-					ok.add(group);
-				}
-			}
-		}
-		
-		return ok;
-	
-	}
-	
-	/**
-	 * Supplement group maps with privilege info for provided subject 
-	 * assuming subject has any privileges for this group
-	 * @param s
-	 * @param groups
-	 * @param subject
-	 * @return a List of embellished groups
-	 */
-	public static List embellishGroupMapsWithSubjectPrivs(GrouperSession s,List groups,Subject subject) throws Exception{
-		
-		GroupAsMap group;
-		Map privs=null;
-		Member member = MemberFinder.findBySubject(s,subject);
-		GroupOrStem gs = null;
-		
-		for (int i=0;i<groups.size();i++) {
-			group = (GroupAsMap)groups.get(i);
-			gs=GroupOrStem.findByGroup(s, (Group)group.getWrappedObject());
-			privs=getAllHas(s,gs,member);
-			group.put("subjectPrivs", privs);
-			group.put("privsSubject", subject.getId());
-		}
-		
-		return groups;
-	
-	}
-	
-	/**
-	 * Rather than force a client to  call getMember which involves a SQL query
-	 * expose the memberUuid where that is sufficient
-	 * @param m
-	 * @return memberUuid
-	 */
-	public static String getMemberUuid(Membership m) {
-		return m.getMemberUuid();
-	}
-	
-
-	public static boolean isRoot(GrouperSession s) {
-		return PrivilegeHelper.isRoot(s);
-	}
-	
-	public static GrouperSession getRootGrouperSession(GrouperSession s) {
-		return s.internal_getRootSession();	
-	}
-	
-	public static boolean isDirect(LazySubject ls) {
-		return ls.getMembership().getDepth()==0;
-	}
 	
 	
-	/*public static List query(String sql) throws Exception{
+	public static List query(String sql) throws Exception{
 		Connection con = null;
 		try {
 			  List results = new ArrayList();
@@ -2890,7 +2797,7 @@ e.getMessage(), e);
 		    	}catch(Exception e){}
 		    }
 
-	}*/
+	}
 }
 
 

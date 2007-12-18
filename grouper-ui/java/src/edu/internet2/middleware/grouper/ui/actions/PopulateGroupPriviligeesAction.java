@@ -127,7 +127,7 @@ import edu.internet2.middleware.subject.Subject;
     <
 
   * @author Gary Brown.
- * @version $Id: PopulateGroupPriviligeesAction.java,v 1.8 2007-12-05 11:30:21 isgwb Exp $
+ * @version $Id: PopulateGroupPriviligeesAction.java,v 1.7 2007-03-15 15:30:16 isgwb Exp $
  */
 public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
@@ -162,7 +162,7 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		group = GroupFinder.findByUuid(grouperSession, groupId);
 		Set subjects = GrouperHelper.getSubjectsWithPriv(group,privilege);
 		List subjectPrivilegeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(grouperSession,sort(subjects,request,"privilegees"),group,privilege);
-		//Set up CollectionPager for the view
+		//Set up CollectionPager for th eview
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))
 			startStr = "0";

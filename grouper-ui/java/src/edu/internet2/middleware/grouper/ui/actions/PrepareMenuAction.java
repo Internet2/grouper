@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,7 +37,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
-import edu.internet2.middleware.grouper.ui.MenuFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.util.DOMHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -50,19 +48,16 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * menu.cache determines if menu is cached for users - use false for development
  * if changing source xml files
  * 
- * Since 1.2.1 a new mechanism has been put in place to control which users get which menu items. The
- * media.resources key menu.filters defines a space separated list of MenuFilter. Each filter has a chance
- * to veto a menu item. Currently, two MenuFilter implementations are provided:
- * <ul><li>edu.internet2.middleware.grouper.ui.RootMenuFilter</li>
- * <li>edu.internet2.middleware.grouper.ui.GroupMembershipMenuFilter</li></ul>
- * The latter is configured through an XML configuration file - 
-@see edu.internet2.middleware.grouper.ui.GroupMembershipMenuFilter
+ * Subclass this action (and override the Struts config definition) to process i.e. 
+ * include / exclude items based on context (including user
+ * since GrouperSession - and consequently the current subject - is available) 
+ * menuItems -> Session attribute -> List of Maps
  * 
 
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareMenuAction.java,v 1.4 2007-10-30 10:53:06 isgwb Exp $
+ * @version $Id: PrepareMenuAction.java,v 1.3 2006-02-24 13:36:52 isgwb Exp $
  */
 public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 
@@ -125,15 +120,7 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 	}
 	
 	protected boolean isValidMenuItem(Map item,GrouperSession grouperSession,HttpServletRequest request) {
-		Set menuFilters = SessionInitialiser.getMenuFilters(request.getSession());
-		if(menuFilters.isEmpty()) return true;
-		Iterator it = menuFilters.iterator();
-		MenuFilter filter;
-		while(it.hasNext()) {
-			filter=(MenuFilter)it.next();
-			if(!filter.isValid(grouperSession, item, request)) return false;
-		}
-		//if((isActiveWheelGroupMember(request.getSession())||"GrouperSystem".equals(SessionInitialiser.getGrouperSession(request.getSession()).getSubject().getId())) && "false".equals(item.get("forAdmin"))) return false;
+		if((isActiveWheelGroupMember(request.getSession())||"GrouperSystem".equals(SessionInitialiser.getGrouperSession(request.getSession()).getSubject().getId())) && "false".equals(item.get("forAdmin"))) return false;
 		return true;
 	}
 }
