@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
+import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -31,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: FieldAsMap.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: FieldAsMap.java,v 1.4 2008-01-09 13:54:31 isgwb Exp $
  */
 public class FieldAsMap extends ObjectAsMap {
 
@@ -86,4 +87,12 @@ public class FieldAsMap extends ObjectAsMap {
 		
 		return obj;
 	}
+	
+	protected Set getExtraKeys() {
+		Set keys  = new HashSet();
+		keys.add("displayName");
+		return keys;
+		
+	}
+
 }

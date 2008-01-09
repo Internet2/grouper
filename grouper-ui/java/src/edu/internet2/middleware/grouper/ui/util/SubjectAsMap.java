@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -30,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.8 2007-12-18 10:37:01 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.9 2008-01-09 13:54:31 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
@@ -117,4 +118,13 @@ public class SubjectAsMap extends ObjectAsMap {
 		
 		return obj;
 	}
+	
+	protected Set getExtraKeys() {
+		Set keys  = new HashSet();
+		keys.add("source");
+		keys.add("subjectType");
+		keys.add("subjectId");
+		return keys;
+	}
+
 }

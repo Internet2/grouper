@@ -18,8 +18,13 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import org.apache.commons.beanutils.DynaBean;
+import org.apache.commons.beanutils.*;
+
 
 
 /**
@@ -27,7 +32,7 @@ import org.apache.commons.beanutils.DynaBean;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ObjectAsMap.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: ObjectAsMap.java,v 1.6 2008-01-09 13:54:31 isgwb Exp $
  */
 public class ObjectAsMap extends HashMap {
 	protected String objType = null;
@@ -81,4 +86,55 @@ public class ObjectAsMap extends HashMap {
 			return dynaBean.get(key.toString());
 		}catch(Exception e){return null;}
 	}
+	
+	public Set keySet() {
+		// TODO Auto-generated method stub
+		Set keys = new LinkedHashSet();
+		keys.addAll(super.keySet());
+		keys.addAll(getExtraKeys());
+		if (dynaBean==null) dynaBean=new WrapDynaBean(wrappedObject);
+		DynaProperty[] props = dynaBean.getDynaClass().getDynaProperties();
+		for(int i=0;i<props.length;i++) {
+			if(isValidDynaProperty(props[i])) keys.add(props[i].getName());
+		}
+		return keys;
+	}
+	
+	private boolean isValidDynaProperty(DynaProperty prop) {
+		if(prop.isIndexed() || prop.isMapped()) return false;
+		Class type = prop.getType();
+		if(type.equals(String.class)) return true;
+		if(type.equals(Boolean.class)) return true;
+		if(type.equals(Integer.class)) return true;
+		return false;
+	}
+	
+	protected java.util.Set getExtraKeys() {
+		return new HashSet();
+	}
+	@Override
+	public boolean isEmpty() {
+		// TODO Auto-generated method stub
+		return keySet().size()==0;
+	}
+	@Override
+	public int size() {
+		// TODO Auto-generated method stub
+		return keySet().size();
+	}
+	@Override
+	public Set entrySet() {
+		// TODO Auto-generated method stub
+		HashMap map = new HashMap();
+		
+		Iterator it = keySet().iterator();
+		Object key;
+		while(it.hasNext()) {
+			key = it.next();
+			map.put(key, get(key));
+		}
+		return map.entrySet();
+	}
+	
+	
 }

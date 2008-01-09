@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -32,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.9 2007-10-31 09:53:37 isgwb Exp $
+ * @version $Id: GroupAsMap.java,v 1.10 2008-01-09 13:54:31 isgwb Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -107,4 +108,11 @@ public class GroupAsMap extends ObjectAsMap {
 		if(obj==null) obj="";
 		return obj;
 	}
+	
+	protected Set getExtraKeys() {
+		Set keys  = new HashSet();
+		keys.add("types");
+		return keys;
+	}
+
 }
