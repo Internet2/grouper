@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic <code>Membership</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.5 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: MembershipDTO.java,v 1.6 2008-01-09 14:07:01 isgwb Exp $
  * @since   1.2.0
  */
 public class MembershipDTO implements GrouperDTO {
@@ -41,6 +41,7 @@ public class MembershipDTO implements GrouperDTO {
   private String  listName;
   private String  listType;
   private String  memberUUID;
+  private MemberDTO  memberDTO;
   private String  ownerUUID;
   private String  parentUUID  = null;                           // reasonable default
   private String  type        = Membership.IMMEDIATE;           // reasonable default
@@ -139,11 +140,19 @@ public class MembershipDTO implements GrouperDTO {
    */
   public String getMemberUuid() {
     return this.memberUUID;
+  }
+    
+    /**
+     * @since   1.3.0
+     */
+    public MemberDTO getMemberDTO() {
+      return this.memberDTO;
+    }
 
   /**
    * @since   1.2.0
    */
-  }
+  
   public String getOwnerUuid() {
     return this.ownerUUID;
   }
@@ -246,6 +255,15 @@ public class MembershipDTO implements GrouperDTO {
     this.memberUUID = memberUUID;
     return this;
   }
+  
+  /**
+   * @since   1.3.0
+   */
+  
+  public MembershipDTO setMemberDTO(MemberDTO memberDTO) {
+    this.memberDTO = memberDTO;
+    return this;
+  }
 
   /**
    * @since   1.2.0
@@ -312,7 +330,7 @@ public class MembershipDTO implements GrouperDTO {
   
   // @since   1.2.0
   public static MembershipDTO getDTO(MembershipDAO dao) {
-    return new MembershipDTO()
+    MembershipDTO membershipDTO= new MembershipDTO()
       .setCreateTime( dao.getCreateTime() )
       .setCreatorUuid( dao.getCreatorUuid() )
       .setDepth( dao.getDepth() )
@@ -326,6 +344,10 @@ public class MembershipDTO implements GrouperDTO {
       .setUuid( dao.getUuid() )
       .setViaUuid( dao.getViaUuid() )
       ;
+    if(dao.getMemberDAO() !=null) {
+    	membershipDTO.setMemberDTO( MemberDTO.getDTO(dao.getMemberDAO()) );
+    }
+    return membershipDTO;
   }
   
 } 

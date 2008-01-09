@@ -20,6 +20,8 @@ import  edu.internet2.middleware.subject.*;
 import  java.util.Map;
 import  java.util.Set;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 
 /** 
  * {@link Subject} from a {@link Membership} - getMember().getSubject()
@@ -27,7 +29,7 @@ import  java.util.Set;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.1 2007-12-18 10:33:09 isgwb Exp $
+ * @version $Id: LazySubject.java,v 1.2 2008-01-09 14:07:01 isgwb Exp $
  */
 
 public class LazySubject implements Subject {
@@ -155,6 +157,18 @@ public Map getAttributes() {
 		}
 	    return SubjectHelper.eq(this, other);
 	  } // public boolean equals(other)
+	
+	/**
+	   * @since 1.3.0
+	   */ 
+	  public int hashCode() {
+	    return new HashCodeBuilder()
+	      .append(  this.getId()              )
+	      .append(  this.getSource().getId()  )
+	      .append(  this.getType().getName()  )
+	      .toHashCode()
+	      ;
+	  } // public int hashCode()
 	
 	protected Membership getMembership() {
 		return membership;
