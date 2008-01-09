@@ -23,6 +23,8 @@ import  edu.internet2.middleware.grouper.MembershipNotFoundException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateMemberDAO;
+import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateMembershipDAO;
 
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
@@ -32,13 +34,16 @@ import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
+
+
+
 import  org.hibernate.*;
 
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.2 2007-11-02 10:40:27 isgwb Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.3 2008-01-09 14:07:01 isgwb Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -55,6 +60,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   private String  listName;
   private String  listType;
   private String  memberUUID;
+  private MemberDAO  memberDAO;
   private String  ownerUUID;
   private String  parentUUID;
   private String  type;
@@ -692,6 +698,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public String getMemberUuid() {
     return this.memberUUID;
   }
+  
+  /**
+   * @since   @HEAD@
+   */
+  public MemberDAO getMemberDAO() {
+    return this.memberDAO;
+  }
 
   /**
    * @since   @HEAD@
@@ -781,6 +794,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public MembershipDAO setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
+    return this;
+  }
+  
+  /**
+   * @since   @HEAD@
+   */
+  public MembershipDAO setMemberDAO(MemberDAO memberDAO) {
+    this.memberDAO = memberDAO;
     return this;
   }
 
@@ -875,6 +896,27 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   {
     hs.createQuery("delete from Hib3MembershipDAO").executeUpdate();;
   } 
+  
+//PRIVATE CLASS METHODS //
+//@since 1.3.0
+  private Set<MembershipDTO> _getMembershipsFromMembershipAndMemberQuery(Query qry)
+    throws  HibernateException
+  {
+    Set<MembershipDTO> memberships = new LinkedHashSet<MembershipDTO>();
+    Iterator it = qry.list().iterator();
+    
+    while (it.hasNext()) {
+      Object[] tuple = (Object[])it.next();
+      HibernateMembershipDAO currMembershipDAO = (HibernateMembershipDAO)tuple[0];
+      HibernateMemberDAO currMemberDAO = (HibernateMemberDAO)tuple[1];
+      currMembershipDAO.setMemberDAO(currMemberDAO);
+      memberships.add(MembershipDTO.getDTO(currMembershipDAO));
+    }
+    return memberships;
+      
+
+  } // private Set<MembershipDAO> _getMembershipsFromMembershipAndmemberQuery(qry)
+
 
 } 
 

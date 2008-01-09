@@ -18,18 +18,24 @@
 package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import  edu.internet2.middleware.grouper.Field;
 import  edu.internet2.middleware.grouper.DefaultMemberOf;
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import  edu.internet2.middleware.grouper.Membership;
 import  edu.internet2.middleware.grouper.MembershipNotFoundException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.util.Date;
+import java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
+import java.util.Map;
 import  java.util.Set;
 import  net.sf.hibernate.*;
 
@@ -37,10 +43,10 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMembershipDAO.java,v 1.9 2007-11-02 10:40:27 isgwb Exp $
+ * @version $Id: HibernateMembershipDAO.java,v 1.10 2008-01-09 14:07:01 isgwb Exp $
  * @since   1.2.0
  */
-public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO {
+public class HibernateMembershipDAO extends HibernateDAO implements MembershipDAO { 
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = HibernateMembershipDAO.class.getName();
@@ -54,6 +60,7 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
   private String  listName;
   private String  listType;
   private String  memberUUID;
+  private MemberDAO  memberDAO;
   private String  ownerUUID;
   private String  parentUUID;
   private String  type;
@@ -220,28 +227,30 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
   public Set findAllByOwnerAndField(String ownerUUID, Field f) 
     throws  GrouperDAOException
   {
-    Set mships = new LinkedHashSet();
+    Set mships = null;
+    Session hs=null;
     try {
-      Session hs  = HibernateDAO.getSession();
+      hs  = HibernateDAO.getSession();
       Query   qry = hs.createQuery(
-        "from HibernateMembershipDAO as ms where  "
+        "select ms, m from HibernateMembershipDAO as ms, HibernateMemberDAO as m where  "
         + "     ms.ownerUuid   = :owner            "
         + "and  ms.listName  = :fname            "
         + "and  ms.listType  = :ftype            "
+        + "and  ms.memberUuid  = m.uuid          "
       );
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByOwnerAndField");
       qry.setString( "owner", ownerUUID                ); 
       qry.setString( "fname", f.getName()            );
       qry.setString( "ftype", f.getType().toString() ); 
-      Iterator it = qry.list().iterator();
-      while (it.hasNext()) {
-        mships.add( MembershipDTO.getDTO( (MembershipDAO) it.next() ) );
-      }
-      hs.close();
+      mships=_getMembershipsFromMembershipAndMemberQuery(qry); 
     }
     catch (HibernateException eH) {
       throw new GrouperDAOException( eH.getMessage(), eH );
+    }finally {
+    	try {
+    		if(hs !=null) hs.close();
+    	}catch(HibernateException e) {}
     }
     return mships;
   } 
@@ -691,6 +700,13 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
   public String getMemberUuid() {
     return this.memberUUID;
   }
+  
+  /**
+   * @since   1.3.0
+   */
+  public MemberDAO getMemberDAO() {
+    return this.memberDAO;
+  }
 
   /**
    * @since   1.2.0
@@ -780,6 +796,14 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
    */
   public MembershipDAO setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
+    return this;
+  }
+  
+  /**
+   * @since   1.3.0
+   */
+  public MembershipDAO setMemberDAO(MemberDAO memberDAO) {
+    this.memberDAO = memberDAO;
     return this;
   }
 
@@ -874,6 +898,26 @@ public class HibernateMembershipDAO extends HibernateDAO implements MembershipDA
   {
     hs.delete("from HibernateMembershipDAO");
   } // protected static void reset(hs)
+  
+// PRIVATE CLASS METHODS //
+//@since 1.3.0
+  private Set<MembershipDTO> _getMembershipsFromMembershipAndMemberQuery(Query qry)
+    throws  HibernateException
+  {
+    Set<MembershipDTO> memberships = new LinkedHashSet<MembershipDTO>();
+    Iterator it = qry.list().iterator();
+    
+    while (it.hasNext()) {
+      Object[] tuple = (Object[])it.next();
+      HibernateMembershipDAO currMembershipDAO = (HibernateMembershipDAO)tuple[0];
+      HibernateMemberDAO currMemberDAO = (HibernateMemberDAO)tuple[1];
+      currMembershipDAO.setMemberDAO(currMemberDAO);
+      memberships.add(MembershipDTO.getDTO(currMembershipDAO));
+    }
+    return memberships;
+      
+
+  } // private Set<MembershipDAO> _getMembershipsFromMembershipAndmemberQuery(qry)
 
 } 
 

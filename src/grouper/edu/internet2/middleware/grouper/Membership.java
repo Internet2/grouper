@@ -33,7 +33,7 @@ import net.sf.ehcache.Element;
  * A list membership in the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.86 2007-12-17 15:23:30 isgwb Exp $
+ * @version $Id: Membership.java,v 1.87 2008-01-09 14:07:01 isgwb Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -51,6 +51,8 @@ public class Membership extends GrouperAPI {
   private static        EhcacheController cc= new EhcacheController();
   public  static final  String            CACHE_GET_STEM = Membership.class.getName() + ".getStem";
  
+  
+  private Member member;
   // PUBLIC INSTANCE METHODS //
 
   public boolean equals(Object other) {
@@ -160,6 +162,15 @@ public class Membership extends GrouperAPI {
   public Member getMember() 
     throws MemberNotFoundException
   {
+	if(member !=null) return member;
+	MemberDTO mDTO=this._getDTO().getMemberDTO();
+	if(mDTO != null) {
+		member=new Member();
+		member.setDTO(mDTO);
+		member.setSession(this.getSession());
+		return member;
+	}
+
     String uuid = this._getDTO().getMemberUuid();
     if (uuid == null) {
       throw new MemberNotFoundException("membership does not have a member!");
@@ -167,6 +178,7 @@ public class Membership extends GrouperAPI {
     Member m = new Member();
     m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) );
     m.setSession( this.getSession() );
+    member=m;
     return m;
   } // public Member getMember()
 
