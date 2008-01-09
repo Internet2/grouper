@@ -46,6 +46,8 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 
 
@@ -216,6 +218,12 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
     <td><font face="Arial, Helvetica, sans-serif">Number of sources represented 
       in result set</font></td>
   </tr>
+    </tr>
+    <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupPrivilegeResolver</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Instance of UIGroupPrivilegeResolver</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -256,7 +264,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.20 2007-10-18 09:10:04 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.21 2008-01-09 13:26:18 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 
@@ -330,7 +338,13 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 	
 		//Retrieve the membership according to scope selected by user
 		group = GroupFinder.findByUuid(grouperSession, groupId);
-		if(group.canWriteField(mField)) request.setAttribute("canWriteField",Boolean.TRUE);
+		
+		UIGroupPrivilegeResolver resolver = 
+			UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
+					                                    getMediaResources(request), 
+					                                    group, grouperSession.getSubject());
+		request.setAttribute("groupPrivResolver", resolver.asMap());
+		if(resolver.canManageField(mField.getName())) request.setAttribute("canWriteField",Boolean.TRUE);
 		
 		List listFields = GrouperHelper.getListFieldsForGroup(grouperSession,group);
 		request.setAttribute("listFields",listFields);
@@ -467,11 +481,11 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		//TODO: some of this looks familar  - look at refactoring
 		Map privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession, group));
 		request.setAttribute("groupPrivs", privs);
-
+		
 		
 		request.setAttribute("groupMembership", membership);
 		request.setAttribute("noResultsKey", noResultsKey);
-		request.setAttribute("removableMembers",new Boolean("imm".equals(membershipListScope) && group.canWriteField(mField) && !group.isComposite() && members.size()>0));
+		request.setAttribute("removableMembers",new Boolean("imm".equals(membershipListScope) && resolver.canManageField(mField.getName()) && !group.isComposite() && members.size()>0));
 		
 		return mapping.findForward(FORWARD_GroupMembers);
 

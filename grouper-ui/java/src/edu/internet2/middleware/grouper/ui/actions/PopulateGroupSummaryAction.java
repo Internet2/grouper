@@ -37,6 +37,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 
 /**
  * Top level Strut's action which retrieves and makes available a GrouperGroup 
@@ -160,6 +162,11 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
     <td><font face="Arial, Helvetica, sans-serif">Indicates that the UI should 
       show the Edit Attributes button</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupPrivilegeResolver</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Instance of UIGroupPrivilegeResolver</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -200,7 +207,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.9 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.10 2008-01-09 13:26:18 isgwb Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
@@ -228,8 +235,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
 		Group group = GroupFinder.findByUuid(grouperSession,
 				groupId);
-		boolean userCanEditACustomAttribute = GrouperHelper.canUserEditAnyCustomAttribute(group);
-
+		
 		Map groupMap = GrouperHelper.group2Map(grouperSession, group);
 		groupMap.put("groupId", groupId);
 		groupMap.put("groupName", group.getName().substring(
@@ -238,6 +244,13 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		//TODO: check this
 		session.setAttribute("group", groupMap);
 		
+		UIGroupPrivilegeResolver resolver = 
+			UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
+					                                    getMediaResources(request), 
+					                                    group, grouperSession.getSubject());
+		request.setAttribute("groupPrivResolver", resolver.asMap());
+		boolean userCanEditACustomAttribute = resolver.canManageAnyCustomField();
+
 		//Only reset if we are not here on a diversion
 		if(isEmpty(groupForm.get("contextGroup"))) setBrowseNode(groupId,session);
 		Set compOwners = CompositeFinder.findAsFactor(group);

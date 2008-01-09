@@ -3,7 +3,7 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupPriviligees.jsp,v 1.2 2006-02-02 16:38:08 isgwb Exp $
+  @version $Id: GroupPriviligees.jsp,v 1.3 2008-01-09 13:26:18 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -35,9 +35,11 @@
 	</html:link>
 </c:if>
 
+<c:if test="${groupPrivResolver.canManagePrivileges}">
 <html:link page="/populateFindNewMembers.do" name="groupMembership">
 	<fmt:message bundle="${nav}" key="find.groups.add-new-privilegees"/>
 </html:link>
+</c:if>
 <html:link page="/populateGroupSummary.do" name="groupMembership">
 	<fmt:message bundle="${nav}" key="find.groups.done"/>
 </html:link>

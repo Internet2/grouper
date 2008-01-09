@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.8 2007-10-16 11:26:07 isgwb Exp $
+  @version $Id: groupLinks.jsp,v 1.9 2008-01-09 13:26:18 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -15,8 +15,8 @@
 		<tiles:insert definition="selectGroupPrivilegeDef"/>
 	</c:if>
 	<c:out value="${saveButton}" escapeXml="false"/>
-	<c:if test="${groupPrivs.ADMIN}">
-		
+	
+	<c:if test="${groupPrivResolver.canEditGroup}">
 			<html:link page="/populateEditGroup.do" name="group">
 				<fmt:message bundle="${nav}" key="groups.action.edit"/>
 			</html:link>
@@ -40,7 +40,7 @@
 			</html:link>
 		
 		</c:if>
-		<c:if test="${!isCompositeGroup && (groupPrivs.ADMIN  || groupPrivs.UPDATE)}">
+		<c:if test="${!isCompositeGroup && groupPrivResolver.canManageMembers}">
 		
 			<html:link page="/populateFindNewMembers.do"  name="group">
 				<fmt:message bundle="${nav}" key="find.groups.add-new-members"/>
@@ -52,7 +52,7 @@
 				<fmt:message bundle="${nav}" key="groups.action.as-factor"/>
 			</html:link>
 		</c:if>
-		<c:if test="${groupPrivs.ADMIN}">
+		<c:if test="${groupPrivResolver.canEditGroup}">
 		
 			<html:link page="/deleteGroup.do"  name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
 				<fmt:message bundle="${nav}" key="groups.action.delete"/>

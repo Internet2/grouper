@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.subject.Subject;
 
@@ -117,17 +119,49 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Used to give context to UI</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupPrivilegeResolver</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Instance of UIGroupPrivilegeResolver</font></td>
+  </tr>
+    <tr bgcolor="#CCCCCC"> 
+    <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
   <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">subtitle=groups.action.show-privilegees</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Key resolved in nav ResourceBundle 
+      </font></td>
+  </tr>
+  <tr bgcolor="#FFFFFF"> 
+    <td><font face="Arial, Helvetica, sans-serif">findForNode</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Use if groupId not set</font></td>
+  </tr>
+  <tr bgcolor="#CCCCCC"> 
+    <td><strong><font face="Arial, Helvetica, sans-serif">Strut's Action Parameter</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
+    <td><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+    <tr bgcolor="#FFFFFF"> 
     <td><font face="Arial, Helvetica, sans-serif">memberLinkMode</font></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Set to privilege so that can 
       be distinguished from list of group members</font></td>
   </tr>
-  <tr bgcolor="#CCCCCC"> 
-    <
+  </table>
+
+  
 
   * @author Gary Brown.
- * @version $Id: PopulateGroupPriviligeesAction.java,v 1.8 2007-12-05 11:30:21 isgwb Exp $
+ * @version $Id: PopulateGroupPriviligeesAction.java,v 1.9 2008-01-09 13:26:18 isgwb Exp $
  */
 public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
@@ -183,6 +217,11 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		membership.put("groupId", groupId);
 		membership.put("privilege", privilege);
 		
+		UIGroupPrivilegeResolver resolver = 
+				UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
+						                                    getMediaResources(request), 
+						                                    group, grouperSession.getSubject());
+		
 		//Set up view info
 		Map privs = GrouperHelper.hasAsMap(grouperSession, GroupOrStem.findByGroup(grouperSession,group));
 		request.setAttribute("groupPrivs", privs);
@@ -194,6 +233,8 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		
 		request.setAttribute("allGroupPrivs", GrouperHelper
 				.getGroupPrivs(grouperSession));
+		
+		request.setAttribute("groupPrivResolver", resolver.asMap());
 		
 		return mapping.findForward(FORWARD_GroupPriviligees);
 	}

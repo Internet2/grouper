@@ -42,6 +42,8 @@ import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -129,6 +131,11 @@ import edu.internet2.middleware.subject.Subject;
       <br>
       from priv.action.assigned key in nav ResourceBundle</font></td>
   </tr>
+  <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupPrivilegeResolver</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Instance of UIGroupPrivilegeResolver</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -151,7 +158,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupMemberAction.java,v 1.7 2007-08-03 14:38:01 isgwb Exp $
+ * @version $Id: SaveGroupMemberAction.java,v 1.8 2008-01-09 13:26:18 isgwb Exp $
  */
 public class SaveGroupMemberAction extends GrouperCapableAction {
 
@@ -208,6 +215,13 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 				newPrivileges[newCount++] = privileges[i].toLowerCase();
 			}
 		}
+		
+		UIGroupPrivilegeResolver resolver = 
+			UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
+					                                    getMediaResources(request), 
+					                                    curGroup, grouperSession.getSubject());
+		request.setAttribute("groupPrivResolver", resolver.asMap());
+
 		//TODO: should be transactional
 		//revoke any not selected that were there:
 		boolean hasAdmin = curGroup.hasAdmin(grouperSession.getSubject());
@@ -217,9 +231,11 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 			key = ((String) it.next()).toLowerCase();
 			if (!newPrivs.containsKey(key)) {
 				if (key.toLowerCase().equals("member")) {
-					if(!membershipField.equals("members") || !curGroup.hasComposite())
-						curGroup.deleteMember(member.getSubject(),mField);
-				} else if(hasAdmin) {
+					if(!membershipField.equals("members") || !curGroup.hasComposite()) {
+						if(resolver.canManageField(mField.getName()))
+								curGroup.deleteMember(member.getSubject(),mField);
+					}
+				} else if(resolver.canManagePrivileges()) {
 					try {
 						curGroup.revokePriv(member.getSubject(),Privilege.getInstance(key));
 						
@@ -232,16 +248,17 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 			}
 		}
 		//Assign new privileges
-		
-		if(failedRevocations.size()==0) {
-			GrouperHelper.assignPrivileges(grouperSession, curGroup.getUuid(),
-				new Subject[] { member.getSubject() },
-				newPrivileges, false,mField); 
-			request.setAttribute("message", new Message("priv.action.assigned"));
-		}else{
-			request.setAttribute("message", new Message("priv.action.assigned-failed",true));
-			request.setAttribute("failedRevocations", failedRevocations);
-			return mapping.findForward(FORWARD_GroupMember);
+		if(resolver.canManagePrivileges()) {
+			if(failedRevocations.size()==0) {
+				GrouperHelper.assignPrivileges(grouperSession, curGroup.getUuid(),
+					new Subject[] { member.getSubject() },
+					newPrivileges, false,mField); 
+				request.setAttribute("message", new Message("priv.action.assigned"));
+			}else{
+				request.setAttribute("message", new Message("priv.action.assigned-failed",true));
+				request.setAttribute("failedRevocations", failedRevocations);
+				return mapping.findForward(FORWARD_GroupMember);
+			}
 		}
 		if(doRedirectToCaller(groupOrStemMemberForm))return redirectToCaller(groupOrStemMemberForm);
 		if(!isEmpty(groupOrStemMemberForm.get("contextSubject"))) return mapping.findForward(FORWARD_SubjectSummary);

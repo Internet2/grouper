@@ -19,16 +19,13 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
-
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -39,7 +36,9 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
-import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
+
 
 
 /**
@@ -159,6 +158,11 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Maintain correct list field</font></td>
   </tr>
+    <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">groupPrivilegeResolver</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Instance of UIGroupPrivilegeResolver</font></td>
+  </tr>
   <tr bgcolor="#CCCCCC"> 
     <td><strong><font face="Arial, Helvetica, sans-serif">Session Attribute</font></strong></td>
     <td><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
@@ -197,7 +201,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.6 2006-02-22 15:32:50 isgwb Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.7 2008-01-09 13:26:18 isgwb Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 
@@ -296,7 +300,13 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		Map privs = GrouperHelper.hasAsMap(grouperSession, groupOrStem, member,mField); 
 		Map extendedPrivs = GrouperHelper.getExtendedHas(grouperSession,groupOrStem,member,mField);
 		Map immediatePrivs = GrouperHelper.getImmediateHas(grouperSession,groupOrStem,member,mField);
-		
+		if(!forStems) {
+			UIGroupPrivilegeResolver resolver = 
+				UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
+					                                    	getMediaResources(request), 
+					                                    	group, grouperSession.getSubject());
+			request.setAttribute("groupPrivResolver", resolver.asMap());
+		}
 		
 		//The actual privileges the subject has
 		String privileges[] = new String[immediatePrivs.size()];
