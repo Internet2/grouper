@@ -1,0 +1,12 @@
+#Determines the name of the web application
+webapp.name=grouper-ws
+
+#Where to build
+dist.home=${basedir}/../dist
+
+default.webapp.folder=${basedir}/../build/${webapp.name}
+default.webapp.folder.cleanable=true
+
+####Web application context - as seen by end user
+deploy.context.path=/${webapp.name}
+
