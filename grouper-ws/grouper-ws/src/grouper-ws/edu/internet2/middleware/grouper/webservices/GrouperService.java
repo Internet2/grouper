@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,6 +76,11 @@ public class GrouperService {
 		Subject actAsSubject = null;
 		try {
 			actAsSubject = GrouperServiceServlet.retrieveSubjectActAs(actAsSubjectLookup);
+			
+			if (actAsSubject == null) {
+				throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+			}
+			
 			//use this to be the user connected, or the user act-as
 			try {
 				session = GrouperSession.start(actAsSubject);
@@ -178,12 +182,13 @@ public class GrouperService {
 		} catch (RuntimeException re) {
 			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.EXCEPTION);
 			wsAddMemberResults.setSuccess("F");
-			Object[] logObject = new Object[]{"wsGroupLookup: ", wsGroupLookup, ", subjectLookups: " , subjectLookups, 
-					", replaceAllExisting: ", replaceAllExisting,  ", actAsSubject: ", actAsSubject, 
-					", wsAddMemberResults: ", wsAddMemberResults };
-			String theError = "Problem adding member to group: " + new ToStringBuilder(logObject) + ".  ";
+			String theError = "Problem adding member to group: wsGroupLookup: " + wsGroupLookup
+				+ ", subjectLookups: " + GrouperServiceUtils.toStringForLog(subjectLookups)
+				+ ", replaceAllExisting: " +  replaceAllExisting +  ", actAsSubject: " + actAsSubject
+				 + ".  ";
 			wsAddMemberResults.appendErrorMessage(theError);
-			LOG.error(theError, re);
+			//this is sent back to the caller anyway, so just log, and not send back again
+			LOG.error(theError + ", wsAddMemberResults: " + GrouperServiceUtils.toStringForLog(wsAddMemberResults), re);
 		} finally {
 			if (session != null) {
 				try {
@@ -211,6 +216,9 @@ public class GrouperService {
 						+ " failures of users added to the group.   ");
 				wsAddMemberResults.setSuccess("F");
 				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.PROBLEM_WITH_ASSIGNMENT);
+			} else {
+				wsAddMemberResults.setSuccess("T");
+				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.SUCCESS);
 			}
 		}
 		if (!"T".equalsIgnoreCase(wsAddMemberResults.getSuccess())) {

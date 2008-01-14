@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+
+<!DOCTYPE web-app PUBLIC 
+          "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+          "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+    <servlet>
+        <servlet-name>AxisServlet</servlet-name>
+        <display-name>Apache-Axis Servlet</display-name>
+        <!--  servlet-class>org.apache.axis2.transport.http.AxisServlet</servlet-class  -->
+        <!--  TODO make this a servlet filter -->
+        <servlet-class>edu.internet2.middleware.grouper.webservices.GrouperServiceServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AxisServlet</servlet-name>
+        <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
+
+     <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Web services</web-resource-name>
+      <url-pattern>/services/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+       <!-- NOTE:  This role is not present in the default users file -->
+       <role-name>grouper_user</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <!-- Define the Login Configuration for this Application -->
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Grouper Application</realm-name>
+  </login-config>
+
+  <!-- Security roles referenced by this web application -->
+  <security-role>
+    <description>
+      The role that is required to log in to the Manager Application
+    </description>
+    <role-name>grouper_user</role-name>
+  </security-role>
+</web-app>

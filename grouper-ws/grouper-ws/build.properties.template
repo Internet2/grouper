@@ -2,10 +2,13 @@
 webapp.name=grouper-ws
 
 #Where to build
-dist.home=${basedir}/../dist
+dist.home=${basedir}/build/dist
 
-default.webapp.folder=${basedir}/../build/${webapp.name}
-default.webapp.folder.cleanable=true
+#the web app expanded, and the war will be this .war
+webapp.folder=${dist.home}/${webapp.name}
+
+#clean when doing a dist
+dist.cleanOnDist=false
 
 ####Web application context - as seen by end user
 deploy.context.path=/${webapp.name}

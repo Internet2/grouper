@@ -57,7 +57,7 @@ public class GrouperServiceServlet extends AxisServlet {
 	 */
 	public static Subject retrieveSubjectLoggedIn() {
 		//use this to be the user connected, or the user act-as
-		String userIdLoggedIn = GrouperServiceServlet.retrieveUserPrincipalNameFromRequest();
+		String userIdLoggedIn = "GrouperSystem"; //TODO GrouperServiceServlet.retrieveUserPrincipalNameFromRequest();
 		Subject caller = null;
 		try {
 			try {
@@ -109,7 +109,7 @@ public class GrouperServiceServlet extends AxisServlet {
 			Group actAsGroup = GroupFinder.findByName(session, actAsGroupName);
 			
 			//if the logged in user is a member of the actAs group, then allow the actAs
-			if (actAsGroup.hasEffectiveMember(loggedInSubject)) {
+			if (actAsGroup.hasMember(loggedInSubject)) {
 				//this is the subject the web service wants to use
 				return actAsLookup.retrieveSubject();
 			}
