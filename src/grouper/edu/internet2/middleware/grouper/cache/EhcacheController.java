@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.cache;
+import java.net.URL;
+
 import  edu.internet2.middleware.grouper.cache.CacheStats;
 import  edu.internet2.middleware.grouper.cache.EhcacheStats;
 import  net.sf.ehcache.Cache;
@@ -26,7 +28,7 @@ import  net.sf.ehcache.Statistics;
 /**
  * Base class for common cache operations.
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.4 2007-08-27 16:48:25 blair Exp $
+ * @version $Id: EhcacheController.java,v 1.5 2008-01-14 04:53:44 mchyzer Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
@@ -83,7 +85,12 @@ public class EhcacheController implements CacheController {
    * @since   1.2.1
    */
   public void initialize() {
-    this.mgr = new CacheManager( this.getClass().getResource("/grouper.ehcache.xml") );
+    URL url = this.getClass().getResource("/grouper.ehcache.xml");
+    if (url == null) {
+      throw new RuntimeException("Cant find resourse /grouper.ehcache.xml, " +
+      		"make sure it is on the classpath");
+    }
+    this.mgr = new CacheManager(url);
   }
   
 }
