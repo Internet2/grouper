@@ -27,6 +27,8 @@ import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
 import  org.apache.commons.lang.builder.*;
 import  org.apache.commons.lang.time.*;
 
@@ -35,7 +37,7 @@ import  org.apache.commons.lang.time.*;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.74 2007-08-27 17:49:26 blair Exp $
+ * @version $Id: GrouperSession.java,v 1.75 2008-01-14 07:36:49 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -75,12 +77,13 @@ public class GrouperSession extends GrouperAPI {
   public static GrouperSession start(Subject subject) 
     throws SessionException
   {
+    Member            m = null;
     try {
       StopWatch sw = new StopWatch();
       sw.start();
 
       //  this will create the member if it doesn't already exist
-      Member            m   = MemberFinder.internal_findBySubject(subject); 
+      m   = MemberFinder.internal_findBySubject(subject); 
       GrouperSession    s   = new GrouperSession();
       GrouperSessionDTO _s  = new GrouperSessionDTO()
         .setMemberUuid( m.getUuid() )
@@ -95,7 +98,16 @@ public class GrouperSession extends GrouperAPI {
       return s;
     }
     catch (MemberNotFoundException eMNF)  {
-      String msg = E.S_START + eMNF.getMessage();
+      String idLog = subject == null ? " (subject is null) " : null;
+      if (StringUtils.isBlank(idLog)) {
+        //put the id in the error message if possible
+        String id = m != null ? m.getSubjectId() : null;
+        if (StringUtils.isBlank(id) && subject !=null) {
+          id = subject.getId();
+        }
+        idLog = " (for subject id: " + id + ") ";
+      }
+      String msg = E.S_START + idLog + eMNF.getMessage();
       ErrorLog.fatal(GrouperSession.class, msg);
       throw new SessionException(msg, eMNF);
     }
