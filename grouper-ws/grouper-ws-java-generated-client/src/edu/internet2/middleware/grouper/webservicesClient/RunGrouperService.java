@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsA
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 
+import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 
@@ -17,6 +18,12 @@ import java.lang.reflect.Array;
 
 
 /**
+ * Run this to run the generated axis client.
+ * 
+ * Generate the code:
+ * 
+ * C:\mchyzer\isc\dev\grouper\grouper-ws-java-generated-client>wsdl2java -p edu.internet2.middleware.grouper.webservicesClient -t -uri GrouperService.wsdl
+ *
  * @author mchyzer
  *
  */
@@ -27,6 +34,15 @@ public class RunGrouperService {
     public static void main(String[] args) throws Exception {
         GrouperServiceStub stub = new GrouperServiceStub(
                 "http://localhost:8090/grouper-ws/services/GrouperService");
+        Options options = stub._getServiceClient().getOptions();
+        HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+        auth.setUsername("user");
+        auth.setPassword("pass");
+
+        options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+        options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+        options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
+
         AddMember addMember = AddMember.class.newInstance();
 
         //set the act as id
@@ -52,21 +68,8 @@ public class RunGrouperService {
 
         addMember.setSubjectLookups(subjectLookups);
 
-        HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-        auth.setUsername("GrouperSystem");
-        auth.setPassword("123");
-        // set if realm or domain is known
-        stub._getServiceClient().getOptions()
-            .setProperty(HTTPConstants.AUTHENTICATE, auth);
-        stub._getServiceClient().getOptions()
-            .setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-        stub._getServiceClient().getOptions()
-            .setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
+        WsAddMemberResults wsAddMemberResults = stub.addMember(addMember).get_return();
 
-        WsAddMemberResults wsAddMemberResults = stub.addMember(addMember)
-                                                    .get_return();
-
-        System.out.println(ToStringBuilder.reflectionToString(
-                wsAddMemberResults));
+        System.out.println(ToStringBuilder.reflectionToString(wsAddMemberResults));
     }
 }

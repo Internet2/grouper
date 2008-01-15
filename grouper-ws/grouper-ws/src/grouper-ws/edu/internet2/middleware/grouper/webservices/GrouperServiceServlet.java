@@ -42,13 +42,15 @@ public class GrouperServiceServlet extends AxisServlet {
 	 * @return
 	 */
 	public static String retrieveUserPrincipalNameFromRequest() {
-		HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
-		GrouperServiceUtils.assertTrue(httpServletRequest!=null, 
-				"HttpServletRequest is null, is the GrouperServiceServlet mapped in the web.xml?");
-		Principal principal = httpServletRequest.getUserPrincipal();
-		GrouperServiceUtils.assertTrue(principal != null, 
-				"There is no user logged in, make sure the container requires authentication");
-		return principal.getName();
+		
+		return "GrouperSystem";
+//		HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+//		GrouperServiceUtils.assertTrue(httpServletRequest!=null, 
+//				"HttpServletRequest is null, is the GrouperServiceServlet mapped in the web.xml?");
+//		Principal principal = httpServletRequest.getUserPrincipal();
+//		GrouperServiceUtils.assertTrue(principal != null, 
+//				"There is no user logged in, make sure the container requires authentication");
+//		return principal.getName();
 	}
 
 	/**

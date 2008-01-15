@@ -10,6 +10,9 @@ webapp.folder=${dist.home}/${webapp.name}
 #clean when doing a dist
 dist.cleanOnDist=false
 
+#package the axis archive (aar file) when doing a dist build
+dist.packageAar=false
+
 ####Web application context - as seen by end user
 deploy.context.path=/${webapp.name}
 

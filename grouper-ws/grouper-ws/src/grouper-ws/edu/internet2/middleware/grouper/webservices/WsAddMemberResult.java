@@ -35,7 +35,7 @@ public class WsAddMemberResult {
 	/**
 	 * friendly message that could be audited or sent to a UI
 	 */
-	private String errorMessage;
+	private String resultMessage;
 
 	/**
 	 * subject that was added
@@ -101,16 +101,16 @@ public class WsAddMemberResult {
 	 * friendly message that could be audited or sent to a UI
 	 * @return the errorMessage
 	 */
-	public String getErrorMessage() {
-		return errorMessage;
+	public String getResultMessage() {
+		return resultMessage;
 	}
 
 	/**
 	 * friendly message that could be audited or sent to a UI
 	 * @param errorMessage the errorMessage to set
 	 */
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
+	public void setResultMessage(String errorMessage) {
+		this.resultMessage = errorMessage;
 	}
 	
 	/**

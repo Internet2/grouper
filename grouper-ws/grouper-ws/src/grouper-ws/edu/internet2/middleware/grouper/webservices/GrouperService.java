@@ -44,12 +44,15 @@ public class GrouperService {
 	 * @param replaceAllExisting optional: T or F (default), if the 
 	 * existing groups should be replaced 
 	 * @param actAsSubject optional: is the subject to act as (if proxying)
+	 * @param paramNames optional: reserved for future use
+	 * @param paramValues optional: reserved for future use
 	 * @return the results
 	 */
 	@SuppressWarnings("unchecked")
 	public WsAddMemberResults addMember(WsGroupLookup wsGroupLookup,
 			WsSubjectLookup[] subjectLookups, 
-			String replaceAllExisting, WsSubjectLookup actAsSubjectLookup) {
+			String replaceAllExisting, WsSubjectLookup actAsSubjectLookup,
+			String[] paramNames, String[] paramValues) {
 		
 		GrouperSession session = null;
 		WsAddMemberResults wsAddMemberResults = new WsAddMemberResults();
@@ -57,7 +60,7 @@ public class GrouperService {
 		if (subjectLength == 0) {
 			wsAddMemberResults.setSuccess("F");
 			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
-			wsAddMemberResults.appendErrorMessage("Subject length must be more than 1");
+			wsAddMemberResults.appendResultMessage("Subject length must be more than 1");
 			return wsAddMemberResults;
 		}
 		
@@ -66,7 +69,7 @@ public class GrouperService {
 		if (subjectLength > maxAddMember) {
 			wsAddMemberResults.setSuccess("F");
 			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
-			wsAddMemberResults.appendErrorMessage("Subject length must be less than max: " + maxAddMember + " (sent in " + subjectLength + ")");
+			wsAddMemberResults.appendResultMessage("Subject length must be less than max: " + maxAddMember + " (sent in " + subjectLength + ")");
 			return wsAddMemberResults;
 		}
 		
@@ -94,7 +97,7 @@ public class GrouperService {
 			if (group == null) {
 				wsAddMemberResults.setSuccess("F");
 				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
-				wsAddMemberResults.appendErrorMessage("Cant find group: " + wsGroupLookup + ".  ");
+				wsAddMemberResults.appendResultMessage("Cant find group: " + wsGroupLookup + ".  ");
 				return wsAddMemberResults;
 			}
 			
@@ -121,7 +124,7 @@ public class GrouperService {
 						//see why not
 						SubjectFindResult subjectFindResult = wsSubjectLookup.retrieveSubjectFindResult();
 	
-						wsAddMemberResult.setErrorMessage("Subject: " + wsSubjectLookup + " had problems: " + subjectFindResult); 
+						wsAddMemberResult.setResultMessage("Subject: " + wsSubjectLookup + " had problems: " + subjectFindResult); 
 					} 
 	
 					//these will probably match, but just in case
@@ -143,11 +146,11 @@ public class GrouperService {
 						
 					} catch (InsufficientPrivilegeException ipe) {
 						wsAddMemberResult.setResultCode("INSUFFICIENT_PRIVILEGES");
-						wsAddMemberResult.setErrorMessage(ExceptionUtils.getFullStackTrace(ipe));
+						wsAddMemberResult.setResultMessage(ExceptionUtils.getFullStackTrace(ipe));
 					}
 				} catch (Exception e) {
 					wsAddMemberResult.setResultCode("EXCEPTION");
-					wsAddMemberResult.setErrorMessage(ExceptionUtils.getFullStackTrace(e));
+					wsAddMemberResult.setResultMessage(ExceptionUtils.getFullStackTrace(e));
 					LOG.error(wsSubjectLookup + ", " + e, e);
 				}
 				resultIndex++;
@@ -172,7 +175,7 @@ public class GrouperService {
 								+ " from group: " + group + ", " + e + ".  ";
 							LOG.error(theError, e);
 
-							wsAddMemberResults.appendErrorMessage(theError + ExceptionUtils.getFullStackTrace(e));
+							wsAddMemberResults.appendResultMessage(theError + ExceptionUtils.getFullStackTrace(e));
 							wsAddMemberResults.setSuccess("F");
 							wsAddMemberResults.assignResultCode(WsAddMemberResultCode.PROBLEM_DELETING_MEMBERS);
 						}
@@ -186,7 +189,7 @@ public class GrouperService {
 				+ ", subjectLookups: " + GrouperServiceUtils.toStringForLog(subjectLookups)
 				+ ", replaceAllExisting: " +  replaceAllExisting +  ", actAsSubject: " + actAsSubject
 				 + ".  ";
-			wsAddMemberResults.appendErrorMessage(theError);
+			wsAddMemberResults.appendResultMessage(theError);
 			//this is sent back to the caller anyway, so just log, and not send back again
 			LOG.error(theError + ", wsAddMemberResults: " + GrouperServiceUtils.toStringForLog(wsAddMemberResults), re);
 		} finally {
@@ -212,7 +215,7 @@ public class GrouperService {
 				}
 			}
 			if (failures > 0) {
-				wsAddMemberResults.appendErrorMessage("There were " + successes + " successes and " + failures 
+				wsAddMemberResults.appendResultMessage("There were " + successes + " successes and " + failures 
 						+ " failures of users added to the group.   ");
 				wsAddMemberResults.setSuccess("F");
 				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.PROBLEM_WITH_ASSIGNMENT);
@@ -223,7 +226,7 @@ public class GrouperService {
 		}
 		if (!"T".equalsIgnoreCase(wsAddMemberResults.getSuccess())) {
 			
-			LOG.error(wsAddMemberResults.getErrorMessage());
+			LOG.error(wsAddMemberResults.getResultMessage());
 		}
 		return wsAddMemberResults;
 	}
@@ -254,6 +257,10 @@ public class GrouperService {
 	 * @param replaceAllExisting optional: T or F (default), if the 
 	 * existing groups should be replaced 
 	 * @param actAsSubject optional: is the subject to act as (if proxying)
+	 * @param paramName0 reserved for future use
+	 * @param paramValue0 reserved for future use
+	 * @param paramName1 reserved for future use
+	 * @param paramValue1 reserved for future use
 	 * @return SUCCESS, or an error message
 	 */
 	public WsAddMemberResult addMemberSimple(String groupName,
@@ -261,7 +268,11 @@ public class GrouperService {
 			String subjectId, 
 			String subjectIdentifier,
 			String actAsSubjectId,
-			String actAsSubjectIdentifier) {
+			String actAsSubjectIdentifier,
+			String paramName0,
+			String paramValue0,
+			String paramName1,
+			String paramValue1) {
 		
 		//setup the group lookup
 		WsGroupLookup wsGroupLookup = new WsGroupLookup();
@@ -277,8 +288,20 @@ public class GrouperService {
 		actAsSubjectLookup.setSubjectId(actAsSubjectId);
 		actAsSubjectLookup.setSubjectIdentifier(actAsSubjectIdentifier);
 		
+		String[] paramNames = null;
+		String[] paramValues = null;
+		if (!StringUtils.isBlank(paramName0)) {
+			if (!StringUtils.isBlank(paramName1)) {
+				paramNames = new String[]{ paramName0, paramName1};
+				paramValues = new String[]{paramValue0,paramValue1};
+			} else {
+				paramNames = new String[]{paramName0};
+				paramValues = new String[]{paramValue0};
+			}
+		}
+		
 		WsAddMemberResults wsAddMemberResults = addMember(wsGroupLookup, 
-				subjectLookups, "F", actAsSubjectLookup);
+				subjectLookups, "F", actAsSubjectLookup, paramNames, paramValues);
 		
 		WsAddMemberResult[] results = wsAddMemberResults.getResults();
 		if (results != null && results.length > 0) {
@@ -286,7 +309,7 @@ public class GrouperService {
 		}
 		//didnt even get that far to where there is a subject result
 		WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
-		wsAddMemberResult.setErrorMessage(wsAddMemberResults.getErrorMessage());
+		wsAddMemberResult.setResultMessage(wsAddMemberResults.getResultMessage());
 		wsAddMemberResult.setResultCode(wsAddMemberResults.getResultCode());
 		wsAddMemberResult.setSubjectId(subjectId);
 		wsAddMemberResult.setSubjectIdentifier(subjectIdentifier);

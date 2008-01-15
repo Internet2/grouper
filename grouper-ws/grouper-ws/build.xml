@@ -34,16 +34,16 @@
   </path>
 
 	<!-- TODO move this out of project -->
-	<property name="webservice.class.folder" value="${webapp.folder}/../webservices" />
+	<property name="webservice.folder" value="${webapp.folder}/../webservices" />
 	
 	<!-- target name="generate.wsdl" >  
-    	<mkdir dir="${webservice.class.folder}"/>
-    	<mkdir dir="${webservice.class.folder}/classes"/>
+    	<mkdir dir="${webservice.folder}"/>
+    	<mkdir dir="${webservice.folder}/classes"/>
         <taskdef name="java2wsdl"
                  classname="org.apache.ws.java2wsdl.Java2WSDLTask"
                  classpathref="ui.class.path"/>
         <java2wsdl className="edu.internet2.middleware.grouper.webservices.GrouperService"
-                   outputLocation="${webservice.class.folder}"
+                   outputLocation="${webservice.folder}"
                    targetNamespace="http://grouper.internet2.edu/"
                    schemaTargetNamespace="http://grouper.internet2.edu/xsd">
             <classpath>
@@ -53,20 +53,19 @@
         </java2wsdl>
     </target -->
 
-	<target name="generate-web-service" if="do.generate.webservice">
-	
-    	<mkdir dir="${webservice.class.folder}"/>
-    	<delete dir="${webservice.class.folder}"/>
-    	<mkdir dir="${webservice.class.folder}"/>
-    	<mkdir dir="${webservice.class.folder}/classes"/>
-        <copy toDir="${webservice.class.folder}/classes" failonerror="false">
-            <fileset dir="${dist.home}/grouper/WEB-INF/classes" > 
+	<target name="generate-aar" depends="compile">
+	   <property name="webservice.folder" value="${basedir}/webservices" />
+    	<mkdir dir="${webservice.folder}/classes"/>
+    	<delete dir="${webservice.folder}/classes"/>
+    	<mkdir dir="${webservice.folder}/classes"/>
+        <copy toDir="${webservice.folder}/classes" failonerror="false">
+            <fileset dir="${build.dir.grouper-ws}" > 
                 <include name="edu/internet2/middleware/grouper/webservices/**/*.class" />
             </fileset>
         </copy>
-        <jar destfile="webapp/WEB-INF/services/GrouperService.aar">
-            <fileset excludes="edu/internet2/middleware/grouper/webservices/**/*Test.class" 
-            	  dir="${webservice.class.folder}/classes" />
+        <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService.aar">
+          <fileset excludes="edu/internet2/middleware/grouper/webservices/**/*Test.class" 
+            	  dir="${webservice.folder}/classes" />
         	<fileset dir="webservices/GrouperService.aar" />
         </jar>
 	    <!-- copy the aar to the build dir -->
@@ -152,9 +151,18 @@
 		  </then>
 		</if>
 		
-    <!-- make sure things are compiled -->
-    <antcall target="compile" />
-
+		<if>
+			<istrue value="${dist.packageAar}" />
+			<then>
+				<!-- this will compile -->
+        <antcall target="generate-aar" />  
+			</then>
+		  <else>
+		    <!-- make sure things are compiled -->
+		    <antcall target="compile" />
+			</else>
+		</if>
+		
 		<!-- TODO put in options to do the java and wsdl -->
 		
     <!-- make the jar first and include source -->

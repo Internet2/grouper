@@ -60,7 +60,7 @@ public class WsAddMemberResults {
 	/**
 	 * error message if there is an error
 	 */
-	private StringBuilder errorMessage = new StringBuilder();
+	private StringBuilder resultMessage = new StringBuilder();
 	
 	/**
 	 * results for each assignment sent in
@@ -133,24 +133,24 @@ public class WsAddMemberResults {
 	 * error message if there is an error
 	 * @return the errorMessage
 	 */
-	public String getErrorMessage() {
-		return errorMessage.toString();
+	public String getResultMessage() {
+		return resultMessage.toString();
 	}
 	
 	/**
 	 * append error message to list of error messages
 	 * @param errorMessage
 	 */
-	public void appendErrorMessage(String errorMessage) {
-		this.errorMessage.append(errorMessage);
+	public void appendResultMessage(String errorMessage) {
+		this.resultMessage.append(errorMessage);
 	}
 	
 	/**
 	 * error message if there is an error
 	 * @param errorMessage the errorMessage to set
 	 */
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = new StringBuilder(errorMessage);
+	public void setResultMessage(String errorMessage) {
+		this.resultMessage = new StringBuilder(errorMessage);
 	}
 
 }
