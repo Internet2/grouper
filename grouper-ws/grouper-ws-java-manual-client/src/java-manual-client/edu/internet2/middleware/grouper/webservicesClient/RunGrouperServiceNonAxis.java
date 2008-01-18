@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.webservicesClient;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.List;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
@@ -19,6 +20,7 @@ import org.jdom.input.SAXBuilder;
 
 public class RunGrouperServiceNonAxis {
 	
+	@SuppressWarnings("unchecked")
 	public static void addMemberRest() {
         //lets load this into jdom, since it is xml
 		Reader xmlReader = null;
@@ -52,43 +54,79 @@ public class RunGrouperServiceNonAxis {
 
 			// process xml
 			Document document = new SAXBuilder().build(xmlReader);
-			Element addMemberSimpleResponse = document.getRootElement();
+			Element addMemberResponse = document.getRootElement();
 			
 			//parse: 
 			
+			//	<ns:addMemberResponse
+			//	xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
 			
-			
-			
-			//parse: <ns:addMemberSimpleResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
-			assertTrue("addMemberSimpleResponse".equals(addMemberSimpleResponse.getName()),
-					"root not addMemberSimpleResponse: " + addMemberSimpleResponse.getName());
+			assertTrue("addMemberResponse".equals(addMemberResponse.getName()),
+					"root not addMemberResponse: " + addMemberResponse.getName());
 
-			Namespace namespace = addMemberSimpleResponse.getNamespace();
+			Namespace namespace = addMemberResponse.getNamespace();
 			
-			//parse: <ns:return type="edu.internet2.middleware.grouper.webservices.WsAddMemberResult">
-			Element returnElement = addMemberSimpleResponse.getChild("return", namespace);
+			//	<ns:return
+			//		type="edu.internet2.middleware.grouper.webservices.WsAddMemberResults">
+			Element returnElement = addMemberResponse.getChild("return", namespace);
+			
 			String theType = returnElement.getAttributeValue("type");
-			assertTrue("edu.internet2.middleware.grouper.webservices.WsAddMemberResult"
+			assertTrue("edu.internet2.middleware.grouper.webservices.WsAddMemberResults"
 					.equals(theType),
-					"type not edu.internet2.middleware.grouper.webservices.WsAddMemberResult: " + theType);
-
-			//<ns:errorMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-			String errorMessage = returnElement.getChildText("errorMessage", namespace);
-
-			//<ns:resultCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+					"type not edu.internet2.middleware.grouper.webservices.WsAddMemberResults: " + theType);
+			
 			String resultCode = returnElement.getChildText("resultCode", namespace);
+			String resultMessage = returnElement.getChildText("resultMessage", namespace);
 
-			//<ns:subjectId>GrouperSystem</ns:subjectId>
-			String subjectId = returnElement.getChildText("subjectId", namespace);
-
-			//<ns:subjectIdentifier xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-			String subjectIdentifier = returnElement.getChildText("subjectIdentifier", namespace);
-
-			//<ns:success>T</ns:success>
+			//		<ns:success>T</ns:success>
 			String success = returnElement.getChildText("success", namespace);
 
-			System.out.println("Success: " + success + ", resultCode: " + resultCode + ", subjectId: " + subjectId
-					+ ", subjectIdentifier: " + subjectIdentifier + ", errorMessage: " + errorMessage);
+			List<Element> resultsList = returnElement.getChildren("results", namespace);
+			
+			if (resultsList != null) {
+				int i=0;
+				for (Element resultsElement : resultsList) {
+					//		<ns:results
+					//			type="edu.internet2.middleware.grouper.webservices.WsAddMemberResult">
+					String resultsType = resultsElement.getAttributeValue("type");
+					assertTrue("edu.internet2.middleware.grouper.webservices.WsAddMemberResult"
+							.equals(resultsType),
+							"type not edu.internet2.middleware.grouper.webservices.WsAddMemberResult: " + theType);
+					
+					//			<ns:resultCode
+					//				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					//				xsi:nil="true" />
+					String resultResultCode = resultsElement.getChildText("resultCode", namespace);
+
+					//			<ns:resultMessage
+					//				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					//				xsi:nil="true" />
+					String resultResultMessage = resultsElement.getChildText("resultMessage", namespace);
+					
+					//			<ns:subjectId>10021368</ns:subjectId>
+					String resultSubjectId = resultsElement.getChildText("subjectId", namespace);
+					
+					//			<ns:subjectIdentifier
+					//				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					//				xsi:nil="true" />
+					String resultSubjectIdentifier = resultsElement.getChildText("subjectIdentifier", namespace);
+
+					//			<ns:success>T</ns:success>
+					String resultSuccess = resultsElement.getChildText("resultSuccess", namespace);
+					
+					System.out.println("Row: " + i++ + ": success: " + resultSuccess + ", code: " + resultResultCode
+							+ ", id: " + resultSubjectId + ", identifier: " + resultSubjectIdentifier
+							+ ", message: " + resultResultMessage);
+				} 
+				//		</ns:results>
+			}
+			
+			//	</ns:return>
+			//</ns:addMemberResponse>
+			
+			
+
+			System.out.println("Success: " + success + ", resultCode: " + resultCode + ", resultMessage: " + resultMessage);
 		}catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -108,7 +146,7 @@ public class RunGrouperServiceNonAxis {
 		try {
 	        HttpClient httpClient = new HttpClient();
 	        GetMethod method = new GetMethod(
-	                "http://localhost:8090/grouper-ws/services/GrouperService/addMemberSimple?groupName=aStem:aGroup&subjectId=10021368&actAsSubjectId=GrouperSystem");
+	                "http://localhost:8091/grouper-ws/services/GrouperService/addMemberSimple?groupName=aStem:aGroup&subjectId=10021368&actAsSubjectId=GrouperSystem");
 	
 	        httpClient.getParams().setAuthenticationPreemptive(true);
 	        Credentials defaultcreds = new UsernamePasswordCredentials("GrouperSystem", "pass");
@@ -180,7 +218,8 @@ public class RunGrouperServiceNonAxis {
      */
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        addMemberRest();
+        //addMemberRest();
+        addMemberSimpleRest();
     }
 	/**
 	 * assert like java 1.4 assert

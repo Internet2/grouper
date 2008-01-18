@@ -123,8 +123,9 @@ public class GrouperService {
 					if (subject == null) {
 						//see why not
 						SubjectFindResult subjectFindResult = wsSubjectLookup.retrieveSubjectFindResult();
-	
-						wsAddMemberResult.setResultMessage("Subject: " + wsSubjectLookup + " had problems: " + subjectFindResult); 
+						String error = "Subject: " + wsSubjectLookup + " had problems: " + subjectFindResult;
+						wsAddMemberResult.setResultMessage(error);
+						throw new NullPointerException(error);
 					} 
 	
 					//these will probably match, but just in case
