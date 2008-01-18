@@ -1,4 +1,4 @@
-<!-- $Id: ext-build.xml,v 1.2 2007-05-14 16:12:56 blair Exp $ -->
+<!-- $Id: ext-build.xml,v 1.3 2008-01-18 16:23:28 tzeller Exp $ -->
 
 <project name="Grouper Extensions" default="ext.compile" basedir=".">
 
@@ -25,6 +25,36 @@
 
 
   <!-- TARGETS -->
+
+  <!-- target: ensure.ext -->
+  <target name="ensure.ext" unless="ext">
+    <fail message='You must run this target with -Dext="extension name"'/>
+  </target>
+  <!-- target: ensure.ext -->
+
+  <!-- target: ensure.target -->
+  <target name="ensure.target" unless="target">
+    <fail message='You must run this target with -Dtarget="ant target"'/>
+  </target>
+  <!-- target: ensure.target -->
+
+  <!-- target: ext.call -->
+  <target name="ext.call"
+          depends="ensure.ext, ensure.target"
+          description="runs ant target (-Dtarget=TARGET) on specified extension (-Dext=EXTENSION)"
+  >
+    <subant target="${target}">
+      <property name="GROUPER_CLASSPATH"  refid="project.classpath"/>
+      <property name="GROUPER_CONF"       location="${conf.dir}"/>
+      <property name="GROUPER_DOC_CSS"    location="${javadoc.css}"/>
+      <property name="GROUPER_EXT_BIN"    location="${ext.dir.bin}"/>
+      <property name="GROUPER_EXT_DOC"    location="${ext.dir.doc}"/>
+      <property name="GROUPER_EXT_LIB"    location="${ext.dir.lib}"/>
+      <property name="GROUPER_HOME"       location="${basedir}"/>
+      <fileset dir="${ext.dir}/${ext}" includes="build.xml"/>
+    </subant>
+  </target>
+  <!-- target: ext.call -->
 
   <!-- target: ext.clean -->
   <target name="ext.clean">
