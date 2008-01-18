@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsA
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 
+import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
@@ -33,15 +34,17 @@ public class RunGrouperService {
      */
     public static void main(String[] args) throws Exception {
         GrouperServiceStub stub = new GrouperServiceStub(
-                "http://localhost:8090/grouper-ws/services/GrouperService");
+                "http://localhost:8091/grouper-ws/services/GrouperService");
         Options options = stub._getServiceClient().getOptions();
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-        auth.setUsername("user");
+        auth.setUsername("GrouperSystem");
         auth.setPassword("pass");
 
         options.setProperty(HTTPConstants.AUTHENTICATE, auth);
         options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
         options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
+
+        options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
 
         AddMember addMember = AddMember.class.newInstance();
 
