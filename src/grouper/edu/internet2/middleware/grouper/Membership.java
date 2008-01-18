@@ -31,15 +31,25 @@ import net.sf.ehcache.Element;
 
 /** 
  * A list membership in the Groups Registry.
+ * 
+ * A membership is the object which represents a join of member 
+ * and group.  Has metadata like type and creator.
+ * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.87 2008-01-09 14:07:01 isgwb Exp $
+ * @version $Id: Membership.java,v 1.88 2008-01-18 06:15:47 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
   // PUBLIC CLASS CONSTANTS //
+  /** A member of a group (aka composite member) has either or both of
+   * an immediate (direct) membership, or an effective (indirect) membership **/
   public static final String COMPOSITE = "composite";
+  
+  /** An effective member has an 
+   * indirect membership to a group (e.g. in a group within a group). */
   public static final String EFFECTIVE = "effective";
+  /** An immediate member is directly assigned to a group. */
   public static final String IMMEDIATE = "immediate";
 
 
@@ -67,6 +77,10 @@ public class Membership extends GrouperAPI {
 
   /** 
    * Get child memberships of this membership. 
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg"> 
    * Set children = ms.getChildMemberships();
    * </pre>
@@ -153,6 +167,10 @@ public class Membership extends GrouperAPI {
 
   /**
    * Get this membership's member.
+   * 
+   * All immedate subjects, and effective members are members.  
+   * No duplicates will be returned (e.g. if immediate and effective).
+   * 
    * <pre class="eg">
    * Member m = ms.getMember();
    * </pre>
@@ -184,6 +202,10 @@ public class Membership extends GrouperAPI {
 
   /**
    * Get parent membership of this membership.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * try {
    *   Membership parent = ms.getParentMembership();
@@ -242,6 +264,11 @@ public class Membership extends GrouperAPI {
   } // public String getUuid()
 
   /**
+   * 
+   * A composite group has two groups as members and a set operator 
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * All subjects in a composite group are effective members.
+   * 
    * @since   1.2.0
    */
   public Composite getViaComposite() 

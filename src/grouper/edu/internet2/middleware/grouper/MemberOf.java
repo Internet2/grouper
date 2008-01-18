@@ -21,10 +21,14 @@ import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  java.util.Set;
 
 /**
+ * 
+ * All immedate subjects, and effective members are members.  
+ * No duplicates will be returned (e.g. if immediate and effective).
+ * 
  * <b>THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b> 
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.59 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: MemberOf.java,v 1.60 2008-01-18 06:15:47 mchyzer Exp $
  * @since   1.2.0
  */
 interface MemberOf {
@@ -32,6 +36,11 @@ interface MemberOf {
   // TODO 20070419 just pass in DTOs?
   
   /**
+   * 
+   * A composite group has two groups as members and a set operator 
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * All subjects in a composite group are effective members.
+   * 
    * @since   1.2.0
    * @throws IllegalStateException
    */
@@ -39,6 +48,10 @@ interface MemberOf {
     throws  IllegalStateException;
 
   /**
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * @since   1.2.0
    * @throws IllegalStateException
    */
@@ -46,6 +59,10 @@ interface MemberOf {
     throws  IllegalStateException;  
 
   /**
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * @since   1.2.0
    * @throws IllegalStateException
    */
@@ -53,6 +70,10 @@ interface MemberOf {
     throws  IllegalStateException; 
 
   /**
+   * A composite group has two groups as members and a set operator 
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * All subjects in a composite group are effective members.
+   * 
    * @since   1.2.0
    * @throws IllegalStateException
    */
@@ -60,6 +81,10 @@ interface MemberOf {
     throws  IllegalStateException;
 
   /**
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * @since   1.2.0
    * @throws IllegalStateException
    */
@@ -67,6 +92,10 @@ interface MemberOf {
     throws  IllegalStateException;
 
   /**
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * @since   1.2.0
    * @throws IllegalStateException
    */
