@@ -26,8 +26,8 @@
   -->
   <defaultCache maxElementsInMemory="500"
                 eternal="false"
-                timeToIdleSeconds="30"
-                timeToLiveSeconds="120"
+                timeToIdleSeconds="@timeToIdle@"
+                timeToLiveSeconds="@timeToLive@"
                 overflowToDisk="false"
   />
 
@@ -39,8 +39,8 @@
   <cache  name="edu.internet2.middleware.grouper.privs.CachingAccessResolver.HasPrivilege"
           maxElementsInMemory="500"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="@timeToIdle@"
+          timeToLiveSeconds="@timeToLive@"
           overflowToDisk="false"
   />
 
@@ -52,8 +52,8 @@
   <cache  name="edu.internet2.middleware.grouper.privs.CachingNamingResolver.HasPrivilege"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="@timeToIdle@"
+          timeToLiveSeconds="@timeToLive@"
           overflowToDisk="false"
   />
 
@@ -65,8 +65,8 @@
   <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.Find"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="@timeToIdle@"
+          timeToLiveSeconds="@timeToLive@"
           overflowToDisk="false"
   />
 
@@ -74,8 +74,8 @@
   <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindAll"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="@timeToIdle@"
+          timeToLiveSeconds="@timeToLive@"
           overflowToDisk="false"
   />
 
@@ -83,8 +83,8 @@
   <cache  name="edu.internet2.middleware.grouper.subj.CachingResolver.FindByIdentifier"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="@timeToIdle@"
+          timeToLiveSeconds="@timeToLive@"
           overflowToDisk="false"
   />
   
@@ -92,8 +92,8 @@
   <cache  name="edu.internet2.middleware.grouper.privs.WheelAccessResolver.isWheelMember"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="@timeToIdle@"
+          timeToLiveSeconds="@timeToLive@"
           overflowToDisk="false"
   />
   
@@ -101,8 +101,8 @@
   <cache  name="edu.internet2.middleware.grouper.Membership.getGroup"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="@timeToIdle@"
+          timeToLiveSeconds="@timeToLive@"
           overflowToDisk="false"
   />
   
@@ -110,8 +110,8 @@
   <cache  name="edu.internet2.middleware.grouper.Membership.getStem"
           maxElementsInMemory="1000"
           eternal="false"
-          timeToIdleSeconds="30"
-          timeToLiveSeconds="120"
+          timeToIdleSeconds="@timeToIdle@"
+          timeToLiveSeconds="@timeToLive@"
           overflowToDisk="false"
   />
 
