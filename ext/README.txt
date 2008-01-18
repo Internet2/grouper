@@ -100,6 +100,18 @@ Finally, if there is more than one extension being built, one **should not** hav
 any expectations as to the order in which they will be built.
 
 
+## Miscellany
+
+### Calling extension Ant targets
+
+You can use the "ext.call" Ant target to call an arbitrary Ant target on an individual
+extension.
+
+Example:
+    
+    % ant ext.call -Dext=your_extension -Dtarget=test
+  
+
 ## Notes
 
 [0]: <http://viewvc.internet2.edu/viewvc.py/shibboleth/java/custom/README.txt?&view=markup>
