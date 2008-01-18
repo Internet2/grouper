@@ -19,8 +19,10 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
+ * A member of a group (aka composite member) has either or both of
+ * an immediate (direct) membership, or an effective (indirect) membership
  * @author  blair christensen.
- * @version $Id: CompositeMembershipValidator.java,v 1.5 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: CompositeMembershipValidator.java,v 1.6 2008-01-18 06:15:47 mchyzer Exp $
  * @since   1.2.0
  */
 class CompositeMembershipValidator extends MembershipValidator {

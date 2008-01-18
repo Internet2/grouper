@@ -39,7 +39,7 @@ import  org.apache.commons.lang.time.*;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.168 2007-08-28 14:04:17 shilen Exp $
+ * @version $Id: Group.java,v 1.169 2008-01-18 06:15:47 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -146,7 +146,12 @@ public class Group extends GrouperAPI implements Owner {
   } 
 
   /**
-   * Add a subject to this group.
+   * Add a subject to this group as immediate member.
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * try {
    *   g.addMember(subj);
@@ -175,7 +180,12 @@ public class Group extends GrouperAPI implements Owner {
   } // public void addMember(subj)
 
   /**
-   * Add a subject to this group.
+   * Add a subject to this group as immediate member.
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * try {
    *   g.addMember(subj, f);
@@ -521,6 +531,11 @@ public class Group extends GrouperAPI implements Owner {
   
   /**
    * Delete a {@link Composite} membership from this group.
+   * 
+   * A composite group has two groups as members and a set operator 
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * All subjects in a composite group are effective members.
+   * 
    * <pre class="eg">
    * try {
    *   g.deleteCompositeMember();
@@ -570,7 +585,13 @@ public class Group extends GrouperAPI implements Owner {
   } // public void deleteCompositeMember()
 
   /** 
-   * Delete a subject from this group.
+   * Delete a subject from this group, and subject must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * try {
    *   g.deleteMember(subj);
@@ -600,7 +621,12 @@ public class Group extends GrouperAPI implements Owner {
   } // public void deleteMember(subj)
 
   /** 
-   * Delete a subject from this group.
+   * Delete a subject from this group, and subject must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
    * <pre class="eg">
    * try {
    *   g.deleteMember(m, f);
@@ -807,6 +833,11 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Get {@link Composite} {@link Member}s of this group.
+   * 
+   * A composite group has two groups as members and a set operator 
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * All subjects in a composite group are effective members.
+   * 
    * <pre class="eg">
    * Set members = g.getCompositeMembers();
    * </pre>
@@ -821,6 +852,14 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Get {@link Composite} {@link Membership}s of this group.
+   * 
+   * A composite group has two groups as members and a set operator 
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * All subjects in a composite group are effective members.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set mships = g.getCompositeMembers();
    * </pre>
@@ -958,6 +997,14 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Get effective members of this group.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * Set effectives = g.getEffectiveMembers();
    * </pre>
@@ -981,6 +1028,14 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Get effective members of this group.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * Set effectives = g.getEffectiveMembers(f);
    * </pre>
@@ -996,6 +1051,14 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Get effective memberships of this group.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * Set effectives = g.getEffectiveMemberships();
    * </pre>
@@ -1018,6 +1081,14 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Get effective memberships of this group.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * Set memberships = g.getEffectiveMemberships(f);
    * </pre>
@@ -1054,7 +1125,12 @@ public class Group extends GrouperAPI implements Owner {
   } // public String getExtension()
  
   /**
-   * Get immediate members of this group.
+   * Get immediate members of this group.  
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * Set immediates = g.getImmediateMembers();
    * </pre>
@@ -1076,7 +1152,12 @@ public class Group extends GrouperAPI implements Owner {
   } // public Set getImmediateMembers()
 
   /**
-   * Get immediate members of this group.
+   * Get immediate members of this group.  
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * Set immediates = g.getImmediateMembers(f);
    * </pre>
@@ -1093,7 +1174,15 @@ public class Group extends GrouperAPI implements Owner {
   } // public Set getImmediateMembers(f)
 
   /**
-   * Get immediate memberships of this group.
+   * Get immediate memberships of this group.  
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set immediates = g.getImmediateMemberships();
    * </pre>
@@ -1115,7 +1204,13 @@ public class Group extends GrouperAPI implements Owner {
   } // public Set getImmediateMemberships()
 
   /**
-   * Get immediate memberships of this group.
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set immediates = g.getImmediateMemberships(f);
    * </pre>
@@ -1171,6 +1266,10 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Get memberships of this group.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set memberships = g.getMemberships();
    * </pre>
@@ -1193,6 +1292,10 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Get memberships of this group.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set memberships = g.getMemberships(f);
    * </pre>
@@ -1531,6 +1634,14 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Check whether the subject is an effective member of this group.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * if (g.hasEffectiveMember(subj)) {
    *   // Subject is an effective member of this group
@@ -1558,7 +1669,15 @@ public class Group extends GrouperAPI implements Owner {
   } // public boolean hasEffectiveMember(Subject subj)
 
   /**
-   * Check whether the subject is an effective member of this group.
+   * Check whether the subject is an effective member of this group.  
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * if (g.hasEffectiveMember(subj, f)) {
    *   // Subject is an effective member of this group
@@ -1569,7 +1688,7 @@ public class Group extends GrouperAPI implements Owner {
    * </pre>
    * @param   subj  Check this subject.
    * @param   f     Check for membership in this list field.
-   * @return  Boolean true if subject belongs to this group.
+   * @return  Boolean true if subject belongs to this group. 
    * @throws  SchemaException
    */
   public boolean hasEffectiveMember(Subject subj, Field f) 
@@ -1587,7 +1706,12 @@ public class Group extends GrouperAPI implements Owner {
   } // public boolean hasEffectiveMember(subj, f)
 
   /**
-   * Check whether the subject is an immediate member of this group.
+   * Check whether the subject is an immediate member of this group.  
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * if (g.hasImmediateMember(subj)) {
    *   // Subject is an immediate member of this group
@@ -1616,6 +1740,11 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Check whether the subject is an immediate member of this group.
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * if (g.hasImmediateMember(subj, f)) {
    *   // Subject is an immediate member of this group
@@ -1649,6 +1778,10 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Check whether the subject is a member of this group.
+   * 
+   * All immedate subjects, and effective members are members.  
+   * No duplicates will be returned (e.g. if immediate and effective).
+   * 
    * <pre class="eg">
    * if (g.hasMember(subj)) {
    *   // Subject is a member of this group
@@ -1677,6 +1810,10 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Check whether the subject is a member of this list on this group.
+   * 
+   * All immedate subjects, and effective members are members.  
+   * No duplicates will be returned (e.g. if immediate and effective).
+   * 
    * <pre class="eg">
    * if (g.hasMember(subj, f)) {
    *   // Subject is a member of this group

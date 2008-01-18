@@ -29,8 +29,11 @@ import  org.apache.commons.lang.time.*;
 
 /** 
  * A member within the Groups Registry.
+ * 
+ * All immedate subjects, and effective members are members.  
+ * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.95 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: Member.java,v 1.96 2008-01-18 06:15:47 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -239,6 +242,14 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * Get groups where this member has an effective membership.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * // Get groups where this member is an effective member.
    * Set effectives = m.getEffectiveGroups();
@@ -251,6 +262,17 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * Get effective memberships.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set effectives = m.getEffectiveMemberships();
    * </pre>
@@ -273,6 +295,17 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * Get effective memberships.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set effectives = m.getEffectiveMemberships(f);
    * </pre>
@@ -302,6 +335,10 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * Get groups where this member has an immediate membership.
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   *
    * <pre class="eg">
    * // Get groups where this member is an immediate member.
    * Set immediates = m.getImmediateGroups();
@@ -313,7 +350,15 @@ public class Member extends GrouperAPI implements Serializable {
   } // public Set getImmediateGroups()
 
   /**
-   * Get immediate memberships.
+   * Get immediate memberships.  
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set immediates = m.getImmediateMemberships();
    * </pre>
@@ -335,7 +380,15 @@ public class Member extends GrouperAPI implements Serializable {
   } // public Set getImmediateMemberships()
 
   /**
-   * Get immediate memberships.
+   * Get immediate memberships.  
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set immediates = m.getImmediateMemberships(f);
    * </pre>
@@ -350,7 +403,12 @@ public class Member extends GrouperAPI implements Serializable {
   } // public Set getImmediateMemberships(f)
 
   /**
-   * Get memberships.
+   * Get memberships.   A member of a group (aka composite member) has either or both of
+   * an immediate (direct) membership, or an effective (indirect) membership
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set groups = m.getMemberships();
    * </pre>
@@ -372,7 +430,12 @@ public class Member extends GrouperAPI implements Serializable {
   } // public Set getMemberships()
 
   /**
-   * Get memberships.
+   * Get memberships.   A member of a group (aka composite member) has either or both of
+   * an immediate (direct) membership, or an effective (indirect) membership
+   * 
+   * A membership is the object which represents a join of member 
+   * and group.  Has metadata like type and creator.
+   * 
    * <pre class="eg">
    * Set groups = m.getMemberships(f);
    * </pre>
@@ -853,6 +916,14 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * Test whether a member effectively belongs to a group.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * if (m.isEffectiveMember(g)) {
    *   // Is an effective member
@@ -878,6 +949,14 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * Test whether a member effectively belongs to a group.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a 
+   * composite group are effective members (since the composite 
+   * group has two groups and a set operator and no other immediate 
+   * members).  Note that a member can have an immediate membership 
+   * and an effective membership.
+   * 
    * <pre class="eg">
    * // Does this member effectively belong to the specified group?
    * if (m.isEffectiveMember(g, f)) {
@@ -907,7 +986,12 @@ public class Member extends GrouperAPI implements Serializable {
   }
 
   /**
-   * Test whether a member immediately belongs to a group.
+   * Test whether a member immediately belongs to a group.  
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * if (m.isImmediateMember(g)) {
    *   // Is an immediate member
@@ -933,6 +1017,11 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * Test whether a member immediately belongs to a group.
+   * 
+   * An immediate member is directly assigned to a group.  
+   * A composite group has no immediate members.  Note that 
+   * a member can have an immediate membership and an effective membership.
+   * 
    * <pre class="eg">
    * // Does this member immediately belong to the specified group?
    * if (m.isImmediateMember(g, f)) {
@@ -973,7 +1062,13 @@ public class Member extends GrouperAPI implements Serializable {
   } // public boolean isImmediateMember(g, f)
 
   /**
-   * Test whether a member belongs to a group.
+   * Test whether a member belongs to a group.   
+   * 
+   * A member of a group (aka composite member) has either or both of
+   * an immediate (direct) membership, or an effective (indirect) membership
+   * 
+   * All immedate subjects, and effective members are members.  
+   * 
    * <pre class="eg">
    * if (m.isMember(g)) {
    *   // Is a member
@@ -997,7 +1092,11 @@ public class Member extends GrouperAPI implements Serializable {
   } // public boolean isMember(g)
 
   /**
-   * Test whether a member belongs to the specified group list.
+   * Test whether a member belongs to the specified group list.  A member of a group (aka composite member) has either or both of
+   * an immediate (direct) membership, or an effective (indirect) membership.
+   * 
+   * All immedate subjects, and effective members are members.  
+   * 
    * <p/>
    * <pre class="eg">
    * // Does this member belong to the specified group?

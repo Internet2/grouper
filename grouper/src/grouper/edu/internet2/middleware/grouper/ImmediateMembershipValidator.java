@@ -21,8 +21,12 @@ import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
+ * An immediate member is directly assigned to a group.  
+ * A composite group has no immediate members.  Note that 
+ * a member can have an immediate membership and an effective membership.
+ * 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.8 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.9 2008-01-18 06:15:47 mchyzer Exp $
  * @since   1.2.0
  */
 class ImmediateMembershipValidator extends MembershipValidator {

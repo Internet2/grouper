@@ -19,8 +19,10 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
+ * An effective member has an 
+ * indirect membership to a group (e.g. in a group within a group).
  * @author  blair christensen.
- * @version $Id: EffectiveMembershipValidator.java,v 1.6 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: EffectiveMembershipValidator.java,v 1.7 2008-01-18 06:15:47 mchyzer Exp $
  * @since   1.2.0
  */
 class EffectiveMembershipValidator extends MembershipValidator {
