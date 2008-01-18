@@ -110,16 +110,16 @@
 	- xercesImpl (grouper-ui, removed since older)
 	- xml-apis (grouper-ui, removed since older)
 	-->
-	<target name="generateAxisBundleJar">
-		<mkdir dir="java/axisLibTemp"/>
-		<delete dir="java/axisLibTemp"/>
-		<mkdir dir="java/axisLibTemp"/>
-		<unzip dest="java/axisLibTemp">
-			<fileset dir="java/axisLib" includes="*.jar"/>
+	<target name="generate-axis-bundle-jar">
+		<mkdir dir="build/axisLibTemp"/>
+		<delete dir="build/axisLibTemp"/>
+		<mkdir dir="build/axisLibTemp"/>
+		<unzip dest="build/axisLibTemp">
+			<fileset dir="lib/axis-bundle" includes="*.jar"/>
 		</unzip>
-		<delete file="java/lib/axisBundle.jar"/>
-		<jar destfile="java/lib/axisBundle.jar" 
-			basedir="java/axisLibTemp" />
+		<delete file="lib/axis/axisBundle.jar"/>
+		<jar destfile="lib/axis/axisBundle.jar" 
+			basedir="build/axisLibTemp" />
 	</target>
 
 	<target name="clean">
@@ -203,22 +203,6 @@
 	
 	
 	
-	<!--
-		Actually delete previous build
-	-->
-	<target name="-doClean" if="do.clean">
-		<echo message="Removing  ${webapp.folder}"/>
-		<delete dir="${webapp.folder}"/>
-	</target>
-	
-	<!--
-		Actually delete previous build class folder
-	-->
-	<target name="-doCleanWebappClassFolder" if="build.clean">
-		<echo message="Removing  ${webapp.class.folder}"/>
-		<delete dir="${webapp.class.folder}"/>
-	</target>	
-	
 	<target name="help" description="targets and their description" > 
 <echo>Please ensure you have read the documentation - </echo>	
 <echo>and created a build.properties file based on the template provided</echo>
@@ -226,44 +210,20 @@
 <echo></echo>
 <echo>The following targets are available - type the appropriate name:</echo>
 <echo></echo>
-<echo>1) default </echo>
+<echo>1) default (dist) </echo>
 <echo>     Simply builds, without cleaning, to the webapp.folder</echo>
-<echo>2) nice</echo>
-<echo>     Attempts to stop the Tomcat webapp before building. </echo>
-<echo>     Attempts to start the webappp afterwards</echo>
-<echo>3) clean</echo>
-<echo>     Always removes the webapp.class.folder. May remove the </echo>
-<echo>     webapp.folder if webapp.folder.cleanable=true</echo>
-<echo>     On Windows this may fail as Windows tends to lock files</echo>
-<echo>4) niceclean</echo>
-<echo>     Combination of nice and clean </echo>
-<echo>5) dist</echo>
-<echo>     Cleans and then builds to subfolder of dist.home</echo>
-<echo>6) war</echo>
-<echo>      Does dist and then makes a WAR file</echo>
-<echo>7) resources</echo>
-<echo>     Does not compile Java classes but 'refreshes' resources in</echo>
-<echo>     webapp.class.folder</echo>
-<echo>8 niceres</echo>
-<echo>     Does not compile Java classes but 'refreshes' resources in</echo>
-<echo>     webapp.class.folder and restarts webapp</echo>
-<echo>9) help</echo>
-<echo>     Displays this menu</echo>
-<echo>10) endhelp</echo>
-<echo>     Subsequent invocation of ant with no target will run  </echo>
-<echo>     'default' rather than help</echo>
-<echo>11) starthelp</echo>
-<echo>     Subsequent invocation of ant with no target will run 'help' </echo>
-<echo>12) html</echo>
-<echo>     Generate Javadoc - you must have done a 'default' build previously</echo>
-<echo>13) generate-web-service</echo>
-<echo>     Generate web service - you must have done a 'default' build previously</echo>
-<echo>14) exit</echo>
-<echo>     Exit this menu without executing another target</echo>
+<echo>2) clean</echo>
+<echo>     Clean the webapp folder, and classfiles, and build</echo>
+<echo>3) generate-aar</echo>
+<echo>     Make the axis archive, which is the classfiles and services.xml that axis needs.  You need to do this if you ever change anything that changes the wsdl.  You can do this automatically in dist by setting a property in the build.properties</echo>
+<echo>4) generate-axis-bundle-jar</echo>
+<echo>     Take all the bundlable axis jars (in lib/axis-bundle), unjar, and jar back up into one jar </echo>
+<echo>5) help</echo>
+<echo>     This message</echo>
 <echo></echo>
 </target>
-	
-	<target name="-html" if="make.javadoc" description="generate public api docs" >    
+	<!-- TODO fix this -->
+	<target name="html" description="generate public api docs" >    
 	<!-- Let's be sure we clear out old cruft first... -->    
 	<delete dir="doc/api" /> 
 	<path id="ui.class.path">
