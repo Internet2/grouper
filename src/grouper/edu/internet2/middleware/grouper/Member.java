@@ -30,10 +30,10 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A member within the Groups Registry.
  * 
- * All immedate subjects, and effective members are members.  
+ * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.96 2008-01-18 06:15:47 mchyzer Exp $
+ * @version $Id: Member.java,v 1.97 2008-01-18 06:19:39 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1067,7 +1067,7 @@ public class Member extends GrouperAPI implements Serializable {
    * A member of a group (aka composite member) has either or both of
    * an immediate (direct) membership, or an effective (indirect) membership
    * 
-   * All immedate subjects, and effective members are members.  
+   * All immediate subjects, and effective members are members.  
    * 
    * <pre class="eg">
    * if (m.isMember(g)) {
@@ -1095,7 +1095,7 @@ public class Member extends GrouperAPI implements Serializable {
    * Test whether a member belongs to the specified group list.  A member of a group (aka composite member) has either or both of
    * an immediate (direct) membership, or an effective (indirect) membership.
    * 
-   * All immedate subjects, and effective members are members.  
+   * All immediate subjects, and effective members are members.  
    * 
    * <p/>
    * <pre class="eg">

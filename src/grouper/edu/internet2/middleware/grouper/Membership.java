@@ -37,7 +37,7 @@ import net.sf.ehcache.Element;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.88 2008-01-18 06:15:47 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.89 2008-01-18 06:19:39 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -168,7 +168,7 @@ public class Membership extends GrouperAPI {
   /**
    * Get this membership's member.
    * 
-   * All immedate subjects, and effective members are members.  
+   * All immediate subjects, and effective members are members.  
    * No duplicates will be returned (e.g. if immediate and effective).
    * 
    * <pre class="eg">

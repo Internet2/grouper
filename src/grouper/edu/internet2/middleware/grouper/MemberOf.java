@@ -22,13 +22,13 @@ import  java.util.Set;
 
 /**
  * 
- * All immedate subjects, and effective members are members.  
+ * All immediate subjects, and effective members are members.  
  * No duplicates will be returned (e.g. if immediate and effective).
  * 
  * <b>THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b> 
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.60 2008-01-18 06:15:47 mchyzer Exp $
+ * @version $Id: MemberOf.java,v 1.61 2008-01-18 06:19:39 mchyzer Exp $
  * @since   1.2.0
  */
 interface MemberOf {
