@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.171 2007-12-05 11:25:10 isgwb Exp $ -->
+<!-- $Id: build.xml,v 1.172 2008-01-18 17:06:54 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -481,9 +481,18 @@
     </pathconvert>
     <filter token="base"  value="${converted.base}"/>
     <!-- Apparently ${file.separator} is not appropriate here -->
-    <filter token="slash" value="/"/>
+    <filter token="slash"       value="/"/>
+    <filter token="timeToIdle"  value="30"/>
+    <filter token="timeToLive"  value="120"/>
     <copy todir="${conf.dir}" filtering="true">
       <fileset dir="${src.dir.conf}"/>
+    </copy>
+    <filter token="timeToIdle"  value="1"/>
+    <filter token="timeToLive"  value="1"/>
+    <copy todir="${src.dir.test.conf}" filtering="true">
+      <fileset dir="${src.dir.conf}">
+        <include name="grouper.ehcache.xml"/>
+      </fileset>
     </copy>
   </target>
   <!-- target: init.conf -->
