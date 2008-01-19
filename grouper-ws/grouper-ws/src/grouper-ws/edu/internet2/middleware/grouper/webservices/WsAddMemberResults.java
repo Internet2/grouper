@@ -1,14 +1,19 @@
 package edu.internet2.middleware.grouper.webservices;
 
 /**
- * results for the add member call
+ * <pre>
+ * results for the add member call.
+ * 
+ * result code:
+ * code of the result for this group overall
+ * SUCCESS: means everything ok
+ * GROUP_NOT_FOUND: cant find the group
+ * GROUP_DUPLICATE: found multiple groups
+ * </pre>
  * @author mchyzer
  */
-public class WsAddMemberResults {
+public class WsAddMemberResults extends WsResult {
 
-	/** if success overall or not: T/F */
-	private String success;
-	
 	/**
 	 * result code of a request
 	 */
@@ -44,19 +49,9 @@ public class WsAddMemberResults {
 	 */
 	public void assignResultCode(WsAddMemberResultCode addMemberResultCode) {
 		this.setResultCode(addMemberResultCode == null ? null : addMemberResultCode.name());
+		this.setSuccess(addMemberResultCode.isSuccess() ? "T" : "F");
 	}
 	
-	/** 
-	 * <pre>
-	 * code of the result for this group overall
-	 * SUCCESS: means everything ok
-	 * GROUP_NOT_FOUND: cant find the group
-	 * GROUP_DUPLICATE: found multiple groups
-	 *  
-	 * </pre>
-	 */
-	private String resultCode;
-
 	/**
 	 * error message if there is an error
 	 */
@@ -67,52 +62,6 @@ public class WsAddMemberResults {
 	 */
 	private WsAddMemberResult[] results;
 	
-	/**
-	 * if success overall or not: T/F
-	 * @return the success
-	 */
-	public String getSuccess() {
-		return success;
-	}
-	
-	
-
-	/**
-	 * if success overall or not: T/F
-	 * @param success the success to set
-	 */
-	public void setSuccess(String success) {
-		this.success = success;
-	}
-
-	/**
-	 * <pre>
-	 * code of the result for this group overall
-	 * SUCCESS: means everything ok
-	 * GROUP_NOT_FOUND: cant find the group
-	 * GROUP_DUPLICATE: found multiple groups
-	 *  
-	 * </pre>
-	 * @return the resultCode
-	 */
-	public String getResultCode() {
-		return resultCode;
-	}
-
-	/**
-	 * <pre>
-	 * code of the result for this group overall
-	 * SUCCESS: means everything ok
-	 * GROUP_NOT_FOUND: cant find the group
-	 * GROUP_DUPLICATE: found multiple groups
-	 *  
-	 * </pre>
-	 * @param resultCode the resultCode to set
-	 */
-	public void setResultCode(String resultCode) {
-		this.resultCode = resultCode;
-	}
-
 	/**
 	 * results for each assignment sent in
 	 * @return the results
@@ -133,6 +82,7 @@ public class WsAddMemberResults {
 	 * error message if there is an error
 	 * @return the errorMessage
 	 */
+	@Override
 	public String getResultMessage() {
 		return resultMessage.toString();
 	}
@@ -149,6 +99,7 @@ public class WsAddMemberResults {
 	 * error message if there is an error
 	 * @param errorMessage the errorMessage to set
 	 */
+	@Override
 	public void setResultMessage(String errorMessage) {
 		this.resultMessage = new StringBuilder(errorMessage);
 	}

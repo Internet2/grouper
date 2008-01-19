@@ -67,4 +67,19 @@ public abstract class GrouperServiceCallbackHandler {
      */
     public void receiveErroraddMemberSimple(java.lang.Exception e) {
     }
+
+    /**
+     * auto generated Axis2 call back method for findGroups method
+     * override this method for handling normal response from findGroups operation
+     */
+    public void receiveResultfindGroups(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from findGroups operation
+     */
+    public void receiveErrorfindGroups(java.lang.Exception e) {
+    }
 }

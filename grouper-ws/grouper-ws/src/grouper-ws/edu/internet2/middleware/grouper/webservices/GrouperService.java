@@ -10,11 +10,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.webservices.WsAddMemberResults.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.webservices.WsFindGroupsResults.WsFindGroupsResultCode;
 import edu.internet2.middleware.grouper.webservices.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.subject.Subject;
 
@@ -37,6 +40,112 @@ public class GrouperService {
     /** logger */
     private static final Log LOG = LogFactory.getLog(GrouperService.class);
 
+    /**
+     * find a group or groups
+     * @param groupName search by group name (must match exactly), cannot use other params with this
+     * @param stemName will return groups in this stem
+     * @param stemNameScope if searching by stem, O is for one level, S is for all subgroups in tree
+     * one level only, F will return all in sub tree.  Required if searching by stem
+     * @param groupUuid search by group uuid (must match exactly), cannot use other params with this
+     * @param queryTerm if searching by query, this is a term that will be matched to 
+     * name, extension, etc
+     * @param querySearchFromStemName if a stem name is put here, that will narrow the search
+     * @param queryScope N is searching by name, E is display extension, and D is display name.
+     * This is required if a query search
+	 * @param actAsSubject optional: is the subject to act as (if proxying)
+	 * @param paramNames optional: reserved for future use
+	 * @param paramValues optional: reserved for future use
+     * @return the groups, or no groups if none found
+     */
+    public WsFindGroupsResults findGroups(String groupName, String stemName, 
+    		String stemNameScope,
+    		String groupUuid, String queryTerm, String querySearchFromStemName, 
+    		String queryScope, WsSubjectLookup actAsSubjectLookup,
+			String[] paramNames, String[] paramValues) {
+    	
+		GrouperSession session = null;
+		WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
+
+		boolean searchByName = StringUtils.isNotBlank(groupName);
+		boolean searchByStem = StringUtils.isNotBlank(stemName);
+		boolean hasStemScope = StringUtils.isNotBlank(stemNameScope);
+		boolean searchByUuid = StringUtils.isNotBlank(groupUuid);
+		boolean searchByQuery = StringUtils.isNotBlank(queryTerm);
+		boolean searchByQueryInStem = StringUtils.isNotBlank(querySearchFromStemName);
+		boolean hasQueryScope = StringUtils.isNotBlank(queryScope);
+		
+		//TODO make sure size of params and values the same
+		
+		//count the search types
+		int searchTypes = (searchByName ? 1 : 0) + (searchByStem ? 1 : 0)
+			+ (searchByUuid ? 1 : 0) + (searchByQuery ? 1 : 0);
+		//must only search by one type
+		if (searchTypes != 1) {
+			wsFindGroupsResults.assignResultCode(WsFindGroupsResultCode.INVALID_QUERY);
+			wsFindGroupsResults.setResultMessage("Invalid query, only query on one thing, not multiple.  " +
+					"Only search by name, stem, uuid, or query");
+			return wsFindGroupsResults;
+		}
+		
+		//assume success
+		wsFindGroupsResults.assignResultCode(WsFindGroupsResultCode.SUCCESS);
+		
+		Subject actAsSubject = null;
+		try {
+			actAsSubject = GrouperServiceServlet.retrieveSubjectActAs(actAsSubjectLookup);
+			
+			if (actAsSubject == null) {
+				throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+			}
+			
+			//use this to be the user connected, or the user act-as
+			try {
+				session = GrouperSession.start(actAsSubject);
+			} catch (SessionException se) {
+				throw new RuntimeException("Problem with session for subject: " + actAsSubject, se);
+			}
+			
+			//simple search by name
+			if (searchByName) {
+				try {
+					Group group = GroupFinder.findByName(session, groupName);
+					wsFindGroupsResults.assignGroupResult(group);
+				} catch (GroupNotFoundException gnfe) {
+					//just ignore, the group results will be blank
+				}
+				return wsFindGroupsResults;
+			}
+			
+		} catch (RuntimeException re) {
+			wsFindGroupsResults.assignResultCode(WsFindGroupsResultCode.EXCEPTION);
+			String theError = "Problem finding group: groupName: " + groupName
+				+ ", stemName: " + stemName + ", stemNameScope: " + stemNameScope
+				+ ", groupUuid: " + groupUuid + ", queryTerm: " + queryTerm
+				+ ", querySearchFromStemName: " + querySearchFromStemName 	
+				+ ", queryScope: " +  queryScope + ", actAsSubjectLookup: " + actAsSubjectLookup
+				/* TODO add in param names and values */
+				 + ".  ";
+			wsFindGroupsResults.setResultMessage(theError);
+			//this is sent back to the caller anyway, so just log, and not send back again
+			LOG.error(theError + ", wsFindGroupsResults: " + GrouperServiceUtils.toStringForLog(wsFindGroupsResults), re);
+		} finally {
+			if (session != null) {
+				try {
+					session.stop();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+		
+		if (!"T".equalsIgnoreCase(wsFindGroupsResults.getSuccess())) {
+			
+			LOG.error(wsFindGroupsResults.getResultMessage());
+		}
+		return wsFindGroupsResults;
+
+    }
+    
 	/**
 	 * add member to a group (if already a direct member, ignore)
 	 * @param wsGroupLookup 
@@ -58,7 +167,6 @@ public class GrouperService {
 		WsAddMemberResults wsAddMemberResults = new WsAddMemberResults();
 		int subjectLength = subjectLookups == null ? 0 : subjectLookups.length;
 		if (subjectLength == 0) {
-			wsAddMemberResults.setSuccess("F");
 			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
 			wsAddMemberResults.appendResultMessage("Subject length must be more than 1");
 			return wsAddMemberResults;
@@ -67,14 +175,14 @@ public class GrouperService {
 		//see if greater than the max (or default)
 		Integer maxAddMember = GrouperWsConfig.getPropertyInteger(GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
 		if (subjectLength > maxAddMember) {
-			wsAddMemberResults.setSuccess("F");
 			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
 			wsAddMemberResults.appendResultMessage("Subject length must be less than max: " + maxAddMember + " (sent in " + subjectLength + ")");
 			return wsAddMemberResults;
 		}
 		
+		//TODO make sure size of params and values the same
+		
 		//assume success
-		wsAddMemberResults.setSuccess("F");
 		wsAddMemberResults.assignResultCode(WsAddMemberResultCode.SUCCESS);
 		Subject actAsSubject = null;
 		try {
@@ -95,7 +203,6 @@ public class GrouperService {
 			Group group = wsGroupLookup.retrieveGroup();
 			
 			if (group == null) {
-				wsAddMemberResults.setSuccess("F");
 				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
 				wsAddMemberResults.appendResultMessage("Cant find group: " + wsGroupLookup + ".  ");
 				return wsAddMemberResults;
@@ -177,7 +284,6 @@ public class GrouperService {
 							LOG.error(theError, e);
 
 							wsAddMemberResults.appendResultMessage(theError + ExceptionUtils.getFullStackTrace(e));
-							wsAddMemberResults.setSuccess("F");
 							wsAddMemberResults.assignResultCode(WsAddMemberResultCode.PROBLEM_DELETING_MEMBERS);
 						}
 					}
@@ -185,7 +291,6 @@ public class GrouperService {
 			}
 		} catch (RuntimeException re) {
 			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.EXCEPTION);
-			wsAddMemberResults.setSuccess("F");
 			String theError = "Problem adding member to group: wsGroupLookup: " + wsGroupLookup
 				+ ", subjectLookups: " + GrouperServiceUtils.toStringForLog(subjectLookups)
 				+ ", replaceAllExisting: " +  replaceAllExisting +  ", actAsSubject: " + actAsSubject
@@ -218,10 +323,8 @@ public class GrouperService {
 			if (failures > 0) {
 				wsAddMemberResults.appendResultMessage("There were " + successes + " successes and " + failures 
 						+ " failures of users added to the group.   ");
-				wsAddMemberResults.setSuccess("F");
 				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.PROBLEM_WITH_ASSIGNMENT);
 			} else {
-				wsAddMemberResults.setSuccess("T");
 				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.SUCCESS);
 			}
 		}
@@ -232,25 +335,6 @@ public class GrouperService {
 		return wsAddMemberResults;
 	}
 		
-	/**
-	 * split a string and trim each
-	 * @param string
-	 * @param separator
-	 * @return the array
-	 */
-	@SuppressWarnings("unused")
-	private static String[] splitTrim(String string, String separator) {
-		String[] splitArray = StringUtils.split(string, separator);
-		if (splitArray == null) {
-			return null;
-		}
-		int index = 0;
-		for (String stringInArray : splitArray) {
-			splitArray[index++] = StringUtils.trimToNull(stringInArray);
-		} 
-		return splitArray;
-	}
-	
 	/**
 	 * add member to a group (if already a direct member, ignore)
 	 * @param wsGroupLookup 
