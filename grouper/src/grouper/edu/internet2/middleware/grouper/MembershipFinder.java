@@ -29,11 +29,12 @@ import  java.util.Set;
 /**
  * Find memberships within the Groups Registry.
  * 
- * A membership is the object which represents a join of member 
- * and group.  Has metadata like type and creator.
+ * A membership is the object which represents a join of member
+ * and group.  Has metadata like type and creator,
+ * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.90 2008-01-18 06:15:47 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.91 2008-01-19 05:41:00 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -42,8 +43,9 @@ public class MembershipFinder {
   /**
    * Return the composite membership if it exists. 
    *
-   * A composite group has two groups as members and a set operator 
-   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * A composite group is composed of two groups and a set operator 
+   * (stored in grouper_composites table)
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.
    * All subjects in a composite group are effective members.
    * 
    * <p/>
@@ -151,9 +153,12 @@ public class MembershipFinder {
   /**
    * Return the immediate membership if it exists.  
    * 
-   * An immediate member is directly assigned to a group.  
-   * A composite group has no immediate members.  Note that 
-   * a member can have an immediate membership and an effective membership.
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
    * 
    * <p/>
    * <pre class="eg">
