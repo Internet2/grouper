@@ -19,10 +19,19 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
- * An effective member has an 
+ * An effective member has an indirect membership to a group
+ * (e.g. in a group within a group).  All subjects in a
+ * composite group are effective members (since the composite
+ * group has two groups and a set operator and no other immediate
+ * members).  Note that a member can have 0 to 1 immediate memberships
+ * to a single group, and 0 to many effective memberships to a group.
+ * 'group within a group' can be nested to any level so long as it does 
+ * not become circular.  A group can have potentially unlimited effective 
+ * memberships
+ * 
  * indirect membership to a group (e.g. in a group within a group).
  * @author  blair christensen.
- * @version $Id: EffectiveMembershipValidator.java,v 1.7 2008-01-18 06:15:47 mchyzer Exp $
+ * @version $Id: EffectiveMembershipValidator.java,v 1.8 2008-01-19 05:41:00 mchyzer Exp $
  * @since   1.2.0
  */
 class EffectiveMembershipValidator extends MembershipValidator {

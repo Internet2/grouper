@@ -22,12 +22,15 @@ import  edu.internet2.middleware.subject.*;
 /**
  * Benchmark adding an immediate {@link Membership}.
  * 
- * An immediate member is directly assigned to a group.  
- * A composite group has no immediate members.  Note that 
- * a member can have an immediate membership and an effective membership.
+ * An immediate member is directly assigned to a group.
+ * A composite group has no immediate members.  Note that a 
+ * member can have 0 to 1 immediate memberships
+ * to a single group, and 0 to many effective memberships to a group.
+ * A group can have potentially unlimited effective 
+ * memberships
  * 
  * @author  blair christensen.
- * @version $Id: AddImmMember.java,v 1.7 2008-01-18 06:15:47 mchyzer Exp $
+ * @version $Id: AddImmMember.java,v 1.8 2008-01-19 05:41:00 mchyzer Exp $
  * @since   1.1.0
  */
 public class AddImmMember extends BaseGrouperBenchmark {

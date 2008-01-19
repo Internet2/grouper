@@ -28,7 +28,7 @@ import  java.util.Set;
  * <b>THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b> 
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.61 2008-01-18 06:19:39 mchyzer Exp $
+ * @version $Id: MemberOf.java,v 1.62 2008-01-19 05:41:00 mchyzer Exp $
  * @since   1.2.0
  */
 interface MemberOf {
@@ -37,8 +37,9 @@ interface MemberOf {
   
   /**
    * 
-   * A composite group has two groups as members and a set operator 
-   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * A composite group is composed of two groups and a set operator 
+   * (stored in grouper_composites table)
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.
    * All subjects in a composite group are effective members.
    * 
    * @since   1.2.0
@@ -48,9 +49,12 @@ interface MemberOf {
     throws  IllegalStateException;
 
   /**
-   * An immediate member is directly assigned to a group.  
-   * A composite group has no immediate members.  Note that 
-   * a member can have an immediate membership and an effective membership.
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
    * 
    * @since   1.2.0
    * @throws IllegalStateException
@@ -59,9 +63,12 @@ interface MemberOf {
     throws  IllegalStateException;  
 
   /**
-   * An immediate member is directly assigned to a group.  
-   * A composite group has no immediate members.  Note that 
-   * a member can have an immediate membership and an effective membership.
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
    * 
    * @since   1.2.0
    * @throws IllegalStateException
@@ -70,8 +77,9 @@ interface MemberOf {
     throws  IllegalStateException; 
 
   /**
-   * A composite group has two groups as members and a set operator 
-   * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+   * A composite group is composed of two groups and a set operator 
+   * (stored in grouper_composites table)
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.
    * All subjects in a composite group are effective members.
    * 
    * @since   1.2.0
@@ -81,9 +89,12 @@ interface MemberOf {
     throws  IllegalStateException;
 
   /**
-   * An immediate member is directly assigned to a group.  
-   * A composite group has no immediate members.  Note that 
-   * a member can have an immediate membership and an effective membership.
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
    * 
    * @since   1.2.0
    * @throws IllegalStateException
@@ -92,9 +103,12 @@ interface MemberOf {
     throws  IllegalStateException;
 
   /**
-   * An immediate member is directly assigned to a group.  
-   * A composite group has no immediate members.  Note that 
-   * a member can have an immediate membership and an effective membership.
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
    * 
    * @since   1.2.0
    * @throws IllegalStateException

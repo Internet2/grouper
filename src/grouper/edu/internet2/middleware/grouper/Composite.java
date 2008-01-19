@@ -33,13 +33,14 @@ import  org.apache.commons.lang.time.*;
 /** 
  * A composite membership definition within the Groups Registry.
  * 
- * A composite group has two groups as members and a set operator 
- * (e.g. union, intersection, etc).  A composite group has no immediate members.  
+ * A composite group is composed of two groups and a set operator 
+ * (stored in grouper_composites table)
+ * (e.g. union, intersection, etc).  A composite group has no immediate members.
  * All subjects in a composite group are effective members.
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.47 2008-01-18 06:15:47 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.48 2008-01-19 05:41:00 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
