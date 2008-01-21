@@ -10,9 +10,6 @@ import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-
 /**
  * @author mchyzer
  *

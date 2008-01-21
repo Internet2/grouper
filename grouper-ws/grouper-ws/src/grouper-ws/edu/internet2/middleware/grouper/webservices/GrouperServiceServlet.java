@@ -4,7 +4,6 @@
 package edu.internet2.middleware.grouper.webservices;
 
 import java.io.IOException;
-import java.security.Principal;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -84,7 +83,7 @@ public class GrouperServiceServlet extends AxisServlet {
 		Subject loggedInSubject = retrieveSubjectLoggedIn();
 		
 		//if there is no actAs specified, then just use the logged in user
-		if (actAsLookup.isBlank()) {
+		if (actAsLookup == null || actAsLookup.isBlank()) {
 			return loggedInSubject;
 		}
 		

@@ -1,17 +1,17 @@
 <project name="grouper-ws" default="dist" basedir=".">
-	
+
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-	  <classpath>
-	    <pathelement location="${basedir}/lib/ant/ant-contrib-1.0b3.jar"/>
-	  </classpath>
+		<classpath>
+			<pathelement location="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+		</classpath>
 	</taskdef>
 
 	<!-- 
 	provides all environment variables as Ant properties prefixed by "env.". 
 	For example, CLASSPATH would be accessible in Ant as ${env.CLASSPATH}. 
 	-->
-	<property environment="env"/>
-	<property file="build.properties"/>
+	<property environment="env" />
+	<property file="build.properties" />
 
 	<property name="webapp.folder" value="${dist.home}/${webapp.name}" />
 
@@ -19,61 +19,94 @@
 	<property name="build.dir.grouper-ws" value="${build.dir}/grouper-ws" />
 
 	<mkdir dir="${build.dir}" />
-  <mkdir dir="${build.dir.grouper-ws}" />
-  <mkdir dir="${dist.home}" />
+	<mkdir dir="${build.dir.grouper-ws}" />
+	<mkdir dir="${dist.home}" />
 	<mkdir dir="${webapp.folder}" />
 
-  <path id="ws.class.path">
-      <!-- Make available jar files that Grouper needs -->
-    <fileset dir="${basedir}/lib">
-      <include name="**/*.jar"/>
-    </fileset>
-      
-    <!-- make available any classes / resources already placed in the build folder -->
-    <pathelement location="${build.dir.grouper-ws}"/>
-  </path>
+	<path id="ws.class.path">
+		<!-- Make available jar files that Grouper needs -->
+		<fileset dir="${basedir}/lib">
+			<include name="**/*.jar" />
+		</fileset>
+
+		<!-- make available any classes / resources already placed in the build folder -->
+		<pathelement location="${build.dir.grouper-ws}" />
+	</path>
 
 	<!-- TODO move this out of project -->
 	<property name="webservice.folder" value="${webapp.folder}/../webservices" />
-	
+
 	<!-- target name="generate.wsdl" >  
     	<mkdir dir="${webservice.folder}"/>
     	<mkdir dir="${webservice.folder}/classes"/>
         <taskdef name="java2wsdl"
                  classname="org.apache.ws.java2wsdl.Java2WSDLTask"
-                 classpathref="ui.class.path"/>
+                 classpathref="ws.class.path"/>
         <java2wsdl className="edu.internet2.middleware.grouper.webservices.GrouperService"
-                   outputLocation="${webservice.folder}"
+                   outputLocation="${wsdl.location}"
                    targetNamespace="http://grouper.internet2.edu/"
-                   schemaTargetNamespace="http://grouper.internet2.edu/xsd">
-            <classpath>
-                <pathelement id="ui.class.path"/--> <!--  path="${axis2.classpath} -->
-                <!-- pathelement location="${webapp.class.folder}"/>
-            </classpath>
-        </java2wsdl>
+                   schemaTargetNamespace="http://grouper.internet2.edu/xsd" -->
+	<!-- classpath>
+                <pathelement id="ws.class.path"/ -->
+	<!--  path="${axis2.classpath} -->
+	<!-- pathelement location="${build.dir.grouper-ws}"/>
+            </classpath -->
+	<!-- /java2wsdl>
     </target -->
+	<target name="java2wsdl" description="convert the java to a wsdl">
+		<touch file="${generated.client.project.dir}/GrouperService.wsdl" />
+		<delete file="${generated.client.project.dir}/GrouperService.wsdl" />
+		<java classname="org.apache.ws.java2wsdl.Java2WSDL" fork="true">
+			<classpath refid="ws.class.path" />
+			<arg value="-o" />
+			<arg value="${generated.client.project.dir}" />
+			<arg value="-of" />
+			<arg value="GrouperService.wsdl" />
+			<arg value="-cn" />
+			<arg value="edu.internet2.middleware.grouper.webservices.GrouperService" />
+		</java>
+	</target>
+	<target name="wsdl2java" description="convert the wsdl to a java client">
+		<delete>
+			<fileset dir="${generated.client.project.dir}">
+				<include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceCallbackHandler.java" />
+				<include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.java" />
+				<include name="test/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceTest.java" />
+			</fileset>
+		</delete>
+		<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true" >
+			<classpath refid="ws.class.path" />
+			<arg value="-uri" />
+			<arg file="${generated.client.project.dir}/GrouperService.wsdl" />
+			<arg value="-t" />
+			<arg value="-p" />
+			<arg value="edu.internet2.middleware.grouper.webservicesClient" />
+      <arg value="-o" />
+      <arg value="${generated.client.project.dir}" />
+		</java>
+
+	</target>
 
 	<target name="generate-aar" depends="compile">
-	   <property name="webservice.folder" value="${basedir}/webservices" />
-    	<mkdir dir="${webservice.folder}/classes"/>
-    	<delete dir="${webservice.folder}/classes"/>
-    	<mkdir dir="${webservice.folder}/classes"/>
-        <copy toDir="${webservice.folder}/classes" failonerror="false">
-            <fileset dir="${build.dir.grouper-ws}" > 
-                <include name="edu/internet2/middleware/grouper/webservices/**/*.class" />
-            </fileset>
-        </copy>
-        <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService.aar">
-          <fileset excludes="edu/internet2/middleware/grouper/webservices/**/*Test.class" 
-            	  dir="${webservice.folder}/classes" />
-        	<fileset dir="webservices/GrouperService.aar" />
-        </jar>
-	    <!-- copy the aar to the build dir -->
+		<property name="webservice.folder" value="${basedir}/webservices" />
+		<mkdir dir="${webservice.folder}/classes" />
+		<delete dir="${webservice.folder}/classes" />
+		<mkdir dir="${webservice.folder}/classes" />
+		<copy toDir="${webservice.folder}/classes" failonerror="false">
+			<fileset dir="${build.dir.grouper-ws}">
+				<include name="edu/internet2/middleware/grouper/webservices/**/*.class" />
+			</fileset>
+		</copy>
+		<jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService.aar">
+			<fileset excludes="edu/internet2/middleware/grouper/webservices/**/*Test.class" dir="${webservice.folder}/classes" />
+			<fileset dir="webservices/GrouperService.aar" />
+		</jar>
+		<!-- copy the aar to the build dir -->
 		<!-- copy file="webapp/WEB-INF/services/GrouperService.aar" 
 			todir="../dist/grouper/WEB-INF/services" / -->
-		
+
 	</target>
-	
+
 	<!-- 
 	
 	Generate the axis bundle based on axis jars
@@ -111,145 +144,157 @@
 	- xml-apis (grouper-ui, removed since older)
 	-->
 	<target name="generate-axis-bundle-jar">
-		<mkdir dir="build/axisLibTemp"/>
-		<delete dir="build/axisLibTemp"/>
-		<mkdir dir="build/axisLibTemp"/>
+		<mkdir dir="build/axisLibTemp" />
+		<delete dir="build/axisLibTemp" />
+		<mkdir dir="build/axisLibTemp" />
 		<unzip dest="build/axisLibTemp">
-			<fileset dir="lib/axis-bundle" includes="*.jar"/>
+			<fileset dir="lib/axis-bundle" includes="*.jar" />
 		</unzip>
-		<delete file="lib/axis/axisBundle.jar"/>
-		<jar destfile="lib/axis/axisBundle.jar" 
-			basedir="build/axisLibTemp" />
+		<delete file="lib/axis/axisBundle.jar" />
+		<jar destfile="lib/axis/axisBundle.jar" basedir="build/axisLibTemp" />
 	</target>
 
 	<target name="clean">
-	  <mkdir dir="${build.dir}" />
-	  <delete dir="${build.dir}" />
-	  <mkdir dir="${build.dir.grouper-ws}" />
+		<mkdir dir="${build.dir}" />
+		<delete dir="${build.dir}" />
+		<mkdir dir="${build.dir.grouper-ws}" />
 	</target>
-	
+
 	<!-- ## End From axis
 	############################################### -->
-  <target name="compile">
-		<javac srcdir="${basedir}/src/grouper-ws" destdir="${build.dir.grouper-ws}" 
-			classpathref="ws.class.path" debug="true" >
-			<compilerarg  value="-Xlint:deprecation"  />	
-  	</javac>
+	<target name="compile">
+		<javac srcdir="${basedir}/src/grouper-ws" destdir="${build.dir.grouper-ws}" classpathref="ws.class.path" debug="true">
+			<compilerarg value="-Xlint:deprecation" />
+		</javac>
 	</target>
 	<!-- 
 		Builds the entire webapp 
 	-->
 	<target name="dist">
-	  
+
 		<!-- TODO put in options to do the log4j and other properties files -->
-		
+
 		<!-- see if we should clean -->
 		<if>
-		  <istrue value="${dist.cleanOnDist}" />
-		  <then>
-		    <antcall target="clean" />  
-		  </then>
+			<istrue value="${dist.cleanOnDist}" />
+			<then>
+				<antcall target="clean" />
+			</then>
 		</if>
-		
+
 		<if>
 			<istrue value="${dist.packageAar}" />
 			<then>
 				<!-- this will compile -->
-        <antcall target="generate-aar" />  
+				<antcall target="generate-aar" />
 			</then>
-		  <else>
-		    <!-- make sure things are compiled -->
-		    <antcall target="compile" />
+			<else>
+				<!-- make sure things are compiled -->
+				<antcall target="compile" />
 			</else>
 		</if>
+
+    <if>
+      <istrue value="${dist.generateWsdlOnDist}" />
+      <then>
+        <antcall target="java2wsdl" />
+      </then>
+    </if>
+    <if>
+      <istrue value="${generateClientOnDist}" />
+      <then>
+        <antcall target="wsdl2java" />
+      </then>
+    </if>
 		
-		<!-- TODO put in options to do the java and wsdl -->
-		
-    <!-- make the jar first and include source -->
-    <delete file="${dist.home}/grouper-ws.jar" />
+		<!-- make the jar first and include source -->
+		<delete file="${dist.home}/grouper-ws.jar" />
 		<jar file="${dist.home}/grouper-ws.jar">
 			<fileset dir="${build.dir.grouper-ws}" />
-      <fileset dir="${basedir}/src/grouper-ws"/>
+			<fileset dir="${basedir}/src/grouper-ws" />
 		</jar>
-		
-	  <mkdir dir="${webapp.folder}/WEB-INF/classes" />
-    <mkdir dir="${webapp.folder}/WEB-INF/lib" />
-		
+
+		<mkdir dir="${webapp.folder}/WEB-INF/classes" />
+		<mkdir dir="${webapp.folder}/WEB-INF/lib" />
+
 		<!-- Make all necessary jar files available to the webapp itself -->
 		<!-- we are doing the classes and source with a jar -->
-		<copy todir="${webapp.folder}/WEB-INF/classes"  >
-      <fileset dir="${basedir}/resources"/>
+		<copy todir="${webapp.folder}/WEB-INF/classes">
+			<fileset dir="${basedir}/resources" />
 		</copy>
-    <copy todir="${webapp.folder}/WEB-INF/lib" >
-      <fileset dir="${basedir}/lib/axis" includes="*.jar" />
-      <fileset dir="${basedir}/lib/grouper" includes="*.jar" />
-      <fileset dir="${basedir}/lib/grouper-ws" includes="*.jar" />
-    	<fileset dir="${dist.home}" includes="grouper-ws.jar" />
-    </copy>
-	  
+		<copy todir="${webapp.folder}/WEB-INF/lib">
+			<fileset dir="${basedir}/lib/axis" includes="*.jar" />
+			<fileset dir="${basedir}/lib/grouper" includes="*.jar" />
+			<fileset dir="${basedir}/lib/grouper-ws" includes="*.jar" />
+			<fileset dir="${dist.home}" includes="grouper-ws.jar" />
+		</copy>
+
 		<!-- all the webapp axis stuff like services dir and conf dir -->
-	  <copy todir="${webapp.folder}">
-      <fileset dir="${basedir}/webapp" />
+		<copy todir="${webapp.folder}">
+			<fileset dir="${basedir}/webapp" />
 		</copy>
-	
+
 		<!-- make a war file -->
 		<property name="webapp.war" value="${webapp.folder}.war" />
 		<delete file="${webapp.war}" />
 		<jar destfile="${webapp.war}">
-      <fileset dir="${webapp.folder}" />
+			<fileset dir="${webapp.folder}" />
 		</jar>
-      		
-	</target>
-	
-	
-	
-	<target name="help" description="targets and their description" > 
-<echo>Please ensure you have read the documentation - </echo>	
-<echo>and created a build.properties file based on the template provided</echo>
 
-<echo></echo>
-<echo>The following targets are available - type the appropriate name:</echo>
-<echo></echo>
-<echo>1) default (dist) </echo>
-<echo>     Simply builds, without cleaning, to the webapp.folder</echo>
-<echo>2) clean</echo>
-<echo>     Clean the webapp folder, and classfiles, and build</echo>
-<echo>3) generate-aar</echo>
-<echo>     Make the axis archive, which is the classfiles and services.xml that axis needs.  You need to do this if you ever change anything that changes the wsdl.  You can do this automatically in dist by setting a property in the build.properties</echo>
-<echo>4) generate-axis-bundle-jar</echo>
-<echo>     Take all the bundlable axis jars (in lib/axis-bundle), unjar, and jar back up into one jar </echo>
-<echo>5) help</echo>
-<echo>     This message</echo>
-<echo></echo>
-</target>
+	</target>
+
+
+
+	<target name="help" description="targets and their description">
+		<echo>Please ensure you have read the documentation - </echo>
+		<echo>and created a build.properties file based on the template provided</echo>
+
+		<echo>
+		</echo>
+		<echo>The following targets are available - type the appropriate name:</echo>
+		<echo>
+		</echo>
+		<echo>1) default (dist) </echo>
+		<echo>     Simply builds, without cleaning, to the webapp.folder</echo>
+		<echo>2) clean</echo>
+		<echo>     Clean the webapp folder, and classfiles, and build</echo>
+		<echo>3) generate-aar</echo>
+		<echo>     Make the axis archive, which is the classfiles and services.xml that axis needs.  You need to do this if you ever change anything that changes the wsdl.  You can do this automatically in dist by setting a property in the build.properties</echo>
+		<echo>4) generate-axis-bundle-jar</echo>
+		<echo>     Take all the bundlable axis jars (in lib/axis-bundle), unjar, and jar back up into one jar </echo>
+		<echo>5) help</echo>
+		<echo>     This message</echo>
+		<echo>
+		</echo>
+	</target>
 	<!-- TODO fix this -->
-	<target name="html" description="generate public api docs" >    
-	<!-- Let's be sure we clear out old cruft first... -->    
-	<delete dir="doc/api" /> 
-	<path id="ui.class.path">
-				<!-- Make available jar files that Grouper needs -->
+	<target name="html" description="generate public api docs">
+		<!-- Let's be sure we clear out old cruft first... -->
+		<delete dir="doc/api" />
+		<path id="ui.class.path">
+			<!-- Make available jar files that Grouper needs -->
 			<fileset dir="${grouper.folder}/dist/lib">
-				<include name="**/*.jar"/>
-				<exclude name="grouper-lib-*.jar"/>
-				<exclude name="grouper.jar"/>
-				<exclude name="grouper-2*.jar"/>
+				<include name="**/*.jar" />
+				<exclude name="grouper-lib-*.jar" />
+				<exclude name="grouper.jar" />
+				<exclude name="grouper-2*.jar" />
 			</fileset>
 			<!-- Make available jar files the UI needs -->
 			<fileset dir="${ui.folder}/java/lib">
-				<include name="**/*.jar"/>
+				<include name="**/*.jar" />
 			</fileset>
-			
+
 			<!-- Last, but not least, make Grouper API available -->
-			<pathelement location="${grouper.folder}/dist/lib/grouper.jar"/>
-		
-		</path> 
-		<property name="cp" refid="ui.class.path"/>
-		<available file="${grouper.folder}/src/grouper" property="exists.grouper.src"/>
-		<antcall target="-create-if-absent-grouper-src"/>
-		  <antcall target="-html-with-subject" inheritrefs="true"/>
-		  <antcall target="-html-without-subject" inheritrefs="true"/>
-		  	<antcall target="-remove-if-created-grouper-src"/>
-  </target>
-	
-	
+			<pathelement location="${grouper.folder}/dist/lib/grouper.jar" />
+
+		</path>
+		<property name="cp" refid="ui.class.path" />
+		<available file="${grouper.folder}/src/grouper" property="exists.grouper.src" />
+		<antcall target="-create-if-absent-grouper-src" />
+		<antcall target="-html-with-subject" inheritrefs="true" />
+		<antcall target="-html-without-subject" inheritrefs="true" />
+		<antcall target="-remove-if-created-grouper-src" />
+	</target>
+
+
 </project>

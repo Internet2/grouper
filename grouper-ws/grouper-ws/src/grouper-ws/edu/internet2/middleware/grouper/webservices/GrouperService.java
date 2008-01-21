@@ -116,6 +116,17 @@ public class GrouperService {
 				return wsFindGroupsResults;
 			}
 			
+			//simple search for uuid
+			if (searchByUuid) {
+				try {
+					Group group = GroupFinder.findByUuid(session, groupUuid);
+					wsFindGroupsResults.assignGroupResult(group);
+				} catch (GroupNotFoundException gnfe) {
+					//just ignore, the group results will be blank
+				}
+				return wsFindGroupsResults;
+			}
+			
 		} catch (RuntimeException re) {
 			wsFindGroupsResults.assignResultCode(WsFindGroupsResultCode.EXCEPTION);
 			String theError = "Problem finding group: groupName: " + groupName
@@ -127,7 +138,8 @@ public class GrouperService {
 				 + ".  ";
 			wsFindGroupsResults.setResultMessage(theError);
 			//this is sent back to the caller anyway, so just log, and not send back again
-			LOG.error(theError + ", wsFindGroupsResults: " + GrouperServiceUtils.toStringForLog(wsFindGroupsResults), re);
+			LOG.error(theError + ", wsFindGroupsResults: " + GrouperServiceUtils.toStringForLog(wsFindGroupsResults
+					+ ",\n" + ExceptionUtils.getFullStackTrace(re)), re);
 		} finally {
 			if (session != null) {
 				try {
