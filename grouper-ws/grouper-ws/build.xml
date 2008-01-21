@@ -91,6 +91,9 @@
 			<arg value="edu.internet2.middleware.grouper.webservices.GrouperService" />
       <arg value="-stn" />
       <arg value="http://webservices.grouper.middleware.internet2.edu/xsd" />
+      <arg value="-l" />
+      <arg value="http://localhost:8090/grouper-ws/services/GrouperService" />
+			
 		</java>
 	</target>
 	<target name="wsdl2java" description="convert the wsdl to a java client">
