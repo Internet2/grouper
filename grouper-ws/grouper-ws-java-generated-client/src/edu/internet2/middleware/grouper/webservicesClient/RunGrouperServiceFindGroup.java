@@ -48,49 +48,52 @@ public class RunGrouperServiceFindGroup {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
+            FindGroups findGroups = null;
+            FindGroupsResponse findGroupsResponse = null;
+            WsFindGroupsResults wsFindGroupsResults = null;
             //options.setProperty(Constants.Configuration.ENABLE_REST,
             //		Constants.VALUE_TRUE);
-            FindGroups findGroups = FindGroups.class.newInstance();
-
-            findGroups.setGroupName("aStem:aGroup");
-            System.out.println("\n\nQUERY BY GROUP NAME: ");
-
-            FindGroupsResponse findGroupsResponse = stub.findGroups(findGroups);
-
-            WsFindGroupsResults wsFindGroupsResult = findGroupsResponse.get_return();
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsFindGroupsResult));
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsFindGroupsResult.getGroupResults()[0]));
+            //            FindGroups findGroups = FindGroups.class.newInstance();
+            //
+            //            findGroups.setGroupName("aStem:aGroup");
+            //            System.out.println("\n\nQUERY BY GROUP NAME: ");
+            //
+            //            FindGroupsResponse findGroupsResponse = stub.findGroups(findGroups);
+            //
+            //            WsFindGroupsResults wsFindGroupsResults = findGroupsResponse.get_return();
+            //            System.out.println(ToStringBuilder.reflectionToString(
+            //                    wsFindGroupsResults));
+            //            System.out.println(ToStringBuilder.reflectionToString(
+            //                    wsFindGroupsResults.getGroupResults()[0]));
 
             //try by uuid
-            findGroups.setGroupName(null);
+            findGroups = FindGroups.class.newInstance();
             System.out.println("\n\nQUERY BY UUID: ");
             findGroups.setGroupUuid("19284537-6118-44b2-bbbc-d5757c709cb7");
 
             findGroupsResponse = stub.findGroups(findGroups);
 
-            wsFindGroupsResult = findGroupsResponse.get_return();
+            wsFindGroupsResults = findGroupsResponse.get_return();
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsFindGroupsResult));
+                    wsFindGroupsResults));
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsFindGroupsResult.getGroupResults()[0]));
+                    wsFindGroupsResults.getGroupResults()[0]));
 
             //search by stem
-            findGroups.setGroupUuid(null);
+            findGroups = FindGroups.class.newInstance();
             System.out.println("\n\nQUERY BY STEM: ");
             findGroups.setStemName("aStem");
             findGroups.setStemNameScope("ONE_LEVEL");
             findGroupsResponse = stub.findGroups(findGroups);
 
-            wsFindGroupsResult = findGroupsResponse.get_return();
+            wsFindGroupsResults = findGroupsResponse.get_return();
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsFindGroupsResult));
+                    wsFindGroupsResults));
 
-            WsGroupResult[] wsGroupResults = wsFindGroupsResult.getGroupResults();
+            WsGroupResult[] wsGroupResults = wsFindGroupsResults.getGroupResults();
 
             if (wsGroupResults != null) {
-                for (WsGroupResult wsGroupResult : wsFindGroupsResult.getGroupResults()) {
+                for (WsGroupResult wsGroupResult : wsFindGroupsResults.getGroupResults()) {
                     System.out.println(ToStringBuilder.reflectionToString(
                             wsGroupResult));
                 }

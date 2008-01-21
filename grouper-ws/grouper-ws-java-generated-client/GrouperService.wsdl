@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ns0="http://webservices.grouper.middleware.internet2.edu" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ns1="http://webservices.grouper.middleware.internet2.edu/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://webservices.grouper.middleware.internet2.edu">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:axis2="http://webservices.grouper.middleware.internet2.edu" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ns0="http://webservices.grouper.middleware.internet2.edu/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://webservices.grouper.middleware.internet2.edu">
     <wsdl:types>
-        <xs:schema xmlns:ns="http://webservices.grouper.middleware.internet2.edu" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://webservices.grouper.middleware.internet2.edu">
+        <xs:schema xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://webservices.grouper.middleware.internet2.edu/xsd">
             <xs:element name="addMemberSimple">
                 <xs:complexType>
                     <xs:sequence>
@@ -21,54 +21,10 @@
             <xs:element name="addMemberSimpleResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns1:WsAddMemberResult"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAddMemberResult"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="addMember">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="wsGroupLookup" nillable="true" type="ns1:WsGroupLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectLookups" nillable="true" type="ns1:WsSubjectLookup"/>
-                        <xs:element minOccurs="0" name="replaceAllExisting" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns1:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addMemberResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns1:WsAddMemberResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findGroups">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queryTerm" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="querySearchFromStemName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="queryScope" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns1:WsSubjectLookup"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="findGroupsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns1:WsFindGroupsResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-        </xs:schema>
-        <xs:schema xmlns:ax21="http://webservices.grouper.middleware.internet2.edu/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://webservices.grouper.middleware.internet2.edu/xsd">
             <xs:complexType name="WsAddMemberResult">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
@@ -78,6 +34,18 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="addMember">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="wsGroupLookup" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="replaceAllExisting" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:complexType name="WsGroupLookup">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
@@ -93,17 +61,47 @@
                     <xs:element minOccurs="0" name="subjectType" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="addMemberResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsAddMemberResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:complexType name="WsAddMemberResults">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ax21:WsAddMemberResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsAddMemberResult"/>
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="findGroups">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queryTerm" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="querySearchFromStemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queryScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findGroupsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindGroupsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:complexType name="WsFindGroupsResults">
                 <xs:sequence>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="groupResults" nillable="true" type="ax21:WsGroupResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="groupResults" nillable="true" type="ns:WsGroupResult"/>
                     <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
@@ -150,19 +148,19 @@
     </wsdl:message>
     <wsdl:portType name="GrouperServicePortType">
         <wsdl:operation name="addMember">
-            <wsdl:input message="ns0:addMemberRequest" wsaw:Action="urn:addMember"/>
-            <wsdl:output message="ns0:addMemberResponse" wsaw:Action="urn:addMemberResponse"/>
+            <wsdl:input message="axis2:addMemberRequest" wsaw:Action="urn:addMember"/>
+            <wsdl:output message="axis2:addMemberResponse" wsaw:Action="urn:addMemberResponse"/>
         </wsdl:operation>
         <wsdl:operation name="addMemberSimple">
-            <wsdl:input message="ns0:addMemberSimpleRequest" wsaw:Action="urn:addMemberSimple"/>
-            <wsdl:output message="ns0:addMemberSimpleResponse" wsaw:Action="urn:addMemberSimpleResponse"/>
+            <wsdl:input message="axis2:addMemberSimpleRequest" wsaw:Action="urn:addMemberSimple"/>
+            <wsdl:output message="axis2:addMemberSimpleResponse" wsaw:Action="urn:addMemberSimpleResponse"/>
         </wsdl:operation>
         <wsdl:operation name="findGroups">
-            <wsdl:input message="ns0:findGroupsRequest" wsaw:Action="urn:findGroups"/>
-            <wsdl:output message="ns0:findGroupsResponse" wsaw:Action="urn:findGroupsResponse"/>
+            <wsdl:input message="axis2:findGroupsRequest" wsaw:Action="urn:findGroups"/>
+            <wsdl:output message="axis2:findGroupsResponse" wsaw:Action="urn:findGroupsResponse"/>
         </wsdl:operation>
     </wsdl:portType>
-    <wsdl:binding name="GrouperServiceSOAP11Binding" type="ns0:GrouperServicePortType">
+    <wsdl:binding name="GrouperServiceSOAP11Binding" type="axis2:GrouperServicePortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <wsdl:operation name="addMember">
             <soap:operation soapAction="urn:addMember" style="document"/>
@@ -192,7 +190,7 @@
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:binding name="GrouperServiceSOAP12Binding" type="ns0:GrouperServicePortType">
+    <wsdl:binding name="GrouperServiceSOAP12Binding" type="axis2:GrouperServicePortType">
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <wsdl:operation name="addMember">
             <soap12:operation soapAction="urn:addMember" style="document"/>
@@ -222,7 +220,7 @@
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:binding name="GrouperServiceHttpBinding" type="ns0:GrouperServicePortType">
+    <wsdl:binding name="GrouperServiceHttpBinding" type="axis2:GrouperServicePortType">
         <http:binding verb="POST"/>
         <wsdl:operation name="addMember">
             <http:operation location="GrouperService/addMember"/>
@@ -253,13 +251,13 @@
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:service name="GrouperService">
-        <wsdl:port name="GrouperServiceSOAP11port_http" binding="ns0:GrouperServiceSOAP11Binding">
+        <wsdl:port name="GrouperServiceSOAP11port_http" binding="axis2:GrouperServiceSOAP11Binding">
             <soap:address location="http://localhost:8080/axis2/services/GrouperService"/>
         </wsdl:port>
-        <wsdl:port name="GrouperServiceSOAP12port_http" binding="ns0:GrouperServiceSOAP12Binding">
+        <wsdl:port name="GrouperServiceSOAP12port_http" binding="axis2:GrouperServiceSOAP12Binding">
             <soap12:address location="http://localhost:8080/axis2/services/GrouperService"/>
         </wsdl:port>
-        <wsdl:port name="GrouperServiceHttpport" binding="ns0:GrouperServiceHttpBinding">
+        <wsdl:port name="GrouperServiceHttpport" binding="axis2:GrouperServiceHttpBinding">
             <http:address location="http://localhost:8080/axis2/services/GrouperService"/>
         </wsdl:port>
     </wsdl:service>
