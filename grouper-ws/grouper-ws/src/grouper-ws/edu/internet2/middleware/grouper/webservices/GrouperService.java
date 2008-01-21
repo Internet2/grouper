@@ -16,6 +16,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.webservices.WsAddMemberResults.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsFindGroupsResults.WsFindGroupsResultCode;
 import edu.internet2.middleware.grouper.webservices.WsSubjectLookup.SubjectFindResult;
@@ -44,8 +48,8 @@ public class GrouperService {
      * find a group or groups
      * @param groupName search by group name (must match exactly), cannot use other params with this
      * @param stemName will return groups in this stem
-     * @param stemNameScope if searching by stem, O is for one level, S is for all subgroups in tree
-     * one level only, F will return all in sub tree.  Required if searching by stem
+     * @param stemNameScope if searching by stem, ONE_LEVEL is for one level, 
+     * ALL_IN_SUBTREE will return all in sub tree.  Required if searching by stem
      * @param groupUuid search by group uuid (must match exactly), cannot use other params with this
      * @param queryTerm if searching by query, this is a term that will be matched to 
      * name, extension, etc
@@ -92,7 +96,7 @@ public class GrouperService {
 		
 		Subject actAsSubject = null;
 		try {
-			actAsSubject = GrouperServiceServlet.retrieveSubjectActAs(actAsSubjectLookup);
+			actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
 			
 			if (actAsSubject == null) {
 				throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
@@ -124,6 +128,36 @@ public class GrouperService {
 				} catch (GroupNotFoundException gnfe) {
 					//just ignore, the group results will be blank
 				}
+				return wsFindGroupsResults;
+			}
+			
+			if (searchByStem) {
+				boolean oneLevel = StringUtils.equals("ONE_LEVEL", stemNameScope);
+				boolean allInSubtree = StringUtils.equals("ALL_IN_SUBTREE", stemNameScope);
+				//get the stem
+				Stem stem = null;
+				try {
+					stem = StemFinder.findByName(session, stemName);
+				} catch (StemNotFoundException snfe) {
+					//this isnt good, this is a problem
+					wsFindGroupsResults.assignResultCode(WsFindGroupsResultCode.STEM_NOT_FOUND);
+					wsFindGroupsResults.setResultMessage("Invalid query, only query on one thing, not multiple.  " +
+							"Only search by name, stem, uuid, or query");
+					return wsFindGroupsResults;
+
+					
+				}
+				Set<Group> groups = null;
+				if (oneLevel) {
+					groups = stem.getChildGroups(Scope.ONE);
+				} else if (allInSubtree) {
+					groups = stem.getChildGroups(Scope.SUB);
+				} else {
+					throw new RuntimeException("Invalid stemNameScope: '" + stemNameScope + "' must be" +
+							"one of: ONE_LEVEL, ALL_SUBGROUPS_IN_SUBTREE, ALL_IN_SUBTREE");
+				}
+				//now set these to the response
+				wsFindGroupsResults.assignGroupResult(groups);
 				return wsFindGroupsResults;
 			}
 			
@@ -198,7 +232,7 @@ public class GrouperService {
 		wsAddMemberResults.assignResultCode(WsAddMemberResultCode.SUCCESS);
 		Subject actAsSubject = null;
 		try {
-			actAsSubject = GrouperServiceServlet.retrieveSubjectActAs(actAsSubjectLookup);
+			actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
 			
 			if (actAsSubject == null) {
 				throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
@@ -263,6 +297,7 @@ public class GrouperService {
 							group.addMember(subject);
 						}
 						wsAddMemberResult.setSuccess("T");
+						wsAddMemberResult.setResultCode("SUCCESS");
 						
 					} catch (InsufficientPrivilegeException ipe) {
 						wsAddMemberResult.setResultCode("INSUFFICIENT_PRIVILEGES");

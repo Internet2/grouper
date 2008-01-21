@@ -3,21 +3,16 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsResponse;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupResult;
 
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-
-import java.lang.reflect.Array;
 
 
 /**
@@ -42,7 +37,7 @@ public class RunGrouperServiceFindGroup {
     public static void findGroup() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(
-                    "http://localhost:8090/grouper-ws/services/GrouperService");
+                    "http://localhost:8091/grouper-ws/services/GrouperService");
             Options options = stub._getServiceClient().getOptions();
             HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
             auth.setUsername("GrouperSystem");
@@ -58,6 +53,7 @@ public class RunGrouperServiceFindGroup {
             FindGroups findGroups = FindGroups.class.newInstance();
 
             findGroups.setGroupName("aStem:aGroup");
+            System.out.println("\n\nQUERY BY GROUP NAME: ");
 
             FindGroupsResponse findGroupsResponse = stub.findGroups(findGroups);
 
@@ -69,6 +65,7 @@ public class RunGrouperServiceFindGroup {
 
             //try by uuid
             findGroups.setGroupName(null);
+            System.out.println("\n\nQUERY BY UUID: ");
             findGroups.setGroupUuid("19284537-6118-44b2-bbbc-d5757c709cb7");
 
             findGroupsResponse = stub.findGroups(findGroups);
@@ -78,6 +75,26 @@ public class RunGrouperServiceFindGroup {
                     wsFindGroupsResult));
             System.out.println(ToStringBuilder.reflectionToString(
                     wsFindGroupsResult.getGroupResults()[0]));
+
+            //search by stem
+            findGroups.setGroupUuid(null);
+            System.out.println("\n\nQUERY BY STEM: ");
+            findGroups.setStemName("aStem");
+            findGroups.setStemNameScope("ONE_LEVEL");
+            findGroupsResponse = stub.findGroups(findGroups);
+
+            wsFindGroupsResult = findGroupsResponse.get_return();
+            System.out.println(ToStringBuilder.reflectionToString(
+                    wsFindGroupsResult));
+
+            WsGroupResult[] wsGroupResults = wsFindGroupsResult.getGroupResults();
+
+            if (wsGroupResults != null) {
+                for (WsGroupResult wsGroupResult : wsFindGroupsResult.getGroupResults()) {
+                    System.out.println(ToStringBuilder.reflectionToString(
+                            wsGroupResult));
+                }
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

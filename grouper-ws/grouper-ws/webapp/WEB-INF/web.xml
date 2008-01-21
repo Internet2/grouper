@@ -6,14 +6,23 @@
           "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
+  <filter>
+    <filter-name>Axis filter</filter-name>
+    <filter-class>edu.internet2.middleware.grouper.webservices.GrouperServiceJ2ee</filter-class>
+  </filter>
+
+  <!-- Map the filter to a Servlet or URL -->
+  <filter-mapping>
+    <filter-name>Axis filter</filter-name>
+    <url-pattern>/services/*</url-pattern>
+  </filter-mapping>
 	<servlet>
 		<servlet-name>AxisServlet</servlet-name>
 		<display-name>Apache-Axis Servlet</display-name>
-		<!--  servlet-class>org.apache.axis2.transport.http.AxisServlet</servlet-class  -->
-		<!--  TODO make this a servlet filter -->
-		<servlet-class>
-			edu.internet2.middleware.grouper.webservices.GrouperServiceServlet
-		</servlet-class>
+		<servlet-class>org.apache.axis2.transport.http.AxisServlet</servlet-class>
+		<!--  servlet-class>
+			edu.internet2.middleware.grouper.webservices.GrouperServiceJ2ee
+		</servlet-class -->
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>

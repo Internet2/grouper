@@ -58,12 +58,12 @@
 		<delete file="${generated.client.project.dir}/GrouperService.wsdl" />
 		<java classname="org.apache.ws.java2wsdl.Java2WSDL" fork="true">
 			<classpath refid="ws.class.path" />
-			<!-- arg value="-o" />
+			<arg value="-o" />
 			<arg value="${generated.client.project.dir}" />
 			<arg value="-of" />
 			<arg value="GrouperService.wsdl" />
 			<arg value="-cn" />
-			<arg value="edu.internet2.middleware.grouper.webservices.GrouperService" / -->
+			<arg value="edu.internet2.middleware.grouper.webservices.GrouperService" />
 		</java>
 	</target>
 	<target name="wsdl2java" description="convert the wsdl to a java client">

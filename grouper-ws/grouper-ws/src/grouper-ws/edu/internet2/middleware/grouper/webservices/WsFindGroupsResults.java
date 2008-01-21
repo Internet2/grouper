@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.webservices;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.Group;
 
 
@@ -22,7 +24,10 @@ public class WsFindGroupsResults {
 		EXCEPTION, 
 		
 		/** invalid query (e.g. if everything blank) */
-		INVALID_QUERY;
+		INVALID_QUERY,
+				
+		/** cant find the stem in a stem search */
+		STEM_NOT_FOUND;
 				
 		/**
 		 * if this is a successful result
@@ -51,6 +56,26 @@ public class WsFindGroupsResults {
 		WsGroupResult wsGroupResult = new WsGroupResult(group);
 		
 		this.setGroupResults(new WsGroupResult[] {wsGroupResult});
+	}
+	
+	/**
+	 * put a group in the results
+	 * @param group
+	 */
+	public void assignGroupResult(Set<Group> groupSet) {
+		if (groupSet == null) {
+			this.setGroupResults(null);
+			return;
+		}
+		int groupSetSize = groupSet.size();
+		WsGroupResult[] wsGroupResults = new WsGroupResult[groupSetSize];
+		int index = 0;
+		for (Group group: groupSet) {
+			WsGroupResult wsGroupResult = new WsGroupResult(group);
+			wsGroupResults[index] = wsGroupResult;
+			index++;
+		}
+		this.setGroupResults(wsGroupResults);
 	}
 	
 	/**

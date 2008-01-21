@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.IOUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -46,8 +48,14 @@ public class RunGrouperServiceNonAxis {
 	            throw new RuntimeException("Bad response from web service: " +
 	                statusCode);
 	        }
-	
-	        String response = method.getResponseBodyAsString();
+	        //there is a getResponseAsString, but it logs a warning each time...
+	        InputStream inputStream = method.getResponseBodyAsStream();
+	        String response = null;
+	        try {
+	        	response = IOUtils.toString(inputStream);
+	        } finally {
+	        	IOUtils.closeQuietly(inputStream);
+	        }
 	        
 	        //lets load this into jdom, since it is xml
 			xmlReader = new StringReader(response);

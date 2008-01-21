@@ -5,11 +5,15 @@ package edu.internet2.middleware.grouper.webservices;
 
 import java.io.IOException;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.axis2.transport.http.AxisServlet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,7 +33,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @author mchyzer
  *
  */
-public class GrouperServiceServlet extends AxisServlet {
+public class GrouperServiceJ2ee implements Filter {
 
     /** logger */
     private static final Log LOG = LogFactory.getLog(GrouperService.class);
@@ -175,67 +179,32 @@ public class GrouperServiceServlet extends AxisServlet {
 	}
 	
 	/**
-	 * @see org.apache.axis2.transport.http.AxisServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 * filter method
 	 */
-	@Override
-	protected void doDelete(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		threadLocalRequest.set(request);
-		threadLocalResponse.set(response);
+	public void destroy() {
+		
+		
+	}
+
+	public void doFilter(ServletRequest request, ServletResponse response,
+			FilterChain filterChain) throws IOException, ServletException {
+		
+		threadLocalRequest.set((HttpServletRequest)request);
+		threadLocalResponse.set((HttpServletResponse)response);
 		try {
-			super.doDelete(request, response);
+			filterChain.doFilter(request, response);
 		} finally {
 			threadLocalRequest.remove();
 			threadLocalResponse.remove();
 		}
+		
 	}
 
 	/**
-	 * @see org.apache.axis2.transport.http.AxisServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 * filter method
 	 */
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		threadLocalRequest.set(request);
-		threadLocalResponse.set(response);
-		try {
-			super.doGet(request, response);
-		} finally {
-			threadLocalRequest.remove();
-			threadLocalResponse.remove();
-		}
-	}
-
-	/**
-	 * @see org.apache.axis2.transport.http.AxisServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		threadLocalRequest.set(request);
-		threadLocalResponse.set(response);
-		try {
-			super.doPost(request, response);
-		} finally {
-			threadLocalRequest.remove();
-			threadLocalResponse.remove();
-		}
-	}
-
-	/**
-	 * @see org.apache.axis2.transport.http.AxisServlet#doPut(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void doPut(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		threadLocalRequest.set(request);
-		threadLocalResponse.set(response);
-		try {
-			super.doPut(request, response);
-		} finally {
-			threadLocalRequest.remove();
-			threadLocalResponse.remove();
-		}
+	public void init(FilterConfig arg0) throws ServletException {
+		
 	}
 	
 	
