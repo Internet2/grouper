@@ -31,7 +31,7 @@ import java.lang.reflect.Array;
  * @author mchyzer
  *
  */
-public class RunGrouperService {
+public class RunGrouperServiceAddMemberSimple {
     public static void addMemberSimple() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(
@@ -73,56 +73,5 @@ public class RunGrouperService {
     public static void main(String[] args) throws Exception {
         //addMember();
         addMemberSimple();
-    }
-
-    public static void addMember() {
-        try {
-            GrouperServiceStub stub = new GrouperServiceStub(
-                    "http://localhost:8091/grouper-ws/services/GrouperService");
-            Options options = stub._getServiceClient().getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername("GrouperSystem");
-            auth.setPassword("pass");
-
-            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
-            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
-                new Integer(3600000));
-
-            //options.setProperty(Constants.Configuration.ENABLE_REST,
-            //		Constants.VALUE_TRUE);
-            AddMember addMember = AddMember.class.newInstance();
-
-            // set the act as id
-            WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
-            actAsSubject.setSubjectId("GrouperSystem");
-            addMember.setActAsSubjectLookup(actAsSubject);
-
-            // just add, dont replace
-            addMember.setReplaceAllExisting("F");
-
-            WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
-            wsGroupLookup.setGroupName("aStem:aGroup");
-            addMember.setWsGroupLookup(wsGroupLookup);
-
-            // add two subjects to the group
-            WsSubjectLookup[] subjectLookups = (WsSubjectLookup[]) Array.newInstance(WsSubjectLookup.class,
-                    2);
-            subjectLookups[0] = WsSubjectLookup.class.newInstance();
-            subjectLookups[0].setSubjectId("10021368");
-
-            subjectLookups[1] = WsSubjectLookup.class.newInstance();
-            subjectLookups[1].setSubjectId("10039438");
-
-            addMember.setSubjectLookups(subjectLookups);
-
-            WsAddMemberResults wsAddMemberResults = stub.addMember(addMember)
-                                                        .get_return();
-
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsAddMemberResults));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }
