@@ -57,7 +57,7 @@ public class WsSubjectLookup {
 		public boolean isSuccess() {
 			return this == SUCCESS;
 		}
-	};
+	}
 	
 	/** result of subject find */
 	private SubjectFindResult subjectFindResult = null;
@@ -79,12 +79,11 @@ public class WsSubjectLookup {
      */
     public boolean isBlank() {
     	return StringUtils.isBlank(this.subjectId) 
-    		&& StringUtils.isBlank(subjectIdentifier);
+    		&& StringUtils.isBlank(this.subjectIdentifier);
     }
     
 	/**
 	 * 
-	 * @return
 	 */
 	private void retrieveSubjectIfNeeded() {
 		//see if we already retrieved
@@ -186,15 +185,15 @@ public class WsSubjectLookup {
 	 * @return the subjectType
 	 */
 	public String getSubjectType() {
-		return subjectType;
+		return this.subjectType;
 	}
 
 	/**
 	 * optional: type of subject, can be anything in SubjectTypeEnum: PERSON, GROUP, APPLICATION
-	 * @param subjectType the subjectType to set
+	 * @param subjectType1 the subjectType to set
 	 */
-	public void setSubjectType(String subjectType) {
-		this.subjectType = subjectType;
+	public void setSubjectType(String subjectType1) {
+		this.subjectType = subjectType1;
 		this.clearSubject();
 	}
 
@@ -203,15 +202,15 @@ public class WsSubjectLookup {
 	 * @return the subjectSource
 	 */
 	public String getSubjectSource() {
-		return subjectSource;
+		return this.subjectSource;
 	}
 
 	/**
 	 * optional: source of subject in the subject api source list
-	 * @param subjectSource the subjectSource to set
+	 * @param subjectSource1 the subjectSource to set
 	 */
-	public void setSubjectSource(String subjectSource) {
-		this.subjectSource = subjectSource;
+	public void setSubjectSource(String subjectSource1) {
+		this.subjectSource = subjectSource1;
 		this.clearSubject();
 	}
 
@@ -224,7 +223,7 @@ public class WsSubjectLookup {
 	 */
 	public Subject retrieveSubject() {
 		this.retrieveSubjectIfNeeded();
-		return subject;
+		return this.subject;
 	}
 
 	/**
@@ -236,7 +235,7 @@ public class WsSubjectLookup {
 	 */
 	public SubjectFindResult retrieveSubjectFindResult() {
 		this.retrieveSubjectIfNeeded();
-		return subjectFindResult;
+		return this.subjectFindResult;
 	}
 
 	/**
@@ -244,15 +243,15 @@ public class WsSubjectLookup {
 	 * @return the subjectId
 	 */
 	public String getSubjectId() {
-		return subjectId;
+		return this.subjectId;
 	}
 
 	/**
 	 * id of the subject
-	 * @param subjectId the subjectId to set
+	 * @param subjectId1 the subjectId to set
 	 */
-	public void setSubjectId(String subjectId) {
-		this.subjectId = subjectId;
+	public void setSubjectId(String subjectId1) {
+		this.subjectId = subjectId1;
 		this.clearSubject();
 	}
 
@@ -261,15 +260,31 @@ public class WsSubjectLookup {
 	 * @return the subjectIdentifier
 	 */
 	public String getSubjectIdentifier() {
-		return subjectIdentifier;
+		return this.subjectIdentifier;
 	}
 
 	/**
 	 * any identifier of the subject
-	 * @param subjectIdentifier the subjectIdentifier to set
+	 * @param subjectIdentifier1 the subjectIdentifier to set
 	 */
-	public void setSubjectIdentifier(String subjectIdentifier) {
-		this.subjectIdentifier = subjectIdentifier;
+	public void setSubjectIdentifier(String subjectIdentifier1) {
+		this.subjectIdentifier = subjectIdentifier1;
 		this.clearSubject();
+	}
+
+	/**
+	 * @param subjectId1
+	 * @param subjectIdentifier1
+	 */
+	public WsSubjectLookup(String subjectId1, String subjectIdentifier1) {
+		this.subjectId = subjectId1;
+		this.subjectIdentifier = subjectIdentifier1;
+	}
+
+	/**
+	 * 
+	 */
+	public WsSubjectLookup() {
+		//blank
 	}
 }

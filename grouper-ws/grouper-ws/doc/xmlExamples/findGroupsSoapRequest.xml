@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope
+	xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+	<soapenv:Body>
+		<ns1:findGroups
+			xmlns:ns1="http://webservices.grouper.middleware.internet2.edu/xsd">
+			<ns1:groupName>aStem:aGroup</ns1:groupName>
+s		</ns1:findGroups>
+	</soapenv:Body>
+</soapenv:Envelope>

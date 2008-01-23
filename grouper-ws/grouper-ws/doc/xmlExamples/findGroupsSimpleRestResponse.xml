@@ -1,0 +1,70 @@
+<ns:findGroupsResponse
+	xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+	<ns:return
+		type="edu.internet2.middleware.grouper.webservices.WsFindGroupsResults">
+		<ns:groupResults
+			type="edu.internet2.middleware.grouper.webservices.WsGroupResult">
+			<ns:createSource></ns:createSource>
+			<ns:createSubjectId>GrouperSystem</ns:createSubjectId>
+			<ns:createTime>2008/01/18 00:29:06.165</ns:createTime>
+			<ns:description>aGroup3</ns:description>
+			<ns:displayExtension>aGroup3</ns:displayExtension>
+			<ns:displayName>a stem:aGroup3</ns:displayName>
+			<ns:extension>aGroup3</ns:extension>
+			<ns:isComposite>F</ns:isComposite>
+			<ns:modifySource></ns:modifySource>
+			<ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
+			<ns:modifyTime>2008/01/18 00:29:06.347</ns:modifyTime>
+			<ns:name>aStem:aGroup3</ns:name>
+			<ns:parentStemName>aStem</ns:parentStemName>
+			<ns:parentStemUuid>
+				c5cdc0c4-04a8-47ac-931e-951b4eb44502
+			</ns:parentStemUuid>
+			<ns:uuid>1f9c138c-e984-4468-8b3b-f975dbb3f5e1</ns:uuid>
+		</ns:groupResults>
+		<ns:groupResults
+			type="edu.internet2.middleware.grouper.webservices.WsGroupResult">
+			<ns:createSource></ns:createSource>
+			<ns:createSubjectId>GrouperSystem</ns:createSubjectId>
+			<ns:createTime>2008/01/18 00:28:23.570</ns:createTime>
+			<ns:description>aGroup2</ns:description>
+			<ns:displayExtension>aGroup2</ns:displayExtension>
+			<ns:displayName>a stem:aGroup2</ns:displayName>
+			<ns:extension>aGroup2</ns:extension>
+			<ns:isComposite>F</ns:isComposite>
+			<ns:modifySource></ns:modifySource>
+			<ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
+			<ns:modifyTime>2008/01/18 00:28:24.831</ns:modifyTime>
+			<ns:name>aStem:aGroup2</ns:name>
+			<ns:parentStemName>aStem</ns:parentStemName>
+			<ns:parentStemUuid>
+				c5cdc0c4-04a8-47ac-931e-951b4eb44502
+			</ns:parentStemUuid>
+			<ns:uuid>af110c3d-9a3d-4560-8a49-5072c406c292</ns:uuid>
+		</ns:groupResults>
+		<ns:groupResults
+			type="edu.internet2.middleware.grouper.webservices.WsGroupResult">
+			<ns:createSource></ns:createSource>
+			<ns:createSubjectId>GrouperSystem</ns:createSubjectId>
+			<ns:createTime>2007/11/09 17:07:54.503</ns:createTime>
+			<ns:description>aGroup</ns:description>
+			<ns:displayExtension>aGroup</ns:displayExtension>
+			<ns:displayName>a stem:aGroup</ns:displayName>
+			<ns:extension>aGroup</ns:extension>
+			<ns:isComposite>F</ns:isComposite>
+			<ns:modifySource></ns:modifySource>
+			<ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
+			<ns:modifyTime>2008/01/14 01:11:22.102</ns:modifyTime>
+			<ns:name>aStem:aGroup</ns:name>
+			<ns:parentStemName>aStem</ns:parentStemName>
+			<ns:parentStemUuid>
+				c5cdc0c4-04a8-47ac-931e-951b4eb44502
+			</ns:parentStemUuid>
+			<ns:uuid>19284537-6118-44b2-bbbc-d5757c709cb7</ns:uuid>
+		</ns:groupResults>
+		<ns:resultCode>SUCCESS</ns:resultCode>
+		<ns:resultMessage
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+		<ns:success>T</ns:success>
+	</ns:return>
+</ns:findGroupsResponse>

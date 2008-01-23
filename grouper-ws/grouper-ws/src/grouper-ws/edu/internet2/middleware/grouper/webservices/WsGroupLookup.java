@@ -32,6 +32,7 @@ public class WsGroupLookup {
 	/** find the group */
 	private Group group = null;
 	
+	/** result of group find */
 	private enum GroupFindResult {
 		
 		/** found the subject */
@@ -56,7 +57,7 @@ public class WsGroupLookup {
 		public boolean isSuccess() {
 			return this == SUCCESS;
 		}
-	};
+	}
 
 	/**
 	 * uuid of the group to find
@@ -95,7 +96,7 @@ public class WsGroupLookup {
 
 	/**
 	 * pass in a grouper session
-	 * @retrieve the group if needed
+	 * @param grouperSession 
 	 */
 	public void retrieveGroupIfNeeded(GrouperSession grouperSession) {
 		//see if we already retrieved
@@ -155,15 +156,15 @@ public class WsGroupLookup {
 	 * @return the uuid
 	 */
 	public String getUuid() {
-		return uuid;
+		return this.uuid;
 	}
 
 	/**
 	 * uuid of the group to find
-	 * @param uuid the uuid to set
+	 * @param uuid1 the uuid to set
 	 */
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
+	public void setUuid(String uuid1) {
+		this.uuid = uuid1;
 		this.clearGroup();
 	}
 
@@ -172,7 +173,7 @@ public class WsGroupLookup {
 	 * @return the theName
 	 */
 	public String getGroupName() {
-		return groupName;
+		return this.groupName;
 	}
 
 	/**
@@ -182,6 +183,22 @@ public class WsGroupLookup {
 	public void setGroupName(String theName) {
 		this.groupName = theName;
 		this.clearGroup();
+	}
+
+	/**
+	 * 
+	 */
+	public WsGroupLookup() {
+		//blank
+	}
+
+	/**
+	 * @param groupName1 
+	 * @param uuid1
+	 */
+	public WsGroupLookup(String groupName1, String uuid1) {
+		this.uuid = uuid1;
+		this.setGroupName(groupName1);
 	}
 		
 }

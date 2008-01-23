@@ -36,7 +36,7 @@ public class WsFindGroupsResults {
 		public boolean isSuccess() {
 			return this == SUCCESS;
 		}
-	};
+	}
 
 	/**
 	 * assign the code from the enum
@@ -60,7 +60,7 @@ public class WsFindGroupsResults {
 	
 	/**
 	 * put a group in the results
-	 * @param group
+	 * @param groupSet 
 	 */
 	public void assignGroupResult(Set<Group> groupSet) {
 		if (groupSet == null) {
@@ -104,15 +104,15 @@ public class WsFindGroupsResults {
 	 * @return the groupResults
 	 */
 	public WsGroupResult[] getGroupResults() {
-		return groupResults;
+		return this.groupResults;
 	}
 
 	/**
 	 * has 0 to many groups that match the query by example
-	 * @param groupResults the groupResults to set
+	 * @param groupResults1 the groupResults to set
 	 */
-	public void setGroupResults(WsGroupResult[] groupResults) {
-		this.groupResults = groupResults;
+	public void setGroupResults(WsGroupResult[] groupResults1) {
+		this.groupResults = groupResults1;
 	}
 
 	/**
@@ -120,15 +120,15 @@ public class WsFindGroupsResults {
 	 * @return the success
 	 */
 	public String getSuccess() {
-		return success;
+		return this.success;
 	}
 
 	/**
 	 * T or F as to whether it was a successful assignment
-	 * @param success the success to set
+	 * @param success1 the success to set
 	 */
-	public void setSuccess(String success) {
-		this.success = success;
+	public void setSuccess(String success1) {
+		this.success = success1;
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class WsFindGroupsResults {
 	 * @return the resultCode
 	 */
 	public String getResultCode() {
-		return resultCode;
+		return this.resultCode;
 	}
 
 	/**
@@ -153,10 +153,10 @@ public class WsFindGroupsResults {
 	 * SUBJECT_DUPLICATE: found multiple subjects
 	 *  
 	 * </pre>
-	 * @param resultCode the resultCode to set
+	 * @param resultCode1 the resultCode to set
 	 */
-	public void setResultCode(String resultCode) {
-		this.resultCode = resultCode;
+	public void setResultCode(String resultCode1) {
+		this.resultCode = resultCode1;
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class WsFindGroupsResults {
 	 * @return the errorMessage
 	 */
 	public String getResultMessage() {
-		return resultMessage;
+		return this.resultMessage;
 	}
 
 	/**

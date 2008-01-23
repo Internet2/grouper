@@ -10,8 +10,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupAnyAttributeFilter;
+import edu.internet2.middleware.grouper.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.Member;
@@ -54,14 +57,61 @@ public class GrouperService {
      * @param queryTerm if searching by query, this is a term that will be matched to 
      * name, extension, etc
      * @param querySearchFromStemName if a stem name is put here, that will narrow the search
-     * @param queryScope N is searching by name, E is display extension, and D is display name.
+     * @param queryScope NAME is searching by name, EXTENSION is display extension, and DISPLAY_NAME is display name.
      * This is required if a query search
-	 * @param actAsSubject optional: is the subject to act as (if proxying)
+	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
+	 * Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier optional: is the subject identifier of subject
+	 * to act as (if proxying).  Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param paramName0 reserved for future use
+	 * @param paramValue0 reserved for future use
+	 * @param paramName1 reserved for future use
+	 * @param paramValue1 reserved for future use
+     * @return the groups, or no groups if none found
+     */
+    public WsFindGroupsResults findGroupsSimple(String groupName, String stemName, 
+    		String stemNameScope,
+    		String groupUuid, String queryTerm, String querySearchFromStemName, 
+    		String queryScope, 	String actAsSubjectId,
+			String actAsSubjectIdentifier,
+			String paramName0, String paramValue0,
+			String paramName1, String paramValue1) {
+    	
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId, actAsSubjectIdentifier);
+
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
+		
+		//pass through to the more comprehensive method
+		WsFindGroupsResults wsFindGroupsResults = findGroups(groupName, stemName, 
+				stemNameScope, groupUuid, queryTerm, querySearchFromStemName, 
+				queryScope, actAsSubjectLookup, paramNames, paramValues);
+		
+		return wsFindGroupsResults;
+    }
+    	
+    /**
+     * find a group or groups
+     * @param groupName search by group name (must match exactly), cannot use other params with this
+     * @param stemName will return groups in this stem
+     * @param stemNameScope if searching by stem, ONE_LEVEL is for one level, 
+     * ALL_IN_SUBTREE will return all in sub tree.  Required if searching by stem
+     * @param groupUuid search by group uuid (must match exactly), cannot use other params with this
+     * @param queryTerm if searching by query, this is a term that will be matched to 
+     * name, extension, etc
+     * @param querySearchFromStemName if a stem name is put here, that will narrow the search
+     * @param queryScope NAME is searching by name, EXTENSION is display extension, DISPLAY_NAME is display name, and 
+     * DISPLAY_EXTENSION is searching by display extension
+     * This is required if a query search
+     * @param actAsSubjectLookup 
 	 * @param paramNames optional: reserved for future use
 	 * @param paramValues optional: reserved for future use
      * @return the groups, or no groups if none found
      */
-    public WsFindGroupsResults findGroups(String groupName, String stemName, 
+    @SuppressWarnings("unchecked")
+	public WsFindGroupsResults findGroups(String groupName, String stemName, 
     		String stemNameScope,
     		String groupUuid, String queryTerm, String querySearchFromStemName, 
     		String queryScope, WsSubjectLookup actAsSubjectLookup,
@@ -72,11 +122,8 @@ public class GrouperService {
 
 		boolean searchByName = StringUtils.isNotBlank(groupName);
 		boolean searchByStem = StringUtils.isNotBlank(stemName);
-		boolean hasStemScope = StringUtils.isNotBlank(stemNameScope);
 		boolean searchByUuid = StringUtils.isNotBlank(groupUuid);
 		boolean searchByQuery = StringUtils.isNotBlank(queryTerm);
-		boolean searchByQueryInStem = StringUtils.isNotBlank(querySearchFromStemName);
-		boolean hasQueryScope = StringUtils.isNotBlank(queryScope);
 		
 		//TODO make sure size of params and values the same
 		
@@ -141,11 +188,8 @@ public class GrouperService {
 				} catch (StemNotFoundException snfe) {
 					//this isnt good, this is a problem
 					wsFindGroupsResults.assignResultCode(WsFindGroupsResultCode.STEM_NOT_FOUND);
-					wsFindGroupsResults.setResultMessage("Invalid query, only query on one thing, not multiple.  " +
-							"Only search by name, stem, uuid, or query");
+					wsFindGroupsResults.setResultMessage("Invalid query, cant find stem: '" + stemName + "'");
 					return wsFindGroupsResults;
-
-					
 				}
 				Set<Group> groups = null;
 				if (oneLevel) {
@@ -154,14 +198,68 @@ public class GrouperService {
 					groups = stem.getChildGroups(Scope.SUB);
 				} else {
 					throw new RuntimeException("Invalid stemNameScope: '" + stemNameScope + "' must be" +
-							"one of: ONE_LEVEL, ALL_SUBGROUPS_IN_SUBTREE, ALL_IN_SUBTREE");
+							"one of: ONE_LEVEL, ALL_IN_SUBTREE");
 				}
 				//now set these to the response
 				wsFindGroupsResults.assignGroupResult(groups);
 				return wsFindGroupsResults;
 			}
 			
-		} catch (RuntimeException re) {
+			if (searchByQuery) {
+				
+				//if empty string, that is the root stem
+				querySearchFromStemName = StringUtils.trimToEmpty(querySearchFromStemName);
+
+				//get the stem
+				Stem querySearchFromStem = null;
+				try {
+					querySearchFromStem = StemFinder.findByName(session, querySearchFromStemName);
+				} catch (StemNotFoundException snfe) {
+					//this isnt good, this is a problem
+					wsFindGroupsResults.assignResultCode(WsFindGroupsResultCode.STEM_NOT_FOUND);
+					wsFindGroupsResults.setResultMessage("Invalid query, cant find stem: '" + querySearchFromStemName + "'");
+					return wsFindGroupsResults;
+				}
+
+				GrouperQuery grouperQuery = null;
+				
+			    //see if there is a particular query scope
+			    if (!StringUtils.isBlank(queryScope)) {
+			    	//four scopes, the query is searches in group names, display names, extensions, or display extensions
+			    	boolean searchScopeByName = StringUtils.equals("NAME", queryScope);
+			    	boolean searchScopeByExtension = StringUtils.equals("EXTENSION", queryScope);
+			    	boolean searchScopeByDisplayName = StringUtils.equals("DISPLAY_NAME", queryScope);
+			    	boolean searchScopeByDisplayExtension = StringUtils.equals("DISPLAY_EXTENSION", queryScope);
+			    	
+			    	if (!searchScopeByName && !searchScopeByExtension && !searchScopeByDisplayName
+			    			&& !searchScopeByDisplayExtension) {
+			    		throw new RuntimeException("Invalid queryScope, must be one of: NAME is searching by name, " +
+			    				"EXTENSION is display extension, DISPLAY_NAME is display name, AND " +
+			    				"DISPLAY_EXTENSION is searching by display extension");
+			    	}
+			    	String attribute = null;
+			    	attribute = searchScopeByName ? "name" : attribute;
+			    	attribute = searchScopeByExtension ? "extension" : attribute;
+			    	attribute = searchScopeByDisplayName ? "displayName" : attribute;
+			    	attribute = searchScopeByDisplayExtension ? "displayExtension" : attribute;
+
+				
+					grouperQuery = GrouperQuery.createQuery(session,new GroupAttributeFilter(
+							attribute,queryTerm,querySearchFromStem));
+			    } else {
+				    //not constrained to a particular scope
+					grouperQuery = GrouperQuery.createQuery(session,new GroupAnyAttributeFilter(queryTerm,
+							querySearchFromStem));
+			    	
+			    }
+				Set<Group> results = grouperQuery.getGroups();
+				wsFindGroupsResults.assignGroupResult(results);
+				return wsFindGroupsResults;
+			    
+			}
+			
+			throw new RuntimeException("Cant find search strategy");
+		} catch (Exception re) {
 			wsFindGroupsResults.assignResultCode(WsFindGroupsResultCode.EXCEPTION);
 			String theError = "Problem finding group: groupName: " + groupName
 				+ ", stemName: " + stemName + ", stemNameScope: " + stemNameScope
@@ -198,7 +296,7 @@ public class GrouperService {
 	 * @param subjectLookups subjects to be added to the group
 	 * @param replaceAllExisting optional: T or F (default), if the 
 	 * existing groups should be replaced 
-	 * @param actAsSubject optional: is the subject to act as (if proxying)
+	 * @param actAsSubjectLookup 
 	 * @param paramNames optional: reserved for future use
 	 * @param paramValues optional: reserved for future use
 	 * @return the results
@@ -384,16 +482,19 @@ public class GrouperService {
 		
 	/**
 	 * add member to a group (if already a direct member, ignore)
-	 * @param wsGroupLookup 
-	 * @param subjectLookups subjects to be added to the group
-	 * @param replaceAllExisting optional: T or F (default), if the 
-	 * existing groups should be replaced 
-	 * @param actAsSubject optional: is the subject to act as (if proxying)
+	 * @param groupName 
+	 * @param groupUuid 
+	 * @param subjectId 
+	 * @param subjectIdentifier 
+	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
+	 * Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier optional: is the subject identifier of subject
+	 * to act as (if proxying).  Only pass one of actAsSubjectId or actAsSubjectIdentifer
 	 * @param paramName0 reserved for future use
 	 * @param paramValue0 reserved for future use
 	 * @param paramName1 reserved for future use
 	 * @param paramValue1 reserved for future use
-	 * @return SUCCESS, or an error message
+	 * @return the result of one member add
 	 */
 	public WsAddMemberResult addMemberSimple(String groupName,
 			String groupUuid,
@@ -407,30 +508,17 @@ public class GrouperService {
 			String paramValue1) {
 		
 		//setup the group lookup
-		WsGroupLookup wsGroupLookup = new WsGroupLookup();
-		wsGroupLookup.setGroupName(groupName);
-		wsGroupLookup.setUuid(groupUuid);
+		WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
 		
 		//setup the subject lookup
 		WsSubjectLookup[] subjectLookups = new WsSubjectLookup[1];
-		subjectLookups[0] = new WsSubjectLookup();
-		subjectLookups[0].setSubjectId(subjectId);
-		subjectLookups[0].setSubjectIdentifier(subjectIdentifier);
-		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup();
-		actAsSubjectLookup.setSubjectId(actAsSubjectId);
-		actAsSubjectLookup.setSubjectIdentifier(actAsSubjectIdentifier);
+		subjectLookups[0] = new WsSubjectLookup(subjectId, subjectIdentifier);
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId, actAsSubjectIdentifier);
 		
-		String[] paramNames = null;
-		String[] paramValues = null;
-		if (!StringUtils.isBlank(paramName0)) {
-			if (!StringUtils.isBlank(paramName1)) {
-				paramNames = new String[]{ paramName0, paramName1};
-				paramValues = new String[]{paramValue0,paramValue1};
-			} else {
-				paramNames = new String[]{paramName0};
-				paramValues = new String[]{paramValue0};
-			}
-		}
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
 		
 		WsAddMemberResults wsAddMemberResults = addMember(wsGroupLookup, 
 				subjectLookups, "F", actAsSubjectLookup, paramNames, paramValues);

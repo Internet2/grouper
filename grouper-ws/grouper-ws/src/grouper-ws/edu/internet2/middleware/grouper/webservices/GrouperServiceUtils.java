@@ -106,4 +106,29 @@ public class GrouperServiceUtils {
 		} 
 		return splitArray;
 	}
+	
+	/**
+	 * validate and organize params
+	 * @param paramName0
+	 * @param paramValue0
+	 * @param paramName1
+	 * @param paramValue1
+	 * @return the array of two arrays (one of names, second of values)
+	 */
+	public static String[][] params(String paramName0, String paramValue0,
+			String paramName1, String paramValue1) {
+		String[] paramNames = null;
+		String[] paramValues = null;
+		if (!StringUtils.isBlank(paramName0)) {
+			if (!StringUtils.isBlank(paramName1)) {
+				paramNames = new String[]{ paramName0, paramName1};
+				paramValues = new String[]{paramValue0,paramValue1};
+			} else {
+				paramNames = new String[]{paramName0};
+				paramValues = new String[]{paramValue0};
+			}
+		}
+		return new String[][]{paramNames, paramValues};
+	}
+	
 }

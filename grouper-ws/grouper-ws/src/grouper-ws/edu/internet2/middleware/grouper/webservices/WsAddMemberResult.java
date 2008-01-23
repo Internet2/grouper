@@ -42,15 +42,15 @@ public class WsAddMemberResult {
 	 * @return the subjectId
 	 */
 	public String getSubjectId() {
-		return subjectId;
+		return this.subjectId;
 	}
 
 	/**
 	 * subject that was added
-	 * @param subjectId the subjectId to set
+	 * @param subjectId1 the subjectId to set
 	 */
-	public void setSubjectId(String subjectId) {
-		this.subjectId = subjectId;
+	public void setSubjectId(String subjectId1) {
+		this.subjectId = subjectId1;
 	}
 
 	/**
@@ -58,15 +58,15 @@ public class WsAddMemberResult {
 	 * @return the subjectIdentifier
 	 */
 	public String getSubjectIdentifier() {
-		return subjectIdentifier;
+		return this.subjectIdentifier;
 	}
 
 	/**
 	 * subject identifier (if this is what was passed in) that was added
-	 * @param subjectIdentifier the subjectIdentifier to set
+	 * @param subjectIdentifier1 the subjectIdentifier to set
 	 */
-	public void setSubjectIdentifier(String subjectIdentifier) {
-		this.subjectIdentifier = subjectIdentifier;
+	public void setSubjectIdentifier(String subjectIdentifier1) {
+		this.subjectIdentifier = subjectIdentifier1;
 	}
 
 	/**
@@ -74,15 +74,15 @@ public class WsAddMemberResult {
 	 * @return the success
 	 */
 	public String getSuccess() {
-		return success;
+		return this.success;
 	}
 
 	/**
 	 * T or F as to whether it was a successful assignment
-	 * @param success the success to set
+	 * @param success1 the success to set
 	 */
-	public void setSuccess(String success) {
-		this.success = success;
+	public void setSuccess(String success1) {
+		this.success = success1;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class WsAddMemberResult {
 	 * @return the resultCode
 	 */
 	public String getResultCode() {
-		return resultCode;
+		return this.resultCode;
 	}
 
 	/**
@@ -107,10 +107,10 @@ public class WsAddMemberResult {
 	 * SUBJECT_DUPLICATE: found multiple subjects
 	 *  
 	 * </pre>
-	 * @param resultCode the resultCode to set
+	 * @param resultCode1 the resultCode to set
 	 */
-	public void setResultCode(String resultCode) {
-		this.resultCode = resultCode;
+	public void setResultCode(String resultCode1) {
+		this.resultCode = resultCode1;
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class WsAddMemberResult {
 	 * @return the errorMessage
 	 */
 	public String getResultMessage() {
-		return resultMessage;
+		return this.resultMessage;
 	}
 
 	/**

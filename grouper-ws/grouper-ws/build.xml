@@ -292,39 +292,32 @@
 		<echo>     Make the axis archive, which is the classfiles and services.xml that axis needs.  You need to do this if you ever change anything that changes the wsdl.  You can do this automatically in dist by setting a property in the build.properties</echo>
 		<echo>4) generate-axis-bundle-jar</echo>
 		<echo>     Take all the bundlable axis jars (in lib/axis-bundle), unjar, and jar back up into one jar </echo>
-		<echo>5) help</echo>
+    <echo>5) javadoc</echo>
+    <echo>     Generate javadoc to the doc/api dir</echo>
+		<echo>6) help</echo>
 		<echo>     This message</echo>
 		<echo>
 		</echo>
 	</target>
-	<!-- TODO fix this -->
-	<target name="html" description="generate public api docs">
+	<target name="javadoc" description="generate public api docs to doc/api">
 		<!-- Let's be sure we clear out old cruft first... -->
+    <mkdir dir="doc/api" />
 		<delete dir="doc/api" />
-		<path id="ui.class.path">
-			<!-- Make available jar files that Grouper needs -->
-			<fileset dir="${grouper.folder}/dist/lib">
-				<include name="**/*.jar" />
-				<exclude name="grouper-lib-*.jar" />
-				<exclude name="grouper.jar" />
-				<exclude name="grouper-2*.jar" />
-			</fileset>
-			<!-- Make available jar files the UI needs -->
-			<fileset dir="${ui.folder}/java/lib">
-				<include name="**/*.jar" />
-			</fileset>
+    <mkdir dir="doc/api" />
+		<javadoc destdir="doc/api"                
+		     classpathref="ws.class.path"       
+		     access="public"     
+		      > 
+		  <packageset dir="src/grouper-ws" defaultexcludes="yes">
+		      <include name="edu/internet2/middleware/grouper/**"/>
+		      
+		    </packageset>
 
-			<!-- Last, but not least, make Grouper API available -->
-			<pathelement location="${grouper.folder}/dist/lib/grouper.jar" />
+		    <link href="http://struts.apache.org/1.2.x/api/"/>
+		    <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
+		    <link href="http://java.sun.com/j2se/1.4.2/docs/api"/>
 
-		</path>
-		<property name="cp" refid="ui.class.path" />
-		<available file="${grouper.folder}/src/grouper" property="exists.grouper.src" />
-		<antcall target="-create-if-absent-grouper-src" />
-		<antcall target="-html-with-subject" inheritrefs="true" />
-		<antcall target="-html-without-subject" inheritrefs="true" />
-		<antcall target="-remove-if-created-grouper-src" />
-	</target>
+		      </javadoc>	</target>
 
 
 </project>

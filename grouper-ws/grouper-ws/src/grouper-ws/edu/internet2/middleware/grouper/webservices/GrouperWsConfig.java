@@ -19,6 +19,7 @@ public class GrouperWsConfig {
 	 * <pre class="eg">
 	 * String wheel = GrouperConfig.getProperty("groups.wheel.group");
 	 * </pre>
+	 * @param property 
 	 * @return  Value of configuration parameter or an empty string if
 	 *   parameter is invalid.
 	 * @since   1.1.0
@@ -32,6 +33,8 @@ public class GrouperWsConfig {
 	 * <pre class="eg">
 	 * String wheel = GrouperConfig.getProperty("groups.wheel.group");
 	 * </pre>
+	 * @param property 
+	 * @param defaultValue 
 	 * @return  Value of configuration parameter or null if
 	 *   parameter isnt specified.  Exception is thrown if not formatted correcly
 	 * @throws NumberFormatException if cannot convert the value to an Integer

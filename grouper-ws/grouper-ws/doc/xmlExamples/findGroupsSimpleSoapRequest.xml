@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope
+	xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+	<soapenv:Body>
+		<ns1:findGroupsSimple
+			xmlns:ns1="http://webservices.grouper.middleware.internet2.edu/xsd">
+			<ns1:groupName></ns1:groupName>
+			<ns1:stemName>aStem</ns1:stemName>
+			<ns1:stemNameScope>ALL_IN_SUBTREE</ns1:stemNameScope>
+		</ns1:findGroupsSimple>
+	</soapenv:Body>
+</soapenv:Envelope>

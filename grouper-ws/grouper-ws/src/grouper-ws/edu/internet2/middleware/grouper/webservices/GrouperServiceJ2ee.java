@@ -42,7 +42,7 @@ public class GrouperServiceJ2ee implements Filter {
 	 * retrieve the user principal (who is authenticated) from
 	 * the (threadlocal) request object
 	 * 
-	 * @return
+	 * @return the user principal name
 	 */
 	public static String retrieveUserPrincipalNameFromRequest() {
 		
@@ -58,7 +58,7 @@ public class GrouperServiceJ2ee implements Filter {
 
 	/**
 	 * retrieve the subject logged in to web service
-	 * @return
+	 * @return the subject
 	 */
 	public static Subject retrieveSubjectLoggedIn() {
 		//use this to be the user connected, or the user act-as
@@ -80,7 +80,8 @@ public class GrouperServiceJ2ee implements Filter {
 
 	/**
 	 * retrieve the subject to act as
-	 * @return
+	 * @param actAsLookup 
+	 * @return the subject
 	 */
 	public static Subject retrieveSubjectActAs(WsSubjectLookup actAsLookup) {
 
@@ -182,7 +183,7 @@ public class GrouperServiceJ2ee implements Filter {
 	 * filter method
 	 */
 	public void destroy() {
-		
+		//not needed
 		
 	}
 
@@ -204,7 +205,7 @@ public class GrouperServiceJ2ee implements Filter {
 	 * filter method
 	 */
 	public void init(FilterConfig arg0) throws ServletException {
-		
+		//not needed
 	}
 	
 	

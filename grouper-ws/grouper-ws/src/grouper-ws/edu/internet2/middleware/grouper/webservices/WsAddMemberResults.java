@@ -41,7 +41,7 @@ public class WsAddMemberResults {
 		public boolean isSuccess() {
 			return this == SUCCESS;
 		}
-	};
+	}
 	
 	/**
 	 * assign the code from the enum
@@ -81,15 +81,15 @@ public class WsAddMemberResults {
 	 * @return the results
 	 */
 	public WsAddMemberResult[] getResults() {
-		return results;
+		return this.results;
 	}
 
 	/**
 	 * results for each assignment sent in
-	 * @param results the results to set
+	 * @param results1 the results to set
 	 */
-	public void setResults(WsAddMemberResult[] results) {
-		this.results = results;
+	public void setResults(WsAddMemberResult[] results1) {
+		this.results = results1;
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class WsAddMemberResults {
 	 * @return the errorMessage
 	 */
 	public String getResultMessage() {
-		return resultMessage.toString();
+		return this.resultMessage.toString();
 	}
 	
 	/**
@@ -121,15 +121,15 @@ public class WsAddMemberResults {
 	 * @return the success
 	 */
 	public String getSuccess() {
-		return success;
+		return this.success;
 	}
 
 	/**
 	 * T or F as to whether it was a successful assignment
-	 * @param success the success to set
+	 * @param success1 the success to set
 	 */
-	public void setSuccess(String success) {
-		this.success = success;
+	public void setSuccess(String success1) {
+		this.success = success1;
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class WsAddMemberResults {
 	 * @return the resultCode
 	 */
 	public String getResultCode() {
-		return resultCode;
+		return this.resultCode;
 	}
 
 	/**
@@ -154,10 +154,10 @@ public class WsAddMemberResults {
 	 * SUBJECT_DUPLICATE: found multiple subjects
 	 *  
 	 * </pre>
-	 * @param resultCode the resultCode to set
+	 * @param resultCode1 the resultCode to set
 	 */
-	public void setResultCode(String resultCode) {
-		this.resultCode = resultCode;
+	public void setResultCode(String resultCode1) {
+		this.resultCode = resultCode1;
 	}
 
 }

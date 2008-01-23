@@ -1,0 +1,30 @@
+<ns:findGroupsResponse
+	xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+	<ns:return
+		type="edu.internet2.middleware.grouper.webservices.WsFindGroupsResults">
+		<ns:groupResults
+			type="edu.internet2.middleware.grouper.webservices.WsGroupResult">
+			<ns:createSource></ns:createSource>
+			<ns:createSubjectId>GrouperSystem</ns:createSubjectId>
+			<ns:createTime>2007/11/09 17:07:54.503</ns:createTime>
+			<ns:description>aGroup</ns:description>
+			<ns:displayExtension>aGroup</ns:displayExtension>
+			<ns:displayName>a stem:aGroup</ns:displayName>
+			<ns:extension>aGroup</ns:extension>
+			<ns:isComposite>F</ns:isComposite>
+			<ns:modifySource></ns:modifySource>
+			<ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
+			<ns:modifyTime>2008/01/14 01:11:22.102</ns:modifyTime>
+			<ns:name>aStem:aGroup</ns:name>
+			<ns:parentStemName>aStem</ns:parentStemName>
+			<ns:parentStemUuid>
+				c5cdc0c4-04a8-47ac-931e-951b4eb44502
+			</ns:parentStemUuid>
+			<ns:uuid>19284537-6118-44b2-bbbc-d5757c709cb7</ns:uuid>
+		</ns:groupResults>
+		<ns:resultCode>SUCCESS</ns:resultCode>
+		<ns:resultMessage
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+		<ns:success>T</ns:success>
+	</ns:return>
+</ns:findGroupsResponse>

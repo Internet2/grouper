@@ -11,6 +11,13 @@ import org.apache.commons.lang.StringUtils;
  */
 public class GrouperWsUtils {
 	
+	/**
+	 * parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive.
+	 * If not specified, then use default.  If malformed, then exception
+	 * @param input
+	 * @param defaultValue
+	 * @return the boolean
+	 */
 	public static boolean booleanValue(String input, boolean defaultValue) {
 		if (StringUtils.isBlank(input)) {
 			return defaultValue;

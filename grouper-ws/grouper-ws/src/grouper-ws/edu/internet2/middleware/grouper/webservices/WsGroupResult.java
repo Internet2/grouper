@@ -19,23 +19,25 @@ public class WsGroupResult {
 	 * no arg constructor
 	 */
 	public WsGroupResult() {
+		//blank
 		
 	}
 
 	/**
 	 * construct based on group, assign all fields
+	 * @param group 
 	 */
 	public WsGroupResult(Group group) {
 		if (group != null) {
 			this.setCreateSource(group.getCreateSource());
-			String createSubjectId = null;
+			String createSubjectIdString = null;
 			try {
 				Subject createSubject = group.getCreateSubject();
-				createSubjectId = createSubject == null ? null : createSubject.getId();
+				createSubjectIdString = createSubject == null ? null : createSubject.getId();
 			} catch (SubjectNotFoundException e) {
 				//dont do anything if not found, null
 			}
-			this.setCreateSubjectId(createSubjectId);
+			this.setCreateSubjectId(createSubjectIdString);
 			this.setCreateTime(GrouperServiceUtils.dateToString(group.getCreateTime()));
 			this.setDescription(group.getDescription());
 			this.setDisplayExtension(group.getDisplayExtension());
@@ -44,15 +46,15 @@ public class WsGroupResult {
 			this.setIsComposite(group.isComposite() ? "T" : "F");
 			this.setModifySource(group.getModifySource());
 			
-			String modifySubjectId = null;
+			String modifySubjectIdString = null;
 			try {
 				Subject modifySubject = group.getModifySubject();
-				modifySubjectId = modifySubject == null ? null : modifySubject.getId();
+				modifySubjectIdString = modifySubject == null ? null : modifySubject.getId();
 			} catch (SubjectNotFoundException e) {
 				//dont do anything if not found, null
 			}
 			
-			this.setModifySubjectId(modifySubjectId);
+			this.setModifySubjectId(modifySubjectIdString);
 			this.setModifyTime(GrouperServiceUtils.dateToString(group.getModifyTime()));
 			this.setName(group.getName());
 			Stem parentStem = group.getParentStem();
@@ -201,7 +203,7 @@ public class WsGroupResult {
 	 * @return the isComposite
 	 */
 	public String getIsComposite() {
-		return isComposite;
+		return this.isComposite;
 	}
 
 	/**
@@ -211,10 +213,10 @@ public class WsGroupResult {
      * (stored in grouper_composites table)
      * (e.g. union, intersection, etc).  A composite group has no immediate members.
      * All subjects in a composite group are effective members.
-	 * @param isComposite the isComposite to set
+	 * @param isComposite1 the isComposite to set
 	 */
-	public void setIsComposite(String isComposite) {
-		this.isComposite = isComposite;
+	public void setIsComposite(String isComposite1) {
+		this.isComposite = isComposite1;
 	}
 
 	/**
@@ -254,7 +256,7 @@ public class WsGroupResult {
 	 * @return the displayName
 	 */
 	public String getDisplayName() {
-		return displayName;
+		return this.displayName;
 	}
 
 	/**
@@ -274,10 +276,10 @@ public class WsGroupResult {
 	}
 
 	/**
-	 * @param extension the extension to set
+	 * @param extension1 the extension to set
 	 */
-	public void setExtension(String extension) {
-		this.extension = extension;
+	public void setExtension(String extension1) {
+		this.extension = extension1;
 	}
 
 	/**
@@ -290,10 +292,10 @@ public class WsGroupResult {
 
 	/**
 	 * Get (optional and questionable) modify source for this group.
-	 * @param modifySource the modifySource to set
+	 * @param modifySource1 the modifySource to set
 	 */
-	public void setModifySource(String modifySource) {
-		this.modifySource = modifySource;
+	public void setModifySource(String modifySource1) {
+		this.modifySource = modifySource1;
 	}
 
 	/**
@@ -306,10 +308,10 @@ public class WsGroupResult {
 
 	/**
 	 * Get subject that last modified this group.
-	 * @param modifySubjectId the modifySubjectId to set
+	 * @param modifySubjectId1 the modifySubjectId to set
 	 */
-	public void setModifySubjectId(String modifySubjectId) {
-		this.modifySubjectId = modifySubjectId;
+	public void setModifySubjectId(String modifySubjectId1) {
+		this.modifySubjectId = modifySubjectId1;
 	}
 
 	/**
@@ -322,10 +324,10 @@ public class WsGroupResult {
 
 	/**
 	 * Get last modified time for this group.  yyyy/mm/dd hh24:mi:ss.SSS
-	 * @param modifyTime the modifyTime to set
+	 * @param modifyTime1 the modifyTime to set
 	 */
-	public void setModifyTime(String modifyTime) {
-		this.modifyTime = modifyTime;
+	public void setModifyTime(String modifyTime1) {
+		this.modifyTime = modifyTime1;
 	}
 
 	/**
@@ -340,10 +342,10 @@ public class WsGroupResult {
 	/**
 	 * Full name of the group (all extensions of parent stems, separated by colons, 
 	 * and the extention of this group
-	 * @param name the name to set
+	 * @param name1 the name to set
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setName(String name1) {
+		this.name = name1;
 	}
 
 	/**
@@ -356,10 +358,10 @@ public class WsGroupResult {
 
 	/**
 	 * Full name of the parent stem including parent stems
-	 * @param parentStemName the parentStemName to set
+	 * @param parentStemName1 the parentStemName to set
 	 */
-	public void setParentStemName(String parentStemName) {
-		this.parentStemName = parentStemName;
+	public void setParentStemName(String parentStemName1) {
+		this.parentStemName = parentStemName1;
 	}
 
 	/**
@@ -372,10 +374,10 @@ public class WsGroupResult {
 
 	/**
 	 * uuid of the parent stem
-	 * @param parentStemUuid the parentStemUuid to set
+	 * @param parentStemUuid1 the parentStemUuid to set
 	 */
-	public void setParentStemUuid(String parentStemUuid) {
-		this.parentStemUuid = parentStemUuid;
+	public void setParentStemUuid(String parentStemUuid1) {
+		this.parentStemUuid = parentStemUuid1;
 	}
 
 	/**
@@ -388,9 +390,9 @@ public class WsGroupResult {
 
 	/**
 	 * universally unique identifier of this group
-	 * @param uuid the uuid to set
+	 * @param uuid1 the uuid to set
 	 */
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
+	public void setUuid(String uuid1) {
+		this.uuid = uuid1;
 	}
 }

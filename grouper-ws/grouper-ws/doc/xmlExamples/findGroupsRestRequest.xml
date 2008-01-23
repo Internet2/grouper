@@ -1,0 +1,4 @@
+<ns1:findGroups
+	xmlns:ns1="http://webservices.grouper.middleware.internet2.edu/xsd">
+	<ns1:groupName>aStem:aGroup</ns1:groupName>
+</ns1:findGroups>
