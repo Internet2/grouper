@@ -14,14 +14,39 @@ public class GrouperServiceTest extends junit.framework.TestCase {
     /**
      * Auto generated test method
      */
+    public void testfindGroupsSimple() throws java.lang.Exception {
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
+            new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub(); //the default implementation should point to the right endpoint
+
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsSimple findGroupsSimple16 =
+            (edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsSimple) getTestObject(edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsSimple.class);
+        // TODO : Fill in the findGroupsSimple16 here
+        assertNotNull(stub.findGroupsSimple(findGroupsSimple16));
+    }
+
+    /**
+     * Auto generated test method
+     */
+    public void testStartfindGroupsSimple() throws java.lang.Exception {
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
+            new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsSimple findGroupsSimple16 =
+            (edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsSimple) getTestObject(edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsSimple.class);
+        // TODO : Fill in the findGroupsSimple16 here
+        stub.startfindGroupsSimple(findGroupsSimple16, new tempCallbackN1000C());
+    }
+
+    /**
+     * Auto generated test method
+     */
     public void testaddMember() throws java.lang.Exception {
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
             new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub(); //the default implementation should point to the right endpoint
 
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember addMember12 =
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember addMember18 =
             (edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember) getTestObject(edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember.class);
-        // TODO : Fill in the addMember12 here
-        assertNotNull(stub.addMember(addMember12));
+        // TODO : Fill in the addMember18 here
+        assertNotNull(stub.addMember(addMember18));
     }
 
     /**
@@ -30,10 +55,10 @@ public class GrouperServiceTest extends junit.framework.TestCase {
     public void testStartaddMember() throws java.lang.Exception {
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
             new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember addMember12 =
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember addMember18 =
             (edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember) getTestObject(edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember.class);
-        // TODO : Fill in the addMember12 here
-        stub.startaddMember(addMember12, new tempCallbackN1000C());
+        // TODO : Fill in the addMember18 here
+        stub.startaddMember(addMember18, new tempCallbackN10030());
     }
 
     /**
@@ -43,10 +68,10 @@ public class GrouperServiceTest extends junit.framework.TestCase {
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
             new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub(); //the default implementation should point to the right endpoint
 
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple addMemberSimple14 =
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple addMemberSimple20 =
             (edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple) getTestObject(edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple.class);
-        // TODO : Fill in the addMemberSimple14 here
-        assertNotNull(stub.addMemberSimple(addMemberSimple14));
+        // TODO : Fill in the addMemberSimple20 here
+        assertNotNull(stub.addMemberSimple(addMemberSimple20));
     }
 
     /**
@@ -55,10 +80,10 @@ public class GrouperServiceTest extends junit.framework.TestCase {
     public void testStartaddMemberSimple() throws java.lang.Exception {
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
             new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple addMemberSimple14 =
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple addMemberSimple20 =
             (edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple) getTestObject(edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple.class);
-        // TODO : Fill in the addMemberSimple14 here
-        stub.startaddMemberSimple(addMemberSimple14, new tempCallbackN10030());
+        // TODO : Fill in the addMemberSimple20 here
+        stub.startaddMemberSimple(addMemberSimple20, new tempCallbackN10054());
     }
 
     /**
@@ -68,10 +93,10 @@ public class GrouperServiceTest extends junit.framework.TestCase {
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
             new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub(); //the default implementation should point to the right endpoint
 
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups findGroups16 =
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups findGroups22 =
             (edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups) getTestObject(edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups.class);
-        // TODO : Fill in the findGroups16 here
-        assertNotNull(stub.findGroups(findGroups16));
+        // TODO : Fill in the findGroups22 here
+        assertNotNull(stub.findGroups(findGroups22));
     }
 
     /**
@@ -80,10 +105,10 @@ public class GrouperServiceTest extends junit.framework.TestCase {
     public void testStartfindGroups() throws java.lang.Exception {
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =
             new edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub();
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups findGroups16 =
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups findGroups22 =
             (edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups) getTestObject(edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups.class);
-        // TODO : Fill in the findGroups16 here
-        stub.startfindGroups(findGroups16, new tempCallbackN10054());
+        // TODO : Fill in the findGroups22 here
+        stub.startfindGroups(findGroups22, new tempCallbackN10078());
     }
 
     //Create an ADBBean and provide it as the test object
@@ -97,6 +122,20 @@ public class GrouperServiceTest extends junit.framework.TestCase {
             super(null);
         }
 
+        public void receiveResultfindGroupsSimple(
+            edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsSimpleResponse result) {
+        }
+
+        public void receiveErrorfindGroupsSimple(java.lang.Exception e) {
+            fail();
+        }
+    }
+
+    private class tempCallbackN10030 extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler {
+        public tempCallbackN10030() {
+            super(null);
+        }
+
         public void receiveResultaddMember(
             edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberResponse result) {
         }
@@ -106,8 +145,8 @@ public class GrouperServiceTest extends junit.framework.TestCase {
         }
     }
 
-    private class tempCallbackN10030 extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler {
-        public tempCallbackN10030() {
+    private class tempCallbackN10054 extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler {
+        public tempCallbackN10054() {
             super(null);
         }
 
@@ -120,8 +159,8 @@ public class GrouperServiceTest extends junit.framework.TestCase {
         }
     }
 
-    private class tempCallbackN10054 extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler {
-        public tempCallbackN10054() {
+    private class tempCallbackN10078 extends edu.internet2.middleware.grouper.webservicesClient.GrouperServiceCallbackHandler {
+        public tempCallbackN10078() {
             super(null);
         }
 
