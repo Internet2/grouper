@@ -28,7 +28,7 @@ import  net.sf.ehcache.Statistics;
 /**
  * Base class for common cache operations.
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.5 2008-01-14 04:53:44 mchyzer Exp $
+ * @version $Id: EhcacheController.java,v 1.6 2008-01-24 11:13:15 mchyzer Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
@@ -67,7 +67,8 @@ public class EhcacheController implements CacheController {
     if ( this.mgr.cacheExists(name) ) {
       return this.mgr.getCache(name);
     }
-    throw new IllegalStateException( "cache not found: " + name );
+    throw new IllegalStateException( "cache not found: " + name + " make sure the cache" +
+    		" config is correct, the resource: /grouper.ehcache.xml");
   }
 
   /**
