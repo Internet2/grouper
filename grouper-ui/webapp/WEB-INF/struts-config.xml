@@ -510,7 +510,7 @@
             <forward name="AssignSubjects" path="/populateAssignNewMembers.do" redirect="false"/>
      		   </action>
     
->    <action name="GroupFormBean" path="/populateGroupMembers" scope="request"
+    <action name="GroupFormBean" path="/populateGroupMembers" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupMembersAction"
             unknown="false" validate="false">
      

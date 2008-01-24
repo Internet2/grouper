@@ -42,7 +42,8 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
-import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Protects access to resources not listed in the init parameter 'ignore'.
@@ -57,7 +58,7 @@ import edu.internet2.middleware.subject.Source;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.9 2007-10-15 10:04:47 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.10 2008-01-24 11:16:10 mchyzer Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -190,12 +191,16 @@ public class LoginCheckFilter implements Filter {
 		}
 
 		edu.internet2.middleware.subject.Subject subj = null;
-		Source source = null;
 
 		try {
 			subj = SubjectFinder.findByIdentifier(remoteUser);
-		} catch (Exception e) {
+		} catch (SubjectNotFoundException e) {
 			throw new IOException(remoteUser + " is not recognised");
+		} catch (SubjectNotUniqueException e) {
+			throw new IOException(remoteUser + " is not unique");
+		} catch (Exception e) {
+			//CH 20080124: Make sure exception information is not swallowed
+			throw new RuntimeException("Problem looking up remote user: " + remoteUser, e);
 		}
 		session.setAttribute("authUser", remoteUser);
 		//edu.internet2.middleware.subject.Subject subj =
