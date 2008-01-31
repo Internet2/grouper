@@ -492,6 +492,7 @@
 		<antcall target="-webapp"/>
 		<antcall target="-html"/>
 		<antcall target="-war"/>
+    <antcall target="-web"/>
 	</target>
 	
 	
@@ -572,7 +573,9 @@
 <echo>     Subsequent invocation of ant with no target will run 'help' </echo>
 <echo>12) html</echo>
 <echo>     Generate Javadoc - you must have done a 'default' build previously</echo>
-<echo>13) exit</echo>
+<echo>13) web</echo>
+<echo>     Copy the docroot to the dist dir</echo>
+<echo>14) exit</echo>
 <echo>     Exit this menu without executing another target</echo>
 <echo></echo>
 
@@ -601,6 +604,27 @@
 		</antcall>
 	</target>
 	
+  <target name="web">
+    
+    <antcall target="-setup">
+      <param name="make.web" value="true"/>
+      <param name="no.webapp" value="true"/>
+      <param name="no.resources" value="true"/>
+    </antcall>
+  </target>
+
+	<!-- just copy the docroot to the docroot to ease ui development -->
+  <target name="-web" if="make.web" description="copy docroot to dist">
+  	
+    <copy todir="${dist.home}/${webapp.name}">
+      <fileset dir="${ui.folder}/webapp">
+        <exclude name="WEB-INF/classes/**/*.*"/>
+        <exclude name="WEB-INF/lib/**/*.*"/>
+      </fileset>
+  	</copy>
+
+  </target>
+  	
 	<target name="-html" if="make.javadoc" description="generate public api docs"  depends="-ensure-grouper-libs">    
 	<!-- Let's be sure we clear out old cruft first... -->    
 	<delete dir="doc/api" /> 

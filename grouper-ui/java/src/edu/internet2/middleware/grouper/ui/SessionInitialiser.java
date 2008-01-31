@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.10 2007-10-30 10:53:06 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.11 2008-01-31 16:16:35 mchyzer Exp $
  */
 
 public class SessionInitialiser {
@@ -176,6 +176,7 @@ public class SessionInitialiser {
 		try {
 			doc = DOMHelper.getDomFromResourceOnClassPath("resources/grouper/ui-permissions.xml");
 		}catch(Exception e){
+		  //TODO CH 20080129 is this really an error?  should we log something instead perhaps to a warn level?
 			e.printStackTrace();
 		}
 		if(doc==null) {

@@ -4,7 +4,7 @@
 			overridden
 --%><%--
   @author Gary Brown.
-  @version $Id: head.jsp,v 1.4 2005-12-21 15:51:38 isgwb Exp $
+  @version $Id: head.jsp,v 1.5 2008-01-31 16:16:35 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -33,6 +33,7 @@ base.append("/");
 <c:if test="${mediaMap['grouper-css.hide']!='true'}">
 <link href="i2mi/signet.css" rel="stylesheet" type="text/css"/>
 <link href="grouper/grouper.css" rel="stylesheet" type="text/css" />
+<link href="grouper/grouperTooltip.css" rel="stylesheet" type="text/css" id="grouperTooltipStylesheet"/>
 </c:if>
 <c:if test="${!empty mediaMap['css.additional']}">
 	<%

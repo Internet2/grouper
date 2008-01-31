@@ -1,12 +1,12 @@
+body {
+	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
+}
+
 #title {
-	font-size:13px;
-	line-height:16px;
-	font-style: normal;
 	font-weight: bold;
-	text-align: left;
-	text-transform: uppercase;
-	position:relative;
-	display:block;
+  color: #007994;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 #subtitle {
@@ -262,4 +262,12 @@ div.memberLink {
 
 .jspError{
 	color:#ff0000;
+}
+
+.helpText {
+  border-color: #dedfde;
+  border-style: dashed;
+  border-width: 3px;
+  margin: 5px 0px 0px 0px;
+  padding: 3px 3px 3px 3px;
 }

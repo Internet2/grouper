@@ -4,6 +4,8 @@ change definition for this --%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 	<tiles:importAttribute ignore="true"/>
 	<body>
+	<%-- note, the tooltips require the javascript to be put there, right below body tag --%>
+	<script type="text/javascript" src="scripts/grouper.js"></script> 
    		<!--ContentSpace-->
         <div id="ContentSpace">
             <div id="TitleBox">

@@ -31,7 +31,7 @@ import java.util.jar.JarFile;
  * Utility class to provide common functions useful when working with DOM.
  * 
  * @author Gary Brown.
- * @version $Id: DOMHelper.java,v 1.1 2005-12-08 15:31:42 isgwb Exp $
+ * @version $Id: DOMHelper.java,v 1.2 2008-01-31 16:16:35 mchyzer Exp $
  */
  
 public class DOMHelper 
@@ -130,6 +130,11 @@ public class DOMHelper
 			is = jarFile.getInputStream(jarFile.getEntry(path));		
     		
     	}
+    	
+    	if (is == null) {
+    		throw new IllegalArgumentException("Resource on classpath not found: '" + resource + "'");
+    	}
+    	
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     	DocumentBuilder db = dbf.newDocumentBuilder();
     	Document doc = db.parse(is);
