@@ -21,12 +21,13 @@ import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  java.io.IOException;
 import  java.io.InputStream;
 import  java.util.Properties;
+import java.util.Set;
 
 /** 
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.4 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.5 2008-01-31 16:16:38 mchyzer Exp $
  * @since   1.2.1
  */
 public class PropertiesConfiguration implements Configuration {
@@ -88,7 +89,7 @@ public class PropertiesConfiguration implements Configuration {
     try {
       InputStream in = this.getClass().getResourceAsStream(this.resource);
       if (in == null) {
-        throw new GrouperException("null input stream");
+        throw new GrouperException("null input stream reading resource: " + this.resource);
       }
       props.load(in);
       return props;
@@ -110,5 +111,13 @@ public class PropertiesConfiguration implements Configuration {
     return this.getProperty(property);
   }
 
+  /**
+   * return the set of keys
+   * @return the keys
+   */
+  public Set<String> keySet() {
+    return (Set<String>)(Object)this.getProperties().keySet();
+  }
+  
 }
 

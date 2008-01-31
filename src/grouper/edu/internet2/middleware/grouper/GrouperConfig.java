@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.lang.StringUtils;
+
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.cfg.BuildConfig;
 import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
@@ -25,7 +27,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.53 2007-08-27 16:47:21 blair Exp $
+ * @version $Id: GrouperConfig.java,v 1.54 2008-01-31 16:16:38 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -112,7 +114,8 @@ public class GrouperConfig {
   protected static final String SCII          = "subjects.cache.id.interface";
   protected static final String SCIDFRI       = "subjects.cache.identifier.interface";
 
-
+  /** if tooltips should be substituted in messages */
+  public static final String MESSAGES_USE_TOOLTIPS = "messages.use.tooltips";
   private static  GrouperConfig       cfg;
   private         ApiConfig           api;
   private         BuildConfig         build;
@@ -185,5 +188,33 @@ public class GrouperConfig {
     return getDefaultValueIfNull( getInstance().api.getProperty(property) );
   }
 
+  /**
+   * get the property value as a boolean, throw an exception if invalid value.
+   * Acceptable values are: t, f, true, false (case-insensitive)
+   * @param propertyName
+   * @param defaultValue if the property is blank or missing, return this value
+   * @return true or false
+   */
+  public static boolean getPropertyBoolean(String propertyName, boolean defaultValue) {
+    String value = getProperty(propertyName);
+    if (StringUtils.isBlank(value)) {
+      return defaultValue;
+    }
+    
+    if ("true".equalsIgnoreCase(value)) {
+      return true;
+    }
+    if ("false".equalsIgnoreCase(value)) {
+      return false;
+    }
+    if ("t".equalsIgnoreCase(value)) {
+      return true;
+    }
+    if ("f".equalsIgnoreCase(value)) {
+      return false;
+    }
+    throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
+  }
+  
 } 
 
