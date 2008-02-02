@@ -1,0 +1,4 @@
+/* this stylesheet will be disabled if infodots should go away */
+.infodotImage {
+  display: inline;
+}

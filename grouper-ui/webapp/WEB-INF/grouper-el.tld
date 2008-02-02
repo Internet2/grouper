@@ -16,27 +16,27 @@
         <attribute>
             <name>view</name>
             <required>false</required>
-            <rtexprvalue>false</rtexprvalue>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
             <name>type</name>
             <required>false</required>
-            <rtexprvalue>false</rtexprvalue>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
          <attribute>
             <name>key</name>
             <required>true</required>
-            <rtexprvalue>false</rtexprvalue>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
             <name>tile</name>
             <required>true</required>
-            <rtexprvalue>false</rtexprvalue>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
 		<attribute>
             <name>silent</name>
             <required>false</required>
-            <rtexprvalue>false</rtexprvalue>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
   <tag>
@@ -48,7 +48,7 @@
     <attribute>
         <name>key</name>
         <required>false</required>
-        <rtexprvalue>false</rtexprvalue>
+        <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
         <name>tooltipDisable</name>
@@ -58,31 +58,73 @@
     <attribute>
         <name>bundle</name>
         <required>false</required>
-        <rtexprvalue>false</rtexprvalue>
+        <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
         <name>var</name>
         <required>false</required>
-        <rtexprvalue>false</rtexprvalue>
+        <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>
         <name>scope</name>
         <required>false</required>
-        <rtexprvalue>false</rtexprvalue>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>useNewTermContext</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
     <tag>
     <name>param</name>
-    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperParamTag</tag-class>
-    <body-content>JSP</body-content>
-    <description>
+    <!--  description>
         Supplies an argument for parametric replacement to a containing
         &lt;message&gt; tag
-    </description>
+    </description -->
+    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperParamTag</tagclass>
+    <bodycontent>JSP</bodycontent>
     <attribute>
         <name>value</name>
         <required>false</required>
-        <rtexprvalue>false</rtexprvalue>
+        <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
+    <tag>
+    <name>infodot</name>
+    <!--  description>
+        This will generate an infodot image which when clicked will hide/show some instructions
+    </description -->
+    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperInfodotTag</tagclass>
+    <bodycontent>empty</bodycontent>
+    <attribute>
+        <name>hideShowHtmlId</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+    <tag>
+    <name>hideShowTarget</name>
+    <!--  description>
+        This will generate an infodot image which when clicked will hide/show some instructions
+    </description -->
+    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperHideShowTarget</tagclass>
+    <bodycontent>empty</bodycontent>
+    <attribute>
+        <name>hideShowHtmlId</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>showInitially</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>omitStyle</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  
 </taglib>

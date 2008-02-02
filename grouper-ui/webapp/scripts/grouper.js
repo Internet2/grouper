@@ -45,6 +45,15 @@ function tooltipsEnabled() {
   return "true" == grouperCookieValue;
 }
 
+/** see if infodots are enabled, return true or false */
+function infodotsEnabled() {
+  var grouperCookieValue = getCookie(grouperInfodotCookieName);
+  if (isEmpty(grouperCookieValue)) {
+    return true;
+  }
+  return "true" == grouperCookieValue;
+}
+
 function toggleTooltips(clickToDisableText, clickToEnableText) {
   //if was true, make false, and vice versa
   var newCookieValue = '' + !tooltipsEnabled();
@@ -72,6 +81,42 @@ function writeTooltipText(clickToDisableText, clickToEnableText) {
 
 //init the stylesheet, forget about the text, element isnt there anyways
 writeTooltipText();
+
+var grouperInfodotCookieName = "grouperInfodots";
+
+function toggleInfodots(event, clickToDisableText, clickToEnableText) {
+
+  //stop the event from bubbling up (i.e. dont really click the button)
+  eventCancelBubble(event);
+  
+  //if was true, make false, and vice versa
+  var newCookieValue = '' + !infodotsEnabled();
+  //this will be a session cookie
+  setCookie(grouperInfodotCookieName, newCookieValue);
+  
+  writeInfodotText(clickToDisableText, clickToEnableText);
+  
+  return false;
+}
+
+function writeInfodotText(clickToDisableText, clickToEnableText) {
+  var toggleLink = document.getElementById('infodotToggleLink');
+  //if there, see if enabled
+  var areInfodotsEnabled = infodotsEnabled();
+  //if nothing there, forget it
+  if (!isEmpty(toggleLink)) {
+    var newText = areInfodotsEnabled ? clickToDisableText : clickToEnableText;
+  
+    toggleLink.innerHTML = newText;  
+  }
+  
+  //make sure stylesheet is ok
+  document.getElementById('grouperInfodotStylesheet').disabled = !areInfodotsEnabled;
+
+}
+
+//init the stylesheet, forget about the text, element isnt there anyways
+writeInfodotText();
 
 /** when a javascript link click happens, dont let the a href click happen */
 function eventCancelBubble(event) {

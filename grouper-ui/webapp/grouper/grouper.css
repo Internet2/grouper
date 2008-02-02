@@ -271,3 +271,9 @@ div.memberLink {
   margin: 5px 0px 0px 0px;
   padding: 3px 3px 3px 3px;
 }
+
+/* this makes infodots go away, but if grouperInfodot.css is disabled via
+javascript, then it will take effect, otherwise grouperInfodot.css will make them shown again */
+.infodotImage {
+  display: none;
+}
