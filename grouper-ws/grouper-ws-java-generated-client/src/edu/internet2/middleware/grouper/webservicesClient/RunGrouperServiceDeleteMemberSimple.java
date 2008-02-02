@@ -3,28 +3,26 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsSimple;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupResult;
-
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.DeleteMemberSimple;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsDeleteMemberResult;
 
 
 /**
- * Run this to run the generated axis client for find groups simple
  *
  * @author mchyzer
  *
  */
-public class RunGrouperServiceFindGroupsSimple {
-    /**
-     *
-     */
-    public static void findGroupsSimple() {
+public class RunGrouperServiceDeleteMemberSimple {
+	
+	/**
+	 * 
+	 */
+    public static void deleteMemberSimple() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(
                     "http://localhost:8091/grouper-ws/services/GrouperService");
@@ -40,28 +38,20 @@ public class RunGrouperServiceFindGroupsSimple {
 
             //options.setProperty(Constants.Configuration.ENABLE_REST,
             //		Constants.VALUE_TRUE);
-            FindGroupsSimple findGroupsSimple = FindGroupsSimple.class.newInstance();
-
-            findGroupsSimple.setGroupName("");
-            findGroupsSimple.setStemName("aStem");
-            findGroupsSimple.setStemNameScope("ALL_IN_SUBTREE");
+            DeleteMemberSimple deleteMemberSimple = DeleteMemberSimple.class.newInstance();
 
             // set the act as id
-            // findGroupsSimple.setActAsSubjectId("GrouperSystem");
-            WsFindGroupsResults wsGroupsResults = stub.findGroupsSimple(findGroupsSimple)
+            deleteMemberSimple.setActAsSubjectId("GrouperSystem");
+
+            deleteMemberSimple.setGroupName("aStem:aGroup");
+
+            deleteMemberSimple.setSubjectId("10021368");
+
+            WsDeleteMemberResult wsDeleteMemberResult = stub.deleteMemberSimple(deleteMemberSimple)
                                                       .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsGroupsResults));
-
-            WsGroupResult[] wsGroupResults = wsGroupsResults.getGroupResults();
-
-            if (wsGroupResults != null) {
-                for (WsGroupResult wsGroupResult : wsGroupResults) {
-                    System.out.println(ToStringBuilder.reflectionToString(
-                            wsGroupResult));
-                }
-            }
+                    wsDeleteMemberResult));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -70,8 +60,7 @@ public class RunGrouperServiceFindGroupsSimple {
     /**
      * @param args
      */
-    public static void main(String[] args) throws Exception {
-        //addMember();
-        findGroupsSimple();
+    public static void main(String[] args) {
+        deleteMemberSimple();
     }
 }

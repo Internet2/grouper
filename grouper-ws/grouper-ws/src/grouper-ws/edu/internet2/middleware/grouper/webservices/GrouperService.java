@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.webservices.WsAddMemberResults.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.webservices.WsDeleteMemberResults.WsDeleteMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsFindGroupsResults.WsFindGroupsResultCode;
 import edu.internet2.middleware.grouper.webservices.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.subject.Subject;
@@ -427,7 +428,7 @@ public class GrouperService {
 							String theError = "Error deleting subject: " + ObjectUtils.defaultIfNull(subject, subjectId) 
 								+ " from group: " + group + ", " + e + ".  ";
 							LOG.error(theError, e);
-
+	
 							wsAddMemberResults.appendResultMessage(theError + ExceptionUtils.getFullStackTrace(e));
 							wsAddMemberResults.assignResultCode(WsAddMemberResultCode.PROBLEM_DELETING_MEMBERS);
 						}
@@ -478,6 +479,159 @@ public class GrouperService {
 			LOG.error(wsAddMemberResults.getResultMessage());
 		}
 		return wsAddMemberResults;
+	}
+
+	/**
+	 * remove member(s) from a group (if not already a direct member, ignore)
+	 * @param wsGroupLookup 
+	 * @param subjectLookups subjects to be deleted to the group
+	 * @param actAsSubjectLookup 
+	 * @param paramNames optional: reserved for future use
+	 * @param paramValues optional: reserved for future use
+	 * @return the results
+	 */
+	@SuppressWarnings("unchecked")
+	public WsDeleteMemberResults deleteMember(WsGroupLookup wsGroupLookup,
+			WsSubjectLookup[] subjectLookups, WsSubjectLookup actAsSubjectLookup,
+			String[] paramNames, String[] paramValues) {
+		
+		GrouperSession session = null;
+		WsDeleteMemberResults wsDeleteMemberResults = new WsDeleteMemberResults();
+		int subjectLength = subjectLookups == null ? 0 : subjectLookups.length;
+		if (subjectLength == 0) {
+			wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.INVALID_QUERY);
+			wsDeleteMemberResults.appendResultMessage("Subject length must be more than 1");
+			return wsDeleteMemberResults;
+		}
+		
+		//see if greater than the max (or default)
+		Integer maxDeleteMember = GrouperWsConfig.getPropertyInteger(GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
+		if (subjectLength > maxDeleteMember) {
+			wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.INVALID_QUERY);
+			wsDeleteMemberResults.appendResultMessage("Subject length must be less than max: " + maxDeleteMember 
+					+ " (sent in " + subjectLength + ")");
+			return wsDeleteMemberResults;
+		}
+		
+		//TODO make sure size of params and values the same
+		
+		//assume success
+		wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.SUCCESS);
+		Subject actAsSubject = null;
+		try {
+			actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
+			
+			if (actAsSubject == null) {
+				throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+			}
+			
+			//use this to be the user connected, or the user act-as
+			try {
+				session = GrouperSession.start(actAsSubject);
+			} catch (SessionException se) {
+				throw new RuntimeException("Problem with session for subject: " + actAsSubject, se);
+			}
+			wsGroupLookup.retrieveGroupIfNeeded(session);
+			wsDeleteMemberResults.setResults(new WsDeleteMemberResult[subjectLength]);
+			Group group = wsGroupLookup.retrieveGroup();
+			
+			if (group == null) {
+				wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.INVALID_QUERY);
+				wsDeleteMemberResults.appendResultMessage("Cant find group: " + wsGroupLookup + ".  ");
+				return wsDeleteMemberResults;
+			}
+			
+			int resultIndex = 0;
+			
+			for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
+				WsDeleteMemberResult wsDeleteMemberResult = new WsDeleteMemberResult();
+				wsDeleteMemberResults.getResults()[resultIndex] = wsDeleteMemberResult;
+				try {
+					//default to non-success
+					wsDeleteMemberResult.setSuccess("F");
+	
+					wsDeleteMemberResult.setSubjectId(wsSubjectLookup.getSubjectId());
+					wsDeleteMemberResult.setSubjectIdentifier(wsSubjectLookup.getSubjectIdentifier());
+	
+					Subject subject = wsSubjectLookup.retrieveSubject();
+					
+					//make sure the subject is there
+					if (subject == null) {
+						//see why not
+						SubjectFindResult subjectFindResult = wsSubjectLookup.retrieveSubjectFindResult();
+						String error = "Subject: " + wsSubjectLookup + " had problems: " + subjectFindResult;
+						wsDeleteMemberResult.setResultMessage(error);
+						throw new NullPointerException(error);
+					} 
+	
+					//these will probably match, but just in case
+					if (StringUtils.isBlank(wsDeleteMemberResult.getSubjectId())) {
+						wsDeleteMemberResult.setSubjectId(subject.getId());
+					}
+	
+					try {
+						//dont fail if already a direct member
+						if (group.hasImmediateMember(subject)) {
+							group.deleteMember(subject);
+						}
+						wsDeleteMemberResult.setSuccess("T");
+						wsDeleteMemberResult.setResultCode("SUCCESS");
+						
+					} catch (InsufficientPrivilegeException ipe) {
+						wsDeleteMemberResult.setResultCode("INSUFFICIENT_PRIVILEGES");
+						wsDeleteMemberResult.setResultMessage(ExceptionUtils.getFullStackTrace(ipe));
+					}
+				} catch (Exception e) {
+					wsDeleteMemberResult.setResultCode("EXCEPTION");
+					wsDeleteMemberResult.setResultMessage(ExceptionUtils.getFullStackTrace(e));
+					LOG.error(wsSubjectLookup + ", " + e, e);
+				}
+				resultIndex++;
+			}
+			
+		} catch (RuntimeException re) {
+			wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.EXCEPTION);
+			String theError = "Problem deleting member to group: wsGroupLookup: " + wsGroupLookup
+				+ ", subjectLookups: " + GrouperServiceUtils.toStringForLog(subjectLookups)
+				+  ", actAsSubject: " + actAsSubject + ".  ";
+			wsDeleteMemberResults.appendResultMessage(theError);
+			//this is sent back to the caller anyway, so just log, and not send back again
+			LOG.error(theError + ", wsDeleteMemberResults: " + GrouperServiceUtils.toStringForLog(wsDeleteMemberResults), re);
+		} finally {
+			if (session != null) {
+				try {
+					session.stop();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+		
+		if (wsDeleteMemberResults.getResults() != null) {
+			//check all entries
+			int successes = 0;
+			int failures = 0;
+			for (WsDeleteMemberResult wsAddMemberResult : wsDeleteMemberResults.getResults()) {
+				boolean success = "T".equalsIgnoreCase(wsAddMemberResult.getSuccess());
+				if (success) {
+					successes++;
+				} else {
+					failures++;
+				}
+			}
+			if (failures > 0) {
+				wsDeleteMemberResults.appendResultMessage("There were " + successes + " successes and " + failures 
+						+ " failures of users deleted to the group.   ");
+				wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.PROBLEM_DELETING_MEMBERS);
+			} else {
+				wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.SUCCESS);
+			}
+		}
+		if (!"T".equalsIgnoreCase(wsDeleteMemberResults.getSuccess())) {
+			
+			LOG.error(wsDeleteMemberResults.getResultMessage());
+		}
+		return wsDeleteMemberResults;
 	}
 		
 	/**
@@ -540,6 +694,69 @@ public class GrouperService {
 		return wsAddMemberResult;
 			
 	}
+
+	/**
+	 * delete member to a group (if not already a direct member, ignore)
+	 * @param groupName 
+	 * @param groupUuid 
+	 * @param subjectId 
+	 * @param subjectIdentifier 
+	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
+	 * Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier optional: is the subject identifier of subject
+	 * to act as (if proxying).  Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param paramName0 reserved for future use
+	 * @param paramValue0 reserved for future use
+	 * @param paramName1 reserved for future use
+	 * @param paramValue1 reserved for future use
+	 * @return the result of one member add
+	 */
+	public WsDeleteMemberResult deleteMemberSimple(String groupName,
+			String groupUuid,
+			String subjectId, 
+			String subjectIdentifier,
+			String actAsSubjectId,
+			String actAsSubjectIdentifier,
+			String paramName0,
+			String paramValue0,
+			String paramName1,
+			String paramValue1) {
+		
+		//setup the group lookup
+		WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+		
+		//setup the subject lookup
+		WsSubjectLookup[] subjectLookups = new WsSubjectLookup[1];
+		subjectLookups[0] = new WsSubjectLookup(subjectId, subjectIdentifier);
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId, 
+				actAsSubjectIdentifier);
+		
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
+		
+		WsDeleteMemberResults wsDeleteMemberResults = deleteMember(wsGroupLookup, 
+				subjectLookups, actAsSubjectLookup, paramNames, paramValues);
+		
+		WsDeleteMemberResult[] results = wsDeleteMemberResults.getResults();
+		if (results != null && results.length > 0) {
+			return results[0];
+		}
+		//didnt even get that far to where there is a subject result
+		WsDeleteMemberResult wsDeleteMemberResult = new WsDeleteMemberResult();
+		wsDeleteMemberResult.setResultMessage(wsDeleteMemberResults.getResultMessage());
+		wsDeleteMemberResult.setResultCode(wsDeleteMemberResults.getResultCode());
+		wsDeleteMemberResult.setSubjectId(subjectId);
+		wsDeleteMemberResult.setSubjectIdentifier(subjectIdentifier);
+		
+		//definitely not a success
+		wsDeleteMemberResult.setSuccess("F");
+		
+		return wsDeleteMemberResult;
+			
+	}
+	
 	
 //	/**
 //	 * web service wrapper for find all subjects based on query

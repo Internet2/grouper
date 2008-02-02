@@ -21,7 +21,7 @@ import java.lang.reflect.Array;
 
 
 /**
- * Run this to run the generated axis client.
+ * Use ant script to generate client, but if manual, do this:
  *
  * Generate the code:
  *

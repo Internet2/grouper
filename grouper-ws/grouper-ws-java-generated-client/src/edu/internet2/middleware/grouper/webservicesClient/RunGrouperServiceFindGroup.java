@@ -52,8 +52,8 @@ public class RunGrouperServiceFindGroup {
             FindGroups findGroups = null;
             FindGroupsResponse findGroupsResponse = null;
             WsFindGroupsResults wsFindGroupsResults = null;
-            	        options.setProperty(Constants.Configuration.ENABLE_REST,
-            	        		Constants.VALUE_TRUE);
+            options.setProperty(Constants.Configuration.ENABLE_REST,
+                Constants.VALUE_TRUE);
             findGroups = FindGroups.class.newInstance();
 
             //temporary init (TODO remove)

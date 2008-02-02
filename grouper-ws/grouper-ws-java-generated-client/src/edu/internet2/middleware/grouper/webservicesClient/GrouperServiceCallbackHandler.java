@@ -39,6 +39,36 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
+     * auto generated Axis2 call back method for deleteMemberSimple method
+     * override this method for handling normal response from deleteMemberSimple operation
+     */
+    public void receiveResultdeleteMemberSimple(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.DeleteMemberSimpleResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from deleteMemberSimple operation
+     */
+    public void receiveErrordeleteMemberSimple(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for deleteMember method
+     * override this method for handling normal response from deleteMember operation
+     */
+    public void receiveResultdeleteMember(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.DeleteMemberResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from deleteMember operation
+     */
+    public void receiveErrordeleteMember(java.lang.Exception e) {
+    }
+
+    /**
      * auto generated Axis2 call back method for findGroupsSimple method
      * override this method for handling normal response from findGroupsSimple operation
      */

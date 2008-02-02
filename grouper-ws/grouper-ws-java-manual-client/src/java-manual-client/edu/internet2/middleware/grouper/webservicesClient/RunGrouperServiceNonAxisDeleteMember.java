@@ -9,7 +9,6 @@ import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -20,10 +19,17 @@ import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 
 
-public class RunGrouperServiceNonAxisAddMember {
+/**
+ * @author mchyzer
+ *
+ */
+public class RunGrouperServiceNonAxisDeleteMember {
 	
+	/**
+	 * 
+	 */
 	@SuppressWarnings("unchecked")
-	public static void addMemberRest() {
+	public static void deleteMemberRest() {
         //lets load this into jdom, since it is xml
 		Reader xmlReader = null;
 
@@ -36,7 +42,12 @@ public class RunGrouperServiceNonAxisAddMember {
 	        httpClient.getParams().setAuthenticationPreemptive(true);
 	        Credentials defaultcreds = new UsernamePasswordCredentials("GrouperSystem", "pass");
 	        httpClient.getState().setCredentials(new AuthScope("localhost", 8091), defaultcreds);
-	        String xml = "<ns1:addMember xmlns:ns1=\"http://webservices.grouper.middleware.internet2.edu/xsd\"><ns1:wsGroupLookup><ns1:groupName>aStem:aGroup</ns1:groupName></ns1:wsGroupLookup><ns1:subjectLookups><ns1:subjectId>10021368</ns1:subjectId></ns1:subjectLookups><ns1:subjectLookups><ns1:subjectId>10039438</ns1:subjectId></ns1:subjectLookups><ns1:replaceAllExisting>F</ns1:replaceAllExisting><ns1:actAsSubjectLookup><ns1:subjectId>GrouperSystem</ns1:subjectId></ns1:actAsSubjectLookup></ns1:addMember>";
+	        String xml = "<ns1:deleteMember xmlns:ns1=\"http://webservices.grouper.middleware.internet2.edu/xsd\">" +
+	        		"<ns1:wsGroupLookup><ns1:groupName>aStem:aGroup</ns1:groupName></ns1:wsGroupLookup>" +
+	        		"<ns1:subjectLookups><ns1:subjectId>10021368</ns1:subjectId></ns1:subjectLookups>" +
+	        		"<ns1:subjectLookups><ns1:subjectId>10039438</ns1:subjectId></ns1:subjectLookups>" +
+	        		"<ns1:actAsSubjectLookup><ns1:subjectId>GrouperSystem</ns1:subjectId></ns1:actAsSubjectLookup>" +
+	        		"</ns1:deleteMember>";
 	        RequestEntity requestEntity = new StringRequestEntity(xml);
 	        method.setRequestEntity(requestEntity);
 	        httpClient.executeMethod(method);
@@ -62,26 +73,26 @@ public class RunGrouperServiceNonAxisAddMember {
 
 			// process xml
 			Document document = new SAXBuilder().build(xmlReader);
-			Element addMemberResponse = document.getRootElement();
+			Element deleteMemberResponse = document.getRootElement();
 			
 			//parse: 
 			
-			//	<ns:addMemberResponse
+			//	<ns:deleteMemberResponse
 			//	xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
 			
-			RunGrouperServiceNonAxisUtils.assertTrue("addMemberResponse".equals(addMemberResponse.getName()),
-					"root not addMemberResponse: " + addMemberResponse.getName());
+			RunGrouperServiceNonAxisUtils.assertTrue("deleteMemberResponse".equals(deleteMemberResponse.getName()),
+					"root not deleteMemberResponse: " + deleteMemberResponse.getName());
 
-			Namespace namespace = addMemberResponse.getNamespace();
+			Namespace namespace = deleteMemberResponse.getNamespace();
 			
 			//	<ns:return
-			//		type="edu.internet2.middleware.grouper.webservices.WsAddMemberResults">
-			Element returnElement = addMemberResponse.getChild("return", namespace);
+			//		type="edu.internet2.middleware.grouper.webservices.WsDeleteMemberResults">
+			Element returnElement = deleteMemberResponse.getChild("return", namespace);
 			
 			String theType = returnElement.getAttributeValue("type");
-			RunGrouperServiceNonAxisUtils.assertTrue("edu.internet2.middleware.grouper.webservices.WsAddMemberResults"
+			RunGrouperServiceNonAxisUtils.assertTrue("edu.internet2.middleware.grouper.webservices.WsDeleteMemberResults"
 					.equals(theType),
-					"type not edu.internet2.middleware.grouper.webservices.WsAddMemberResults: " + theType);
+					"type not edu.internet2.middleware.grouper.webservices.WsDeleteMemberResults: " + theType);
 			
 			String resultCode = returnElement.getChildText("resultCode", namespace);
 			String resultMessage = returnElement.getChildText("resultMessage", namespace);
@@ -95,11 +106,11 @@ public class RunGrouperServiceNonAxisAddMember {
 				int i=0;
 				for (Element resultsElement : resultsList) {
 					//		<ns:results
-					//			type="edu.internet2.middleware.grouper.webservices.WsAddMemberResult">
+					//			type="edu.internet2.middleware.grouper.webservices.WsDeleteMemberResult">
 					String resultsType = resultsElement.getAttributeValue("type");
-					RunGrouperServiceNonAxisUtils.assertTrue("edu.internet2.middleware.grouper.webservices.WsAddMemberResult"
+					RunGrouperServiceNonAxisUtils.assertTrue("edu.internet2.middleware.grouper.webservices.WsDeleteMemberResult"
 							.equals(resultsType),
-							"type not edu.internet2.middleware.grouper.webservices.WsAddMemberResult: " + theType);
+							"type not edu.internet2.middleware.grouper.webservices.WsDeleteMemberResult: " + theType);
 					
 					//			<ns:resultCode
 					//				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -130,7 +141,7 @@ public class RunGrouperServiceNonAxisAddMember {
 			}
 			
 			//	</ns:return>
-			//</ns:addMemberResponse>
+			//</ns:deleteMemberResponse>
 			
 			
 
@@ -151,6 +162,6 @@ public class RunGrouperServiceNonAxisAddMember {
      */
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        addMemberRest();
+        deleteMemberRest();
     }
 }
