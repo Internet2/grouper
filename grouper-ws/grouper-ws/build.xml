@@ -197,10 +197,24 @@
 			<compilerarg value="-Xlint:deprecation" />
 		</javac>
 	</target>
+  <!-- 
+    Builds the entire webapp 
+  -->
+  <target name="dist" description="do everything">
+    <property name="skipWsdl" value="false"/>
+  	<antcall target="distHelper" />
+  </target>
+  <!-- 
+    Builds the entire webapp 
+  -->
+  <target name="quick" description="dist, but without wsdl">
+    <property name="skipWsdl" value="true"/>
+    <antcall target="distHelper" />
+  </target>
 	<!-- 
-		Builds the entire webapp 
+		Builds the entire webapp, or skips the web service wsdl part
 	-->
-	<target name="dist">
+	<target name="distHelper">
 
 		<!-- TODO put in options to do the log4j and other properties files -->
 
@@ -213,7 +227,7 @@
 		</if>
 
 		<if>
-			<istrue value="${dist.packageAar}" />
+      <istrue value="${dist.packageAar}" />
 			<then>
 				<!-- this will compile -->
 				<antcall target="generate-aar" />
@@ -225,13 +239,19 @@
 		</if>
 
     <if>
-      <istrue value="${dist.generateWsdlOnDist}" />
+      <and>
+        <istrue value="${dist.generateWsdlOnDist}" />
+        <isfalse value="${skipWsdl}" />
+      </and>
       <then>
         <antcall target="java2wsdl" />
       </then>
     </if>
     <if>
-      <istrue value="${dist.generateClientOnDist}" />
+      <and>
+        <istrue value="${dist.generateClientOnDist}" />
+        <isfalse value="${skipWsdl}" />
+      </and>
       <then>
         <antcall target="wsdl2java" />
       </then>
@@ -286,6 +306,8 @@
 		</echo>
 		<echo>1) default (dist) </echo>
 		<echo>     Simply builds, without cleaning, to the webapp.folder</echo>
+    <echo>1) quick </echo>
+    <echo>     Simply builds, without cleaning, to the webapp.folder, and skips wsdl parts</echo>
 		<echo>2) clean</echo>
 		<echo>     Clean the webapp folder, and classfiles, and build</echo>
 		<echo>3) generate-aar</echo>

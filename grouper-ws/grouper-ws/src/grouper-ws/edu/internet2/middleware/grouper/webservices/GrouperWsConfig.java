@@ -5,7 +5,7 @@ package edu.internet2.middleware.grouper.webservices;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
 
 /**
  * config constants for WS
@@ -14,6 +14,23 @@ import edu.internet2.middleware.grouper.GrouperConfig;
  */
 public class GrouperWsConfig {
 
+	/**
+	 * cache the properties configuration
+	 */
+	private static PropertiesConfiguration propertiesConfiguration = null;
+
+	/**
+	 * lazy load and cache the properties configuration
+	 * @return the properties configuration
+	 */
+	private static PropertiesConfiguration retrievePropertiesConfiguration() {
+		if (propertiesConfiguration == null) {
+			propertiesConfiguration = new PropertiesConfiguration("/grouper-ws.properties");
+		}
+		return propertiesConfiguration;
+
+	}
+	
 	/**
 	 * Get a Grouper configuration parameter.
 	 * <pre class="eg">
@@ -25,30 +42,26 @@ public class GrouperWsConfig {
 	 * @since   1.1.0
 	 */
 	public static String getPropertyString(String property) {
-	  return GrouperConfig.getProperty(property);
+	  return retrievePropertiesConfiguration().getProperty(property);
 	}
 	
 	/**
-	 * Get a Grouper configuration parameter.
-	 * <pre class="eg">
-	 * String wheel = GrouperConfig.getProperty("groups.wheel.group");
-	 * </pre>
+	 * Get a Grouper configuration parameter an integer
 	 * @param property 
 	 * @param defaultValue 
 	 * @return  Value of configuration parameter or null if
 	 *   parameter isnt specified.  Exception is thrown if not formatted correcly
 	 * @throws NumberFormatException if cannot convert the value to an Integer
-	 * @since   1.1.0
 	 */
-	public static Integer getPropertyInteger(String property, Integer defaultValue) {
-	  String paramString = GrouperConfig.getProperty(property);
+	public static int getPropertyInt(String property, int defaultValue) {
+	  String paramString = getPropertyString(property);
 	  //see if not there
 	  if (StringUtils.isEmpty(paramString)) {
 		  return defaultValue;
 	  }
 	  //if there, convert to int
 	  try {
-		  Integer paramInteger = Integer.parseInt(paramString);
+		  int paramInteger = Integer.parseInt(paramString);
 		  return paramInteger;
 	  } catch (NumberFormatException nfe) {
 		  throw new NumberFormatException(
@@ -57,6 +70,33 @@ public class GrouperWsConfig {
 	  } 
 	}
 	
+	/**
+	 * Get a Grouper configuration parameter as boolean (must be true|t|false|f case-insensitive)
+	 * 
+	 * @param property 
+	 * @param defaultValue 
+	 * @return  Value of configuration parameter or null if
+	 *   parameter isnt specified.  Exception is thrown if not formatted correcly
+	 * @throws NumberFormatException if cannot convert the value to an Integer
+	 */
+	public static boolean getPropertyBoolean(String property, boolean defaultValue) {
+	  String paramString = getPropertyString(property);
+	  //see if not there
+	  if (StringUtils.isEmpty(paramString)) {
+		  return defaultValue;
+	  }
+	  //if there, convert to boolean
+	  try {
+		  //note, cant be blank at this point, so default value doesnt matter
+		  boolean paramBoolean = GrouperServiceUtils.booleanValue(property);
+		  return paramBoolean;
+	  } catch (NumberFormatException nfe) {
+		  throw new NumberFormatException(
+				  "Cannot convert the grouper.properties param: " + property 
+				  + " to an Integer.  Config value is '" + paramString + "' " + nfe);
+	  } 
+	}
+
 	/** 
 	 * name of param for add member web service max, default is 1000000
 	 * 
@@ -74,6 +114,14 @@ public class GrouperWsConfig {
 	 */
 	public static final String WS_ACT_AS_GROUP = "ws.act.as.group";
 	
+	/** to ship attributes back to the web service client, put the subject attribute 0 name here */
+	public static final String WS_GET_MEMBERS_SUBJECT_ATTRIBUTE0 = "ws.get.members.subject.attribute0";
+
+	/** to ship attributes back to the web service client, put the subject attribute 0 name here */
+	public static final String WS_GET_MEMBERS_SUBJECT_ATTRIBUTE1 = "ws.get.members.subject.attribute1";
+
+	/** to ship attributes back to the web service client, put the subject attribute 0 name here */
+	public static final String WS_GET_MEMBERS_SUBJECT_ATTRIBUTE2 = "ws.get.members.subject.attribute2";
 
 	
 }

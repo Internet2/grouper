@@ -7,6 +7,8 @@ import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -15,6 +17,77 @@ import org.apache.commons.lang.StringUtils;
  *
  */
 public class GrouperServiceUtils {
+	
+	/**
+	 * get the boolean value for an object, cant be null or blank
+	 * @param object
+	 * @param defaultBoolean if object is null or empty
+	 * @return the boolean
+	 */
+	public static boolean booleanValue(Object object) {
+		//first handle blanks
+		if (nullOrBlank(object) ) {
+			throw new RuntimeException("Expecting something which can be converted to boolean, but is null or blank: '" + object + "'");
+		}
+		//its not blank, just convert
+		if (object instanceof Boolean) {
+			return (Boolean)object;
+		}
+		if (object instanceof String) {
+			String string = (String)object;
+			if (StringUtils.equalsIgnoreCase(string, "true") || StringUtils.equalsIgnoreCase(string, "t")) {
+				return true;
+			}
+			if (StringUtils.equalsIgnoreCase(string, "false") || StringUtils.equalsIgnoreCase(string, "f")) {
+				return false;
+			}
+			throw new RuntimeException("Invalid string to boolean conversion: '" 
+					+ string + "' expecting true|false or t|f case insensitive");
+			
+		}
+		throw new RuntimeException("Cant convert object to boolean: " + object.getClass());
+
+	}
+	
+	/**
+	 * is an object null or blank
+	 * @param object
+	 * @return
+	 */
+	public static boolean nullOrBlank(Object object) {
+		//first handle blanks and nulls
+		if (object == null) {
+			return true;
+		}
+		if (object instanceof String && StringUtils.isBlank(((String)object))) {
+			return true;
+		}
+		return false;
+		
+	}
+	
+	/**
+	 * get the boolean value for an object
+	 * @param object
+	 * @param defaultBoolean if object is null or empty
+	 * @return the boolean
+	 */
+	public static boolean booleanValue(Object object, boolean defaultBoolean) {
+		if (nullOrBlank(object)) {
+			return defaultBoolean;
+		}
+		return booleanValue(object);
+	}
+	
+	/**
+	 * make sure it is non null, if null, then give new set
+	 * @param <T>
+	 * @param set
+	 * @return set non-null
+	 */
+	public static <T> Set<T> nonNull(Set<T> set) {
+		return set == null ? new HashSet<T>() : set;
+	}
 	
 	/**
 	 * web service format string

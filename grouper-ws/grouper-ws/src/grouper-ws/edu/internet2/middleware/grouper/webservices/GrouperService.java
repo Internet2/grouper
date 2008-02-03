@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.webservices.WsAddMemberResults.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsDeleteMemberResults.WsDeleteMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsFindGroupsResults.WsFindGroupsResultCode;
+import edu.internet2.middleware.grouper.webservices.WsGetMembersResults.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.webservices.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.subject.Subject;
 
@@ -290,7 +291,190 @@ public class GrouperService {
 		return wsFindGroupsResults;
 
     }
+
+    /**
+	 * get members from a group based on a filter (all, immediate only, effective only, composite)
+	 * @param groupName to lookup the group (mutually exclusive with groupUuid)
+	 * @param groupUuid to lookup the group (mutually exclusive with groupName)
+	 * @param memberFilter must be one of All, EffectiveMembers, ImmediateMembers, CompositeMembers
+	 * @param retrieveExtendedSubjectData true|false, for if the extended subject information should be returned
+	 * (anything more than just the id)
+	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
+	 * Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier optional: is the subject identifier of subject
+	 * to act as (if proxying).  Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param paramName0 reserved for future use
+	 * @param paramValue0 reserved for future use
+	 * @param paramName1 reserved for future use
+	 * @param paramValue1 reserved for future use
+     * @return the groups, or no groups if none found
+     */
+	public WsGetMembersResults getMembersSimple(String groupName,
+			String groupUuid,
+			String memberFilter, String retrieveExtendedSubjectData,
+			String actAsSubjectId,
+			String actAsSubjectIdentifier,
+			String paramName0, String paramValue0,
+			String paramName1, String paramValue1) {
+    	
+		//setup the group lookup
+		WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId, actAsSubjectIdentifier);
+
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
+		
+		//pass through to the more comprehensive method
+		WsGetMembersResults wsGetMembersResults = getMembers(wsGroupLookup, 
+				memberFilter, retrieveExtendedSubjectData, actAsSubjectLookup, 
+				paramNames, paramValues);
+		
+		return wsGetMembersResults;
+    }
     
+    
+	/**
+	 * get members from a group based on a filter (all, immediate only, effective only, composite)
+	 * @param wsGroupLookup 
+	 * @param memberFilter must be one of All, EffectiveMembers, ImmediateMembers, CompositeMembers
+	 * @param retrieveExtendedSubjectData true|false, for if the extended subject information should be returned
+	 * (anything more than just the id)
+	 * @param actAsSubjectLookup 
+	 * @param paramNames optional: reserved for future use
+	 * @param paramValues optional: reserved for future use
+	 * @return the results
+	 */
+	@SuppressWarnings("unchecked")
+	public WsGetMembersResults getMembers(WsGroupLookup wsGroupLookup,
+			String memberFilter, String retrieveExtendedSubjectData,
+			WsSubjectLookup actAsSubjectLookup,
+			String[] paramNames, String[] paramValues) {
+		
+		GrouperSession session = null;
+		WsGetMembersResults wsGetMembersResults = new WsGetMembersResults();
+		WsMemberFilter wsMemberFilter = null;
+		String parseWsFilterError = "";
+		try {
+			wsMemberFilter = WsMemberFilter.valueOfIgnoreCase(memberFilter);
+		} catch (Exception e) {
+			parseWsFilterError = ExceptionUtils.getFullStackTrace(e);
+		}
+		if (wsMemberFilter == null || !StringUtils.isBlank(parseWsFilterError)) {
+			wsGetMembersResults.assignResultCode(WsGetMembersResultCode.INVALID_QUERY);
+			wsGetMembersResults.appendResultMessage("memberFilter is required and must be valid: " + parseWsFilterError);
+			return wsGetMembersResults;
+		}
+		
+		boolean retrieveExtendedSubjectDataBoolean = false;
+		
+		try {
+			retrieveExtendedSubjectDataBoolean = GrouperServiceUtils.booleanValue(retrieveExtendedSubjectData, false);
+		} catch (Exception e) {
+			wsGetMembersResults.assignResultCode(WsGetMembersResultCode.INVALID_QUERY);
+			wsGetMembersResults.appendResultMessage("retrieveExtendedSubjectData is invalid: '" + retrieveExtendedSubjectData + "'");
+			return wsGetMembersResults;
+		}
+		
+		//TODO make sure size of params and values the same
+		
+		//assume success
+		wsGetMembersResults.assignResultCode(WsGetMembersResultCode.SUCCESS);
+		Subject actAsSubject = null;
+		try {
+			actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
+			
+			if (actAsSubject == null) {
+				throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+			}
+			
+			//use this to be the user connected, or the user act-as
+			try {
+				session = GrouperSession.start(actAsSubject);
+			} catch (SessionException se) {
+				throw new RuntimeException("Problem with session for subject: " + actAsSubject, se);
+			}
+			wsGroupLookup.retrieveGroupIfNeeded(session);
+
+			Group group = wsGroupLookup.retrieveGroup();
+			
+			if (group == null) {
+				wsGetMembersResults.assignResultCode(WsGetMembersResultCode.INVALID_QUERY);
+				wsGetMembersResults.appendResultMessage("Cant find group: " + wsGroupLookup + ".  ");
+				return wsGetMembersResults;
+			}
+			
+			//lets get the members, cant be null
+			Set<Member> members = wsMemberFilter.getMembers(group);
+			
+			//lets set the attribute names if they exist
+			{
+				//see if attribute0
+				String attributeName0 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_SUBJECT_ATTRIBUTE0);
+				if (!StringUtils.isBlank(attributeName0)) {
+					wsGetMembersResults.setAttributeName0(attributeName0);
+				}
+			}
+
+			//lets set the attribute names if they exist
+			{
+				//see if attribute1
+				String attributeName1 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_SUBJECT_ATTRIBUTE1);
+				if (!StringUtils.isBlank(attributeName1)) {
+					wsGetMembersResults.setAttributeName1(attributeName1);
+				}
+			}
+			
+			//lets set the attribute names if they exist
+			{
+				//see if attribute2
+				String attributeName2 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_SUBJECT_ATTRIBUTE2);
+				if (!StringUtils.isBlank(attributeName2)) {
+					wsGetMembersResults.setAttributeName2(attributeName2);
+				}
+			}
+			
+			//if we dont have anything, then lets just return (already success)
+			if (members.size() == 0) {
+				return wsGetMembersResults;
+			}
+			
+			wsGetMembersResults.setResults(new WsGetMembersResult[members.size()]);
+			
+			int resultIndex = 0;
+			
+			//loop through and set the result
+			for (Member member : members) {
+				WsGetMembersResult wsGetMembersResult = new WsGetMembersResult(member, retrieveExtendedSubjectDataBoolean);
+				wsGetMembersResults.getResults()[resultIndex] = wsGetMembersResult;
+				resultIndex++;
+			}
+			
+		} catch (RuntimeException re) {
+
+			wsGetMembersResults.assignResultCode(WsGetMembersResultCode.EXCEPTION);
+			String theError = "Problem adding member to group: wsGroupLookup: " + wsGroupLookup
+			 	+ ", memberFilter: " + memberFilter + ", retrieveExtendedSubjectData: " 
+			 	+ retrieveExtendedSubjectData +  ", actAsSubject: " + actAsSubject
+				+ ".  ";
+			wsGetMembersResults.appendResultMessage(theError + "\n" + ExceptionUtils.getFullStackTrace(re) + ".  ");
+			//this is sent back to the caller anyway, so just log, and not send back again
+			LOG.error(theError + ", wsAddMemberResults: " + GrouperServiceUtils.toStringForLog(wsGetMembersResults), re);
+		} finally {
+			if (session != null) {
+				try {
+					session.stop();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+		
+		return wsGetMembersResults;
+	}
+
 	/**
 	 * add member to a group (if already a direct member, ignore)
 	 * @param wsGroupLookup 
@@ -318,7 +502,7 @@ public class GrouperService {
 		}
 		
 		//see if greater than the max (or default)
-		Integer maxAddMember = GrouperWsConfig.getPropertyInteger(GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
+		int maxAddMember = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
 		if (subjectLength > maxAddMember) {
 			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
 			wsAddMemberResults.appendResultMessage("Subject length must be less than max: " + maxAddMember + " (sent in " + subjectLength + ")");
@@ -505,7 +689,7 @@ public class GrouperService {
 		}
 		
 		//see if greater than the max (or default)
-		Integer maxDeleteMember = GrouperWsConfig.getPropertyInteger(GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
+		int maxDeleteMember = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
 		if (subjectLength > maxDeleteMember) {
 			wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.INVALID_QUERY);
 			wsDeleteMemberResults.appendResultMessage("Subject length must be less than max: " + maxDeleteMember 
@@ -697,10 +881,10 @@ public class GrouperService {
 
 	/**
 	 * delete member to a group (if not already a direct member, ignore)
-	 * @param groupName 
-	 * @param groupUuid 
-	 * @param subjectId 
-	 * @param subjectIdentifier 
+	 * @param groupName to lookup the group (mutually exclusive with groupUuid)
+	 * @param groupUuid to lookup the group (mutually exclusive with groupName)
+	 * @param subjectId to lookup the subject (mutually exclusive with subjectIdentifier)
+	 * @param subjectIdentifier to lookup the subject (mutually exclusive with subjectId)
 	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
 	 * Only pass one of actAsSubjectId or actAsSubjectIdentifer
 	 * @param actAsSubjectIdentifier optional: is the subject identifier of subject

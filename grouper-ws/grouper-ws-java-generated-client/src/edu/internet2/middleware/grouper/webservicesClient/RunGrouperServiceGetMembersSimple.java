@@ -3,22 +3,21 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.DeleteMemberSimple;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsDeleteMemberResult;
-
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembersSimple;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResult;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResults;
 
 /**
  *
  * @author mchyzer
  *
  */
-public class RunGrouperServiceDeleteMemberSimple {
+public class RunGrouperServiceGetMembersSimple {
     /**
      *
      */
@@ -38,20 +37,29 @@ public class RunGrouperServiceDeleteMemberSimple {
 
             //options.setProperty(Constants.Configuration.ENABLE_REST,
             //		Constants.VALUE_TRUE);
-            DeleteMemberSimple deleteMemberSimple = DeleteMemberSimple.class.newInstance();
+            GetMembersSimple getMembersSimple = GetMembersSimple.class.newInstance();
 
             // set the act as id
-            deleteMemberSimple.setActAsSubjectId("GrouperSystem");
+            getMembersSimple.setActAsSubjectId("GrouperSystem");
 
-            deleteMemberSimple.setGroupName("aStem:aGroup");
-
-            deleteMemberSimple.setSubjectId("10021368");
-
-            WsDeleteMemberResult wsDeleteMemberResult = stub.deleteMemberSimple(deleteMemberSimple)
+            getMembersSimple.setGroupName("aStem:aGroup");
+            getMembersSimple.setGroupUuid("");
+            getMembersSimple.setMemberFilter("All");
+            getMembersSimple.setRetrieveExtendedSubjectData("true");
+            
+            WsGetMembersResults wsGetMembersResults = stub.getMembersSimple(getMembersSimple)
                                                             .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsDeleteMemberResult));
+                    wsGetMembersResults));
+
+            WsGetMembersResult[] wsGetMembersResultArray = wsGetMembersResults.getResults();
+
+            for (WsGetMembersResult wsGetMembersResult : wsGetMembersResultArray) {
+                System.out.println(ToStringBuilder.reflectionToString(
+                        wsGetMembersResult));
+            }
+                        
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

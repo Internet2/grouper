@@ -210,8 +210,78 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="getMembers">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="wsGroupLookup" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="retrieveExtendedSubjectData" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getMembersResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetMembersResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGetMembersResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="attributeName0" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeName1" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attributeName2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsGetMembersResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsGetMembersResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="attribute0" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attribute1" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="attribute2" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subjectDescription" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subjectId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subjectName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subjectType" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="getMembersSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="retrieveExtendedSubjectData" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getMembersSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetMembersResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:schema>
     </wsdl:types>
+    <wsdl:message name="getMembersRequest">
+        <wsdl:part name="parameters" element="ns0:getMembers"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersResponse">
+        <wsdl:part name="parameters" element="ns0:getMembersResponse"/>
+    </wsdl:message>
     <wsdl:message name="deleteMemberSimpleRequest">
         <wsdl:part name="parameters" element="ns0:deleteMemberSimple"/>
     </wsdl:message>
@@ -223,6 +293,12 @@
     </wsdl:message>
     <wsdl:message name="deleteMemberResponse">
         <wsdl:part name="parameters" element="ns0:deleteMemberResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:getMembersSimple"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:getMembersSimpleResponse"/>
     </wsdl:message>
     <wsdl:message name="findGroupsSimpleRequest">
         <wsdl:part name="parameters" element="ns0:findGroupsSimple"/>
@@ -249,6 +325,10 @@
         <wsdl:part name="parameters" element="ns0:findGroupsResponse"/>
     </wsdl:message>
     <wsdl:portType name="GrouperServicePortType">
+        <wsdl:operation name="getMembers">
+            <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
+            <wsdl:output message="axis2:getMembersResponse" wsaw:Action="urn:getMembersResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <wsdl:input message="axis2:deleteMemberSimpleRequest" wsaw:Action="urn:deleteMemberSimple"/>
             <wsdl:output message="axis2:deleteMemberSimpleResponse" wsaw:Action="urn:deleteMemberSimpleResponse"/>
@@ -256,6 +336,10 @@
         <wsdl:operation name="deleteMember">
             <wsdl:input message="axis2:deleteMemberRequest" wsaw:Action="urn:deleteMember"/>
             <wsdl:output message="axis2:deleteMemberResponse" wsaw:Action="urn:deleteMemberResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getMembersSimple">
+            <wsdl:input message="axis2:getMembersSimpleRequest" wsaw:Action="urn:getMembersSimple"/>
+            <wsdl:output message="axis2:getMembersSimpleResponse" wsaw:Action="urn:getMembersSimpleResponse"/>
         </wsdl:operation>
         <wsdl:operation name="findGroupsSimple">
             <wsdl:input message="axis2:findGroupsSimpleRequest" wsaw:Action="urn:findGroupsSimple"/>
@@ -276,6 +360,15 @@
     </wsdl:portType>
     <wsdl:binding name="GrouperServiceSOAP11Binding" type="axis2:GrouperServicePortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="getMembers">
+            <soap:operation soapAction="urn:getMembers" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <soap:operation soapAction="urn:deleteMemberSimple" style="document"/>
             <wsdl:input>
@@ -287,6 +380,15 @@
         </wsdl:operation>
         <wsdl:operation name="deleteMember">
             <soap:operation soapAction="urn:deleteMember" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembersSimple">
+            <soap:operation soapAction="urn:getMembersSimple" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -333,6 +435,15 @@
     </wsdl:binding>
     <wsdl:binding name="GrouperServiceSOAP12Binding" type="axis2:GrouperServicePortType">
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="getMembers">
+            <soap12:operation soapAction="urn:getMembers" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <soap12:operation soapAction="urn:deleteMemberSimple" style="document"/>
             <wsdl:input>
@@ -344,6 +455,15 @@
         </wsdl:operation>
         <wsdl:operation name="deleteMember">
             <soap12:operation soapAction="urn:deleteMember" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembersSimple">
+            <soap12:operation soapAction="urn:getMembersSimple" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -390,6 +510,15 @@
     </wsdl:binding>
     <wsdl:binding name="GrouperServiceHttpBinding" type="axis2:GrouperServicePortType">
         <http:binding verb="POST"/>
+        <wsdl:operation name="getMembers">
+            <http:operation location="GrouperService/getMembers"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="getMembers"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getMembers"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <http:operation location="GrouperService/deleteMemberSimple"/>
             <wsdl:input>
@@ -406,6 +535,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="deleteMember"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembersSimple">
+            <http:operation location="GrouperService/getMembersSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="getMembersSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getMembersSimple"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findGroupsSimple">
