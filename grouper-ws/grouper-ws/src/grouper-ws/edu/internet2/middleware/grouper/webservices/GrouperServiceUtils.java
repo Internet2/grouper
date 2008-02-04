@@ -96,6 +96,7 @@ public class GrouperServiceUtils {
 
 	/**
 	 * convert a date to a string using the standard web service pattern
+	 * yyyy/MM/dd HH:mm:ss.SSS
 	 * Note that HH is 0-23
 	 * @param date
 	 * @return the string, or null if the date is null

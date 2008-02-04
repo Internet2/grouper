@@ -1,0 +1,27 @@
+<ns:getMembershipsResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+  <ns:return type="edu.internet2.middleware.grouper.webservices.WsGetMembershipsResults">
+    <ns:attributeName0 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+    <ns:attributeName1 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+    <ns:attributeName2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+    <ns:resultCode>SUCCESS</ns:resultCode>
+    <ns:resultMessage></ns:resultMessage>
+    <ns:results type="edu.internet2.middleware.grouper.webservices.WsGetMembershipsResult">
+      <ns:attribute0 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      <ns:attribute1 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      <ns:attribute2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      <ns:createTime>2008/02/03 00:11:03.861</ns:createTime>
+      <ns:depth>0</ns:depth>
+      <ns:groupName>aStem:aGroup</ns:groupName>
+      <ns:listName>members</ns:listName>
+      <ns:listType>list</ns:listType>
+      <ns:membershipId>b1a6fe70-9f66-4b7d-8d46-855f9451d112</ns:membershipId>
+      <ns:membershipType>immediate</ns:membershipType>
+      <ns:stemName xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      <ns:subjectDescription>GrouperSystem</ns:subjectDescription>
+      <ns:subjectId>GrouperSystem</ns:subjectId>
+      <ns:subjectName>GrouperSystem</ns:subjectName>
+      <ns:subjectType>application</ns:subjectType>
+    </ns:results>
+    <ns:success>T</ns:success>
+  </ns:return>
+</ns:getMembershipsResponse>

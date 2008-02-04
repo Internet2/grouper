@@ -3,18 +3,17 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembers;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
-
 import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMemberships;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembershipsResult;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembershipsResults;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 
 
 /**
@@ -22,18 +21,18 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author mchyzer
  *
  */
-public class RunGrouperServiceGetMembers {
+public class RunGrouperServiceGetMemberships {
     /**
      * @param args
      */
     public static void main(String[] args) {
-        getMembers();
+        getMemberships();
     }
 
     /**
      *
      */
-    public static void getMembers() {
+    public static void getMemberships() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(
                     "http://localhost:8091/grouper-ws/services/GrouperService");
@@ -47,7 +46,7 @@ public class RunGrouperServiceGetMembers {
             options.setProperty(Constants.Configuration.ENABLE_REST,
                 Constants.VALUE_TRUE);
 
-            GetMembers getMembers = GetMembers.class.newInstance();
+            GetMemberships getMembers = GetMemberships.class.newInstance();
 
             // set the act as id
             WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
@@ -58,20 +57,20 @@ public class RunGrouperServiceGetMembers {
             wsGroupLookup.setGroupName("aStem:aGroup");
             getMembers.setWsGroupLookup(wsGroupLookup);
 
-            getMembers.setMemberFilter("All");
+            getMembers.setMembershipFilter("All");
             getMembers.setRetrieveExtendedSubjectData("true");
 
-            WsGetMembersResults wsGetMembersResults = stub.getMembers(getMembers)
+            WsGetMembershipsResults wsGetMembershipsResults = stub.getMemberships(getMembers)
                                                           .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsGetMembersResults));
+                    wsGetMembershipsResults));
 
-            WsGetMembersResult[] wsGetMembersResultArray = wsGetMembersResults.getResults();
+            WsGetMembershipsResult[] wsGetMembershipsResultArray = wsGetMembershipsResults.getResults();
 
-            for (WsGetMembersResult wsGetMembersResult : wsGetMembersResultArray) {
+            for (WsGetMembershipsResult wsGetMembershipsResult : wsGetMembershipsResultArray) {
                 System.out.println(ToStringBuilder.reflectionToString(
-                        wsGetMembersResult));
+                        wsGetMembershipsResult));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

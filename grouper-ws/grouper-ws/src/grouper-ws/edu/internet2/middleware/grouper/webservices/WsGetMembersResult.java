@@ -17,6 +17,9 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class WsGetMembersResult {
 	
+	/** prefix of attribute that refers to subject: subject. */
+	public static final String SUBJECT_ATTRIBUTE_PREFIX = "subject.";
+
 	/**
 	 * no-arg constructor
 	 */
@@ -39,32 +42,37 @@ public class WsGetMembersResult {
 			try {
 				subject = member.getSubject();
 			} catch (SubjectNotFoundException snfe) {
-				throw new RuntimeException(snfe);
+				//I guess just ignore if not found, fields will be null
 			}
-			this.setSubjectDescription(subject.getDescription());
-			this.setSubjectName(subject.getName());
-
-			{
-				//see if attribute0
-				String attributeName0 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_SUBJECT_ATTRIBUTE0);
-				if (!StringUtils.isBlank(attributeName0)) {
-					this.setAttribute0(subject.getAttributeValue(attributeName0));
+			if (subject != null) {
+				this.setSubjectDescription(subject.getDescription());
+				this.setSubjectName(subject.getName());
+	
+				{
+					//see if attribute0
+					String attributeName0 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_ATTRIBUTE0);
+					if (!StringUtils.isBlank(attributeName0) && attributeName0.startsWith(SUBJECT_ATTRIBUTE_PREFIX)) {
+						attributeName0 = attributeName0.substring(SUBJECT_ATTRIBUTE_PREFIX.length());
+						this.setAttribute0(subject.getAttributeValue(attributeName0));
+					}
 				}
-			}
-
-			{
-				//see if attribute1
-				String attributeName1 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_SUBJECT_ATTRIBUTE1);
-				if (!StringUtils.isBlank(attributeName1)) {
-					this.setAttribute1(subject.getAttributeValue(attributeName1));
+	
+				{
+					//see if attribute1
+					String attributeName1 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_ATTRIBUTE1);
+					if (!StringUtils.isBlank(attributeName1) && attributeName1.startsWith(SUBJECT_ATTRIBUTE_PREFIX)) {
+						attributeName1 = attributeName1.substring(SUBJECT_ATTRIBUTE_PREFIX.length());
+						this.setAttribute1(subject.getAttributeValue(attributeName1));
+					}
 				}
-			}
-
-			{
-				//see if attribute2
-				String attributeName2 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_SUBJECT_ATTRIBUTE2);
-				if (!StringUtils.isBlank(attributeName2)) {
-					this.setAttribute2(subject.getAttributeValue(attributeName2));
+	
+				{
+					//see if attribute2
+					String attributeName2 = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_GET_MEMBERS_ATTRIBUTE2);
+					if (!StringUtils.isBlank(attributeName2) && attributeName2.startsWith(SUBJECT_ATTRIBUTE_PREFIX)) {
+						attributeName2 = attributeName2.substring(SUBJECT_ATTRIBUTE_PREFIX.length());
+						this.setAttribute2(subject.getAttributeValue(attributeName2));
+					}
 				}
 			}
 		}

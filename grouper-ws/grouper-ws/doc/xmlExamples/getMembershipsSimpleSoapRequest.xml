@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns1:getMembershipsSimple xmlns:ns1="http://webservices.grouper.middleware.internet2.edu/xsd">
+      <ns1:groupName>aStem:aGroup</ns1:groupName>
+      <ns1:groupUuid></ns1:groupUuid>
+      <ns1:membershipFilter>All</ns1:membershipFilter>
+      <ns1:retrieveExtendedSubjectData>true</ns1:retrieveExtendedSubjectData>
+      <ns1:actAsSubjectId>GrouperSystem</ns1:actAsSubjectId>
+    </ns1:getMembershipsSimple>
+  </soapenv:Body>
+</soapenv:Envelope>

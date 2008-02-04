@@ -114,14 +114,23 @@ public class GrouperWsConfig {
 	 */
 	public static final String WS_ACT_AS_GROUP = "ws.act.as.group";
 	
-	/** to ship attributes back to the web service client, put the subject attribute 0 name here */
-	public static final String WS_GET_MEMBERS_SUBJECT_ATTRIBUTE0 = "ws.get.members.subject.attribute0";
+	/** to ship members attributes back to the web service client, put the subject attribute 0 name here, e.g. subject.netid */
+	public static final String WS_GET_MEMBERS_ATTRIBUTE0 = "ws.get.members.attribute0";
 
-	/** to ship attributes back to the web service client, put the subject attribute 0 name here */
-	public static final String WS_GET_MEMBERS_SUBJECT_ATTRIBUTE1 = "ws.get.members.subject.attribute1";
+	/** to ship members attributes back to the web service client, put the subject attribute 0 name here, e.g. subject.netid */
+	public static final String WS_GET_MEMBERS_ATTRIBUTE1 = "ws.get.members.attribute1";
 
-	/** to ship attributes back to the web service client, put the subject attribute 0 name here */
-	public static final String WS_GET_MEMBERS_SUBJECT_ATTRIBUTE2 = "ws.get.members.subject.attribute2";
+	/** to ship members attributes back to the web service client, put the subject attribute 0 name here, e.g. subject.netid */
+	public static final String WS_GET_MEMBERS_ATTRIBUTE2 = "ws.get.members.attribute2";
+
+	/** to ship memberships attributes back to the web service client, put the attribute 0 name here, e.g. subject.netid */
+	public static final String WS_GET_MEMBERSHIPS_ATTRIBUTE0 = "ws.get.memberships.attribute0";
+
+	/** to ship memberships attributes back to the web service client, put the attribute 0 name here, e.g. subject.netid */
+	public static final String WS_GET_MEMBERSHIPS_ATTRIBUTE1 = "ws.get.memberships.attribute1";
+
+	/** to ship memberships attributes back to the web service client, put the attribute 0 name here, e.g. subject.netid */
+	public static final String WS_GET_MEMBERSHIPS_ATTRIBUTE2 = "ws.get.memberships.attribute2";
 
 	
 }
