@@ -9,6 +9,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupAnyAttributeFilter;
 import edu.internet2.middleware.grouper.GroupAttributeFilter;
@@ -24,11 +26,14 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.webservices.WsAddMemberResults.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.webservices.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.webservices.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsDeleteMemberResults.WsDeleteMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsFindGroupsResults.WsFindGroupsResultCode;
 import edu.internet2.middleware.grouper.webservices.WsGetMembersResults.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.webservices.WsGetMembershipsResults.WsGetMembershipsResultCode;
+import edu.internet2.middleware.grouper.webservices.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.webservices.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.subject.Subject;
 
@@ -500,13 +505,13 @@ public class GrouperService {
 		} catch (RuntimeException re) {
 
 			wsGetMembersResults.assignResultCode(WsGetMembersResultCode.EXCEPTION);
-			String theError = "Problem adding member to group: wsGroupLookup: " + wsGroupLookup
+			String theError = "Problem getting members from group: wsGroupLookup: " + wsGroupLookup
 			 	+ ", memberFilter: " + memberFilter + ", retrieveExtendedSubjectData: " 
 			 	+ retrieveExtendedSubjectData +  ", actAsSubject: " + actAsSubject
 				+ ".  ";
 			wsGetMembersResults.appendResultMessage(theError + "\n" + ExceptionUtils.getFullStackTrace(re) + ".  ");
 			//this is sent back to the caller anyway, so just log, and not send back again
-			LOG.error(theError + ", wsAddMemberResults: " + GrouperServiceUtils.toStringForLog(wsGetMembersResults), re);
+			LOG.error(theError + ", wsGetMemberResults: " + GrouperServiceUtils.toStringForLog(wsGetMembersResults), re);
 		} finally {
 			if (session != null) {
 				try {
@@ -640,13 +645,13 @@ public class GrouperService {
 		} catch (RuntimeException re) {
 
 			wsGetMembershipsResults.assignResultCode(WsGetMembershipsResultCode.EXCEPTION);
-			String theError = "Problem adding member to group: wsGroupLookup: " + wsGroupLookup
+			String theError = "Problem getting memberships from group: wsGroupLookup: " + wsGroupLookup
 			 	+ ", memberFilter: " + membershipFilter + ", retrieveExtendedSubjectData: " 
 			 	+ retrieveExtendedSubjectData +  ", actAsSubject: " + actAsSubject
 				+ ".  ";
 			wsGetMembershipsResults.appendResultMessage(theError + "\n" + ExceptionUtils.getFullStackTrace(re) + ".  ");
 			//this is sent back to the caller anyway, so just log, and not send back again
-			LOG.error(theError + ", wsAddMemberResults: " + GrouperServiceUtils.toStringForLog(wsGetMembershipsResults), re);
+			LOG.error(theError + ", wsGetMembershipResults: " + GrouperServiceUtils.toStringForLog(wsGetMembershipsResults), re);
 		} finally {
 			if (session != null) {
 				try {
@@ -658,6 +663,194 @@ public class GrouperService {
 		}
 		
 		return wsGetMembershipsResults;
+	}
+
+	/**
+	 * see if a group has members based on filter (accepts batch of members)
+	 * @param wsGroupLookup for the group to see if the members are in there
+	 * @param subjectLookups subjects to be examined to see if in group
+	 * @param memberFilter can be All, Effective (non immediate), Immediate (direct), Composite (if 
+	 * composite group with group math (union, minus, etc)
+	 * @param actAsSubjectLookup to act as a different user than the logged in user
+	 * @param fieldName is if the Group.hasMember() method with field is to be called
+	 * (e.g. admins, optouts, optins, etc from Field table in DB)
+	 * @param paramNames optional: reserved for future use
+	 * @param paramValues optional: reserved for future use
+	 * @return the results
+	 */
+	@SuppressWarnings("unchecked")
+	public WsHasMemberResults hasMember(WsGroupLookup wsGroupLookup,
+			WsSubjectLookup[] subjectLookups, 
+			String memberFilter, WsSubjectLookup actAsSubjectLookup,
+			String fieldName,
+			String[] paramNames, String[] paramValues) {
+		
+		GrouperSession session = null;
+		WsHasMemberResults wsHasMemberResults = new WsHasMemberResults();
+		int subjectLength = subjectLookups == null ? 0 : subjectLookups.length;
+		if (subjectLength == 0) {
+			wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.INVALID_QUERY);
+			wsHasMemberResults.appendResultMessage("Subject length must be more than 1");
+			return wsHasMemberResults;
+		}
+		
+		//see if greater than the max (or default)
+		int maxHasMember = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_HAS_MEMBER_SUBJECTS_MAX, 1000000);
+		if (subjectLength > maxHasMember) {
+			wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.INVALID_QUERY);
+			wsHasMemberResults.appendResultMessage("Subject length must be less than max: " + maxHasMember + " (sent in " + subjectLength + ")");
+			return wsHasMemberResults;
+		}
+		
+		WsMemberFilter wsMemberFilter = null;
+		String parseWsFilterError = "";
+		try {
+			wsMemberFilter = WsMemberFilter.valueOfIgnoreCase(memberFilter);
+		} catch (Exception e) {
+			parseWsFilterError = ExceptionUtils.getFullStackTrace(e);
+		}
+		if (wsMemberFilter == null || !StringUtils.isBlank(parseWsFilterError)) {
+			wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.INVALID_QUERY);
+			wsHasMemberResults.appendResultMessage("membershipFilter is required and must be valid: '" 
+					+ memberFilter + "'\n" + parseWsFilterError);
+			return wsHasMemberResults;
+		}
+
+		Field field = null;
+		if (!StringUtils.isBlank(fieldName)) {
+			try {
+				field = FieldFinder.find(fieldName);
+				if (field == null) {
+					throw new RuntimeException("Field couldnt be found: null");
+				}
+			} catch (Exception e) {
+				wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.INVALID_QUERY);
+				wsHasMemberResults.appendResultMessage("problems retrieving field: '" + fieldName + "'\n"
+						+ ExceptionUtils.getFullStackTrace(e));
+				return wsHasMemberResults;
+			}
+			
+			
+		}
+		
+		//TODO make sure size of params and values the same
+		
+		//assume success
+		wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.SUCCESS);
+		Subject actAsSubject = null;
+		try {
+			actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
+			
+			if (actAsSubject == null) {
+				throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+			}
+			
+			//use this to be the user connected, or the user act-as
+			try {
+				session = GrouperSession.start(actAsSubject);
+			} catch (SessionException se) {
+				throw new RuntimeException("Problem with session for subject: " + actAsSubject, se);
+			}
+			wsGroupLookup.retrieveGroupIfNeeded(session);
+			wsHasMemberResults.setResults(new WsHasMemberResult[subjectLength]);
+			Group group = wsGroupLookup.retrieveGroup();
+			
+			if (group == null) {
+				wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.INVALID_QUERY);
+				wsHasMemberResults.appendResultMessage("Cant find group: " + wsGroupLookup + ".  ");
+				return wsHasMemberResults;
+			}
+			
+			int resultIndex = 0;
+			
+			for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
+				WsHasMemberResult wsHasMemberResult = new WsHasMemberResult();
+				wsHasMemberResults.getResults()[resultIndex] = wsHasMemberResult;
+				try {
+	
+					wsHasMemberResult.setSubjectId(wsSubjectLookup.getSubjectId());
+					wsHasMemberResult.setSubjectIdentifier(wsSubjectLookup.getSubjectIdentifier());
+	
+					Subject subject = wsSubjectLookup.retrieveSubject();
+					
+					//make sure the subject is there
+					if (subject == null) {
+						//see why not
+						SubjectFindResult subjectFindResult = wsSubjectLookup.retrieveSubjectFindResult();
+						String error = "Subject: " + wsSubjectLookup + " had problems: " + subjectFindResult;
+						wsHasMemberResult.setResultMessage(error);
+						if (subjectFindResult == SubjectFindResult.SUBJECT_NOT_FOUND) {
+							wsHasMemberResult.assignResultCode(WsHasMemberResultCode.MEMBER_NOT_FOUND);
+						} else {
+							//something bad happened
+							wsHasMemberResult.assignResultCode(WsHasMemberResultCode.EXCEPTION);
+						}
+						continue;
+					} 
+	
+					//these will probably match, but just in case
+					if (StringUtils.isBlank(wsHasMemberResult.getSubjectId())) {
+						wsHasMemberResult.setSubjectId(subject.getId());
+					}
+	
+
+					boolean hasMember = field == null ? wsMemberFilter.hasMember(group, subject)
+							: wsMemberFilter.hasMember(group, subject, field);
+					wsHasMemberResult.assignResultCode(hasMember ? WsHasMemberResultCode.IS_MEMBER
+							: WsHasMemberResultCode.IS_NOT_MEMBER);
+						
+				} catch (Exception e) {
+					wsHasMemberResult.setResultCode("EXCEPTION");
+					wsHasMemberResult.setResultMessage(ExceptionUtils.getFullStackTrace(e));
+					LOG.error(wsSubjectLookup + ", " + e, e);
+				}
+				resultIndex++;
+			}
+			
+		} catch (RuntimeException re) {
+			wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.EXCEPTION);
+			String theError = "Problem querying member from group: wsGroupLookup: " + wsGroupLookup
+				+ ", subjectLookups: " + GrouperServiceUtils.toStringForLog(subjectLookups)
+				+ ", actAsSubject: " + actAsSubject
+				 + ".  ";
+			wsHasMemberResults.appendResultMessage(theError);
+			//this is sent back to the caller anyway, so just log, and not send back again
+			LOG.error(theError + ", wsHasMemberResults: " + GrouperServiceUtils.toStringForLog(wsHasMemberResults), re);
+		} finally {
+			if (session != null) {
+				try {
+					session.stop();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+		
+		if (wsHasMemberResults.getResults() != null) {
+			//check all entries
+			int successes = 0;
+			int failures = 0;
+			for (WsHasMemberResult wsHasMemberResult : wsHasMemberResults.getResults()) {
+				boolean success = "T".equalsIgnoreCase(wsHasMemberResult.getSuccess());
+				if (success) {
+					successes++;
+				} else {
+					failures++;
+				}
+			}
+			if (failures > 0) {
+				wsHasMemberResults.appendResultMessage("There were " + successes + " successes and " + failures 
+						+ " failures of users queried hasMember from the group.   ");
+				wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.PROBLEM_WITH_QUERY);
+			} else {
+				wsHasMemberResults.assignResultCode(WsHasMemberResultsCode.SUCCESS);
+			}
+		}
+		if (!"T".equalsIgnoreCase(wsHasMemberResults.getSuccess())) {
+			
+			LOG.error(wsHasMemberResults.getResultMessage());
+		}
+		return wsHasMemberResults;
 	}
 
 	/**
@@ -681,7 +874,7 @@ public class GrouperService {
 		WsAddMemberResults wsAddMemberResults = new WsAddMemberResults();
 		int subjectLength = subjectLookups == null ? 0 : subjectLookups.length;
 		if (subjectLength == 0) {
-			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
+			wsAddMemberResults.assignResultCode(WsAddMemberResultsCode.INVALID_QUERY);
 			wsAddMemberResults.appendResultMessage("Subject length must be more than 1");
 			return wsAddMemberResults;
 		}
@@ -689,7 +882,7 @@ public class GrouperService {
 		//see if greater than the max (or default)
 		int maxAddMember = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
 		if (subjectLength > maxAddMember) {
-			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
+			wsAddMemberResults.assignResultCode(WsAddMemberResultsCode.INVALID_QUERY);
 			wsAddMemberResults.appendResultMessage("Subject length must be less than max: " + maxAddMember + " (sent in " + subjectLength + ")");
 			return wsAddMemberResults;
 		}
@@ -697,7 +890,7 @@ public class GrouperService {
 		//TODO make sure size of params and values the same
 		
 		//assume success
-		wsAddMemberResults.assignResultCode(WsAddMemberResultCode.SUCCESS);
+		wsAddMemberResults.assignResultCode(WsAddMemberResultsCode.SUCCESS);
 		Subject actAsSubject = null;
 		try {
 			actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
@@ -717,7 +910,7 @@ public class GrouperService {
 			Group group = wsGroupLookup.retrieveGroup();
 			
 			if (group == null) {
-				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.INVALID_QUERY);
+				wsAddMemberResults.assignResultCode(WsAddMemberResultsCode.INVALID_QUERY);
 				wsAddMemberResults.appendResultMessage("Cant find group: " + wsGroupLookup + ".  ");
 				return wsAddMemberResults;
 			}
@@ -799,13 +992,13 @@ public class GrouperService {
 							LOG.error(theError, e);
 	
 							wsAddMemberResults.appendResultMessage(theError + ExceptionUtils.getFullStackTrace(e));
-							wsAddMemberResults.assignResultCode(WsAddMemberResultCode.PROBLEM_DELETING_MEMBERS);
+							wsAddMemberResults.assignResultCode(WsAddMemberResultsCode.PROBLEM_DELETING_MEMBERS);
 						}
 					}
 				}
 			}
 		} catch (RuntimeException re) {
-			wsAddMemberResults.assignResultCode(WsAddMemberResultCode.EXCEPTION);
+			wsAddMemberResults.assignResultCode(WsAddMemberResultsCode.EXCEPTION);
 			String theError = "Problem adding member to group: wsGroupLookup: " + wsGroupLookup
 				+ ", subjectLookups: " + GrouperServiceUtils.toStringForLog(subjectLookups)
 				+ ", replaceAllExisting: " +  replaceAllExisting +  ", actAsSubject: " + actAsSubject
@@ -838,9 +1031,9 @@ public class GrouperService {
 			if (failures > 0) {
 				wsAddMemberResults.appendResultMessage("There were " + successes + " successes and " + failures 
 						+ " failures of users added to the group.   ");
-				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.PROBLEM_WITH_ASSIGNMENT);
+				wsAddMemberResults.assignResultCode(WsAddMemberResultsCode.PROBLEM_WITH_ASSIGNMENT);
 			} else {
-				wsAddMemberResults.assignResultCode(WsAddMemberResultCode.SUCCESS);
+				wsAddMemberResults.assignResultCode(WsAddMemberResultsCode.SUCCESS);
 			}
 		}
 		if (!"T".equalsIgnoreCase(wsAddMemberResults.getSuccess())) {
@@ -874,7 +1067,7 @@ public class GrouperService {
 		}
 		
 		//see if greater than the max (or default)
-		int maxDeleteMember = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
+		int maxDeleteMember = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_DELETE_MEMBER_SUBJECTS_MAX, 1000000);
 		if (subjectLength > maxDeleteMember) {
 			wsDeleteMemberResults.assignResultCode(WsDeleteMemberResultCode.INVALID_QUERY);
 			wsDeleteMemberResults.appendResultMessage("Subject length must be less than max: " + maxDeleteMember 
@@ -980,8 +1173,8 @@ public class GrouperService {
 			//check all entries
 			int successes = 0;
 			int failures = 0;
-			for (WsDeleteMemberResult wsAddMemberResult : wsDeleteMemberResults.getResults()) {
-				boolean success = "T".equalsIgnoreCase(wsAddMemberResult.getSuccess());
+			for (WsDeleteMemberResult wsDeleteMemberResult : wsDeleteMemberResults.getResults()) {
+				boolean success = "T".equalsIgnoreCase(wsDeleteMemberResult.getSuccess());
 				if (success) {
 					successes++;
 				} else {
@@ -1005,10 +1198,10 @@ public class GrouperService {
 		
 	/**
 	 * add member to a group (if already a direct member, ignore)
-	 * @param groupName 
-	 * @param groupUuid 
-	 * @param subjectId 
-	 * @param subjectIdentifier 
+	 * @param groupName to lookup the group (mutually exclusive with groupUuid)
+	 * @param groupUuid to lookup the group (mutually exclusive with groupName)
+	 * @param subjectId to add (mutually exclusive with subjectIdentifier)
+	 * @param subjectIdentifier to add (mutually exclusive with subjectId)
 	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
 	 * Only pass one of actAsSubjectId or actAsSubjectIdentifer
 	 * @param actAsSubjectIdentifier optional: is the subject identifier of subject
@@ -1053,7 +1246,13 @@ public class GrouperService {
 		//didnt even get that far to where there is a subject result
 		WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
 		wsAddMemberResult.setResultMessage(wsAddMemberResults.getResultMessage());
-		wsAddMemberResult.setResultCode(wsAddMemberResults.getResultCode());
+
+		//convert the outer code to the inner code
+		WsAddMemberResultsCode wsAddMemberResultsCode = wsAddMemberResults.retrieveResultCode();
+		wsAddMemberResult.assignResultCode(wsAddMemberResultsCode == null ?
+				WsAddMemberResultCode.EXCEPTION : wsAddMemberResultsCode.convertToResultCode());
+
+		
 		wsAddMemberResult.setSubjectId(subjectId);
 		wsAddMemberResult.setSubjectIdentifier(subjectIdentifier);
 		
@@ -1061,6 +1260,78 @@ public class GrouperService {
 		wsAddMemberResult.setSuccess("F");
 		
 		return wsAddMemberResult;
+			
+	}
+
+	/**
+	 * see if a group has a member (if already a direct member, ignore)
+	 * @param groupName to lookup the group (mutually exclusive with groupUuid)
+	 * @param groupUuid to lookup the group (mutually exclusive with groupName)
+	 * @param subjectId to query (mutually exclusive with subjectIdentifier)
+	 * @param subjectIdentifier to query (mutually exclusive with subjectId)
+	 * @param memberFilter can be All, Effective (non immediate), Immediate (direct), Composite (if 
+	 * composite group with group math (union, minus, etc)
+	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
+	 * Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier optional: is the subject identifier of subject
+	 * to act as (if proxying).  Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param fieldName is if the Group.hasMember() method with field is to be called
+	 * (e.g. admins, optouts, optins, etc from Field table in DB)
+	 * @param paramName0 reserved for future use
+	 * @param paramValue0 reserved for future use
+	 * @param paramName1 reserved for future use
+	 * @param paramValue1 reserved for future use
+	 * @return the result of one member query
+	 */
+	public WsHasMemberResult hasMemberSimple(String groupName,
+			String groupUuid,
+			String subjectId, 
+			String subjectIdentifier,
+			String memberFilter, 
+			String actAsSubjectId,
+			String actAsSubjectIdentifier,
+			String fieldName,
+			String paramName0,
+			String paramValue0,
+			String paramName1,
+			String paramValue1) {
+		
+		//setup the group lookup
+		WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+		
+		//setup the subject lookup
+		WsSubjectLookup[] subjectLookups = new WsSubjectLookup[1];
+		subjectLookups[0] = new WsSubjectLookup(subjectId, subjectIdentifier);
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId, actAsSubjectIdentifier);
+		
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
+		
+		WsHasMemberResults wsHasMemberResults = hasMember(wsGroupLookup, 
+				subjectLookups, memberFilter, actAsSubjectLookup, fieldName, 
+				paramNames, paramValues);
+		
+		WsHasMemberResult[] results = wsHasMemberResults.getResults();
+		if (results != null && results.length > 0) {
+			return results[0];
+		}
+		//didnt even get that far to where there is a subject result
+		WsHasMemberResult wsHasMemberResult = new WsHasMemberResult();
+		wsHasMemberResult.setResultMessage(wsHasMemberResults.getResultMessage());
+		
+		//convert the outer code to the inner code
+		WsHasMemberResultsCode wsHasMemberResultsCode = wsHasMemberResults.retrieveResultCode();
+		wsHasMemberResult.assignResultCode(wsHasMemberResultsCode == null ?
+				WsHasMemberResultCode.EXCEPTION : wsHasMemberResultsCode.convertToResultCode());
+
+		wsHasMemberResult.setSubjectId(subjectId);
+		wsHasMemberResult.setSubjectIdentifier(subjectIdentifier);
+		
+		//definitely not a success
+		
+		return wsHasMemberResult;
 			
 	}
 
@@ -1078,7 +1349,7 @@ public class GrouperService {
 	 * @param paramValue0 reserved for future use
 	 * @param paramName1 reserved for future use
 	 * @param paramValue1 reserved for future use
-	 * @return the result of one member add
+	 * @return the result of one member delete
 	 */
 	public WsDeleteMemberResult deleteMemberSimple(String groupName,
 			String groupUuid,

@@ -6,29 +6,67 @@ package edu.internet2.middleware.grouper.webservices;
 
 
 /**
- * Result of one subject being added to a group.  The number of
+ * Result of seeing if one subject is a member of a group.  The number of
  * subjects will equal the number of subjects sent in to the method
  * 
  * @author mchyzer
  */
-public class WsAddMemberResult {
+public class WsHasMemberResult {
 	
-	/** subject that was added */
+	/**
+	 * result code of a request
+	 */
+	public enum WsHasMemberResultCode {
+		
+		/** the subject is a member */
+		IS_MEMBER, 
+		
+		/** the subject was found and is a member */
+		IS_NOT_MEMBER, 
+		
+		/** problem with query */
+		EXCEPTION, 
+		
+		/** invalid query (e.g. if everything blank) */
+		INVALID_QUERY,
+				
+		/** cant find the member.  note this is not an error, its a false */
+		MEMBER_NOT_FOUND;
+				
+		/**
+		 * if this is a successful result
+		 * @return true if success
+		 */
+		public boolean isSuccess() {
+			return this == IS_MEMBER || this == IS_NOT_MEMBER || this == MEMBER_NOT_FOUND;
+		}
+	}
+	
+	/**
+	 * assign the code from the enum
+	 * @param hasMemberResultCode
+	 */
+	public void assignResultCode(WsHasMemberResultCode hasMemberResultCode) {
+		this.setResultCode(hasMemberResultCode == null ? null : hasMemberResultCode.name());
+		this.setSuccess(hasMemberResultCode.isSuccess() ? "T" : "F");
+	}
+	
+	/** subject that was queried */
 	private String subjectId;
 	
 	/** subject identifier (if this is what was passed in) that was added */
 	private String subjectIdentifier;
 
-	/** T or F as to whether it was a successful assignment */
+	/** T or F as to whether it was a successful query */
 	private String success;
 
 	/** 
 	 * <pre>
 	 * code of the result for this subject
-	 * SUCCESS: means everything ok
+	 * IS_MEMBER: means subject is a member
 	 * SUBJECT_NOT_FOUND: cant find the subject
-	 * SUBJECT_DUPLICATE: found multiple subjects
-	 *  
+	 * IS_NOT_MEMBER: subject was found and not a member
+	 * One of WsHasMemberResult
 	 * </pre>
 	 */
 	private String resultCode;
@@ -39,7 +77,7 @@ public class WsAddMemberResult {
 	private String resultMessage;
 	
 	/**
-	 * subject that was added
+	 * subject that was queried
 	 * @return the subjectId
 	 */
 	public String getSubjectId() {
@@ -47,7 +85,7 @@ public class WsAddMemberResult {
 	}
 
 	/**
-	 * subject that was added
+	 * subject that was queried
 	 * @param subjectId1 the subjectId to set
 	 */
 	public void setSubjectId(String subjectId1) {
@@ -55,7 +93,7 @@ public class WsAddMemberResult {
 	}
 
 	/**
-	 * subject identifier (if this is what was passed in) that was added
+	 * subject identifier (if this is what was passed in) that was queried
 	 * @return the subjectIdentifier
 	 */
 	public String getSubjectIdentifier() {
@@ -63,7 +101,7 @@ public class WsAddMemberResult {
 	}
 
 	/**
-	 * subject identifier (if this is what was passed in) that was added
+	 * subject identifier (if this is what was passed in) that was queried
 	 * @param subjectIdentifier1 the subjectIdentifier to set
 	 */
 	public void setSubjectIdentifier(String subjectIdentifier1) {
@@ -71,7 +109,7 @@ public class WsAddMemberResult {
 	}
 
 	/**
-	 * T or F as to whether it was a successful assignment
+	 * T or F as to whether it was a successful query
 	 * @return the success
 	 */
 	public String getSuccess() {
@@ -79,7 +117,7 @@ public class WsAddMemberResult {
 	}
 
 	/**
-	 * T or F as to whether it was a successful assignment
+	 * T or F as to whether it was a successful query
 	 * @param success1 the success to set
 	 */
 	public void setSuccess(String success1) {
@@ -89,10 +127,10 @@ public class WsAddMemberResult {
 	/**
 	 * <pre>
 	 * code of the result for this subject
-	 * SUCCESS: means everything ok
+	 * IS_MEMBER: means subject is a member
 	 * SUBJECT_NOT_FOUND: cant find the subject
-	 * SUBJECT_DUPLICATE: found multiple subjects
-	 *  
+	 * IS_NOT_MEMBER: subject was found and not a member
+	 * One of WsHasMemberResult
 	 * </pre>
 	 * @return the resultCode
 	 */
@@ -101,53 +139,12 @@ public class WsAddMemberResult {
 	}
 
 	/**
-	 * result code of a request
-	 */
-	public enum WsAddMemberResultCode {
-		
-		/** invalid request */
-		INVALID_QUERY,
-		
-		/** successful addition */
-		SUCCESS, 
-		
-		/** the subject was found */
-		SUBJECT_NOT_FOUND, 
-		
-		/** problem with addigion */
-		EXCEPTION, 
-		
-		/** user not allowed */
-		INUSFFICIENT_PRIVILEGES, 
-		
-		/** subject duplicate found */
-		SUBJECT_DUPLICATE;				
-				
-		/**
-		 * if this is a successful result
-		 * @return true if success
-		 */
-		public boolean isSuccess() {
-			return this == SUCCESS;
-		}
-	}
-
-	/**
-	 * assign the code from the enum
-	 * @param addMemberResultCode
-	 */
-	public void assignResultCode(WsAddMemberResultCode addMemberResultCode) {
-		this.setResultCode(addMemberResultCode == null ? null : addMemberResultCode.name());
-		this.setSuccess(addMemberResultCode.isSuccess() ? "T" : "F");
-	}
-
-	/**
 	 * <pre>
 	 * code of the result for this subject
-	 * SUCCESS: means everything ok
+	 * IS_MEMBER: means subject is a member
 	 * SUBJECT_NOT_FOUND: cant find the subject
-	 * SUBJECT_DUPLICATE: found multiple subjects
-	 *  
+	 * IS_NOT_MEMBER: subject was found and not a member
+	 * One of WsHasMemberResult
 	 * </pre>
 	 * @param resultCode1 the resultCode to set
 	 */

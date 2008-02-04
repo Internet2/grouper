@@ -347,6 +347,68 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="hasMemberSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="hasMemberSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsHasMemberResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsHasMemberResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subjectId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subjectIdentifier" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="hasMember">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="wsGroupLookup" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="hasMemberResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsHasMemberResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsHasMemberResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsHasMemberResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
         </xs:schema>
     </wsdl:types>
     <wsdl:message name="getMembershipsSimpleRequest">
@@ -354,6 +416,12 @@
     </wsdl:message>
     <wsdl:message name="getMembershipsSimpleResponse">
         <wsdl:part name="parameters" element="ns0:getMembershipsSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="hasMemberRequest">
+        <wsdl:part name="parameters" element="ns0:hasMember"/>
+    </wsdl:message>
+    <wsdl:message name="hasMemberResponse">
+        <wsdl:part name="parameters" element="ns0:hasMemberResponse"/>
     </wsdl:message>
     <wsdl:message name="getMembersRequest">
         <wsdl:part name="parameters" element="ns0:getMembers"/>
@@ -397,6 +465,12 @@
     <wsdl:message name="addMemberSimpleResponse">
         <wsdl:part name="parameters" element="ns0:addMemberSimpleResponse"/>
     </wsdl:message>
+    <wsdl:message name="hasMemberSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:hasMemberSimple"/>
+    </wsdl:message>
+    <wsdl:message name="hasMemberSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:hasMemberSimpleResponse"/>
+    </wsdl:message>
     <wsdl:message name="getMembershipsRequest">
         <wsdl:part name="parameters" element="ns0:getMemberships"/>
     </wsdl:message>
@@ -413,6 +487,10 @@
         <wsdl:operation name="getMembershipsSimple">
             <wsdl:input message="axis2:getMembershipsSimpleRequest" wsaw:Action="urn:getMembershipsSimple"/>
             <wsdl:output message="axis2:getMembershipsSimpleResponse" wsaw:Action="urn:getMembershipsSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="hasMember">
+            <wsdl:input message="axis2:hasMemberRequest" wsaw:Action="urn:hasMember"/>
+            <wsdl:output message="axis2:hasMemberResponse" wsaw:Action="urn:hasMemberResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getMembers">
             <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
@@ -442,6 +520,10 @@
             <wsdl:input message="axis2:addMemberSimpleRequest" wsaw:Action="urn:addMemberSimple"/>
             <wsdl:output message="axis2:addMemberSimpleResponse" wsaw:Action="urn:addMemberSimpleResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="hasMemberSimple">
+            <wsdl:input message="axis2:hasMemberSimpleRequest" wsaw:Action="urn:hasMemberSimple"/>
+            <wsdl:output message="axis2:hasMemberSimpleResponse" wsaw:Action="urn:hasMemberSimpleResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="getMemberships">
             <wsdl:input message="axis2:getMembershipsRequest" wsaw:Action="urn:getMemberships"/>
             <wsdl:output message="axis2:getMembershipsResponse" wsaw:Action="urn:getMembershipsResponse"/>
@@ -455,6 +537,15 @@
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <wsdl:operation name="getMembershipsSimple">
             <soap:operation soapAction="urn:getMembershipsSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="hasMember">
+            <soap:operation soapAction="urn:hasMember" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -525,6 +616,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="hasMemberSimple">
+            <soap:operation soapAction="urn:hasMemberSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getMemberships">
             <soap:operation soapAction="urn:getMemberships" style="document"/>
             <wsdl:input>
@@ -548,6 +648,15 @@
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <wsdl:operation name="getMembershipsSimple">
             <soap12:operation soapAction="urn:getMembershipsSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="hasMember">
+            <soap12:operation soapAction="urn:hasMember" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -618,6 +727,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="hasMemberSimple">
+            <soap12:operation soapAction="urn:hasMemberSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getMemberships">
             <soap12:operation soapAction="urn:getMemberships" style="document"/>
             <wsdl:input>
@@ -646,6 +764,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="getMembershipsSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="hasMember">
+            <http:operation location="GrouperService/hasMember"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="hasMember"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="hasMember"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMembers">
@@ -709,6 +836,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="addMemberSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="hasMemberSimple">
+            <http:operation location="GrouperService/hasMemberSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="hasMemberSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="hasMemberSimple"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMemberships">

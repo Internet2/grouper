@@ -3,14 +3,15 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembershipsSimple;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembershipsResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembershipsResults;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -49,7 +50,7 @@ public class RunGrouperServiceGetMembershipsSimple {
             getMembershipsSimple.setRetrieveExtendedSubjectData("true");
 
             WsGetMembershipsResults wsGetMembershipsResults = stub.getMembershipsSimple(getMembershipsSimple)
-                                                          .get_return();
+                                                                  .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsGetMembershipsResults));

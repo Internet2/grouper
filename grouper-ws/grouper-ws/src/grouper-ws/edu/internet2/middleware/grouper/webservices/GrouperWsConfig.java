@@ -101,10 +101,27 @@ public class GrouperWsConfig {
 	 * name of param for add member web service max, default is 1000000
 	 * 
 	 * # Max number of subjects to be able to pass to addMember service, default is 1000000
-     * webservice.addMember.maxSubjects = 20000
+     * ws.add.member.subjects.max = 20000
 	 *  
 	 */
 	public static final String WS_ADD_MEMBER_SUBJECTS_MAX = "ws.add.member.subjects.max";
+	
+	/** 
+	 * name of param for delete member web service max, default is 1000000
+	 * 
+	 * # Max number of subjects to be able to pass to deleteMember service, default is 1000000
+     * ws.add.member.subjects.max = 20000
+	 *  
+	 */
+	public static final String WS_DELETE_MEMBER_SUBJECTS_MAX = "ws.delete.member.subjects.max";
+	
+	/** 
+	 * name of param for has member web service max, default is 1000000
+	 * 
+	 * # Max number of subjects to be able to pass to addMember service, default is 1000000
+     * ws.has.member.subjects.max = 20000
+	 */
+	public static final String WS_HAS_MEMBER_SUBJECTS_MAX = "ws.has.member.subjects.max";
 	
 	/**
 	 * name of param

@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.webservices;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservices.WsAddMemberResult.WsAddMemberResultCode;
+import edu.internet2.middleware.grouper.webservices.WsHasMemberResult.WsHasMemberResultCode;
 
 /**
  * <pre>
@@ -16,45 +16,42 @@ import edu.internet2.middleware.grouper.webservices.WsAddMemberResult.WsAddMembe
  * </pre>
  * @author mchyzer
  */
-public class WsAddMemberResults {
+public class WsHasMemberResults {
 
 	/**
 	 * result code of a request
 	 */
-	public enum WsAddMemberResultsCode {
+	public enum WsHasMemberResultsCode {
 		
-		/** found the subject */
-		SUCCESS  {
+		/** discovered if each was a member of not */
+		SUCCESS {
 			
 			/** convert this code to a result code */
 			@Override
-			public WsAddMemberResultCode convertToResultCode() {
-				//note, it isnt a success if converting to resultcode
-				return WsAddMemberResultCode.EXCEPTION;
+			public WsHasMemberResultCode convertToResultCode() {
+				//not sure what to do here, its not a success
+				return WsHasMemberResultCode.EXCEPTION;
 			}
-			
 		}, 
 		
-		/** found the subject */
-		EXCEPTION  {
+		/** had an exception while figuring out if the subjects were members */
+		EXCEPTION {
 			
 			/** convert this code to a result code */
 			@Override
-			public WsAddMemberResultCode convertToResultCode() {
-				return WsAddMemberResultCode.EXCEPTION;
+			public WsHasMemberResultCode convertToResultCode() {
+				return WsHasMemberResultCode.EXCEPTION;
 			}
-			
 		}, 
 		
-		/** problem deleting existing members */
-		PROBLEM_DELETING_MEMBERS {
+		/** had a problem with one or more of the queries */
+		PROBLEM_WITH_QUERY {
 			
 			/** convert this code to a result code */
 			@Override
-			public WsAddMemberResultCode convertToResultCode() {
-				return WsAddMemberResultCode.EXCEPTION;
+			public WsHasMemberResultCode convertToResultCode() {
+				return WsHasMemberResultCode.INVALID_QUERY;
 			}
-			
 		}, 
 		
 		/** invalid query (e.g. if everything blank) */
@@ -62,19 +59,8 @@ public class WsAddMemberResults {
 			
 			/** convert this code to a result code */
 			@Override
-			public WsAddMemberResultCode convertToResultCode() {
-				return WsAddMemberResultCode.INVALID_QUERY;
-			}
-			
-		},
-				
-		/** something in one assignment wasnt successful */
-		PROBLEM_WITH_ASSIGNMENT {
-			
-			/** convert this code to a result code */
-			@Override
-			public WsAddMemberResultCode convertToResultCode() {
-				return WsAddMemberResultCode.EXCEPTION;
+			public WsHasMemberResultCode convertToResultCode() {
+				return WsHasMemberResultCode.INVALID_QUERY;
 			}
 			
 		};
@@ -90,30 +76,29 @@ public class WsAddMemberResults {
 		/** convert this code to a result code 
 		 * @return the result code
 		 */
-		public abstract WsAddMemberResultCode convertToResultCode();
-
+		public abstract WsHasMemberResultCode convertToResultCode();
 	}
 	
 	/**
 	 * assign the code from the enum
-	 * @param addMemberResultCode
+	 * @param hasMemberResultsCode
 	 */
-	public void assignResultCode(WsAddMemberResultsCode addMemberResultCode) {
-		this.setResultCode(addMemberResultCode == null ? null : addMemberResultCode.name());
-		this.setSuccess(addMemberResultCode.isSuccess() ? "T" : "F");
+	public void assignResultCode(WsHasMemberResultsCode hasMemberResultsCode) {
+		this.setResultCode(hasMemberResultsCode == null ? null : hasMemberResultsCode.name());
+		this.setSuccess(hasMemberResultsCode.isSuccess() ? "T" : "F");
 	}
 	
 	/**
 	 * convert the result code back to enum
 	 * @return the enum code
 	 */
-	public WsAddMemberResultsCode retrieveResultCode() {
+	public WsHasMemberResultsCode retrieveResultCode() {
 		if (StringUtils.isBlank(this.resultCode)) {
 			return null;
 		}
-		return WsAddMemberResultsCode.valueOf(this.resultCode);
+		return WsHasMemberResultsCode.valueOf(this.resultCode);
 	}
-
+	
 	/**
 	 * error message if there is an error
 	 */
@@ -122,17 +107,17 @@ public class WsAddMemberResults {
 	/**
 	 * results for each assignment sent in
 	 */
-	private WsAddMemberResult[] results;
+	private WsHasMemberResult[] results;
 
-	/** T or F as to whether it was a successful assignment */
+	/** T or F as to whether it was a successful query */
 	private String success;
 
 	/** 
 	 * <pre>
 	 * code of the result for this subject
 	 * SUCCESS: means everything ok
-	 * SUBJECT_NOT_FOUND: cant find the subject
-	 * SUBJECT_DUPLICATE: found multiple subjects
+	 * INVALID_QUERY
+	 * one of WsHasMemberResultsCode
 	 *  
 	 * </pre>
 	 */
@@ -142,7 +127,7 @@ public class WsAddMemberResults {
 	 * results for each assignment sent in
 	 * @return the results
 	 */
-	public WsAddMemberResult[] getResults() {
+	public WsHasMemberResult[] getResults() {
 		return this.results;
 	}
 
@@ -150,7 +135,7 @@ public class WsAddMemberResults {
 	 * results for each assignment sent in
 	 * @param results1 the results to set
 	 */
-	public void setResults(WsAddMemberResult[] results1) {
+	public void setResults(WsHasMemberResult[] results1) {
 		this.results = results1;
 	}
 
@@ -198,8 +183,8 @@ public class WsAddMemberResults {
 	 * <pre>
 	 * code of the result for this subject
 	 * SUCCESS: means everything ok
-	 * SUBJECT_NOT_FOUND: cant find the subject
-	 * SUBJECT_DUPLICATE: found multiple subjects
+	 * INVALID_QUERY
+	 * one of WsHasMemberResultsCode
 	 *  
 	 * </pre>
 	 * @return the resultCode
@@ -212,8 +197,8 @@ public class WsAddMemberResults {
 	 * <pre>
 	 * code of the result for this subject
 	 * SUCCESS: means everything ok
-	 * SUBJECT_NOT_FOUND: cant find the subject
-	 * SUBJECT_DUPLICATE: found multiple subjects
+	 * INVALID_QUERY
+	 * one of WsHasMemberResultsCode
 	 *  
 	 * </pre>
 	 * @param resultCode1 the resultCode to set

@@ -7,9 +7,12 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * member filter for retrieving members.
@@ -41,6 +44,27 @@ public enum WsMemberFilter {
 		public Set<Membership> getMemberships(Group group) {
     		return GrouperServiceUtils.nonNull(group.getMemberships());
     	}
+    	/**
+    	 * see if a group has a subject as member
+         * @param group
+         * @return true|false
+    	 */
+    	@Override
+    	@SuppressWarnings("unchecked")
+		public boolean hasMember(Group group, Subject subject) {
+    		return group.hasMember(subject);
+    	}
+    	/**
+    	 * see if a group has a subject as member
+         * @param group
+         * @return true|false
+         * @throws SchemaException
+    	 */
+    	@Override
+    	@SuppressWarnings("unchecked")
+		public boolean hasMember(Group group, Subject subject, Field field) throws SchemaException {
+    		return group.hasMember(subject, field);
+    	}
     }, 
     
     /** retrieve non direct (non immediate) members */
@@ -66,6 +90,27 @@ public enum WsMemberFilter {
 		public Set<Membership> getMemberships(Group group) {
     		return GrouperServiceUtils.nonNull(group.getEffectiveMemberships());
     	}
+    	/**
+    	 * see if a group has a subject as member
+         * @param group
+         * @return true|false
+    	 */
+    	@Override
+    	@SuppressWarnings("unchecked")
+		public boolean hasMember(Group group, Subject subject) {
+    		return group.hasEffectiveMember(subject);
+    	}
+    	/**
+    	 * see if a group has a subject as member
+         * @param group
+         * @return true|false
+         * @throws SchemaException
+    	 */
+    	@Override
+    	@SuppressWarnings("unchecked")
+		public boolean hasMember(Group group, Subject subject, Field field) throws SchemaException {
+    		return group.hasEffectiveMember(subject, field);
+    	}
     }, 
     
     /** return only direct members, not indirect */
@@ -90,6 +135,27 @@ public enum WsMemberFilter {
     	@SuppressWarnings("unchecked")
 		public Set<Membership> getMemberships(Group group) {
     		return GrouperServiceUtils.nonNull(group.getImmediateMemberships());
+    	}
+    	/**
+    	 * see if a group has a subject as member
+         * @param group
+         * @return true|false
+    	 */
+    	@Override
+    	@SuppressWarnings("unchecked")
+		public boolean hasMember(Group group, Subject subject) {
+    		return group.hasImmediateMember(subject);
+    	}
+    	/**
+    	 * see if a group has a subject as member
+         * @param group
+         * @return true|false
+         * @throws SchemaException
+    	 */
+    	@Override
+    	@SuppressWarnings("unchecked")
+		public boolean hasMember(Group group, Subject subject, Field field)  throws SchemaException  {
+    		return group.hasImmediateMember(subject, field);
     	}
     }, 
     
@@ -119,6 +185,29 @@ public enum WsMemberFilter {
 		public Set<Membership> getMemberships(Group group) {
     		return GrouperServiceUtils.nonNull(group.getCompositeMemberships());
     	}
+
+    	/**
+    	 * see if a group has a subject as member
+         * @param group
+         * @return true|false
+    	 */
+    	@Override
+    	@SuppressWarnings("unchecked")
+		public boolean hasMember(Group group, Subject subject) {
+    		throw new RuntimeException("hasMember with composite is not supported: groupName: " + group.getName() 
+    				+ ", subject: " + subject.getName());
+    	}
+    	/**
+    	 * see if a group has a subject as member
+         * @param group
+         * @return true|false
+    	 */
+    	@Override
+    	@SuppressWarnings("unchecked")
+		public boolean hasMember(Group group, Subject subject, Field field) {
+    		throw new RuntimeException("hasMember with composite is not supported: groupName: " + group.getName() 
+    				+ ", subject: " + subject.getName() + ", field: " + field.getName());
+    	}
     };
 
     /**
@@ -135,6 +224,24 @@ public enum WsMemberFilter {
      */
     public abstract Set<Membership> getMemberships(Group group);
 
+    /**
+     * see if a subject is in a group
+     * @param group
+     * @param subject 
+     * @param field 
+     * @return the set of members (non null)
+     * @throws SchemaException 
+     */
+    public abstract boolean hasMember(Group group, Subject subject, Field field) throws SchemaException;
+
+    /**
+     * see if a subject is in a group
+     * @param group
+     * @param subject 
+     * @return the set of members (non null)
+     */
+    public abstract boolean hasMember(Group group, Subject subject);
+    
     /**
      * do a case-insensitive matching
      * @param string

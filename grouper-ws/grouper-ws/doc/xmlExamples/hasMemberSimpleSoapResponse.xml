@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns:hasMemberSimpleResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+      <ns:return type="edu.internet2.middleware.grouper.webservices.WsHasMemberResult">
+        <ns:resultCode>IS_MEMBER</ns:resultCode>
+        <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:subjectId>GrouperSystem</ns:subjectId>
+        <ns:subjectIdentifier></ns:subjectIdentifier>
+        <ns:success>T</ns:success>
+      </ns:return>
+    </ns:hasMemberSimpleResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

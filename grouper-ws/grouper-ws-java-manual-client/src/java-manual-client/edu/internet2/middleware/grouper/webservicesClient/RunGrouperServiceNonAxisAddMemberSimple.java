@@ -1,25 +1,21 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.List;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.io.IOUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 
-
+/**
+ * @author mchyzer
+ */
 public class RunGrouperServiceNonAxisAddMemberSimple {
 	
 	/**

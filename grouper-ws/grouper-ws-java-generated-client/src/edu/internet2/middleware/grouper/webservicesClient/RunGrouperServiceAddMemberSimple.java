@@ -3,35 +3,25 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
-
-import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import java.lang.reflect.Array;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResult;
 
 
 /**
- * Use ant script to generate client, but if manual, do this:
- *
- * Generate the code:
- *
- * C:\mchyzer\isc\dev\grouper\grouper-ws-java-generated-client>wsdl2java -p
- * edu.internet2.middleware.grouper.webservicesClient -t -uri GrouperService.wsdl
  *
  * @author mchyzer
  *
  */
 public class RunGrouperServiceAddMemberSimple {
+	
+	/**
+	 * 
+	 */
     public static void addMemberSimple() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(
@@ -70,8 +60,7 @@ public class RunGrouperServiceAddMemberSimple {
     /**
      * @param args
      */
-    public static void main(String[] args) throws Exception {
-        //addMember();
+    public static void main(String[] args) {
         addMemberSimple();
     }
 }
