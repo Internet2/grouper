@@ -156,8 +156,10 @@ function grouperHideShow(event, elementIdToHideShow) {
  */
 function hideShow(isHidden, idPrefix, alertIfNone) {
   var newStyle = "none";
+  var newVisibility = "hidden";
   if (isHidden) {
     newStyle = "";
+    newVisibility = "";
   }
   var suffix = 0;
   var currentElement;
@@ -165,6 +167,7 @@ function hideShow(isHidden, idPrefix, alertIfNone) {
   while (currentElement = document.getElementById(idPrefix + "" + (suffix++))) {
     didAny = true;
     currentElement.style.display = newStyle;
+    currentElement.style.visibility = newVisibility;
   }
   if (!didAny && alertIfNone) {
     window.alert("Nothing to hide or show for id: " + idPrefix);

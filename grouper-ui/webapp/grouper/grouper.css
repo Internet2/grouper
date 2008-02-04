@@ -276,4 +276,5 @@ div.memberLink {
 javascript, then it will take effect, otherwise grouperInfodot.css will make them shown again */
 .infodotImage {
   display: none;
+  visibility:hidden;
 }

@@ -30,7 +30,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
  * omitStyle="false" /&gt;
  * generates the html:
  * 
- * id="firstHideShow0" style="display:none;"
+ * id="firstHideShow0" style="display:none;visibility:hidden;"
  *
  * Use this tag like this:
  * 
@@ -127,7 +127,7 @@ public class GrouperHideShowTarget extends BodyTagSupport {
 		
 		//put in style if we need it
 		if (!this.omitStyle && !this.showInitially) {
-			result.append("style=\"display:none;\" ");
+			result.append("style=\"display:none;visibility:hidden;\" ");
 		}
 				
 		//just print out the image tag
