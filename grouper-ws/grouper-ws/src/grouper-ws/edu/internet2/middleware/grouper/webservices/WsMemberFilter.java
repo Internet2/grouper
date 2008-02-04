@@ -44,7 +44,7 @@ public enum WsMemberFilter {
     }, 
     
     /** retrieve non direct (non immediate) members */
-    EffectiveMembers {
+    Effective {
     	
     	/**
     	 * get the composite members from the group
@@ -69,7 +69,7 @@ public enum WsMemberFilter {
     }, 
     
     /** return only direct members, not indirect */
-    ImmediateMembers {
+    Immediate {
     	
     	/**
     	 * get the composite members from the group
@@ -96,7 +96,7 @@ public enum WsMemberFilter {
     /** if this is a composite group, then return the two groups
      * which make up the composition (and the group math operator (union, minus, etc)
      */
-    CompositeMembers {
+    Composite {
     	
     	/**
     	 * get the composite members from the group

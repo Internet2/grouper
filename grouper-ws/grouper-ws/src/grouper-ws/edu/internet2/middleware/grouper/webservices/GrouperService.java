@@ -298,7 +298,7 @@ public class GrouperService {
 	 * get memberships from a group based on a filter (all, immediate only, effective only, composite)
 	 * @param groupName to lookup the group (mutually exclusive with groupUuid)
 	 * @param groupUuid to lookup the group (mutually exclusive with groupName)
-	 * @param membershipFilter must be one of All, EffectiveMembers, ImmediateMembers, CompositeMembers
+	 * @param membershipFilter must be one of All, Effective, Immediate, Composite
 	 * @param retrieveExtendedSubjectData true|false, for if the extended subject information should be returned
 	 * (anything more than just the id)
 	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
@@ -341,7 +341,7 @@ public class GrouperService {
 	 * get members from a group based on a filter (all, immediate only, effective only, composite)
 	 * @param groupName to lookup the group (mutually exclusive with groupUuid)
 	 * @param groupUuid to lookup the group (mutually exclusive with groupName)
-	 * @param memberFilter must be one of All, EffectiveMembers, ImmediateMembers, CompositeMembers
+	 * @param memberFilter must be one of All, Effective, Immediate, Composite
 	 * @param retrieveExtendedSubjectData true|false, for if the extended subject information should be returned
 	 * (anything more than just the id)
 	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
@@ -384,7 +384,7 @@ public class GrouperService {
 	/**
 	 * get members from a group based on a filter (all, immediate only, effective only, composite)
 	 * @param wsGroupLookup 
-	 * @param memberFilter must be one of All, EffectiveMembers, ImmediateMembers, CompositeMembers
+	 * @param memberFilter must be one of All, Effective, Immediate, Composite
 	 * @param retrieveExtendedSubjectData true|false, for if the extended subject information should be returned
 	 * (anything more than just the id)
 	 * @param actAsSubjectLookup 
@@ -523,7 +523,7 @@ public class GrouperService {
 	/**
 	 * get memberships from a group based on a filter (all, immediate only, effective only, composite)
 	 * @param wsGroupLookup 
-	 * @param membershipFilter must be one of All, EffectiveMembers, ImmediateMembers, CompositeMembers
+	 * @param membershipFilter must be one of All, Effective, Immediate, Composite
 	 * @param retrieveExtendedSubjectData true|false, for if the extended subject information should be returned
 	 * (anything more than just the id)
 	 * @param actAsSubjectLookup 
