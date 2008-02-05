@@ -3,17 +3,18 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import java.lang.reflect.Array;
-
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.lang.reflect.Array;
 
 
 /**
@@ -31,12 +32,12 @@ public class RunGrouperServiceAddMember {
     /**
      * @param args
      */
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         addMember();
     }
 
     /**
-     * 
+     *
      */
     public static void addMember() {
         try {

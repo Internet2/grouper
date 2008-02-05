@@ -3,13 +3,14 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResult;
+
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberSimple;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResult;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -18,10 +19,9 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsA
  *
  */
 public class RunGrouperServiceAddMemberSimple {
-	
-	/**
-	 * 
-	 */
+    /**
+     *
+     */
     public static void addMemberSimple() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(

@@ -3,18 +3,19 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import java.lang.reflect.Array;
-
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMember;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsHasMemberResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsHasMemberResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.lang.reflect.Array;
 
 
 /**
@@ -30,7 +31,7 @@ public class RunGrouperServiceHasMember {
     }
 
     /**
-     * 
+     *
      */
     public static void hasMember() {
         try {
@@ -46,8 +47,8 @@ public class RunGrouperServiceHasMember {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-//            options.setProperty(Constants.Configuration.ENABLE_REST,
-//            		Constants.VALUE_TRUE);
+            //            options.setProperty(Constants.Configuration.ENABLE_REST,
+            //            		Constants.VALUE_TRUE);
             HasMember hasMember = HasMember.class.newInstance();
 
             // set the act as id
@@ -78,17 +79,15 @@ public class RunGrouperServiceHasMember {
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsHasMemberResults));
-            
+
             WsHasMemberResult[] results = wsHasMemberResults.getResults();
-            
+
             if (results != null) {
-            	for (WsHasMemberResult wsHasMemberResult : results) {
+                for (WsHasMemberResult wsHasMemberResult : results) {
                     System.out.println(ToStringBuilder.reflectionToString(
-                    		wsHasMemberResult));
-            		
-            	}
+                            wsHasMemberResult));
+                }
             }
-            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -3,13 +3,14 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberSimple;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsHasMemberResult;
+
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberSimple;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsHasMemberResult;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -25,7 +26,7 @@ public class RunGrouperServiceHasMemberSimple {
     }
 
     /**
-     * 
+     *
      */
     public static void hasMember() {
         try {
@@ -41,8 +42,8 @@ public class RunGrouperServiceHasMemberSimple {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-//            options.setProperty(Constants.Configuration.ENABLE_REST,
-//            		Constants.VALUE_TRUE);
+            //            options.setProperty(Constants.Configuration.ENABLE_REST,
+            //            		Constants.VALUE_TRUE);
             HasMemberSimple hasMemberSimple = HasMemberSimple.class.newInstance();
 
             // set the act as id
@@ -54,16 +55,15 @@ public class RunGrouperServiceHasMemberSimple {
 
             hasMemberSimple.setGroupName("aStem:aGroup");
             hasMemberSimple.setGroupUuid("");
-            
+
             hasMemberSimple.setSubjectId("GrouperSystem");
             hasMemberSimple.setSubjectIdentifier("");
 
-            WsHasMemberResult wsHasMemberResult = stub
-            	.hasMemberSimple(hasMemberSimple).get_return();
+            WsHasMemberResult wsHasMemberResult = stub.hasMemberSimple(hasMemberSimple)
+                                                      .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsHasMemberResult));
-                        
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

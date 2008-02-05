@@ -39,7 +39,7 @@ public class WsSubjectLookup {
 		SUCCESS, 
 		
 		/** found multiple results */
-		SUBJECT_NOT_UNIQUE, 
+		SUBJECT_DUPLICATE, 
 		
 		/** cant find the subject */
 		SUBJECT_NOT_FOUND,
@@ -152,7 +152,7 @@ public class WsSubjectLookup {
 			this.subjectFindResult = SubjectFindResult.SOURCE_UNAVAILABLE;
 		} catch (SubjectNotUniqueException snue) {
 			LOG.warn(this, snue);
-			this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_UNIQUE;
+			this.subjectFindResult = SubjectFindResult.SUBJECT_DUPLICATE;
 		} catch (SubjectNotFoundException snfe) {
 			LOG.warn(this, snfe);
 			this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_FOUND;

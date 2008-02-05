@@ -65,6 +65,16 @@ public enum WsMemberFilter {
 		public boolean hasMember(Group group, Subject subject, Field field) throws SchemaException {
     		return group.hasMember(subject, field);
     	}
+        /**
+         * get groups for subject
+         * @param member
+         * @return the set of members (non null)
+         */
+    	@SuppressWarnings("unchecked")
+		@Override
+        public Set<Group> getGroups(Member member) {
+    		return GrouperServiceUtils.nonNull(member.getGroups());
+    	}
     }, 
     
     /** retrieve non direct (non immediate) members */
@@ -111,6 +121,17 @@ public enum WsMemberFilter {
 		public boolean hasMember(Group group, Subject subject, Field field) throws SchemaException {
     		return group.hasEffectiveMember(subject, field);
     	}
+
+    	/**
+         * get groups for subject
+         * @param member
+         * @return the set of members (non null)
+         */
+    	@SuppressWarnings("unchecked")
+		@Override
+        public Set<Group> getGroups(Member member) {
+    		return GrouperServiceUtils.nonNull(member.getEffectiveGroups());
+    	}
     }, 
     
     /** return only direct members, not indirect */
@@ -156,6 +177,17 @@ public enum WsMemberFilter {
     	@SuppressWarnings("unchecked")
 		public boolean hasMember(Group group, Subject subject, Field field)  throws SchemaException  {
     		return group.hasImmediateMember(subject, field);
+    	}
+
+        /**
+         * get groups for subject
+         * @param member
+         * @return the set of members (non null)
+         */
+    	@SuppressWarnings("unchecked")
+		@Override
+        public Set<Group> getGroups(Member member) {
+    		return GrouperServiceUtils.nonNull(member.getImmediateGroups());
     	}
     }, 
     
@@ -208,6 +240,17 @@ public enum WsMemberFilter {
     		throw new RuntimeException("hasMember with composite is not supported: groupName: " + group.getName() 
     				+ ", subject: " + subject.getName() + ", field: " + field.getName());
     	}
+    	
+        /**
+         * get groups for subject
+         * @param member
+         * @return the set of members (non null)
+         */
+    	@Override
+        public Set<Group> getGroups(Member member) {
+    		throw new RuntimeException("getGroups with composite is not supported: member subject id: " + member.getSubjectId() );
+    	}
+
     };
 
     /**
@@ -241,6 +284,13 @@ public enum WsMemberFilter {
      * @return the set of members (non null)
      */
     public abstract boolean hasMember(Group group, Subject subject);
+    
+    /**
+     * get groups for subject
+     * @param member
+     * @return the set of members (non null)
+     */
+    public abstract Set<Group> getGroups(Member member);
     
     /**
      * do a case-insensitive matching

@@ -1,0 +1,14 @@
+<ns:getGroupsSimpleResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+  <ns:return type="edu.internet2.middleware.grouper.webservices.WsGetGroupsResults">
+    <ns:resultCode>SUCCESS</ns:resultCode>
+    <ns:resultMessage></ns:resultMessage>
+    <ns:results type="edu.internet2.middleware.grouper.webservices.WsGetGroupsResult">
+      <ns:description>aGroup</ns:description>
+      <ns:displayName>a stem:aGroup</ns:displayName>
+      <ns:isComposite>F</ns:isComposite>
+      <ns:name>aStem:aGroup</ns:name>
+      <ns:uuid>19284537-6118-44b2-bbbc-d5757c709cb7</ns:uuid>
+    </ns:results>
+    <ns:success>T</ns:success>
+  </ns:return>
+</ns:getGroupsSimpleResponse>
