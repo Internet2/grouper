@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -30,20 +31,17 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.struts.util.RequestUtils;
 import org.apache.taglibs.standard.tag.common.fmt.BundleSupport;
 import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
 import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
+import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.grouper.ui.util.GrouperUtils;
 
 /**
@@ -56,6 +54,19 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUtils;
  * @author Chris Hyzer
  */
 public class GrouperMessageTag extends MessageTag {
+
+	/** in the nav.properties, terms must start with this prefix.  multiple terms can exist for one tooltip */
+	private static final String TERM_PREFIX = "term.";
+
+	/** in the nav.properties, tooltips must start with this prefix.  there should be one and only one tooltip for a term.
+	 * tooltips and terms are linked by the common name, which is the suffix of the nav.properties key.
+	 * e.g. tooltip.group=A group is a collection
+	 * term.group=Group
+	 * term.group=group
+	 * 
+	 * these are linked because they all end in "group"
+	 */
+	public static final String TOOLTIP_PREFIX = "tooltip.";
 
 	/**
 	 * 
@@ -98,26 +109,6 @@ public class GrouperMessageTag extends MessageTag {
 	
 	/** if we should not do tooltips for this tag */
 	public boolean tooltipDisable = false;
-	
-	/**
-	 * cache the properties file
-	 */
-	private static Map<String,PropertiesConfiguration> tooltipConfigs = 
-		new HashMap<String, PropertiesConfiguration>();
-
-	/**
-	 * lazy load the properties config
-	 * 
-	 * @return the properties config
-	 */
-	private static PropertiesConfiguration tooltipConfig(String path) {
-		PropertiesConfiguration propertiesConfiguration = tooltipConfigs.get(path);
-		if (propertiesConfiguration == null) {
-			propertiesConfiguration = new PropertiesConfiguration(path);
-			tooltipConfigs.put(path, propertiesConfiguration);
-		}
-		return propertiesConfiguration;
-	}
 	
 	/**
 	 * this is overridden to put the tooltips in the text
@@ -255,20 +246,11 @@ public class GrouperMessageTag extends MessageTag {
 		if (this.tooltipKeys == null || this.useNewTermContext) {
 			
 			//add the tooltips:
-			PropertiesConfiguration propertiesConfiguration = tooltipConfig("/resources/grouper/tooltips.properties");
-			PropertiesConfiguration propertiesLocalConfiguration = tooltipConfig("/resources/grouper/local.tooltips.properties");
-			Locale locale = RequestUtils.getUserLocale((HttpServletRequest)this.pageContext.getRequest(), null);
-			String localeString = locale == null ? "" : locale.toString();
-			PropertiesConfiguration propertiesLocaleConfiguration = StringUtils.isBlank(localeString) ? null 
-					: tooltipConfig("/resources/grouper/tooltips_" + localeString + ".properties");
+			ResourceBundle resourceBundle = LowLevelGrouperCapableAction.getNavResourcesStatic(this.pageContext.getSession());
 			
 			//add properties to map
-			Map<String, String> propertiesConfigurationMap = convertPropertiesToMap(null, propertiesConfiguration, true);
-			//add in local ones without failing on error
-			convertPropertiesToMap(propertiesConfigurationMap, propertiesLocalConfiguration, false);
-			//add in locale
-			//TODO consider the grouper.properties default.module ? default.locale
-			convertPropertiesToMap(propertiesConfigurationMap, propertiesLocaleConfiguration, false);
+			Map<String, String> propertiesConfigurationMap = convertPropertiesToMap(null, resourceBundle, true);
+
 			Set<String> propertiesKeys = propertiesConfigurationMap == null ? null : 
 				propertiesConfigurationMap.keySet();
 			Map<String, String> propertiesMap = null;
@@ -279,8 +261,8 @@ public class GrouperMessageTag extends MessageTag {
 				for (String propertiesKey : propertiesKeys) {
 					
 					//see if a key
-					boolean isTerm = propertiesKey.startsWith("term.");
-					boolean isValue = !isTerm && propertiesKey.startsWith("tooltip.");
+					boolean isTerm = propertiesKey.startsWith(GrouperMessageTag.TERM_PREFIX);
+					boolean isValue = !isTerm && propertiesKey.startsWith(GrouperMessageTag.TOOLTIP_PREFIX);
 					
 					//validate
 					if (!isTerm && !isValue) {
@@ -295,7 +277,7 @@ public class GrouperMessageTag extends MessageTag {
 					
 					//if term then get the term
 					String term = propertiesConfigurationMap.get(propertiesKey);
-					String termId = propertiesKey.substring("term.".length());
+					String termId = propertiesKey.substring(GrouperMessageTag.TERM_PREFIX.length());
 					
 					//strip off the .1, .2, etc if it exists
 					if (termId.matches("^.*\\.[0-9]+$")) {
@@ -303,7 +285,7 @@ public class GrouperMessageTag extends MessageTag {
 						termId = termId.substring(0,lastDot);
 					}
 					
-					String tooltipKey = "tooltip." + termId;
+					String tooltipKey = GrouperMessageTag.TOOLTIP_PREFIX + termId;
 					String tooltip = propertiesConfigurationMap.get(tooltipKey);
 					
 					//tooltipKeys.add(term);
@@ -335,21 +317,26 @@ public class GrouperMessageTag extends MessageTag {
 	/**
 	 * convert the properties configuration object to a map object (tree map)
 	 * @param resultMapOptional is null if create new, or if exists, overwrite
-	 * @param propertiesConfiguration
+	 * @param resourceBundle
 	 * @param throwExceptionIfProblem true if throw error if the problem with properties 
 	 * @return the map 
 	 */
 	static Map<String, String> convertPropertiesToMap(Map<String, String> resultMapOptional, 
-			PropertiesConfiguration propertiesConfiguration, boolean throwExceptionIfProblem) {
-		if (propertiesConfiguration == null) {
+			ResourceBundle resourceBundle, boolean throwExceptionIfProblem) {
+		if (resourceBundle == null) {
 			return null;
 		}
 		if (resultMapOptional == null) {
 			resultMapOptional = new HashMap<String,String>();
 		}
 		try {
-			for (String key : propertiesConfiguration.keySet()) {
-				resultMapOptional.put(key, propertiesConfiguration.getProperty(key));
+			Enumeration<String> keysEnumeration = resourceBundle.getKeys();
+			while (keysEnumeration.hasMoreElements()) {
+				String key = keysEnumeration.nextElement();
+				//the nav.properties has all sorts of stuff in there, only be concerned with tooltips and terms
+				if (key.startsWith(TOOLTIP_PREFIX) || key.startsWith(TERM_PREFIX)) {
+					resultMapOptional.put(key, resourceBundle.getString(key));
+				}
 			}
 		} catch (Exception e) {
 			//only propagate exceptions if in that mode

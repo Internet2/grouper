@@ -71,7 +71,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.14 2007-12-05 11:32:22 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.15 2008-02-06 06:26:07 mchyzer Exp $
  */
 
 /**
@@ -144,11 +144,18 @@ public abstract class LowLevelGrouperCapableAction
 	 * Convenience method to retrieve nav ResourceBundle
 	 */
 	public ResourceBundle getNavResources(HttpSession session) {
+		return getNavResourcesStatic(session);
+	}
+	
+	/**
+	 * Convenience method to retrieve nav ResourceBundle
+	 */
+	public static ResourceBundle getNavResourcesStatic(HttpSession session) {
 		LocalizationContext localizationContext = (LocalizationContext)session.getAttribute("nav");
 		ResourceBundle nav = localizationContext.getResourceBundle();
 		return nav;
 	}
-	
+
 	/**
 	 * Convenience method to retrieve nav ResourceBundle
 	 */
