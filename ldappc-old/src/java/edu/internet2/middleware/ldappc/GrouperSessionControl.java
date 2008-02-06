@@ -108,8 +108,11 @@ public class GrouperSessionControl
         boolean stopped = true;
         try 
         {
+            // Need to save session string before stopping it so that
+            // we can print it's description. (Fixes GRP-14. KAH)
+            String sessionString = session.toString();
             session.stop();
-            DebugLog.info("Stopped GrouperSession: " + session);
+            DebugLog.info("Stopped GrouperSession: " + sessionString);
         }
         catch (SessionException se) 
         {
