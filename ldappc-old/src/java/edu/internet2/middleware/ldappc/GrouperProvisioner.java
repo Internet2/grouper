@@ -34,9 +34,9 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.ChildGroupFilter;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupAttributeFilter;
-import edu.internet2.middleware.grouper.GroupNameFilter;
 import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -49,7 +49,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.UnionFilter;
-
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupSynchronizer;
@@ -252,8 +251,8 @@ public class GrouperProvisioner extends Provisioner
             {
                 Stem stem = StemFinder.findByName(session,
                         (String) stemIterator.next());
-                groupFilter = new UnionFilter(groupFilter, new GroupNameFilter(
-                        "%", stem));
+                groupFilter = new UnionFilter(groupFilter,
+                        new ChildGroupFilter(stem));
             }
             catch(StemNotFoundException snfe)
             {
