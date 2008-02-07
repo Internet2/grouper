@@ -6,29 +6,30 @@ package edu.internet2.middleware.grouper.webservices;
 
 
 /**
- * Result of one subject being added to a group.  The number of
- * subjects will equal the number of subjects sent in to the method
+ * Result of one group being deleted.  The number of
+ * these result objects will equal the number of groups sent in to the method
+ * to be deleted
  * 
  * @author mchyzer
  */
-public class WsAddMemberResult {
+public class WsGroupDeleteResult {
 	
-	/** subject that was added */
-	private String subjectId;
+	/** group that was deleted */
+	private String groupName;
 	
-	/** subject identifier (if this is what was passed in) that was added */
-	private String subjectIdentifier;
+	/** group uuid that was deleted */
+	private String groupUuid;
 
-	/** T or F as to whether it was a successful assignment */
+	/** T or F as to whether it was a successful deleted */
 	private String success;
 
 	/** 
 	 * <pre>
 	 * code of the result for this subject
 	 * SUCCESS: means everything ok
-	 * SUBJECT_NOT_FOUND: cant find the subject
+	 * GROUP_NOT_FOUND: cant find the subject
 	 * SUBJECT_DUPLICATE: found multiple subjects
-	 *  
+	 * etc
 	 * </pre>
 	 */
 	private String resultCode;
@@ -38,38 +39,6 @@ public class WsAddMemberResult {
 	 */
 	private String resultMessage;
 	
-	/**
-	 * subject that was added
-	 * @return the subjectId
-	 */
-	public String getSubjectId() {
-		return this.subjectId;
-	}
-
-	/**
-	 * subject that was added
-	 * @param subjectId1 the subjectId to set
-	 */
-	public void setSubjectId(String subjectId1) {
-		this.subjectId = subjectId1;
-	}
-
-	/**
-	 * subject identifier (if this is what was passed in) that was added
-	 * @return the subjectIdentifier
-	 */
-	public String getSubjectIdentifier() {
-		return this.subjectIdentifier;
-	}
-
-	/**
-	 * subject identifier (if this is what was passed in) that was added
-	 * @param subjectIdentifier1 the subjectIdentifier to set
-	 */
-	public void setSubjectIdentifier(String subjectIdentifier1) {
-		this.subjectIdentifier = subjectIdentifier1;
-	}
-
 	/**
 	 * T or F as to whether it was a successful assignment
 	 * @return the success
@@ -103,50 +72,47 @@ public class WsAddMemberResult {
 	/**
 	 * result code of a request
 	 */
-	public enum WsAddMemberResultCode {
-		
-		/** invalid request */
-		INVALID_QUERY,
+	public enum WsGroupDeleteResultCode {
 		
 		/** successful addition */
 		SUCCESS, 
 		
+		/** invalid query, can only happen if simple query */
+		INVALID_QUERY,
+
 		/** the subject was found */
-		SUBJECT_NOT_FOUND, 
+		GROUP_NOT_FOUND, 
 		
-		/** problem with addigion */
+		/** problem with deleting */
 		EXCEPTION, 
 		
 		/** user not allowed */
-		INSUFFICIENT_PRIVILEGES, 
+		INSUFFICIENT_PRIVILEGES;
 		
-		/** subject duplicate found */
-		SUBJECT_DUPLICATE;				
-				
 		/**
 		 * if this is a successful result
 		 * @return true if success
 		 */
 		public boolean isSuccess() {
-			return this == SUCCESS;
+			return this == SUCCESS || this == GROUP_NOT_FOUND;
 		}
 	}
 
 	/**
 	 * assign the code from the enum
-	 * @param addMemberResultCode
+	 * @param groupDeleteResultCode
 	 */
-	public void assignResultCode(WsAddMemberResultCode addMemberResultCode) {
-		this.setResultCode(addMemberResultCode == null ? null : addMemberResultCode.name());
-		this.setSuccess(addMemberResultCode.isSuccess() ? "T" : "F");
+	public void assignResultCode(WsGroupDeleteResultCode groupDeleteResultCode) {
+		this.setResultCode(groupDeleteResultCode == null ? null : groupDeleteResultCode.name());
+		this.setSuccess(groupDeleteResultCode.isSuccess() ? "T" : "F");
 	}
 
 	/**
 	 * <pre>
-	 * code of the result for this subject
+	 * code of the result for this group
 	 * SUCCESS: means everything ok
-	 * SUBJECT_NOT_FOUND: cant find the subject
-	 * SUBJECT_DUPLICATE: found multiple subjects
+	 * GROUP_NOT_FOUND: cant find the subject
+	 * etc
 	 *  
 	 * </pre>
 	 * @param resultCode1 the resultCode to set
@@ -169,5 +135,37 @@ public class WsAddMemberResult {
 	 */
 	public void setResultMessage(String errorMessage) {
 		this.resultMessage = errorMessage;
+	}
+
+	/**
+	 * group that was deleted
+	 * @return the groupName
+	 */
+	public String getGroupName() {
+		return this.groupName;
+	}
+
+	/**
+	 * group that was deleted
+	 * @param groupName1 the groupName to set
+	 */
+	public void setGroupName(String groupName1) {
+		this.groupName = groupName1;
+	}
+
+	/**
+	 * group uuid that was deleted
+	 * @return the groupUuid
+	 */
+	public String getGroupUuid() {
+		return this.groupUuid;
+	}
+
+	/**
+	 * group uuid that was deleted
+	 * @param groupUuid1 the groupUuid to set
+	 */
+	public void setGroupUuid(String groupUuid1) {
+		this.groupUuid = groupUuid1;
 	}
 }

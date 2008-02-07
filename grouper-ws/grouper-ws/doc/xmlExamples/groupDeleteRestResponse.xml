@@ -1,0 +1,17 @@
+<ns:groupDeleteResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+  <ns:return type="edu.internet2.middleware.grouper.webservices.WsGroupDeleteResults">
+    <ns:resultCode>SUCCESS</ns:resultCode>
+    <ns:resultMessage></ns:resultMessage>
+    <ns:results type="edu.internet2.middleware.grouper.webservices.WsGroupDeleteResult">
+      <ns:groupName>aStem:test</ns:groupName>
+      <ns:groupUuid xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      <ns:resultCode>GROUP_NOT_FOUND</ns:resultCode>
+      <ns:resultMessage>
+        Cant find group:
+        'edu.internet2.middleware.grouper.webservices.WsGroupLookup@755df3[group=&lt;null>,uuid=&lt;null>,groupName=aStem:test,groupFindResult=GROUP_NOT_FOUND]'.
+      </ns:resultMessage>
+      <ns:success>T</ns:success>
+    </ns:results>
+    <ns:success>T</ns:success>
+  </ns:return>
+</ns:groupDeleteResponse>

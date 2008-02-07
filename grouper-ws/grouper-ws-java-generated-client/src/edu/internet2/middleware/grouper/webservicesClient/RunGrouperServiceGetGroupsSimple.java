@@ -3,14 +3,15 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGroupsSimple;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsResults;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -42,20 +43,21 @@ public class RunGrouperServiceGetGroupsSimple {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-//                        options.setProperty(Constants.Configuration.ENABLE_REST,
-//                        		Constants.VALUE_TRUE);
+            //                        options.setProperty(Constants.Configuration.ENABLE_REST,
+            //                        		Constants.VALUE_TRUE);
             GetGroupsSimple getGroupsSimple = GetGroupsSimple.class.newInstance();
-            
+
             getGroupsSimple.setActAsSubjectId("GrouperSystem");
 
             // check all
             getGroupsSimple.setMemberFilter("All");
-            
+
             getGroupsSimple.setActAsSubjectIdentifier("");
             getGroupsSimple.setSubjectId("GrouperSystem");
             getGroupsSimple.setSubjectIdentifier("");
 
-            WsGetGroupsResults wsGetGroupsResults = stub.getGroupsSimple(getGroupsSimple).get_return();
+            WsGetGroupsResults wsGetGroupsResults = stub.getGroupsSimple(getGroupsSimple)
+                                                        .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsGetGroupsResults));

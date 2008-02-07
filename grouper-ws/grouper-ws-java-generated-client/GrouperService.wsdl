@@ -404,6 +404,61 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="groupDeleteSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="groupDeleteSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGroupDeleteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGroupDeleteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="groupDelete">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroupLookups" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="groupDeleteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGroupDeleteResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGroupDeleteResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsGroupDeleteResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="hasMemberSimple">
                 <xs:complexType>
                     <xs:sequence>
@@ -480,6 +535,12 @@
     <wsdl:message name="getMembersResponse">
         <wsdl:part name="parameters" element="ns0:getMembersResponse"/>
     </wsdl:message>
+    <wsdl:message name="groupDeleteRequest">
+        <wsdl:part name="parameters" element="ns0:groupDelete"/>
+    </wsdl:message>
+    <wsdl:message name="groupDeleteResponse">
+        <wsdl:part name="parameters" element="ns0:groupDeleteResponse"/>
+    </wsdl:message>
     <wsdl:message name="deleteMemberRequest">
         <wsdl:part name="parameters" element="ns0:deleteMember"/>
     </wsdl:message>
@@ -509,6 +570,12 @@
     </wsdl:message>
     <wsdl:message name="hasMemberResponse">
         <wsdl:part name="parameters" element="ns0:hasMemberResponse"/>
+    </wsdl:message>
+    <wsdl:message name="groupDeleteSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:groupDeleteSimple"/>
+    </wsdl:message>
+    <wsdl:message name="groupDeleteSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:groupDeleteSimpleResponse"/>
     </wsdl:message>
     <wsdl:message name="deleteMemberSimpleRequest">
         <wsdl:part name="parameters" element="ns0:deleteMemberSimple"/>
@@ -540,17 +607,17 @@
     <wsdl:message name="addMemberSimpleResponse">
         <wsdl:part name="parameters" element="ns0:addMemberSimpleResponse"/>
     </wsdl:message>
-    <wsdl:message name="findGroupsRequest">
-        <wsdl:part name="parameters" element="ns0:findGroups"/>
-    </wsdl:message>
-    <wsdl:message name="findGroupsResponse">
-        <wsdl:part name="parameters" element="ns0:findGroupsResponse"/>
-    </wsdl:message>
     <wsdl:message name="hasMemberSimpleRequest">
         <wsdl:part name="parameters" element="ns0:hasMemberSimple"/>
     </wsdl:message>
     <wsdl:message name="hasMemberSimpleResponse">
         <wsdl:part name="parameters" element="ns0:hasMemberSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="findGroupsRequest">
+        <wsdl:part name="parameters" element="ns0:findGroups"/>
+    </wsdl:message>
+    <wsdl:message name="findGroupsResponse">
+        <wsdl:part name="parameters" element="ns0:findGroupsResponse"/>
     </wsdl:message>
     <wsdl:portType name="GrouperServicePortType">
         <wsdl:operation name="getMembershipsSimple">
@@ -560,6 +627,10 @@
         <wsdl:operation name="getMembers">
             <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
             <wsdl:output message="axis2:getMembersResponse" wsaw:Action="urn:getMembersResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="groupDelete">
+            <wsdl:input message="axis2:groupDeleteRequest" wsaw:Action="urn:groupDelete"/>
+            <wsdl:output message="axis2:groupDeleteResponse" wsaw:Action="urn:groupDeleteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="deleteMember">
             <wsdl:input message="axis2:deleteMemberRequest" wsaw:Action="urn:deleteMember"/>
@@ -581,6 +652,10 @@
             <wsdl:input message="axis2:hasMemberRequest" wsaw:Action="urn:hasMember"/>
             <wsdl:output message="axis2:hasMemberResponse" wsaw:Action="urn:hasMemberResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="groupDeleteSimple">
+            <wsdl:input message="axis2:groupDeleteSimpleRequest" wsaw:Action="urn:groupDeleteSimple"/>
+            <wsdl:output message="axis2:groupDeleteSimpleResponse" wsaw:Action="urn:groupDeleteSimpleResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <wsdl:input message="axis2:deleteMemberSimpleRequest" wsaw:Action="urn:deleteMemberSimple"/>
             <wsdl:output message="axis2:deleteMemberSimpleResponse" wsaw:Action="urn:deleteMemberSimpleResponse"/>
@@ -601,13 +676,13 @@
             <wsdl:input message="axis2:addMemberSimpleRequest" wsaw:Action="urn:addMemberSimple"/>
             <wsdl:output message="axis2:addMemberSimpleResponse" wsaw:Action="urn:addMemberSimpleResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="findGroups">
-            <wsdl:input message="axis2:findGroupsRequest" wsaw:Action="urn:findGroups"/>
-            <wsdl:output message="axis2:findGroupsResponse" wsaw:Action="urn:findGroupsResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="hasMemberSimple">
             <wsdl:input message="axis2:hasMemberSimpleRequest" wsaw:Action="urn:hasMemberSimple"/>
             <wsdl:output message="axis2:hasMemberSimpleResponse" wsaw:Action="urn:hasMemberSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="findGroups">
+            <wsdl:input message="axis2:findGroupsRequest" wsaw:Action="urn:findGroups"/>
+            <wsdl:output message="axis2:findGroupsResponse" wsaw:Action="urn:findGroupsResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="GrouperServiceSOAP11Binding" type="axis2:GrouperServicePortType">
@@ -623,6 +698,15 @@
         </wsdl:operation>
         <wsdl:operation name="getMembers">
             <soap:operation soapAction="urn:getMembers" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupDelete">
+            <soap:operation soapAction="urn:groupDelete" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -675,6 +759,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="groupDeleteSimple">
+            <soap:operation soapAction="urn:groupDeleteSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <soap:operation soapAction="urn:deleteMemberSimple" style="document"/>
             <wsdl:input>
@@ -720,8 +813,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="findGroups">
-            <soap:operation soapAction="urn:findGroups" style="document"/>
+        <wsdl:operation name="hasMemberSimple">
+            <soap:operation soapAction="urn:hasMemberSimple" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -729,8 +822,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMemberSimple">
-            <soap:operation soapAction="urn:hasMemberSimple" style="document"/>
+        <wsdl:operation name="findGroups">
+            <soap:operation soapAction="urn:findGroups" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -752,6 +845,15 @@
         </wsdl:operation>
         <wsdl:operation name="getMembers">
             <soap12:operation soapAction="urn:getMembers" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupDelete">
+            <soap12:operation soapAction="urn:groupDelete" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -804,6 +906,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="groupDeleteSimple">
+            <soap12:operation soapAction="urn:groupDeleteSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <soap12:operation soapAction="urn:deleteMemberSimple" style="document"/>
             <wsdl:input>
@@ -849,8 +960,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="findGroups">
-            <soap12:operation soapAction="urn:findGroups" style="document"/>
+        <wsdl:operation name="hasMemberSimple">
+            <soap12:operation soapAction="urn:hasMemberSimple" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -858,8 +969,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMemberSimple">
-            <soap12:operation soapAction="urn:hasMemberSimple" style="document"/>
+        <wsdl:operation name="findGroups">
+            <soap12:operation soapAction="urn:findGroups" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -886,6 +997,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="getMembers"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupDelete">
+            <http:operation location="GrouperService/groupDelete"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="groupDelete"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="groupDelete"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="deleteMember">
@@ -933,6 +1053,15 @@
                 <mime:content type="text/xml" part="hasMember"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="groupDeleteSimple">
+            <http:operation location="GrouperService/groupDeleteSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="groupDeleteSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="groupDeleteSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <http:operation location="GrouperService/deleteMemberSimple"/>
             <wsdl:input>
@@ -978,15 +1107,6 @@
                 <mime:content type="text/xml" part="addMemberSimple"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="findGroups">
-            <http:operation location="GrouperService/findGroups"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="findGroups"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="findGroups"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="hasMemberSimple">
             <http:operation location="GrouperService/hasMemberSimple"/>
             <wsdl:input>
@@ -994,6 +1114,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="hasMemberSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findGroups">
+            <http:operation location="GrouperService/findGroups"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="findGroups"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="findGroups"/>
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>

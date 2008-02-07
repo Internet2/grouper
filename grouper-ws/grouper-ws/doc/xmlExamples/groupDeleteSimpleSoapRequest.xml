@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns1:groupDeleteSimple xmlns:ns1="http://webservices.grouper.middleware.internet2.edu/xsd">
+      <ns1:groupName>aStem:test</ns1:groupName>
+      <ns1:groupUuid></ns1:groupUuid>
+      <ns1:actAsSubjectId>GrouperSystem</ns1:actAsSubjectId>
+      <ns1:actAsSubjectIdentifier></ns1:actAsSubjectIdentifier>
+    </ns1:groupDeleteSimple>
+  </soapenv:Body>
+</soapenv:Envelope>

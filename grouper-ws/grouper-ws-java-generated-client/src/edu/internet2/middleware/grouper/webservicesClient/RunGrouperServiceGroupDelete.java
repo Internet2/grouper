@@ -3,35 +3,35 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGroups;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
-
-import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDelete;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteResult;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteResults;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 
 
 /**
+ *
  * @author mchyzer
  *
  */
-public class RunGrouperServiceGetGroups {
+public class RunGrouperServiceGroupDelete {
     /**
      * @param args
      */
     public static void main(String[] args) {
-        getGroups();
+        groupDelete();
     }
 
     /**
      *
      */
-    public static void getGroups() {
+    public static void groupDelete() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(
                     "http://localhost:8091/grouper-ws/services/GrouperService");
@@ -45,37 +45,34 @@ public class RunGrouperServiceGetGroups {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-            options.setProperty(Constants.Configuration.ENABLE_REST,
-                Constants.VALUE_TRUE);
-
-            GetGroups getGroups = GetGroups.class.newInstance();
+//            options.setProperty(Constants.Configuration.ENABLE_REST,
+//            		Constants.VALUE_TRUE);
+            GroupDelete groupDelete = GroupDelete.class.newInstance();
 
             // set the act as id
             WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
             actAsSubject.setSubjectId("GrouperSystem");
-            getGroups.setActAsSubjectLookup(actAsSubject);
+            groupDelete.setActAsSubjectLookup(actAsSubject);
 
-            // check all
-            getGroups.setMemberFilter("All");
+            WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
+            wsGroupLookup.setGroupName("aStem:test");
+            groupDelete.setWsGroupLookups(new WsGroupLookup[]{wsGroupLookup});
 
-            WsSubjectLookup wsSubjectLookup = WsSubjectLookup.class.newInstance();
-            wsSubjectLookup.setSubjectId("GrouperSystem");
-            getGroups.setSubjectLookup(wsSubjectLookup);
-
-            WsGetGroupsResults wsGetGroupsResults = stub.getGroups(getGroups)
+            WsGroupDeleteResults wsGroupDeleteResults = stub.groupDelete(groupDelete)
                                                         .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsGetGroupsResults));
-
-            WsGetGroupsResult[] results = wsGetGroupsResults.getResults();
-
-            if (results != null) {
-                for (WsGetGroupsResult wsGetGroupsResult : results) {
+            		wsGroupDeleteResults));
+            
+            WsGroupDeleteResult[] wsGroupDeleteResultArray = wsGroupDeleteResults.getResults();
+            
+            if (wsGroupDeleteResultArray != null) {
+            	for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResultArray) {
                     System.out.println(ToStringBuilder.reflectionToString(
-                            wsGetGroupsResult));
-                }
+                    		wsGroupDeleteResult));
+            	}
             }
+            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
