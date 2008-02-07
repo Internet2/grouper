@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.1 2007-08-30 15:52:22 blair Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.2 2008-02-07 20:20:09 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
@@ -53,7 +53,7 @@
               not-null="true"
               length="128"
               unique-key="members_idx"
-              index="membership_owner_list_and_type_idx"
+              index="membership_owner_list_type_idx"
       />
     </property>
     <!-- ownerUuid -->
@@ -70,7 +70,7 @@
               not-null="true"
               length="128"
               unique-key="members_idx"
-              index="membership_member_idx, membership_member_and_list_idx"
+              index="membership_member_idx, membership_member_list_idx"
       />
     </property>
     <!-- memberUuid -->
@@ -86,7 +86,7 @@
               not-null="true"
               length="32"
               unique-key="members_idx"
-              index="membership_owner_list_and_type_idx, membership_member_and_list_idx"
+              index="membership_owner_list_type_idx, membership_member_list_idx"
       />
     </property>
     <!-- listName -->
@@ -102,7 +102,7 @@
               not-null="true"
               length="32"
               unique-key="members_idx"
-              index="membership_owner_list_and_type_idx, membership_member_and_list_idx"
+              index="membership_owner_list_type_idx, membership_member_list_idx"
       />
     </property>
     <!-- listType -->
@@ -116,7 +116,7 @@
       <column name="mship_type"
               not-null="true"
               length="32"
-              index="membership_owner_list_and_type_idx"
+              index="membership_owner_list_type_idx"
       />
     </property>
     <!-- type -->
