@@ -66,6 +66,18 @@
 
   <!-- class: HibernateMemberDAO -->
 
+  <!-- class: Hib3MemberDAO -->
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.FindBySubject"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="10"
+          overflowToDisk="false"  
+  />
+
+  <!-- class: Hib3MemberDAO -->
+
 
   <!-- Queries -->
 

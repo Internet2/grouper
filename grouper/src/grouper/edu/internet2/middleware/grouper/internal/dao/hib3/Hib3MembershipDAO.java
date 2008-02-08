@@ -23,8 +23,6 @@ import  edu.internet2.middleware.grouper.MembershipNotFoundException;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateMemberDAO;
-import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateMembershipDAO;
 
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
@@ -43,7 +41,7 @@ import  org.hibernate.*;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.3 2008-01-09 14:07:01 isgwb Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.4 2008-02-08 16:33:11 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -538,7 +536,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     try {
       Session hs  = Hib3DAO.getSession();
       Query   qry = hs.createQuery(
-        "from HibernateMembershipDAO as ms where  "
+        "from Hib3MembershipDAO as ms where  "
         + "     ms.ownerUuid   = :owner            "  
         + "and  ms.memberUuid  = :member           "
       );
@@ -907,8 +905,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     while (it.hasNext()) {
       Object[] tuple = (Object[])it.next();
-      HibernateMembershipDAO currMembershipDAO = (HibernateMembershipDAO)tuple[0];
-      HibernateMemberDAO currMemberDAO = (HibernateMemberDAO)tuple[1];
+      Hib3MembershipDAO currMembershipDAO = (Hib3MembershipDAO)tuple[0];
+      Hib3MemberDAO currMemberDAO = (Hib3MemberDAO)tuple[1];
       currMembershipDAO.setMemberDAO(currMemberDAO);
       memberships.add(MembershipDTO.getDTO(currMembershipDAO));
     }
