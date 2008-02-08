@@ -33,7 +33,7 @@ import  org.hibernate.classic.Lifecycle;
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.2 2008-02-08 16:33:11 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
@@ -133,8 +133,8 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
         + "and  m.subjectSourceId = :source "
         + "and  m.subjectTypeId   = :type"
       );
-      qry.setCacheable(false); // but i probably should - or at least permit it
-      //qry.setCacheRegion(KLASS + ".FindBySubject");
+      qry.setCacheable(true);
+      qry.setCacheRegion(KLASS + ".FindBySubject");
       qry.setString( "sid",    id   );
       qry.setString( "type",   type );
       qry.setString( "source", src  );
