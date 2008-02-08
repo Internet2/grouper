@@ -29,6 +29,8 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -39,29 +41,44 @@ import  org.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.2 2008-02-08 07:37:31 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
   // PRIVATE CLASS CONSTANTS //
+  /** */
   private static final String KLASS = Hib3StemDAO.class.getName();
 
 
   // PRIVATE INSTANCE VARIABLES //
+  /** */
   private String  createSource;
+  /** */
   private long    createTime;
+  /** */
   private String  creatorUUID;
+  /** */
   private String  description;
+  /** */
   private String  displayExtension;
+  /** */
   private String  displayName;
+  /** */
   private String  extension;
+  /** */
   private String  id;
+  /** */
   private String  name;
+  /** */
   private String  modifierUUID;
+  /** */
   private String  modifySource;
+  /** */
   private long    modifyTime;
+  /** */
   private String  parentUUID;
+  /** */
   private String  uuid;
 
 
@@ -103,7 +120,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       return dao.getId();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem create child stem: " + GrouperUtil.toStringSafe(_parent)
+        + ", child: " + GrouperUtil.toStringSafe(_child) + ", memberDto: " 
+        + GrouperUtil.toStringSafe(_m) + ", " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
@@ -132,7 +152,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       return dao.getId();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(_parent)
+        + ", privs: " + GrouperUtil.toStringSafe(_child) + ", " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
@@ -160,7 +182,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       return dao.getId();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem creating root stem: " + GrouperUtil.toStringSafe(_root)
+        + ", " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
@@ -186,7 +210,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       } 
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem deleting: " + GrouperUtil.toStringSafe(_ns)
+        + ", " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
@@ -208,8 +234,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       return rv;
     }
     catch (HibernateException eH) {
-      ErrorLog.fatal( Hib3StemDAO.class, eH.getMessage() );
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem querying stem by uuid: '" + uuid + "', " + eH.getMessage();
+      ErrorLog.fatal( Hib3StemDAO.class, error );
+      throw new GrouperDAOException( error, eH );
     }
   } 
   
@@ -233,7 +260,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all stem by approximate display extension: '" + val + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return stems;
   } 
@@ -258,7 +286,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all stem by approximate display name: '" + val + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return stems;
   } 
@@ -283,7 +312,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all stem by approximate extension: '" + val + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return stems;
   } 
@@ -308,7 +338,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all stem by approximate name: '" + val + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return stems;
   } 
@@ -339,7 +370,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all stem by approximate any: '" + name + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return stems;
   } 
@@ -364,7 +396,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all stem by created after: '" + d + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return stems;
   } 
@@ -389,7 +422,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all stem by created before: '" + d + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return stems;
   } 
@@ -440,7 +474,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all child groups, stem name: '" 
+        + (ns == null ? null : ns.getName()) + "', scope: '" + scope + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return groups;
   }
@@ -481,7 +517,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       hs.close();
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find all child stems, stem name: '" 
+        + (ns == null ? null : ns.getName()) + "', scope: '" + scope + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
     return stems;
   } 
@@ -502,12 +540,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       Hib3StemDAO dao = (Hib3StemDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
-        throw new StemNotFoundException();
+        throw new StemNotFoundException("Can't find stem by name: '" + name + "'");
       }
       return StemDTO.getDTO(dao);
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find stem by name: '" 
+        + name + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
@@ -527,12 +567,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       Hib3StemDAO dao = (Hib3StemDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
-        throw new StemNotFoundException();
+        throw new StemNotFoundException("Can't find stem by uuid: '" + uuid + "'");
       }
       return StemDTO.getDTO(dao);
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem find stem by uuid: '" 
+        + uuid + "', " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
@@ -664,7 +706,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       }
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem revoking priv: " + GrouperUtil.toStringSafe(_ns)
+      + ", defaultMemberOf: " + GrouperUtil.toStringSafe(mof) + ", " + eH.getMessage();
+
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
@@ -694,7 +739,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       }
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem revoking priv: " + GrouperUtil.toStringSafe(_ns)
+        + ", children: " + GrouperUtil.toStringSafe(children) + ", " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
   
@@ -724,7 +771,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       }
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem revoking priv: " + GrouperUtil.toStringSafe(_ns)
+        + ", privs: " + GrouperUtil.toStringSafe(toDelete) + ", " + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
@@ -862,14 +911,20 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       } 
     }
     catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
+      String error = "Problem with hib update: " + GrouperUtil.toStringSafe(_ns)
+       + ",\n" + eH.getMessage();
+      throw new GrouperDAOException( error, eH );
     }
   } 
 
 
   // PROTECTED CLASS METHODS //
 
-  // @since   @HEAD@
+  /**
+   * @param hs 
+   * @throws HibernateException 
+   * 
+   */
   protected static void reset(Session hs) 
     throws  HibernateException
   {

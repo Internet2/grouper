@@ -16,38 +16,193 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.U;
-import  edu.internet2.middleware.subject.*;
-import  java.util.Date;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Map;
-import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.lang.time.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.time.StopWatch;
+
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /** 
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.171 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: Group.java,v 1.172 2008-02-08 07:37:31 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
+  /**
+   * <pre>
+   * create or update a group.
+   * 
+   * This is a static method since setters to Group objects persist to the DB
+   * 
+   * Steps:
+   * 
+   * 1. Find the group
+   *  a. First look by uuid.  if no uuid, or uuid is not found, then its an insert.
+   *  b. If the uuid is not found, and retrieveViaNameIfNoUuid, then lookup the group
+   *  by name.  If exists, update, else insert
+   * 2. Internally set all the fields of the group (no need to reset if already the same)
+   * 3. Store the group (insert or update) if needed
+   * 4. Return the group object
+   * 
+   * TODO figure out what "types" are and if they should be passed in
+   * TODO do attributes need to be passed in or are they already taken care of?
+   * TODO I assume the create and modify should just happen with the insert/update...
+   * </pre>
+   * @param grouperSession to act as
+   * @param description if blank, ignore
+   * @param displayExtension display friendly name for this group only
+   * (parent stems are not specified)
+   * @param name this is required, and is the full name of the group
+   * including the names of parent stems.  e.g. stem1:stem2:group1
+   * the parent stem must exist
+   * @param uuid of the group.  If a group exists with this uuid, then it will
+   * be updated, if not, then it will be created if createIfNotExist is true
+   * @param retrieveViaNameIfNoUuid 
+   * @param createGroupIfNotExist If not exist, and false, then GroupNotFoundException
+   * @param createStemsIfNotExist true if the stems should be created if they dont exist, false
+   * for StemNotFoundException if not exist.  Note, the display extension on created stems
+   * will equal the extension
+   * @return the group that was updated or created
+   * @throws StemNotFoundException 
+   * @throws GroupNotFoundException 
+   * @throws GroupAddException 
+   * @throws InsufficientPrivilegeException 
+   * @throws GroupModifyException 
+   * @throws StemAddException 
+   */
+  public static Group saveGroup(GrouperSession grouperSession, 
+      String description, String displayExtension, 
+      String name, String uuid, boolean retrieveViaNameIfNoUuid,
+      boolean createGroupIfNotExist, boolean createStemsIfNotExist) 
+        throws StemNotFoundException,
+      GroupNotFoundException, GroupAddException, InsufficientPrivilegeException,
+      GroupModifyException, StemAddException {
+
+    //get the stem name
+    if (!StringUtils.contains(name, ":")) {
+      throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons)");
+    }
+    int lastColonIndex = name.lastIndexOf(':');
+    String stemName = name.substring(0,lastColonIndex);
+    String extension = name.substring(lastColonIndex+1);
+    
+    //lets find the stem
+    Stem stem = null;
+    
+    try {
+      stem = StemFinder.findByName(grouperSession, stemName);
+    } catch (StemNotFoundException snfe) {
+      
+      //see if we should fix this problem
+      if (createStemsIfNotExist) {
+        
+        String[] stems = StringUtils.split(stemName, ':');
+        Stem currentStem = StemFinder.findRootStem(grouperSession);
+        String currentName = stems[0];
+        for (int i=0;i<stems.length;i++) {
+          try {
+            currentStem = StemFinder.findByName(grouperSession, currentName);
+          } catch (StemNotFoundException snfe1) {
+            //this isnt ideal, but just use the extension as the display extension
+            currentStem = currentStem.addChildStem(stems[i], stems[i]);
+          }
+          //increment the name, dont worry if on the last one, we are done
+          if (i < stems.length-1) {
+            currentName += ":" + stems[i+1];
+          }
+        }
+        //at this point the stem should be there (and is equal to currentStem), just to be sure, query again
+        stem = StemFinder.findByName(grouperSession, stemName);
+      } else {
+      
+        throw new StemNotFoundException("Cant find stem: '" + stemName 
+            + "' (from update on group name: '" + name + "')");
+      }
+    }
+    
+    boolean hasUuid = !StringUtils.isBlank(uuid);
+    
+    Group group = null;
+    boolean isUpdate = false;
+
+    //this is an update
+    if (hasUuid || retrieveViaNameIfNoUuid) {
+      isUpdate = true;
+      try {
+        if (hasUuid) {
+          group = GroupFinder.findByUuid(grouperSession, uuid);
+        } else {
+          //find by name
+          group = GroupFinder.findByName(grouperSession, name);
+        }
+      } catch (GroupNotFoundException gnfe) {
+        //if not found, see if ok
+        if (!createGroupIfNotExist) {
+          throw gnfe;
+        }
+        //now we are an insert
+        isUpdate = false;
+      }
+        
+    }
+    
+    //if inserting
+    if (!isUpdate) {
+      if (!createGroupIfNotExist) {
+        throw new GroupNotFoundException("Cant find group uuid: " + uuid + ", name: " + name);
+      }
+      if (!hasUuid) {
+        //if no uuid
+        group = stem.addChildGroup(extension, displayExtension);
+      } else {
+        //if uuid
+        group = stem.internal_addChildGroup(extension, displayExtension, uuid);
+      }
+    }
+    
+    //now compare and put all attributes (then store if needed)
+    
+    //if there is a createSource, and its not what is currently there
+    if (!StringUtils.isBlank(description) 
+        && !StringUtils.equals(description, group.getDescription())) {
+      group.setDescription(description);
+    }
+    
+    return group;
+  }
+  
+  /** */
   private static final  EventLog                  EL            = new EventLog();
+  /** */
   private static final  String                    KEY_CREATOR   = "creator";  // for state caching 
+  /** */
   private static final  String                    KEY_MODIFIER  = "modifier"; // for state caching
+  /** */
   private static final  String                    KEY_SUBJECT   = "subject";  // for state caching
+  /** */
   private               Member                    cachedMember  = null;
+  /** */
   private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
 
   
@@ -801,9 +956,8 @@ public class Group extends GrouperAPI implements Owner {
       String val = (String) attrs.get(attr);
       if (val == null) {
         return emptyString;
-      } else { 
-        return val;
-      }
+      } 
+      return val;
     }
     
     // Group does not have attribute.  If attribute is not valid for Group,
@@ -1477,6 +1631,7 @@ public class Group extends GrouperAPI implements Owner {
    * Stem parent = g.getParentStem();
    * </pre>
    * @return  Parent {@link Stem}.
+   * @throws IllegalStateException 
    */
   public Stem getParentStem() 
     throws  IllegalStateException
@@ -1958,6 +2113,7 @@ public class Group extends GrouperAPI implements Owner {
    * }
    * </pre>
    * @param   type  The {@link GroupType} to check.
+   * @return if has type
    */
   public boolean hasType(GroupType type) {
     return this._getDTO().getTypes().contains( type.getDTO() );
@@ -2348,6 +2504,11 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * TODO 20070531 make into some flavor of validator
+   * @param subj 
+   * @param f 
+   * @return 
+   * @throws IllegalArgumentException 
+   * @throws SchemaException 
    * @since   1.2.1
    */
   protected boolean internal_canWriteField(Subject subj, Field f)
@@ -2380,6 +2541,9 @@ public class Group extends GrouperAPI implements Owner {
 
   // @since   1.2.0 
   // i dislike this method
+  /**
+   * 
+   */
   protected void internal_setModified() {
     this._getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
     this._getDTO().setModifyTime( new Date().getTime() );
@@ -2389,6 +2553,10 @@ public class Group extends GrouperAPI implements Owner {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
+  /**
+   * @param name 
+   * @return if can read field
+   */
   private boolean _canReadField(String name) {
     boolean rv = false;
     try {
@@ -2405,10 +2573,20 @@ public class Group extends GrouperAPI implements Owner {
   } // private boolean _canReadField(name)
 
   // @since   1.2.0
+  /**
+   * @return 
+   * 
+   */
   private GroupDTO _getDTO() {
     return (GroupDTO) super.getDTO();
   }
   
+  /**
+   * 
+   * @throws InsufficientPrivilegeException
+   * @throws RevokePrivilegeException
+   * @throws SchemaException
+   */
   private void _revokeAllAccessPrivs() 
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException, 
