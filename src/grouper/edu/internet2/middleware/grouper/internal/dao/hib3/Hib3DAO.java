@@ -27,7 +27,7 @@ import  org.hibernate.cfg.*;
  * Base Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3DAO.java,v 1.2 2008-02-08 16:59:56 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {
@@ -41,6 +41,9 @@ abstract class Hib3DAO {
   static {
     try {
       // Find the custom configuration file
+      if (Hib3DAO.class.getResource(GrouperConfig.HIBERNATE_CF) == null) {
+        throw new RuntimeException("Cant find resource " + GrouperConfig.HIBERNATE_CF + ", make sure it is on the classpath.");
+      }
       InputStream in  = Hib3DAO.class.getResourceAsStream(GrouperConfig.HIBERNATE_CF);  
       Properties  p   = new Properties();
       p.load(in);
