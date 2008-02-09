@@ -6,21 +6,21 @@ package edu.internet2.middleware.grouper.webservices;
 
 
 /**
- * Result of one group being deleted.  The number of
+ * Result of one group being saved.  The number of
  * these result objects will equal the number of groups sent in to the method
- * to be deleted
+ * to be saved
  * 
  * @author mchyzer
  */
-public class WsGroupDeleteResult {
+public class WsGroupSaveResult {
 	
-	/** group that was deleted */
+	/** group that was saved */
 	private String groupName;
 	
-	/** group uuid that was deleted */
+	/** group uuid that was saved */
 	private String groupUuid;
 
-	/** T or F as to whether it was a successful deleted */
+	/** T or F as to whether it was a successful saved */
 	private String success;
 
 	/** 
@@ -72,7 +72,7 @@ public class WsGroupDeleteResult {
 	/**
 	 * result code of a request
 	 */
-	public enum WsGroupDeleteResultCode {
+	public enum WsGroupSaveResultCode {
 		
 		/** successful addition */
 		SUCCESS, 
@@ -83,7 +83,10 @@ public class WsGroupDeleteResult {
 		/** the group was not found */
 		GROUP_NOT_FOUND, 
 		
-		/** problem with deleting */
+		/** the stem was not found */
+		STEM_NOT_FOUND, 
+		
+		/** problem with saving */
 		EXCEPTION, 
 		
 		/** user not allowed */
@@ -94,17 +97,17 @@ public class WsGroupDeleteResult {
 		 * @return true if success
 		 */
 		public boolean isSuccess() {
-			return this == SUCCESS || this == GROUP_NOT_FOUND;
+			return this == SUCCESS;
 		}
 	}
 
 	/**
 	 * assign the code from the enum
-	 * @param groupDeleteResultCode
+	 * @param groupSaveResultCode
 	 */
-	public void assignResultCode(WsGroupDeleteResultCode groupDeleteResultCode) {
-		this.setResultCode(groupDeleteResultCode == null ? null : groupDeleteResultCode.name());
-		this.setSuccess(groupDeleteResultCode.isSuccess() ? "T" : "F");
+	public void assignResultCode(WsGroupSaveResultCode groupSaveResultCode) {
+		this.setResultCode(groupSaveResultCode == null ? null : groupSaveResultCode.name());
+		this.setSuccess(groupSaveResultCode.isSuccess() ? "T" : "F");
 	}
 
 	/**
@@ -138,7 +141,7 @@ public class WsGroupDeleteResult {
 	}
 
 	/**
-	 * group that was deleted
+	 * group that was saved
 	 * @return the groupName
 	 */
 	public String getGroupName() {
@@ -146,7 +149,7 @@ public class WsGroupDeleteResult {
 	}
 
 	/**
-	 * group that was deleted
+	 * group that was saved
 	 * @param groupName1 the groupName to set
 	 */
 	public void setGroupName(String groupName1) {
@@ -154,7 +157,7 @@ public class WsGroupDeleteResult {
 	}
 
 	/**
-	 * group uuid that was deleted
+	 * group uuid that was saved
 	 * @return the groupUuid
 	 */
 	public String getGroupUuid() {
@@ -162,7 +165,7 @@ public class WsGroupDeleteResult {
 	}
 
 	/**
-	 * group uuid that was deleted
+	 * group uuid that was saved
 	 * @param groupUuid1 the groupUuid to set
 	 */
 	public void setGroupUuid(String groupUuid1) {

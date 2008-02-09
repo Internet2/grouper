@@ -116,6 +116,15 @@ public class GrouperWsConfig {
 	public static final String WS_GROUP_DELETE_MAX = "ws.group.delete.max";
 
 	/** 
+	 * name of param for group save, max groups to be able to save at once, default is 1000000
+	 * 
+	 * # Max number of subjects to be able to pass to addMember service, default is 1000000
+     * ws.group.save.max = 20000
+	 *  
+	 */
+	public static final String WS_GROUP_SAVE_MAX = "ws.group.save.max";
+
+	/** 
 	 * name of param for delete member web service max, default is 1000000
 	 * 
 	 * # Max number of subjects to be able to pass to deleteMember service, default is 1000000

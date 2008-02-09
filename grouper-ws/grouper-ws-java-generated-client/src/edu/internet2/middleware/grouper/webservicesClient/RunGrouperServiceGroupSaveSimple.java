@@ -3,8 +3,8 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDeleteSimple;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteResult;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSaveSimple;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupSaveResult;
 
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -18,18 +18,18 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author mchyzer
  *
  */
-public class RunGrouperServiceGroupDeleteSimple {
+public class RunGrouperServiceGroupSaveSimple {
     /**
      * @param args
      */
     public static void main(String[] args) {
-        groupDelete();
+        groupSave();
     }
 
     /**
      *
      */
-    public static void groupDelete() {
+    public static void groupSave() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(
                     "http://localhost:8091/grouper-ws/services/GrouperService");
@@ -45,18 +45,23 @@ public class RunGrouperServiceGroupDeleteSimple {
 
             //            options.setProperty(Constants.Configuration.ENABLE_REST,
             //            		Constants.VALUE_TRUE);
-            GroupDeleteSimple groupDeleteSimple = GroupDeleteSimple.class.newInstance();
+            GroupSaveSimple groupSaveSimple = GroupSaveSimple.class.newInstance();
 
-            groupDeleteSimple.setActAsSubjectId("GrouperSystem");
-            groupDeleteSimple.setActAsSubjectIdentifier("");
-            groupDeleteSimple.setGroupName("aStem:test");
-            groupDeleteSimple.setGroupUuid("");
+            groupSaveSimple.setActAsSubjectId("GrouperSystem");
+            groupSaveSimple.setActAsSubjectIdentifier("");
+            groupSaveSimple.setCreateGroupIfNotExist("");
+            groupSaveSimple.setCreateStemsIfNotExist("");
+            groupSaveSimple.setDescription("test group");
+            groupSaveSimple.setDisplayExtension("the test group");
+            groupSaveSimple.setGroupName("aStem:test");
+            groupSaveSimple.setGroupUuid("");
+            groupSaveSimple.setRetrieveViaNameIfNoUuid("");
 
-            WsGroupDeleteResult wsGroupDeleteResult = stub.groupDeleteSimple(groupDeleteSimple)
+            WsGroupSaveResult wsGroupSaveResult = stub.groupSaveSimple(groupSaveSimple)
                                                           .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsGroupDeleteResult));
+                    wsGroupSaveResult));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

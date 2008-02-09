@@ -1,0 +1,9 @@
+<ns:groupSaveSimpleResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+  <ns:return type="edu.internet2.middleware.grouper.webservices.WsGroupSaveResult">
+    <ns:groupName>aStem:test</ns:groupName>
+    <ns:groupUuid>0ff41a11-eac5-4f16-b7ca-3c12beac853f</ns:groupUuid>
+    <ns:resultCode>SUCCESS</ns:resultCode>
+    <ns:resultMessage>Group 'a stem:testgroup' was saved.</ns:resultMessage>
+    <ns:success>T</ns:success>
+  </ns:return>
+</ns:groupSaveSimpleResponse>

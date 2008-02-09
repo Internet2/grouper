@@ -99,8 +99,8 @@ public class GrouperServiceJ2ee implements Filter {
 		//make sure there is one there
 		if (StringUtils.isBlank(actAsGroupName)) {
 			
-			throw new RuntimeException("A web service is specifying an actAsUser, but there is no "
-					+ GrouperWsConfig.WS_ACT_AS_GROUP + " specified in the grouper.properties");
+			throw new RuntimeException("A web service is specifying an actAsUser, but there is no '"
+					+ GrouperWsConfig.WS_ACT_AS_GROUP + "' specified in the grouper-ws.properties");
 			
 		}
 
@@ -122,8 +122,8 @@ public class GrouperServiceJ2ee implements Filter {
 			
 			//if not an effective member
 			throw new RuntimeException("A web service is specifying an actAsUser, but the group specified in "
-					+ GrouperWsConfig.WS_ACT_AS_GROUP + " in the grouper.properties: " + actAsGroupName
-					+ " does not have the logged in user as a member: " + loggedInSubject);
+					+ GrouperWsConfig.WS_ACT_AS_GROUP + " in the grouper-ws.properties: '" + actAsGroupName
+					+ "' does not have the logged in user as a member: '" + loggedInSubject + "'");
 		} catch (SessionException se) {
 			throw new RuntimeException(se);
 		} catch (SubjectNotFoundException snfe) {
@@ -131,6 +131,7 @@ public class GrouperServiceJ2ee implements Filter {
 		} catch (SubjectNotUniqueException snue) {
 			throw new RuntimeException("Subject 'GrouperSystem' is not unique", snue);
 		} catch (GroupNotFoundException gnfe) {
+			//TODO this should be a ACT_AS_GROUP_PROBLEM result code
 			throw new RuntimeException("A web service is specifying an actAsUser, but the group specified in "
 					+ GrouperWsConfig.WS_ACT_AS_GROUP + " in the grouper.properties cant be found: " + actAsGroupName, gnfe);
 			

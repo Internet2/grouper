@@ -99,6 +99,21 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
+     * auto generated Axis2 call back method for groupSaveSimple method
+     * override this method for handling normal response from groupSaveSimple operation
+     */
+    public void receiveResultgroupSaveSimple(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSaveSimpleResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from groupSaveSimple operation
+     */
+    public void receiveErrorgroupSaveSimple(java.lang.Exception e) {
+    }
+
+    /**
      * auto generated Axis2 call back method for getGroupsSimple method
      * override this method for handling normal response from getGroupsSimple operation
      */
@@ -186,6 +201,21 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from deleteMemberSimple operation
      */
     public void receiveErrordeleteMemberSimple(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for groupSave method
+     * override this method for handling normal response from groupSave operation
+     */
+    public void receiveResultgroupSave(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSaveResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from groupSave operation
+     */
+    public void receiveErrorgroupSave(java.lang.Exception e) {
     }
 
     /**

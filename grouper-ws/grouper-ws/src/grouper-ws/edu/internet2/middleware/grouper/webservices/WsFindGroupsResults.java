@@ -95,7 +95,7 @@ public class WsFindGroupsResults {
 	 */
 	private String resultCode;
 	/**
-	 * friendly message that could be audited or sent to a UI
+	 * friendly message that could be audited 
 	 */
 	private String resultMessage;
 
@@ -160,7 +160,7 @@ public class WsFindGroupsResults {
 	}
 
 	/**
-	 * friendly message that could be audited or sent to a UI
+	 * friendly message that could be audited 
 	 * @return the errorMessage
 	 */
 	public String getResultMessage() {
@@ -168,7 +168,7 @@ public class WsFindGroupsResults {
 	}
 
 	/**
-	 * friendly message that could be audited or sent to a UI
+	 * friendly message that could be audited 
 	 * @param errorMessage the errorMessage to set
 	 */
 	public void setResultMessage(String errorMessage) {

@@ -3,16 +3,17 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDelete;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -45,8 +46,8 @@ public class RunGrouperServiceGroupDelete {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-//            options.setProperty(Constants.Configuration.ENABLE_REST,
-//            		Constants.VALUE_TRUE);
+            //            options.setProperty(Constants.Configuration.ENABLE_REST,
+            //            		Constants.VALUE_TRUE);
             GroupDelete groupDelete = GroupDelete.class.newInstance();
 
             // set the act as id
@@ -56,23 +57,22 @@ public class RunGrouperServiceGroupDelete {
 
             WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
             wsGroupLookup.setGroupName("aStem:test");
-            groupDelete.setWsGroupLookups(new WsGroupLookup[]{wsGroupLookup});
+            groupDelete.setWsGroupLookups(new WsGroupLookup[] { wsGroupLookup });
 
             WsGroupDeleteResults wsGroupDeleteResults = stub.groupDelete(groupDelete)
-                                                        .get_return();
+                                                            .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-            		wsGroupDeleteResults));
-            
+                    wsGroupDeleteResults));
+
             WsGroupDeleteResult[] wsGroupDeleteResultArray = wsGroupDeleteResults.getResults();
-            
+
             if (wsGroupDeleteResultArray != null) {
-            	for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResultArray) {
+                for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResultArray) {
                     System.out.println(ToStringBuilder.reflectionToString(
-                    		wsGroupDeleteResult));
-            	}
+                            wsGroupDeleteResult));
+                }
             }
-            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

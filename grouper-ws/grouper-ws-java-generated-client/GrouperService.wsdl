@@ -459,6 +459,77 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="groupSaveSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="retrieveViaNameIfNoUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="createGroupIfNotExist" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="createStemsIfNotExist" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="groupSaveSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGroupSaveResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGroupSaveResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="groupSave">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroupsToSave" nillable="true" type="ns:WsGroupToSave"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGroupToSave">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="createGroupIfNotExist" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="createStemsIfNotExist" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="retrieveViaNameIfNoUuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="groupSaveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGroupSaveResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGroupSaveResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsGroupSaveResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="hasMemberSimple">
                 <xs:complexType>
                     <xs:sequence>
@@ -547,6 +618,12 @@
     <wsdl:message name="deleteMemberResponse">
         <wsdl:part name="parameters" element="ns0:deleteMemberResponse"/>
     </wsdl:message>
+    <wsdl:message name="groupSaveSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:groupSaveSimple"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:groupSaveSimpleResponse"/>
+    </wsdl:message>
     <wsdl:message name="getGroupsSimpleRequest">
         <wsdl:part name="parameters" element="ns0:getGroupsSimple"/>
     </wsdl:message>
@@ -582,6 +659,12 @@
     </wsdl:message>
     <wsdl:message name="deleteMemberSimpleResponse">
         <wsdl:part name="parameters" element="ns0:deleteMemberSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveRequest">
+        <wsdl:part name="parameters" element="ns0:groupSave"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveResponse">
+        <wsdl:part name="parameters" element="ns0:groupSaveResponse"/>
     </wsdl:message>
     <wsdl:message name="getGroupsRequest">
         <wsdl:part name="parameters" element="ns0:getGroups"/>
@@ -636,6 +719,10 @@
             <wsdl:input message="axis2:deleteMemberRequest" wsaw:Action="urn:deleteMember"/>
             <wsdl:output message="axis2:deleteMemberResponse" wsaw:Action="urn:deleteMemberResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="groupSaveSimple">
+            <wsdl:input message="axis2:groupSaveSimpleRequest" wsaw:Action="urn:groupSaveSimple"/>
+            <wsdl:output message="axis2:groupSaveSimpleResponse" wsaw:Action="urn:groupSaveSimpleResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="getGroupsSimple">
             <wsdl:input message="axis2:getGroupsSimpleRequest" wsaw:Action="urn:getGroupsSimple"/>
             <wsdl:output message="axis2:getGroupsSimpleResponse" wsaw:Action="urn:getGroupsSimpleResponse"/>
@@ -659,6 +746,10 @@
         <wsdl:operation name="deleteMemberSimple">
             <wsdl:input message="axis2:deleteMemberSimpleRequest" wsaw:Action="urn:deleteMemberSimple"/>
             <wsdl:output message="axis2:deleteMemberSimpleResponse" wsaw:Action="urn:deleteMemberSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="groupSave">
+            <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
+            <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getGroups">
             <wsdl:input message="axis2:getGroupsRequest" wsaw:Action="urn:getGroups"/>
@@ -723,6 +814,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="groupSaveSimple">
+            <soap:operation soapAction="urn:groupSaveSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getGroupsSimple">
             <soap:operation soapAction="urn:getGroupsSimple" style="document"/>
             <wsdl:input>
@@ -770,6 +870,15 @@
         </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <soap:operation soapAction="urn:deleteMemberSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSave">
+            <soap:operation soapAction="urn:groupSave" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -870,6 +979,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="groupSaveSimple">
+            <soap12:operation soapAction="urn:groupSaveSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getGroupsSimple">
             <soap12:operation soapAction="urn:getGroupsSimple" style="document"/>
             <wsdl:input>
@@ -917,6 +1035,15 @@
         </wsdl:operation>
         <wsdl:operation name="deleteMemberSimple">
             <soap12:operation soapAction="urn:deleteMemberSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSave">
+            <soap12:operation soapAction="urn:groupSave" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1017,6 +1144,15 @@
                 <mime:content type="text/xml" part="deleteMember"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="groupSaveSimple">
+            <http:operation location="GrouperService/groupSaveSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="groupSaveSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="groupSaveSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getGroupsSimple">
             <http:operation location="GrouperService/getGroupsSimple"/>
             <wsdl:input>
@@ -1069,6 +1205,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="deleteMemberSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSave">
+            <http:operation location="GrouperService/groupSave"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="groupSave"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="groupSave"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGroups">
