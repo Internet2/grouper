@@ -592,6 +592,82 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="viewOrEditPrivilegesSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="adminAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="optinAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="optoutAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="readAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="updateAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="viewAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="viewOrEditPrivilegesSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsViewOrEditPrivilegesResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsViewOrEditPrivilegesResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="adminAllowed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="optinAllowed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="optoutAllowed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="readAllowed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subjectId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="subjectIdentifier" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="systemAllowed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="updateAllowed" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="viewOrEditPrivileges">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="wsGroupLookup" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectLookups" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="adminAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="optinAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="optoutAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="readAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="updateAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="viewAllowed" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="viewOrEditPrivilegesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsViewOrEditPrivilegesResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsViewOrEditPrivilegesResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsViewOrEditPrivilegesResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
         </xs:schema>
     </wsdl:types>
     <wsdl:message name="getMembershipsSimpleRequest">
@@ -666,6 +742,12 @@
     <wsdl:message name="groupSaveResponse">
         <wsdl:part name="parameters" element="ns0:groupSaveResponse"/>
     </wsdl:message>
+    <wsdl:message name="viewOrEditPrivilegesRequest">
+        <wsdl:part name="parameters" element="ns0:viewOrEditPrivileges"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditPrivilegesResponse">
+        <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesResponse"/>
+    </wsdl:message>
     <wsdl:message name="getGroupsRequest">
         <wsdl:part name="parameters" element="ns0:getGroups"/>
     </wsdl:message>
@@ -701,6 +783,12 @@
     </wsdl:message>
     <wsdl:message name="findGroupsResponse">
         <wsdl:part name="parameters" element="ns0:findGroupsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditPrivilegesSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimple"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditPrivilegesSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimpleResponse"/>
     </wsdl:message>
     <wsdl:portType name="GrouperServicePortType">
         <wsdl:operation name="getMembershipsSimple">
@@ -751,6 +839,10 @@
             <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
             <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivileges">
+            <wsdl:input message="axis2:viewOrEditPrivilegesRequest" wsaw:Action="urn:viewOrEditPrivileges"/>
+            <wsdl:output message="axis2:viewOrEditPrivilegesResponse" wsaw:Action="urn:viewOrEditPrivilegesResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="getGroups">
             <wsdl:input message="axis2:getGroupsRequest" wsaw:Action="urn:getGroups"/>
             <wsdl:output message="axis2:getGroupsResponse" wsaw:Action="urn:getGroupsResponse"/>
@@ -774,6 +866,10 @@
         <wsdl:operation name="findGroups">
             <wsdl:input message="axis2:findGroupsRequest" wsaw:Action="urn:findGroups"/>
             <wsdl:output message="axis2:findGroupsResponse" wsaw:Action="urn:findGroupsResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <wsdl:input message="axis2:viewOrEditPrivilegesSimpleRequest" wsaw:Action="urn:viewOrEditPrivilegesSimple"/>
+            <wsdl:output message="axis2:viewOrEditPrivilegesSimpleResponse" wsaw:Action="urn:viewOrEditPrivilegesSimpleResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="GrouperServiceSOAP11Binding" type="axis2:GrouperServicePortType">
@@ -886,6 +982,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivileges">
+            <soap:operation soapAction="urn:viewOrEditPrivileges" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getGroups">
             <soap:operation soapAction="urn:getGroups" style="document"/>
             <wsdl:input>
@@ -933,6 +1038,15 @@
         </wsdl:operation>
         <wsdl:operation name="findGroups">
             <soap:operation soapAction="urn:findGroups" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <soap:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1051,6 +1165,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivileges">
+            <soap12:operation soapAction="urn:viewOrEditPrivileges" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getGroups">
             <soap12:operation soapAction="urn:getGroups" style="document"/>
             <wsdl:input>
@@ -1098,6 +1221,15 @@
         </wsdl:operation>
         <wsdl:operation name="findGroups">
             <soap12:operation soapAction="urn:findGroups" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <soap12:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1216,6 +1348,15 @@
                 <mime:content type="text/xml" part="groupSave"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivileges">
+            <http:operation location="GrouperService/viewOrEditPrivileges"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="viewOrEditPrivileges"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="viewOrEditPrivileges"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getGroups">
             <http:operation location="GrouperService/getGroups"/>
             <wsdl:input>
@@ -1268,6 +1409,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="findGroups"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <http:operation location="GrouperService/viewOrEditPrivilegesSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="viewOrEditPrivilegesSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="viewOrEditPrivilegesSimple"/>
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>

@@ -167,5 +167,11 @@ public class GrouperWsConfig {
 	/** to ship memberships attributes back to the web service client, put the attribute 0 name here, e.g. subject.netid */
 	public static final String WS_GET_MEMBERSHIPS_ATTRIBUTE2 = "ws.get.memberships.attribute2";
 
-	
+	/**
+	 * name of param for save privileges web service max, default is 1000000
+	 * 
+	 * # Max number of subjects to be able to pass to savePrivileges service, default is 1000000
+     * ws.view.or.edit.privileges.subjects.max = 20000
+	 */
+	public static final String WS_VIEW_OR_EDIT_PRIVILEGES_SUBJECTS_MAX = "ws.view.or.edit.privileges.subjects.max";
 }

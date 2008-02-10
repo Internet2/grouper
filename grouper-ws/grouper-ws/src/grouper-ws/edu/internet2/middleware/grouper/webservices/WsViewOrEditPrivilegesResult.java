@@ -6,12 +6,12 @@ package edu.internet2.middleware.grouper.webservices;
 
 
 /**
- * Result of one subject being added to a group.  The number of
+ * Result of one subject having priveleges updated.  The number of
  * subjects will equal the number of subjects sent in to the method
  * 
  * @author mchyzer
  */
-public class WsAddMemberResult {
+public class WsViewOrEditPrivilegesResult {
 	
 	/** subject that was added */
 	private String subjectId;
@@ -21,7 +21,24 @@ public class WsAddMemberResult {
 
 	/** T or F as to whether it was a successful assignment */
 	private String success;
+	
+	/** T or F as to whether admin privilege is allowed */
+	private String adminAllowed;
 
+	/** T or F as to whether optin privilege is allowed */
+	private String optinAllowed;
+	
+	/** T or F as to whether optout privilege is allowed */
+	private String optoutAllowed;
+	
+	/** T or F as to whether read privilege is allowed */
+	private String readAllowed;
+	
+	/** T or F as to whether system privilege is allowed */
+	private String systemAllowed;
+
+	/** T or F as to whether update privilege is allowed */
+	private String updateAllowed;
 	/** 
 	 * <pre>
 	 * code of the result for this subject
@@ -103,14 +120,14 @@ public class WsAddMemberResult {
 	/**
 	 * result code of a request
 	 */
-	public enum WsAddMemberResultCode {
+	public enum WsViewOrEditPrivilegesResultCode {
 		
 		/** invalid request */
 		INVALID_QUERY,
 		
 		/** successful addition */
 		SUCCESS, 
-		
+				
 		/** the subject was not found */
 		SUBJECT_NOT_FOUND, 
 		
@@ -136,7 +153,7 @@ public class WsAddMemberResult {
 	 * assign the code from the enum
 	 * @param addMemberResultCode
 	 */
-	public void assignResultCode(WsAddMemberResultCode addMemberResultCode) {
+	public void assignResultCode(WsViewOrEditPrivilegesResultCode addMemberResultCode) {
 		this.setResultCode(addMemberResultCode == null ? null : addMemberResultCode.name());
 		this.setSuccess(addMemberResultCode.isSuccess() ? "T" : "F");
 	}
@@ -169,5 +186,101 @@ public class WsAddMemberResult {
 	 */
 	public void setResultMessage(String errorMessage) {
 		this.resultMessage = errorMessage;
+	}
+
+	/**
+	 * T or F as to whether admin privilege is allowed
+	 * @return the adminAllowed
+	 */
+	public String getAdminAllowed() {
+		return this.adminAllowed;
+	}
+
+	/**
+	 * T or F as to whether admin privilege is allowed
+	 * @param adminAllowed1 the adminAllowed to set
+	 */
+	public void setAdminAllowed(String adminAllowed1) {
+		this.adminAllowed = adminAllowed1;
+	}
+
+	/**
+	 * T or F as to whether optin privilege is allowed
+	 * @return the optinAllowed
+	 */
+	public String getOptinAllowed() {
+		return this.optinAllowed;
+	}
+
+	/**
+	 * T or F as to whether optin privilege is allowed
+	 * @param optinAllowed1 the optinAllowed to set
+	 */
+	public void setOptinAllowed(String optinAllowed1) {
+		this.optinAllowed = optinAllowed1;
+	}
+
+	/**
+	 * T or F as to whether optout privilege is allowed
+	 * @return the optoutAllowed
+	 */
+	public String getOptoutAllowed() {
+		return this.optoutAllowed;
+	}
+
+	/**
+	 * T or F as to whether optout privilege is allowed
+	 * @param optoutAllowed1 the optoutAllowed to set
+	 */
+	public void setOptoutAllowed(String optoutAllowed1) {
+		this.optoutAllowed = optoutAllowed1;
+	}
+
+	/**
+	 * T or F as to whether read privilege is allowed
+	 * @return the readAllowed
+	 */
+	public String getReadAllowed() {
+		return this.readAllowed;
+	}
+
+	/**
+	 * T or F as to whether read privilege is allowed
+	 * @param readAllowed1 the readAllowed to set
+	 */
+	public void setReadAllowed(String readAllowed1) {
+		this.readAllowed = readAllowed1;
+	}
+
+	/**
+	 * T or F as to whether system privilege is allowed
+	 * @return the systemAllowed
+	 */
+	public String getSystemAllowed() {
+		return this.systemAllowed;
+	}
+
+	/**
+	 * T or F as to whether system privilege is allowed
+	 * @param systemAllowed1 the systemAllowed to set
+	 */
+	public void setSystemAllowed(String systemAllowed1) {
+		this.systemAllowed = systemAllowed1;
+	}
+
+	/**
+	 * T or F as to whether update privilege is allowed
+	 * @return the updateAllowed
+	 */
+	public String getUpdateAllowed() {
+		return this.updateAllowed;
+	}
+
+	/**
+	 * T or F as to whether update privilege is allowed
+	 * @param updateAllowed1 the updateAllowed to set
+	 */
+	public void setUpdateAllowed(String updateAllowed1) {
+		this.updateAllowed = updateAllowed1;
 	}
 }

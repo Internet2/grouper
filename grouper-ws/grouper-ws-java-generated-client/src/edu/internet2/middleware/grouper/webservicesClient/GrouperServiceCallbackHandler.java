@@ -219,6 +219,21 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
+     * auto generated Axis2 call back method for viewOrEditPrivileges method
+     * override this method for handling normal response from viewOrEditPrivileges operation
+     */
+    public void receiveResultviewOrEditPrivileges(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditPrivilegesResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from viewOrEditPrivileges operation
+     */
+    public void receiveErrorviewOrEditPrivileges(java.lang.Exception e) {
+    }
+
+    /**
      * auto generated Axis2 call back method for getGroups method
      * override this method for handling normal response from getGroups operation
      */
@@ -306,5 +321,20 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from findGroups operation
      */
     public void receiveErrorfindGroups(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for viewOrEditPrivilegesSimple method
+     * override this method for handling normal response from viewOrEditPrivilegesSimple operation
+     */
+    public void receiveResultviewOrEditPrivilegesSimple(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditPrivilegesSimpleResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from viewOrEditPrivilegesSimple operation
+     */
+    public void receiveErrorviewOrEditPrivilegesSimple(java.lang.Exception e) {
     }
 }

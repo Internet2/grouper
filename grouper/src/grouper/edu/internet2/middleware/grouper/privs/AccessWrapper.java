@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.privs;
 import  edu.internet2.middleware.grouper.AccessAdapter;
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.GrantPrivilegeException;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
@@ -35,7 +36,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: AccessWrapper.java,v 1.5 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
@@ -94,7 +95,7 @@ public class AccessWrapper implements AccessResolver {
    * @see     AccessAdapter#getPrivs(GrouperSession, Group, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Group group, Subject subject)
+  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
     return this.access.getPrivs(this.s, group, subject);

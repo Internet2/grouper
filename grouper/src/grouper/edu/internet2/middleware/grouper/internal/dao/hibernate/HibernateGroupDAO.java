@@ -40,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.15 2007-11-01 18:25:41 shilen Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.16 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -496,7 +496,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
       HibernateAttributeDAO a = (HibernateAttributeDAO) qry.uniqueResult();
       hs.close();
       if (a == null) {
-        throw new GroupNotFoundException();
+        throw new GroupNotFoundException("Cannot find group with name: '" + name + "'");
       }
       return this.findByUuid( a.getGroupUuid() );
     }

@@ -42,7 +42,7 @@ import  org.hibernate.classic.Lifecycle;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.2 2008-02-08 16:33:11 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.3 2008-02-10 07:22:46 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -495,6 +495,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   {
     try {
       Session hs  = Hib3DAO.getSession();
+      //TODO CH 20080209 Change this to be one query, not two to attribute then group
       Query   qry = hs.createQuery("from Hib3AttributeDAO as a where a.attrName = 'name' and a.value = :value");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindByName");
@@ -502,7 +503,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
       Hib3AttributeDAO a = (Hib3AttributeDAO) qry.uniqueResult();
       hs.close();
       if (a == null) {
-        throw new GroupNotFoundException();
+        throw new GroupNotFoundException("Cannot find group with name: '" + name + "'");
       }
       return this.findByUuid( a.getGroupUuid() );
     }

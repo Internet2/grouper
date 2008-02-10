@@ -8,15 +8,33 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
+import edu.internet2.middleware.grouper.AccessPrivilege;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.webservices.WsViewOrEditPrivilegesResults.WsViewOrEditPrivilegesResultsCode;
 
 /**
  * @author mchyzer
  *
  */
 public class GrouperServiceUtils {
+	
+	/**
+	 * convert a boolean to a T or F
+	 * @param theBoolean
+	 * @return
+	 */
+	public static String booleanToStringOneChar(Boolean theBoolean) {
+		if (theBoolean == null) {
+			return null;
+		}
+		return theBoolean ? "T" : "F";
+	}
 	
 	/**
 	 * get the boolean value for an object, cant be null or blank
@@ -75,6 +93,18 @@ public class GrouperServiceUtils {
 	public static boolean booleanValue(Object object, boolean defaultBoolean) {
 		if (nullOrBlank(object)) {
 			return defaultBoolean;
+		}
+		return booleanValue(object);
+	}
+	
+	/**
+	 * get the Boolean value for an object
+	 * @param object
+	 * @return the Boolean or null if null or empty
+	 */
+	public static Boolean booleanObjectValue(Object object) {
+		if (nullOrBlank(object)) {
+			return null;
 		}
 		return booleanValue(object);
 	}
@@ -203,6 +233,57 @@ public class GrouperServiceUtils {
 			}
 		}
 		return new String[][]{paramNames, paramValues};
+	}
+
+	/**
+	 * convert a set of access privileges to privileges
+	 * @param accessPrivileges
+	 * @return the set of privileges, will never return null
+	 */
+	public static Set<Privilege> convertAccessPrivilegesToPrivileges(Set<AccessPrivilege> accessPrivileges) {
+		Set<Privilege> result = new HashSet<Privilege>();
+		if (accessPrivileges != null) {
+			for (AccessPrivilege accessPrivilege : accessPrivileges) {
+				Privilege privilege = accessPrivilege.getPrivilege();
+				result.add(privilege);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * see if privilege is true or false and error handle and add to list to process
+	 * @param allowedString
+	 * @param propertyName
+	 * @param privilegesToAssign
+	 * @param privilegesToRevoke
+	 * @param privilege
+	 * @param wsViewOrEditPrivilegesResults 
+	 * @return true if ok, false if not and done
+	 */
+	public static boolean processPrivilegesHelper(String allowedString, String propertyName, 
+			List<Privilege> privilegesToAssign, List<Privilege> privilegesToRevoke, Privilege privilege,
+			WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults) {
+		//lets validate all the privileges
+		Boolean allowedBoolean = null;
+		try {
+			allowedBoolean = booleanObjectValue(allowedString);
+			//see if we need to add to either the assign or revoke
+			if (allowedBoolean != null) {
+				if (allowedBoolean) {
+					privilegesToAssign.add(privilege);
+				} else {
+					privilegesToRevoke.add(privilege);
+				}
+			}
+		} catch (Exception e) {
+			wsViewOrEditPrivilegesResults.assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+			wsViewOrEditPrivilegesResults.appendResultMessage("Invalid " + propertyName + ": " 
+					+ ExceptionUtils.getFullStackTrace(e));
+			return false;
+	
+		}
+		return true;
 	}
 	
 }

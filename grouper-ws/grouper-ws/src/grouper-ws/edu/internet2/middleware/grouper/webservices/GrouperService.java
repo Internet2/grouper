@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.webservices;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -9,6 +11,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
@@ -23,6 +26,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MemberNotFoundException;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -42,6 +46,8 @@ import edu.internet2.middleware.grouper.webservices.WsGroupSaveResults.WsGroupSa
 import edu.internet2.middleware.grouper.webservices.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsSubjectLookup.SubjectFindResult;
+import edu.internet2.middleware.grouper.webservices.WsViewOrEditPrivilegesResult.WsViewOrEditPrivilegesResultCode;
+import edu.internet2.middleware.grouper.webservices.WsViewOrEditPrivilegesResults.WsViewOrEditPrivilegesResultsCode;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -1407,8 +1413,257 @@ public class GrouperService {
 	}
 
 	/**
+	 * If all privilege params are empty, then it is viewonly.  If any are
+	 * set, then the privileges will be set (and returned)
+	 * @param wsGroupLookup for group which is related to the privileges
+	 * @param subjectLookups subjects to be added to the group
+	 * @param adminAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param optinAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param optoutAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param readAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param viewAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param updateAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param actAsSubjectLookup 
+	 * @param paramNames optional: reserved for future use
+	 * @param paramValues optional: reserved for future use
+	 * @return the results
+	 */
+	@SuppressWarnings("unchecked")
+	public WsViewOrEditPrivilegesResults viewOrEditPrivileges(WsGroupLookup wsGroupLookup,
+			WsSubjectLookup[] subjectLookups,
+			String adminAllowed, String optinAllowed,
+			String optoutAllowed, String readAllowed,
+			String updateAllowed, String viewAllowed,
+			WsSubjectLookup actAsSubjectLookup,
+			String[] paramNames, String[] paramValues) {
+		
+		GrouperSession session = null;
+		WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults = new WsViewOrEditPrivilegesResults();
+		int subjectLength = subjectLookups == null ? 0 : subjectLookups.length;
+		if (subjectLength == 0) {
+			wsViewOrEditPrivilegesResults.assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+			wsViewOrEditPrivilegesResults.appendResultMessage("Subject length must be more than 1");
+			return wsViewOrEditPrivilegesResults;
+		}
+		
+		//see if greater than the max (or default)
+		int maxSavePrivileges = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_VIEW_OR_EDIT_PRIVILEGES_SUBJECTS_MAX, 1000000);
+		if (subjectLength > maxSavePrivileges) {
+			wsViewOrEditPrivilegesResults.assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+			wsViewOrEditPrivilegesResults.appendResultMessage("Subject length must be less than max: " + maxSavePrivileges + " (sent in " + subjectLength + ")");
+			return wsViewOrEditPrivilegesResults;
+		}
+		
+		//TODO make sure size of params and values the same
+		
+		//assume success
+		wsViewOrEditPrivilegesResults.assignResultCode(WsViewOrEditPrivilegesResultsCode.SUCCESS);
+		Subject actAsSubject = null;
+		try {
+			actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
+			
+			if (actAsSubject == null) {
+				throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+			}
+			
+			//use this to be the user connected, or the user act-as
+			try {
+				session = GrouperSession.start(actAsSubject);
+			} catch (SessionException se) {
+				throw new RuntimeException("Problem with session for subject: " + actAsSubject, se);
+			}
+			wsGroupLookup.retrieveGroupIfNeeded(session);
+			Group group = wsGroupLookup.retrieveGroup();
+			
+			if (group == null) {
+				wsViewOrEditPrivilegesResults.assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+				wsViewOrEditPrivilegesResults.appendResultMessage("Cant find group: " + wsGroupLookup + ".  ");
+				return wsViewOrEditPrivilegesResults;
+			}
+			List<Privilege> privilegesToAssign = new ArrayList<Privilege>();
+			
+			List<Privilege> privilegesToRevoke = new ArrayList<Privilege>();
+			
+			//process the privilege inputs, keep in lists, handle invalid queries
+			if (!GrouperServiceUtils.processPrivilegesHelper(adminAllowed, "adminAllowed", privilegesToAssign, privilegesToRevoke, 
+					AccessPrivilege.ADMIN, wsViewOrEditPrivilegesResults)) {
+				return wsViewOrEditPrivilegesResults;
+			}
+			if (!GrouperServiceUtils.processPrivilegesHelper(optinAllowed, "optinAllowed", privilegesToAssign, privilegesToRevoke, 
+					AccessPrivilege.OPTIN, wsViewOrEditPrivilegesResults)) {
+				return wsViewOrEditPrivilegesResults;
+			}
+			if (!GrouperServiceUtils.processPrivilegesHelper(optoutAllowed, "optoutAllowed", privilegesToAssign, privilegesToRevoke, 
+					AccessPrivilege.OPTOUT, wsViewOrEditPrivilegesResults)) {
+				return wsViewOrEditPrivilegesResults;
+			}
+			if (!GrouperServiceUtils.processPrivilegesHelper(readAllowed, "readAllowed", privilegesToAssign, privilegesToRevoke, 
+					AccessPrivilege.READ, wsViewOrEditPrivilegesResults)) {
+				return wsViewOrEditPrivilegesResults;
+			}
+			if (!GrouperServiceUtils.processPrivilegesHelper(updateAllowed, "updateAllowed", privilegesToAssign, privilegesToRevoke, 
+					AccessPrivilege.UPDATE, wsViewOrEditPrivilegesResults)) {
+				return wsViewOrEditPrivilegesResults;
+			}
+			if (!GrouperServiceUtils.processPrivilegesHelper(viewAllowed, "viewAllowed", privilegesToAssign, privilegesToRevoke, 
+					AccessPrivilege.VIEW, wsViewOrEditPrivilegesResults)) {
+				return wsViewOrEditPrivilegesResults;
+			}
+
+			int resultIndex = 0;
+			
+			wsViewOrEditPrivilegesResults.setResults(new WsViewOrEditPrivilegesResult[subjectLength]);
+
+			for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
+				WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult = new WsViewOrEditPrivilegesResult();
+				wsViewOrEditPrivilegesResults.getResults()[resultIndex] = wsViewOrEditPrivilegesResult;
+				try {
+					wsViewOrEditPrivilegesResult.setSubjectId(wsSubjectLookup.getSubjectId());
+					wsViewOrEditPrivilegesResult.setSubjectIdentifier(wsSubjectLookup.getSubjectIdentifier());
+	
+					Subject subject = wsSubjectLookup.retrieveSubject();
+					
+					//make sure the subject is there
+					if (subject == null) {
+						//see why not
+						SubjectFindResult subjectFindResult = wsSubjectLookup.retrieveSubjectFindResult();
+						String error = "Subject: " + wsSubjectLookup + " had problems: " + subjectFindResult;
+						wsViewOrEditPrivilegesResult.setResultMessage(error);
+						if (SubjectFindResult.SUBJECT_NOT_FOUND.equals(subjectFindResult)) {
+							wsViewOrEditPrivilegesResult.assignResultCode(
+									WsViewOrEditPrivilegesResultCode.SUBJECT_NOT_FOUND);
+							resultIndex++;
+							continue;
+						}
+						if (SubjectFindResult.SUBJECT_DUPLICATE.equals(subjectFindResult)) {
+							wsViewOrEditPrivilegesResult.assignResultCode(
+									WsViewOrEditPrivilegesResultCode.SUBJECT_DUPLICATE);
+							resultIndex++;
+							continue;
+						}
+						throw new NullPointerException(error);
+					} 
+	
+					//these will probably match, but just in case
+					if (StringUtils.isBlank(wsViewOrEditPrivilegesResult.getSubjectId())) {
+						wsViewOrEditPrivilegesResult.setSubjectId(subject.getId());
+					}
+	
+					try {
+						//lets get all the privileges for the group and user
+						Set<AccessPrivilege> accessPrivileges = GrouperServiceUtils.nonNull(group.getPrivs(subject));
+
+						//TODO keep track of isRevokable?  Also, can you remove a read priv?  I tried and got exception  
+						
+						// see what we really need to do.  At the end, the currentAccessPrivileges should be what it looks like afterward
+						// (add in assignments, remove revokes),
+						// the privilegestoAssign will be what to assign (take out what is already there)
+						Set<Privilege> currentPrivilegesSet = GrouperServiceUtils
+							.convertAccessPrivilegesToPrivileges(accessPrivileges);
+						
+						List<Privilege> privilegesToAssignToThisSubject = new ArrayList<Privilege>(privilegesToAssign);
+						List<Privilege> privilegesToRevokeFromThisSubject = new ArrayList<Privilege>(privilegesToRevoke);
+						
+						//dont assign ones already in there
+						privilegesToAssignToThisSubject.removeAll(currentPrivilegesSet);
+						//dont revoke ones not in there
+						privilegesToRevokeFromThisSubject.retainAll(currentPrivilegesSet);
+						//assign
+						for (Privilege privilegeToAssign : privilegesToAssignToThisSubject) {
+							group.grantPriv(subject,privilegeToAssign);
+						}
+						//revoke
+						for (Privilege privilegeToRevoke : privilegesToRevokeFromThisSubject) {
+							group.revokePriv(subject,privilegeToRevoke);
+						}
+						//reset the current privileges set to reflect the new state
+						currentPrivilegesSet.addAll(privilegesToAssignToThisSubject);
+						currentPrivilegesSet.removeAll(privilegesToRevokeFromThisSubject);
+						
+						wsViewOrEditPrivilegesResult.setAdminAllowed(
+								GrouperServiceUtils.booleanToStringOneChar(
+								currentPrivilegesSet.contains(AccessPrivilege.ADMIN)));
+						wsViewOrEditPrivilegesResult.setOptinAllowed(
+								GrouperServiceUtils.booleanToStringOneChar(
+								currentPrivilegesSet.contains(AccessPrivilege.OPTIN)));
+						wsViewOrEditPrivilegesResult.setOptoutAllowed(
+								GrouperServiceUtils.booleanToStringOneChar(
+								currentPrivilegesSet.contains(AccessPrivilege.OPTOUT)));
+						wsViewOrEditPrivilegesResult.setReadAllowed(
+								GrouperServiceUtils.booleanToStringOneChar(
+								currentPrivilegesSet.contains(AccessPrivilege.READ)));
+						wsViewOrEditPrivilegesResult.setSystemAllowed(
+								GrouperServiceUtils.booleanToStringOneChar(
+								currentPrivilegesSet.contains(AccessPrivilege.SYSTEM)));
+						wsViewOrEditPrivilegesResult.setUpdateAllowed(
+								GrouperServiceUtils.booleanToStringOneChar(
+								currentPrivilegesSet.contains(AccessPrivilege.UPDATE)));
+						
+						wsViewOrEditPrivilegesResult.assignResultCode(WsViewOrEditPrivilegesResultCode.SUCCESS);
+					} catch (InsufficientPrivilegeException ipe) {
+						wsViewOrEditPrivilegesResult.assignResultCode(
+								WsViewOrEditPrivilegesResultCode.INSUFFICIENT_PRIVILEGES);
+						wsViewOrEditPrivilegesResult.setResultMessage(ExceptionUtils.getFullStackTrace(ipe));
+					}
+				} catch (Exception e) {
+					wsViewOrEditPrivilegesResult.setResultCode("EXCEPTION");
+					wsViewOrEditPrivilegesResult.setResultMessage(ExceptionUtils.getFullStackTrace(e));
+					LOG.error(wsSubjectLookup + ", " + e, e);
+				}
+				resultIndex++;
+			
+			}
+		} catch (RuntimeException re) {
+			wsViewOrEditPrivilegesResults.assignResultCode(WsViewOrEditPrivilegesResultsCode.EXCEPTION);
+			String theError = "Problem with privileges for member and group: wsGroupLookup: " + wsGroupLookup
+				+ ", subjectLookups: " + GrouperServiceUtils.toStringForLog(subjectLookups)
+				+  ", actAsSubject: " + actAsSubject
+				+ ", admin: '" + adminAllowed + "', optin: '" + optinAllowed
+				+"', optout: '" + optoutAllowed + "', read: '" + readAllowed
+				+ "', update: '" + updateAllowed + "', view: '" + viewAllowed + ".  ";
+			wsViewOrEditPrivilegesResults.appendResultMessage(theError + "\n" + ExceptionUtils.getFullStackTrace(re));
+			//this is sent back to the caller anyway, so just log, and not send back again
+			LOG.error(theError + ", wsViewOrEditPrivilegesResults: " + GrouperServiceUtils.toStringForLog(wsViewOrEditPrivilegesResults), re);
+		} finally {
+			if (session != null) {
+				try {
+					session.stop();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+		
+		if (wsViewOrEditPrivilegesResults.getResults() != null) {
+			//check all entries
+			int successes = 0;
+			int failures = 0;
+			for (WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult : wsViewOrEditPrivilegesResults.getResults()) {
+				boolean success = "T".equalsIgnoreCase(wsViewOrEditPrivilegesResult.getSuccess());
+				if (success) {
+					successes++;
+				} else {
+					failures++;
+				}
+			}
+			if (failures > 0) {
+				wsViewOrEditPrivilegesResults.appendResultMessage("There were " + successes + " successes and " + failures 
+						+ " failures of user group privileges operations.   ");
+				wsViewOrEditPrivilegesResults.assignResultCode(WsViewOrEditPrivilegesResultsCode.PROBLEM_WITH_MEMBERS);
+			} else {
+				wsViewOrEditPrivilegesResults.assignResultCode(WsViewOrEditPrivilegesResultsCode.SUCCESS);
+			}
+		}
+		if (!"T".equalsIgnoreCase(wsViewOrEditPrivilegesResults.getSuccess())) {
+			
+			LOG.error(wsViewOrEditPrivilegesResults.getResultMessage());
+		}
+		return wsViewOrEditPrivilegesResults;
+	}
+
+	/**
 	 * add member to a group (if already a direct member, ignore)
-	 * @param wsGroupLookup 
+	 * @param wsGroupLookup group to add the members to
 	 * @param subjectLookups subjects to be added to the group
 	 * @param replaceAllExisting optional: T or F (default), if the 
 	 * existing groups should be replaced 
@@ -1459,7 +1714,6 @@ public class GrouperService {
 				throw new RuntimeException("Problem with session for subject: " + actAsSubject, se);
 			}
 			wsGroupLookup.retrieveGroupIfNeeded(session);
-			wsAddMemberResults.setResults(new WsAddMemberResult[subjectLength]);
 			Group group = wsGroupLookup.retrieveGroup();
 			
 			if (group == null) {
@@ -1473,7 +1727,8 @@ public class GrouperService {
 			//TODO keep data in transaction?
 			boolean replaceAllExistingBoolean = GrouperWsUtils.booleanValue(replaceAllExisting, false);
 			Set<String> newSubjectIds = new HashSet<String>();
-			
+			wsAddMemberResults.setResults(new WsAddMemberResult[subjectLength]);
+
 			for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
 				WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
 				wsAddMemberResults.getResults()[resultIndex] = wsAddMemberResult;
@@ -1856,6 +2111,85 @@ public class GrouperService {
 		wsAddMemberResult.setSuccess("F");
 		
 		return wsAddMemberResult;
+			
+	}
+
+	/**
+	 * If all privilege params are empty, then it is viewonly.  If any are
+	 * set, then the privileges will be set (and returned)
+	 * @param groupName to lookup the group (mutually exclusive with groupUuid)
+	 * @param groupUuid to lookup the group (mutually exclusive with groupName)
+	 * @param subjectId to assign (mutually exclusive with subjectIdentifier)
+	 * @param subjectIdentifier to assign (mutually exclusive with subjectId)
+	 * @param adminAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param optinAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param optoutAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param readAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param viewAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param updateAllowed T for allowed, F for not allowed, blank for unchanged
+	 * @param actAsSubjectId optional: is the subject id of subject to act as (if proxying).
+	 * Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier optional: is the subject identifier of subject
+	 * to act as (if proxying).  Only pass one of actAsSubjectId or actAsSubjectIdentifer
+	 * @param paramName0 reserved for future use
+	 * @param paramValue0 reserved for future use
+	 * @param paramName1 reserved for future use
+	 * @param paramValue1 reserved for future use
+	 * @return the result of one member add
+	 */
+	public WsViewOrEditPrivilegesResult viewOrEditPrivilegesSimple(String groupName,
+			String groupUuid,
+			String subjectId, 
+			String subjectIdentifier,
+			String adminAllowed, String optinAllowed,
+			String optoutAllowed, String readAllowed,
+			String updateAllowed, String viewAllowed,
+			String actAsSubjectId,
+			String actAsSubjectIdentifier,
+			String paramName0,
+			String paramValue0,
+			String paramName1,
+			String paramValue1) {
+		
+		//setup the group lookup
+		WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+		
+		//setup the subject lookup
+		WsSubjectLookup[] subjectLookups = new WsSubjectLookup[1];
+		subjectLookups[0] = new WsSubjectLookup(subjectId, subjectIdentifier);
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId, actAsSubjectIdentifier);
+		
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
+		
+		WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults = viewOrEditPrivileges(
+				wsGroupLookup, subjectLookups, adminAllowed, optinAllowed, 
+				optoutAllowed, readAllowed, updateAllowed, viewAllowed,
+				actAsSubjectLookup, paramNames, paramValues);
+		
+		WsViewOrEditPrivilegesResult[] results = wsViewOrEditPrivilegesResults.getResults();
+		if (results != null && results.length > 0) {
+			return results[0];
+		}
+		//didnt even get that far to where there is a subject result
+		WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult = new WsViewOrEditPrivilegesResult();
+		wsViewOrEditPrivilegesResult.setResultMessage(wsViewOrEditPrivilegesResults.getResultMessage());
+	
+		//convert the outer code to the inner code
+		WsViewOrEditPrivilegesResultsCode wsViewOrEditPrivilegesResultsCode = 
+			wsViewOrEditPrivilegesResults.retrieveResultCode();
+		wsViewOrEditPrivilegesResult.assignResultCode(wsViewOrEditPrivilegesResultsCode == null ?
+				WsViewOrEditPrivilegesResultCode.EXCEPTION : wsViewOrEditPrivilegesResultsCode.convertToResultCode());
+		
+		wsViewOrEditPrivilegesResult.setSubjectId(subjectId);
+		wsViewOrEditPrivilegesResult.setSubjectIdentifier(subjectIdentifier);
+		
+		//definitely not a success
+		wsViewOrEditPrivilegesResult.setSuccess("F");
+		
+		return wsViewOrEditPrivilegesResult;
 			
 	}
 

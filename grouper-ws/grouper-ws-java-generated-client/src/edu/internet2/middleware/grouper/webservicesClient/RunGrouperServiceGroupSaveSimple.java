@@ -58,7 +58,7 @@ public class RunGrouperServiceGroupSaveSimple {
             groupSaveSimple.setRetrieveViaNameIfNoUuid("");
 
             WsGroupSaveResult wsGroupSaveResult = stub.groupSaveSimple(groupSaveSimple)
-                                                          .get_return();
+                                                      .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsGroupSaveResult));

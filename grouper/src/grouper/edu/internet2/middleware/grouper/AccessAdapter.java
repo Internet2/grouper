@@ -29,7 +29,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.13 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: AccessAdapter.java,v 1.14 2008-02-10 07:22:46 mchyzer Exp $
  */
 public interface AccessAdapter {
 
@@ -82,7 +82,7 @@ public interface AccessAdapter {
    * @param   subj  Get privileges for this member.
    * @return  Set of privileges.
    */
-  Set getPrivs(GrouperSession s, Group g, Subject subj);
+  Set<AccessPrivilege> getPrivs(GrouperSession s, Group g, Subject subj);
 
   /**
    * Grant the privilege to the subject on this group.

@@ -3,17 +3,18 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSave;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupToSave;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+
+import org.apache.axis2.Constants;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -46,8 +47,9 @@ public class RunGrouperServiceGroupSave {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-                        options.setProperty(Constants.Configuration.ENABLE_REST,
-                        		Constants.VALUE_TRUE);
+            options.setProperty(Constants.Configuration.ENABLE_REST,
+                Constants.VALUE_TRUE);
+
             GroupSave groupSave = GroupSave.class.newInstance();
 
             // set the act as id

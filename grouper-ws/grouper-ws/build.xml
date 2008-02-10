@@ -1,5 +1,6 @@
 <project name="grouper-ws" default="dist" basedir=".">
-
+	<!-- sets DSTAMP etc -->
+	<tstamp/>
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
 			<pathelement location="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
@@ -11,8 +12,25 @@
 	For example, CLASSPATH would be accessible in Ant as ${env.CLASSPATH}. 
 	-->
 	<property environment="env" />
+	<available file="build.properties" property="build.properties.exists" value="true"/>
+	
+  <fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
 	<property file="build.properties" />
 
+	<!-- validate the build.properties -->
+	<fail message="Couldnt detect build.properties property file entry: webapp.folder" unless="webapp.folder" />
+	<fail message="Couldnt detect build.properties property file entry: dist.cleanOnDist" unless="dist.cleanOnDist" />
+	<fail message="Couldnt detect build.properties property file entry: dist.packageAar" unless="dist.packageAar" />
+	<fail message="Couldnt detect build.properties property file entry: dist.generateWsdlOnDist" unless="dist.generateWsdlOnDist" />
+	<fail message="Couldnt detect build.properties property file entry: dist.generateClientOnDist" unless="dist.generateClientOnDist" />
+	<fail message="Couldnt detect build.properties property file entry: deploy.context.path" unless="deploy.context.path" />
+	<fail message="Couldnt detect build.properties property file entry: generated.client.project.dir" unless="generated.client.project.dir" />
+	<fail message="Couldnt detect build.properties property file entry: grouper.dir" unless="grouper.dir" />
+  <fail message="Couldnt detect build.properties property file entry: grouper.dist.dir" unless="grouper.dist.dir" />
+  <fail message="Couldnt detect build.properties property file entry: stop.tomcat.on.quick.or.dist" unless="stop.tomcat.on.quick.or.dist" />
+  <fail message="Couldnt detect build.properties property file entry: tomcat.dir" unless="tomcat.dir" />
+  <fail message="Couldnt detect build.properties property file entry: tomcat.port" unless="tomcat.port" />
+	
 	<property name="webapp.folder" value="${dist.home}/${webapp.name}" />
 
 	<property name="build.dir" value="${basedir}/build" />
@@ -35,7 +53,7 @@
 
 	<!-- TODO move this out of project -->
 	<property name="webservice.folder" value="${webapp.folder}/../webservices" />
-  <!-- this didnt work out -->
+	<!-- this didnt work out -->
 	<!-- target name="generate.wsdl" >  
     	<mkdir dir="${webservice.folder}"/>
     	<mkdir dir="${webservice.folder}/classes"/>
@@ -89,11 +107,11 @@
 			<arg value="GrouperService.wsdl" />
 			<arg value="-cn" />
 			<arg value="edu.internet2.middleware.grouper.webservices.GrouperService" />
-      <arg value="-stn" />
-      <arg value="http://webservices.grouper.middleware.internet2.edu/xsd" />
-      <arg value="-l" />
-      <arg value="http://localhost:8090/grouper-ws/services/GrouperService" />
-			
+			<arg value="-stn" />
+			<arg value="http://webservices.grouper.middleware.internet2.edu/xsd" />
+			<arg value="-l" />
+			<arg value="http://localhost:8090/grouper-ws/services/GrouperService" />
+
 		</java>
 	</target>
 	<target name="wsdl2java" description="convert the wsdl to a java client">
@@ -104,15 +122,15 @@
 				<include name="test/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceTest.java" />
 			</fileset>
 		</delete>
-		<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true" >
+		<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
 			<classpath refid="ws.class.path" />
 			<arg value="-uri" />
 			<arg file="${generated.client.project.dir}/GrouperService.wsdl" />
 			<arg value="-t" />
 			<arg value="-p" />
 			<arg value="edu.internet2.middleware.grouper.webservicesClient" />
-      <arg value="-o" />
-      <arg value="${generated.client.project.dir}" />
+			<arg value="-o" />
+			<arg value="${generated.client.project.dir}" />
 		</java>
 
 	</target>
@@ -197,20 +215,20 @@
 			<compilerarg value="-Xlint:deprecation" />
 		</javac>
 	</target>
-  <!-- 
+	<!-- 
     Builds the entire webapp 
   -->
-  <target name="dist" description="do everything">
-    <property name="skipWsdl" value="false"/>
-  	<antcall target="distHelper" />
-  </target>
-  <!-- 
+	<target name="dist" description="do everything">
+		<property name="skipWsdl" value="false" />
+		<antcall target="distHelper" />
+	</target>
+	<!-- 
     Builds the entire webapp 
   -->
-  <target name="quick" description="dist, but without wsdl">
-    <property name="skipWsdl" value="true"/>
-    <antcall target="distHelper" />
-  </target>
+	<target name="quick" description="dist, but without wsdl">
+		<property name="skipWsdl" value="true" />
+		<antcall target="distHelper" />
+	</target>
 	<!-- 
 		Builds the entire webapp, or skips the web service wsdl part
 	-->
@@ -218,6 +236,15 @@
 
 		<!-- TODO put in options to do the log4j and other properties files -->
 
+		<!-- stop tomcat if supposed to -->
+		<if>
+	    <istrue value="${stop.tomcat.on.quick.or.dist}" />
+      <then>
+			  <antcall target="tomcatStop" />
+			</then>
+		</if>
+		
+		
 		<!-- see if we should clean -->
 		<if>
 			<istrue value="${dist.cleanOnDist}" />
@@ -227,7 +254,7 @@
 		</if>
 
 		<if>
-      <istrue value="${dist.packageAar}" />
+			<istrue value="${dist.packageAar}" />
 			<then>
 				<!-- this will compile -->
 				<antcall target="generate-aar" />
@@ -238,25 +265,25 @@
 			</else>
 		</if>
 
-    <if>
-      <and>
-        <istrue value="${dist.generateWsdlOnDist}" />
-        <isfalse value="${skipWsdl}" />
-      </and>
-      <then>
-        <antcall target="java2wsdl" />
-      </then>
-    </if>
-    <if>
-      <and>
-        <istrue value="${dist.generateClientOnDist}" />
-        <isfalse value="${skipWsdl}" />
-      </and>
-      <then>
-        <antcall target="wsdl2java" />
-      </then>
-    </if>
-		
+		<if>
+			<and>
+				<istrue value="${dist.generateWsdlOnDist}" />
+				<isfalse value="${skipWsdl}" />
+			</and>
+			<then>
+				<antcall target="java2wsdl" />
+			</then>
+		</if>
+		<if>
+			<and>
+				<istrue value="${dist.generateClientOnDist}" />
+				<isfalse value="${skipWsdl}" />
+			</and>
+			<then>
+				<antcall target="wsdl2java" />
+			</then>
+		</if>
+
 		<!-- make the jar first and include source -->
 		<delete file="${dist.home}/grouper-ws.jar" />
 		<jar file="${dist.home}/grouper-ws.jar">
@@ -306,40 +333,120 @@
 		</echo>
 		<echo>1) default (dist) </echo>
 		<echo>     Simply builds, without cleaning, to the webapp.folder</echo>
-    <echo>1) quick </echo>
-    <echo>     Simply builds, without cleaning, to the webapp.folder, and skips wsdl parts</echo>
+		<echo>1) quick </echo>
+		<echo>     Simply builds, without cleaning, to the webapp.folder, and skips wsdl parts</echo>
 		<echo>2) clean</echo>
 		<echo>     Clean the webapp folder, and classfiles, and build</echo>
 		<echo>3) generate-aar</echo>
 		<echo>     Make the axis archive, which is the classfiles and services.xml that axis needs.  You need to do this if you ever change anything that changes the wsdl.  You can do this automatically in dist by setting a property in the build.properties</echo>
 		<echo>4) generate-axis-bundle-jar</echo>
 		<echo>     Take all the bundlable axis jars (in lib/axis-bundle), unjar, and jar back up into one jar </echo>
-    <echo>5) javadoc</echo>
-    <echo>     Generate javadoc to the doc/api dir</echo>
+		<echo>5) javadoc</echo>
+		<echo>     Generate javadoc to the doc/api dir</echo>
 		<echo>6) help</echo>
 		<echo>     This message</echo>
+    <echo>7) grouper</echo>
+    <echo>     Build the grouper jar from build.properties</echo>
 		<echo>
 		</echo>
 	</target>
+	<target name="grouper" description="build the grouper jar and copy to the lib dir">
+    <ant dir="${grouper.dir}" inheritall="false" target="dist" />
+		<!-- now the grouper jar is in   -->
+		<!-- copy it to ws, and rename -->
+		<copy file="${grouper.dist.dir}/lib/grouper-${DSTAMP}.jar" 
+	     tofile="${basedir}/lib/grouper/grouper.jar" failonerror="true"/>
+	</target>
 	<target name="javadoc" description="generate public api docs to doc/api">
 		<!-- Let's be sure we clear out old cruft first... -->
-    <mkdir dir="doc/api" />
+		<mkdir dir="doc/api" />
 		<delete dir="doc/api" />
-    <mkdir dir="doc/api" />
-		<javadoc destdir="doc/api"                
-		     classpathref="ws.class.path"       
-		     access="public"     
-		      > 
-		  <packageset dir="src/grouper-ws" defaultexcludes="yes">
-		      <include name="edu/internet2/middleware/grouper/**"/>
-		      
-		    </packageset>
+		<mkdir dir="doc/api" />
+		<javadoc destdir="doc/api" classpathref="ws.class.path" access="public">
+			<packageset dir="src/grouper-ws" defaultexcludes="yes">
+				<include name="edu/internet2/middleware/grouper/**" />
 
-		    <link href="http://struts.apache.org/1.2.x/api/"/>
-		    <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api"/>
-		    <link href="http://java.sun.com/j2se/1.4.2/docs/api"/>
+			</packageset>
 
-		      </javadoc>	</target>
+			<link href="http://struts.apache.org/1.2.x/api/" />
+			<link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api" />
+			<link href="http://java.sun.com/j2se/1.4.2/docs/api" />
 
+		</javadoc>
+	</target>
 
+  <target name="tomcatStop">
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}" />
+      <then>
+        <!-- stop the tomcat server -->
+        <exec dir="${tomcat.dir}" executable="cmd ">
+          <arg line="/c ${tomcat.dir}\bin\catalina.bat stop" />
+        </exec>
+        <!-- give it a sec to release resources -->
+      	<antcall target="tomcatWaitFor" />
+      </then>
+    </if>
+  </target>
+
+	<target name="tomcatWaitFor">
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}"  />
+      <then>
+        <sleep seconds="3" />
+      </then>
+    </if>
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}" />
+      <then>
+        <sleep seconds="3" />
+      </then>
+    </if>
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}" />
+      <then>
+        <sleep seconds="3" />
+      </then>
+    </if>
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}" />
+      <then>
+        <sleep seconds="3" />
+      </then>
+    </if>
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}" />
+      <then>
+        <sleep seconds="3" />
+      </then>
+    </if>
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}" />
+      <then>
+        <sleep seconds="3" />
+      </then>
+    </if>
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}" />
+      <then>
+        <sleep seconds="3" />
+      </then>
+    </if>
+    <if>
+      <!-- make sure listening on the debug port -->
+      <socket server="localhost" port="${tomcat.port}" />
+      <then>
+        <sleep seconds="3" />
+      </then>
+    </if>
+	</target>
+	
 </project>
