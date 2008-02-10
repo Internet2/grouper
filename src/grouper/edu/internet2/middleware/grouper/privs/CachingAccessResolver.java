@@ -16,27 +16,29 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import edu.internet2.middleware.grouper.AccessPrivilege;
-import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
-import  edu.internet2.middleware.grouper.cache.CacheStats;
-import  edu.internet2.middleware.grouper.cache.EhcacheController;
-import  edu.internet2.middleware.subject.Subject;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import  java.util.Set;
-import  net.sf.ehcache.Element;
-import  org.apache.commons.collections.keyvalue.MultiKey;
+import java.util.Set;
+
+import net.sf.ehcache.Element;
+
+import org.apache.commons.collections.keyvalue.MultiKey;
+
+import edu.internet2.middleware.grouper.AccessPrivilege;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.cache.CacheStats;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.5 2007-11-02 10:45:04 isgwb Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.6 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -97,14 +99,14 @@ public class CachingAccessResolver extends AccessResolverDecorator {
    * @see     AccessResolver#getPrivileges(Group, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Group group, Subject subject)
+  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
     //2007-11-02 Gary Brown
     //https://bugs.internet2.edu/jira/browse/GRP-30
     //Needs to return actual privileges but also
     //cache true/false for each possible Privilege
-	Set<Privilege> privs = super.getDecoratedResolver().getPrivileges(group, subject);
+	Set<AccessPrivilege> privs = super.getDecoratedResolver().getPrivileges(group, subject);
 	Map<String, Object> privsMap = new HashMap<String, Object>();
 	AccessPrivilege ap = null;
 	Iterator it = privs.iterator();

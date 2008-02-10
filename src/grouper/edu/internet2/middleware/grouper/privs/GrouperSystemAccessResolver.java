@@ -16,25 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import edu.internet2.middleware.grouper.AccessPrivilege;
-import  edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperConfig;
-import edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.SubjectHelper;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
-import  edu.internet2.middleware.subject.Subject;
-
 import java.util.HashSet;
-import  java.util.Set;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.AccessPrivilege;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.SubjectHelper;
+import edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemAccessResolver.java,v 1.5 2007-11-16 15:29:11 isgwb Exp $
+ * @version $Id: GrouperSystemAccessResolver.java,v 1.6 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperSystemAccessResolver extends AccessResolverDecorator {
@@ -78,7 +77,7 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
    * @see     AccessResolver#getPrivileges(Group, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Group group, Subject subject)
+  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   { 
     //2007-11-02 Gary Brown
@@ -86,7 +85,7 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
     //all Access privileges exception OPTIN / OPTOUT
 	  if ( SubjectHelper.eq( this.root, subject ) ) {
 	      Set<Privilege> privs = Privilege.getAccessPrivs();
-	      Set accessPrivs = new HashSet();
+	      Set<AccessPrivilege> accessPrivs = new HashSet<AccessPrivilege>();
 	      AccessPrivilege ap = null;
 	      for(Privilege p : privs) {
 	    	//Not happy about the klass but will do for now in the absence of a GrouperSession

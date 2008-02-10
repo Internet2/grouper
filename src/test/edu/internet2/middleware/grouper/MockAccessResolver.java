@@ -27,7 +27,7 @@ import  java.util.Set;
 /**
  * Mock {@link AccessResolver}.
  * @author  blair christensen.
- * @version $Id: MockAccessResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: MockAccessResolver.java,v 1.4 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockAccessResolver implements AccessResolver {
@@ -74,7 +74,7 @@ public class MockAccessResolver implements AccessResolver {
    * @throws  GrouperRuntimeException
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Group group, Subject subject)
+  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
     throw E;

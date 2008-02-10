@@ -42,7 +42,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.8 2007-12-05 11:20:54 isgwb Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.9 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -108,11 +108,11 @@ public class WheelAccessResolver extends AccessResolverDecorator {
    * @see     AccessResolver#getPrivileges(Group, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Group group, Subject subject)
+  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
 	//Get any user privs
-	Set accessPrivs =super.getDecoratedResolver().getPrivileges(group, subject);
+	Set<AccessPrivilege> accessPrivs =super.getDecoratedResolver().getPrivileges(group, subject);
 	
 	//Add any due to Wheel.
 	if (this.useWheel) {

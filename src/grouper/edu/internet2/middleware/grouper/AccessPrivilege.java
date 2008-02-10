@@ -24,7 +24,7 @@ import  org.apache.commons.lang.builder.*;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.15 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: AccessPrivilege.java,v 1.16 2008-02-10 07:22:46 mchyzer Exp $
  */
 public class AccessPrivilege {
 
@@ -61,6 +61,14 @@ public class AccessPrivilege {
     this.subj         = subj;
   } // public AccessPrivilege(object, subj, owner, priv, klass, isRevokable)
 
+  /**
+   * get the privilege, convert from name
+   * @return
+   */
+  public Privilege getPrivilege() {
+    return Privilege.getInstance(this.name);
+  }
+  
 
   // Public Instance Methods
 

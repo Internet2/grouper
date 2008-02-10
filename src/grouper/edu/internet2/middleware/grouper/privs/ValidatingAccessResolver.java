@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
@@ -28,7 +29,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingAccessResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: ValidatingAccessResolver.java,v 1.4 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingAccessResolver extends AccessResolverDecorator {
@@ -74,7 +75,7 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
    * @see     AccessResolver#getPrivileges(Group, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Group group, Subject subject)
+  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
     this.param.notNullGroup(group).notNullSubject(subject);

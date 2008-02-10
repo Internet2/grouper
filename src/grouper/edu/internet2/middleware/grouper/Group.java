@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.172 2008-02-08 07:37:31 mchyzer Exp $
+ * @version $Id: Group.java,v 1.173 2008-02-10 07:22:46 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -1662,7 +1662,7 @@ public class Group extends GrouperAPI implements Owner {
    * @param   subj  Get privileges for this subject.
    * @return  Set of {@link AccessPrivilege} objects.
    */
-  public Set getPrivs(Subject subj) {
+  public Set<AccessPrivilege> getPrivs(Subject subj) {
     return this.getSession().getAccessResolver().getPrivileges(this, subj);
   } 
 

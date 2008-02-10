@@ -32,17 +32,18 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.5 2007-12-04 09:58:56 isgwb Exp $
+ * @version $Id: GrouperAllAccessResolver.java,v 1.6 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
-  
+  /** */
   private Subject all;
 
 
 
   /**
+   * @param resolver 
    * @since   1.2.1
    */
   public GrouperAllAccessResolver(AccessResolver resolver) {
@@ -78,7 +79,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
    * @see     AccessResolver#getPrivileges(Group, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Group group, Subject subject)
+  public Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException
   {
     // TODO 20070820 include GrouperAll privs?
@@ -86,7 +87,7 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
     //I assume this is what blair intended - have removed
     //the All privileges from the GrouperAccessAdapter
     
-	  Set<Privilege> allPrivs = fixPrivs(super.getDecoratedResolver().getPrivileges(group, this.all),subject);
+	  Set<AccessPrivilege> allPrivs = fixPrivs(super.getDecoratedResolver().getPrivileges(group, this.all),subject);
 	  allPrivs.addAll(super.getDecoratedResolver().getPrivileges(group, subject));
     return allPrivs;
   }
@@ -148,8 +149,14 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
     super.getDecoratedResolver().revokePrivilege(group, subject, privilege);
   }  
   
-  private Set<Privilege> fixPrivs(Set privs,Subject subj) {
-	Set fixed = new HashSet();
+  /**
+   * 
+   * @param privs
+   * @param subj
+   * @return the set, never null
+   */
+  private Set<AccessPrivilege> fixPrivs(Set privs,Subject subj) {
+	Set<AccessPrivilege> fixed = new HashSet<AccessPrivilege>();
 	Iterator it = privs.iterator();
 	AccessPrivilege oldPriv;
 	AccessPrivilege newPriv;

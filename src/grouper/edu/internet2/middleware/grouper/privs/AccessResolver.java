@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.privs;
 import  edu.internet2.middleware.grouper.AccessAdapter;
+import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
@@ -28,12 +29,13 @@ import  java.util.Set;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: AccessResolver.java,v 1.3 2008-02-10 07:22:46 mchyzer Exp $
  * @since   1.2.1
  */
 public interface AccessResolver {
 
   /**
+   * @param key 
    * @return  Configuration value.
    * @throws  IllegalStateException if any parameter is null.
    */
@@ -42,6 +44,9 @@ public interface AccessResolver {
   /**
    * Get all groups where <i>subject</i> has <i>privilege</i>.
    * <p/>
+   * @param subject 
+   * @param privilege 
+   * @return the set
    * @throws  IllegalArgumentException if any parameter is null.
    * @see     AccessAdapter#getGroupsWhereSubjectHasPriv(GrouperSession, Subject, Privilege)
    * @since   1.2.1
@@ -52,16 +57,22 @@ public interface AccessResolver {
   /**
    * Get all privileges <i>subject</i> has on <i>group</i>.
    * <p/>
+   * @param group 
+   * @param subject 
+   * @return the set
    * @throws  IllegalArgumentException if any parameter is null.
    * @see     AccessAdapter#getPrivs(GrouperSession, Group, Subject)
    * @since   1.2.1
    */
-  Set<Privilege> getPrivileges(Group group, Subject subject)
+  Set<AccessPrivilege> getPrivileges(Group group, Subject subject)
     throws  IllegalArgumentException;
 
   /**
    * Get all subjects with <i>privilege</i> on <i>group</i>.
    * <p/>
+   * @param group 
+   * @param privilege 
+   * @return the set
    * @throws  IllegalArgumentException if any parameter is null.
    * @see     AccessAdapter#getSubjectsWithPriv(GrouperSession, Group, Privilege)
    * @since   1.2.1
@@ -72,6 +83,9 @@ public interface AccessResolver {
   /**
    * Grant <i>privilege</i> to <i>subject</i> on <i>group</i>.
    * <p/>
+   * @param group 
+   * @param subject 
+   * @param privilege 
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be granted.
    * @see     AccessAdapter#grantPriv(GrouperSession, Group, Subject, Privilege)
@@ -85,6 +99,10 @@ public interface AccessResolver {
   /**
    * Check whether <i>subject</i> has <i>privilege</i> on <i>group</i>.
    * <p/>
+   * @param group 
+   * @param subject 
+   * @param privilege 
+   * @return boolean
    * @throws  IllegalArgumentException if any parameter is null.
    * @see     AccessAdapter#hasPriv(GrouperSession, Group, Subject, Privilege)
    * @since   1.2.1
@@ -95,6 +113,8 @@ public interface AccessResolver {
   /**
    * Revoke <i>privilege</i> from all subjects on <i>group</i>.
    * <p/>
+   * @param group 
+   * @param privilege 
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be revoked.
    * @see     AccessAdapter#revokePriv(GrouperSession, Group, Privilege)
@@ -108,6 +128,9 @@ public interface AccessResolver {
   /**
    * Revoke <i>privilege</i> from <i>subject</i> on <i>group</i>.
    * <p/>
+   * @param group 
+   * @param subject 
+   * @param privilege 
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be revoked.
    * @see     AccessAdapter#revokePriv(GrouperSession, Group, Subject, Privilege)
