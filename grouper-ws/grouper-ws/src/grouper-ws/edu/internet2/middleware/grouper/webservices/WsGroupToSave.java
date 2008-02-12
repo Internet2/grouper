@@ -21,12 +21,13 @@ import edu.internet2.middleware.grouper.StemNotFoundException;
  * Class to save a group via web service
  * 
  * </pre>
+ * 
  * @author mchyzer
  */
 public class WsGroupToSave {
-	
+
 	/**
-	 * logger 
+	 * logger
 	 */
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
@@ -35,30 +36,30 @@ public class WsGroupToSave {
 	 * uuid of the group to find
 	 */
 	private String uuid;
-	
+
 	/** description of group */
 	private String description;
-	
+
 	/** display extension is the friendly name (without path) */
-	private String displayExtension; 
+	private String displayExtension;
 
 	/** if to retrieve with name if uuid isnt specified (T|F), defaults to true */
 	private String retrieveViaNameIfNoUuid;
-	
+
 	/** if the group should be created if it doesnt exist (T|F), defaults to true */
-    private String createGroupIfNotExist;
-    
-    /** if the stems should be created if not exist (T|F), defaults to false */
-    private String createStemsIfNotExist;
-    
-    /**
-     * 
-     */
-    public WsGroupToSave() {
-    	//empty constructor
-    }
-	
-    /**
+	private String createGroupIfNotExist;
+
+	/** if the stems should be created if not exist (T|F), defaults to false */
+	private String createStemsIfNotExist;
+
+	/**
+	 * 
+	 */
+	public WsGroupToSave() {
+		// empty constructor
+	}
+
+	/**
 	 * @param uuid1
 	 * @param description1
 	 * @param displayExtension1
@@ -81,7 +82,8 @@ public class WsGroupToSave {
 	}
 
 	/**
-     * description of group
+	 * description of group
+	 * 
 	 * @return the description
 	 */
 	public String getDescription() {
@@ -90,7 +92,9 @@ public class WsGroupToSave {
 
 	/**
 	 * description of group
-	 * @param description1 the description to set
+	 * 
+	 * @param description1
+	 *            the description to set
 	 */
 	public void setDescription(String description1) {
 		this.description = description1;
@@ -98,6 +102,7 @@ public class WsGroupToSave {
 
 	/**
 	 * display extension is the friendly name (without path)
+	 * 
 	 * @return the displayExtension
 	 */
 	public String getDisplayExtension() {
@@ -106,7 +111,9 @@ public class WsGroupToSave {
 
 	/**
 	 * display extension is the friendly name (without path)
-	 * @param displayExtension1 the displayExtension to set
+	 * 
+	 * @param displayExtension1
+	 *            the displayExtension to set
 	 */
 	public void setDisplayExtension(String displayExtension1) {
 		this.displayExtension = displayExtension1;
@@ -114,6 +121,7 @@ public class WsGroupToSave {
 
 	/**
 	 * if to retrieve with name if uuid isnt specified, defaults to true
+	 * 
 	 * @return the retrieveViaNameIfNoUuid
 	 */
 	public String getRetrieveViaNameIfNoUuid() {
@@ -122,7 +130,9 @@ public class WsGroupToSave {
 
 	/**
 	 * if to retrieve with name if uuid isnt specified, defaults to true
-	 * @param retrieveViaNameIfNoUuid1 the retrieveViaNameIfNoUuid to set
+	 * 
+	 * @param retrieveViaNameIfNoUuid1
+	 *            the retrieveViaNameIfNoUuid to set
 	 */
 	public void setRetrieveViaNameIfNoUuid(String retrieveViaNameIfNoUuid1) {
 		this.retrieveViaNameIfNoUuid = retrieveViaNameIfNoUuid1;
@@ -130,6 +140,7 @@ public class WsGroupToSave {
 
 	/**
 	 * if the group should be created if it doesnt exist, defaults to true
+	 * 
 	 * @return the createGroupIfNotExist
 	 */
 	public String getCreateGroupIfNotExist() {
@@ -138,7 +149,9 @@ public class WsGroupToSave {
 
 	/**
 	 * if the group should be created if it doesnt exist, defaults to true
-	 * @param createGroupIfNotExist1 the createGroupIfNotExist to set
+	 * 
+	 * @param createGroupIfNotExist1
+	 *            the createGroupIfNotExist to set
 	 */
 	public void setCreateGroupIfNotExist(String createGroupIfNotExist1) {
 		this.createGroupIfNotExist = createGroupIfNotExist1;
@@ -146,6 +159,7 @@ public class WsGroupToSave {
 
 	/**
 	 * if the stems should be created if not exist, defaults to false
+	 * 
 	 * @return the createStemsIfNotExist
 	 */
 	public String getCreateStemsIfNotExist() {
@@ -154,25 +168,28 @@ public class WsGroupToSave {
 
 	/**
 	 * if the stems should be created if not exist, defaults to false
-	 * @param createStemsIfNotExist1 the createStemsIfNotExist to set
+	 * 
+	 * @param createStemsIfNotExist1
+	 *            the createStemsIfNotExist to set
 	 */
 	public void setCreateStemsIfNotExist(String createStemsIfNotExist1) {
 		this.createStemsIfNotExist = createStemsIfNotExist1;
 	}
 
 	/**
-     * make sure this is an explicit toString
-     */
-    @Override
-    public String toString() {
-    	return ToStringBuilder.reflectionToString(this);
-    }
+	 * make sure this is an explicit toString
+	 */
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
 
 	/** name of the group to find (includes stems, e.g. stem1:stem2:groupName */
 	private String groupName;
-	
+
 	/**
 	 * uuid of the group to find
+	 * 
 	 * @return the uuid
 	 */
 	public String getUuid() {
@@ -181,7 +198,9 @@ public class WsGroupToSave {
 
 	/**
 	 * uuid of the group to find
-	 * @param uuid1 the uuid to set
+	 * 
+	 * @param uuid1
+	 *            the uuid to set
 	 */
 	public void setUuid(String uuid1) {
 		this.uuid = uuid1;
@@ -189,6 +208,7 @@ public class WsGroupToSave {
 
 	/**
 	 * name of the group to find (includes stems, e.g. stem1:stem2:groupName
+	 * 
 	 * @return the theName
 	 */
 	public String getGroupName() {
@@ -197,12 +217,14 @@ public class WsGroupToSave {
 
 	/**
 	 * name of the group to find (includes stems, e.g. stem1:stem2:groupName
-	 * @param theName the theName to set
+	 * 
+	 * @param theName
+	 *            the theName to set
 	 */
 	public void setGroupName(String theName) {
 		this.groupName = theName;
 	}
-	
+
 	/**
 	 * validate the settings (e.g. that booleans are set correctly)
 	 */
@@ -210,48 +232,59 @@ public class WsGroupToSave {
 		try {
 			GrouperServiceUtils.booleanValue(this.createGroupIfNotExist, true);
 		} catch (Exception e) {
-			throw new RuntimeException("createGroupIfNotExist is invalid, must be blank, t, " +
-					"true, f, false (case insensitive): '" + this.createGroupIfNotExist + "', " + this);
+			throw new RuntimeException(
+					"createGroupIfNotExist is invalid, must be blank, t, "
+							+ "true, f, false (case insensitive): '"
+							+ this.createGroupIfNotExist + "', " + this);
 		}
 		try {
 			GrouperServiceUtils.booleanValue(this.createStemsIfNotExist, false);
 		} catch (Exception e) {
-			throw new RuntimeException("createStemsIfNotExist is invalid, must be blank, t, " +
-					"true, f, false (case insensitive): '" + this.createStemsIfNotExist + "', " + this);
+			throw new RuntimeException(
+					"createStemsIfNotExist is invalid, must be blank, t, "
+							+ "true, f, false (case insensitive): '"
+							+ this.createStemsIfNotExist + "', " + this);
 		}
 		try {
-			GrouperServiceUtils.booleanValue(this.retrieveViaNameIfNoUuid, true);
+			GrouperServiceUtils
+					.booleanValue(this.retrieveViaNameIfNoUuid, true);
 		} catch (Exception e) {
-			throw new RuntimeException("retrieveViaNameIfNoUuid is invalid, must be blank, t, " +
-					"true, f, false (case insensitive): '" + this.retrieveViaNameIfNoUuid + "', " + this);
+			throw new RuntimeException(
+					"retrieveViaNameIfNoUuid is invalid, must be blank, t, "
+							+ "true, f, false (case insensitive): '"
+							+ this.retrieveViaNameIfNoUuid + "', " + this);
 		}
 	}
-	
+
 	/**
 	 * save this group
-	 * @param grouperSession to save
+	 * 
+	 * @param grouperSession
+	 *            to save
 	 * @return the group that was inserted or updated
-	 * @throws StemNotFoundException 
-	 * @throws GroupNotFoundException 
-	 * @throws GroupAddException 
-	 * @throws InsufficientPrivilegeException 
-	 * @throws GroupModifyException 
-	 * @throws StemAddException 
+	 * @throws StemNotFoundException
+	 * @throws GroupNotFoundException
+	 * @throws GroupAddException
+	 * @throws InsufficientPrivilegeException
+	 * @throws GroupModifyException
+	 * @throws StemAddException
 	 */
-	public Group save(GrouperSession grouperSession) throws 
-		StemNotFoundException,
-		GroupNotFoundException, GroupAddException, 
-		InsufficientPrivilegeException,
-		GroupModifyException, StemAddException{
-		
-		boolean retrieveViaNameIfNotUuidBoolean = GrouperServiceUtils.booleanValue(this.retrieveViaNameIfNoUuid, true);
-		boolean createGroupIfNotExistBoolean = GrouperServiceUtils.booleanValue(this.createGroupIfNotExist, true);
-		boolean createStemsIfNotExistBoolean = GrouperServiceUtils.booleanValue(this.createStemsIfNotExist, true);
-		
-		Group group = Group.saveGroup(grouperSession, this.description, 
-				this.displayExtension, this.groupName, this.uuid, 
-				retrieveViaNameIfNotUuidBoolean, 
-				createGroupIfNotExistBoolean, createStemsIfNotExistBoolean);
+	public Group save(GrouperSession grouperSession)
+			throws StemNotFoundException, GroupNotFoundException,
+			GroupAddException, InsufficientPrivilegeException,
+			GroupModifyException, StemAddException {
+
+		boolean retrieveViaNameIfNotUuidBoolean = GrouperServiceUtils
+				.booleanValue(this.retrieveViaNameIfNoUuid, true);
+		boolean createGroupIfNotExistBoolean = GrouperServiceUtils
+				.booleanValue(this.createGroupIfNotExist, true);
+		boolean createStemsIfNotExistBoolean = GrouperServiceUtils
+				.booleanValue(this.createStemsIfNotExist, true);
+
+		Group group = Group.saveGroup(grouperSession, this.description,
+				this.displayExtension, this.groupName, this.uuid,
+				retrieveViaNameIfNotUuidBoolean, createGroupIfNotExistBoolean,
+				createStemsIfNotExistBoolean);
 		return group;
 	}
 }

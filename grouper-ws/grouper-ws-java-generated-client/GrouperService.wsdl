@@ -592,6 +592,85 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="viewOrEditAttributesSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDelete0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeValue1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDelete1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeName2" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeValue2" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="attributeDelete2" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="viewOrEditAttributesSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsViewOrEditAttributesResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsViewOrEditAttributesResult">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="attributes" nillable="true" type="ns:WsAttribute"/>
+                    <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsAttribute">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="viewOrEditAttributes">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroupLookups" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsAttributeEdits" nillable="true" type="ns:WsAttributeEdit"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsAttributeEdit">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="delete" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="viewOrEditAttributesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsViewOrEditAttributesResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsViewOrEditAttributesResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsViewOrEditAttributesResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="viewOrEditPrivilegesSimple">
                 <xs:complexType>
                     <xs:sequence>
@@ -754,6 +833,12 @@
     <wsdl:message name="getGroupsResponse">
         <wsdl:part name="parameters" element="ns0:getGroupsResponse"/>
     </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesSimple"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesSimpleResponse"/>
+    </wsdl:message>
     <wsdl:message name="getMembersSimpleRequest">
         <wsdl:part name="parameters" element="ns0:getMembersSimple"/>
     </wsdl:message>
@@ -789,6 +874,12 @@
     </wsdl:message>
     <wsdl:message name="viewOrEditPrivilegesSimpleResponse">
         <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesRequest">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributes"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesResponse">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesResponse"/>
     </wsdl:message>
     <wsdl:portType name="GrouperServicePortType">
         <wsdl:operation name="getMembershipsSimple">
@@ -847,6 +938,10 @@
             <wsdl:input message="axis2:getGroupsRequest" wsaw:Action="urn:getGroups"/>
             <wsdl:output message="axis2:getGroupsResponse" wsaw:Action="urn:getGroupsResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributesSimple">
+            <wsdl:input message="axis2:viewOrEditAttributesSimpleRequest" wsaw:Action="urn:viewOrEditAttributesSimple"/>
+            <wsdl:output message="axis2:viewOrEditAttributesSimpleResponse" wsaw:Action="urn:viewOrEditAttributesSimpleResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="getMembersSimple">
             <wsdl:input message="axis2:getMembersSimpleRequest" wsaw:Action="urn:getMembersSimple"/>
             <wsdl:output message="axis2:getMembersSimpleResponse" wsaw:Action="urn:getMembersSimpleResponse"/>
@@ -870,6 +965,10 @@
         <wsdl:operation name="viewOrEditPrivilegesSimple">
             <wsdl:input message="axis2:viewOrEditPrivilegesSimpleRequest" wsaw:Action="urn:viewOrEditPrivilegesSimple"/>
             <wsdl:output message="axis2:viewOrEditPrivilegesSimpleResponse" wsaw:Action="urn:viewOrEditPrivilegesSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <wsdl:input message="axis2:viewOrEditAttributesRequest" wsaw:Action="urn:viewOrEditAttributes"/>
+            <wsdl:output message="axis2:viewOrEditAttributesResponse" wsaw:Action="urn:viewOrEditAttributesResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="GrouperServiceSOAP11Binding" type="axis2:GrouperServicePortType">
@@ -1000,6 +1099,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributesSimple">
+            <soap:operation soapAction="urn:viewOrEditAttributesSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getMembersSimple">
             <soap:operation soapAction="urn:getMembersSimple" style="document"/>
             <wsdl:input>
@@ -1047,6 +1155,15 @@
         </wsdl:operation>
         <wsdl:operation name="viewOrEditPrivilegesSimple">
             <soap:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <soap:operation soapAction="urn:viewOrEditAttributes" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1183,6 +1300,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributesSimple">
+            <soap12:operation soapAction="urn:viewOrEditAttributesSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getMembersSimple">
             <soap12:operation soapAction="urn:getMembersSimple" style="document"/>
             <wsdl:input>
@@ -1230,6 +1356,15 @@
         </wsdl:operation>
         <wsdl:operation name="viewOrEditPrivilegesSimple">
             <soap12:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <soap12:operation soapAction="urn:viewOrEditAttributes" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1366,6 +1501,15 @@
                 <mime:content type="text/xml" part="getGroups"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributesSimple">
+            <http:operation location="GrouperService/viewOrEditAttributesSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="viewOrEditAttributesSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="viewOrEditAttributesSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getMembersSimple">
             <http:operation location="GrouperService/getMembersSimple"/>
             <wsdl:input>
@@ -1418,6 +1562,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="viewOrEditPrivilegesSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <http:operation location="GrouperService/viewOrEditAttributes"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="viewOrEditAttributes"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="viewOrEditAttributes"/>
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>

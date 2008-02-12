@@ -3,19 +3,20 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import java.lang.reflect.Array;
-
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditPrivileges;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsViewOrEditPrivilegesResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsViewOrEditPrivilegesResults;
+
+import org.apache.axis2.Constants;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.lang.reflect.Array;
 
 
 /**
@@ -52,7 +53,8 @@ public class RunGrouperServiceViewOrEditPrivileges {
             options.setProperty(HTTPConstants.AUTHENTICATE, auth);
 
             options.setProperty(Constants.Configuration.ENABLE_REST,
-            		Constants.VALUE_TRUE);
+                Constants.VALUE_TRUE);
+
             ViewOrEditPrivileges viewOrEditPrivileges = ViewOrEditPrivileges.class.newInstance();
 
             // set the act as id
@@ -82,14 +84,15 @@ public class RunGrouperServiceViewOrEditPrivileges {
             viewOrEditPrivileges.setReadAllowed("");
             viewOrEditPrivileges.setUpdateAllowed("F");
             viewOrEditPrivileges.setViewAllowed("");
-            
-            WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults = 
-            	stub.viewOrEditPrivileges(viewOrEditPrivileges).get_return();
+
+            WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults = stub.viewOrEditPrivileges(viewOrEditPrivileges)
+                                                                              .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-            		wsViewOrEditPrivilegesResults));
+                    wsViewOrEditPrivilegesResults));
+
             for (WsViewOrEditPrivilegesResult result : wsViewOrEditPrivilegesResults.getResults()) {
-            	System.out.println(ToStringBuilder.reflectionToString(result));
+                System.out.println(ToStringBuilder.reflectionToString(result));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

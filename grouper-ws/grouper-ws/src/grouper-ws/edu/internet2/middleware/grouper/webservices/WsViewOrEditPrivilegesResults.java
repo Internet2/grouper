@@ -6,7 +6,7 @@ import edu.internet2.middleware.grouper.webservices.WsViewOrEditPrivilegesResult
 
 /**
  * <pre>
- * results for the add member call.
+ * results for the viewOrEditPrivileges call.
  * 
  * result code:
  * code of the result for this group overall
@@ -85,11 +85,11 @@ public class WsViewOrEditPrivilegesResults {
 	
 	/**
 	 * assign the code from the enum
-	 * @param vieworEditPrivilegesResultCode
+	 * @param viewOrEditPrivilegesResultCode
 	 */
-	public void assignResultCode(WsViewOrEditPrivilegesResultsCode vieworEditPrivilegesResultCode) {
-		this.setResultCode(vieworEditPrivilegesResultCode == null ? null : vieworEditPrivilegesResultCode.name());
-		this.setSuccess(vieworEditPrivilegesResultCode.isSuccess() ? "T" : "F");
+	public void assignResultCode(WsViewOrEditPrivilegesResultsCode viewOrEditPrivilegesResultCode) {
+		this.setResultCode(viewOrEditPrivilegesResultCode == null ? null : viewOrEditPrivilegesResultCode.name());
+		this.setSuccess(viewOrEditPrivilegesResultCode.isSuccess() ? "T" : "F");
 	}
 	
 	/**

@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.webservices.WsAddMemberResult.WsAddMembe
  * GROUP_NOT_FOUND: cant find the group
  * GROUP_DUPLICATE: found multiple groups
  * </pre>
+ * 
  * @author mchyzer
  */
 public class WsAddMemberResults {
@@ -22,89 +23,95 @@ public class WsAddMemberResults {
 	 * result code of a request
 	 */
 	public enum WsAddMemberResultsCode {
-		
+
 		/** found the subject */
-		SUCCESS  {
-			
+		SUCCESS {
+
 			/** convert this code to a result code */
 			@Override
 			public WsAddMemberResultCode convertToResultCode() {
-				//note, it isnt a success if converting to resultcode
+				// note, it isnt a success if converting to resultcode
 				return WsAddMemberResultCode.EXCEPTION;
 			}
-			
-		}, 
-		
+
+		},
+
 		/** found the subject */
-		EXCEPTION  {
-			
+		EXCEPTION {
+
 			/** convert this code to a result code */
 			@Override
 			public WsAddMemberResultCode convertToResultCode() {
 				return WsAddMemberResultCode.EXCEPTION;
 			}
-			
-		}, 
-		
+
+		},
+
 		/** problem deleting existing members */
 		PROBLEM_DELETING_MEMBERS {
-			
+
 			/** convert this code to a result code */
 			@Override
 			public WsAddMemberResultCode convertToResultCode() {
 				return WsAddMemberResultCode.EXCEPTION;
 			}
-			
-		}, 
-		
+
+		},
+
 		/** invalid query (e.g. if everything blank) */
 		INVALID_QUERY {
-			
+
 			/** convert this code to a result code */
 			@Override
 			public WsAddMemberResultCode convertToResultCode() {
 				return WsAddMemberResultCode.INVALID_QUERY;
 			}
-			
+
 		},
-				
+
 		/** something in one assignment wasnt successful */
 		PROBLEM_WITH_ASSIGNMENT {
-			
+
 			/** convert this code to a result code */
 			@Override
 			public WsAddMemberResultCode convertToResultCode() {
 				return WsAddMemberResultCode.EXCEPTION;
 			}
-			
+
 		};
-				
+
 		/**
 		 * if this is a successful result
+		 * 
 		 * @return true if success
 		 */
 		public boolean isSuccess() {
 			return this == SUCCESS;
 		}
-		
-		/** convert this code to a result code 
+
+		/**
+		 * convert this code to a result code
+		 * 
 		 * @return the result code
 		 */
 		public abstract WsAddMemberResultCode convertToResultCode();
 
 	}
-	
+
 	/**
 	 * assign the code from the enum
+	 * 
 	 * @param addMemberResultCode
 	 */
 	public void assignResultCode(WsAddMemberResultsCode addMemberResultCode) {
-		this.setResultCode(addMemberResultCode == null ? null : addMemberResultCode.name());
+		this.setResultCode(addMemberResultCode == null ? null
+				: addMemberResultCode.name());
 		this.setSuccess(addMemberResultCode.isSuccess() ? "T" : "F");
 	}
-	
+
 	/**
 	 * convert the result code back to enum
+	 * 
 	 * @return the enum code
 	 */
 	public WsAddMemberResultsCode retrieveResultCode() {
@@ -118,7 +125,7 @@ public class WsAddMemberResults {
 	 * error message if there is an error
 	 */
 	private StringBuilder resultMessage = new StringBuilder();
-	
+
 	/**
 	 * results for each assignment sent in
 	 */
@@ -127,7 +134,7 @@ public class WsAddMemberResults {
 	/** T or F as to whether it was a successful assignment */
 	private String success;
 
-	/** 
+	/**
 	 * <pre>
 	 * code of the result for this subject
 	 * SUCCESS: means everything ok
@@ -140,6 +147,7 @@ public class WsAddMemberResults {
 
 	/**
 	 * results for each assignment sent in
+	 * 
 	 * @return the results
 	 */
 	public WsAddMemberResult[] getResults() {
@@ -148,7 +156,9 @@ public class WsAddMemberResults {
 
 	/**
 	 * results for each assignment sent in
-	 * @param results1 the results to set
+	 * 
+	 * @param results1
+	 *            the results to set
 	 */
 	public void setResults(WsAddMemberResult[] results1) {
 		this.results = results1;
@@ -156,23 +166,27 @@ public class WsAddMemberResults {
 
 	/**
 	 * error message if there is an error
+	 * 
 	 * @return the errorMessage
 	 */
 	public String getResultMessage() {
 		return this.resultMessage.toString();
 	}
-	
+
 	/**
 	 * append error message to list of error messages
+	 * 
 	 * @param errorMessage
 	 */
 	public void appendResultMessage(String errorMessage) {
 		this.resultMessage.append(errorMessage);
 	}
-	
+
 	/**
 	 * error message if there is an error
-	 * @param errorMessage the errorMessage to set
+	 * 
+	 * @param errorMessage
+	 *            the errorMessage to set
 	 */
 	public void setResultMessage(String errorMessage) {
 		this.resultMessage = new StringBuilder(errorMessage);
@@ -180,6 +194,7 @@ public class WsAddMemberResults {
 
 	/**
 	 * T or F as to whether it was a successful assignment
+	 * 
 	 * @return the success
 	 */
 	public String getSuccess() {
@@ -188,7 +203,9 @@ public class WsAddMemberResults {
 
 	/**
 	 * T or F as to whether it was a successful assignment
-	 * @param success1 the success to set
+	 * 
+	 * @param success1
+	 *            the success to set
 	 */
 	public void setSuccess(String success1) {
 		this.success = success1;
@@ -202,6 +219,7 @@ public class WsAddMemberResults {
 	 * SUBJECT_DUPLICATE: found multiple subjects
 	 *  
 	 * </pre>
+	 * 
 	 * @return the resultCode
 	 */
 	public String getResultCode() {
@@ -216,7 +234,9 @@ public class WsAddMemberResults {
 	 * SUBJECT_DUPLICATE: found multiple subjects
 	 *  
 	 * </pre>
-	 * @param resultCode1 the resultCode to set
+	 * 
+	 * @param resultCode1
+	 *            the resultCode to set
 	 */
 	public void setResultCode(String resultCode1) {
 		this.resultCode = resultCode1;

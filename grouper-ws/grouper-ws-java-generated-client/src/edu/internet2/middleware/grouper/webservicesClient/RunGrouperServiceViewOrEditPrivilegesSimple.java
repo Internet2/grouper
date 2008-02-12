@@ -3,13 +3,14 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditPrivilegesSimple;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsViewOrEditPrivilegesResult;
+
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditPrivilegesSimple;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsViewOrEditPrivilegesResult;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -49,12 +50,12 @@ public class RunGrouperServiceViewOrEditPrivilegesSimple {
             viewOrEditPrivilegesSimple.setSubjectIdentifier("");
             viewOrEditPrivilegesSimple.setUpdateAllowed("");
             viewOrEditPrivilegesSimple.setViewAllowed("");
-            
-            WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult = 
-            	stub.viewOrEditPrivilegesSimple(viewOrEditPrivilegesSimple).get_return();
+
+            WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult = stub.viewOrEditPrivilegesSimple(viewOrEditPrivilegesSimple)
+                                                                            .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-            		wsViewOrEditPrivilegesResult));
+                    wsViewOrEditPrivilegesResult));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

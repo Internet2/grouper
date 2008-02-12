@@ -7,13 +7,22 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * utility methods for grouper web services
+ * 
  * @author mchyzer
  */
-public class GrouperWsUtils {
-	
+public final class GrouperWsUtils {
+
 	/**
-	 * parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive.
-	 * If not specified, then use default.  If malformed, then exception
+	 * no need to construct
+	 */
+	private GrouperWsUtils() {
+		// no need to construct
+	}
+
+	/**
+	 * parse a boolean as "T" or "F" or "TRUE" or "FALSE" case insensitive. If
+	 * not specified, then use default. If malformed, then exception
+	 * 
 	 * @param input
 	 * @param defaultValue
 	 * @return the boolean
@@ -22,15 +31,16 @@ public class GrouperWsUtils {
 		if (StringUtils.isBlank(input)) {
 			return defaultValue;
 		}
-		if (StringUtils.equalsIgnoreCase("T", input) ||
-				(StringUtils.equals("true", input))) {
+		if (StringUtils.equalsIgnoreCase("T", input)
+				|| (StringUtils.equals("true", input))) {
 			return true;
 		}
-		if (StringUtils.equalsIgnoreCase("F", input) ||
-				(StringUtils.equals("false", input))) {
+		if (StringUtils.equalsIgnoreCase("F", input)
+				|| (StringUtils.equals("false", input))) {
 			return false;
 		}
-		throw new RuntimeException("Invalid boolean: '" + input + "', expecting (case insensitive): T or F or true or false");
+		throw new RuntimeException("Invalid boolean: '" + input
+				+ "', expecting (case insensitive): T or F or true or false");
 	}
-	
+
 }

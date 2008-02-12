@@ -69,7 +69,7 @@ public class WsGroupLookup {
 	 * 
 	 * Note: this is not a javabean property because we dont want it in the web service
 	 * </pre>
-	 * @return the subject
+	 * @return the group
 	 */
 	public Group retrieveGroup() {
 		return this.group;
