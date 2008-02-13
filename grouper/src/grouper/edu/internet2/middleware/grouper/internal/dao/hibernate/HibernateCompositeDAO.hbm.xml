@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: HibernateCompositeDAO.hbm.xml,v 1.1 2007-04-17 14:17:29 blair Exp $ -->
+<!-- $Id: HibernateCompositeDAO.hbm.xml,v 1.2 2008-02-13 16:29:03 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hibernate">
   <class name="HibernateCompositeDAO" table="grouper_composites">
@@ -80,7 +80,7 @@
       <column name="left_factor"
               not-null="true"
               length="128"
-              index="composite_factor_idx"
+              index="composite_left_factor_idx"
       />
     </property>
     <!-- leftFactorUuid -->
@@ -96,7 +96,7 @@
       <column name="right_factor"
               not-null="true"
               length="128"
-              index="composite_factor_idx"
+              index="composite_right_factor_idx"
       />
     </property>
     <!-- rightFactorUuid -->
