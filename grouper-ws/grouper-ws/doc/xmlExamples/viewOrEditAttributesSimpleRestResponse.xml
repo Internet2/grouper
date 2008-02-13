@@ -1,1 +1,29 @@
-none
+<ns:viewOrEditAttributesSimpleResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+  <ns:return type="edu.internet2.middleware.grouper.webservices.WsViewOrEditAttributesResult">
+    <ns:attributes type="edu.internet2.middleware.grouper.webservices.WsAttribute">
+      <ns:name>extension</ns:name>
+      <ns:value>aGroup</ns:value>
+    </ns:attributes>
+    <ns:attributes type="edu.internet2.middleware.grouper.webservices.WsAttribute">
+      <ns:name>displayExtension</ns:name>
+      <ns:value>aGroup</ns:value>
+    </ns:attributes>
+    <ns:attributes type="edu.internet2.middleware.grouper.webservices.WsAttribute">
+      <ns:name>description</ns:name>
+      <ns:value>somedescription</ns:value>
+    </ns:attributes>
+    <ns:attributes type="edu.internet2.middleware.grouper.webservices.WsAttribute">
+      <ns:name>name</ns:name>
+      <ns:value>aStem:aGroup</ns:value>
+    </ns:attributes>
+    <ns:attributes type="edu.internet2.middleware.grouper.webservices.WsAttribute">
+      <ns:name>displayName</ns:name>
+      <ns:value>a stem:aGroup</ns:value>
+    </ns:attributes>
+    <ns:groupName>aStem:aGroup</ns:groupName>
+    <ns:groupUuid>cd89f7c5-913e-4788-9a67-c78a5fee1fba</ns:groupUuid>
+    <ns:resultCode>SUCCESS</ns:resultCode>
+    <ns:resultMessage>Group 'aStem:aGroup' had attributes edited.</ns:resultMessage>
+    <ns:success>T</ns:success>
+  </ns:return>
+</ns:viewOrEditAttributesSimpleResponse>

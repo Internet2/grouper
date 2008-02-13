@@ -210,6 +210,84 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="findStems">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="parentStemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="parentStemNameScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queryTerm" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="querySearchFromStemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queryScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findStemsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindStemsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsFindStemsResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="stemResults" nillable="true" type="ns:WsStemResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsStemResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="createSource" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="createSubjectId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="createTime" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="extension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="modifySource" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="modifySubjectId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="modifyTime" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parentStemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="parentStemUuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="findStemsSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="parentStemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="parentStemNameScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queryTerm" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="querySearchFromStemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="queryScope" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="findStemsSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsFindStemsResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="getGroups">
                 <xs:complexType>
                     <xs:sequence>
@@ -755,6 +833,12 @@
     <wsdl:message name="getMembershipsSimpleResponse">
         <wsdl:part name="parameters" element="ns0:getMembershipsSimpleResponse"/>
     </wsdl:message>
+    <wsdl:message name="findStemsRequest">
+        <wsdl:part name="parameters" element="ns0:findStems"/>
+    </wsdl:message>
+    <wsdl:message name="findStemsResponse">
+        <wsdl:part name="parameters" element="ns0:findStemsResponse"/>
+    </wsdl:message>
     <wsdl:message name="getMembersRequest">
         <wsdl:part name="parameters" element="ns0:getMembers"/>
     </wsdl:message>
@@ -881,10 +965,20 @@
     <wsdl:message name="viewOrEditAttributesResponse">
         <wsdl:part name="parameters" element="ns0:viewOrEditAttributesResponse"/>
     </wsdl:message>
+    <wsdl:message name="findStemsSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:findStemsSimple"/>
+    </wsdl:message>
+    <wsdl:message name="findStemsSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:findStemsSimpleResponse"/>
+    </wsdl:message>
     <wsdl:portType name="GrouperServicePortType">
         <wsdl:operation name="getMembershipsSimple">
             <wsdl:input message="axis2:getMembershipsSimpleRequest" wsaw:Action="urn:getMembershipsSimple"/>
             <wsdl:output message="axis2:getMembershipsSimpleResponse" wsaw:Action="urn:getMembershipsSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="findStems">
+            <wsdl:input message="axis2:findStemsRequest" wsaw:Action="urn:findStems"/>
+            <wsdl:output message="axis2:findStemsResponse" wsaw:Action="urn:findStemsResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getMembers">
             <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
@@ -970,11 +1064,24 @@
             <wsdl:input message="axis2:viewOrEditAttributesRequest" wsaw:Action="urn:viewOrEditAttributes"/>
             <wsdl:output message="axis2:viewOrEditAttributesResponse" wsaw:Action="urn:viewOrEditAttributesResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="findStemsSimple">
+            <wsdl:input message="axis2:findStemsSimpleRequest" wsaw:Action="urn:findStemsSimple"/>
+            <wsdl:output message="axis2:findStemsSimpleResponse" wsaw:Action="urn:findStemsSimpleResponse"/>
+        </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="GrouperServiceSOAP11Binding" type="axis2:GrouperServicePortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <wsdl:operation name="getMembershipsSimple">
             <soap:operation soapAction="urn:getMembershipsSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findStems">
+            <soap:operation soapAction="urn:findStems" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1171,11 +1278,29 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="findStemsSimple">
+            <soap:operation soapAction="urn:findStemsSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
     </wsdl:binding>
     <wsdl:binding name="GrouperServiceSOAP12Binding" type="axis2:GrouperServicePortType">
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
         <wsdl:operation name="getMembershipsSimple">
             <soap12:operation soapAction="urn:getMembershipsSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findStems">
+            <soap12:operation soapAction="urn:findStems" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1372,6 +1497,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="findStemsSimple">
+            <soap12:operation soapAction="urn:findStemsSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
     </wsdl:binding>
     <wsdl:binding name="GrouperServiceHttpBinding" type="axis2:GrouperServicePortType">
         <http:binding verb="POST"/>
@@ -1382,6 +1516,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="getMembershipsSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findStems">
+            <http:operation location="GrouperService/findStems"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="findStems"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="findStems"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getMembers">
@@ -1571,6 +1714,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="viewOrEditAttributes"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findStemsSimple">
+            <http:operation location="GrouperService/findStemsSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="findStemsSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="findStemsSimple"/>
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>

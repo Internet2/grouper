@@ -3,12 +3,6 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditAttributes;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAttribute;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAttributeEdit;
@@ -16,6 +10,13 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsG
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsViewOrEditAttributesResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsViewOrEditAttributesResults;
+
+import org.apache.axis2.Constants;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -30,7 +31,6 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsV
  *
  */
 public class RunGrouperServiceViewOrEditAttributes {
-	
     /**
      * main method
      * @param args cmd line args
@@ -53,9 +53,8 @@ public class RunGrouperServiceViewOrEditAttributes {
 
             options.setProperty(HTTPConstants.AUTHENTICATE, auth);
 
-            options.setProperty(Constants.Configuration.ENABLE_REST,
-                Constants.VALUE_TRUE);
-
+            //            options.setProperty(Constants.Configuration.ENABLE_REST,
+            //                Constants.VALUE_TRUE);
             ViewOrEditAttributes viewOrEditAttributes = ViewOrEditAttributes.class.newInstance();
 
             // set the act as id
@@ -65,31 +64,39 @@ public class RunGrouperServiceViewOrEditAttributes {
 
             WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
             wsGroupLookup.setGroupName("aStem:aGroup");
+
             WsGroupLookup wsGroupLookup2 = WsGroupLookup.class.newInstance();
             wsGroupLookup2.setGroupName("aStem:aGroup2");
-            viewOrEditAttributes.setWsGroupLookups(new WsGroupLookup[]{ wsGroupLookup, wsGroupLookup2});
-            
+            viewOrEditAttributes.setWsGroupLookups(new WsGroupLookup[] {
+                    wsGroupLookup, wsGroupLookup2
+                });
+
             WsAttributeEdit wsAttributeEdit = WsAttributeEdit.class.newInstance();
             wsAttributeEdit.setName("description");
             wsAttributeEdit.setValue("some description");
+
             WsAttributeEdit wsAttributeEdit2 = WsAttributeEdit.class.newInstance();
             //note, this would be different in real life
             wsAttributeEdit2.setName("description");
             wsAttributeEdit2.setValue("some description");
 
-            viewOrEditAttributes.setWsAttributeEdits(new WsAttributeEdit[]{wsAttributeEdit, wsAttributeEdit2});
+            viewOrEditAttributes.setWsAttributeEdits(new WsAttributeEdit[] {
+                    wsAttributeEdit, wsAttributeEdit2
+                });
 
-            WsViewOrEditAttributesResults wsViewOrEditAttributesResults = stub
-            	.viewOrEditAttributes(viewOrEditAttributes).get_return();
+            WsViewOrEditAttributesResults wsViewOrEditAttributesResults = stub.viewOrEditAttributes(viewOrEditAttributes)
+                                                                              .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsViewOrEditAttributesResults));
 
             for (WsViewOrEditAttributesResult result : wsViewOrEditAttributesResults.getResults()) {
                 System.out.println(ToStringBuilder.reflectionToString(result));
-            	for (WsAttribute wsAttribute : result.getAttributes()) {
-            		System.out.println(ToStringBuilder.reflectionToString(wsAttribute));
-            	}
+
+                for (WsAttribute wsAttribute : result.getAttributes()) {
+                    System.out.println(ToStringBuilder.reflectionToString(
+                            wsAttribute));
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

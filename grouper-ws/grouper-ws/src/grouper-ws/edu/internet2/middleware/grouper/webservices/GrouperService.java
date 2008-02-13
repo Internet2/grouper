@@ -31,13 +31,19 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemDisplayExtensionFilter;
+import edu.internet2.middleware.grouper.StemDisplayNameFilter;
+import edu.internet2.middleware.grouper.StemExtensionFilter;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemNameAnyFilter;
+import edu.internet2.middleware.grouper.StemNameFilter;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.webservices.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsDeleteMemberResults.WsDeleteMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsFindGroupsResults.WsFindGroupsResultCode;
+import edu.internet2.middleware.grouper.webservices.WsFindStemsResults.WsFindStemsResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsGetGroupsResults.WsGetGroupsResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsGetMembersResults.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.webservices.WsGetMembershipsResults.WsGetMembershipsResultCode;
@@ -121,6 +127,72 @@ public class GrouperService {
 			String queryScope, String actAsSubjectId,
 			String actAsSubjectIdentifier, String paramName0,
 			String paramValue0, String paramName1, String paramValue1) {
+	
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(
+				actAsSubjectId, actAsSubjectIdentifier);
+	
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
+	
+		// pass through to the more comprehensive method
+		WsFindGroupsResults wsFindGroupsResults = findGroups(groupName,
+				stemName, stemNameScope, groupUuid, queryTerm,
+				querySearchFromStemName, queryScope, actAsSubjectLookup,
+				paramNames, paramValues);
+	
+		return wsFindGroupsResults;
+	}
+
+	/**
+	 * find a stem or stems or groups
+	 * 
+	 * @param stemName
+	 *            will return stem with this name (including parent stem extensions)
+	 * @param parentStemName if searching from parent stem and getting children
+	 * @param parentStemNameScope
+	 *            if searching by stem, ONE_LEVEL is for one level,
+	 *            ALL_IN_SUBTREE will return all in sub tree. Required if
+	 *            searching by stem
+	 * @param stemUuid is searching for stem by uuid
+	 * @param groupUuid
+	 *            search by group uuid (must match exactly), cannot use other
+	 *            params with this
+	 * @param queryTerm
+	 *            if searching by query, this is a term that will be matched to
+	 *            name, extension, etc
+	 * @param querySearchFromStemName
+	 *            if a stem name is put here, that will narrow the search
+	 * @param queryScope
+	 *            NAME is searching by name, EXTENSION is display extension, and
+	 *            DISPLAY_NAME is display name. This is required if a query
+	 *            search
+	 * @param actAsSubjectId
+	 *            optional: is the subject id of subject to act as (if
+	 *            proxying). Only pass one of actAsSubjectId or
+	 *            actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier
+	 *            optional: is the subject identifier of subject to act as (if
+	 *            proxying). Only pass one of actAsSubjectId or
+	 *            actAsSubjectIdentifer
+	 * @param paramName0
+	 *            reserved for future use
+	 * @param paramValue0
+	 *            reserved for future use
+	 * @param paramName1
+	 *            reserved for future use
+	 * @param paramValue1
+	 *            reserved for future use
+	 * @return the groups, or no groups if none found
+	 */
+	public WsFindStemsResults findStemsSimple(
+			String stemName, String parentStemName, String parentStemNameScope, 
+			String stemUuid,
+			String queryTerm, String querySearchFromStemName,
+			String queryScope, String actAsSubjectId,
+			String actAsSubjectIdentifier, String paramName0,
+			String paramValue0, String paramName1, String paramValue1) {
 
 		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(
 				actAsSubjectId, actAsSubjectIdentifier);
@@ -131,12 +203,255 @@ public class GrouperService {
 		String[] paramValues = params[1];
 
 		// pass through to the more comprehensive method
-		WsFindGroupsResults wsFindGroupsResults = findGroups(groupName,
-				stemName, stemNameScope, groupUuid, queryTerm,
+		WsFindStemsResults wsFindStemsResults = findStems(
+				stemName, parentStemName, parentStemNameScope, stemUuid, queryTerm,
 				querySearchFromStemName, queryScope, actAsSubjectLookup,
 				paramNames, paramValues);
 
-		return wsFindGroupsResults;
+		return wsFindStemsResults;
+	}
+
+	/**
+	 * find a stem or stems
+	 * 
+	 * @param groupName
+	 *            search by group name (must match exactly), cannot use other
+	 *            params with this
+	 * @param stemName
+	 *            will return groups in this stem
+	 * @param parentStemName 
+	 * 			  if searching by parent stem, this is the parent stem
+	 * @param parentStemNameScope
+	 *            if searching by stem, ONE_LEVEL is for one level,
+	 *            ALL_IN_SUBTREE will return all in sub tree. Required if
+	 *            searching by stem
+	 * @param stemUuid to find a specific stem
+	 * @param queryTerm
+	 *            if searching by query, this is a term that will be matched to
+	 *            name, extension, etc
+	 * @param querySearchFromStemName
+	 *            if a stem name is put here, that will narrow the search
+	 * @param queryScope
+	 *            NAME is searching by name, EXTENSION is display extension,
+	 *            DISPLAY_NAME is display name, DISPLAY_EXTENSION is
+	 *            searching by display extension, or ALL (default)
+	 * @param actAsSubjectLookup to find a subject to act as (by id or identifier)
+	 * @param paramNames
+	 *            optional: reserved for future use
+	 * @param paramValues
+	 *            optional: reserved for future use
+	 * @return the groups, or no groups if none found
+	 */
+	@SuppressWarnings("unchecked")
+	public WsFindStemsResults findStems(String stemName, String parentStemName,
+			String parentStemNameScope, String stemUuid, String queryTerm,
+			String querySearchFromStemName, String queryScope,
+			WsSubjectLookup actAsSubjectLookup, String[] paramNames,
+			String[] paramValues) {
+	
+		GrouperSession session = null;
+		WsFindStemsResults wsFindStemsResults = new WsFindStemsResults();
+	
+		boolean searchByParentStem = StringUtils.isNotBlank(parentStemName);
+		boolean searchByName = StringUtils.isNotBlank(stemName);
+		boolean searchByUuid = StringUtils.isNotBlank(stemUuid);
+		boolean searchByQuery = StringUtils.isNotBlank(queryTerm);
+	
+		// TODO make sure size of params and values the same
+	
+		// count the search types
+		int searchTypes = (searchByParentStem ? 1 : 0) + (searchByName ? 1 : 0)
+				+ (searchByUuid ? 1 : 0) + (searchByQuery ? 1 : 0);
+		// must only search by one type
+		if (searchTypes != 1) {
+			wsFindStemsResults
+					.assignResultCode(WsFindStemsResultsCode.INVALID_QUERY);
+			wsFindStemsResults
+					.setResultMessage("Invalid query, only query on one thing, not multiple.  "
+							+ "Only search by name, stem, uuid, or query");
+			return wsFindStemsResults;
+		}
+	
+		// assume success
+		wsFindStemsResults.assignResultCode(WsFindStemsResultsCode.SUCCESS);
+	
+		Subject actAsSubject = null;
+		try {
+			actAsSubject = GrouperServiceJ2ee
+					.retrieveSubjectActAs(actAsSubjectLookup);
+	
+			if (actAsSubject == null) {
+				throw new RuntimeException("Cant find actAs user: "
+						+ actAsSubjectLookup);
+			}
+	
+			// use this to be the user connected, or the user act-as
+			try {
+				session = GrouperSession.start(actAsSubject);
+			} catch (SessionException se) {
+				throw new RuntimeException("Problem with session for subject: "
+						+ actAsSubject, se);
+			}
+	
+			// simple search by name
+			if (searchByName) {
+				try {
+					Stem stem = StemFinder.findByName(session, stemName);
+					wsFindStemsResults.assignStemResult(stem);
+				} catch (StemNotFoundException snfe) {
+					// just ignore, the stem results will be blank
+				}
+				return wsFindStemsResults;
+			}
+	
+			// simple search for uuid
+			if (searchByUuid) {
+				try {
+					Stem stem = StemFinder.findByUuid(session, stemUuid);
+					wsFindStemsResults.assignStemResult(stem);
+				} catch (StemNotFoundException gnfe) {
+					// just ignore, the stem results will be blank
+				}
+				return wsFindStemsResults;
+			}
+	
+			if (searchByName) {
+				boolean oneLevel = StringUtils.equals("ONE_LEVEL",
+						parentStemNameScope);
+				boolean allInSubtree = StringUtils.equals("ALL_IN_SUBTREE",
+						parentStemNameScope);
+				// get the stem
+				Stem stem = null;
+				try {
+					stem = StemFinder.findByName(session, parentStemName);
+				} catch (StemNotFoundException snfe) {
+					// this isnt good, this is a problem
+					wsFindStemsResults
+							.assignResultCode(WsFindStemsResultsCode.PARENT_STEM_NOT_FOUND);
+					wsFindStemsResults
+							.setResultMessage("Invalid query, cant find parent stem: '"
+									+ stemName + "'");
+					return wsFindStemsResults;
+				}
+				Set<Stem> stems = null;
+				if (oneLevel) {
+					stems = stem.getChildStems(Scope.ONE);
+				} else if (allInSubtree) {
+					stems = stem.getChildStems(Scope.SUB);
+				} else {
+					throw new RuntimeException("Invalid stemNameScope: '"
+							+ parentStemNameScope + "' must be"
+							+ "one of: ONE_LEVEL, ALL_IN_SUBTREE");
+				}
+				// now set these to the response
+				wsFindStemsResults.assignStemResult(stems);
+				return wsFindStemsResults;
+			}
+	
+			if (searchByQuery) {
+	
+				// if empty string, that is the root stem
+				querySearchFromStemName = StringUtils
+						.trimToEmpty(querySearchFromStemName);
+	
+				// get the stem
+				Stem querySearchFromStem = null;
+				try {
+					querySearchFromStem = StringUtils.isBlank(querySearchFromStemName) ? null 
+							: StemFinder.findByName(session, querySearchFromStemName);
+				} catch (StemNotFoundException snfe) {
+					// this isnt good, this is a problem
+					wsFindStemsResults
+							.assignResultCode(WsFindStemsResultsCode.QUERY_PARENT_STEM_NOT_FOUND);
+					wsFindStemsResults
+							.setResultMessage("Invalid query, cant find query stem parent: '"
+									+ querySearchFromStemName + "'");
+					return wsFindStemsResults;
+				}
+				//hack, this should probably be in the filter classes...
+				if (querySearchFromStem == null) {
+					querySearchFromStem = StemFinder.findRootStem(session);
+				}
+
+				Set<Stem> results = null;
+				
+				// five scopes, the query is searches in stem names,
+				// display names, extensions, or display extensions
+				boolean searchScopeByName = StringUtils.equals("NAME",
+						queryScope);
+				boolean searchScopeByExtension = StringUtils.equals(
+						"EXTENSION", queryScope);
+				boolean searchScopeByDisplayName = StringUtils.equals(
+						"DISPLAY_NAME", queryScope);
+				boolean searchScopeByDisplayExtension = StringUtils.equals(
+						"DISPLAY_EXTENSION", queryScope);
+				boolean searchScopeByAll = StringUtils.isBlank(queryScope)
+				 	|| StringUtils.equals("ALL", queryScope);
+			
+				if (!searchScopeByName && !searchScopeByExtension
+						&& !searchScopeByDisplayName
+						&& !searchScopeByDisplayExtension && !searchScopeByAll) {
+					throw new RuntimeException(
+							"Invalid queryScope, must be one of: NAME is searching by name, "
+									+ "EXTENSION is display extension, DISPLAY_NAME is display name, "
+									+ "DISPLAY_EXTENSION is searching by display extension, and ALL searches in all");
+				}
+				
+				if (searchScopeByName) {
+					results = new StemNameFilter(queryTerm, querySearchFromStem).getResults(session);
+				} else if (searchScopeByExtension) {
+					results = new StemExtensionFilter(queryTerm, querySearchFromStem).getResults(session);
+				} else if (searchScopeByDisplayExtension) {
+					results = new StemDisplayExtensionFilter(queryTerm, querySearchFromStem).getResults(session);
+				} else if (searchScopeByDisplayName) {
+					results = new StemDisplayNameFilter(queryTerm, querySearchFromStem).getResults(session);
+				} else if (searchScopeByAll) {
+					results = new StemNameAnyFilter(queryTerm, querySearchFromStem).getResults(session);
+				}
+				
+				wsFindStemsResults.assignStemResult(results);
+				return wsFindStemsResults;
+	
+			}
+	
+			throw new RuntimeException("Cant find search strategy");
+		} catch (Exception re) {
+			wsFindStemsResults
+					.assignResultCode(WsFindStemsResultsCode.EXCEPTION);
+			String theError = "Problem finding stems: stemName: " + stemName + ", stemNameScope: "
+					+ parentStemNameScope + ", stemUuid: " + stemUuid
+					+ ", queryTerm: " + queryTerm
+					+ ", querySearchFromStemName: " + querySearchFromStemName
+					+ ", queryScope: " + queryScope + ", actAsSubjectLookup: "
+					+ actAsSubjectLookup
+					/* TODO add in param names and values */
+					+ ".  ";
+			wsFindStemsResults.setResultMessage(theError);
+			// this is sent back to the caller anyway, so just log, and not send
+			// back again
+			LOG.error(theError
+							+ ", wsFindStemsResults: "
+							+ GrouperServiceUtils
+									.toStringForLog(wsFindStemsResults
+											+ ",\n"
+											+ ExceptionUtils
+													.getFullStackTrace(re)), re);
+		} finally {
+			if (session != null) {
+				try {
+					session.stop();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+	
+		if (!"T".equalsIgnoreCase(wsFindStemsResults.getSuccess())) {
+	
+			LOG.error(wsFindStemsResults.getResultMessage());
+		}
+		return wsFindStemsResults;
+	
 	}
 
 	/**
@@ -161,9 +476,9 @@ public class GrouperService {
 	 *            if a stem name is put here, that will narrow the search
 	 * @param queryScope
 	 *            NAME is searching by name, EXTENSION is display extension,
-	 *            DISPLAY_NAME is display name, and DISPLAY_EXTENSION is
-	 *            searching by display extension This is required if a query
-	 *            search
+	 *            DISPLAY_NAME is display name, DISPLAY_EXTENSION is
+	 *            searching by display extension, ALL is all scopes. The
+	 *            default is ALL
 	 * @param actAsSubjectLookup
 	 * @param paramNames
 	 *            optional: reserved for future use
@@ -286,8 +601,8 @@ public class GrouperService {
 				// get the stem
 				Stem querySearchFromStem = null;
 				try {
-					querySearchFromStem = StemFinder.findByName(session,
-							querySearchFromStemName);
+					querySearchFromStem = StringUtils.isBlank(querySearchFromStemName) ? null 
+							: StemFinder.findByName(session, querySearchFromStemName);
 				} catch (StemNotFoundException snfe) {
 					// this isnt good, this is a problem
 					wsFindGroupsResults
@@ -297,11 +612,13 @@ public class GrouperService {
 									+ querySearchFromStemName + "'");
 					return wsFindGroupsResults;
 				}
-
+				if (querySearchFromStem == null) {
+					querySearchFromStem = StemFinder.findRootStem(session);
+				}
 				GrouperQuery grouperQuery = null;
 
 				// see if there is a particular query scope
-				if (!StringUtils.isBlank(queryScope)) {
+				if (!StringUtils.isBlank(queryScope) && !StringUtils.equals("ALL", queryScope)) {
 					// four scopes, the query is searches in group names,
 					// display names, extensions, or display extensions
 					boolean searchScopeByName = StringUtils.equals("NAME",

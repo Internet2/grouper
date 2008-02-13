@@ -54,6 +54,21 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
+     * auto generated Axis2 call back method for findStems method
+     * override this method for handling normal response from findStems operation
+     */
+    public void receiveResultfindStems(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from findStems operation
+     */
+    public void receiveErrorfindStems(java.lang.Exception e) {
+    }
+
+    /**
      * auto generated Axis2 call back method for getMembers method
      * override this method for handling normal response from getMembers operation
      */
@@ -366,5 +381,20 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from viewOrEditAttributes operation
      */
     public void receiveErrorviewOrEditAttributes(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for findStemsSimple method
+     * override this method for handling normal response from findStemsSimple operation
+     */
+    public void receiveResultfindStemsSimple(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsSimpleResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from findStemsSimple operation
+     */
+    public void receiveErrorfindStemsSimple(java.lang.Exception e) {
     }
 }
