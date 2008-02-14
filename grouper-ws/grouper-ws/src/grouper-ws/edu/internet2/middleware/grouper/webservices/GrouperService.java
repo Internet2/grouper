@@ -2427,6 +2427,11 @@ public class GrouperService {
 			int failures = 0;
 			for (WsStemDeleteResult wsStemDeleteResult : wsStemDeleteResults
 					.getResults()) {
+				if (wsStemDeleteResult == null) {
+					failures++;
+					continue;
+						
+				}
 				boolean success = "T".equalsIgnoreCase(wsStemDeleteResult
 						.getSuccess());
 				if (success) {

@@ -1,0 +1,17 @@
+<ns:stemDeleteResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+  <ns:return type="edu.internet2.middleware.grouper.webservices.WsStemDeleteResults">
+    <ns:resultCode>SUCCESS</ns:resultCode>
+    <ns:resultMessage></ns:resultMessage>
+    <ns:results type="edu.internet2.middleware.grouper.webservices.WsStemDeleteResult">
+      <ns:resultCode>STEM_NOT_FOUND</ns:resultCode>
+      <ns:resultMessage>
+        Cant find stem:
+        'edu.internet2.middleware.grouper.webservices.WsStemLookup@ba2e48[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:stemNotExist,stemFindResult=STEM_NOT_FOUND]'.
+      </ns:resultMessage>
+      <ns:stemName>aStem:stemNotExist</ns:stemName>
+      <ns:stemUuid xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      <ns:success>T</ns:success>
+    </ns:results>
+    <ns:success>T</ns:success>
+  </ns:return>
+</ns:stemDeleteResponse>

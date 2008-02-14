@@ -17,13 +17,13 @@ import org.apache.commons.io.IOUtils;
  * @author mchyzer
  *
  */
-public class RunGrouperServiceNonAxisFindStems {
+public class RunGrouperServiceNonAxisStemDelete {
 	
 	/**
 	 * find stems rest
 	 */
 	@SuppressWarnings("unchecked")
-	public static void findStemsRest() {
+	public static void stemDeleteRest() {
         //lets load this into jdom, since it is xml
 		Reader xmlReader = null;
 
@@ -37,15 +37,10 @@ public class RunGrouperServiceNonAxisFindStems {
 	        Credentials defaultcreds = new UsernamePasswordCredentials("GrouperSystem", "pass");
 	        httpClient.getState().setCredentials(new AuthScope("localhost", 8091), defaultcreds);
 	        
-	        String xml = "<ns1:findStems xmlns:ns1=\"http://webservices.grouper.middleware.internet2.edu/xsd\">" +
-	        		"<ns1:stemName>aStem</ns1:stemName>" +
-	        		"<ns1:parentStemName></ns1:parentStemName>" +
-	        		"<ns1:parentStemNameScope></ns1:parentStemNameScope>" +
-	        		"<ns1:stemUuid></ns1:stemUuid>" +
-	        		"<ns1:queryTerm></ns1:queryTerm>" +
-	        		"<ns1:querySearchFromStemName></ns1:querySearchFromStemName>" +
-	        		"<ns1:queryScope></ns1:queryScope>" +
-	        		"</ns1:findStems>";
+	        String xml = "<ns1:stemDelete xmlns:ns1=\"http://webservices.grouper.middleware.internet2.edu/xsd\">" +
+	        		"<ns1:wsStemLookups><ns1:stemName>aStem:stemNotExist</ns1:stemName></ns1:wsStemLookups>" +
+	        		"<ns1:actAsSubjectLookup><ns1:subjectId>GrouperSystem</ns1:subjectId></ns1:actAsSubjectLookup>" +
+	        		"</ns1:stemDelete>";
 	        
 	        RequestEntity requestEntity = new StringRequestEntity(xml);
 	        method.setRequestEntity(requestEntity);
@@ -84,6 +79,6 @@ public class RunGrouperServiceNonAxisFindStems {
      */
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        findStemsRest();
+        stemDeleteRest();
     }
 }

@@ -122,10 +122,7 @@ public class WsStemLookup {
 			}
 			
 		} catch (StemNotFoundException gnf) {
-			LOG.warn(this, gnf);
 			this.stemFindResult = StemFindResult.STEM_NOT_FOUND;
-			//TODO remove
-			gnf.printStackTrace();
 		}
 		
 	}

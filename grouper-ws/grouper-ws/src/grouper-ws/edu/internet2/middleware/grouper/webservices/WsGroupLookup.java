@@ -128,10 +128,7 @@ public class WsGroupLookup {
 			}
 			
 		} catch (GroupNotFoundException gnf) {
-			LOG.warn(this, gnf);
 			this.groupFindResult = GroupFindResult.GROUP_NOT_FOUND;
-			//TODO remove
-			gnf.printStackTrace();
 		}
 		
 	}
