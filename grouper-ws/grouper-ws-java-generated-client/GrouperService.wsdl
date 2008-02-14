@@ -670,6 +670,67 @@
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="stemDeleteSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="stemDeleteSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsStemDeleteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemDeleteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stemDelete">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStemLookups" nillable="true" type="ns:WsStemLookup"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemLookup">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stemDeleteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsStemDeleteResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemDeleteResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsStemDeleteResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="viewOrEditAttributesSimple">
                 <xs:complexType>
                     <xs:sequence>
@@ -839,11 +900,11 @@
     <wsdl:message name="findStemsResponse">
         <wsdl:part name="parameters" element="ns0:findStemsResponse"/>
     </wsdl:message>
-    <wsdl:message name="getMembersRequest">
-        <wsdl:part name="parameters" element="ns0:getMembers"/>
+    <wsdl:message name="deleteMemberRequest">
+        <wsdl:part name="parameters" element="ns0:deleteMember"/>
     </wsdl:message>
-    <wsdl:message name="getMembersResponse">
-        <wsdl:part name="parameters" element="ns0:getMembersResponse"/>
+    <wsdl:message name="deleteMemberResponse">
+        <wsdl:part name="parameters" element="ns0:deleteMemberResponse"/>
     </wsdl:message>
     <wsdl:message name="groupDeleteRequest">
         <wsdl:part name="parameters" element="ns0:groupDelete"/>
@@ -851,23 +912,65 @@
     <wsdl:message name="groupDeleteResponse">
         <wsdl:part name="parameters" element="ns0:groupDeleteResponse"/>
     </wsdl:message>
-    <wsdl:message name="deleteMemberRequest">
-        <wsdl:part name="parameters" element="ns0:deleteMember"/>
+    <wsdl:message name="groupSaveRequest">
+        <wsdl:part name="parameters" element="ns0:groupSave"/>
     </wsdl:message>
-    <wsdl:message name="deleteMemberResponse">
-        <wsdl:part name="parameters" element="ns0:deleteMemberResponse"/>
+    <wsdl:message name="groupSaveResponse">
+        <wsdl:part name="parameters" element="ns0:groupSaveResponse"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveSimpleRequest">
-        <wsdl:part name="parameters" element="ns0:groupSaveSimple"/>
+    <wsdl:message name="getMembersSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:getMembersSimple"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveSimpleResponse">
-        <wsdl:part name="parameters" element="ns0:groupSaveSimpleResponse"/>
+    <wsdl:message name="getMembersSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:getMembersSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesSimple"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="addMemberRequest">
+        <wsdl:part name="parameters" element="ns0:addMember"/>
+    </wsdl:message>
+    <wsdl:message name="addMemberResponse">
+        <wsdl:part name="parameters" element="ns0:addMemberResponse"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesRequest">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributes"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesResponse">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditPrivilegesSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimple"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditPrivilegesSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="stemDeleteRequest">
+        <wsdl:part name="parameters" element="ns0:stemDelete"/>
+    </wsdl:message>
+    <wsdl:message name="stemDeleteResponse">
+        <wsdl:part name="parameters" element="ns0:stemDeleteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersRequest">
+        <wsdl:part name="parameters" element="ns0:getMembers"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersResponse">
+        <wsdl:part name="parameters" element="ns0:getMembersResponse"/>
     </wsdl:message>
     <wsdl:message name="getGroupsSimpleRequest">
         <wsdl:part name="parameters" element="ns0:getGroupsSimple"/>
     </wsdl:message>
     <wsdl:message name="getGroupsSimpleResponse">
         <wsdl:part name="parameters" element="ns0:getGroupsSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:groupSaveSimple"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:groupSaveSimpleResponse"/>
     </wsdl:message>
     <wsdl:message name="findGroupsSimpleRequest">
         <wsdl:part name="parameters" element="ns0:findGroupsSimple"/>
@@ -899,12 +1002,6 @@
     <wsdl:message name="deleteMemberSimpleResponse">
         <wsdl:part name="parameters" element="ns0:deleteMemberSimpleResponse"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveRequest">
-        <wsdl:part name="parameters" element="ns0:groupSave"/>
-    </wsdl:message>
-    <wsdl:message name="groupSaveResponse">
-        <wsdl:part name="parameters" element="ns0:groupSaveResponse"/>
-    </wsdl:message>
     <wsdl:message name="viewOrEditPrivilegesRequest">
         <wsdl:part name="parameters" element="ns0:viewOrEditPrivileges"/>
     </wsdl:message>
@@ -917,35 +1014,17 @@
     <wsdl:message name="getGroupsResponse">
         <wsdl:part name="parameters" element="ns0:getGroupsResponse"/>
     </wsdl:message>
-    <wsdl:message name="viewOrEditAttributesSimpleRequest">
-        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesSimple"/>
-    </wsdl:message>
-    <wsdl:message name="viewOrEditAttributesSimpleResponse">
-        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesSimpleResponse"/>
-    </wsdl:message>
-    <wsdl:message name="getMembersSimpleRequest">
-        <wsdl:part name="parameters" element="ns0:getMembersSimple"/>
-    </wsdl:message>
-    <wsdl:message name="getMembersSimpleResponse">
-        <wsdl:part name="parameters" element="ns0:getMembersSimpleResponse"/>
-    </wsdl:message>
-    <wsdl:message name="addMemberRequest">
-        <wsdl:part name="parameters" element="ns0:addMember"/>
-    </wsdl:message>
-    <wsdl:message name="addMemberResponse">
-        <wsdl:part name="parameters" element="ns0:addMemberResponse"/>
-    </wsdl:message>
     <wsdl:message name="addMemberSimpleRequest">
         <wsdl:part name="parameters" element="ns0:addMemberSimple"/>
     </wsdl:message>
     <wsdl:message name="addMemberSimpleResponse">
         <wsdl:part name="parameters" element="ns0:addMemberSimpleResponse"/>
     </wsdl:message>
-    <wsdl:message name="hasMemberSimpleRequest">
-        <wsdl:part name="parameters" element="ns0:hasMemberSimple"/>
+    <wsdl:message name="stemDeleteSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:stemDeleteSimple"/>
     </wsdl:message>
-    <wsdl:message name="hasMemberSimpleResponse">
-        <wsdl:part name="parameters" element="ns0:hasMemberSimpleResponse"/>
+    <wsdl:message name="stemDeleteSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:stemDeleteSimpleResponse"/>
     </wsdl:message>
     <wsdl:message name="findGroupsRequest">
         <wsdl:part name="parameters" element="ns0:findGroups"/>
@@ -953,17 +1032,11 @@
     <wsdl:message name="findGroupsResponse">
         <wsdl:part name="parameters" element="ns0:findGroupsResponse"/>
     </wsdl:message>
-    <wsdl:message name="viewOrEditPrivilegesSimpleRequest">
-        <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimple"/>
+    <wsdl:message name="hasMemberSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:hasMemberSimple"/>
     </wsdl:message>
-    <wsdl:message name="viewOrEditPrivilegesSimpleResponse">
-        <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimpleResponse"/>
-    </wsdl:message>
-    <wsdl:message name="viewOrEditAttributesRequest">
-        <wsdl:part name="parameters" element="ns0:viewOrEditAttributes"/>
-    </wsdl:message>
-    <wsdl:message name="viewOrEditAttributesResponse">
-        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesResponse"/>
+    <wsdl:message name="hasMemberSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:hasMemberSimpleResponse"/>
     </wsdl:message>
     <wsdl:message name="findStemsSimpleRequest">
         <wsdl:part name="parameters" element="ns0:findStemsSimple"/>
@@ -980,25 +1053,53 @@
             <wsdl:input message="axis2:findStemsRequest" wsaw:Action="urn:findStems"/>
             <wsdl:output message="axis2:findStemsResponse" wsaw:Action="urn:findStemsResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="getMembers">
-            <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
-            <wsdl:output message="axis2:getMembersResponse" wsaw:Action="urn:getMembersResponse"/>
+        <wsdl:operation name="deleteMember">
+            <wsdl:input message="axis2:deleteMemberRequest" wsaw:Action="urn:deleteMember"/>
+            <wsdl:output message="axis2:deleteMemberResponse" wsaw:Action="urn:deleteMemberResponse"/>
         </wsdl:operation>
         <wsdl:operation name="groupDelete">
             <wsdl:input message="axis2:groupDeleteRequest" wsaw:Action="urn:groupDelete"/>
             <wsdl:output message="axis2:groupDeleteResponse" wsaw:Action="urn:groupDeleteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="deleteMember">
-            <wsdl:input message="axis2:deleteMemberRequest" wsaw:Action="urn:deleteMember"/>
-            <wsdl:output message="axis2:deleteMemberResponse" wsaw:Action="urn:deleteMemberResponse"/>
+        <wsdl:operation name="groupSave">
+            <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
+            <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveSimple">
-            <wsdl:input message="axis2:groupSaveSimpleRequest" wsaw:Action="urn:groupSaveSimple"/>
-            <wsdl:output message="axis2:groupSaveSimpleResponse" wsaw:Action="urn:groupSaveSimpleResponse"/>
+        <wsdl:operation name="getMembersSimple">
+            <wsdl:input message="axis2:getMembersSimpleRequest" wsaw:Action="urn:getMembersSimple"/>
+            <wsdl:output message="axis2:getMembersSimpleResponse" wsaw:Action="urn:getMembersSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributesSimple">
+            <wsdl:input message="axis2:viewOrEditAttributesSimpleRequest" wsaw:Action="urn:viewOrEditAttributesSimple"/>
+            <wsdl:output message="axis2:viewOrEditAttributesSimpleResponse" wsaw:Action="urn:viewOrEditAttributesSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="addMember">
+            <wsdl:input message="axis2:addMemberRequest" wsaw:Action="urn:addMember"/>
+            <wsdl:output message="axis2:addMemberResponse" wsaw:Action="urn:addMemberResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <wsdl:input message="axis2:viewOrEditAttributesRequest" wsaw:Action="urn:viewOrEditAttributes"/>
+            <wsdl:output message="axis2:viewOrEditAttributesResponse" wsaw:Action="urn:viewOrEditAttributesResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <wsdl:input message="axis2:viewOrEditPrivilegesSimpleRequest" wsaw:Action="urn:viewOrEditPrivilegesSimple"/>
+            <wsdl:output message="axis2:viewOrEditPrivilegesSimpleResponse" wsaw:Action="urn:viewOrEditPrivilegesSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="stemDelete">
+            <wsdl:input message="axis2:stemDeleteRequest" wsaw:Action="urn:stemDelete"/>
+            <wsdl:output message="axis2:stemDeleteResponse" wsaw:Action="urn:stemDeleteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getMembers">
+            <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
+            <wsdl:output message="axis2:getMembersResponse" wsaw:Action="urn:getMembersResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getGroupsSimple">
             <wsdl:input message="axis2:getGroupsSimpleRequest" wsaw:Action="urn:getGroupsSimple"/>
             <wsdl:output message="axis2:getGroupsSimpleResponse" wsaw:Action="urn:getGroupsSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="groupSaveSimple">
+            <wsdl:input message="axis2:groupSaveSimpleRequest" wsaw:Action="urn:groupSaveSimple"/>
+            <wsdl:output message="axis2:groupSaveSimpleResponse" wsaw:Action="urn:groupSaveSimpleResponse"/>
         </wsdl:operation>
         <wsdl:operation name="findGroupsSimple">
             <wsdl:input message="axis2:findGroupsSimpleRequest" wsaw:Action="urn:findGroupsSimple"/>
@@ -1020,10 +1121,6 @@
             <wsdl:input message="axis2:deleteMemberSimpleRequest" wsaw:Action="urn:deleteMemberSimple"/>
             <wsdl:output message="axis2:deleteMemberSimpleResponse" wsaw:Action="urn:deleteMemberSimpleResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
-            <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="viewOrEditPrivileges">
             <wsdl:input message="axis2:viewOrEditPrivilegesRequest" wsaw:Action="urn:viewOrEditPrivileges"/>
             <wsdl:output message="axis2:viewOrEditPrivilegesResponse" wsaw:Action="urn:viewOrEditPrivilegesResponse"/>
@@ -1032,37 +1129,21 @@
             <wsdl:input message="axis2:getGroupsRequest" wsaw:Action="urn:getGroups"/>
             <wsdl:output message="axis2:getGroupsResponse" wsaw:Action="urn:getGroupsResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributesSimple">
-            <wsdl:input message="axis2:viewOrEditAttributesSimpleRequest" wsaw:Action="urn:viewOrEditAttributesSimple"/>
-            <wsdl:output message="axis2:viewOrEditAttributesSimpleResponse" wsaw:Action="urn:viewOrEditAttributesSimpleResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="getMembersSimple">
-            <wsdl:input message="axis2:getMembersSimpleRequest" wsaw:Action="urn:getMembersSimple"/>
-            <wsdl:output message="axis2:getMembersSimpleResponse" wsaw:Action="urn:getMembersSimpleResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="addMember">
-            <wsdl:input message="axis2:addMemberRequest" wsaw:Action="urn:addMember"/>
-            <wsdl:output message="axis2:addMemberResponse" wsaw:Action="urn:addMemberResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="addMemberSimple">
             <wsdl:input message="axis2:addMemberSimpleRequest" wsaw:Action="urn:addMemberSimple"/>
             <wsdl:output message="axis2:addMemberSimpleResponse" wsaw:Action="urn:addMemberSimpleResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="hasMemberSimple">
-            <wsdl:input message="axis2:hasMemberSimpleRequest" wsaw:Action="urn:hasMemberSimple"/>
-            <wsdl:output message="axis2:hasMemberSimpleResponse" wsaw:Action="urn:hasMemberSimpleResponse"/>
+        <wsdl:operation name="stemDeleteSimple">
+            <wsdl:input message="axis2:stemDeleteSimpleRequest" wsaw:Action="urn:stemDeleteSimple"/>
+            <wsdl:output message="axis2:stemDeleteSimpleResponse" wsaw:Action="urn:stemDeleteSimpleResponse"/>
         </wsdl:operation>
         <wsdl:operation name="findGroups">
             <wsdl:input message="axis2:findGroupsRequest" wsaw:Action="urn:findGroups"/>
             <wsdl:output message="axis2:findGroupsResponse" wsaw:Action="urn:findGroupsResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditPrivilegesSimple">
-            <wsdl:input message="axis2:viewOrEditPrivilegesSimpleRequest" wsaw:Action="urn:viewOrEditPrivilegesSimple"/>
-            <wsdl:output message="axis2:viewOrEditPrivilegesSimpleResponse" wsaw:Action="urn:viewOrEditPrivilegesSimpleResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributes">
-            <wsdl:input message="axis2:viewOrEditAttributesRequest" wsaw:Action="urn:viewOrEditAttributes"/>
-            <wsdl:output message="axis2:viewOrEditAttributesResponse" wsaw:Action="urn:viewOrEditAttributesResponse"/>
+        <wsdl:operation name="hasMemberSimple">
+            <wsdl:input message="axis2:hasMemberSimpleRequest" wsaw:Action="urn:hasMemberSimple"/>
+            <wsdl:output message="axis2:hasMemberSimpleResponse" wsaw:Action="urn:hasMemberSimpleResponse"/>
         </wsdl:operation>
         <wsdl:operation name="findStemsSimple">
             <wsdl:input message="axis2:findStemsSimpleRequest" wsaw:Action="urn:findStemsSimple"/>
@@ -1089,8 +1170,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembers">
-            <soap:operation soapAction="urn:getMembers" style="document"/>
+        <wsdl:operation name="deleteMember">
+            <soap:operation soapAction="urn:deleteMember" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1107,8 +1188,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteMember">
-            <soap:operation soapAction="urn:deleteMember" style="document"/>
+        <wsdl:operation name="groupSave">
+            <soap:operation soapAction="urn:groupSave" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1116,8 +1197,62 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveSimple">
-            <soap:operation soapAction="urn:groupSaveSimple" style="document"/>
+        <wsdl:operation name="getMembersSimple">
+            <soap:operation soapAction="urn:getMembersSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributesSimple">
+            <soap:operation soapAction="urn:viewOrEditAttributesSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addMember">
+            <soap:operation soapAction="urn:addMember" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <soap:operation soapAction="urn:viewOrEditAttributes" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <soap:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemDelete">
+            <soap:operation soapAction="urn:stemDelete" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembers">
+            <soap:operation soapAction="urn:getMembers" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1127,6 +1262,15 @@
         </wsdl:operation>
         <wsdl:operation name="getGroupsSimple">
             <soap:operation soapAction="urn:getGroupsSimple" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSaveSimple">
+            <soap:operation soapAction="urn:groupSaveSimple" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1179,15 +1323,6 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <soap:operation soapAction="urn:groupSave" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="viewOrEditPrivileges">
             <soap:operation soapAction="urn:viewOrEditPrivileges" style="document"/>
             <wsdl:input>
@@ -1206,33 +1341,6 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributesSimple">
-            <soap:operation soapAction="urn:viewOrEditAttributesSimple" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getMembersSimple">
-            <soap:operation soapAction="urn:getMembersSimple" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="addMember">
-            <soap:operation soapAction="urn:addMember" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="addMemberSimple">
             <soap:operation soapAction="urn:addMemberSimple" style="document"/>
             <wsdl:input>
@@ -1242,8 +1350,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMemberSimple">
-            <soap:operation soapAction="urn:hasMemberSimple" style="document"/>
+        <wsdl:operation name="stemDeleteSimple">
+            <soap:operation soapAction="urn:stemDeleteSimple" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1260,17 +1368,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditPrivilegesSimple">
-            <soap:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributes">
-            <soap:operation soapAction="urn:viewOrEditAttributes" style="document"/>
+        <wsdl:operation name="hasMemberSimple">
+            <soap:operation soapAction="urn:hasMemberSimple" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1308,8 +1407,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembers">
-            <soap12:operation soapAction="urn:getMembers" style="document"/>
+        <wsdl:operation name="deleteMember">
+            <soap12:operation soapAction="urn:deleteMember" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1326,8 +1425,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteMember">
-            <soap12:operation soapAction="urn:deleteMember" style="document"/>
+        <wsdl:operation name="groupSave">
+            <soap12:operation soapAction="urn:groupSave" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1335,8 +1434,62 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveSimple">
-            <soap12:operation soapAction="urn:groupSaveSimple" style="document"/>
+        <wsdl:operation name="getMembersSimple">
+            <soap12:operation soapAction="urn:getMembersSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributesSimple">
+            <soap12:operation soapAction="urn:viewOrEditAttributesSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addMember">
+            <soap12:operation soapAction="urn:addMember" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <soap12:operation soapAction="urn:viewOrEditAttributes" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <soap12:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemDelete">
+            <soap12:operation soapAction="urn:stemDelete" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembers">
+            <soap12:operation soapAction="urn:getMembers" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1346,6 +1499,15 @@
         </wsdl:operation>
         <wsdl:operation name="getGroupsSimple">
             <soap12:operation soapAction="urn:getGroupsSimple" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSaveSimple">
+            <soap12:operation soapAction="urn:groupSaveSimple" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1398,15 +1560,6 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <soap12:operation soapAction="urn:groupSave" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="viewOrEditPrivileges">
             <soap12:operation soapAction="urn:viewOrEditPrivileges" style="document"/>
             <wsdl:input>
@@ -1425,33 +1578,6 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributesSimple">
-            <soap12:operation soapAction="urn:viewOrEditAttributesSimple" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getMembersSimple">
-            <soap12:operation soapAction="urn:getMembersSimple" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="addMember">
-            <soap12:operation soapAction="urn:addMember" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="addMemberSimple">
             <soap12:operation soapAction="urn:addMemberSimple" style="document"/>
             <wsdl:input>
@@ -1461,8 +1587,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMemberSimple">
-            <soap12:operation soapAction="urn:hasMemberSimple" style="document"/>
+        <wsdl:operation name="stemDeleteSimple">
+            <soap12:operation soapAction="urn:stemDeleteSimple" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1479,17 +1605,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditPrivilegesSimple">
-            <soap12:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributes">
-            <soap12:operation soapAction="urn:viewOrEditAttributes" style="document"/>
+        <wsdl:operation name="hasMemberSimple">
+            <soap12:operation soapAction="urn:hasMemberSimple" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1527,13 +1644,13 @@
                 <mime:content type="text/xml" part="findStems"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembers">
-            <http:operation location="GrouperService/getMembers"/>
+        <wsdl:operation name="deleteMember">
+            <http:operation location="GrouperService/deleteMember"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getMembers"/>
+                <mime:content type="text/xml" part="deleteMember"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getMembers"/>
+                <mime:content type="text/xml" part="deleteMember"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="groupDelete">
@@ -1545,22 +1662,76 @@
                 <mime:content type="text/xml" part="groupDelete"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteMember">
-            <http:operation location="GrouperService/deleteMember"/>
+        <wsdl:operation name="groupSave">
+            <http:operation location="GrouperService/groupSave"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="deleteMember"/>
+                <mime:content type="text/xml" part="groupSave"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="deleteMember"/>
+                <mime:content type="text/xml" part="groupSave"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveSimple">
-            <http:operation location="GrouperService/groupSaveSimple"/>
+        <wsdl:operation name="getMembersSimple">
+            <http:operation location="GrouperService/getMembersSimple"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="groupSaveSimple"/>
+                <mime:content type="text/xml" part="getMembersSimple"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="groupSaveSimple"/>
+                <mime:content type="text/xml" part="getMembersSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributesSimple">
+            <http:operation location="GrouperService/viewOrEditAttributesSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="viewOrEditAttributesSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="viewOrEditAttributesSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addMember">
+            <http:operation location="GrouperService/addMember"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="addMember"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="addMember"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <http:operation location="GrouperService/viewOrEditAttributes"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="viewOrEditAttributes"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="viewOrEditAttributes"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <http:operation location="GrouperService/viewOrEditPrivilegesSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="viewOrEditPrivilegesSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="viewOrEditPrivilegesSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemDelete">
+            <http:operation location="GrouperService/stemDelete"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="stemDelete"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="stemDelete"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembers">
+            <http:operation location="GrouperService/getMembers"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="getMembers"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getMembers"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGroupsSimple">
@@ -1570,6 +1741,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="getGroupsSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSaveSimple">
+            <http:operation location="GrouperService/groupSaveSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="groupSaveSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="groupSaveSimple"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findGroupsSimple">
@@ -1617,15 +1797,6 @@
                 <mime:content type="text/xml" part="deleteMemberSimple"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <http:operation location="GrouperService/groupSave"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="groupSave"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="groupSave"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="viewOrEditPrivileges">
             <http:operation location="GrouperService/viewOrEditPrivileges"/>
             <wsdl:input>
@@ -1644,33 +1815,6 @@
                 <mime:content type="text/xml" part="getGroups"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributesSimple">
-            <http:operation location="GrouperService/viewOrEditAttributesSimple"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="viewOrEditAttributesSimple"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="viewOrEditAttributesSimple"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getMembersSimple">
-            <http:operation location="GrouperService/getMembersSimple"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="getMembersSimple"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="getMembersSimple"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="addMember">
-            <http:operation location="GrouperService/addMember"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="addMember"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="addMember"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="addMemberSimple">
             <http:operation location="GrouperService/addMemberSimple"/>
             <wsdl:input>
@@ -1680,13 +1824,13 @@
                 <mime:content type="text/xml" part="addMemberSimple"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMemberSimple">
-            <http:operation location="GrouperService/hasMemberSimple"/>
+        <wsdl:operation name="stemDeleteSimple">
+            <http:operation location="GrouperService/stemDeleteSimple"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="hasMemberSimple"/>
+                <mime:content type="text/xml" part="stemDeleteSimple"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="hasMemberSimple"/>
+                <mime:content type="text/xml" part="stemDeleteSimple"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findGroups">
@@ -1698,22 +1842,13 @@
                 <mime:content type="text/xml" part="findGroups"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditPrivilegesSimple">
-            <http:operation location="GrouperService/viewOrEditPrivilegesSimple"/>
+        <wsdl:operation name="hasMemberSimple">
+            <http:operation location="GrouperService/hasMemberSimple"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="viewOrEditPrivilegesSimple"/>
+                <mime:content type="text/xml" part="hasMemberSimple"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="viewOrEditPrivilegesSimple"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributes">
-            <http:operation location="GrouperService/viewOrEditAttributes"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="viewOrEditAttributes"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="viewOrEditAttributes"/>
+                <mime:content type="text/xml" part="hasMemberSimple"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findStemsSimple">

@@ -3,17 +3,17 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStems;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsResponse;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindStemsResults;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemResult;
 
 import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStems;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsResponse;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindStemsResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemResult;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -52,10 +52,10 @@ public class RunGrouperServiceFindStems {
             FindStems findStems = null;
             FindStemsResponse findStemsResponse = null;
             WsFindStemsResults wsFindStemsResults = null;
-//            options.setProperty(Constants.Configuration.ENABLE_REST,
-//                Constants.VALUE_TRUE);
+            //            options.setProperty(Constants.Configuration.ENABLE_REST,
+            //                Constants.VALUE_TRUE);
             findStems = FindStems.class.newInstance();
-            
+
             findStems.setParentStemName("");
             findStems.setParentStemNameScope("");
             findStems.setStemName("");
@@ -72,12 +72,15 @@ public class RunGrouperServiceFindStems {
             wsFindStemsResults = findStemsResponse.get_return();
             System.out.println(ToStringBuilder.reflectionToString(
                     wsFindStemsResults));
-            if (wsFindStemsResults.getStemResults()!= null) {
-	            for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
-	                System.out.println(wsStemResult == null ? null : ToStringBuilder.reflectionToString(wsStemResult));
-	            }
+
+            if (wsFindStemsResults.getStemResults() != null) {
+                for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
+                    System.out.println((wsStemResult == null) ? null
+                                                              : ToStringBuilder.reflectionToString(
+                            wsStemResult));
+                }
             }
-            
+
             //try by uuid
             findStems.setStemName("");
             System.out.println("\n\nQUERY BY UUID: ");
@@ -91,10 +94,13 @@ public class RunGrouperServiceFindStems {
             wsFindStemsResults = findStemsResponse.get_return();
             System.out.println(ToStringBuilder.reflectionToString(
                     wsFindStemsResults));
-            if (wsFindStemsResults.getStemResults()!= null) {
-	            for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
-	                System.out.println(wsStemResult == null ? null : ToStringBuilder.reflectionToString(wsStemResult));
-	            }
+
+            if (wsFindStemsResults.getStemResults() != null) {
+                for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
+                    System.out.println((wsStemResult == null) ? null
+                                                              : ToStringBuilder.reflectionToString(
+                            wsStemResult));
+                }
             }
 
             //search by stem
@@ -107,17 +113,22 @@ public class RunGrouperServiceFindStems {
             wsFindStemsResults = findStemsResponse.get_return();
             System.out.println(ToStringBuilder.reflectionToString(
                     wsFindStemsResults));
-            if (wsFindStemsResults.getStemResults()!= null) {
-	            for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
-	                System.out.println(wsStemResult == null ? null : ToStringBuilder.reflectionToString(wsStemResult));
-	            }
+
+            if (wsFindStemsResults.getStemResults() != null) {
+                for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
+                    System.out.println((wsStemResult == null) ? null
+                                                              : ToStringBuilder.reflectionToString(
+                            wsStemResult));
+                }
             }
 
             WsStemResult[] wsStemResults = wsFindStemsResults.getStemResults();
 
             if (wsStemResults != null) {
                 for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
-	                System.out.println(wsStemResult == null ? null : ToStringBuilder.reflectionToString(wsStemResult));
+                    System.out.println((wsStemResult == null) ? null
+                                                              : ToStringBuilder.reflectionToString(
+                            wsStemResult));
                 }
             }
 
@@ -137,7 +148,9 @@ public class RunGrouperServiceFindStems {
 
             if (wsStemResults != null) {
                 for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
-	                System.out.println(wsStemResult == null ? null : ToStringBuilder.reflectionToString(wsStemResult));
+                    System.out.println((wsStemResult == null) ? null
+                                                              : ToStringBuilder.reflectionToString(
+                            wsStemResult));
                 }
             }
         } catch (Exception e) {

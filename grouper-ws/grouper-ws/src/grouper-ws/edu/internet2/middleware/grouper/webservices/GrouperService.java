@@ -53,6 +53,8 @@ import edu.internet2.middleware.grouper.webservices.WsGroupSaveResult.WsGroupSav
 import edu.internet2.middleware.grouper.webservices.WsGroupSaveResults.WsGroupSaveResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.webservices.WsHasMemberResults.WsHasMemberResultsCode;
+import edu.internet2.middleware.grouper.webservices.WsStemDeleteResult.WsStemDeleteResultCode;
+import edu.internet2.middleware.grouper.webservices.WsStemDeleteResults.WsStemDeleteResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.grouper.webservices.WsViewOrEditAttributesResult.WsViewOrEditAttributesResultCode;
 import edu.internet2.middleware.grouper.webservices.WsViewOrEditAttributesResults.WsViewOrEditAttributesResultsCode;
@@ -1543,6 +1545,76 @@ public class GrouperService {
 	}
 
 	/**
+	 * delete a stem or many (if doesnt exist, ignore)
+	 * 
+	 * @param stemName
+	 *            to delete the stem (mutually exclusive with stemUuid)
+	 * @param stemUuid
+	 *            to delete the stem (mutually exclusive with stemName)
+	 * @param actAsSubjectId
+	 *            optional: is the subject id of subject to act as (if
+	 *            proxying). Only pass one of actAsSubjectId or
+	 *            actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier
+	 *            optional: is the subject identifier of subject to act as (if
+	 *            proxying). Only pass one of actAsSubjectId or
+	 *            actAsSubjectIdentifer
+	 * @param paramName0
+	 *            reserved for future use
+	 * @param paramValue0
+	 *            reserved for future use
+	 * @param paramName1
+	 *            reserved for future use
+	 * @param paramValue1
+	 *            reserved for future use
+	 * @return the result of one member add
+	 */
+	public WsStemDeleteResult stemDeleteSimple(String stemName,
+			String stemUuid, String actAsSubjectId,
+			String actAsSubjectIdentifier, String paramName0,
+			String paramValue0, String paramName1, String paramValue1) {
+	
+		// setup the stem lookup
+		WsStemLookup wsStemLookup = new WsStemLookup(stemName, stemUuid);
+		WsStemLookup[] wsStemLookups = new WsStemLookup[] { wsStemLookup };
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(
+				actAsSubjectId, actAsSubjectIdentifier);
+	
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
+	
+		WsStemDeleteResults wsStemDeleteResults = stemDelete(wsStemLookups,
+				actAsSubjectLookup, paramNames, paramValues);
+	
+		WsStemDeleteResult[] results = wsStemDeleteResults.getResults();
+		if (results != null && results.length > 0) {
+			return results[0];
+		}
+		// didnt even get that far to where there is a subject result
+		WsStemDeleteResult wsStemDeleteResult = new WsStemDeleteResult();
+		wsStemDeleteResult.setResultMessage(wsStemDeleteResults
+				.getResultMessage());
+	
+		// convert the outer code to the inner code
+		WsStemDeleteResultsCode wsStemDeleteResultsCode = wsStemDeleteResults
+				.retrieveResultCode();
+		wsStemDeleteResult
+				.assignResultCode(wsStemDeleteResultsCode == null ? WsStemDeleteResultCode.EXCEPTION
+						: wsStemDeleteResultsCode.convertToResultCode());
+	
+		wsStemDeleteResult.setStemName(stemName);
+		wsStemDeleteResult.setStemUuid(stemUuid);
+	
+		// definitely not a success
+		wsStemDeleteResult.setSuccess("F");
+	
+		return wsStemDeleteResult;
+	
+	}
+
+	/**
 	 * delete a group or many (if doesnt exist, ignore)
 	 * 
 	 * @param groupName
@@ -2213,6 +2285,172 @@ public class GrouperService {
 			LOG.error(wsGroupSaveResults.getResultMessage());
 		}
 		return wsGroupSaveResults;
+	}
+
+	/**
+	 * delete a stem or many (if doesnt exist, ignore)
+	 * @param stemName name of stem to delete (mutually exclusive with uuid)
+	 * @param stemUuid uuid of stem to delete (mutually exclusive with name)
+	 * 
+	 * @param wsStemLookups stem lookups of stems to delete (specify name or uuid)
+	 * @param actAsSubjectLookup
+	 * @param paramNames
+	 *            optional: reserved for future use
+	 * @param paramValues
+	 *            optional: reserved for future use
+	 * @return the results
+	 */
+	@SuppressWarnings("unchecked")
+	public WsStemDeleteResults stemDelete(WsStemLookup[] wsStemLookups,
+			WsSubjectLookup actAsSubjectLookup, String[] paramNames,
+			String[] paramValues) {
+	
+		GrouperSession session = null;
+		int stemsSize = wsStemLookups == null ? 0 : wsStemLookups.length;
+		
+	
+		WsStemDeleteResults wsStemDeleteResults = new WsStemDeleteResults();
+	
+		// see if greater than the max (or default)
+		int maxDeleteStem = GrouperWsConfig.getPropertyInt(
+				GrouperWsConfig.WS_GROUP_DELETE_MAX, 1000000);
+		if (stemsSize > maxDeleteStem) {
+			wsStemDeleteResults
+					.assignResultCode(WsStemDeleteResultsCode.INVALID_QUERY);
+			wsStemDeleteResults
+					.appendResultMessage("Number of stems must be less than max: "
+							+ maxDeleteStem + " (sent in " + stemsSize + ")");
+			return wsStemDeleteResults;
+		}
+	
+		wsStemDeleteResults.setResults(new WsStemDeleteResult[stemsSize]);
+	
+		// TODO make sure size of params and values the same
+	
+		// assume success
+		wsStemDeleteResults.assignResultCode(WsStemDeleteResultsCode.SUCCESS);
+		Subject actAsSubject = null;
+		try {
+			actAsSubject = GrouperServiceJ2ee
+					.retrieveSubjectActAs(actAsSubjectLookup);
+	
+			if (actAsSubject == null) {
+				throw new RuntimeException("Cant find actAs user: "
+						+ actAsSubjectLookup);
+			}
+	
+			// use this to be the user connected, or the user act-as
+			try {
+				session = GrouperSession.start(actAsSubject);
+			} catch (SessionException se) {
+				throw new RuntimeException("Problem with session for subject: "
+						+ actAsSubject, se);
+			}
+	
+			int resultIndex = 0;
+	
+			for (WsStemLookup wsStemLookup : wsStemLookups) {
+				WsStemDeleteResult wsStemDeleteResult = new WsStemDeleteResult();
+				wsStemDeleteResults.getResults()[resultIndex++] = wsStemDeleteResult;
+				try {
+	
+					wsStemLookup.retrieveStemIfNeeded(session);
+					Stem stem = wsStemLookup.retrieveStem();
+	
+					wsStemDeleteResult.setStemName(wsStemLookup
+							.getStemName());
+					wsStemDeleteResult.setStemUuid(wsStemLookup.getUuid());
+	
+					if (stem == null) {
+						wsStemDeleteResult
+								.assignResultCode(WsStemDeleteResultCode.STEM_NOT_FOUND);
+						wsStemDeleteResult
+								.setResultMessage("Cant find stem: '"
+										+ wsStemLookup + "'.  ");
+						continue;
+					}
+	
+					// these will probably match, but just in case
+					if (StringUtils.isBlank(wsStemDeleteResult.getStemName())) {
+						wsStemDeleteResult.setStemName(stem.getName());
+					}
+					if (StringUtils.isBlank(wsStemDeleteResult.getStemUuid())) {
+						wsStemDeleteResult.setStemUuid(stem.getUuid());
+					}
+	
+					try {
+						stem.delete();
+						wsStemDeleteResult.setSuccess("T");
+						wsStemDeleteResult.setResultCode("SUCCESS");
+						wsStemDeleteResult.setResultMessage("Stem '"
+								+ stem.getName() + "' was deleted.");
+					} catch (InsufficientPrivilegeException ipe) {
+						wsStemDeleteResult
+								.assignResultCode(WsStemDeleteResultCode.INSUFFICIENT_PRIVILEGES);
+						wsStemDeleteResult
+								.setResultMessage("Error: insufficient privileges to delete stem '"
+										+ stem.getName() + "'");
+					}
+				} catch (Exception e) {
+					wsStemDeleteResult.setResultCode("EXCEPTION");
+					wsStemDeleteResult.setResultMessage(ExceptionUtils
+							.getFullStackTrace(e));
+					LOG.error(wsStemLookup + ", " + e, e);
+				}
+			}
+	
+		} catch (RuntimeException re) {
+			wsStemDeleteResults
+					.assignResultCode(WsStemDeleteResultsCode.EXCEPTION);
+			String theError = "Problem deleting stems: wsStemLookups: "
+					+ GrouperServiceUtils.toStringForLog(wsStemLookups)
+					+ ", actAsSubject: " + actAsSubject + ".  \n" + "";
+			wsStemDeleteResults.appendResultMessage(theError);
+			// this is sent back to the caller anyway, so just log, and not send
+			// back again
+			LOG.error(theError + ", wsStemDeleteResults: "
+					+ GrouperServiceUtils.toStringForLog(wsStemDeleteResults),
+					re);
+		} finally {
+			if (session != null) {
+				try {
+					session.stop();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+	
+		if (wsStemDeleteResults.getResults() != null) {
+			// check all entries
+			int successes = 0;
+			int failures = 0;
+			for (WsStemDeleteResult wsStemDeleteResult : wsStemDeleteResults
+					.getResults()) {
+				boolean success = "T".equalsIgnoreCase(wsStemDeleteResult
+						.getSuccess());
+				if (success) {
+					successes++;
+				} else {
+					failures++;
+				}
+			}
+			if (failures > 0) {
+				wsStemDeleteResults.appendResultMessage("There were "
+						+ successes + " successes and " + failures
+						+ " failures of deleting stems.   ");
+				wsStemDeleteResults
+						.assignResultCode(WsStemDeleteResultsCode.PROBLEM_DELETING_STEMS);
+			} else {
+				wsStemDeleteResults
+						.assignResultCode(WsStemDeleteResultsCode.SUCCESS);
+			}
+		}
+		if (!"T".equalsIgnoreCase(wsStemDeleteResults.getSuccess())) {
+	
+			LOG.error(wsStemDeleteResults.getResultMessage());
+		}
+		return wsStemDeleteResults;
 	}
 
 	/**

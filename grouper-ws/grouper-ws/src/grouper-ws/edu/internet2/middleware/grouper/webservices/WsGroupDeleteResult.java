@@ -25,10 +25,9 @@ public class WsGroupDeleteResult {
 
 	/** 
 	 * <pre>
-	 * code of the result for this subject
+	 * code of the result for this group
 	 * SUCCESS: means everything ok
-	 * GROUP_NOT_FOUND: cant find the subject
-	 * SUBJECT_DUPLICATE: found multiple subjects
+	 * GROUP_NOT_FOUND: cant find the group
 	 * etc
 	 * </pre>
 	 */

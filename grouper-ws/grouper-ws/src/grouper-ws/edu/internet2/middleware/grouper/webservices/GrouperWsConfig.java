@@ -143,6 +143,24 @@ public final class GrouperWsConfig {
 	public static final String WS_GROUP_SAVE_MAX = "ws.group.save.max";
 
 	/**
+	 * name of param for stem delete, max stems to be able to delete at once,
+	 * default is 1000000
+	 *  # Max number of stems to be able to pass to stemDelete service,
+	 * default is 1000000 ws.stem.delete.max = 20000
+	 * 
+	 */
+	public static final String WS_STEM_DELETE_MAX = "ws.stem.delete.max";
+
+	/**
+	 * name of param for stem save, max stems to be able to save at once,
+	 * default is 1000000
+	 *  # Max number of stems to be able to pass to stemSave service,
+	 * default is 1000000 ws.stem.save.max = 20000
+	 * 
+	 */
+	public static final String WS_STEM_SAVE_MAX = "ws.stem.save.max";
+
+	/**
 	 * name of param for group attribute, max groups to be able to view/edit attributes at once,
 	 * default is 1000000
 	 *  # Max number of subjects to be able to pass to addMember service,

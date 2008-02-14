@@ -3,16 +3,16 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsSimple;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsSimpleResponse;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindStemsResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemResult;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -45,10 +45,10 @@ public class RunGrouperServiceFindStemsSimple {
             FindStemsSimple findStemsSimple = null;
             FindStemsSimpleResponse findStemsSimpleResponse = null;
             WsFindStemsResults wsFindStemsResults = null;
-//            options.setProperty(Constants.Configuration.ENABLE_REST,
-//                Constants.VALUE_TRUE);
+            //            options.setProperty(Constants.Configuration.ENABLE_REST,
+            //                Constants.VALUE_TRUE);
             findStemsSimple = FindStemsSimple.class.newInstance();
-            
+
             findStemsSimple.setParentStemName("");
             findStemsSimple.setParentStemNameScope("");
             findStemsSimple.setStemName("");
@@ -65,12 +65,14 @@ public class RunGrouperServiceFindStemsSimple {
             wsFindStemsResults = findStemsSimpleResponse.get_return();
             System.out.println(ToStringBuilder.reflectionToString(
                     wsFindStemsResults));
-            if (wsFindStemsResults.getStemResults()!= null) {
-	            for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
-	                System.out.println(wsStemResult == null ? null : ToStringBuilder.reflectionToString(wsStemResult));
-	            }
+
+            if (wsFindStemsResults.getStemResults() != null) {
+                for (WsStemResult wsStemResult : wsFindStemsResults.getStemResults()) {
+                    System.out.println((wsStemResult == null) ? null
+                                                              : ToStringBuilder.reflectionToString(
+                            wsStemResult));
+                }
             }
-            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
