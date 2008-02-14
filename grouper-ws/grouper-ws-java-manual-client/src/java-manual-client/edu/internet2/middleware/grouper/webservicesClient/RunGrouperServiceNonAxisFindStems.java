@@ -1,39 +1,65 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.List;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.IOUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 
-public class RunGrouperServiceNonAxisFindGroupSimple {
+public class RunGrouperServiceNonAxisFindStems {
 	
-	/**
-	 * add member simple web service with REST
-	 */
 	@SuppressWarnings("unchecked")
-	public static void findGroupsSimpleRest() {
+	public static void addMemberRest() {
+        //lets load this into jdom, since it is xml
 		Reader xmlReader = null;
+
 		try {
 	        HttpClient httpClient = new HttpClient();
-	        
-	        GetMethod method = new GetMethod(
-	                "http://localhost:8091/grouper-ws/services/GrouperService/findGroups?groupName=&stemName=" +
-	                "&stemNameScope=&groupUuid=&queryTerm=agr&querySearchFromStemName=&queryScope=NAME");
-	        
+	        PostMethod method = new PostMethod(
+	                "http://localhost:8091/grouper-ws/services/GrouperService");
+	
+	        method.setRequestHeader("Content-Type", "application/xml; charset=UTF-8");
 	        httpClient.getParams().setAuthenticationPreemptive(true);
 	        Credentials defaultcreds = new UsernamePasswordCredentials("GrouperSystem", "pass");
 	        httpClient.getState().setCredentials(new AuthScope("localhost", 8091), defaultcreds);
 	        
+	        //String xml = "<ns1:findGroups xmlns:ns1=\"http://webservices.grouper.middleware.internet2.edu/xsd\"><ns1:groupName> </ns1:groupName><ns1:stemName> </ns1:stemName><ns1:stemNameScope> </ns1:stemNameScope><ns1:groupUuid> </ns1:groupUuid><ns1:queryTerm>group</ns1:queryTerm><ns1:querySearchFromStemName> </ns1:querySearchFromStemName><ns1:queryScope>NAME</ns1:queryScope></ns1:findGroups>";
+
+	        Namespace namespace = Namespace.getNamespace("ns1", "http://webservices.grouper.middleware.internet2.edu/xsd");
+	        Element findGroupsElement = new Element("findGroups", namespace);
+	        Element groupNameElement = new Element("groupName", namespace);
+	        findGroupsElement.addContent(groupNameElement);
+	        groupNameElement.setText("aStem:aGroup");
+	        
+	        //no need to close either of these
+	        XMLOutputter outputter = new XMLOutputter();
+	        StringWriter xmlStringWriter = new StringWriter();
+	        try {
+	          outputter.output(findGroupsElement, xmlStringWriter);
+	        } catch (IOException e) {
+	          throw new RuntimeException(e);
+	        }
+	        
+	        String xml = xmlStringWriter.toString();
+	        
+	        RequestEntity requestEntity = new StringRequestEntity(xml);
+	        method.setRequestEntity(requestEntity);
 	        httpClient.executeMethod(method);
 	
 	        int statusCode = method.getStatusCode();
@@ -43,25 +69,31 @@ public class RunGrouperServiceNonAxisFindGroupSimple {
 	            throw new RuntimeException("Bad response from web service: " +
 	                statusCode);
 	        }
-	
-	        String response = method.getResponseBodyAsString();
+	        //there is a getResponseAsString, but it logs a warning each time...
+	        InputStream inputStream = method.getResponseBodyAsStream();
+	        String response = null;
+	        try {
+	        	response = IOUtils.toString(inputStream);
+	        } finally {
+	        	IOUtils.closeQuietly(inputStream);
+	        }
 	        
 	        //lets load this into jdom, since it is xml
 			xmlReader = new StringReader(response);
-
+			
 			// process xml
 			Document document = new SAXBuilder().build(xmlReader);
-			Element findGroupsSimpleResponse = document.getRootElement();
+			Element findGroupsSimple = document.getRootElement();
 			
 			//parse:
 			//<ns:findGroupsResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
-			RunGrouperServiceNonAxisUtils.assertTrue("findGroupsResponse".equals(findGroupsSimpleResponse.getName()),
-					"root not findGroupsResponse: " + findGroupsSimpleResponse.getName());
+			RunGrouperServiceNonAxisUtils.assertTrue("findGroupsResponse".equals(findGroupsSimple.getName()),
+					"root not findGroupsResponse: " + findGroupsSimple.getName());
 
-			Namespace namespace = findGroupsSimpleResponse.getNamespace();
+			namespace = findGroupsSimple.getNamespace();
 			
 			//<ns:return type="edu.internet2.middleware.grouper.webservices.WsFindGroupsResults">
-			Element returnElement = findGroupsSimpleResponse.getChild("return", namespace);
+			Element returnElement = findGroupsSimple.getChild("return", namespace);
 			String theType = returnElement.getAttributeValue("type");
 			RunGrouperServiceNonAxisUtils.assertTrue("edu.internet2.middleware.grouper.webservices.WsFindGroupsResults"
 					.equals(theType),
@@ -152,23 +184,26 @@ public class RunGrouperServiceNonAxisFindGroupSimple {
 
 			System.out.println("Success: " + success + ", resultCode: " + resultCode 
 					+ ", resultMessage: " + resultMessage);
-			 
-		} catch (Exception e) {
+
+		
+		
+		
+		}catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
 			try {
-				xmlReader.close();
+				if (xmlReader != null) {xmlReader.close();}
 			} catch (Exception e) {
 			}
 		}
-		
+
 	}
 	
-    /**
+	/**
      * @param args
      */
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        findGroupsSimpleRest();
+        addMemberRest();
     }
 }
