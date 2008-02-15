@@ -38,11 +38,10 @@ public class RunGrouperServiceNonAxisGroupSave {
 	        httpClient.getState().setCredentials(new AuthScope("localhost", 8091), defaultcreds);
 	        String xml = "<ns1:groupSave xmlns:ns1=\"http://webservices.grouper.middleware.internet2.edu/xsd\">" +
 	        		"<ns1:wsGroupsToSave><ns1:createGroupIfNotExist></ns1:createGroupIfNotExist>" +
-	        		"<ns1:createStemsIfNotExist></ns1:createStemsIfNotExist>" +
+	        		"<ns1:saveMode></ns1:saveMode>" +
 	        		"<ns1:description>the test group</ns1:description>" +
 	        		"<ns1:displayExtension>test group</ns1:displayExtension>" +
 	        		"<ns1:groupName>aStem:test</ns1:groupName>" +
-	        		"<ns1:retrieveViaNameIfNoUuid></ns1:retrieveViaNameIfNoUuid>" +
 	        		"<ns1:uuid></ns1:uuid></ns1:wsGroupsToSave><ns1:actAsSubjectLookup>" +
 	        		"<ns1:subjectId>GrouperSystem</ns1:subjectId></ns1:actAsSubjectLookup></ns1:groupSave>";
 	        RequestEntity requestEntity = new StringRequestEntity(xml);

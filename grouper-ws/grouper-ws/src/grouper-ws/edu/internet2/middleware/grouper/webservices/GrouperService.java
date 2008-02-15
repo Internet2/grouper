@@ -55,6 +55,8 @@ import edu.internet2.middleware.grouper.webservices.WsHasMemberResult.WsHasMembe
 import edu.internet2.middleware.grouper.webservices.WsHasMemberResults.WsHasMemberResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.webservices.WsStemDeleteResults.WsStemDeleteResultsCode;
+import edu.internet2.middleware.grouper.webservices.WsStemSaveResult.WsStemSaveResultCode;
+import edu.internet2.middleware.grouper.webservices.WsStemSaveResults.WsStemSaveResultsCode;
 import edu.internet2.middleware.grouper.webservices.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.grouper.webservices.WsViewOrEditAttributesResult.WsViewOrEditAttributesResultCode;
 import edu.internet2.middleware.grouper.webservices.WsViewOrEditAttributesResults.WsViewOrEditAttributesResultsCode;
@@ -1784,7 +1786,7 @@ public class GrouperService {
 	}
 
 	/**
-	 * save a group (insert or update)
+	 * save a group (insert or update).  Note you cannot rename an existing group.
 	 * 
 	 * @see {@link Group#saveGroup(GrouperSession, String, String, String, String, boolean, boolean, boolean)}
 	 * @param groupName
@@ -1795,11 +1797,7 @@ public class GrouperService {
 	 *            of the group, empty will be ignored
 	 * @param displayExtension
 	 *            display name of the group, empty will be ignored
-	 * @param retrieveViaNameIfNoUuid
-	 *            if to retrieve with name if uuid isnt specified, defaults to
-	 *            true
-	 * @param createGroupIfNotExist
-	 *            if the group should be created if it doesnt exist
+	 * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
 	 * @param createStemsIfNotExist
 	 *            if the stems should be created if not exist
 	 * @param actAsSubjectId
@@ -1822,16 +1820,99 @@ public class GrouperService {
 	 */
 	public WsGroupSaveResult groupSaveSimple(String groupName,
 			String groupUuid, String description, String displayExtension,
-			String retrieveViaNameIfNoUuid, String createGroupIfNotExist,
+			String saveMode,
+			String createStemsIfNotExist, String actAsSubjectId,
+			String actAsSubjectIdentifier, String paramName0,
+			String paramValue0, String paramName1, String paramValue1) {
+	
+		// setup the group lookup
+		WsGroupToSave wsGroupToSave = new WsGroupToSave(groupUuid, description,
+				displayExtension, saveMode,
+				createStemsIfNotExist, groupName);
+		WsGroupToSave[] wsGroupsToSave = new WsGroupToSave[] { wsGroupToSave };
+	
+		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(
+				actAsSubjectId, actAsSubjectIdentifier);
+	
+		String[][] params = GrouperServiceUtils.params(paramName0, paramValue0,
+				paramName1, paramValue1);
+		String[] paramNames = params[0];
+		String[] paramValues = params[1];
+	
+		WsGroupSaveResults wsGroupSaveResults = groupSave(wsGroupsToSave,
+				actAsSubjectLookup, paramNames, paramValues);
+	
+		WsGroupSaveResult[] results = wsGroupSaveResults.getResults();
+		if (results != null && results.length > 0) {
+			return results[0];
+		}
+		// didnt even get that far to where there is a subject result
+		WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult();
+		wsGroupSaveResult.setResultMessage(wsGroupSaveResults
+				.getResultMessage());
+	
+		// convert the outer code to the inner code
+		WsGroupSaveResultsCode wsGroupSaveResultsCode = wsGroupSaveResults
+				.retrieveResultCode();
+		wsGroupSaveResult
+				.assignResultCode(wsGroupSaveResultsCode == null ? WsGroupSaveResultCode.EXCEPTION
+						: wsGroupSaveResultsCode.convertToResultCode());
+	
+		wsGroupSaveResult.setGroupName(groupName);
+		wsGroupSaveResult.setGroupUuid(groupUuid);
+	
+		// definitely not a success
+		wsGroupSaveResult.setSuccess("F");
+	
+		return wsGroupSaveResult;
+	
+	}
+
+	/**
+	 * save a stem (insert or update).  Note you cannot rename an existing stem.
+	 * 
+	 * @see {@link Stem#saveStem(GrouperSession, String, String, String, String, boolean, boolean, boolean)}
+	 * @param stemName
+	 *            to delete the stem (mutually exclusive with stemUuid)
+	 * @param stemUuid
+	 *            to delete the stem (mutually exclusive with stemName)
+	 * @param description
+	 *            of the stem, empty will be ignored
+	 * @param displayExtension
+	 *            display name of the stem, empty will be ignored
+	 * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
+	 * @param createStemsIfNotExist
+	 *            if the stems should be created if not exist
+	 * @param actAsSubjectId
+	 *            optional: is the subject id of subject to act as (if
+	 *            proxying). Only pass one of actAsSubjectId or
+	 *            actAsSubjectIdentifer
+	 * @param actAsSubjectIdentifier
+	 *            optional: is the subject identifier of subject to act as (if
+	 *            proxying). Only pass one of actAsSubjectId or
+	 *            actAsSubjectIdentifer
+	 * @param paramName0
+	 *            reserved for future use
+	 * @param paramValue0
+	 *            reserved for future use
+	 * @param paramName1
+	 *            reserved for future use
+	 * @param paramValue1
+	 *            reserved for future use
+	 * @return the result of one member add
+	 */
+	public WsStemSaveResult stemSaveSimple(String stemName,
+			String stemUuid, String description, String displayExtension,
+			String saveMode,
 			String createStemsIfNotExist, String actAsSubjectId,
 			String actAsSubjectIdentifier, String paramName0,
 			String paramValue0, String paramName1, String paramValue1) {
 
-		// setup the group lookup
-		WsGroupToSave wsGroupToSave = new WsGroupToSave(groupUuid, description,
-				displayExtension, retrieveViaNameIfNoUuid,
-				createGroupIfNotExist, createStemsIfNotExist, groupName);
-		WsGroupToSave[] wsGroupsToSave = new WsGroupToSave[] { wsGroupToSave };
+		// setup the stem lookup
+		WsStemToSave wsStemToSave = new WsStemToSave(stemUuid, description,
+				displayExtension, saveMode,
+				createStemsIfNotExist, stemName);
+		WsStemToSave[] wsStemsToSave = new WsStemToSave[] { wsStemToSave };
 
 		WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(
 				actAsSubjectId, actAsSubjectIdentifier);
@@ -1841,32 +1922,32 @@ public class GrouperService {
 		String[] paramNames = params[0];
 		String[] paramValues = params[1];
 
-		WsGroupSaveResults wsGroupSaveResults = groupSave(wsGroupsToSave,
+		WsStemSaveResults wsStemSaveResults = stemSave(wsStemsToSave,
 				actAsSubjectLookup, paramNames, paramValues);
 
-		WsGroupSaveResult[] results = wsGroupSaveResults.getResults();
+		WsStemSaveResult[] results = wsStemSaveResults.getResults();
 		if (results != null && results.length > 0) {
 			return results[0];
 		}
 		// didnt even get that far to where there is a subject result
-		WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult();
-		wsGroupSaveResult.setResultMessage(wsGroupSaveResults
+		WsStemSaveResult wsStemSaveResult = new WsStemSaveResult();
+		wsStemSaveResult.setResultMessage(wsStemSaveResults
 				.getResultMessage());
 
 		// convert the outer code to the inner code
-		WsGroupSaveResultsCode wsGroupSaveResultsCode = wsGroupSaveResults
+		WsStemSaveResultsCode wsStemSaveResultsCode = wsStemSaveResults
 				.retrieveResultCode();
-		wsGroupSaveResult
-				.assignResultCode(wsGroupSaveResultsCode == null ? WsGroupSaveResultCode.EXCEPTION
-						: wsGroupSaveResultsCode.convertToResultCode());
+		wsStemSaveResult
+				.assignResultCode(wsStemSaveResultsCode == null ? WsStemSaveResultCode.EXCEPTION
+						: wsStemSaveResultsCode.convertToResultCode());
 
-		wsGroupSaveResult.setGroupName(groupName);
-		wsGroupSaveResult.setGroupUuid(groupUuid);
+		wsStemSaveResult.setStemName(stemName);
+		wsStemSaveResult.setStemUuid(stemUuid);
 
 		// definitely not a success
-		wsGroupSaveResult.setSuccess("F");
+		wsStemSaveResult.setSuccess("F");
 
-		return wsGroupSaveResult;
+		return wsStemSaveResult;
 
 	}
 
@@ -2108,7 +2189,7 @@ public class GrouperService {
 	}
 
 	/**
-	 * save a group or many (insert or update)
+	 * save a group or many (insert or update).  Note, you cannot rename an existing group.
 	 * 
 	 * @see {@link Group#saveGroup(GrouperSession, String, String, String, String, boolean, boolean, boolean)}
 	 * @param wsGroupsToSave
@@ -2124,12 +2205,12 @@ public class GrouperService {
 	public WsGroupSaveResults groupSave(WsGroupToSave[] wsGroupsToSave,
 			WsSubjectLookup actAsSubjectLookup, String[] paramNames,
 			String[] paramValues) {
-
+	
 		GrouperSession session = null;
 		int groupsSize = wsGroupsToSave == null ? 0 : wsGroupsToSave.length;
-
+	
 		WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
-
+	
 		// see if greater than the max (or default)
 		int maxSaveGroup = GrouperWsConfig.getPropertyInt(
 				GrouperWsConfig.WS_GROUP_SAVE_MAX, 1000000);
@@ -2141,9 +2222,9 @@ public class GrouperService {
 							+ maxSaveGroup + " (sent in " + groupsSize + ")");
 			return wsGroupSaveResults;
 		}
-
+	
 		// TODO make sure size of params and values the same
-
+	
 		// assume success
 		wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.SUCCESS);
 		Subject actAsSubject = null;
@@ -2151,13 +2232,13 @@ public class GrouperService {
 		try {
 			actAsSubject = GrouperServiceJ2ee
 					.retrieveSubjectActAs(actAsSubjectLookup);
-
+	
 			if (actAsSubject == null) {
 				// TODO make this a result code
 				throw new RuntimeException("Cant find actAs user: "
 						+ actAsSubjectLookup);
 			}
-
+	
 			// use this to be the user connected, or the user act-as
 			try {
 				session = GrouperSession.start(actAsSubject);
@@ -2166,21 +2247,21 @@ public class GrouperService {
 				throw new RuntimeException("Problem with session for subject: "
 						+ actAsSubject, se);
 			}
-
+	
 			int resultIndex = 0;
-
+	
 			wsGroupSaveResults.setResults(new WsGroupSaveResult[groupsSize]);
 			for (WsGroupToSave wsGroupToSave : wsGroupsToSave) {
 				WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult();
 				wsGroupSaveResults.getResults()[resultIndex++] = wsGroupSaveResult;
 				Group group = null;
-
+	
 				try {
 					wsGroupSaveResult
 							.setGroupName(wsGroupToSave.getGroupName());
 					// TODO change this to groupUuid
 					wsGroupSaveResult.setGroupUuid(wsGroupToSave.getUuid());
-
+	
 					try {
 						wsGroupToSave.validate();
 					} catch (Exception e) {
@@ -2190,9 +2271,9 @@ public class GrouperService {
 								.getFullStackTrace(e));
 						continue;
 					}
-
+	
 					group = wsGroupToSave.save(session);
-
+	
 					// these will probably match, but just in case
 					if (StringUtils.isBlank(wsGroupSaveResult.getGroupName())) {
 						wsGroupSaveResult.setGroupName(group.getName());
@@ -2231,7 +2312,7 @@ public class GrouperService {
 					LOG.error(wsGroupToSave + ", " + e, e);
 				}
 			}
-
+	
 		} catch (RuntimeException re) {
 			wsGroupSaveResults
 					.assignResultCode(WsGroupSaveResultsCode.EXCEPTION);
@@ -2253,7 +2334,7 @@ public class GrouperService {
 				}
 			}
 		}
-
+	
 		if (wsGroupSaveResults.getResults() != null) {
 			// check all entries
 			int successes = 0;
@@ -2281,10 +2362,184 @@ public class GrouperService {
 			}
 		}
 		if (!"T".equalsIgnoreCase(wsGroupSaveResults.getSuccess())) {
-
+	
 			LOG.error(wsGroupSaveResults.getResultMessage());
 		}
 		return wsGroupSaveResults;
+	}
+
+	/**
+	 * save a stem or many (insert or update).  Note, you cannot rename an existing stem.
+	 * 
+	 * @see {@link Group#saveGroup(GrouperSession, String, String, String, String, boolean, boolean, boolean)}
+	 * @param wsStemsToSave
+	 *            stems to save
+	 * @param actAsSubjectLookup
+	 * @param paramNames
+	 *            optional: reserved for future use
+	 * @param paramValues
+	 *            optional: reserved for future use
+	 * @return the results
+	 */
+	@SuppressWarnings("unchecked")
+	public WsStemSaveResults stemSave(WsStemToSave[] wsStemsToSave,
+			WsSubjectLookup actAsSubjectLookup, String[] paramNames,
+			String[] paramValues) {
+
+		GrouperSession session = null;
+		int stemsSize = wsStemsToSave == null ? 0 : wsStemsToSave.length;
+
+		WsStemSaveResults wsStemSaveResults = new WsStemSaveResults();
+
+		// see if greater than the max (or default)
+		int maxSaveStem = GrouperWsConfig.getPropertyInt(
+				GrouperWsConfig.WS_STEM_SAVE_MAX, 1000000);
+		if (stemsSize > maxSaveStem) {
+			wsStemSaveResults
+					.assignResultCode(WsStemSaveResultsCode.INVALID_QUERY);
+			wsStemSaveResults
+					.appendResultMessage("Number of stems must be less than max: "
+							+ maxSaveStem + " (sent in " + stemsSize + ")");
+			return wsStemSaveResults;
+		}
+
+		// TODO make sure size of params and values the same
+
+		// assume success
+		wsStemSaveResults.assignResultCode(WsStemSaveResultsCode.SUCCESS);
+		Subject actAsSubject = null;
+		// TODO have common try/catch
+		try {
+			actAsSubject = GrouperServiceJ2ee
+					.retrieveSubjectActAs(actAsSubjectLookup);
+
+			if (actAsSubject == null) {
+				// TODO make this a result code
+				throw new RuntimeException("Cant find actAs user: "
+						+ actAsSubjectLookup);
+			}
+
+			// use this to be the user connected, or the user act-as
+			try {
+				session = GrouperSession.start(actAsSubject);
+			} catch (SessionException se) {
+				// TODO make this a result code
+				throw new RuntimeException("Problem with session for subject: "
+						+ actAsSubject, se);
+			}
+
+			int resultIndex = 0;
+
+			wsStemSaveResults.setResults(new WsStemSaveResult[stemsSize]);
+			for (WsStemToSave wsStemToSave : wsStemsToSave) {
+				WsStemSaveResult wsStemSaveResult = new WsStemSaveResult();
+				wsStemSaveResults.getResults()[resultIndex++] = wsStemSaveResult;
+				Stem stem = null;
+
+				try {
+					wsStemSaveResult
+							.setStemName(wsStemToSave.getStemName());
+					
+					wsStemSaveResult.setStemUuid(wsStemToSave.getStemUuid());
+
+					try {
+						wsStemToSave.validate();
+					} catch (Exception e) {
+						wsStemSaveResult
+								.assignResultCode(WsStemSaveResultCode.INVALID_QUERY);
+						wsStemSaveResult.setResultMessage(ExceptionUtils
+								.getFullStackTrace(e));
+						continue;
+					}
+
+					stem = wsStemToSave.save(session);
+
+					// these will probably match, but just in case
+					if (StringUtils.isBlank(wsStemSaveResult.getStemName())) {
+						wsStemSaveResult.setStemName(stem.getName());
+					}
+					if (StringUtils.isBlank(wsStemSaveResult.getStemUuid())) {
+						wsStemSaveResult.setStemUuid(stem.getUuid());
+					}
+					wsStemSaveResult.setSuccess("T");
+					wsStemSaveResult.setResultCode("SUCCESS");
+					wsStemSaveResult.setResultMessage("Stem '"
+							+ stem.getName() + "' was saved.");
+				} catch (InsufficientPrivilegeException ipe) {
+					wsStemSaveResult
+							.assignResultCode(WsStemSaveResultCode.INSUFFICIENT_PRIVILEGES);
+					wsStemSaveResult
+							.setResultMessage("Error: insufficient privileges to save stem '"
+									+ wsStemToSave.getStemName() + "'");
+				} catch (StemNotFoundException snfe) {
+					wsStemSaveResult
+							.assignResultCode(WsStemSaveResultCode.STEM_NOT_FOUND);
+					wsStemSaveResult
+							.setResultMessage("Error: stem not found to save stem '"
+									+ wsStemToSave.getStemName() + "'");
+				} catch (Exception e) {
+					// lump the rest in there, stem_add_exception, etc
+					wsStemSaveResult
+							.assignResultCode(WsStemSaveResultCode.EXCEPTION);
+					wsStemSaveResult.setResultMessage(ExceptionUtils
+							.getFullStackTrace(e));
+					LOG.error(wsStemToSave + ", " + e, e);
+				}
+			}
+
+		} catch (RuntimeException re) {
+			wsStemSaveResults
+					.assignResultCode(WsStemSaveResultsCode.EXCEPTION);
+			String theError = "Problem saving stems: wsStemsToSave: "
+					+ GrouperServiceUtils.toStringForLog(wsStemsToSave)
+					+ ", actAsSubject: " + actAsSubject + ".  \n" + "";
+			wsStemSaveResults.appendResultMessage(theError);
+			// this is sent back to the caller anyway, so just log, and not send
+			// back again
+			LOG.error(theError + ", wsStemSaveResults: "
+					+ GrouperServiceUtils.toStringForLog(wsStemSaveResults),
+					re);
+		} finally {
+			if (session != null) {
+				try {
+					session.stop();
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+
+		if (wsStemSaveResults.getResults() != null) {
+			// check all entries
+			int successes = 0;
+			int failures = 0;
+			for (WsStemSaveResult wsStemSaveResult : wsStemSaveResults
+					.getResults()) {
+				boolean success = "T"
+						.equalsIgnoreCase(wsStemSaveResult == null ? null
+								: wsStemSaveResult.getSuccess());
+				if (success) {
+					successes++;
+				} else {
+					failures++;
+				}
+			}
+			if (failures > 0) {
+				wsStemSaveResults.appendResultMessage("There were "
+						+ successes + " successes and " + failures
+						+ " failures of saving stems.   ");
+				wsStemSaveResults
+						.assignResultCode(WsStemSaveResultsCode.PROBLEM_DELETING_STEMS);
+			} else {
+				wsStemSaveResults
+						.assignResultCode(WsStemSaveResultsCode.SUCCESS);
+			}
+		}
+		if (!"T".equalsIgnoreCase(wsStemSaveResults.getSuccess())) {
+
+			LOG.error(wsStemSaveResults.getResultMessage());
+		}
+		return wsStemSaveResults;
 	}
 
 	/**

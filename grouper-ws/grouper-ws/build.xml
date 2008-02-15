@@ -361,11 +361,11 @@
 	<target name="javadoc" description="generate public api docs to doc/api">
 		<!-- Let's be sure we clear out old cruft first... -->
 		<mkdir dir="doc/api" />
-		<delete dir="doc/api" />
+		<!-- TODO delete dir="doc/api" / -->
 		<mkdir dir="doc/api" />
 		<!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
 		<javadoc destdir="doc/api" classpathref="ws.class.path" access="public"
-			additionalparam="-notimestamp">
+			additionalparam="-notimestamp" >
 			<packageset dir="src/grouper-ws" defaultexcludes="yes">
 				<include name="edu/internet2/middleware/grouper/**" />
 
@@ -377,12 +377,36 @@
 
 		</javadoc>
 		
+		<!-- replace .html?edu/internet2/middleware/grouper/webservices/GrouperService.html" with 
+		.html" -->
+		
+		<replaceregexp flags="g">
+		  <regexp pattern="\.html\?[^&quot; ]*&quot;" />
+		  <substitution expression="\.html&quot;"/>
+		  <fileset dir="doc/api" includes="**/*.html" />
+		 </replaceregexp>
+		<!-- replace onLoad="top.loadFrames()" with onLoad="" -->
+    <replace file="doc/api/index.html"> 
+      <replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
+      <replacevalue><![CDATA[onLoad=""]]></replacevalue>
+    </replace>
 		<!-- replace for cvs web: .html" with .html?root=I2MI&view=co"   -->
 		<replace dir="doc/api">
 		  <include name="**/*.html"/>
 		  <replacetoken><![CDATA[.html"]]></replacetoken>
       <replacevalue><![CDATA[.html?root=I2MI&view=co"]]></replacevalue>
 		</replace>
+    <replace dir="doc/api">
+      <include name="**/*.html"/>
+      <replacetoken><![CDATA[.css"]]></replacetoken>
+      <replacevalue><![CDATA[.css?root=I2MI&view=co"]]></replacevalue>
+    </replace>
+		<!-- take out main javascript (might not need to do this afterall) -->
+		<!-- replace file="doc/api/index.html"> 
+      <replacetoken><![CDATA[SCRIPT type="text/javascript"]]></replacetoken>
+      <replacevalue><![CDATA[SCRIPTtype="text/javascript"]]></replacevalue>
+		</replace -->
+		
 
 	</target>
 

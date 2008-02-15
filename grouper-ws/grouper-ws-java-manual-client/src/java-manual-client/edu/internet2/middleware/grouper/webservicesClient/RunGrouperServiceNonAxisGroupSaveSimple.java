@@ -24,8 +24,8 @@ public class RunGrouperServiceNonAxisGroupSaveSimple {
 	        GetMethod method = new GetMethod(
 	                "http://localhost:8091/grouper-ws/services/GrouperService/groupSaveSimple?" +
 	                "groupName=aStem:test&actAsSubjectId=GrouperSystem&groupUuid=&actAsSubjectIdentifier=" +
-	                "&createGroupIfNotExist=&description=the%20testgroup&displayExtension=testgroup" +
-	                "&retrieveViaNameIfNoUuid=&createStemsIfNotExist=");
+	                "&saveMode=&description=the%20testgroup&displayExtension=testgroup" +
+	                "&createStemsIfNotExist=");
 	
 	        httpClient.getParams().setAuthenticationPreemptive(true);
 	        Credentials defaultcreds = new UsernamePasswordCredentials("GrouperSystem", "pass");

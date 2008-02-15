@@ -3,14 +3,16 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemDeleteSimple;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemDeleteResult;
+
 import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemDeleteSimple;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemDeleteResult;
 
 /**
  *
@@ -43,16 +45,17 @@ public class RunGrouperServiceStemDeleteSimple {
                 new Integer(3600000));
 
             options.setProperty(Constants.Configuration.ENABLE_REST,
-            		Constants.VALUE_TRUE);
+                Constants.VALUE_TRUE);
+
             StemDeleteSimple stemDeleteSimple = StemDeleteSimple.class.newInstance();
 
             stemDeleteSimple.setActAsSubjectId("GrouperSystem");
             stemDeleteSimple.setActAsSubjectIdentifier("");
             stemDeleteSimple.setStemName("aStem:stemNotExist");
             stemDeleteSimple.setStemUuid("");
-            
+
             WsStemDeleteResult wsStemDeleteResult = stub.stemDeleteSimple(stemDeleteSimple)
-                                                            .get_return();
+                                                        .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsStemDeleteResult));

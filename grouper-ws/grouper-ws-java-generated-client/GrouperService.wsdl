@@ -544,8 +544,7 @@
                         <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="retrieveViaNameIfNoUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="createGroupIfNotExist" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="createStemsIfNotExist" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
@@ -584,12 +583,11 @@
             </xs:element>
             <xs:complexType name="WsGroupToSave">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="createGroupIfNotExist" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="createStemsIfNotExist" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="retrieveViaNameIfNoUuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="uuid" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
@@ -728,6 +726,75 @@
                     <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsStemDeleteResult"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stemSaveSimple">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="createStemsIfNotExist" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="stemSaveSimpleResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsStemSaveResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemSaveResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stemSave">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsStemsToSave" nillable="true" type="ns:WsStemToSave"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="paramValues" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemToSave">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="createStemsIfNotExist" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayExtension" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="saveMode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="stemSaveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsStemSaveResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsStemSaveResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="resultMessage" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsStemSaveResult"/>
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
@@ -912,6 +979,12 @@
     <wsdl:message name="groupDeleteResponse">
         <wsdl:part name="parameters" element="ns0:groupDeleteResponse"/>
     </wsdl:message>
+    <wsdl:message name="stemSaveRequest">
+        <wsdl:part name="parameters" element="ns0:stemSave"/>
+    </wsdl:message>
+    <wsdl:message name="stemSaveResponse">
+        <wsdl:part name="parameters" element="ns0:stemSaveResponse"/>
+    </wsdl:message>
     <wsdl:message name="groupSaveRequest">
         <wsdl:part name="parameters" element="ns0:groupSave"/>
     </wsdl:message>
@@ -936,17 +1009,17 @@
     <wsdl:message name="addMemberResponse">
         <wsdl:part name="parameters" element="ns0:addMemberResponse"/>
     </wsdl:message>
-    <wsdl:message name="viewOrEditAttributesRequest">
-        <wsdl:part name="parameters" element="ns0:viewOrEditAttributes"/>
-    </wsdl:message>
-    <wsdl:message name="viewOrEditAttributesResponse">
-        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesResponse"/>
-    </wsdl:message>
     <wsdl:message name="viewOrEditPrivilegesSimpleRequest">
         <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimple"/>
     </wsdl:message>
     <wsdl:message name="viewOrEditPrivilegesSimpleResponse">
         <wsdl:part name="parameters" element="ns0:viewOrEditPrivilegesSimpleResponse"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesRequest">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributes"/>
+    </wsdl:message>
+    <wsdl:message name="viewOrEditAttributesResponse">
+        <wsdl:part name="parameters" element="ns0:viewOrEditAttributesResponse"/>
     </wsdl:message>
     <wsdl:message name="stemDeleteRequest">
         <wsdl:part name="parameters" element="ns0:stemDelete"/>
@@ -983,6 +1056,12 @@
     </wsdl:message>
     <wsdl:message name="getMembershipsResponse">
         <wsdl:part name="parameters" element="ns0:getMembershipsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="stemSaveSimpleRequest">
+        <wsdl:part name="parameters" element="ns0:stemSaveSimple"/>
+    </wsdl:message>
+    <wsdl:message name="stemSaveSimpleResponse">
+        <wsdl:part name="parameters" element="ns0:stemSaveSimpleResponse"/>
     </wsdl:message>
     <wsdl:message name="hasMemberRequest">
         <wsdl:part name="parameters" element="ns0:hasMember"/>
@@ -1061,6 +1140,10 @@
             <wsdl:input message="axis2:groupDeleteRequest" wsaw:Action="urn:groupDelete"/>
             <wsdl:output message="axis2:groupDeleteResponse" wsaw:Action="urn:groupDeleteResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="stemSave">
+            <wsdl:input message="axis2:stemSaveRequest" wsaw:Action="urn:stemSave"/>
+            <wsdl:output message="axis2:stemSaveResponse" wsaw:Action="urn:stemSaveResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="groupSave">
             <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
             <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
@@ -1077,13 +1160,13 @@
             <wsdl:input message="axis2:addMemberRequest" wsaw:Action="urn:addMember"/>
             <wsdl:output message="axis2:addMemberResponse" wsaw:Action="urn:addMemberResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributes">
-            <wsdl:input message="axis2:viewOrEditAttributesRequest" wsaw:Action="urn:viewOrEditAttributes"/>
-            <wsdl:output message="axis2:viewOrEditAttributesResponse" wsaw:Action="urn:viewOrEditAttributesResponse"/>
-        </wsdl:operation>
         <wsdl:operation name="viewOrEditPrivilegesSimple">
             <wsdl:input message="axis2:viewOrEditPrivilegesSimpleRequest" wsaw:Action="urn:viewOrEditPrivilegesSimple"/>
             <wsdl:output message="axis2:viewOrEditPrivilegesSimpleResponse" wsaw:Action="urn:viewOrEditPrivilegesSimpleResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <wsdl:input message="axis2:viewOrEditAttributesRequest" wsaw:Action="urn:viewOrEditAttributes"/>
+            <wsdl:output message="axis2:viewOrEditAttributesResponse" wsaw:Action="urn:viewOrEditAttributesResponse"/>
         </wsdl:operation>
         <wsdl:operation name="stemDelete">
             <wsdl:input message="axis2:stemDeleteRequest" wsaw:Action="urn:stemDelete"/>
@@ -1108,6 +1191,10 @@
         <wsdl:operation name="getMemberships">
             <wsdl:input message="axis2:getMembershipsRequest" wsaw:Action="urn:getMemberships"/>
             <wsdl:output message="axis2:getMembershipsResponse" wsaw:Action="urn:getMembershipsResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="stemSaveSimple">
+            <wsdl:input message="axis2:stemSaveSimpleRequest" wsaw:Action="urn:stemSaveSimple"/>
+            <wsdl:output message="axis2:stemSaveSimpleResponse" wsaw:Action="urn:stemSaveSimpleResponse"/>
         </wsdl:operation>
         <wsdl:operation name="hasMember">
             <wsdl:input message="axis2:hasMemberRequest" wsaw:Action="urn:hasMember"/>
@@ -1188,6 +1275,15 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="stemSave">
+            <soap:operation soapAction="urn:stemSave" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="groupSave">
             <soap:operation soapAction="urn:groupSave" style="document"/>
             <wsdl:input>
@@ -1224,8 +1320,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributes">
-            <soap:operation soapAction="urn:viewOrEditAttributes" style="document"/>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <soap:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1233,8 +1329,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditPrivilegesSimple">
-            <soap:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
+        <wsdl:operation name="viewOrEditAttributes">
+            <soap:operation soapAction="urn:viewOrEditAttributes" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1289,6 +1385,15 @@
         </wsdl:operation>
         <wsdl:operation name="getMemberships">
             <soap:operation soapAction="urn:getMemberships" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemSaveSimple">
+            <soap:operation soapAction="urn:stemSaveSimple" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1425,6 +1530,15 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="stemSave">
+            <soap12:operation soapAction="urn:stemSave" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="groupSave">
             <soap12:operation soapAction="urn:groupSave" style="document"/>
             <wsdl:input>
@@ -1461,8 +1575,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributes">
-            <soap12:operation soapAction="urn:viewOrEditAttributes" style="document"/>
+        <wsdl:operation name="viewOrEditPrivilegesSimple">
+            <soap12:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1470,8 +1584,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditPrivilegesSimple">
-            <soap12:operation soapAction="urn:viewOrEditPrivilegesSimple" style="document"/>
+        <wsdl:operation name="viewOrEditAttributes">
+            <soap12:operation soapAction="urn:viewOrEditAttributes" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1526,6 +1640,15 @@
         </wsdl:operation>
         <wsdl:operation name="getMemberships">
             <soap12:operation soapAction="urn:getMemberships" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemSaveSimple">
+            <soap12:operation soapAction="urn:stemSaveSimple" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1662,6 +1785,15 @@
                 <mime:content type="text/xml" part="groupDelete"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="stemSave">
+            <http:operation location="GrouperService/stemSave"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="stemSave"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="stemSave"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="groupSave">
             <http:operation location="GrouperService/groupSave"/>
             <wsdl:input>
@@ -1698,15 +1830,6 @@
                 <mime:content type="text/xml" part="addMember"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="viewOrEditAttributes">
-            <http:operation location="GrouperService/viewOrEditAttributes"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="viewOrEditAttributes"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="viewOrEditAttributes"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="viewOrEditPrivilegesSimple">
             <http:operation location="GrouperService/viewOrEditPrivilegesSimple"/>
             <wsdl:input>
@@ -1714,6 +1837,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="viewOrEditPrivilegesSimple"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="viewOrEditAttributes">
+            <http:operation location="GrouperService/viewOrEditAttributes"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="viewOrEditAttributes"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="viewOrEditAttributes"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="stemDelete">
@@ -1768,6 +1900,15 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="getMemberships"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemSaveSimple">
+            <http:operation location="GrouperService/stemSaveSimple"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="stemSaveSimple"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="stemSaveSimple"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="hasMember">

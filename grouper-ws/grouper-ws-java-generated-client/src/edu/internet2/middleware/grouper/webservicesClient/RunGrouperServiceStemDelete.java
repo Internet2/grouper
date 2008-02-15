@@ -3,17 +3,18 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemDelete;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemDeleteResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemDeleteResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+
+import org.apache.axis2.Constants;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -46,8 +47,9 @@ public class RunGrouperServiceStemDelete {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-                        options.setProperty(Constants.Configuration.ENABLE_REST,
-                        		Constants.VALUE_TRUE);
+            options.setProperty(Constants.Configuration.ENABLE_REST,
+                Constants.VALUE_TRUE);
+
             StemDelete stemDelete = StemDelete.class.newInstance();
 
             // set the act as id
@@ -60,7 +62,7 @@ public class RunGrouperServiceStemDelete {
             stemDelete.setWsStemLookups(new WsStemLookup[] { wsStemLookup });
 
             WsStemDeleteResults wsStemDeleteResults = stub.stemDelete(stemDelete)
-                                                            .get_return();
+                                                          .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsStemDeleteResults));

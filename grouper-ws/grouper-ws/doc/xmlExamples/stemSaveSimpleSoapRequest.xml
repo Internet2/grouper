@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns1:stemSaveSimple xmlns:ns1="http://webservices.grouper.middleware.internet2.edu/xsd">
+      <ns1:stemName>aStem:test</ns1:stemName>
+      <ns1:stemUuid></ns1:stemUuid>
+      <ns1:description>test stem</ns1:description>
+      <ns1:displayExtension>the test stem</ns1:displayExtension>
+      <ns1:saveMode></ns1:saveMode>
+      <ns1:createStemsIfNotExist></ns1:createStemsIfNotExist>
+      <ns1:actAsSubjectId>GrouperSystem</ns1:actAsSubjectId>
+      <ns1:actAsSubjectIdentifier></ns1:actAsSubjectIdentifier>
+    </ns1:stemSaveSimple>
+  </soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns:stemSaveSimpleResponse xmlns:ns="http://webservices.grouper.middleware.internet2.edu/xsd">
+      <ns:return type="edu.internet2.middleware.grouper.webservices.WsStemSaveResult">
+        <ns:resultCode>SUCCESS</ns:resultCode>
+        <ns:resultMessage>Stem 'aStem:test' was saved.</ns:resultMessage>
+        <ns:stemName>aStem:test</ns:stemName>
+        <ns:stemUuid>94ade20d-a12d-462d-b74b-9a3506ecc478</ns:stemUuid>
+        <ns:success>T</ns:success>
+      </ns:return>
+    </ns:stemSaveSimpleResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

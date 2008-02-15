@@ -99,6 +99,21 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
+     * auto generated Axis2 call back method for stemSave method
+     * override this method for handling normal response from stemSave operation
+     */
+    public void receiveResultstemSave(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSaveResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from stemSave operation
+     */
+    public void receiveErrorstemSave(java.lang.Exception e) {
+    }
+
+    /**
      * auto generated Axis2 call back method for groupSave method
      * override this method for handling normal response from groupSave operation
      */
@@ -159,21 +174,6 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
-     * auto generated Axis2 call back method for viewOrEditAttributes method
-     * override this method for handling normal response from viewOrEditAttributes operation
-     */
-    public void receiveResultviewOrEditAttributes(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditAttributesResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from viewOrEditAttributes operation
-     */
-    public void receiveErrorviewOrEditAttributes(java.lang.Exception e) {
-    }
-
-    /**
      * auto generated Axis2 call back method for viewOrEditPrivilegesSimple method
      * override this method for handling normal response from viewOrEditPrivilegesSimple operation
      */
@@ -186,6 +186,21 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from viewOrEditPrivilegesSimple operation
      */
     public void receiveErrorviewOrEditPrivilegesSimple(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for viewOrEditAttributes method
+     * override this method for handling normal response from viewOrEditAttributes operation
+     */
+    public void receiveResultviewOrEditAttributes(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditAttributesResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from viewOrEditAttributes operation
+     */
+    public void receiveErrorviewOrEditAttributes(java.lang.Exception e) {
     }
 
     /**
@@ -276,6 +291,21 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from getMemberships operation
      */
     public void receiveErrorgetMemberships(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for stemSaveSimple method
+     * override this method for handling normal response from stemSaveSimple operation
+     */
+    public void receiveResultstemSaveSimple(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSaveSimpleResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from stemSaveSimple operation
+     */
+    public void receiveErrorstemSaveSimple(java.lang.Exception e) {
     }
 
     /**

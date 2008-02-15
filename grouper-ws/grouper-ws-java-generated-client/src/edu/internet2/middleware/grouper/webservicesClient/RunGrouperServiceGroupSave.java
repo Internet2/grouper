@@ -27,13 +27,13 @@ public class RunGrouperServiceGroupSave {
      * @param args
      */
     public static void main(String[] args) {
-        groupSave();
+        groupSaveSimple();
     }
 
     /**
      *
      */
-    public static void groupSave() {
+    public static void groupSaveSimple() {
         try {
             GrouperServiceStub stub = new GrouperServiceStub(
                     "http://localhost:8091/grouper-ws/services/GrouperService");
@@ -59,12 +59,11 @@ public class RunGrouperServiceGroupSave {
 
             WsGroupToSave wsGroupToSave = WsGroupToSave.class.newInstance();
 
-            wsGroupToSave.setCreateGroupIfNotExist("");
             wsGroupToSave.setCreateStemsIfNotExist("");
             wsGroupToSave.setDescription("the test group");
             wsGroupToSave.setDisplayExtension("test group");
             wsGroupToSave.setGroupName("aStem:test");
-            wsGroupToSave.setRetrieveViaNameIfNoUuid("");
+            wsGroupToSave.setSaveMode("");
             wsGroupToSave.setUuid("");
             groupSave.setWsGroupsToSave(new WsGroupToSave[] { wsGroupToSave });
 

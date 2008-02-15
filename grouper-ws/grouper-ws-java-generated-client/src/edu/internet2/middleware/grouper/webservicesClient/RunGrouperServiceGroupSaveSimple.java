@@ -49,13 +49,11 @@ public class RunGrouperServiceGroupSaveSimple {
 
             groupSaveSimple.setActAsSubjectId("GrouperSystem");
             groupSaveSimple.setActAsSubjectIdentifier("");
-            groupSaveSimple.setCreateGroupIfNotExist("");
-            groupSaveSimple.setCreateStemsIfNotExist("");
             groupSaveSimple.setDescription("test group");
             groupSaveSimple.setDisplayExtension("the test group");
             groupSaveSimple.setGroupName("aStem:test");
             groupSaveSimple.setGroupUuid("");
-            groupSaveSimple.setRetrieveViaNameIfNoUuid("");
+            groupSaveSimple.setSaveMode("");
 
             WsGroupSaveResult wsGroupSaveResult = stub.groupSaveSimple(groupSaveSimple)
                                                       .get_return();
