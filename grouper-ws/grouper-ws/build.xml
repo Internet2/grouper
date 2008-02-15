@@ -385,6 +385,12 @@
 		  <substitution expression="\.html&quot;"/>
 		  <fileset dir="doc/api" includes="**/*.html" />
 		 </replaceregexp>
+		<!-- replace relative links, e.g. method links -->
+    <replaceregexp flags="g">
+      <regexp pattern="\.html#([^&quot; ]*)&quot;" />
+      <substitution expression="\.html?root=I2MI&amp;view=co#\1&quot;"/>
+      <fileset dir="doc/api" includes="**/*.html" />
+     </replaceregexp>
 		<!-- replace onLoad="top.loadFrames()" with onLoad="" -->
     <replace file="doc/api/index.html"> 
       <replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
