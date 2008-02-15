@@ -13,8 +13,8 @@
 	-->
 	<property environment="env" />
 	<available file="build.properties" property="build.properties.exists" value="true"/>
-	
-  <fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
+
+	<fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
 	<property file="build.properties" />
 
 	<!-- validate the build.properties -->
@@ -26,12 +26,12 @@
 	<fail message="Couldnt detect build.properties property file entry: deploy.context.path" unless="deploy.context.path" />
 	<fail message="Couldnt detect build.properties property file entry: generated.client.project.dir" unless="generated.client.project.dir" />
 	<fail message="Couldnt detect build.properties property file entry: grouper.dir" unless="grouper.dir" />
-  <fail message="Couldnt detect build.properties property file entry: grouper.dist.dir" unless="grouper.dist.dir" />
-  <fail message="Couldnt detect build.properties property file entry: stop.tomcat.on.quick.or.dist" unless="stop.tomcat.on.quick.or.dist" />
-  <fail message="Couldnt detect build.properties property file entry: tomcat.dir" unless="tomcat.dir" />
-  <fail message="Couldnt detect build.properties property file entry: tomcat.port" unless="tomcat.port" />
-  <fail message="Couldnt detect build.properties property file entry: cvs.branch" unless="cvs.branch" />
-	
+	<fail message="Couldnt detect build.properties property file entry: grouper.dist.dir" unless="grouper.dist.dir" />
+	<fail message="Couldnt detect build.properties property file entry: stop.tomcat.on.quick.or.dist" unless="stop.tomcat.on.quick.or.dist" />
+	<fail message="Couldnt detect build.properties property file entry: tomcat.dir" unless="tomcat.dir" />
+	<fail message="Couldnt detect build.properties property file entry: tomcat.port" unless="tomcat.port" />
+	<fail message="Couldnt detect build.properties property file entry: cvs.branch" unless="cvs.branch" />
+
 	<property name="webapp.folder" value="${dist.home}/${webapp.name}" />
 
 	<property name="build.dir" value="${basedir}/build" />
@@ -239,13 +239,13 @@
 
 		<!-- stop tomcat if supposed to -->
 		<if>
-	    <istrue value="${stop.tomcat.on.quick.or.dist}" />
-      <then>
-			  <antcall target="tomcatStop" />
+			<istrue value="${stop.tomcat.on.quick.or.dist}" />
+			<then>
+				<antcall target="tomcatStop" />
 			</then>
 		</if>
-		
-		
+
+
 		<!-- see if we should clean -->
 		<if>
 			<istrue value="${dist.cleanOnDist}" />
@@ -346,13 +346,13 @@
 		<echo>     Generate javadoc to the doc/api dir</echo>
 		<echo>6) help</echo>
 		<echo>     This message</echo>
-    <echo>7) grouper</echo>
-    <echo>     Build the grouper jar from build.properties</echo>
+		<echo>7) grouper</echo>
+		<echo>     Build the grouper jar from build.properties</echo>
 		<echo>
 		</echo>
 	</target>
 	<target name="grouper" description="build the grouper jar and copy to the lib dir">
-    <ant dir="${grouper.dir}" inheritall="false" target="dist" />
+		<ant dir="${grouper.dir}" inheritall="false" target="dist" />
 		<!-- now the grouper jar is in   -->
 		<!-- copy it to ws, and rename -->
 		<copy file="${grouper.dist.dir}/lib/grouper-${DSTAMP}.jar" 
@@ -376,118 +376,111 @@
 			<link href="http://java.sun.com/j2se/1.4.2/docs/api" />
 
 		</javadoc>
-		
+
 		<!-- replace .html?edu/internet2/middleware/grouper/webservices/GrouperService.html" with 
 		.html" -->
-		
+		<!-- take out existing params, these are used by javascript to go to frames gracefully, trash them -->
 		<replaceregexp flags="g">
-		  <regexp pattern="\.html\?[^&quot; ]*&quot;" />
-		  <substitution expression="\.html&quot;"/>
-		  <fileset dir="doc/api" includes="**/*.html" />
-		 </replaceregexp>
+			<regexp pattern="\.html\?[^&quot; ]*&quot;" />
+			<substitution expression="\.html&quot;" />
+			<fileset dir="doc/api" includes="**/*.html" />
+		</replaceregexp>
 		<!-- replace relative links, e.g. method links -->
-    <replaceregexp flags="g">
-      <regexp pattern="\.html#([^&quot; ]*)&quot;" />
-      <substitution expression="\.html?root=I2MI&amp;view=co#\1&quot;"/>
-      <fileset dir="doc/api" includes="**/*.html" />
-     </replaceregexp>
-		<!-- replace onLoad="top.loadFrames()" with onLoad="" -->
-    <replace file="doc/api/index.html"> 
-      <replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
-      <replacevalue><![CDATA[onLoad=""]]></replacevalue>
-    </replace>
-		<!-- replace for cvs web: .html" with .html?root=I2MI&view=co"   -->
-		<replace dir="doc/api">
-		  <include name="**/*.html"/>
-		  <replacetoken><![CDATA[.html"]]></replacetoken>
-      <replacevalue><![CDATA[.html?root=I2MI&view=co"]]></replacevalue>
+		<replaceregexp flags="g">
+			<regexp pattern="\.html#([^&quot;>]*)&quot;" />
+			<substitution expression="\.html?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}#\1&quot;" />
+			<fileset dir="doc/api" includes="**/*.html" />
+		</replaceregexp>
+		<!-- replace onLoad="top.loadFrames()" with onLoad="", this javascript messes things up with viewvc params -->
+		<replace file="doc/api/index.html">
+			<replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
+			<replacevalue><![CDATA[onLoad=""]]></replacevalue>
 		</replace>
-    <replace dir="doc/api">
-      <include name="**/*.html"/>
-      <replacetoken><![CDATA[.css"]]></replacetoken>
-      <replacevalue><![CDATA[.css?root=I2MI&view=co"]]></replacevalue>
-    </replace>
-		<!-- take out main javascript (might not need to do this afterall) -->
-		<!-- replace file="doc/api/index.html"> 
-      <replacetoken><![CDATA[SCRIPT type="text/javascript"]]></replacetoken>
-      <replacevalue><![CDATA[SCRIPTtype="text/javascript"]]></replacevalue>
-		</replace -->
-		
+		<!-- replace for cvs web: .html" with .html?root=I2MI&view=co&pathrev=HEAD"   -->
+		<replace dir="doc/api" value=".html?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}&quot;">
+			<include name="**/*.html" />
+			<replacetoken><![CDATA[.html"]]></replacetoken>
+		</replace>
+		<replace dir="doc/api" value=".css?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}&quot;">
+			<include name="**/*.html" />
+			<replacetoken><![CDATA[.css"]]></replacetoken>
+		</replace>
+
 
 	</target>
 
-  <target name="tomcatStop">
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}" />
-      <then>
-        <!-- stop the tomcat server -->
-        <exec dir="${tomcat.dir}" executable="cmd ">
-          <arg line="/c ${tomcat.dir}\bin\catalina.bat stop" />
-        </exec>
-        <!-- give it a sec to release resources -->
-      	<antcall target="tomcatWaitFor" />
-      </then>
-    </if>
-  </target>
+	<target name="tomcatStop">
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}" />
+			<then>
+				<!-- stop the tomcat server -->
+				<exec dir="${tomcat.dir}" executable="cmd ">
+					<arg line="/c ${tomcat.dir}\bin\catalina.bat stop" />
+				</exec>
+				<!-- give it a sec to release resources -->
+				<antcall target="tomcatWaitFor" />
+			</then>
+		</if>
+	</target>
 
 	<target name="tomcatWaitFor">
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}"  />
-      <then>
-        <sleep seconds="3" />
-      </then>
-    </if>
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}" />
-      <then>
-        <sleep seconds="3" />
-      </then>
-    </if>
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}" />
-      <then>
-        <sleep seconds="3" />
-      </then>
-    </if>
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}" />
-      <then>
-        <sleep seconds="3" />
-      </then>
-    </if>
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}" />
-      <then>
-        <sleep seconds="3" />
-      </then>
-    </if>
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}" />
-      <then>
-        <sleep seconds="3" />
-      </then>
-    </if>
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}" />
-      <then>
-        <sleep seconds="3" />
-      </then>
-    </if>
-    <if>
-      <!-- make sure listening on the debug port -->
-      <socket server="localhost" port="${tomcat.port}" />
-      <then>
-        <sleep seconds="3" />
-      </then>
-    </if>
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}"  />
+			<then>
+				<sleep seconds="3" />
+			</then>
+		</if>
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}" />
+			<then>
+				<sleep seconds="3" />
+			</then>
+		</if>
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}" />
+			<then>
+				<sleep seconds="3" />
+			</then>
+		</if>
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}" />
+			<then>
+				<sleep seconds="3" />
+			</then>
+		</if>
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}" />
+			<then>
+				<sleep seconds="3" />
+			</then>
+		</if>
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}" />
+			<then>
+				<sleep seconds="3" />
+			</then>
+		</if>
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}" />
+			<then>
+				<sleep seconds="3" />
+			</then>
+		</if>
+		<if>
+			<!-- make sure listening on the debug port -->
+			<socket server="localhost" port="${tomcat.port}" />
+			<then>
+				<sleep seconds="3" />
+			</then>
+		</if>
 	</target>
-	
+
 </project>
