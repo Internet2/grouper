@@ -16,34 +16,40 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.U;
-import  edu.internet2.middleware.subject.*;
-import  java.util.Date;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Map;
-import  java.util.Set;
-import  org.apache.commons.lang.time.*;
-import  org.apache.commons.lang.builder.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.time.StopWatch;
+
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.143 2007-10-24 15:57:21 shilen Exp $
+ * @version $Id: Stem.java,v 1.144 2008-02-15 09:02:00 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
-
-  private ParameterHelper param = new ParameterHelper();;
+  /** param helper */
+  private ParameterHelper param = new ParameterHelper();
 
 
 
@@ -51,7 +57,13 @@ public class Stem extends GrouperAPI implements Owner {
    * Search scope: one-level or subtree.
    * @since   1.2.1
    */
-  public enum Scope { ONE, SUB } // TODO 20070802 is this the right location?
+  public enum Scope { 
+    /** one level (direct children) */
+    ONE, 
+    
+    /** all decendents */
+    SUB 
+  }; // TODO 20070802 is this the right location?
 
   /**
    * Hierarchy delimiter.
@@ -65,15 +77,19 @@ public class Stem extends GrouperAPI implements Owner {
   
   // PROTECTED CLASS CONSTANTS //
   // TODO 20070419 how can i get rid of this?
+  /** root int */
   protected static final String ROOT_INT = ":"; // Appease Oracle, et. al.
 
 
   // PRIVATE CLASS CONSTANTS //
+  /** event log */
   private static final EventLog EL = new EventLog();
 
 
   // PRIVATE INSTANCE VARIABLES //
+  /** creator of stem */
   private Subject creator;
+  /** modifier of stem */
   private Subject modifier;
 
 
@@ -226,6 +242,9 @@ public class Stem extends GrouperAPI implements Owner {
   }
 
   /**
+   * get child groups
+   * @param privileges privs 
+   * @param scope all or direct
    * @return  Child groups where current subject has any of the specified <i>privileges</i>.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -289,6 +308,9 @@ public class Stem extends GrouperAPI implements Owner {
   }
 
   /**
+   * get child stems
+   * @param privileges privs
+   * @param scope all or direct
    * @return  Child (or deeper) stems where current subject has any of the specified <i>privileges</i>.  Parent stems of grandchild (or deeper) groups where the current subject has any of the specified <i>privileges</i>.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
@@ -535,6 +557,7 @@ public class Stem extends GrouperAPI implements Owner {
    * Stem parent = ns.getParentStem();
    * </pre>
    * @return  Parent {@link Stem}.
+   * @throws StemNotFoundException if stem not found
    */
   public Stem getParentStem() 
     throws StemNotFoundException
@@ -652,6 +675,7 @@ public class Stem extends GrouperAPI implements Owner {
 
   /**
    * TODO 20070813 make public?
+   * @param group group
    * @return  True if <i>group</i> is child, at any depth, of this stem.
    * @throws  IllegalArgumentException if <i>group</i> is null.
    * @since   1.2.1
@@ -683,6 +707,7 @@ public class Stem extends GrouperAPI implements Owner {
 
   /**
    * TODO 20070813 make public?
+   * @param stem stem
    * @return  True if <i>stem</i> is child, at any depth, of this stem.
    * @throws  IllegalArgumentException if <i>stem</i> is null.
    * @since   1.2.1
@@ -990,7 +1015,13 @@ public class Stem extends GrouperAPI implements Owner {
 
   // PROTECTED CLASS METHODS //
 
-  // @since   1.2.0
+  /**
+   * add root stem
+   * @param s session
+   * @since   1.2.0
+   * @return stem
+   * @throws GrouperRuntimeException is problem
+   */
   protected static Stem internal_addRootStem(GrouperSession s) 
     throws  GrouperRuntimeException
   {
@@ -1017,7 +1048,10 @@ public class Stem extends GrouperAPI implements Owner {
     }
   } // protected static Stem internal_addRootStem(GrouperSession s)
 
-  // @since   1.2.0
+  /**
+   * set modified
+   * @since   1.2.0
+   */
   protected void internal_setModified() {
     this._getDTO().setModifierUuid( this.getSession().getMember().getUuid() );
     this._getDTO().setModifyTime(  new Date().getTime()    );
@@ -1026,7 +1060,16 @@ public class Stem extends GrouperAPI implements Owner {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.2.0
+  /**
+   * add child group with uuid
+   * @param extn extension
+   * @param dExtn display extension
+   * @param uuid uuid
+   * @return group 
+   * @throws GroupAddException if problem 
+   * @throws InsufficientPrivilegeException if problem 
+   * @since   1.2.0
+   */
   protected Group internal_addChildGroup(String extn, String dExtn, String uuid) 
     throws  GroupAddException,
             InsufficientPrivilegeException
@@ -1106,7 +1149,16 @@ public class Stem extends GrouperAPI implements Owner {
     }
   } 
 
-  // @since   1.2.0
+  /**
+   * add child stem with uuid
+   * @since   1.2.0
+   * @param extn extension
+   * @param dExtn display extension
+   * @param uuid uuid
+   * @return the new stem
+   * @throws StemAddException if problem
+   * @throws InsufficientPrivilegeException if problem
+   */
   protected Stem internal_addChildStem(String extn, String dExtn, String uuid) 
     throws  StemAddException,
             InsufficientPrivilegeException
@@ -1118,7 +1170,8 @@ public class Stem extends GrouperAPI implements Owner {
     } 
     GrouperValidator v = AddStemValidator.validate(this, extn, dExtn);
     if (v.isInvalid()) {
-      throw new StemAddException( v.getErrorMessage() );
+      throw new StemAddException( "Problem with stem extension: '" + extn 
+          + "', displayExtension: '" + dExtn + "', " + v.getErrorMessage() );
     }
     try {
       StemDTO _ns = new StemDTO()
@@ -1157,20 +1210,30 @@ public class Stem extends GrouperAPI implements Owner {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
+  /**
+   * get data transfer object
+   * @return the dto
+   */
   private StemDTO _getDTO() {
     return (StemDTO) super.getDTO();
   }
   
+  /**
+   * <pre>
+   * Now grant ADMIN (as root) to the creator of the child group.
+   *
+   * Ideally this would be wrapped up in the broader transaction
+   * of adding the child stem but as the interfaces may be
+   * outside of our control, I don't think we can do that.  
+   *
+   * Possibly a bug. The modify* attrs get set when granting ADMIN at creation.
+   * </pre>
+   * @param g group
+   * @throws GroupAddException if problem
+   */
   private void _grantDefaultPrivsUponCreate(Group g)
     throws  GroupAddException
   {
-    // Now grant ADMIN (as root) to the creator of the child group.
-    //
-    // Ideally this would be wrapped up in the broader transaction
-    // of adding the child stem but as the interfaces may be
-    // outside of our control, I don't think we can do that.  
-    //
-    // Possibly a bug. The modify* attrs get set when granting ADMIN at creation.
     try {
       this.getSession().internal_getRootSession().getAccessResolver().grantPrivilege(
         g, this.getSession().getSubject(), AccessPrivilege.ADMIN       
@@ -1197,17 +1260,21 @@ public class Stem extends GrouperAPI implements Owner {
       throw new GroupAddException( eUTP.getMessage(), eUTP );
     }
   } 
-
+  /**
+   * Now grant STEM (as root) to the creator of the child stem.
+   *
+   * Ideally this would be wrapped up in the broader transaction
+   * of adding the child stem but as the interfaces may be
+   * outside of our control, I don't think we can do that.  
+   *
+   * Possibly a bug. The modify* attrs get set when granting privs at creation.
+   * 
+   * @param ns stem
+   * @throws StemAddException if problem
+   */
   private void _grantDefaultPrivsUponCreate(Stem ns)
     throws  StemAddException
   {
-    // Now grant STEM (as root) to the creator of the child stem.
-    //
-    // Ideally this would be wrapped up in the broader transaction
-    // of adding the child stem but as the interfaces may be
-    // outside of our control, I don't think we can do that.  
-    //
-    // Possibly a bug. The modify* attrs get set when granting privs at creation.
     try {
       this.getSession().internal_getRootSession().getNamingResolver().grantPrivilege(
         ns, this.getSession().getSubject(), NamingPrivilege.STEM
@@ -1236,7 +1303,15 @@ public class Stem extends GrouperAPI implements Owner {
   } 
 
   /**
+   * grant optional priv upon create
+   * @param o object
+   * @param p prov
+   * @param opt opt
+   * @throws GrantPrivilegeException if problem 
    * @throws  IllegalStateException if <i>o</i> is neither group nor stem.
+   * @throws InsufficientPrivilegeException if not privs
+   * @throws SchemaException if problem
+   * @throws UnableToPerformException if problem
    * @since   1.2.1
    */
   private void _grantOptionalPrivUponCreate(Object o, Privilege p, String opt) 
@@ -1268,7 +1343,14 @@ public class Stem extends GrouperAPI implements Owner {
     }
   } 
 
-  // @since   1.2.0
+  /**
+   * rename child groups
+   * @since   1.2.0
+   * @param attr
+   * @param modifier
+   * @param modifyTime
+   * @return the set of GroupDTO's
+   */
   private Set _renameChildGroups(String attr, String modifier, long modifyTime) {
     Map<String, String> attrs;
     GroupDTO            _g;
@@ -1297,7 +1379,13 @@ public class Stem extends GrouperAPI implements Owner {
     return groups;
   } 
 
-  // @since   1.2.0
+  /**
+   * rename children.
+   * @since   1.2.0
+   * @param attr attr
+   * @return the set of StemDTO
+   * @throws StemModifyException if problem
+   */
   private Set _renameChildren(String attr) 
     throws  StemModifyException
   {
@@ -1309,7 +1397,14 @@ public class Stem extends GrouperAPI implements Owner {
     return children;
   } 
 
-  // @since   1.2.0
+  /**
+   * rename child stems and groups.
+   * @param attr sttr
+   * @param modifier modifier
+   * @param modifyTime modify time
+   * @return the set of StemDTO's
+   * @throws IllegalStateException if problem
+   */
   private Set _renameChildStemsAndGroups(String attr, String modifier, long modifyTime) 
     throws  IllegalStateException
   {
@@ -1342,6 +1437,12 @@ public class Stem extends GrouperAPI implements Owner {
     return children;
   } 
 
+  /**
+   * revoke naming privs
+   * @throws InsufficientPrivilegeException if problem
+   * @throws RevokePrivilegeException if problem
+   * @throws SchemaException if problem
+   */
   private void _revokeAllNamingPrivs() 
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException, 
@@ -1353,6 +1454,200 @@ public class Stem extends GrouperAPI implements Owner {
     this.revokePriv(NamingPrivilege.STEM);
     this.setSession(orig);
   } // private void _revokeAllNamingPrivs()
+
+  /**
+   * create stems and parents if not exist.
+   * @param stemName
+   * @param grouperSession 
+   * @return the resulting stem
+   * @throws InsufficientPrivilegeException 
+   * @throws StemNotFoundException 
+   * @throws StemAddException 
+   */
+  static Stem _createStemAndParentStemsIfNotExist(GrouperSession grouperSession, String stemName)
+     throws InsufficientPrivilegeException, StemNotFoundException, StemAddException {
+    String[] stems = StringUtils.split(stemName, ':');
+    Stem currentStem = StemFinder.findRootStem(grouperSession);
+    String currentName = stems[0];
+    for (int i=0;i<stems.length;i++) {
+      try {
+        currentStem = StemFinder.findByName(grouperSession, currentName);
+      } catch (StemNotFoundException snfe1) {
+        //this isnt ideal, but just use the extension as the display extension
+        currentStem = currentStem.addChildStem(stems[i], stems[i]);
+      }
+      //increment the name, dont worry if on the last one, we are done
+      if (i < stems.length-1) {
+        currentName += ":" + stems[i+1];
+      }
+    }
+    //at this point the stem should be there (and is equal to currentStem), just to be sure, query again
+    Stem parentStem = StemFinder.findByName(grouperSession, stemName);
+    return parentStem;
+
+  }
+  
+  /**
+   * <pre>
+   * create or update a stem.  Note this will not rename a stem
+   * 
+   * This is a static method since setters to Group objects persist to the DB
+   * 
+   * Steps:
+   * 
+   * 1. Find the stem
+   *  a. First look by uuid.  if no uuid, or uuid is not found, then its an insert.
+   *  b. If the uuid is not found, and retrieveViaNameIfNoUuid, then lookup the stem
+   *  by name.  If exists, update, else insert
+   * 2. Internally set all the fields of the stem (no need to reset if already the same)
+   * 3. Store the stem (insert or update) if needed
+   * 4. Return the stem object
+   * 
+   * TODO figure out what "types" are and if they should be passed in
+   * TODO do attributes need to be passed in or are they already taken care of?
+   * TODO I assume the create and modify should just happen with the insert/update...
+   * </pre>
+   * @param grouperSession to act as
+   * @param description if blank, ignore
+   * @param displayExtension display friendly name for this stem only
+   * (parent stems are not specified)
+   * @param name this is required, and is the full name of the stem
+   * including the names of parent stems.  e.g. stem1:stem2:stem3
+   * the parent stem must exist
+   * @param uuid of the stem.  If a stem exists with this uuid, then it will
+   * be updated, if not, then it will be created if createIfNotExist is true
+   * @param saveMode to constrain if insert only or update only, if null defaults to INSERT_OR_UPDATE
+   * @param retrieveViaNameIfNoUuid 
+   * @param createParentStemsIfNotExist true if the stems should be created if they dont exist, false
+   * for StemNotFoundException if not exist.  Note, the display extension on created stems
+   * will equal the extension
+   * @return the stem that was updated or created
+   * @throws StemNotFoundException 
+   * @throws InsufficientPrivilegeException 
+   * @throws StemAddException 
+   * @throws StemModifyException 
+   */
+  public static Stem saveStem(GrouperSession grouperSession, 
+      String description, String displayExtension, 
+      String name, String uuid, SaveMode saveMode, boolean createParentStemsIfNotExist) 
+        throws StemNotFoundException,
+      InsufficientPrivilegeException,
+      StemAddException, StemModifyException {
+  
+    //default to insert or update
+    saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
+    
+    int lastColonIndex = name.lastIndexOf(':');
+    boolean topLevelStem = lastColonIndex < 0;
+
+    //empty is root stem
+    String parentStemName = "";
+    String extension = null;
+    if (topLevelStem) {
+      extension = name;
+    } else {
+      parentStemName = name.substring(0,lastColonIndex);
+      extension = name.substring(lastColonIndex+1);
+    }
+    
+    //lets find the stem
+    Stem parentStem = null;
+    
+    try {
+      parentStem = topLevelStem ? StemFinder.findRootStem(grouperSession) 
+          : StemFinder.findByName(grouperSession, parentStemName);
+    } catch (StemNotFoundException snfe) {
+      
+      //see if we should fix this problem
+      if (createParentStemsIfNotExist) {
+        
+        //at this point the stem should be there (and is equal to currentStem), just to be sure, query again
+        parentStem = _createStemAndParentStemsIfNotExist(grouperSession, parentStemName);
+      } else {
+      
+        throw new StemNotFoundException("Cant find stem: '" + parentStemName 
+            + "' (from update on stem name: '" + name + "')");
+      }
+    }
+    
+    boolean hasUuid = !StringUtils.isBlank(uuid);
+    
+    Stem stem = null;
+    //assume update
+    boolean isUpdate = true;
+
+    Stem stemByUuid = null;
+    
+    try {
+      //only check if has uuid
+      stemByUuid = hasUuid ? StemFinder.findByUuid(grouperSession, uuid) : null;
+    } catch (StemNotFoundException gnfe) {
+      //its ok if not found
+    }    
+    
+    Stem stemByName = null;
+    
+    try {
+      stemByName = StemFinder.findByName(grouperSession, name);
+    } catch (StemNotFoundException gnfe) {
+      //its ok if not found
+    }    
+    
+    if (stemByName == null && stemByUuid == null) {
+      //this is insert
+      isUpdate = false;
+    } else if (stemByName != null && stemByUuid != null) {
+      //this is weird...
+      if (StringUtils.equals(stemByName.getUuid(), stemByUuid.getUuid())) {
+        //this is ok
+        stem = stemByUuid;
+      } else {
+        //two stems found with different UUID????
+        throw new RuntimeException("Trying to save stem but two found with different uuid's:"
+            + stemByName.getUuid() + ", " + stemByUuid.getUuid());
+      }
+    } else {
+      stem = stemByName == null ? stemByUuid : stemByName;
+    }
+    
+    //check permissions
+    if (isUpdate && !saveMode.allowedToUpdate()) {
+      throw new RuntimeException("Stem was found by uuid: '" + uuid + "', name: '" + name 
+          + "', but not allowed to update: " + saveMode);      
+    }
+    
+    if (!isUpdate && !saveMode.allowedToInsert()) {
+      throw new StemNotFoundException("Stem was not found by uuid: '" + uuid + "', name: '" + name 
+          + "', but not allowed to insert: " + saveMode);      
+    }
+
+    //if inserting
+    if (!isUpdate) {
+      if (!hasUuid) {
+        //if no uuid
+        stem = parentStem.addChildStem(extension, displayExtension);
+      } else {
+        //if uuid
+        stem = parentStem.internal_addChildStem(extension, displayExtension, uuid);
+      }
+    }
+    
+    //now compare and put all attributes (then store if needed)
+    
+    //if there is a createSource, and its not what is currently there
+    if (!StringUtils.isBlank(description) 
+        && !StringUtils.equals(description, stem.getDescription())) {
+      stem.setDescription(description);
+    }
+    
+    if (!StringUtils.equals(displayExtension, stem.getDisplayExtension())) {
+      stem.setDisplayExtension(displayExtension);
+    }
+    
+    
+    return stem;
+    
+  }
 
 } // public class Stem extends GrouperAPI implements Owner
 
