@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
@@ -45,13 +46,13 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.173 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: Group.java,v 1.174 2008-02-15 09:02:00 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
   /**
    * <pre>
-   * create or update a group.
+   * create or update a group.  Note this will not rename a group.
    * 
    * This is a static method since setters to Group objects persist to the DB
    * 
@@ -78,6 +79,7 @@ public class Group extends GrouperAPI implements Owner {
    * the parent stem must exist
    * @param uuid of the group.  If a group exists with this uuid, then it will
    * be updated, if not, then it will be created if createIfNotExist is true
+   * @param saveMode to constrain if insert only or update only, if null defaults to INSERT_OR_UPDATE
    * @param retrieveViaNameIfNoUuid 
    * @param createGroupIfNotExist If not exist, and false, then GroupNotFoundException
    * @param createStemsIfNotExist true if the stems should be created if they dont exist, false
@@ -93,12 +95,14 @@ public class Group extends GrouperAPI implements Owner {
    */
   public static Group saveGroup(GrouperSession grouperSession, 
       String description, String displayExtension, 
-      String name, String uuid, boolean retrieveViaNameIfNoUuid,
-      boolean createGroupIfNotExist, boolean createStemsIfNotExist) 
+      String name, String uuid, SaveMode saveMode, boolean createStemsIfNotExist) 
         throws StemNotFoundException,
       GroupNotFoundException, GroupAddException, InsufficientPrivilegeException,
       GroupModifyException, StemAddException {
 
+    //default to insert or update
+    saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
+    
     //get the stem name
     if (!StringUtils.contains(name, ":")) {
       throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons)");
@@ -117,23 +121,8 @@ public class Group extends GrouperAPI implements Owner {
       //see if we should fix this problem
       if (createStemsIfNotExist) {
         
-        String[] stems = StringUtils.split(stemName, ':');
-        Stem currentStem = StemFinder.findRootStem(grouperSession);
-        String currentName = stems[0];
-        for (int i=0;i<stems.length;i++) {
-          try {
-            currentStem = StemFinder.findByName(grouperSession, currentName);
-          } catch (StemNotFoundException snfe1) {
-            //this isnt ideal, but just use the extension as the display extension
-            currentStem = currentStem.addChildStem(stems[i], stems[i]);
-          }
-          //increment the name, dont worry if on the last one, we are done
-          if (i < stems.length-1) {
-            currentName += ":" + stems[i+1];
-          }
-        }
         //at this point the stem should be there (and is equal to currentStem), just to be sure, query again
-        stem = StemFinder.findByName(grouperSession, stemName);
+        stem = Stem._createStemAndParentStemsIfNotExist(grouperSession, stemName);
       } else {
       
         throw new StemNotFoundException("Cant find stem: '" + stemName 
@@ -144,34 +133,56 @@ public class Group extends GrouperAPI implements Owner {
     boolean hasUuid = !StringUtils.isBlank(uuid);
     
     Group group = null;
-    boolean isUpdate = false;
+    //assume update
+    boolean isUpdate = true;
 
-    //this is an update
-    if (hasUuid || retrieveViaNameIfNoUuid) {
-      isUpdate = true;
-      try {
-        if (hasUuid) {
-          group = GroupFinder.findByUuid(grouperSession, uuid);
-        } else {
-          //find by name
-          group = GroupFinder.findByName(grouperSession, name);
-        }
-      } catch (GroupNotFoundException gnfe) {
-        //if not found, see if ok
-        if (!createGroupIfNotExist) {
-          throw gnfe;
-        }
-        //now we are an insert
-        isUpdate = false;
+    Group groupByUuid = null;
+    
+    try {
+      //only check if has uuid
+      groupByUuid = hasUuid ? GroupFinder.findByUuid(grouperSession, uuid) : null;
+    } catch (GroupNotFoundException gnfe) {
+      //its ok if not found
+    }    
+    
+    Group groupByName = null;
+    
+    try {
+      groupByName = GroupFinder.findByName(grouperSession, name);
+    } catch (GroupNotFoundException gnfe) {
+      //its ok if not found
+    }    
+    
+    if (groupByName == null && groupByUuid == null) {
+      //this is insert
+      isUpdate = false;
+    } else if (groupByName != null && groupByUuid != null) {
+      //this is weird...
+      if (StringUtils.equals(groupByName.getUuid(), groupByUuid.getUuid())) {
+        //this is ok
+        group = groupByUuid;
+      } else {
+        //two groups found with different UUID????
+        throw new RuntimeException("Trying to save group but two found with different uuid's:"
+            + groupByName.getUuid() + ", " + groupByUuid.getUuid());
       }
-        
+    } else {
+      group = groupByName == null ? groupByUuid : groupByName;
     }
     
+    //check permissions
+    if (isUpdate && !saveMode.allowedToUpdate()) {
+      throw new RuntimeException("Group was found by uuid: '" + uuid + "', name: '" + name 
+          + "', but not allowed to update: " + saveMode);      
+    }
+    
+    if (!isUpdate && !saveMode.allowedToInsert()) {
+      throw new GroupNotFoundException("Group was not found by uuid: '" + uuid + "', name: '" + name 
+          + "', but not allowed to insert: " + saveMode);      
+    }
+
     //if inserting
     if (!isUpdate) {
-      if (!createGroupIfNotExist) {
-        throw new GroupNotFoundException("Cant find group uuid: " + uuid + ", name: " + name);
-      }
       if (!hasUuid) {
         //if no uuid
         group = stem.addChildGroup(extension, displayExtension);
@@ -188,6 +199,11 @@ public class Group extends GrouperAPI implements Owner {
         && !StringUtils.equals(description, group.getDescription())) {
       group.setDescription(description);
     }
+    
+    if (!StringUtils.equals(displayExtension, group.getDisplayExtension())) {
+      group.setDisplayExtension(displayExtension);
+    }
+    
     
     return group;
   }

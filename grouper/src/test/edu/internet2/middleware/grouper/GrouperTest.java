@@ -20,13 +20,15 @@ import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  junit.framework.*;
+
+import org.apache.commons.lang.StringUtils;
 import  org.apache.commons.logging.*;
 
 /**
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.1 2007-08-13 19:39:39 blair Exp $
+ * @version $Id: GrouperTest.java,v 1.2 2008-02-15 09:02:00 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -561,5 +563,78 @@ public class GrouperTest extends TestCase {
     fail(type + "=(" + who + "): testing=(" + what + ") expected=(" + exp + ") got=(" + got + ")");
   } // private void _fail(type, who, what, exp, got)
 
+  /**
+   * concat to stem name full
+   * @param names
+   * @param length
+   * @return stem name based on array and length
+   */
+  public static String stemName(String[] names, int length) {
+    StringBuilder result = new StringBuilder();
+    for (int i=0;i<length;i++) {
+      result.append(names[i]);
+      if (i<length-1) {
+        result.append(":");
+      }
+    }
+    return result.toString();
+  }
+
+  /**
+   * helper method to delete group if exist
+   * @param grouperSession
+   * @param name
+   * @throws Exception 
+   */
+  public static void deleteGroupIfExists(GrouperSession grouperSession, String name) throws Exception {
+    
+    try {
+      Group group = GroupFinder.findByName(grouperSession, name);
+      //hopefully this will succeed
+      group.delete();
+    } catch (GroupNotFoundException gnfe) {
+      //this is good
+    }
+    
+  }
+
+  /**
+   * helper method to delete stems if exist
+   * @param grouperSession
+   * @param name
+   * @throws Exception 
+   */
+  public static void deleteAllStemsIfExists(GrouperSession grouperSession, String name) throws Exception {
+    //this isnt good, it exists
+    String[] stems = StringUtils.split(name, ':');
+    Stem currentStem = null;
+    for (int i=stems.length-1;i>-0;i--) {
+      String currentName = GrouperTest.stemName(stems, i+1);
+      try {
+        currentStem = StemFinder.findByName(grouperSession, currentName);
+      } catch (StemNotFoundException snfe1) {
+        continue;
+      }
+      currentStem.delete();
+    }
+    
+  }
+
+  /**
+   * helper method to delete stem if exist
+   * @param grouperSession
+   * @param name
+   * @throws Exception 
+   */
+  public static void deleteStemIfExists(GrouperSession grouperSession, String name) throws Exception {
+    try {
+      Stem stem = StemFinder.findByName(grouperSession, name);
+      //hopefully this will succeed
+      stem.delete();
+    } catch (StemNotFoundException snfe) {
+      //this is good
+    }
+    
+  }
 } // public class GrouperTest
 

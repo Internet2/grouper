@@ -39,7 +39,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateStemDAO.java,v 1.14 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: HibernateStemDAO.java,v 1.15 2008-02-15 09:02:00 mchyzer Exp $
  * @since   1.2.0
  */
 public class HibernateStemDAO extends HibernateDAO implements StemDAO {
@@ -502,7 +502,7 @@ public class HibernateStemDAO extends HibernateDAO implements StemDAO {
       HibernateStemDAO dao = (HibernateStemDAO) qry.uniqueResult();
       hs.close();
       if (dao == null) {
-        throw new StemNotFoundException();
+        throw new StemNotFoundException("Stem '" + name + "' is not found");
       }
       return StemDTO.getDTO(dao);
     }

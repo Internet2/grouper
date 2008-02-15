@@ -17,9 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -27,15 +25,15 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.5 2008-02-08 07:37:31 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.6 2008-02-15 09:02:00 mchyzer Exp $
  */
-public class TestGroup0 extends TestCase {
+public class TestGroup0 extends GrouperTest {
 
-  /** */
+  /** log */
   private static final Log LOG = LogFactory.getLog(TestGroup0.class);
   
   /**
-   * 
+   * ctor
    * @param name
    */
   public TestGroup0(String name) {
@@ -43,7 +41,7 @@ public class TestGroup0 extends TestCase {
   }
 
   /**
-   * 
+   * setup
    */
   protected void setUp () {
     LOG.debug("setUp");
@@ -51,14 +49,14 @@ public class TestGroup0 extends TestCase {
   }
 
   /**
-   * 
+   * teardown
    */
   protected void tearDown () {
     LOG.debug("tearDown");
   }
 
   /**
-   * 
+   * test
    */
   public void testAddGroupAsMemberAndThenDeleteAsMember() {
     LOG.info("testAddGroupAsMemberAndThenDeleteAsMember");
@@ -80,64 +78,8 @@ public class TestGroup0 extends TestCase {
   } // public void testAddGroupAsMemberAndThenDeleteAsMember()
 
   /**
-   * helper method to delete group if not exist
-   * @param grouperSession
-   * @param name
-   * @throws Exception 
-   */
-  public static void deleteGroupIfExists(GrouperSession grouperSession, String name) throws Exception {
-    
-    try {
-      Group group = GroupFinder.findByName(grouperSession, name);
-      //hopefully this will succeed
-      group.delete();
-    } catch (GroupNotFoundException gnfe) {
-      //this is good
-    }
-    
-  }
-  
-  /**
-   * 
-   * @param names
-   * @param length
-   * @return stem name based on array and length
-   */
-  public static String stemName(String[] names, int length) {
-    StringBuilder result = new StringBuilder();
-    for (int i=0;i<length;i++) {
-      result.append(names[i]);
-      if (i<length-1) {
-        result.append(":");
-      }
-    }
-    return result.toString();
-  }
-  
-  /**
-   * helper method to delete stems if not exist
-   * @param grouperSession
-   * @param name
-   * @throws Exception 
-   */
-  public static void deleteStemsIfExists(GrouperSession grouperSession, String name) throws Exception {
-    //this isnt good, it exists
-    String[] stems = StringUtils.split(name, ':');
-    Stem currentStem = null;
-    for (int i=stems.length-1;i>-0;i--) {
-      String currentName = stemName(stems, i+1);
-      try {
-        currentStem = StemFinder.findByName(grouperSession, currentName);
-      } catch (StemNotFoundException snfe1) {
-        continue;
-      }
-      currentStem.delete();
-    }
-    
-  }
-
-  /**
-   * @throws Exception
+   * test
+   * @throws Exception if problem
    */
   public void testStaticSaveGroup() throws Exception {
     
@@ -149,35 +91,24 @@ public class TestGroup0 extends TestCase {
     try {
       String groupNameNotExist = "whatever:whatever:testing123";
       
-      deleteGroupIfExists(rootSession, groupNameNotExist);
+      GrouperTest.deleteGroupIfExists(rootSession, groupNameNotExist);
       
       Group.saveGroup(rootSession, groupDescription, 
           displayExtension, groupNameNotExist, 
-          null, false, true, false);
+          null, SaveMode.UPDATE, false);
       fail("this should fail, since stem doesnt exist");
     } catch (StemNotFoundException e) {
       //good, caught an exception
       //e.printStackTrace();
     }
     
-    /////////////////////////////////
-    String groupName = "i2:a:testing123";
-    deleteGroupIfExists(rootSession, groupName);
-    try {
-      Group.saveGroup(rootSession, groupDescription, 
-          displayExtension, groupName, 
-          null, false, false, false);
-      fail("if not create if not exist, and doesnt exist, then fail");
-    } catch (GroupNotFoundException e) {
-      //good, caught an exception
-      e.printStackTrace();
-    }
-    
     //////////////////////////////////
     //this should insert
+    String groupName = "i2:a:testing123";
+    GrouperTest.deleteGroupIfExists(rootSession, groupName);
     Group createdGroup = Group.saveGroup(rootSession, groupDescription, 
         displayExtension, groupName, 
-        null, false, true, false);
+        null, SaveMode.INSERT, false);
     
     //now retrieve
     Group foundGroup = GroupFinder.findByName(rootSession, groupName);
@@ -195,25 +126,25 @@ public class TestGroup0 extends TestCase {
     //this should update by uuid
     createdGroup = Group.saveGroup(rootSession, groupDescription + "1", 
         displayExtension, groupName, 
-        createdGroup.getUuid(), false, false, false);
+        createdGroup.getUuid(), SaveMode.INSERT_OR_UPDATE, false);
     assertEquals("this should update by uuid", groupDescription + "1", createdGroup.getDescription());
     
     //this should update by name
     createdGroup = Group.saveGroup(rootSession, groupDescription + "2", 
         displayExtension, groupName, 
-        null, true, false, false);
+        null, SaveMode.UPDATE, false);
     assertEquals("this should update by name", groupDescription + "2", createdGroup.getDescription());
     
     /////////////////////////////////////
     //create a group that creates a bunch of stems
     String stemsNotExist = "whatever:heythere:another";
     String groupNameCreateStems = stemsNotExist + ":" + groupName;
-    deleteGroupIfExists(rootSession, groupNameCreateStems);
-    deleteStemsIfExists(rootSession, stemsNotExist);
+    GrouperTest.deleteGroupIfExists(rootSession, groupNameCreateStems);
+    GrouperTest.deleteAllStemsIfExists(rootSession, stemsNotExist);
     //lets also delete those stems
     createdGroup = Group.saveGroup(rootSession, groupDescription, 
         displayExtension, groupNameCreateStems, 
-        null, false, true, true);
+        null, SaveMode.INSERT_OR_UPDATE, true);
     
     assertEquals(groupDescription, createdGroup.getDescription());
     
