@@ -18,6 +18,8 @@
 
 package edu.internet2.middleware.ldappc;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
@@ -92,7 +94,8 @@ public class GrouperSessionControl
     
         }
         catch (Exception e) {
-            ErrorLog.error(this.getClass(), "Failed to find GrouperSession: "  + e.getMessage());
+            ErrorLog.error(this.getClass(), "Failed to find GrouperSession for subjectId: '" 
+            		+ subjectId + "', "  + ExceptionUtils.getFullStackTrace(e));
             started = false;
         }
         sessionGoing = started;
