@@ -24,9 +24,25 @@ import  org.apache.commons.logging.*;
  * Test use of the UPDATE {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivUPDATE.java,v 1.9 2007-12-05 11:25:10 isgwb Exp $
+ * @version $Id: TestPrivUPDATE.java,v 1.10 2008-02-17 08:44:42 mchyzer Exp $
  */
 public class TestPrivUPDATE extends TestCase {
+
+  /**
+   * 
+   */
+  public TestPrivUPDATE() {
+    super();
+    
+  }
+
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(new TestPrivUPDATE("testDelMembersWithADMIN"));
+  }
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestPrivUPDATE.class);

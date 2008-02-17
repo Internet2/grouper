@@ -32,7 +32,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Field</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateFieldDAO.java,v 1.6 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: HibernateFieldDAO.java,v 1.7 2008-02-17 08:44:42 mchyzer Exp $
  * @since   1.2.0
  */
 public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
@@ -114,6 +114,7 @@ public class HibernateFieldDAO extends HibernateDAO implements FieldDAO {
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllFieldsByGroupType");
       qry.setString("uuid", uuid);
+      //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
       Iterator it = qry.iterate();
       while (it.hasNext()) {
         fields.add( (FieldDTO) FieldDTO.getDTO( (FieldDAO) it.next() ) );

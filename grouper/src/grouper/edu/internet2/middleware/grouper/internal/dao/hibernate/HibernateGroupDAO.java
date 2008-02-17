@@ -40,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.16 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.17 2008-02-17 08:44:42 mchyzer Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -199,6 +199,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
       qry.setCacheRegion(KLASS + ".FindAllAttributesByGroup");
       qry.setString("uuid", uuid);
       HibernateAttributeDAO a;
+      //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
       Iterator              it = qry.iterate();
       while (it.hasNext()) {
         a = (HibernateAttributeDAO) it.next();
@@ -866,6 +867,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
       qry.setString("group", uuid);
       GroupTypeDAO                dao = GrouperDAOFactory.getFactory().getGroupType(); 
       HibernateGroupTypeTupleDAO  gtt;
+      //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
       Iterator                    it  = qry.iterate();
       while (it.hasNext()) {
         gtt = (HibernateGroupTypeTupleDAO) it.next();
@@ -897,6 +899,7 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
     HibernateAttributeDAO a;
     Map                   attrs = new HashMap(this.attributes);
     String                k;
+    //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
     Iterator              it = qry.iterate();
     while (it.hasNext()) {
       a = (HibernateAttributeDAO) it.next();

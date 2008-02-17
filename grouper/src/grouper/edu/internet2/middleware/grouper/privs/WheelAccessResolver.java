@@ -36,13 +36,14 @@ import  java.util.Set;
 import net.sf.ehcache.Element;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 
 /**
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.9 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.10 2008-02-17 08:44:42 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -68,15 +69,19 @@ public class WheelAccessResolver extends AccessResolverDecorator {
     this.useWheel = Boolean.valueOf( this.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue();
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
+      String wheelName = null;
       try {
+        wheelName = this.getConfig( GrouperConfig.PROP_WHEEL_GROUP );
         this.wheelGroup = GroupFinder.findByName(
                             GrouperSession.start( SubjectFinder.findRootSubject() ),
-                            this.getConfig( GrouperConfig.PROP_WHEEL_GROUP )
+                            wheelName
                           );
       }
       catch (Exception e) {
     	//OK, so wheel group does not exist. Not fatal...
-    	ErrorLog.error(this.getClass(), "Initialisation error: " + e.getClass().getSimpleName());
+    	ErrorLog.error(this.getClass(), "Initialisation error with wheel group name '" + wheelName 
+    	    + "': " + e.getClass().getSimpleName() 
+    	    + "\n" + ExceptionUtils.getFullStackTrace(e));
     	this.useWheel=false;
       }
     }

@@ -42,7 +42,7 @@ import  org.hibernate.classic.Lifecycle;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.3 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.4 2008-02-17 08:44:42 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -199,12 +199,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   {
     Map attrs = new HashMap();
     try {
+
       Session hs  = Hib3DAO.getSession();
       Query   qry = hs.createQuery("from Hib3AttributeDAO as a where a.groupUuid = :uuid");
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllAttributesByGroup");
       qry.setString("uuid", uuid);
       Hib3AttributeDAO a;
+      //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
       Iterator              it = qry.iterate();
       while (it.hasNext()) {
         a = (Hib3AttributeDAO) it.next();
@@ -873,6 +875,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
       qry.setString("group", uuid);
       GroupTypeDAO                dao = GrouperDAOFactory.getFactory().getGroupType(); 
       Hib3GroupTypeTupleDAO  gtt;
+      //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
       Iterator                    it  = qry.iterate();
       while (it.hasNext()) {
         gtt = (Hib3GroupTypeTupleDAO) it.next();
@@ -904,6 +907,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     Hib3AttributeDAO a;
     Map                   attrs = new HashMap(this.attributes);
     String                k;
+    //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
     Iterator              it = qry.iterate();
     while (it.hasNext()) {
       a = (Hib3AttributeDAO) it.next();

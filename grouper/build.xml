@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.172 2008-01-18 17:06:54 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.173 2008-02-17 08:44:42 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -163,8 +163,10 @@
       <compilerarg  value="-Xlint:unchecked"  />
 -->
     </javac>
+    <!-- CH 20080215 copy source to the build dir... -->    
     <copy todir="${build.dir.grouper}">
       <fileset dir="${src.dir.grouper}">
+        <include name="**/*.java"/>      <!-- source -->
         <include name="**/*.hbm.xml"/>      <!-- hibernate mappings -->
         <include name="**/*.properties"/>   <!-- xml default export|import properties -->
       </fileset>
@@ -215,7 +217,7 @@
   </target>
   <!-- target: db -->
 
-  <!-- target: db.init -->
+  <!-- target: db.init, change from schemaexport to compile if you dont want db blown away... -->
   <target name="db.init" 
           depends="init, schemaexport"
           description="Initialize Groups Registry"

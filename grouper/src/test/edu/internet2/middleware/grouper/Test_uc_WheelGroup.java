@@ -22,10 +22,34 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.9 2007-12-05 11:25:10 isgwb Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.10 2008-02-17 08:44:42 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_uc_WheelGroup extends GrouperTest {
+
+  /**
+   * 
+   */
+  public Test_uc_WheelGroup() {
+    super();
+    
+  }
+
+  /**
+   * @param name
+   */
+  public Test_uc_WheelGroup(String name) {
+    super(name);
+    
+  }
+
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(new Test_uc_WheelGroup("test_canAdminWhenMemberOfWheel"));
+  }
 
 
   private Group   dev, wheel;
@@ -79,10 +103,18 @@ public class Test_uc_WheelGroup extends GrouperTest {
             SessionException
   {
     // make this.subjA a member of wheel
-    GroupFinder.findByUuid( 
-      GrouperSession.start( SubjectFinder.findRootSubject() ), wheel.getUuid()
-    ).addMember( this.subjA );
-
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    GrouperSession grouperSession = GrouperSession.start(rootSubject);
+    String wheelUuid = wheel.getUuid();
+    Group wheelGroup = GroupFinder.findByUuid(grouperSession,wheelUuid);
+    
+    //System.out.println("##############  Before adding member  ##############");
+    try {
+      wheelGroup.addMember( this.subjA );
+    } finally {
+      //System.out.println("##############  After adding member  ##############");
+    }
+    
     // start session and turn on wheel
     GrouperSession s = GrouperSession.start(this.subjA);
     s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
