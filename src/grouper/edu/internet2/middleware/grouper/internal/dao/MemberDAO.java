@@ -16,15 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Set;
+
 import  edu.internet2.middleware.grouper.MemberNotFoundException;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import edu.internet2.middleware.subject.Source;
 import  edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MemberDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
  * @since   1.2.0
  */
 public interface MemberDAO extends GrouperDAO {
@@ -41,6 +44,18 @@ public interface MemberDAO extends GrouperDAO {
   boolean exists(String uuid) 
     throws  GrouperDAOException;
 
+  /**
+   * @since   1.3.0
+   */
+  Set findAll() 
+    throws  GrouperDAOException;
+  
+  /**
+   * @since   1.3.0
+   */
+  Set findAll(Source source) 
+    throws  GrouperDAOException;
+  
   /**
    * @since   1.2.0
    */

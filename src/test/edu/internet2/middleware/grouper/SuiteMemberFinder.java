@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberFinder.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteMemberFinder.java,v 1.3 2008-02-19 22:13:10 tzeller Exp $
  * @since   1.2.0
  */
 public class SuiteMemberFinder extends TestCase {
@@ -29,6 +29,7 @@ public class SuiteMemberFinder extends TestCase {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestMemberFinder_FindBySubject.class );
     suite.addTestSuite( TestMemberFinder_FindByUuid.class    );
+    suite.addTestSuite( TestMemberFinder_FindAll.class       );
     return suite;
   } // static public Test suite()
 
