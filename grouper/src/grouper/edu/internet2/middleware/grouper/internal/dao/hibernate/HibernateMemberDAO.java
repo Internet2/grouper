@@ -22,16 +22,21 @@ import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
+import edu.internet2.middleware.subject.Source;
 import  edu.internet2.middleware.subject.Subject;
 import  java.io.Serializable;
 import  java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import  net.sf.hibernate.*;
 
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateMemberDAO.java,v 1.6 2007-10-29 15:09:33 shilen Exp $
+ * @version $Id: HibernateMemberDAO.java,v 1.7 2008-02-19 22:13:10 tzeller Exp $
  * @since   1.2.0
  */
 public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,MemberDAO {
@@ -105,6 +110,59 @@ public class HibernateMemberDAO extends HibernateDAO implements Lifecycle,Member
       throw new GrouperDAOException( eH.getMessage(), eH );
     }
   } 
+  
+  /**
+   * @since   1.3.0
+   */
+  public Set findAll() 
+    throws  GrouperDAOException
+  {
+    return findAll(null);
+  } // public Set findAll()
+  
+  /**
+   * @since   1.3.0
+   */
+  public Set findAll(Source source) 
+    throws  GrouperDAOException
+  {
+    Set members = new LinkedHashSet();
+    try {
+      Session hs = HibernateDAO.getSession();
+      try {
+        Query qry = null;
+        if (source == null) {
+          qry = hs.createQuery("from HibernateMemberDAO");
+        } else {
+          qry = hs.createQuery("from HibernateMemberDAO as m where m.subjectSourceId=:sourceId");
+          qry.setString("sourceId", source.getId());
+        }
+        qry.setCacheable(false);
+        qry.setCacheRegion(KLASS + ".FindAll");
+        Iterator it = qry.list().iterator();
+        while (it.hasNext()) {
+          HibernateMemberDAO dao = (HibernateMemberDAO) it.next();
+          MemberDTO _m = new MemberDTO()
+            .setId(dao.getId())
+            .setUuid(dao.getUuid())
+            .setSubjectId(dao.getSubjectId())
+            .setSubjectSourceId(dao.getSubjectSourceId())
+            .setSubjectTypeId(dao.getSubjectTypeId());
+          members.add(_m);
+        }
+      }
+      catch (HibernateException eH) {
+        throw eH;
+      } finally {
+        hs.close();
+      }
+    }
+    catch (HibernateException eH) {
+      ErrorLog.fatal( HibernateMemberDAO.class, eH.getMessage() );
+      throw new GrouperDAOException( eH.getMessage(), eH );
+    }
+    return members;
+  } // public Set findAll(Source source)
 
   /**
    * @since   1.2.0

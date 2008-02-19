@@ -18,6 +18,9 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
@@ -26,11 +29,13 @@ import org.hibernate.classic.Lifecycle;
 
 import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.MemberNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import edu.internet2.middleware.grouper.internal.util.Rosetta;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -38,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.3 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
@@ -98,6 +103,41 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
     existsCache.put(uuid, rv);
     return rv;
   } 
+  
+  /**
+   * @since   @HEAD@
+   */
+  public Set findAll() 
+    throws  GrouperDAOException
+  {
+    return findAll(null);
+  } // public Set findAll()
+  
+  /**
+   * @since   @HEAD@
+   */
+  public Set findAll(Source source) 
+    throws  GrouperDAOException
+  {
+    Set members = new LinkedHashSet();   
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    if (source == null) {
+      byHqlStatic.createQuery("from Hib3MemberDAO");
+    } else {
+      byHqlStatic.createQuery("from Hib3MemberDAO as m where m.subjectSourceId=:sourceId");
+      byHqlStatic.setString("sourceId", source.getId());
+    }
+    List<Hib3MemberDAO> memberDAOs = byHqlStatic.list(Hib3MemberDAO.class);  
+    for(Hib3MemberDAO memberDAO : memberDAOs) {
+      members.add(new MemberDTO()
+        .setId(memberDAO.getId())
+        .setUuid(memberDAO.getUuid())
+        .setSubjectId(memberDAO.getSubjectId())
+        .setSubjectSourceId(memberDAO.getSubjectSourceId())
+        .setSubjectTypeId(memberDAO.getSubjectTypeId()));
+    }     
+    return members;
+  } // public findAll(Source source)
 
   /**
    * @since   @HEAD@

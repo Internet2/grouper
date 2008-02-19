@@ -16,6 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
@@ -24,7 +28,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.48 2007-12-05 11:25:10 isgwb Exp $
+ * @version $Id: MemberFinder.java,v 1.49 2008-02-19 22:13:11 tzeller Exp $
  */
 public class MemberFinder {
 	
@@ -34,6 +38,46 @@ public class MemberFinder {
 	private static Member root;
 
   // PUBLIC CLASS METHODS //
+	
+	/**
+   * Find all members.
+   * <pre class="eg">
+   * Set members = MemberFinder.findAll(s);
+   * </pre>
+   * @param   s   Find all members within this session context.
+   * @return  {@link Set} of {@link Member} objects.
+   * @throws  GrouperRuntimeException
+   */
+  public static Set findAll(GrouperSession s)
+    throws  GrouperRuntimeException
+  {
+    return findAll(s, null);
+  } // public static Set findAll(GrouperSession s)
+  
+  /**
+   * Find all members by source.
+   * <pre class="eg">
+   * Set members = MemberFinder.findAll(s, source);
+   * </pre>
+   * @param   s       Find all members within this session context.
+   * @param   source  Find all members with this source.
+   * @return  {@link Set} of {@link Member} objects.
+   * @throws  GrouperRuntimeException
+   */
+  public static Set findAll(GrouperSession s, Source source)
+    throws  GrouperRuntimeException
+  {
+    GrouperSession.validate(s);
+    Set members = new LinkedHashSet();
+    Iterator it = GrouperDAOFactory.getFactory().getMember().findAll(source).iterator();
+    while (it.hasNext()) {
+      Member m = new Member();
+      m.setDTO((MemberDTO) it.next());
+      m.setSession(s);
+      members.add(m);
+    }
+    return members;
+  } // public static Set findAll(GrouperSession s)
 
   /**
    * Convert a {@link Subject} to a {@link Member}.
