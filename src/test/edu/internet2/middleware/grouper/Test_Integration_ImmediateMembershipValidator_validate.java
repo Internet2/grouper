@@ -22,13 +22,40 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.4 2007-04-17 14:17:30 blair Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.5 2008-02-19 07:50:47 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = LogFactory.getLog(Test_Integration_ImmediateMembershipValidator_validate.class);
+
+  /**
+   * 
+   */
+  public Test_Integration_ImmediateMembershipValidator_validate() {
+    super();
+    // TODO Auto-generated constructor stub
+  }
+
+
+  /**
+   * @param name
+   */
+  public Test_Integration_ImmediateMembershipValidator_validate(String name) {
+    super(name);
+    // TODO Auto-generated constructor stub
+  }
+
+
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(new Test_Integration_ImmediateMembershipValidator_validate(
+        "testValidate_InvalidGroupInCircularCheck"));
+  }
 
 
   // TESTS //  

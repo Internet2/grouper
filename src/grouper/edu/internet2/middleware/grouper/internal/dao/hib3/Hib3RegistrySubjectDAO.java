@@ -16,17 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
-import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
-import  edu.internet2.middleware.subject.*;
-import  org.hibernate.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
+import edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Basic Hibernate <code>RegistrySubject</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3RegistrySubjectDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDAO {
@@ -43,55 +46,19 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
    * @since   @HEAD@
    */
   public String create(RegistrySubjectDTO _subj)
-    throws  GrouperDAOException 
-  {
-    try {
-      Session       hs  = Hib3DAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      Hib3DAO  dao = (Hib3DAO) _subj.getDAO();
-      try {
-        hs.save(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      } 
-      return dao.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    throws  GrouperDAOException {
+    Hib3DAO  dao = (Hib3DAO) _subj.getDAO(); 
+    HibernateSession.byObjectStatic().save(dao);
+    return dao.getId();
   } 
 
   /**
    * @since   @HEAD@
    */
   public void delete(RegistrySubjectDTO _subj)
-    throws  GrouperDAOException
-  {
-    try {
-      Session       hs  = Hib3DAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      Hib3DAO  dao = (Hib3DAO) _subj.getDAO();
-      try { 
-        hs.delete(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    throws  GrouperDAOException {
+    Hib3DAO  dao = (Hib3DAO) _subj.getDAO();
+    HibernateSession.byObjectStatic().delete(dao);
   }
 
   /**
@@ -101,26 +68,19 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
     throws  GrouperDAOException,
             SubjectNotFoundException
   {
-    try {
-      Session hs  = Hib3DAO.getSession();
-      Query   qry = hs.createQuery(
+    Hib3RegistrySubjectDAO subj = HibernateSession.byHqlStatic()
+      .createQuery(
         "from Hib3RegistrySubjectDAO as rs where " 
         + "     rs.id   = :id    "
-        + " and rs.type = :type  "
-      );
-      qry.setCacheable(false); 
-      qry.setString( "id",   id   );
-      qry.setString( "type", type );
-      Hib3RegistrySubjectDAO subj = (Hib3RegistrySubjectDAO) qry.uniqueResult();
-      hs.close();
-      if (subj == null) {
-        throw new SubjectNotFoundException("subject not found"); 
-      }
-      return subj;
+        + " and rs.type = :type  ")
+      .setCacheable(false) 
+      .setString( "id",   id   )
+      .setString( "type", type )
+      .uniqueResult(Hib3RegistrySubjectDAO.class);
+    if (subj == null) {
+      throw new SubjectNotFoundException("subject not found"); 
     }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    return subj;
   } // public Hib3RegistrySubjectDAO find(id, type)
 
   /**

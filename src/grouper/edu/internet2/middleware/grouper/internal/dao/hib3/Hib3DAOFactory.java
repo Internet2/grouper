@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import org.hibernate.Session;
+
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
@@ -32,7 +34,7 @@ import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
  * Basic Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -87,6 +89,16 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   // @since   @HEAD@
   public StemDAO getStem() {
     return new Hib3StemDAO();
+  }
+
+  /**
+   * get a hibernate session (note, this is a framework method
+   * that should not be called outside of grouper hibernate framework methods
+   * @return the session
+   */
+  @Override
+  public Session getSession() {
+    return Hib3DAO.session();
   }
 
 } 

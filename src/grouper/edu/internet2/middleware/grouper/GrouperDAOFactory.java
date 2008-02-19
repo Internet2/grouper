@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.hibernate.Session;
+
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
@@ -33,7 +35,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.9 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.10 2008-02-19 07:50:47 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -136,5 +138,11 @@ public abstract class GrouperDAOFactory {
     gdf = null;
   }
 
+  /**
+   * get a hibernate session (note, this is a framework method
+   * that should not be called outside of grouper hibernate framework methods
+   * @return the session
+   */
+  public abstract Session getSession();
 } 
 

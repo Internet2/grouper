@@ -16,15 +16,40 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.8 2007-08-10 13:19:14 blair Exp $
+ * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.9 2008-02-19 07:50:47 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
+
+  /**
+   * 
+   */
+  public Test_Integration_HibernateGroupTypeDAO_delete() {
+    super();
+    // TODO Auto-generated constructor stub
+  }
+
+  /**
+   * @param name
+   */
+  public Test_Integration_HibernateGroupTypeDAO_delete(String name) {
+    super(name);
+    // TODO Auto-generated constructor stub
+  }
+
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_Integration_HibernateGroupTypeDAO_delete("testDelete_FieldsDeletedWhenGroupTypeIsDeleted"));
+  }
 
   // TODO 20070606 this should not be DAO specific
 

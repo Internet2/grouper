@@ -17,6 +17,9 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import  edu.internet2.middleware.grouper.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
@@ -24,6 +27,7 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
+import java.util.List;
 import  java.util.Set;
 import  org.hibernate.*;
 
@@ -31,7 +35,7 @@ import  org.hibernate.*;
  * Basic Hibernate <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
@@ -60,25 +64,17 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
     throws  GrouperDAOException
   {
     Set composites = new LinkedHashSet();
-    try {
-      Session hs  = Hib3DAO.getSession();
-      Query   qry = hs.createQuery(
-          "from Hib3CompositeDAO as c where (" 
-        + " c.leftFactorUuid = :left or c.rightFactorUuid = :right "
-        + ")"
-      );
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAsFactor");
-      qry.setString( "left",  _g.getUuid() );
-      qry.setString( "right", _g.getUuid() );
-      Iterator it = qry.list().iterator();
-      while (it.hasNext()) {
-        composites.add( CompositeDTO.getDTO( (CompositeDAO) it.next() ) );
-      }
-      hs.close();
-    }
-    catch (HibernateException eH) { 
-      throw new GrouperDAOException( eH.getMessage(), eH );
+    List<CompositeDAO> compositeDAOs = HibernateSession.byHqlStatic()
+      .createQuery("from Hib3CompositeDAO as c where (" 
+          + " c.leftFactorUuid = :left or c.rightFactorUuid = :right "
+          + ")")
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".FindAsFactor")
+          .setString( "left",  _g.getUuid() )
+          .setString( "right", _g.getUuid() )
+          .list(CompositeDAO.class);
+    for (CompositeDAO compositeDAO : compositeDAOs) {
+        composites.add( CompositeDTO.getDTO( compositeDAO ) );
     }
     return composites;
   } // public Set findAsFactor(_g)
@@ -88,24 +84,16 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
    */
   public CompositeDTO findAsOwner(GroupDTO _g) 
     throws  CompositeNotFoundException,
-            GrouperDAOException
-  {
-    try {
-      Session hs  = Hib3DAO.getSession();
-      Query   qry = hs.createQuery("from Hib3CompositeDAO as c where c.factorOwnerUuid = :uuid");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAsOwner");
-      qry.setString( "uuid", _g.getUuid() );
-      Hib3CompositeDAO dao = (Hib3CompositeDAO) qry.uniqueResult();
-      hs.close();
-      if (dao == null) {
-        throw new CompositeNotFoundException();
-      }
-      return CompositeDTO.getDTO(dao);
+            GrouperDAOException {
+    Hib3CompositeDAO dao = HibernateSession.byHqlStatic()
+      .createQuery("from Hib3CompositeDAO as c where c.factorOwnerUuid = :uuid")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAsOwner")
+      .setString( "uuid", _g.getUuid() ).uniqueResult(Hib3CompositeDAO.class);
+    if (dao == null) {
+      throw new CompositeNotFoundException();
     }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH) ;
-    }
+    return CompositeDTO.getDTO(dao);
   } // public CompositeDTO findAsOwner(_g)
 
   /**
@@ -113,24 +101,17 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
    */
   public CompositeDTO findByUuid(String uuid) 
     throws  CompositeNotFoundException,
-            GrouperDAOException
-  {
-    try {
-      Session hs  = Hib3DAO.getSession();
-      Query   qry = hs.createQuery("from Hib3CompositeDAO as c where c.uuid = :uuid");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
-      qry.setString("uuid", uuid);
-      Hib3CompositeDAO dao = (Hib3CompositeDAO) qry.uniqueResult();
-      hs.close();
-      if (dao == null) {
-        throw new CompositeNotFoundException();
-      }
-      return CompositeDTO.getDTO(dao);
+            GrouperDAOException {
+    Hib3CompositeDAO dao = HibernateSession.byHqlStatic()
+    .createQuery("from Hib3CompositeDAO as c where c.uuid = :uuid")
+    .setCacheable(false)
+    .setCacheRegion(KLASS + ".FindByUuid")
+    .setString( "uuid", uuid ).uniqueResult(Hib3CompositeDAO.class);
+
+    if (dao == null) {
+      throw new CompositeNotFoundException();
     }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    return CompositeDTO.getDTO(dao);
   } // public CompositeDTO findByUuid(uuid)
 
   /**
@@ -256,42 +237,36 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   /**
    * @since   @HEAD@
    */
-  public void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = Hib3DAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        Iterator it = toDelete.iterator();
-        while (it.hasNext()) {
-          hs.delete( Rosetta.getDAO( it.next() ) );
-        } 
-        it = toAdd.iterator();
-        while (it.hasNext()) {
-          hs.save( Rosetta.getDAO( it.next() ) );
-        }
-        it = modGroups.iterator();
-        while (it.hasNext()) {
-          hs.update( Rosetta.getDAO( it.next() ) );
-        }
-        it = modStems.iterator();
-        while (it.hasNext()) {
-          hs.update( Rosetta.getDAO( it.next() ) );
-        }
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw new GrouperDAOException( eH.getMessage(), eH );
-      }
-      finally {
-        hs.close();
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH);
-    }
+  public void update(final Set toAdd, final Set toDelete, final Set modGroups, final Set modStems) 
+    throws  GrouperDAOException {
+    
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+        new HibernateHandler() {
+
+          public Object callback(HibernateSession hibernateSession) {
+
+            Session     hs  = hibernateSession.getSession();
+            
+            Iterator it = toDelete.iterator();
+            while (it.hasNext()) {
+              hs.delete( Rosetta.getDAO( it.next() ) );
+            } 
+            it = toAdd.iterator();
+            while (it.hasNext()) {
+              hs.save( Rosetta.getDAO( it.next() ) );
+            }
+            it = modGroups.iterator();
+            while (it.hasNext()) {
+              hs.update( Rosetta.getDAO( it.next() ) );
+            }
+            it = modStems.iterator();
+            while (it.hasNext()) {
+              hs.update( Rosetta.getDAO( it.next() ) );
+            }
+            return null;
+          }
+      
+    });
   } // public void update(toAdd, toDelete, modGroups, modStems)
 
 
