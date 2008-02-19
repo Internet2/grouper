@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: StemHelper.java,v 1.6 2008-02-19 07:50:47 mchyzer Exp $
  */
 public class StemHelper {
 
@@ -164,10 +164,9 @@ public class StemHelper {
       "root extn (" + root.getExtension() + ")", 
       root.getExtension().equals(val)
     );
-    Assert.assertTrue(
+    Assert.assertEquals(
       "root displayExtn (" + root.getDisplayExtension() + ")", 
-      root.getDisplayExtension().equals(val)
-    );
+      val, root.getDisplayExtension());
     Assert.assertTrue(
       "root name (" + root.getName() + ")", 
       root.getName().equals(val)

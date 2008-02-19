@@ -16,17 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.GrouperConfig;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
-import  org.hibernate.*;
-import  org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
+
+import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {
@@ -58,34 +63,25 @@ class Hib3RegistryDAO implements RegistryDAO {
    * @since   @HEAD@
    */
   public void reset() 
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = Hib3DAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        Hib3MembershipDAO.reset(hs);
-        Hib3GrouperSessionDAO.reset(hs);
-        Hib3CompositeDAO.reset(hs);
-        Hib3GroupDAO.reset(hs);
-        Hib3StemDAO.reset(hs);
-        Hib3MemberDAO.reset(hs);
-        Hib3GroupTypeDAO.reset(hs);
-        Hib3RegistrySubjectDAO.reset(hs);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        eH.printStackTrace();
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    throws  GrouperDAOException {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+        new HibernateHandler() {
+
+          public Object callback(HibernateSession hibernateSession) {
+            Session     hs  = hibernateSession.getSession();
+            Hib3MembershipDAO.reset(hs);
+            Hib3GrouperSessionDAO.reset(hs);
+            Hib3CompositeDAO.reset(hs);
+            Hib3GroupDAO.reset(hs);
+            Hib3StemDAO.reset(hs);
+            Hib3MemberDAO.reset(hs);
+            Hib3GroupTypeDAO.reset(hs);
+            Hib3RegistrySubjectDAO.reset(hs);
+            return null;
+          }
+      
+    });
+    
   } 
 
 } 

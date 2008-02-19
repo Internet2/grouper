@@ -16,17 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
-import  org.hibernate.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
+import edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+import edu.internet2.middleware.grouper.internal.util.Rosetta;
 
 /**
  * Basic Hibernate <code>GrouperSession</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GrouperSessionDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3GrouperSessionDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO {
@@ -44,54 +49,29 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
    * @since   @HEAD@
    */
   public String create(GrouperSessionDTO _s)
-    throws  GrouperDAOException
-  {
-    try {
-      Session       hs  = Hib3DAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_s);
-      try {
-        hs.save(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-      return dao.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    } 
+    throws  GrouperDAOException {
+    
+    Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_s);
+    HibernateSession.byObjectStatic().save(dao);
+    return dao.getId();
   } // public String create(_s)
 
   /** 
    * @since   @HEAD@
    */
-  public void delete(GrouperSessionDTO _s)
+  public void delete(final GrouperSessionDTO _s)
     throws  GrouperDAOException
   {
-    try {
-      Session     hs  = Hib3DAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        hs.delete( hs.load( Hib3GrouperSessionDAO.class, _s.getId() ) );
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+        new HibernateHandler() {
+
+          public Object callback(HibernateSession hibernateSession) {
+            Session     hs  = hibernateSession.getSession();
+            hs.delete( hs.load( Hib3GrouperSessionDAO.class, _s.getId() ) );
+            return null;
+          }
+      
+    });
   } 
 
   /**

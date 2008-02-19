@@ -18,14 +18,17 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  edu.internet2.middleware.grouper.internal.util.Rosetta;
 import  java.io.Serializable;
+import java.util.ArrayList;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
+import java.util.List;
 import  java.util.Set;
 import  org.apache.commons.lang.builder.*;
 import  org.hibernate.*;
@@ -36,7 +39,7 @@ import  org.hibernate.classic.Lifecycle;
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle {
 
@@ -60,159 +63,72 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle
    * @since   @HEAD@
    */
   public String create(GroupTypeDTO _gt)
-    throws  GrouperDAOException
-  {
-    try {
-      Session       hs  = Hib3DAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_gt);
-      try {
-        hs.save(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-      return dao.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    throws  GrouperDAOException {
+    Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_gt);
+    HibernateSession.byObjectStatic().save(dao);
+    return dao.getId();
   } 
 
   /**
    * @since   @HEAD@
    */
   public String createField(FieldDTO _f)
-    throws  GrouperDAOException
-  {
-    try {
-      Session       hs  = Hib3DAO.getSession();
-      Transaction   tx  = hs.beginTransaction();
-      Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_f);
-      try {
-        hs.save(dao);
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      }
-      return dao.getId();
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    throws  GrouperDAOException {
+    Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_f);
+    HibernateSession.byObjectStatic().save(dao);
+    return dao.getId();
   } 
 
   /**
    * @since   @HEAD@
    */
   public void delete(GroupTypeDTO _gt, Set fields)
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = Hib3DAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        // delete fields
-        Iterator it = fields.iterator();
-        while (it.hasNext()) {
-          hs.delete( Rosetta.getDAO( it.next() ) );
-        }
-        // delete grouptype
-        hs.delete( Rosetta.getDAO(_gt) );
-
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close();
-      } 
+    throws  GrouperDAOException {
+    List<Object> list = new ArrayList<Object>();
+    for (Object field: fields) {
+      list.add(Rosetta.getDAO(field));
     }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    list.add(Rosetta.getDAO(_gt));
+    HibernateSession.byObjectStatic().delete(list);
   } 
 
   /**
    * @since   @HEAD@
    */
-  public void deleteField(FieldDTO _f) 
-    throws  GrouperDAOException
-  {
-    try {
-      Session     hs  = Hib3DAO.getSession();
-      Transaction tx  = hs.beginTransaction();
-      try {
-        hs.delete( Rosetta.getDAO(_f) );
-        tx.commit();
-      }
-      catch (HibernateException eH) {
-        tx.rollback();
-        throw eH;
-      }
-      finally {
-        hs.close(); 
-      }
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+  public void deleteField(FieldDTO _f) throws  GrouperDAOException {
+    HibernateSession.byObjectStatic().delete(Rosetta.getDAO(_f));
   } 
 
   /**
    * @since   @HEAD@
    */
   public boolean existsByName(String name)
-    throws  GrouperDAOException
-  {
-    try {
-      Session hs  = Hib3DAO.getSession();
-      Query   qry = hs.createQuery("select gt.id from Hib3GroupTypeDAO gt where gt.name = :name");
-      qry.setString("name", name);
-      boolean rv  = false;
-      if ( qry.uniqueResult() != null ) {
-        rv = true;
-      }
-      hs.close();
-      return rv;
+    throws  GrouperDAOException {
+
+    Object id = HibernateSession.byHqlStatic()
+      .createQuery("select gt.id from Hib3GroupTypeDAO gt where gt.name = :name")
+      .setString("name", name).uniqueResult(Object.class);
+    boolean rv  = false;
+    if ( id != null ) {
+      rv = true;
     }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    return rv;
   } 
   
   /**
    * @since   @HEAD@
    */
   public Set findAll() 
-    throws  GrouperDAOException
-  {
+    throws  GrouperDAOException {
     Set types = new LinkedHashSet();
-    try {
-      Session hs  = Hib3DAO.getSession();
-      Query   qry = hs.createQuery("from Hib3GroupTypeDAO order by name asc");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindAll");
-      Iterator it = qry.list().iterator();
-      while (it.hasNext()) {
-        types.add( GroupTypeDTO.getDTO( (GroupTypeDAO) it.next() ) );
-      }
-      hs.close();  
-    }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH ); 
+
+    List<GroupTypeDAO> groupTypeDAOs = HibernateSession.byHqlStatic()
+      .createQuery("from Hib3GroupTypeDAO order by name asc")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAll")
+      .list(GroupTypeDAO.class);
+    for (GroupTypeDAO groupTypeDAO : groupTypeDAOs) {
+      types.add( GroupTypeDTO.getDTO( groupTypeDAO ) );
     }
     return types;
   } 
@@ -224,22 +140,16 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle
     throws  GrouperDAOException,
             SchemaException
   {
-    try {
-      Session hs  = Hib3DAO.getSession();
-      Query   qry = hs.createQuery("from Hib3GroupTypeDAO as gt where gt.uuid = :uuid");
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindByUuid");
-      qry.setString("uuid", uuid);
-      Hib3GroupTypeDAO dao = (Hib3GroupTypeDAO) qry.uniqueResult();
-      if (dao == null) {
-        throw new SchemaException();
-      }
-      hs.close();
-      return (GroupTypeDTO) GroupTypeDTO.getDTO(dao);
+    Hib3GroupTypeDAO hib3GroupTypeDAO = HibernateSession.byHqlStatic()
+      .createQuery("from Hib3GroupTypeDAO as gt where gt.uuid = :uuid")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByUuid")
+      .setString("uuid", uuid)
+      .uniqueResult(Hib3GroupTypeDAO.class);
+    if (hib3GroupTypeDAO == null) {
+      throw new SchemaException();
     }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    return (GroupTypeDTO) GroupTypeDTO.getDTO(hib3GroupTypeDAO);
   } 
 
   /**

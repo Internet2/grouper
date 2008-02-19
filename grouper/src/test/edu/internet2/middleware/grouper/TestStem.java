@@ -20,19 +20,29 @@ import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.13 2007-04-17 14:17:30 blair Exp $
+ * @version $Id: TestStem.java,v 1.14 2008-02-19 07:50:47 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestStem.class);
 
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    //junit.textui.TestRunner.run(new TestStem("testRoot"));
+    TestRunner.run(TestStem.class);
+  }
 
   public TestStem(String name) {
     super(name);

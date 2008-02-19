@@ -16,17 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  org.hibernate.*;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupTypeTupleDAO extends Hib3DAO {
@@ -49,27 +54,20 @@ public class Hib3GroupTypeTupleDAO extends Hib3DAO {
   public static Hib3GroupTypeTupleDAO findByGroupAndType(GroupDTO g, GroupTypeDTO type)
     throws  GrouperDAOException
   {
-    try {
-      Session hs  = Hib3DAO.getSession();
-      Query   qry = hs.createQuery(
+    Hib3GroupTypeTupleDAO dao = HibernateSession.byHqlStatic()
+      .createQuery(
         "from Hib3GroupTypeTupleDAO as gtt where"
         + " gtt.groupUuid    = :group"
-        + " and gtt.typeUuid = :type"
-      );
-      qry.setCacheable(false);
-      qry.setCacheRegion(KLASS + ".FindByGroupAndType");
-      qry.setString( "group", g.getUuid()        );
-      qry.setString( "type",  type.getUuid() );
-      Hib3GroupTypeTupleDAO dao = (Hib3GroupTypeTupleDAO) qry.uniqueResult();
-      hs.close();
-      if (dao == null) {
-        throw new GrouperDAOException("Hib3GroupTypeTupleDAO not found");       
-      }
-      return dao;
+        + " and gtt.typeUuid = :type")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByGroupAndType")
+        .setString( "group", g.getUuid()        )
+        .setString( "type",  type.getUuid() )
+        .uniqueResult(Hib3GroupTypeTupleDAO.class);
+    if (dao == null) {
+      throw new GrouperDAOException("Hib3GroupTypeTupleDAO not found");       
     }
-    catch (HibernateException eH) {
-      throw new GrouperDAOException( eH.getMessage(), eH );
-    }
+    return dao;
   }
 
 

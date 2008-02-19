@@ -23,10 +23,30 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMember.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGroupAddMember.java,v 1.7 2008-02-19 07:50:47 mchyzer Exp $
  */
 public class TestGroupAddMember extends TestCase {
 
+  /**
+   * 
+   */
+  public TestGroupAddMember() {
+    super();
+    // TODO Auto-generated constructor stub
+  }
+
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    junit.textui.TestRunner.run(new TestGroupAddMember("testAddMember"));
+  }
+
+  /**
+   * 
+   * @param name name
+   */
   public TestGroupAddMember(String name) {
     super(name);
   }
