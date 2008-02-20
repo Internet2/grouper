@@ -16,36 +16,42 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.GroupNotFoundException;
-import  edu.internet2.middleware.grouper.DefaultMemberOf;
-import  edu.internet2.middleware.grouper.SchemaException;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.hibernate.CallbackException;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.classic.Lifecycle;
+
+import edu.internet2.middleware.grouper.DefaultMemberOf;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
-import  java.io.Serializable;
-import  java.util.Date;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.List;
-import  java.util.Map;
-import  java.util.Set;
-import  org.hibernate.*;
-import  org.hibernate.classic.Lifecycle;
+import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.util.Rosetta;
 
 
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.5 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.6 2008-02-20 08:41:45 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -215,7 +221,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             qry.setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr");
             qry.setString( "value", "%" + val.toLowerCase() + "%" );
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
             return groups;
           }
     });
@@ -252,7 +258,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             qry.setString("field", attr);
            qry.setString( "value", "%" + val.toLowerCase() + "%" );
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
             return groups;
           }
     });
@@ -292,7 +298,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
               qry.setCacheRegion(KLASS + ".FindAllByApproximateName");
               qry.setString( "value", "%" + name.toLowerCase() + "%" );
 
-            Set  groups = _getGroupsFromGroupsAndAttributesQuery(qry);
+            Set  groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
             return groups;
           }
     });
@@ -317,7 +323,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
             qry.setLong( "time", d.getTime() );
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
             return groups;
           }
     });
@@ -342,7 +348,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
         qry.setLong( "time", d.getTime() );
 
-        Set groups = _getGroupsFromGroupsAndAttributesQuery(qry);
+        Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
         return groups ;
       }
     });
@@ -368,7 +374,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         qry.setCacheRegion(KLASS + ".FindAllByModifiedAfter");
         qry.setLong( "time", d.getTime() );
 
-        Set groups = _getGroupsFromGroupsAndAttributesQuery(qry);
+        Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
         return groups;
       }
     });
@@ -393,7 +399,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             qry.setCacheRegion(KLASS + ".FindAllByModifiedBefore");
             qry.setLong( "time", d.getTime() );
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
             return groups;
           }
     });
@@ -420,7 +426,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             qry.setCacheRegion(KLASS + ".FindAllByType");
             qry.setString( "type", _gt.getUuid() );
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
             return groups;
           }
     });
@@ -841,11 +847,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
 
 
   // @since 1.2.1         
-  private Set _getGroupsFromGroupsAndAttributesQuery(Query qry)
-    throws  HibernateException
-  {   
+  private Set _getGroupsFromGroupsAndAttributesQuery(Session session, Query qry)
+    throws  HibernateException {   
     Set groups = new LinkedHashSet();
-    Iterator it = qry.list().iterator();
+    List<Hib3GroupDAO> hib3GroupDAOs = qry.list();
+    HibUtils.evict(session, hib3GroupDAOs);
+    Iterator it = hib3GroupDAOs.iterator();
     HashMap results = new HashMap();
         
     while (it.hasNext()) {

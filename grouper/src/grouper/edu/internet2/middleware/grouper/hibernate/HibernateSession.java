@@ -35,8 +35,6 @@ public class HibernateSession {
   /** logger */
   private static final Log LOG = LogFactory.getLog(HibernateSession.class);
 
-  
-  
   /**
    * construct a hibernate session based on existing hibernate session (if
    * applicable), and a transaction type. If these conflict, then throw grouper
@@ -51,59 +49,66 @@ public class HibernateSession {
    *           readonly
    */
   private HibernateSession(HibernateSession hibernateSession,
-      GrouperTransactionType grouperTransactionType)
-      throws GrouperDAOException {
+      GrouperTransactionType grouperTransactionType) throws GrouperDAOException {
 
-    this.parentSession = hibernateSession;
+    this.immediateGrouperTransactionTypeDeclared = grouperTransactionType;
+    if (!grouperTransactionType.isNewAutonomous()) {
+      this.parentSession = hibernateSession;
+      if (this.parentSession != null) {
+        //make sure the transaction types jive with each other
+        this.immediateGrouperTransactionTypeDeclared.checkCompatibility(
+            this.parentSession.getGrouperTransactionType());
+      }
+    }
+    
     if (this.isNewHibernateSession()) {
-      this.immediateGrouperTransactionTypeDeclared = grouperTransactionType;
       this.immediateGrouperTransactionTypeUsed = grouperTransactionType
           .grouperTransactionTypeToUse();
 
       // need a hibernate session
       this.immediateSession = GrouperDAOFactory.getFactory().getSession();
-      addStaticHibernateSession(hibernateSession);
 
       // if not readonly, declare a transaction
       if (!this.immediateGrouperTransactionTypeUsed.isReadonly()) {
         this.immediateTransaction = this.immediateSession.beginTransaction();
       }
     }
+    addStaticHibernateSession(this);
   }
 
   /** hibernate session object of parent if nested, or null */
-  private HibernateSession                          parentSession                             = null;
+  private HibernateSession parentSession = null;
 
   /**
    * hibernate session object can be accessed by user, if there is a parent,
    * this will be null.
    */
-  private Session                                   immediateSession                          = null;
+  private Session immediateSession = null;
 
   /**
    * if read/write, this will exist, though the user cant access directly. if
    * there is a parent, this will ne null
    */
-  private Transaction                               immediateTransaction                      = null;
+  private Transaction immediateTransaction = null;
 
   /**
    * the transaction type this was setup as. note, if the type is new, then it
    * might change from what it was declared as...
    */
-  private GrouperTransactionType                  immediateGrouperTransactionTypeUsed     = null;
+  private GrouperTransactionType immediateGrouperTransactionTypeUsed = null;
 
   /**
    * the transaction type this was setup as. this is the one declared in
    * callback
    */
   @SuppressWarnings("unused")
-  private GrouperTransactionType                  immediateGrouperTransactionTypeDeclared = null;
+  private GrouperTransactionType immediateGrouperTransactionTypeDeclared = null;
 
   /**
    * store the hib2 connection in thread local so other classes can get it, e.g.
    * for blobs
    */
-  private static ThreadLocal<Set<HibernateSession>> staticSessions                            = new ThreadLocal<Set<HibernateSession>>();
+  private static ThreadLocal<Set<HibernateSession>> staticSessions = new ThreadLocal<Set<HibernateSession>>();
 
   /**
    * get the threadlocal set of hibernate sessions (or create)
@@ -126,8 +131,7 @@ public class HibernateSession {
    * 
    * @param hibernateSession
    */
-  private static void removeStaticHibernateSession(
-      HibernateSession hibernateSession) {
+  private static void removeStaticHibernateSession(HibernateSession hibernateSession) {
     getHibernateSessionSet().remove(hibernateSession);
   }
 
@@ -144,8 +148,7 @@ public class HibernateSession {
    * 
    * @param hibernateSession
    */
-  private static void addStaticHibernateSession(
-      HibernateSession hibernateSession) {
+  private static void addStaticHibernateSession(HibernateSession hibernateSession) {
     Set<HibernateSession> hibSet = getHibernateSessionSet();
     hibSet.add(hibernateSession);
     // cant have more than 15, something is wrong
@@ -185,33 +188,49 @@ public class HibernateSession {
    *           if there is a problem
    */
   public static Object callbackHibernateSession(
-      GrouperTransactionType grouperTransactionType,
-      HibernateHandler hibernateHandler) throws GrouperDAOException {
+      GrouperTransactionType grouperTransactionType, HibernateHandler hibernateHandler)
+      throws GrouperDAOException {
     Object ret = null;
     HibernateSession hibernateSession = staticHibernateSession();
 
     try {
-      hibernateSession = new HibernateSession(hibernateSession,
-          grouperTransactionType);
+      hibernateSession = new HibernateSession(hibernateSession, grouperTransactionType);
 
       ret = hibernateHandler.callback(hibernateSession);
 
+      //since we have long running transactions, we need to flush our work,
+      //and disassociate objects with the session...
+      Session session = hibernateSession.activeHibernateSession().immediateSession;
+
+      //if we are readonly, and we have work, then that is bad
+      if (hibernateSession.isReadonly() 
+          && hibernateSession.activeHibernateSession().immediateSession.isDirty()) {
+        
+        throw new RuntimeException("Hibernate session is readonly, but some committable work was done!");
+      }
+      
       // maybe we didnt commit. if new session, and no exception, and not
       // committed or rolledback,
       // then commit.
-      if (hibernateSession.isNewHibernateSession()
-          && !hibernateSession.isReadonly()) {
-        if (hibernateSession.immediateTransaction.isActive()) {
-          hibernateSession.immediateTransaction.commit();
-        }
+      if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()
+          && hibernateSession.immediateTransaction.isActive()) {
+        hibernateSession.immediateTransaction.commit();
+
+      } else {
+        //put all the queries on the wire
+        session.flush();
+
+        //clear out session to avoid duplicate objects in session
+        session.clear();
+
       }
 
     } catch (Throwable e) {
       // maybe we didnt rollback. if new session, and exception, and not
       // committed or rolledback,
       // then rollback.
-      if (hibernateSession.isNewHibernateSession()
-          && !hibernateSession.isReadonly()) {
+      //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
+      if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
         if (hibernateSession.immediateTransaction.isActive()) {
           hibernateSession.immediateTransaction.rollback();
         }
@@ -237,10 +256,10 @@ public class HibernateSession {
 
     } finally {
 
+      // take out of threadlocal stack
+      removeStaticHibernateSession(hibernateSession);
       // take out of threadlocal if supposed to
       if (hibernateSession.isNewHibernateSession()) {
-        // take out of threadlocal stack
-        removeStaticHibernateSession(hibernateSession);
         // we should close the hibernate session if we opened it, and if not
         // already closed
         // transaction is already closed...
@@ -256,7 +275,7 @@ public class HibernateSession {
    * (if applicable), or a new one if not
    * @return the class
    */
-  public static ByHqlStatic byHqlStatic(){
+  public static ByHqlStatic byHqlStatic() {
     return new ByHqlStatic();
   }
 
@@ -266,7 +285,7 @@ public class HibernateSession {
    * (if applicable), or a new one if not
    * @return the class
    */
-  public static ByObjectStatic byObjectStatic(){
+  public static ByObjectStatic byObjectStatic() {
     return new ByObjectStatic();
   }
 
@@ -297,9 +316,9 @@ public class HibernateSession {
    */
   @Override
   public String toString() {
-    return "HibernateSession: isNew: " + this.isNewHibernateSession()
-        + ", isReadonly: " + this.isReadonly() + ", grouperTransactionType: "
-        + this.getGrouperTransactionType();
+    return "HibernateSession: isNew: " + this.isNewHibernateSession() + ", isReadonly: "
+        + this.isReadonly() + ", grouperTransactionType: "
+        + this.getGrouperTransactionType().name();
   }
 
   /**
@@ -317,7 +336,8 @@ public class HibernateSession {
    * @return the newHibernateSession
    */
   public boolean isNewHibernateSession() {
-    // if no parent, then it is new
+    // if no parent, then it is new, unless it is a new autonomous transaction
+    //in which case there will be no parent...
     return this.parentSession == null;
   }
 
@@ -357,19 +377,19 @@ public class HibernateSession {
    */
   public boolean commit(GrouperCommitType grouperCommitType) {
     switch (grouperCommitType) {
-    case COMMIT_IF_NEW_TRANSACTION:
-      if (this.isNewHibernateSession()) {
+      case COMMIT_IF_NEW_TRANSACTION:
+        if (this.isNewHibernateSession()) {
+          this.activeHibernateSession().immediateTransaction.commit();
+          return true;
+        }
+        break;
+      case COMMIT_NOW:
         this.activeHibernateSession().immediateTransaction.commit();
         return true;
-      }
-      break;
-    case COMMIT_NOW:
-      this.activeHibernateSession().immediateTransaction.commit();
-      return true;
     }
     return false;
   }
-  
+
   /**
    * see if tx is active (not committed or rolled back, see Hibernate transaction
    * if there is no transaction, it will return false
@@ -379,10 +399,10 @@ public class HibernateSession {
     if (this.isReadonly()) {
       return false;
     }
-    return this.activeHibernateSession().immediateTransaction == null ?
-        false : this.activeHibernateSession().immediateTransaction.isActive();
+    return this.activeHibernateSession().immediateTransaction == null ? false : this
+        .activeHibernateSession().immediateTransaction.isActive();
   }
-  
+
   /**
    * rollback (perhaps, depending on type)
    * @param grouperRollbackType is type of rollback
@@ -390,17 +410,17 @@ public class HibernateSession {
    */
   public boolean rollback(GrouperRollbackType grouperRollbackType) {
     switch (grouperRollbackType) {
-    case ROLLBACK_IF_NEW_TRANSACTION:
-      if (this.isNewHibernateSession()) {
+      case ROLLBACK_IF_NEW_TRANSACTION:
+        if (this.isNewHibernateSession()) {
+          this.activeHibernateSession().immediateTransaction.rollback();
+          return true;
+        }
+        break;
+      case ROLLBACK_NOW:
         this.activeHibernateSession().immediateTransaction.rollback();
         return true;
-      }
-      break;
-    case ROLLBACK_NOW:
-      this.activeHibernateSession().immediateTransaction.rollback();
-      return true;
     }
     return false;
   }
-  
+
 }

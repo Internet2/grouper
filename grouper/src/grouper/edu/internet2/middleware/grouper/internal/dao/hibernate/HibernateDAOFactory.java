@@ -19,6 +19,9 @@ package edu.internet2.middleware.grouper.internal.dao.hibernate;
 import org.hibernate.Session;
 
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
@@ -29,12 +32,13 @@ import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import  edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
 
 /** 
  * Basic Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateDAOFactory.java,v 1.4 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: HibernateDAOFactory.java,v 1.5 2008-02-20 08:41:45 mchyzer Exp $
  * @since   1.2.0
  */
 public class HibernateDAOFactory extends GrouperDAOFactory {
@@ -101,5 +105,13 @@ public class HibernateDAOFactory extends GrouperDAOFactory {
     throw new RuntimeException("Cant instantiate hib3 from hib2");
   }
 
+  /**
+   * return the transaction implementation
+   * @since   1.3
+   * @return the transaction implementation
+   */
+  public TransactionDAO getTransaction() {
+    return new HibernateTransactionDAO();
+  }
 } 
 

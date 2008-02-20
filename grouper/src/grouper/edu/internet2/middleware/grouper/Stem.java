@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.144 2008-02-15 09:02:00 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.145 2008-02-20 08:41:46 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -1128,6 +1128,7 @@ public class Stem extends GrouperAPI implements Owner {
       }
 
       Group child = new Group();
+      //CH 20080220: this will start saving the stem
       child.setDTO( 
         _g.setId( GrouperDAOFactory.getFactory().getStem().createChildGroup( this._getDTO(), _g, _m ) ) 
       );
