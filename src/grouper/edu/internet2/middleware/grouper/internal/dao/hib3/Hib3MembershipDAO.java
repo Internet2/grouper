@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.5 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.6 2008-02-20 08:41:45 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -761,7 +761,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   
 //PRIVATE CLASS METHODS //
 //@since 1.3.0
-  private Set<MembershipDTO> _getMembershipsFromMembershipAndMemberQuery(Query qry)
+  private Set<MembershipDTO> _getMembershipsFromMembershipAndMemberQuery(Session session, Query qry)
     throws  HibernateException
   {
     Set<MembershipDTO> memberships = new LinkedHashSet<MembershipDTO>();
@@ -770,7 +770,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     while (it.hasNext()) {
       Object[] tuple = (Object[])it.next();
       Hib3MembershipDAO currMembershipDAO = (Hib3MembershipDAO)tuple[0];
+      session.evict(currMembershipDAO);
+      
       Hib3MemberDAO currMemberDAO = (Hib3MemberDAO)tuple[1];
+      session.evict(currMemberDAO);
+      
       currMembershipDAO.setMemberDAO(currMemberDAO);
       memberships.add(MembershipDTO.getDTO(currMembershipDAO));
     }

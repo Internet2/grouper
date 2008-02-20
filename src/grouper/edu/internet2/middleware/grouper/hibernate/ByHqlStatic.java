@@ -201,7 +201,9 @@ public class ByHqlStatic {
               
               Session session  = hibernateSession.getSession();
               Query query = ByHqlStatic.this.attachQueryInfo(session);
-              return query.uniqueResult();
+              Object object = query.uniqueResult();
+              session.evict(object);
+              return object;
             }
         
       });
@@ -247,7 +249,9 @@ public class ByHqlStatic {
               Session session  = hibernateSession.getSession();
               Query query = ByHqlStatic.this.attachQueryInfo(session);
               //not sure this can ever be null, but make sure not to make iterating results easier
-              return GrouperUtil.nonNull(query.list());
+              List<Object> list = GrouperUtil.nonNull(query.list());
+              HibUtils.evict(session, list);
+              return list;
             }
         
       });

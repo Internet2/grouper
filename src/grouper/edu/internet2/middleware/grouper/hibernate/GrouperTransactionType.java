@@ -29,6 +29,15 @@ public enum GrouperTransactionType {
     }
     
     /**
+     * return if new autonomous transaction
+     * @return true if known readonly, false, if known read_write
+     */
+    @Override
+    public boolean isNewAutonomous() {
+      return false;
+    }
+    
+    /**
      * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
      * know if readonly or not...
      * @param existingGrouperTransactionType if null, no parent, if not, then this is the enclosing
@@ -62,6 +71,15 @@ public enum GrouperTransactionType {
      */
     @Override
     public boolean isReadonly() {
+      return true;
+    }
+    
+    /**
+     * return if new autonomous transaction
+     * @return true if known readonly, false, if known read_write
+     */
+    @Override
+    public boolean isNewAutonomous() {
       return true;
     }
     
@@ -109,6 +127,15 @@ public enum GrouperTransactionType {
     }
     
     /**
+     * return if new autonomous transaction
+     * @return true if known readonly, false, if known read_write
+     */
+    @Override
+    public boolean isNewAutonomous() {
+      return false;
+    }
+    
+    /**
      * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
      * know if readonly or not...
      * @param existingGrouperTransactionType if null, no parent, if not, then this is the enclosing
@@ -152,6 +179,15 @@ public enum GrouperTransactionType {
     }
     
     /**
+     * return if new autonomous transaction
+     * @return true if known readonly, false, if known read_write
+     */
+    @Override
+    public boolean isNewAutonomous() {
+      return true;
+    }
+    
+    /**
      * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
      * know if readonly or not...
      * @param existingGrouperTransactionType if null, no parent, if not, then this is the enclosing
@@ -179,6 +215,12 @@ public enum GrouperTransactionType {
    * @return true if known readonly, false, if known read_write
    */
   public abstract boolean isReadonly();
+
+  /**
+   * return if new autonomous transaction
+   * @return true if new, false if not
+   */
+  public abstract boolean isNewAutonomous();
 
   /**
    * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
