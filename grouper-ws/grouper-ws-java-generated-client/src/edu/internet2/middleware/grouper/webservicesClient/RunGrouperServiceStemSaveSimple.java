@@ -46,7 +46,7 @@ public class RunGrouperServiceStemSaveSimple {
             //            options.setProperty(Constants.Configuration.ENABLE_REST,
             //            		Constants.VALUE_TRUE);
             StemSaveSimple stemSaveSimple = StemSaveSimple.class.newInstance();
-            
+
             stemSaveSimple.setActAsSubjectId("GrouperSystem");
             stemSaveSimple.setActAsSubjectIdentifier("");
             stemSaveSimple.setCreateStemsIfNotExist("");
@@ -57,7 +57,7 @@ public class RunGrouperServiceStemSaveSimple {
             stemSaveSimple.setSaveMode("");
 
             WsStemSaveResult wsStemSaveResult = stub.stemSaveSimple(stemSaveSimple)
-                                                      .get_return();
+                                                    .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsStemSaveResult));

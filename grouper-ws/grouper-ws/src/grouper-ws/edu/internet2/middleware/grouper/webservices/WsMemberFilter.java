@@ -343,7 +343,7 @@ public enum WsMemberFilter {
 	 * do a case-insensitive matching
 	 * 
 	 * @param string
-	 * @return the enum of null or exception if not found
+	 * @return the enum or null or exception if not found
 	 */
 	public static WsMemberFilter valueOfIgnoreCase(String string) {
 		if (StringUtils.isBlank(string)) {

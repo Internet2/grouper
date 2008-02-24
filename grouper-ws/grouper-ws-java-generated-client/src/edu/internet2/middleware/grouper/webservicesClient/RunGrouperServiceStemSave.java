@@ -3,17 +3,18 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSave;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemSaveResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemSaveResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemToSave;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+
+import org.apache.axis2.Constants;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -46,9 +47,8 @@ public class RunGrouperServiceStemSave {
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
 
-//            options.setProperty(Constants.Configuration.ENABLE_REST,
-//                Constants.VALUE_TRUE);
-
+            //            options.setProperty(Constants.Configuration.ENABLE_REST,
+            //                Constants.VALUE_TRUE);
             StemSave stemSave = StemSave.class.newInstance();
 
             // set the act as id
@@ -67,7 +67,7 @@ public class RunGrouperServiceStemSave {
             stemSave.setWsStemsToSave(new WsStemToSave[] { wsStemToSave });
 
             WsStemSaveResults wsStemSaveResults = stub.stemSave(stemSave)
-                                                        .get_return();
+                                                      .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsStemSaveResults));

@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.webservices;
 
 import java.io.IOException;
+import java.security.Principal;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -47,16 +48,13 @@ public class GrouperServiceJ2ee implements Filter {
 	 */
 	public static String retrieveUserPrincipalNameFromRequest() {
 
-		return "GrouperSystem";
-		// HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
-		// GrouperServiceUtils.assertTrue(httpServletRequest!=null,
-		// "HttpServletRequest is null, is the GrouperServiceServlet mapped in
-		// the web.xml?");
-		// Principal principal = httpServletRequest.getUserPrincipal();
-		// GrouperServiceUtils.assertTrue(principal != null,
-		// "There is no user logged in, make sure the container requires
-		// authentication");
-		// return principal.getName();
+		 HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+		 GrouperServiceUtils.assertTrue(httpServletRequest!=null,
+		 "HttpServletRequest is null, is the GrouperServiceServlet mapped in the web.xml?");
+		 Principal principal = httpServletRequest.getUserPrincipal();
+		 GrouperServiceUtils.assertTrue(principal != null,
+		 "There is no user logged in, make sure the container requires authentication");
+		 return principal.getName();
 	}
 
 	/**
@@ -66,8 +64,8 @@ public class GrouperServiceJ2ee implements Filter {
 	 */
 	public static Subject retrieveSubjectLoggedIn() {
 		// use this to be the user connected, or the user act-as
-		String userIdLoggedIn = "GrouperSystem"; // TODO
-													// GrouperServiceServlet.retrieveUserPrincipalNameFromRequest();
+		String userIdLoggedIn = retrieveUserPrincipalNameFromRequest();
+		
 		Subject caller = null;
 		try {
 			try {
