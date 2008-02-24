@@ -202,7 +202,7 @@ public class ByHqlStatic {
               Session session  = hibernateSession.getSession();
               Query query = ByHqlStatic.this.attachQueryInfo(session);
               Object object = query.uniqueResult();
-              session.evict(object);
+              HibUtils.evict(hibernateSession, session, object, true);
               return object;
             }
         
@@ -250,7 +250,7 @@ public class ByHqlStatic {
               Query query = ByHqlStatic.this.attachQueryInfo(session);
               //not sure this can ever be null, but make sure not to make iterating results easier
               List<Object> list = GrouperUtil.nonNull(query.list());
-              HibUtils.evict(session, list);
+              HibUtils.evict(hibernateSession, session, list, true);
               return list;
             }
         

@@ -20,9 +20,9 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3CompositeDAO.hbm.xml,v 1.2 2008-02-13 16:29:03 shilen Exp $ -->
+<!-- $Id: Hib3CompositeDAO.hbm.xml,v 1.3 2008-02-24 07:43:15 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3">
+<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3"  default-lazy="false">
   <class name="Hib3CompositeDAO" table="grouper_composites">
 
     <meta attribute="implement-equals">true</meta>

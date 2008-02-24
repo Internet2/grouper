@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.6 2008-02-20 08:41:45 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.7 2008-02-24 07:43:15 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -770,10 +771,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     while (it.hasNext()) {
       Object[] tuple = (Object[])it.next();
       Hib3MembershipDAO currMembershipDAO = (Hib3MembershipDAO)tuple[0];
-      session.evict(currMembershipDAO);
+      HibUtils.evict(null, session,currMembershipDAO, false);
       
       Hib3MemberDAO currMemberDAO = (Hib3MemberDAO)tuple[1];
-      session.evict(currMemberDAO);
+      HibUtils.evict(null, session,currMemberDAO, false);
       
       currMembershipDAO.setMemberDAO(currMemberDAO);
       memberships.add(MembershipDTO.getDTO(currMembershipDAO));

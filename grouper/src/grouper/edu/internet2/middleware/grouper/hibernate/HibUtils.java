@@ -23,14 +23,23 @@ public class HibUtils {
    * reference, e.g. if the DTO went through it, then you will get an exception:
    * "a different object with the same identifier value was already associated with the session"
    * </pre>
+   * @param hibernateSession grouper hibernateSession, can be null if not known
    * @param session from hibernate
    * @param object to evict that was just retrieved
+   * @param onlyEvictIfNotNew true to only evict if this is a nested tx
    */
-  public static void evict(Session session, Object object) {
+  public static void evict(HibernateSession hibernateSession, Session session, 
+      Object object, boolean onlyEvictIfNotNew) {
     if (object instanceof List) {
-      session.evict((List)object);
+      HibUtils.evict(hibernateSession, session, (List)object, onlyEvictIfNotNew);
       return;
     }
+    
+    //dont worry about it if new and only evicting if not new
+    if (hibernateSession != null && hibernateSession.isNewHibernateSession() && onlyEvictIfNotNew) {
+      return;
+    }
+    
     //not sure it could ever be null...
     if (object != null) {
       session.evict(object);
@@ -47,12 +56,18 @@ public class HibUtils {
    * reference, e.g. if the DTO went through it, then you will get an exception:
    * "a different object with the same identifier value was already associated with the session"
    * </pre>
+   * @param hibernateSession grouper hibernateSession
    * @param session from hibernate
    * @param list of objects from hibernate to evict
+   * @param onlyEvictIfNotNew true to only evict if this is a nested tx
    */
-  public static void evict(Session session, List<Object> list) {
+  public static void evict(HibernateSession hibernateSession, Session session, 
+      List<Object> list, boolean onlyEvictIfNotNew) {
     if (list == null) {
       return;
+    }
+    for (Object object : list) {
+      evict(hibernateSession, session, object, onlyEvictIfNotNew);
     }
   }
   
