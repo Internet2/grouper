@@ -217,12 +217,15 @@ public class HibernateSession {
         hibernateSession.immediateTransaction.commit();
 
       } else {
-        //put all the queries on the wire
-        session.flush();
-
-        //clear out session to avoid duplicate objects in session
-        session.clear();
-
+        //only do this if a nested transaction
+        
+        if (!hibernateSession.isNewHibernateSession()) {
+          //put all the queries on the wire
+          session.flush();
+  
+          //clear out session to avoid duplicate objects in session
+          session.clear();
+        }
       }
 
     } catch (Throwable e) {

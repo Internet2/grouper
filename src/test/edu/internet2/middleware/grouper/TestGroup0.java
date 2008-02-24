@@ -15,6 +15,8 @@
 
 package edu.internet2.middleware.grouper;
 
+import java.util.Set;
+
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
@@ -27,12 +29,16 @@ import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFactory;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.7 2008-02-20 08:41:45 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.8 2008-02-24 07:43:15 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -42,10 +48,12 @@ public class TestGroup0 extends GrouperTest {
   /**
    * Method main.
    * @param args String[]
+   * @throws Exception
    */
-  public static void main(String[] args) {
-    TestRunner.run(new TestGroup0("testStaticSaveGroupTransactions"));
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new TestGroup0("testStaticSaveGroupTransactions"));
     //TestRunner.run(TestGroup0.class);
+    runPerfProblem();
   }
 
   /**
@@ -488,6 +496,10 @@ public class TestGroup0 extends GrouperTest {
    */
   public void testTransaction() {
     
+    if (GrouperDAOFactory.getFactory() instanceof HibernateDAOFactory) {
+      fail("This doesnt work with hib2 at the moment (only hib3 that I know of)...");
+    }
+    
     final GrouperSession rootSession = SessionHelper.getRootSession();
     final String displayExtension = "testing123 display";
     final String groupDescription = "description";
@@ -506,6 +518,7 @@ public class TestGroup0 extends GrouperTest {
     final Integer[] someInt = new Integer[1];
 
     //you can pass back one object from return
+    @SuppressWarnings("unused")
     String anythingString = (String) GrouperTransaction
         .callbackGrouperTransaction(new GrouperTransactionHandler() {
 
@@ -530,7 +543,60 @@ public class TestGroup0 extends GrouperTest {
 
         });
 
-    System.out.println(anythingString + ", " + someInt[0]);
+    //System.out.println(anythingString + ", " + someInt[0]);
   }
 
+  /**
+   * perf problem
+   */
+  public static void runPerfProblem() throws Exception {
+    GrouperSession rootSession = null;
+    Stem rootStem = null;
+    rootSession = SessionHelper.getRootSession();
+    rootStem = StemFinder.findRootStem(rootSession); 
+    for (int i=0;i<100;i++) {
+      try {
+        SubjectFinder.findById("GrouperSystem"+i);
+      } catch (SubjectNotFoundException e) {
+        
+      }
+    }
+    
+    GrouperQuery gq =
+      GrouperQuery.createQuery(rootSession, new GroupAttributeFilter("name",
+      "i2:b:a", rootStem));
+    Set queryGroups = gq.getGroups();
+    runPerfProblemLogic(rootSession, rootStem);
+  }
+
+  /**
+   * run perf problem logic
+   * @param rootSession
+   * @param rootStem
+   * @throws QueryException
+   */
+  private static void runPerfProblemLogic(final GrouperSession rootSession, final Stem rootStem)
+      throws Exception {
+    long now = System.currentTimeMillis();
+    for (int i=0;i<1000;i++) {
+//    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_NEW,
+//        new HibernateHandler() {
+//
+//          public Object callback(HibernateSession hibernateSession)
+//              throws GrouperDAOException {
+              try {
+                GrouperQuery gq =
+                  GrouperQuery.createQuery(rootSession, new GroupAttributeFilter("name",
+                  "i2:b:a", rootStem));
+                Set queryGroups = gq.getGroups();
+              } catch (Exception e) {
+                throw new RuntimeException(e);
+              }
+//            return null;
+//          }
+//      
+//    });
+    }
+    System.out.println("Took: " + (System.currentTimeMillis() - now) + "ms");
+  }
 }

@@ -40,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.17 2008-02-17 08:44:42 mchyzer Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.18 2008-02-24 07:43:15 mchyzer Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -259,11 +259,17 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
     Set groups = new LinkedHashSet();
     try {
       Session hs  = HibernateDAO.getSession();
+//TODO      //CH 2008022: change to 3 joins to improve performance
+//      Query   qry = hs.createQuery(
+//        "select g, a from HibernateGroupDAO as g, HibernateAttributeDAO as a," +
+//        "HibernateAttributeDAO as a2 where a.groupUuid = g.uuid " +
+//        "and a.groupUuid = a2.groupUuid and a2.attrName = :field and lower(a2.value) like :value"
+//      );
       Query   qry = hs.createQuery(
-        "select g, a from HibernateGroupDAO as g, HibernateAttributeDAO as a where a.groupUuid in " + 
-        "(select a2.groupUuid from HibernateAttributeDAO as a2 where a2.attrName = :field and lower(a2.value) like :value) " +
-        "and a.groupUuid = g.uuid"
-      );
+          "select g, a from HibernateGroupDAO as g, HibernateAttributeDAO as a where a.groupUuid in " + 
+          "(select a2.groupUuid from HibernateAttributeDAO as a2 where a2.attrName = :field and lower(a2.value) like :value) " +
+          "and a.groupUuid = g.uuid"
+        );
       qry.setCacheable(false);
       qry.setCacheRegion(KLASS + ".FindAllByApproximateAttr");
       qry.setString("field", attr);

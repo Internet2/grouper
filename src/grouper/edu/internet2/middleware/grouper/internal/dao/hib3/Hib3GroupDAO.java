@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.6 2008-02-20 08:41:45 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.7 2008-02-24 07:43:15 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -248,11 +248,17 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
 
           public Object callback(HibernateSession hibernateSession) {
             Session hs  = hibernateSession.getSession();
+             //CH 2008022: change to 3 joins to improve performance
             Query   qry = hs.createQuery(
-                "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where a.groupUuid in " +
-                "(select a2.groupUuid from Hib3AttributeDAO as a2 where a2.attrName = :field and lower(a2.value) like :value) " +
-                "and a.groupUuid = g.uuid"
+                "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a," +
+                "Hib3AttributeDAO as a2 where a.groupUuid = g.uuid " +
+                "and a.groupUuid = a2.groupUuid and a2.attrName = :field and lower(a2.value) like :value"
               );
+//              Query   qry = hs.createQuery(
+//                  "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where a.groupUuid in " + 
+//                  "(select a2.groupUuid from Hib3AttributeDAO as a2 where a2.attrName = :field and lower(a2.value) like :value) " +
+//                  "and a.groupUuid = g.uuid"
+//                );
             qry.setCacheable(false);
             qry.setCacheRegion(KLASS + ".FindAllByApproximateAttr");
             qry.setString("field", attr);
@@ -851,7 +857,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     throws  HibernateException {   
     Set groups = new LinkedHashSet();
     List<Hib3GroupDAO> hib3GroupDAOs = qry.list();
-    HibUtils.evict(session, hib3GroupDAOs);
+    HibUtils.evict(null, session, hib3GroupDAOs, false);
     Iterator it = hib3GroupDAOs.iterator();
     HashMap results = new HashMap();
         
