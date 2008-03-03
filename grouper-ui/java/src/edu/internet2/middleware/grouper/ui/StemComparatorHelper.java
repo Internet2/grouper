@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.ui.util.StemAsMap;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: StemComparatorHelper.java,v 1.1 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: StemComparatorHelper.java,v 1.2 2008-03-03 13:58:25 isgwb Exp $
  */
 
 public class StemComparatorHelper implements GrouperComparatorHelper{
@@ -89,7 +89,14 @@ public class StemComparatorHelper implements GrouperComparatorHelper{
 			}catch(Exception e){}
 			sb.append(val);
 		}
-		return sb.toString().toLowerCase();
+		boolean sortLowercase = true;
+		try {
+			if("false".equals(config.getString("comparator.sort.lowercase"))) sortLowercase=false;
+		}catch(Exception e) {}
+		if(sortLowercase) {
+			return sb.toString().toLowerCase();
+		}
+		return sb.toString();
 	}
 	
 	private String getStemAttribute(Stem stem, String attr) {

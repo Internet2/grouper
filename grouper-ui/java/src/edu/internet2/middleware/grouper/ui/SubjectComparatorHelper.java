@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectComparatorHelper.java,v 1.5 2007-09-26 15:03:55 isgwb Exp $
+ * @version $Id: SubjectComparatorHelper.java,v 1.6 2008-03-03 13:58:25 isgwb Exp $
  */
 
 public class SubjectComparatorHelper implements GrouperComparatorHelper{
@@ -181,6 +181,13 @@ public class SubjectComparatorHelper implements GrouperComparatorHelper{
 			}
 			sb.append(val);
 		}
-		return sb.toString().toLowerCase();
+		boolean sortLowercase = true;
+		try {
+			if("false".equals(config.getString("comparator.sort.lowercase"))) sortLowercase=false;
+		}catch(Exception e) {}
+		if(sortLowercase) {
+			return sb.toString().toLowerCase();
+		}
+		return sb.toString();
 	}
 }
