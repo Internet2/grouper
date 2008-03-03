@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ChainedResourceBundle.java,v 1.4 2007-10-15 10:04:47 isgwb Exp $
+ * @version $Id: ChainedResourceBundle.java,v 1.5 2008-03-03 09:05:55 isgwb Exp $
  */
 
 public class ChainedResourceBundle extends ResourceBundle implements
@@ -38,6 +38,8 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	private String name = null;
 
 	private String mapName = null;
+	
+	private boolean debug = false;
 	
 	private HashMap cache = new HashMap();
 
@@ -80,9 +82,10 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	 * @see java.util.ResourceBundle#handleGetObject(java.lang.String)
 	 */
 	protected Object handleGetObject(String key) {
-		UIThreadLocal.put(name, key);
+		if(debug) UIThreadLocal.put(name, key);
 		Object obj = null;
-		Boolean doShowResourcesInSitu = (Boolean) UIThreadLocal
+		Boolean doShowResourcesInSitu = false;
+		if(debug) doShowResourcesInSitu=(Boolean) UIThreadLocal
 		.get("doShowResourcesInSitu");
 		if (doShowResourcesInSitu != null
 				&& doShowResourcesInSitu.booleanValue()
@@ -92,9 +95,12 @@ public class ChainedResourceBundle extends ResourceBundle implements
 		}
 		
 		ResourceBundle bundle = null;
+		if(cache.containsKey(key)) {
+			return cache.get(key);
+		}
 		obj = cache.get(key);
 		if(obj != null) {
-			UIThreadLocal.put(mapName, key, obj);
+			if(debug)UIThreadLocal.put(mapName, key, obj);
 			return obj;
 		}
 		for (int i = 0; i < chain.size(); i++) {
@@ -102,7 +108,7 @@ public class ChainedResourceBundle extends ResourceBundle implements
 			try {
 				obj = bundle.getString(key);
 				if (obj != null) {
-					UIThreadLocal.put(mapName, key, obj);
+					if(debug)UIThreadLocal.put(mapName, key, obj);
 					break;
 				}
 			} catch (Exception e) {
@@ -114,6 +120,7 @@ public class ChainedResourceBundle extends ResourceBundle implements
 				&& name.startsWith("nav"))
 			obj= "???" + key + "???";
 		
+		cache.put(key, obj);
 		return obj;
 	}
 

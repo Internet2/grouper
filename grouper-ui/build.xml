@@ -4,6 +4,7 @@
 	<property file="build.properties"/>
 	<property name="contrib.dir" value="${basedir}/contrib"/>
 	<property name="temp.dir" value="${basedir}/temp"/>
+	<property name="overwriteLib" value="false"/>
 
 	<filter filtersfile="build.properties"/>
 	<property file=".lastbuild.properties"/>
@@ -259,7 +260,7 @@
 		</antcall>
 		
 		<!-- Make all necessary jar files available to the webapp itself -->
-		<copy todir="${webapp.folder}/WEB-INF/lib" overwrite="true">
+		<copy todir="${webapp.folder}/WEB-INF/lib" overwrite="${overwiteLib}">
 			<fileset dir="${grouper.folder}/dist/lib">
 				<include name="**/*.jar"/>
 				<exclude name="grouper-lib-*.jar"/>
@@ -750,7 +751,7 @@
 	  </target>
 	  <target name="-only-grouper-libs-available" if="only.grouper-libs.available">
 		<echo>Copy jar files from lib</echo>
-		<copy todir="${grouper.folder}/dist/lib" overwrite="true">
+		<copy todir="${grouper.folder}/dist/lib" overwrite="${overwiteLib}">
 			<fileset dir="${grouper.folder}/lib">
 				<include name="**/*.jar"/>
 			</fileset>
