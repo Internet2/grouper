@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -13,6 +14,20 @@ import org.hibernate.Session;
  */
 public class HibUtils {
 
+  /**
+   * close a prepared statement
+   * @param preparedStatement
+   */
+  public static void closeQuietly(PreparedStatement preparedStatement) {
+    try {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+    } catch (Exception e) {
+      //forget about it
+    }
+  }
+  
   /**
    * <pre>
    * evict a list of objects from hibernate.  do this always for two reasons:

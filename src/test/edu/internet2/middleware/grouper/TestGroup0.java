@@ -25,6 +25,9 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.jamonapi.Monitor;
+import com.jamonapi.MonitorFactory;
+
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -38,7 +41,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.8 2008-02-24 07:43:15 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.9 2008-03-03 19:25:06 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -546,6 +549,49 @@ public class TestGroup0 extends GrouperTest {
     //System.out.println(anythingString + ", " + someInt[0]);
   }
 
+  /**
+   * runt he perf problem.  You should have the DB setup with LoadData.
+   * @throws Exception
+   */
+  public static void runPerfProblem2() throws Exception {
+    
+    GrouperSession session = null;
+    Stem rootStem = null;
+    session = SessionHelper.getRootSession();
+    rootStem = StemFinder.findRootStem(session);
+
+    String monitorLabel = "runPerfProblem2Helper";
+
+    //init everything
+    runPerfProblem2Helper(session, rootStem, false, monitorLabel);
+    
+    for (int i=0;i<10;i++) {
+      runPerfProblem2Helper(session, rootStem, true, monitorLabel);
+    }
+    
+    //print timer report
+    Monitor monitor = MonitorFactory.getMonitor(monitorLabel, "ms.");
+    System.out.println("Stats:\n" + monitor);
+    
+  }
+    
+  /**
+   * run the logic of the test
+   * @param printResults
+   */
+  private static void runPerfProblem2Helper(GrouperSession session, Stem rootStem, 
+      boolean timeResults, String monitorLabel) throws Exception {
+    Monitor mon = null;
+    if (timeResults) {
+      mon = MonitorFactory.start(monitorLabel);
+    }
+    GrouperQuery gq = GrouperQuery.createQuery(session, new GroupAttributeFilter("name", "SUBJECT100", rootStem));
+    Set queryGroups = gq.getGroups();
+    if (timeResults) {
+      mon.stop();
+    }
+  }
+  
   /**
    * perf problem
    */

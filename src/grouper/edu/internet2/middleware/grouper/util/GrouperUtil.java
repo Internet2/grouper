@@ -4,12 +4,15 @@
 package edu.internet2.middleware.grouper.util;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +24,7 @@ import java.util.Set;
 
 import net.sf.cglib.proxy.Enhancer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.mchange.util.AssertException;
@@ -30,8 +34,67 @@ import com.mchange.util.AssertException;
  * @author mchyzer
  *
  */
+@SuppressWarnings("serial")
 public class GrouperUtil {
   
+  /**
+   * split a string based on a separator into an array, and trim each entry (see
+   * the Commons Util StringUtils.trim() for more details)
+   * 
+   * @param input
+   *          is the delimited input to split and trim
+   * @param separator
+   *          is what to split on
+   * 
+   * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
+   */
+  public static String[] splitTrim(String input, String separator) {
+    if (input == null) {
+      return null;
+    }
+
+    //first split
+    String[] items = StringUtils.split(input, separator);
+
+    //then trim
+    for (int i = 0; (items != null) && (i < items.length); i++) {
+      items[i] = StringUtils.trim(items[i]);
+    }
+
+    //return the array
+    return items;
+  }
+
+  /**
+   * escape url chars (e.g. a # is %23)
+   * @param string input
+   * @return the encoded string
+   */
+  public static String escapeUrlEncode(String string) {
+    String result = null;
+    try {
+      result = URLEncoder.encode(string, "UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+      throw new RuntimeException("UTF-8 not supported", ex);
+    }
+    return result;
+  }
+  
+  /**
+   * unescape url chars (e.g. a space is %20)
+   * @param string input
+   * @return the encoded string
+   */
+  public static String escapeUrlDecode(String string) {
+    String result = null;
+    try {
+      result = URLDecoder.decode(string, "UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+      throw new RuntimeException("UTF-8 not supported", ex);
+    }
+    return result;
+  }
+
   /**
    * make sure a list is non null.  If null, then return an empty list
    * @param <T>
@@ -83,6 +146,7 @@ public class GrouperUtil {
    */
   private static ExpirableCache<String, Set<Field>> fieldSetCache = new ExpirableCache<String, Set<Field>>(
       60 * 24);
+
   /**
    * make a cache with max size to cache declared methods
    */
@@ -171,13 +235,14 @@ public class GrouperUtil {
       Object dataToAssign, boolean overrideSecurity, boolean typeCast) {
 
     try {
-      Class fieldType = field.getType();
+     // Class fieldType = field.getType();
       // typecast
       if (typeCast) {
-        dataToAssign = /*
-                 * ObjectUtils.typeCast(dataToAssign, fieldType,
-                 * true, true);
-                 */dataToAssign;
+        //TODO add this in
+        //dataToAssign = /*
+        //         * ObjectUtils.typeCast(dataToAssign, fieldType,
+        //         * true, true);
+        //         */dataToAssign;
       }
       if (overrideSecurity) {
         field.setAccessible(true);
@@ -264,7 +329,6 @@ public class GrouperUtil {
    * Remove the iterator or index
    * 
    * @param arrayOrCollection
-   * @param iterator
    * @param index
    * @return the object list or new array
    */
@@ -870,6 +934,7 @@ public class GrouperUtil {
    * @param theClass
    * @return the declared methods
    */
+  @SuppressWarnings("unused")
   private static Method[] retrieveDeclaredMethods(Class theClass) {
     Method[] methods = declaredMethodsCache.get(theClass);
     // get from cache if we can
@@ -1663,14 +1728,10 @@ public class GrouperUtil {
    * @param searchForLength
    * @param searchFor
    * @param replaceWith
-   * @param iteratorSearchFor
-   * @param iteratorReplaceWith
    * @param noMoreMatchesForReplIndex
    * @param input
    * @param start
    *            is where to start looking
-   * @param removeIfFound
-   *            true if removing from searchFor and replaceWith if found
    * @return result packed into a long, inputIndex first, then replaceIndex
    */
   private static long findNextIndexHelper(int searchForLength,
@@ -1818,7 +1879,7 @@ public class GrouperUtil {
    * fail safe toString for Exception blocks, and include the stack
    * if there is a problem with toString()
    * @param object
-   * @return
+   * @return the toStringSafe string
    */
   public static String toStringSafe(Object object) {
     if (object == null) {
