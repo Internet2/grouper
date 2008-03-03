@@ -17,14 +17,22 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.ResourceBundle;
 import java.util.Set;
 
-import org.apache.commons.beanutils.*;
+import org.apache.commons.beanutils.DynaBean;
+import org.apache.commons.beanutils.DynaProperty;
+import org.apache.commons.beanutils.WrapDynaBean;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.UIThreadLocal;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -32,7 +40,7 @@ import org.apache.commons.beanutils.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ObjectAsMap.java,v 1.6 2008-01-09 13:54:31 isgwb Exp $
+ * @version $Id: ObjectAsMap.java,v 1.7 2008-03-03 13:54:52 isgwb Exp $
  */
 public class ObjectAsMap extends HashMap {
 	protected String objType = null;
@@ -87,6 +95,126 @@ public class ObjectAsMap extends HashMap {
 		}catch(Exception e){return null;}
 	}
 	
+	/**
+	 * Rather than use a constructor directly, the UI reads the implementation type
+	 * from media.properties. This allows sites to provide alternative implementations
+	 * @param type
+	 * @param object
+	 * @param grouperSession
+	 * @return subclass as configured in media.properties
+	 */
+	public static ObjectAsMap getInstance(String type, Object object, GrouperSession grouperSession) {
+		
+		ResourceBundle mediaBundle = (ResourceBundle) UIThreadLocal.get("mediaBundle");
+		String claz = mediaBundle.getString("objectasmap." + type + ".impl");
+		
+		try {
+			Class impl = Class.forName(claz);
+			Constructor c = impl.getConstructor(object.getClass(), GrouperSession.class);
+			ObjectAsMap result = (ObjectAsMap) c.newInstance(object, grouperSession);
+		
+			return result;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+/**
+ * Rather than use a constructor directly, the UI reads the implementation type
+ * from media.properties. This allows sites to provide alternative implementations
+ * @param type
+ * @param subject
+ * @param grouperSession
+ * @param groupOrStem
+ * @param privilege
+ * @return subclass as configured in media.properties
+ */
+public static ObjectAsMap getInstance(String type, Subject subject, GrouperSession grouperSession,GroupOrStem groupOrStem,String privilege) {
+		
+		ResourceBundle mediaBundle = (ResourceBundle) UIThreadLocal.get("mediaBundle");
+		String claz = mediaBundle.getString("objectasmap." + type + ".impl");
+		
+		try {
+			Class impl = Class.forName(claz);
+			Constructor c = impl.getConstructor(GrouperSession.class,Subject.class,groupOrStem.getClass(),privilege.getClass());
+			ObjectAsMap result = (ObjectAsMap) c.newInstance(subject, grouperSession,groupOrStem,privilege);
+		
+			return result;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+/**
+ * Rather than use a constructor directly, the UI reads the implementation type
+ * from media.properties. This allows sites to provide alternative implementations
+ * @param type
+ * @param object
+ * @param bundle
+ * @return subclass as configured in media.properties
+ */
+public static ObjectAsMap getInstance(String type, Object object, ResourceBundle bundle) {
+		
+		ResourceBundle mediaBundle = (ResourceBundle) UIThreadLocal.get("mediaBundle");
+		String claz = mediaBundle.getString("objectasmap." + type + ".impl");
+		
+		try {
+			Class impl = Class.forName(claz);
+			Constructor c = impl.getConstructor(object.getClass(), ResourceBundle.class);
+			ObjectAsMap result = (ObjectAsMap) c.newInstance(object, bundle);
+		
+			return result;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+/**
+ * Rather than use a constructor directly, the UI reads the implementation type
+ * from media.properties. This allows sites to provide alternative implementations
+ * @param type
+ * @param object
+ * @return subclass as configured in media.properties
+ */
+public static ObjectAsMap getInstance(String type, Object object) {
+	
+	ResourceBundle mediaBundle = (ResourceBundle) UIThreadLocal.get("mediaBundle");
+	String claz = mediaBundle.getString("objectasmap." + type + ".impl");
+	
+	try {
+		Class impl = Class.forName(claz);
+		Constructor c = impl.getConstructor(object.getClass());
+		ObjectAsMap result = (ObjectAsMap) c.newInstance(object);
+	
+		return result;
+	} catch (Exception e) {
+		throw new RuntimeException(e);
+	}
+}
+
+/**
+ * Rather than use a constructor directly, the UI reads the implementation type
+ * from media.properties. This allows sites to provide alternative implementations
+ * @param type
+ * @param object
+ * @return subclass as configured in media.properties
+ */
+public static ObjectAsMap getInstance(String type, Subject object) {
+	
+	ResourceBundle mediaBundle = (ResourceBundle) UIThreadLocal.get("mediaBundle");
+	String claz = mediaBundle.getString("objectasmap." + type + ".impl");
+	
+	try {
+		Class impl = Class.forName(claz);
+		Constructor c = impl.getConstructor(Subject.class);
+		ObjectAsMap result = (ObjectAsMap) c.newInstance(object);
+	
+		return result;
+	} catch (Exception e) {
+		throw new RuntimeException(e);
+	}
+}
+	
 	public Set keySet() {
 		// TODO Auto-generated method stub
 		Set keys = new LinkedHashSet();
@@ -135,6 +263,4 @@ public class ObjectAsMap extends HashMap {
 		}
 		return map.entrySet();
 	}
-	
-	
 }

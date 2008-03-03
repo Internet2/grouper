@@ -31,20 +31,29 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.9 2008-01-09 13:54:31 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.10 2008-03-03 13:54:52 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
 	protected String objType = "I2miSubject";
 
 	private Subject subject = null;
-
+	
+	protected SubjectAsMap() {
+		
+	}
 	/**
 	 * @param subject
 	 *            to wrap
 	 */
 	public SubjectAsMap(Subject subject) {
 		super();
+		init(subject);
+		
+		
+	}
+	
+	protected void init(Subject subject) {
 		super.objType = objType;
 		dynaBean = new WrapDynaBean(subject);
 		if (subject == null)
@@ -52,15 +61,6 @@ public class SubjectAsMap extends ObjectAsMap {
 					"Cannot create SubjectAsMap with a null Subject");
 		this.subject = subject;
 		wrappedObject = subject;
-		//put("subjectType", subject.getType().getName());
-		//put("subjectId", subject.getId());
-		//if (subject.getType().getName().equals("person")) {
-
-			//put("subjectTypeAdapter",subject.getType().getAdapter().getClass().getName());
-			
-			//put("isMember", Boolean.TRUE);
-		//}
-
 	}
 
 	/*

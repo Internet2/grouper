@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectPrivilegeAsMap.java,v 1.4 2007-12-18 10:37:01 isgwb Exp $
+ * @version $Id: SubjectPrivilegeAsMap.java,v 1.5 2008-03-03 13:54:52 isgwb Exp $
  */
 public class SubjectPrivilegeAsMap extends ObjectAsMap {
 
@@ -42,13 +42,19 @@ public class SubjectPrivilegeAsMap extends ObjectAsMap {
 	private GroupOrStem groupOrStem = null;
 	private String privilege = null;
 	private GrouperSession s=null;
-
+	
+	protected SubjectPrivilegeAsMap() {}
+	
 	/**
 	 * @param subject
 	 *            to wrap
 	 */
 	public SubjectPrivilegeAsMap(GrouperSession s,Subject subject,GroupOrStem groupOrStem,String privilege) {
 		super();
+		init(s,subject,groupOrStem,privilege);
+	}
+	
+	protected void init(GrouperSession s,Subject subject,GroupOrStem groupOrStem,String privilege) {
 		super.objType = objType;
 		if (subject == null)
 			throw new NullPointerException(

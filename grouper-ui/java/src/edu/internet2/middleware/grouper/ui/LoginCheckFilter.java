@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -34,6 +35,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,7 +60,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.10 2008-01-24 11:16:10 mchyzer Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.11 2008-03-03 13:54:52 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -166,6 +168,8 @@ public class LoginCheckFilter implements Filter {
 			}
 			Date before = new Date();
 
+			
+			SessionInitialiser.initThread(session);
 			chain.doFilter(req, res);
 			Date after = new Date();
 			if (log != null) {
@@ -211,8 +215,7 @@ public class LoginCheckFilter implements Filter {
 		}catch(Exception e) {
 			throw new ServletException(e);
 		}
-		Map subjMap = GrouperHelper.subject2Map(subj);
-		request.getSession().setAttribute("AuthSubject", subjMap);
+		
 		request.getSession().setAttribute(
 				"edu.intenet2.middleware.grouper.ui.GrouperSession", s);
 		//request.setAttribute("message",new
@@ -222,6 +225,11 @@ public class LoginCheckFilter implements Filter {
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
+		SessionInitialiser.initThread(session);
+		Map subjMap = GrouperHelper.subject2Map(subj);
+		request.getSession().setAttribute("AuthSubject", subjMap);
+		
+		
 		chain.doFilter(req, res);
 
 	}
@@ -244,5 +252,7 @@ public class LoginCheckFilter implements Filter {
 		// TODO Auto-generated method stub
 
 	}
+	
+	
 
 }

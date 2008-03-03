@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.StemNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: StemAsMap.java,v 1.5 2007-10-05 09:23:13 isgwb Exp $
+ * @version $Id: StemAsMap.java,v 1.6 2008-03-03 13:54:52 isgwb Exp $
  */
 public class StemAsMap extends ObjectAsMap {
 	
@@ -40,6 +40,8 @@ public class StemAsMap extends ObjectAsMap {
 	protected final static String objType = "GrouperStem";
 
 	private GrouperSession grouperSession = null;
+	
+	protected StemAsMap() {}
 
 	/**
 	 * @param stem Stem to wrap
@@ -47,19 +49,22 @@ public class StemAsMap extends ObjectAsMap {
 	 */
 	public StemAsMap(Stem stem, GrouperSession s) {
 		super();
-		dynaBean = new WrapDynaBean(stem);
+		init(stem);
+	}
+	
+	protected void init(Stem s) {
+		dynaBean = new WrapDynaBean(s);
 		super.objType = objType;
-		if (stem == null)
+		if (s == null)
 			throw new NullPointerException(
 					"Cannot create StemAsMap with a null stem");
-		this.stem = stem;
-		wrappedObject = stem;
+		this.stem = s;
+		wrappedObject = s;
 		put("subjectType", "stem");
 		//put("isGroup",Boolean.FALSE);
 		put("isStem", Boolean.TRUE);
-		put("id", stem.getUuid());
-		put("stemId", stem.getUuid());
-		
+		put("id", s.getUuid());
+		put("stemId", s.getUuid());
 	}
 
 	/*

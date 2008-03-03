@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: FieldAsMap.java,v 1.4 2008-01-09 13:54:31 isgwb Exp $
+ * @version $Id: FieldAsMap.java,v 1.5 2008-03-03 13:54:52 isgwb Exp $
  */
 public class FieldAsMap extends ObjectAsMap {
 
@@ -40,6 +40,9 @@ public class FieldAsMap extends ObjectAsMap {
 
 	private Field field = null;
 	private ResourceBundle bundle=null;
+	
+	protected FieldAsMap() {}
+	
 	/**
 	 * @param field
 	 *            to wrap
@@ -48,6 +51,10 @@ public class FieldAsMap extends ObjectAsMap {
 	 */
 	public FieldAsMap(Field field,ResourceBundle bundle) {
 		super();
+		init(field,bundle);
+	}
+	
+	protected void init(Field field, ResourceBundle bundle) {
 		super.objType = objType;
 		dynaBean = new WrapDynaBean(field);
 		if (field == null)

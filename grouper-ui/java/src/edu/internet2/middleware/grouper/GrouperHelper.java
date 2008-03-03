@@ -40,7 +40,6 @@ import edu.internet2.middleware.grouper.ui.util.FieldAsMap;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
-import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectPrivilegeAsMap;
 import edu.internet2.middleware.subject.Source;
@@ -58,7 +57,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.40 2007-12-18 10:37:01 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.41 2008-03-03 13:54:52 isgwb Exp $
  */
 
 
@@ -323,7 +322,7 @@ public class GrouperHelper {
 	 * @return GrouperStem wrapped as a Map
 	 */
 	public static Map stem2Map(GrouperSession s, Stem stem) {
-		Map stemMap = new StemAsMap(stem,s);
+		Map stemMap = ObjectAsMap.getInstance("StemAsMap", stem, s);
 		if("".equals(stem.getName())) {
 			stemMap.put("isRootStem",Boolean.TRUE);
 		}
@@ -338,8 +337,7 @@ public class GrouperHelper {
 	 * @return Stem wrapped as a Map
 	 */
 	public static Map group2Map(GrouperSession s, Stem stem) {
-		return new StemAsMap(stem,s);
-
+		return ObjectAsMap.getInstance("StemAsMap", stem, s);		
 	}
 	
 	/**
@@ -538,7 +536,7 @@ public class GrouperHelper {
 	 */
 	public static Map subject2Map(Subject subject) {
 		//@TODO what should happen if Group - see next method
-		SubjectAsMap map = new SubjectAsMap(subject);
+		SubjectAsMap map = (SubjectAsMap)ObjectAsMap.getInstance("SubjectAsMap", subject);
 		return (Map) map;
 	}
 	
@@ -549,7 +547,7 @@ public class GrouperHelper {
 	 */
 	public static Map subject2Map(Subject subject,Map addAttr) {
 		//@TODO what should happen if Group - see next method
-		SubjectAsMap map = new SubjectAsMap(subject);
+		SubjectAsMap map = (SubjectAsMap)ObjectAsMap.getInstance("SubjectAsMap", subject);
 		if(addAttr !=null) map.putAll(addAttr);
 		return (Map) map;
 	}
@@ -588,7 +586,7 @@ public class GrouperHelper {
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-			SubjectAsMap map = new SubjectAsMap(subject);
+			SubjectAsMap map =(SubjectAsMap)ObjectAsMap.getInstance("SubjectAsMap", subject);
 			return (Map) map;
 		}
 		try {
@@ -1128,7 +1126,7 @@ public class GrouperHelper {
 		List displayResults = null;
 		List nonDisplayResults=null; 
 		String attr = null;
-		if(searchInDisplayNameOrExtension != null && !"".equals(searchInDisplayNameOrExtension)) {
+		if(!"".equals(searchInDisplayNameOrExtension)) {
 			if("name".equals(searchInDisplayNameOrExtension)) {
 				attr="displayName";
 			}else{
@@ -1136,7 +1134,7 @@ public class GrouperHelper {
 			}
 			displayResults = searchGroupsByAttribute(s,query,from,attr);	
 		}
-		if(searchInNameOrExtension !=null && !"".equals(searchInNameOrExtension)) {
+		if(!"".equals(searchInNameOrExtension)) {
 			if("name".equals(searchInNameOrExtension)) {
 				attr="name";
 			}else{
@@ -1147,12 +1145,13 @@ public class GrouperHelper {
 		if(displayResults==null && nonDisplayResults==null) return new ArrayList();
 		if(displayResults==null && nonDisplayResults!=null) return nonDisplayResults;
 		if(displayResults!=null && nonDisplayResults==null) return displayResults;
-		Set unique = new HashSet();
-		unique.addAll(displayResults);
-		unique.addAll(nonDisplayResults);
-
+		Object obj;
+		for(int i=0;i<nonDisplayResults.size();i++) {
+			obj = nonDisplayResults.get(i);
+			if(!displayResults.contains(obj)) displayResults.add(obj);
+		}
 			
-		return new ArrayList(unique);
+		return displayResults;
 		
 	}
 
@@ -2219,7 +2218,7 @@ public class GrouperHelper {
 		Iterator it = memberships.iterator();
 		Membership m = (Membership)it.next();
 		m.setSession(s);
-		Map mMap = new MembershipAsMap(m);
+		Map mMap = ObjectAsMap.getInstance("MembershipAsMap",m);
 		mMap.put("noWays",new Integer(memberships.size()));
 		return mMap;
 	}
@@ -2397,7 +2396,7 @@ public class GrouperHelper {
 		Iterator it = subjects.iterator();
 		while(it.hasNext()) {
 			subject = (Subject)it.next();
-			res.add(new SubjectPrivilegeAsMap(s,subject,groupOrStem,privilege));
+			res.add(ObjectAsMap.getInstance("SubjectPrivilegeAsMap", subject,s,groupOrStem,privilege));
 		}
 		return res;
 	}
@@ -2419,9 +2418,9 @@ public class GrouperHelper {
 		while(it.hasNext()) {
 			obj = it.next();
 			if(obj instanceof Group){
-				res.add(new SubjectPrivilegeAsMap(s,subject,GroupOrStem.findByGroup(s,(Group)obj),privilege));
+				res.add(ObjectAsMap.getInstance("SubjectPrivilegeAsMap", subject,s,GroupOrStem.findByGroup(s,(Group)obj),privilege));
 			}else{
-				res.add(new SubjectPrivilegeAsMap(s,subject,GroupOrStem.findByStem(s,(Stem)obj),privilege));
+				res.add(ObjectAsMap.getInstance("SubjectPrivilegeAsMap", subject,s,GroupOrStem.findByStem(s,(Stem)obj),privilege));
 			}
 		}
 		return res;
@@ -2453,7 +2452,8 @@ public class GrouperHelper {
 		Iterator it = memberships.iterator();
 		while(it.hasNext()) {
 			membership = (Membership)it.next();
-			res.add(new MembershipAsMap(membership,withParents)); 
+			//TODO check if withParent is needed
+			res.add(ObjectAsMap.getInstance("MembershipAsMap",membership)); 
 		}
 		return res;
 	}
@@ -2680,7 +2680,7 @@ public class GrouperHelper {
 		while(it.hasNext()) {
 			field = (Field) it.next();
 			if(noSearchFields.indexOf(":" + field.getName() + ":") == -1) {
-				res.add(new FieldAsMap(field,bundle));
+				res.add(ObjectAsMap.getInstance("FieldAsMap",field,bundle));
 			}
 		}
 		return res;
@@ -2700,7 +2700,7 @@ public class GrouperHelper {
 		Map map = new LinkedHashMap();
 		while(it.hasNext()) {
 			field = (Field) it.next();
-			fieldMap=new FieldAsMap(field,bundle);
+			fieldMap=ObjectAsMap.getInstance("FieldAsMap",field,bundle);
 			map.put(field.getName(),fieldMap);
 		}
 		Map any = new HashMap();
@@ -2863,7 +2863,6 @@ public class GrouperHelper {
 	public static boolean isDirect(LazySubject ls) {
 		return ls.getMembership().getDepth()==0;
 	}
-	
 	
 	/*public static List query(String sql) throws Exception{
 		Connection con = null;

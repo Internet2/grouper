@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipAsMap.java,v 1.5 2007-10-31 09:53:37 isgwb Exp $
+ * @version $Id: MembershipAsMap.java,v 1.6 2008-03-03 13:54:52 isgwb Exp $
  */
 public class MembershipAsMap extends ObjectAsMap {
 
@@ -41,6 +41,7 @@ public class MembershipAsMap extends ObjectAsMap {
 	private Membership membership = null;
 	private boolean withParents=false;
 	
+	protected MembershipAsMap() {}
 	/**
 	 * @param membership to wrap
 
@@ -55,6 +56,10 @@ public class MembershipAsMap extends ObjectAsMap {
 	 */
 	public MembershipAsMap(Membership membership,boolean withParents) {
 		super();
+		init(membership,withParents);
+	}
+	
+	protected void init(Membership membership, boolean withParents) {
 		super.objType = objType;
 		if (membership == null)
 			throw new NullPointerException(
@@ -69,8 +74,6 @@ public class MembershipAsMap extends ObjectAsMap {
 			throw new RuntimeException(membershipToString(membership) + e.getMessage());
 		}
 	}
-	
-	
 	/* (non-Javadoc)
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
@@ -91,7 +94,7 @@ public class MembershipAsMap extends ObjectAsMap {
 				obj=GrouperHelper.group2Map(null,membership.getViaGroup());
 				put(key,obj);
 			}else if("parentMembership".equals(key)) {
-				obj=new MembershipAsMap(membership.getParentMembership());
+				obj=ObjectAsMap.getInstance("MembershipAsMap",membership.getParentMembership());
 				put(key,obj);
 			}
 			}catch(Exception e){}

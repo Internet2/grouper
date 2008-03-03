@@ -18,7 +18,9 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui;
 
 import java.util.*;
+
 import javax.servlet.http.*;
+import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.w3c.dom.Document;
 
@@ -31,7 +33,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.11 2008-01-31 16:16:35 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.12 2008-03-03 13:54:52 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -168,6 +170,7 @@ public class SessionInitialiser {
 		} catch (Exception e) {
 			//e.printStackTrace();
 		}
+		initThread(session);
 		if(getAuthUser(session)!=null) session.setAttribute("sessionInited", Boolean.TRUE);
 		session.setAttribute("fieldList",GrouperHelper.getFieldsAsMap(chainedBundle));
 		session.setAttribute("MembershipExporter",new MembershipExporter(chainedMediaBundle));
@@ -276,6 +279,15 @@ public class SessionInitialiser {
 			
 		}
 		return locale;
+	}
+	
+	public static void initThread(HttpSession session) {
+		LocalizationContext lc = (LocalizationContext) session.getAttribute("media");
+		
+		if (lc == null) return;
+		
+		ResourceBundle mediaBundle = lc.getResourceBundle();
+		UIThreadLocal.put("mediaBundle", mediaBundle);
 	}
 
 }
