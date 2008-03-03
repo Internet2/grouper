@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.174 2008-02-15 09:02:00 mchyzer Exp $
+ * @version $Id: Group.java,v 1.175 2008-03-03 19:25:06 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -345,6 +345,49 @@ public class Group extends GrouperAPI implements Owner {
     throws  InsufficientPrivilegeException,
             MemberAddException
   {
+    try {
+      this.addMember(subj, getDefaultList());
+    }
+    catch (SchemaException eS) {
+      throw new MemberAddException(eS.getMessage(), eS);
+    }
+  } // public void addMember(subj)
+
+  /**
+   * Add a subject to this group as immediate member.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.addMember(subj);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add subject
+   * } 
+   * </pre>
+   * @param   subj  Add this {@link Subject}
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   */
+  public void addMember(Subject subj, boolean exceptionIfAlreadyMember) 
+    throws  InsufficientPrivilegeException,
+            MemberAddException
+  {
+    //CH 20080301: if not want an exception, and already a member, then exit normally
+    if (!exceptionIfAlreadyMember && this.hasMember(subj)) {
+      return;
+    }
     try {
       this.addMember(subj, getDefaultList());
     }

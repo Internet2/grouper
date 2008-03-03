@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.145 2008-02-20 08:41:46 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.146 2008-03-03 19:25:06 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -1518,7 +1518,6 @@ public class Stem extends GrouperAPI implements Owner {
    * @param uuid of the stem.  If a stem exists with this uuid, then it will
    * be updated, if not, then it will be created if createIfNotExist is true
    * @param saveMode to constrain if insert only or update only, if null defaults to INSERT_OR_UPDATE
-   * @param retrieveViaNameIfNoUuid 
    * @param createParentStemsIfNotExist true if the stems should be created if they dont exist, false
    * for StemNotFoundException if not exist.  Note, the display extension on created stems
    * will equal the extension
