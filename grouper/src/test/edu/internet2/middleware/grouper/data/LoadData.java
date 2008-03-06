@@ -6,10 +6,15 @@ import java.sql.PreparedStatement;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupAddException;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.MemberAddException;
 import edu.internet2.middleware.grouper.SaveMode;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemAddException;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -70,53 +75,96 @@ public class LoadData {
     int membersAdded = 0;
 
     //for (int subjCount = 1; subjCount <= 100; subjCount++) {
-    for (int subjCount = 48; subjCount <= 48; subjCount++) {
+    for (int subjCount = 1; subjCount <= 100; subjCount++) {
       Stem subjStem = Stem.saveStem(session, "", "SUBJECT" + subjCount, 
           coursesStem.getName() + ":SUBJECT" + subjCount, null, null, false);
       stemsCreated++;
       //for (int catelogCount = 100; catelogCount <= 110; catelogCount++) {
-      for (int catelogCount = 110; catelogCount <= 110; catelogCount++) {
+      for (int catelogCount = 100; catelogCount <= 110; catelogCount++) {
          Stem catelogStem = Stem.saveStem(session, "", ""+catelogCount, 
              subjStem.getName() + ":" + catelogCount, null, null, false);
          stemsCreated++;
          //for (int secCount = 10; secCount <= 28; secCount++) {
-         for (int secCount = 28; secCount <= 28; secCount++) {
+         for (int secCount = 10; secCount <= 28; secCount++) {
            Stem secStem = Stem.saveStem(session, "", "" + secCount, 
                catelogStem.getName() + ":" + secCount, null, null, false);
            stemsCreated++;
            for (int classCount = 1000; classCount <= 1001; classCount++) {
-             Stem classStem = Stem.saveStem(session, "", "" + classCount, 
-                 secStem.getName() + ":" + classCount, null, null, false);
-             stemsCreated++;
-             for (int termCount = 2000; termCount <= 2000; termCount++) {
-               Stem termStem = Stem.saveStem(session, "", "" + termCount, 
-                   classStem.getName() + ":" + termCount, null, null, false);
+             Stem classStem = null;
+             try {
+               classStem = secStem.addChildStem("" + classCount, "" + classCount); 
                stemsCreated++;
+             } catch (StemAddException sae) {
+               //hopefully it is because the group already exists
+               classStem = StemFinder.findByName(session, secStem.getName() + ":" + classCount);
+             }
+             for (int termCount = 2000; termCount <= 2000; termCount++) {
+               Stem termStem = null;
+               try {
+                 termStem = classStem.addChildStem("" + termCount, "" + termCount);
+                 stemsCreated++;
+               } catch (StemAddException sae) {
+                 //hopefully it is because the group already exists
+                 termStem = StemFinder.findByName(session, classStem.getName() + ":" + termCount);
+               }
+               
+               Group instructors = null;
+               try {
+                 instructors = termStem.addChildGroup("instructors", "instructors");
+                 groupsCreated++;
+               } catch (GroupAddException gae) {
+                 //hopefully it is because the group already exists
+                 instructors = GroupFinder.findByName(session, termStem.getName() + ":instructors");
+               }
+               
+               Group ta = null;
+               try {
+                 ta = termStem.addChildGroup("TAs", "TAs");
+                 groupsCreated++;
+               } catch (GroupAddException gae) {
+                 //hopefully it is because the group already exists
+                 ta = GroupFinder.findByName(session, termStem.getName() + ":TAs");
+               }
+                 
+               Group students = null;
+               try {
+                 students = termStem.addChildGroup("students", "students");
+                 groupsCreated++;
+               } catch (GroupAddException gae) {
+                 //hopefully it is because the group already exists
+                 students = GroupFinder.findByName(session, termStem.getName() + ":students");
+               }
 
-               Group instructors  = Group.saveGroup(session, null, "instructors", termStem.getName() + ":instructors",
-                   null, SaveMode.INSERT_OR_UPDATE, false);
-               Group ta = Group.saveGroup(session, null, "TAs", termStem.getName() + ":TAs",
-                   null, SaveMode.INSERT_OR_UPDATE, false);
-               Group students = Group.saveGroup(session, null, "students", termStem.getName() + ":students",
-                   null, SaveMode.INSERT_OR_UPDATE, false);
-               groupsCreated+=3;
 
                for (int memberCount = 0; memberCount <= 0; memberCount++) { 
                  Subject subject = subjectFindCreateById("0" + catelogCount + secCount + memberCount);
-                 instructors.addMember(subject, false);
-                 membersAdded++;
+                 try {
+                   instructors.addMember(subject);
+                   membersAdded++;
+                 } catch (MemberAddException mae) {
+                   //hopefully it is because the member is already a member
+                 }
                }
 
                for (int memberCount = 0; memberCount <= 0; memberCount++) { 
                  Subject subject = subjectFindCreateById("1" + catelogCount + secCount + memberCount);
-                 ta.addMember(subject, false);
-                 membersAdded++;
+                 try {
+                   ta.addMember(subject, false);
+                   membersAdded++;
+                 } catch (MemberAddException mae) {
+                   //hopefully it is because the member is already a member
+                 }
+                   
                }
 
                for (int memberCount = 0; memberCount <= 11; memberCount++) { 
                  Subject subject = subjectFindCreateById("2" + catelogCount + secCount + memberCount);
-                 students.addMember(subject, false);
-                 membersAdded++;
+                 try {
+                   students.addMember(subject, false);
+                   membersAdded++;
+                 } catch (MemberAddException mae) {
+                   //hopefully it is because the member is already a member
+                 }
                }
              }
            }

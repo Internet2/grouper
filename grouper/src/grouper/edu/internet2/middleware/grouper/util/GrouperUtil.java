@@ -38,6 +38,99 @@ import com.mchange.util.AssertException;
 public class GrouperUtil {
   
   /**
+   * If batching this is the number of batches
+   * @param count is size of set
+   * @param batchSize
+   * @return the number of batches
+   */
+  public static int batchNumberOfBatches(int count, int batchSize) {
+    int batches = 1 + ((count - 1) / batchSize);
+    return batches;
+
+  }
+
+  /**
+   * If batching this is the number of batches
+   * @param collection
+   * @param batchSize
+   * @return the number of batches
+   */
+  public static int batchNumberOfBatches(Collection<?> collection, int batchSize) {
+    int arrraySize = length(collection);
+    return batchNumberOfBatches(arrraySize, batchSize);
+
+  }
+
+  /**
+   * retrieve a batch by 0 index. Will return an array of size batchSize or
+   * the remainder. the array will be full of elements. Note, this requires an
+   * ordered input (so use linkedhashset not hashset if doing sets)
+   * @param <T> template type
+   * @param collection
+   * @param batchSize
+   * @param batchIndex
+   * @return the list
+   *         This never returns null, only empty list
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> List<T> batchList(Collection<T> collection, int batchSize,
+      int batchIndex) {
+
+    int numberOfBatches = batchNumberOfBatches(collection, batchSize);
+    int arraySize = length(collection);
+
+    // short circuit
+    if (arraySize == 0) {
+      return new ArrayList<T>();
+    }
+
+    List<T> theBatchObjects = new ArrayList<T>();
+
+    // lets get the type of the first element if possible
+//    Object first = FastObjectUtils.get(arrayOrCollection, 0);
+//
+//    Class theType = first == null ? Object.class : first.getClass();
+
+    // if last batch
+    if (batchIndex == numberOfBatches - 1) {
+
+      // needs to work to 1-n
+      //int thisBatchSize = 1 + ((arraySize - 1) % batchSize);
+
+      int collectionIndex = 0;
+      for (T t : collection) {
+        if (collectionIndex++ < batchIndex * batchSize) {
+          continue;
+        }
+        //just copy the rest
+        //if (collectionIndex >= (batchIndex * batchSize) + arraySize) {
+        //  break;
+        //}
+        //we are in the copy mode
+        theBatchObjects.add(t);
+      }
+
+    } else {
+      // if non-last batch
+      //int newIndex = 0;
+      int collectionIndex = 0;
+      for (T t : collection) {
+        if (collectionIndex < batchIndex * batchSize) {
+          collectionIndex++;
+          continue;
+        }
+        //done with batch
+        if (collectionIndex >= (batchIndex + 1) * batchSize) {
+          break;
+        }
+        theBatchObjects.add(t);
+        collectionIndex++;
+      }
+    }
+    return theBatchObjects;
+  }
+
+  /**
    * split a string based on a separator into an array, and trim each entry (see
    * the Commons Util StringUtils.trim() for more details)
    * 
@@ -49,7 +142,7 @@ public class GrouperUtil {
    * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
    */
   public static String[] splitTrim(String input, String separator) {
-    if (input == null) {
+    if (StringUtils.isBlank(input)) {
       return null;
     }
 
@@ -1125,19 +1218,18 @@ public class GrouperUtil {
 
   /**
    * convert a list into an array of type of theClass
-   * 
-   * @param collection
-   *            list to convert
-   * @param theClass
-   *            type of array to return
+   * @param <T> is the type of the array
+   * @param collection list to convert
+   * @param theClass type of array to return
    * @return array of type theClass[] filled with the objects from list
    */
-  public static Object toArray(Collection collection, Class theClass) {
+  @SuppressWarnings("unchecked")
+  public static <T> T[] toArray(Collection collection, Class<T> theClass) {
     if (collection == null || collection.size() == 0) {
       return null;
     }
 
-    return collection.toArray((Object[]) Array.newInstance(theClass,
+    return (T[])collection.toArray((Object[]) Array.newInstance(theClass,
         collection.size()));
 
   }

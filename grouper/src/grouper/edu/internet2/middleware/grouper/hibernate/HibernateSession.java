@@ -283,6 +283,15 @@ public class HibernateSession {
   }
 
   /**
+   * do a criteria query with proper error handling and in an enclosing transaction
+   * (if applicable), or a new one if not
+   * @return the class
+   */
+  public static ByCriteriaStatic byCriteriaStatic() {
+    return new ByCriteriaStatic();
+  }
+
+  /**
    * do an object operation 
    * with proper error handling and in an enclosing transaction
    * (if applicable), or a new one if not

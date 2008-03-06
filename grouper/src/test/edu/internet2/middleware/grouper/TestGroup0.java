@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.9 2008-03-03 19:25:06 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.10 2008-03-06 19:10:29 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -56,7 +56,8 @@ public class TestGroup0 extends GrouperTest {
   public static void main(String[] args) throws Exception {
     //TestRunner.run(new TestGroup0("testStaticSaveGroupTransactions"));
     //TestRunner.run(TestGroup0.class);
-    runPerfProblem();
+    //runPerfProblem();
+    runPerfProblem2();
   }
 
   /**
@@ -585,7 +586,8 @@ public class TestGroup0 extends GrouperTest {
     if (timeResults) {
       mon = MonitorFactory.start(monitorLabel);
     }
-    GrouperQuery gq = GrouperQuery.createQuery(session, new GroupAttributeFilter("name", "SUBJECT100", rootStem));
+    GrouperQuery gq = GrouperQuery.createQuery(session, 
+        new GroupAttributeFilter("name", "SUBJECT1", rootStem));
     Set queryGroups = gq.getGroups();
     if (timeResults) {
       mon.stop();

@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.175 2008-03-03 19:25:06 mchyzer Exp $
+ * @version $Id: Group.java,v 1.176 2008-03-06 19:10:29 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -345,12 +345,7 @@ public class Group extends GrouperAPI implements Owner {
     throws  InsufficientPrivilegeException,
             MemberAddException
   {
-    try {
-      this.addMember(subj, getDefaultList());
-    }
-    catch (SchemaException eS) {
-      throw new MemberAddException(eS.getMessage(), eS);
-    }
+    this.addMember(subj, true);
   } // public void addMember(subj)
 
   /**
@@ -431,6 +426,46 @@ public class Group extends GrouperAPI implements Owner {
             MemberAddException,
             SchemaException
   {
+    this.addMember(subj, f, true);
+  } // public void addMember(subj, f)
+
+  /**
+   * Add a subject to this group as immediate member.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.addMember(subj, f);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add member
+   * } 
+   * catch (SchemaException eS) {
+   *   // Invalid Field
+   * } 
+   * </pre>
+   * @param   subj  Add this {@link Subject}
+   * @param   f     Add subject to this {@link Field}.
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   * @throws  SchemaException
+   */
+  public void addMember(Subject subj, Field f, boolean exceptionIfAlreadyMember)
+    throws  InsufficientPrivilegeException,
+            MemberAddException,
+            SchemaException
+  {
     StopWatch sw = new StopWatch();
     sw.start();
     if ( !FieldType.LIST.equals( f.getType() ) ) {
@@ -444,6 +479,10 @@ public class Group extends GrouperAPI implements Owner {
     }
     if ( ( Group.getDefaultList().equals(f) ) && ( this.hasComposite() ) ) {
       throw new MemberAddException(E.GROUP_AMTC);
+    }
+    //CH 20080301: if not want an exception, and already a member, then exit normally
+    if (!exceptionIfAlreadyMember && this.hasMember(subj, f)) {
+      return;
     }
     Membership.internal_addImmediateMembership( this.getSession(), this, subj, f );
     EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
