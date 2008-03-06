@@ -16,12 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.util.AllUtilTests;
 import  junit.framework.*;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.30 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: SuiteDefault.java,v 1.31 2008-03-06 19:10:29 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -69,6 +70,8 @@ public class SuiteDefault extends TestCase {
 
     suite.addTest( SuiteRefactor.suite() ); 
 
+    suite.addTest(AllUtilTests.suite());
+    
     return suite;
   }
 

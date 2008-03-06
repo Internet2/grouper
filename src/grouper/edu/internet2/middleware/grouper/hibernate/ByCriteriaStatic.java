@@ -3,21 +3,21 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Criterion;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 
- * for simple HQL, use this instead of inverse of control.
+ * for simple criteria queries, use this instead of inverse of control.
  * this will do proper error handling and descriptive exception
  * handling.  This will by default use the transaction modes
  * GrouperTransactionType.READONLY_OR_USE_EXISTING, and 
@@ -27,10 +27,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  *
  */
-public class ByHqlStatic {
+public class ByCriteriaStatic {
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(ByHqlStatic.class);
+  private static final Log LOG = LogFactory.getLog(ByCriteriaStatic.class);
 
   /** assign a transaction type, default use the transaction modes
    * GrouperTransactionType.READONLY_OR_USE_EXISTING, and 
@@ -48,7 +48,7 @@ public class ByHqlStatic {
    * @param theGrouperTransactionType
    * @return the same object for chaining
    */
-  public ByHqlStatic setGrouperTransactionType(GrouperTransactionType 
+  public ByCriteriaStatic setGrouperTransactionType(GrouperTransactionType 
       theGrouperTransactionType) {
     this.grouperTransactionType = theGrouperTransactionType;
     return this;
@@ -60,7 +60,7 @@ public class ByHqlStatic {
    * @param cacheable the cacheable to set
    * @return this object for chaining
    */
-  public ByHqlStatic setCacheable(Boolean cacheable) {
+  public ByCriteriaStatic setCacheable(Boolean cacheable) {
     this.cacheable = cacheable;
     return this;
   }
@@ -71,22 +71,11 @@ public class ByHqlStatic {
    */
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder("ByHqlStatic, query: '");
-    result.append(this.query).append("', cacheable: ").append(this.cacheable);
+    StringBuilder result = new StringBuilder("ByCriteriaStatic, persistentClass: '");
+    result.append(this.persistentClass).append("', criterions: ").append(this.criterions)
+      .append("', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
     result.append(", tx type: ").append(this.grouperTransactionType);
-    //dont use bindVarParams() method so it doesnt lazy load
-    if (this.bindVarNameParams != null) {
-      int index = 0;
-      int size = this.bindVarNameParams().size();
-      for (HibernateParam hibernateParam : this.bindVarNameParams()) {
-        result.append("Bind var[").append(index++).append("]: '");
-        result.append(hibernateParam);
-        if (index!=size-1) {
-          result.append(", ");
-        }
-      }
-    }
     return result.toString();
   }
   
@@ -96,77 +85,22 @@ public class ByHqlStatic {
   private String cacheRegion = null;
 
   /**
-   * map of params to attach to the query.
-   * access this with the bindVarNameParams method
+   * criterions to query
    */
-  private List<HibernateParam> bindVarNameParams = null;
+  private Criterion criterions = null;
 
   /**
-   * query to execute
+   * class to execute criteria on
    */
-  private String query = null;
+  private Class<?> persistentClass = null;
 
-  /**
-   * set the query to run
-   * @param theHqlQuery
-   * @return this object for chaining
-   */
-  public ByHqlStatic createQuery(String theHqlQuery) {
-    this.query = theHqlQuery;
-    return this;
-  }
-  
-  /**
-   * lazy load params
-   * @return the params map
-   */
-  private List<HibernateParam> bindVarNameParams() {
-    if (this.bindVarNameParams == null) {
-      this.bindVarNameParams = new ArrayList<HibernateParam>();
-    }
-    return this.bindVarNameParams;
-  }
-  
   /**
    * cache region for cache
    * @param cacheRegion the cacheRegion to set
    * @return this object for chaining
    */
-  public ByHqlStatic setCacheRegion(String cacheRegion) {
+  public ByCriteriaStatic setCacheRegion(String cacheRegion) {
     this.cacheRegion = cacheRegion;
-    return this;
-  }
-
-  /**
-   * assign data to the bind var
-   * @param bindVarName
-   * @param value
-   * @return this object for chaining
-   */
-  public ByHqlStatic setString(String bindVarName, String value) {
-    this.bindVarNameParams().add(new HibernateParam(bindVarName, value, String.class));
-    return this;
-  }
-  
-  /**
-   * assign data to the bind var
-   * @param bindVarName
-   * @param value is long, primitive so not null
-   * @return this object for chaining
-   */
-  public ByHqlStatic setLong(String bindVarName, long value) {
-    this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Long.class));
-    return this;
-  }
-
-  /**
-   * assign data to the bind var
-   * @param bindVarName
-   * @param value is long, primitive so not null
-   * @return this object for chaining
-   */
-  public ByHqlStatic setInteger(String bindVarName, int value) {
-    this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Integer.class));
     return this;
   }
 
@@ -184,11 +118,14 @@ public class ByHqlStatic {
    * 
    * </pre>
    * @param returnType type of the result (in future can use this for typecasting)
+   * @param theCriterions are the criterions to use (pack multiple with HibUtils.listCrit())
    * @param <T> is the template
    * @return the object or null if none found
    * @throws GrouperDAOException
    */
-  public <T> T uniqueResult(Class<T> returnType) throws GrouperDAOException {
+  public <T> T uniqueResult(Class<T> returnType, Criterion theCriterions) throws GrouperDAOException {
+    this.persistentClass = returnType;
+    this.criterions = theCriterions;
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
@@ -200,8 +137,8 @@ public class ByHqlStatic {
             public Object callback(HibernateSession hibernateSession) {
               
               Session session  = hibernateSession.getSession();
-              Query query = ByHqlStatic.this.attachQueryInfo(session);
-              Object object = query.uniqueResult();
+              Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
+              Object object = criteria.uniqueResult();
               HibUtils.evict(hibernateSession, session, object, true);
               return object;
             }
@@ -231,11 +168,14 @@ public class ByHqlStatic {
    *    .setCacheable(false).setString("group", uuid).list(Hib3GroupTypeTupleDAO.class);
    * </pre>
    * @param returnType type of the result (can typecast)
+   * @param theCriterions are the criterions to use (pack multiple with HibUtils.listCrit())
    * @param <T> is the template
    * @return the list or the empty list if not found (never null)
    * @throws GrouperDAOException
    */
-  public <T> List<T> list(Class<T> returnType) throws GrouperDAOException {
+  public <T> List<T> list(Class<T> returnType, Criterion theCriterions) throws GrouperDAOException {
+    this.persistentClass = returnType;
+    this.criterions = theCriterions;
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
@@ -247,9 +187,9 @@ public class ByHqlStatic {
             public Object callback(HibernateSession hibernateSession) {
               
               Session session  = hibernateSession.getSession();
-              Query query = ByHqlStatic.this.attachQueryInfo(session);
+              Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
               //not sure this can ever be null, but make sure not to make iterating results easier
-              List<Object> list = GrouperUtil.nonNull(query.list());
+              List<Object> list = GrouperUtil.nonNull(criteria.list());
               HibUtils.evict(hibernateSession, session, list, true);
               return list;
             }
@@ -268,33 +208,21 @@ public class ByHqlStatic {
   }
 
   /**
-   * prepare query based on hql
+   * prepare query based on criteria
    * @param session hib session
    * @return the query
    */
-  private Query attachQueryInfo(Session session) {
-    Query   query = session.createQuery(this.query);
-    if (this.cacheable != null) {
-      query.setCacheable(this.cacheable);
+  private Criteria attachCriteriaInfo(Session session) {
+    Criteria   query = session.createCriteria(this.persistentClass);
+    //add criterions
+    if (this.criterions != null) {
+      query.add(this.criterions);
     }
-    if (this.cacheRegion != null) {
-      query.setCacheRegion(this.cacheRegion);
+    if (ByCriteriaStatic.this.cacheable != null) {
+      query.setCacheable(ByCriteriaStatic.this.cacheable);
     }
-    //note, dont call the method bindVarNameParams() so it doesnt lazyload...
-    if (this.bindVarNameParams != null) {
-      for (HibernateParam hibernateParam : this.bindVarNameParams()) {
-        
-        if (String.class.equals(hibernateParam.getType())) {
-          query.setString(hibernateParam.getName(), (String)hibernateParam.getValue());
-        } else if (Long.class.equals(hibernateParam.getType())) {
-          query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
-        } else if (Integer.class.equals(hibernateParam.getType())) {
-          query.setInteger(hibernateParam.getName(), (Integer)hibernateParam.getValue());
-        } else {
-          throw new RuntimeException("Invalid bind var type: " 
-              + hibernateParam );
-        }
-      }
+    if (ByCriteriaStatic.this.cacheRegion != null) {
+      query.setCacheRegion(ByCriteriaStatic.this.cacheRegion);
     }
     return query;
     
@@ -304,8 +232,6 @@ public class ByHqlStatic {
    * constructor
    *
    */
-  ByHqlStatic() {}
-  
-  
+  ByCriteriaStatic() {}  
   
 }
