@@ -55,7 +55,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.8 2008-03-06 19:10:29 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.9 2008-03-12 12:42:59 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -625,14 +625,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   public boolean onSave(Session hs) 
     throws  CallbackException
   {
-    try {
-      this._updateAttributes(hs);
-      existsCache.put( this.getUuid(), true );
-      return Lifecycle.NO_VETO;
-    }
-    catch (HibernateException eH) {
-      throw new CallbackException( eH.getMessage(), eH );
-    }
+    existsCache.put( this.getUuid(), true );
+    return Lifecycle.NO_VETO;
   } 
 
   // @since   @HEAD@
