@@ -40,7 +40,7 @@ import  net.sf.hibernate.*;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: HibernateGroupDAO.java,v 1.18 2008-02-24 07:43:15 mchyzer Exp $
+ * @version $Id: HibernateGroupDAO.java,v 1.19 2008-03-12 12:42:59 shilen Exp $
  * @since   1.2.0
  */
 public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecycle {
@@ -639,14 +639,8 @@ public class HibernateGroupDAO extends HibernateDAO implements GroupDAO, Lifecyc
   public boolean onSave(Session hs) 
     throws  CallbackException
   {
-    try {
-      this._updateAttributes(hs);
-      existsCache.put( this.getUuid(), true );
-      return Lifecycle.NO_VETO;
-    }
-    catch (HibernateException eH) {
-      throw new CallbackException( eH.getMessage(), eH );
-    }
+    existsCache.put( this.getUuid(), true );
+    return Lifecycle.NO_VETO;
   } 
 
   // @since   1.2.0

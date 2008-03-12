@@ -37,7 +37,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import  java.util.Date;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
-import java.util.List;
+import  java.util.List;
+import  java.util.Map;
 import  java.util.Set;
 import  org.hibernate.*;
 
@@ -45,7 +46,7 @@ import  org.hibernate.*;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.3 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.4 2008-03-12 12:42:59 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -103,6 +104,19 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               Session       hs  = hibernateSession.getSession();
               Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_child);
               hs.save(dao);
+
+              // add attributes
+              Map.Entry kv;
+              Iterator attrIter = _child.getAttributes().entrySet().iterator();
+              while (attrIter.hasNext()) {
+                kv = (Map.Entry) attrIter.next();
+                Hib3AttributeDAO attrDao = new Hib3AttributeDAO();
+                attrDao.setAttrName( (String) kv.getKey() );
+                attrDao.setGroupUuid( _child.getUuid() );
+                attrDao.setValue( (String) kv.getValue() );
+                hs.save(attrDao);
+              }
+
               // add group-type tuples
               Hib3GroupTypeTupleDAO  tuple = new Hib3GroupTypeTupleDAO();
               Iterator                    it    = _child.getTypes().iterator();
