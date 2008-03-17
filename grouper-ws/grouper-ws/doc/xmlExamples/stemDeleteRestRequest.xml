@@ -1,8 +1,0 @@
-<ns1:stemDelete xmlns:ns1="http://webservices.grouper.middleware.internet2.edu/xsd">
-  <ns1:wsStemLookups>
-    <ns1:stemName>aStem:stemNotExist</ns1:stemName>
-  </ns1:wsStemLookups>
-  <ns1:actAsSubjectLookup>
-    <ns1:subjectId>GrouperSystem</ns1:subjectId>
-  </ns1:actAsSubjectLookup>
-</ns1:stemDelete>
