@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.2 2008-02-24 07:43:15 mchyzer Exp $ -->
+<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.3 2008-03-17 20:38:42 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3MemberDAO" table="grouper_members">
@@ -44,12 +44,11 @@
     <property 
       name="uuid"
       type="string"
-      unique="true"
     >
       <column name="member_uuid"
               not-null="true"
               length="128"
-              index="member_uuid_idx"
+              unique="true"
       />
     </property>
     <!-- uuid -->

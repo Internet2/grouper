@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GrouperSessionDAO.hbm.xml,v 1.2 2008-02-24 07:43:15 mchyzer Exp $ -->
+<!-- $Id: Hib3GrouperSessionDAO.hbm.xml,v 1.3 2008-03-17 20:38:42 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3GrouperSessionDAO" table="grouper_sessions">
@@ -45,8 +45,6 @@
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
     <property name="memberUuid"
               type="string"
-              not-null="true"
-              unique="false"
               update="false"
     >
       <column name="member_id"
@@ -68,11 +66,11 @@
     <!-- uuid -->
     <property name="uuid"
               type="string"
-              not-null="true"
-              unique="true"
     >
       <column name="session_uuid"
               length="128"
+              not-null="true"
+              unique="true"
       />
     </property>
     <!-- uuid -->
