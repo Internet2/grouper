@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupTypeTupleDAO.hbm.xml,v 1.2 2008-02-24 07:43:15 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupTypeTupleDAO.hbm.xml,v 1.3 2008-03-17 20:38:42 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3GroupTypeTupleDAO" table="grouper_groups_types">
@@ -44,8 +44,6 @@
     <!-- [@since 1.2.0] Refers to group's UUID, not ID -->
     <property name="groupUuid"
               type="string"
-              unique="false"
-              not-null="true"
     >
       <column name="group_uuid"
               not-null="true"
@@ -60,8 +58,6 @@
     <!-- [@since 1.2.0] Refers to type's UUID, not ID -->
     <property name="typeUuid"
               type="string"
-              unique="false"
-              not-null="true"
     >
       <column name="type_uuid"
               not-null="true"

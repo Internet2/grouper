@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.3 2008-02-24 07:43:15 mchyzer Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.4 2008-03-17 20:38:42 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
@@ -45,8 +45,6 @@
     <!-- [@since 1.2.0] Refers to owner's UUID, not ID -->
     <property name="ownerUuid"
               type="string"
-              not-null="true"
-              unique="false"
               update="false"
     >
       <column name="owner_id"
@@ -62,8 +60,6 @@
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
     <property name="memberUuid"
               type="string"
-              not-null="true"
-              unique="false"
               update="false"
     >
       <column name="member_id"
@@ -78,8 +74,6 @@
     <!-- listName -->
     <property name="listName"
               type="string"
-              not-null="true"
-              unique="false"
               update="false"
     >
       <column name="list_name"
@@ -94,8 +88,6 @@
     <!-- listType -->
     <property name="listType"
               type="string"
-              not-null="true"
-              unique="false"
               update="false"
     >
       <column name="list_type"
@@ -110,7 +102,6 @@
     <!-- type -->
     <property name="type"
               type="string"
-              not-null="true"
               update="false"
     >
       <column name="mship_type"
@@ -125,13 +116,12 @@
     <!-- [@since 1.2.0] Refers to parent's UUID, not ID -->
     <property name="viaUuid"
               type="string"
-              not-null="false"
-              unique="false"
               update="false"
     >
       <column name="via_id"
               index="membership_via_idx"
               length="128"
+              not-null="false"
       />
     </property>
     <!-- viaUuid -->
@@ -139,10 +129,10 @@
     <!-- depth -->
     <property name="depth"
               type="integer"
-              not-null="true"
     >
       <column name="depth"
               sql-type="int"
+              not-null="true"
               unique-key="members_idx"
               index="membership_depth_idx"
       />
@@ -153,13 +143,12 @@
     <!-- [@since 1.2.0] Refers to parent's UUID, not ID -->
     <property name="parentUuid"
               type="string"
-              not-null="false"
-              unique="false"
               update="false"
     >
       <column name="parent_membership"
               index="membership_parent_idx"
               length="128"
+              not-null="false"
       />
     </property>
     <!-- parentUuid -->
@@ -168,14 +157,13 @@
     <property 
       name="uuid"
       type="string"
-      not-null="true"
-      unique="true"
       update="true"
     >
       <column name="membership_uuid"
               unique-key="members_idx"
-              index="membership_uuid_idx"
+              unique="true"
               length="128"
+              not-null="true"
       />
     </property>
     <!-- uuid -->
@@ -184,13 +172,12 @@
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
     <property name="creatorUuid"
               type="string"
-              not-null="false"
-              unique="false"
               update="false"
     >
       <column name="creator_id"
               index="membership_creator_idx"
               length="128"
+              not-null="false"
       />
     </property>
     <!-- creatorUuid -->
@@ -198,11 +185,11 @@
     <!-- createTime -->
     <property name="createTime"
               type="long"
-              not-null="true"
               update="false"
     >
       <column name="create_time"
               index="membership_createtime_idx"
+              not-null="true"
       />
     </property>
     <!-- createTime -->
