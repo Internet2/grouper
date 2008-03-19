@@ -18,6 +18,8 @@ package edu.internet2.middleware.grouper;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * save mode for static saves.  insert only (exception if update),
  * update only (exception on insert), and insert or update doesnt matter.
@@ -46,6 +48,26 @@ public enum SaveMode {
     public boolean allowedToInsert() {
       return true;
     }
+    /**
+     * if there is a uuid, validate it for this
+     * @param name
+     */
+    @Override
+    public void validateNameToEdit(String name) {
+      GrouperUtil.assertion(StringUtils.isBlank(name), "Must not pass in a name for an insert");
+    }
+    
+    /**
+     * if update based on SaveMode
+     * @param nameToEdit 
+     * @return true if this is an update
+     */
+    @Override
+    public boolean isUpdate(String nameToEdit) {
+      this.validateNameToEdit(nameToEdit);
+      return false;
+    }
+
   }, 
   
   /** update only, if not exist, then exception */
@@ -68,6 +90,26 @@ public enum SaveMode {
     public boolean allowedToInsert() {
       return false;
     }
+    /**
+     * if there is a uuid, validate it for this
+     * @param name
+     */
+    @Override
+    public void validateNameToEdit(String name) {
+      GrouperUtil.assertion(!StringUtils.isBlank(name), "Must pass in a name for an update");
+    }
+    
+    /**
+     * if update based on SaveMode
+     * @param nameToEdit 
+     * @return true if this is an update
+     */
+    @Override
+    public boolean isUpdate(String nameToEdit) {
+      this.validateNameToEdit(nameToEdit);
+      return true;
+    }
+
   },
   
   /** it will insert or update depending if exsits or not */
@@ -91,6 +133,25 @@ public enum SaveMode {
       return true;
     }
     
+    /**
+     * if there is a uuid, validate it for this
+     * @param name
+     */
+    @Override
+    public void validateNameToEdit(String name) {
+      //nothing to do, anything is fine
+    }
+
+    /**
+     * if update based on SaveMode
+     * @param nameToEdit 
+     * @return true if this is an update
+     */
+    @Override
+    public boolean isUpdate(String nameToEdit) {
+      this.validateNameToEdit(nameToEdit);
+      return !StringUtils.isBlank(nameToEdit);
+    }
 
   };
   
@@ -101,10 +162,23 @@ public enum SaveMode {
   public abstract boolean allowedToUpdate();
   
   /**
+   * if update based on SaveMode
+   * @param nameToEdit 
+   * @return true if this is an update
+   */
+  public abstract boolean isUpdate(String nameToEdit);
+  
+  /**
    * if allowed to insert
    * @return true if allowed to insert
    */
   public abstract boolean allowedToInsert();
+  
+  /**
+   * if there is a uuid, validate it for this
+   * @param name
+   */
+  public abstract void validateNameToEdit(String name);
   
   /**
    * do a case-insensitive matching

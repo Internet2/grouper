@@ -40,7 +40,7 @@ public class HibernateSession {
    * applicable), and a transaction type. If these conflict, then throw grouper
    * dao exception exception
    * 
-   * @param hibernateSession
+   * @param parentHibernateSession is the parent session
    *          if exists
    * @param grouperTransactionType
    *          that this was created with
@@ -48,25 +48,31 @@ public class HibernateSession {
    *           if something conflicts (e.g. read/write if exists, and exists is
    *           readonly
    */
-  private HibernateSession(HibernateSession hibernateSession,
+  private HibernateSession(HibernateSession parentHibernateSession,
       GrouperTransactionType grouperTransactionType) throws GrouperDAOException {
 
     this.immediateGrouperTransactionTypeDeclared = grouperTransactionType;
-    if (!grouperTransactionType.isNewAutonomous()) {
-      this.parentSession = hibernateSession;
-      if (this.parentSession != null) {
-        //make sure the transaction types jive with each other
-        this.immediateGrouperTransactionTypeDeclared.checkCompatibility(
-            this.parentSession.getGrouperTransactionType());
-      }
+    
+    //if parent is none, then make sure this is a new transaction (not dependent on none)
+    if (parentHibernateSession != null && !grouperTransactionType.isNewAutonomous() && 
+        parentHibernateSession.activeHibernateSession().immediateGrouperTransactionTypeUsed.isTransactional()) {
+
+      //if there is a parent, then it is inherited.  even if not autonomous, only inherit if not parent of none
+      this.parentSession = parentHibernateSession;
+    
+      //make sure the transaction types jive with each other
+      this.immediateGrouperTransactionTypeDeclared.checkCompatibility(
+          this.parentSession.getGrouperTransactionType());
     }
     
     if (this.isNewHibernateSession()) {
       this.immediateGrouperTransactionTypeUsed = grouperTransactionType
           .grouperTransactionTypeToUse();
 
-      // need a hibernate session
-      this.immediateSession = GrouperDAOFactory.getFactory().getSession();
+      // need a hibernate session (note, if none, then we dont need a session?)
+      if (!GrouperTransactionType.NONE.equals(grouperTransactionType)) {
+        this.immediateSession = GrouperDAOFactory.getFactory().getSession();
+      }
 
       // if not readonly, declare a transaction
       if (!this.immediateGrouperTransactionTypeUsed.isReadonly()) {
@@ -185,7 +191,8 @@ public class HibernateSession {
    *          will get the callback
    * @return the object returned from the callback
    * @throws GrouperDAOException
-   *           if there is a problem
+   *           if there is a problem, will preserve runtime exceptions so they are
+   *           thrown to the caller
    */
   public static Object callbackHibernateSession(
       GrouperTransactionType grouperTransactionType, HibernateHandler hibernateHandler)
@@ -195,7 +202,7 @@ public class HibernateSession {
 
     try {
       hibernateSession = new HibernateSession(hibernateSession, grouperTransactionType);
-
+      
       ret = hibernateHandler.callback(hibernateSession);
 
       //since we have long running transactions, we need to flush our work,
@@ -204,7 +211,7 @@ public class HibernateSession {
 
       //if we are readonly, and we have work, then that is bad
       if (hibernateSession.isReadonly() 
-          && hibernateSession.activeHibernateSession().immediateSession.isDirty()) {
+          && session != null && session.isDirty()) {
         
         throw new RuntimeException("Hibernate session is readonly, but some committable work was done!");
       }
@@ -219,7 +226,7 @@ public class HibernateSession {
       } else {
         //only do this if a nested transaction
         
-        if (!hibernateSession.isNewHibernateSession()) {
+        if (session != null && !hibernateSession.isNewHibernateSession()) {
           //put all the queries on the wire
           session.flush();
   
@@ -250,7 +257,7 @@ public class HibernateSession {
       }
       // if runtime, then rethrow
       if (e instanceof RuntimeException) {
-        // note, it would be nice to get this in the exception
+        // note, it would be nice to get this in the exception, but also nice to preserve the original exception
         LOG.error(errorString);
         throw (RuntimeException) e;
       }

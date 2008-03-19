@@ -18,15 +18,26 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestMemberOf.java,v 1.8 2008-03-19 20:43:24 mchyzer Exp $
  */
 public class TestMemberOf extends TestCase {
+
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    TestRunner.run(new TestMemberOf("testHasMemberViaTwoPaths"));
+  }
 
   // Private Class Constants
   private static final Log        LOG   = LogFactory.getLog(TestMemberOf.class); 

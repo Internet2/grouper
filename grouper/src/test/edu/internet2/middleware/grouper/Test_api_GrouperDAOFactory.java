@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
 
@@ -24,7 +25,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
  * Test {@link GrouperDAOFactory}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperDAOFactory.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_api_GrouperDAOFactory.java,v 1.4 2008-03-19 20:43:24 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperDAOFactory extends GrouperTest {
@@ -33,6 +34,28 @@ public class Test_api_GrouperDAOFactory extends GrouperTest {
   private String            invalid = "this class does not exist";
   private String            prop    = "dao.factory";
 
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    TestRunner.run(new Test_api_GrouperDAOFactory("test_getFactory_returnDefaultFactoryWhenNotConfigured"));
+  }
+
+  /**
+   * 
+   */
+  public Test_api_GrouperDAOFactory() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_api_GrouperDAOFactory(String name) {
+    super(name);
+  }
 
   public void setUp() {
     super.setUp();

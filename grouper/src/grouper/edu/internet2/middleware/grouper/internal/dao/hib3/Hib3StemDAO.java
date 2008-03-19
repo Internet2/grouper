@@ -16,37 +16,39 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.ErrorLog;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.DefaultMemberOf;
-import  edu.internet2.middleware.grouper.Stem;
-import  edu.internet2.middleware.grouper.StemNotFoundException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
+import edu.internet2.middleware.grouper.DefaultMemberOf;
+import edu.internet2.middleware.grouper.ErrorLog;
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import edu.internet2.middleware.grouper.internal.util.Rosetta;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
-import  java.util.Date;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.List;
-import  java.util.Map;
-import  java.util.Set;
-import  org.hibernate.*;
 
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.4 2008-03-12 12:42:59 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.5 2008-03-19 20:43:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -85,9 +87,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   private String  parentUUID;
   /** */
   private String  uuid;
-
-
-  // PUBLIC INSTANCE METHODS //
 
   /**
    * @since   @HEAD@
@@ -587,7 +586,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     return this.extension;
   }
 
-  /** 
+  /**
    * @since   @HEAD@
    */
   public String getId() {
@@ -649,12 +648,17 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               Session     hs  = hibernateSession.getSession();
               Iterator it = mof.getDeletes().iterator();
               while (it.hasNext()) {
-                hs.delete( Rosetta.getDAO( it.next() ) );
+                GrouperDAO grouperDAO = Rosetta.getDAO( it.next());
+                hs.delete(  grouperDAO );
               }
+              hs.flush();
+              
               it = mof.getSaves().iterator();
               while (it.hasNext()) {
                 hs.saveOrUpdate( it.next() );
               }
+              hs.flush();
+              
               hs.update( _ns.getDAO() );
               return null;
             }
@@ -870,7 +874,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       .setParameter("stem", Stem.DELIM)
       .executeUpdate()
       ;
-  } 
+  }
 
 } 
 

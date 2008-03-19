@@ -16,11 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_addCompositeMember.java,v 1.3 2007-05-31 19:01:11 blair Exp $
+ * @version $Id: Test_I_API_Group_addCompositeMember.java,v 1.4 2008-03-19 20:43:24 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_addCompositeMember extends GrouperTest {
@@ -97,7 +99,7 @@ public class Test_I_API_Group_addCompositeMember extends GrouperTest {
       gC.addCompositeMember( CompositeType.UNION, gA, gB );
     }
     catch (Exception eShouldNotHappen) {
-      fail( "ERROR INITIALIZING TEST: " + eShouldNotHappen.getMessage() );
+      fail( "ERROR INITIALIZING TEST: " + ExceptionUtils.getFullStackTrace(eShouldNotHappen));
     }
     assertTrue( "gD has immediate gC",    gD.hasImmediateMember( gC.toSubject() ) );
     assertTrue( "gD has effective subjX", gD.hasEffectiveMember( subjX ) );

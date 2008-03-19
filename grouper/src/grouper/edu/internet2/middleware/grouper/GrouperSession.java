@@ -16,30 +16,37 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import  edu.internet2.middleware.grouper.privs.AccessResolver;
-import  edu.internet2.middleware.grouper.privs.AccessResolverFactory;
-import  edu.internet2.middleware.grouper.privs.NamingResolver;
-import  edu.internet2.middleware.grouper.privs.NamingResolverFactory;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.Realize;
-import  edu.internet2.middleware.subject.*;
-import  java.util.Date;
+import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
-import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.lang.time.*;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.privs.AccessResolver;
+import edu.internet2.middleware.grouper.privs.AccessResolverFactory;
+import edu.internet2.middleware.grouper.privs.NamingResolver;
+import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
+import edu.internet2.middleware.subject.Subject;
 
 
 /** 
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.75 2008-01-14 07:36:49 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.76 2008-03-19 20:43:24 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperSession.class);
 
   private AccessAdapter   access;         // TODO 20070816 eliminate
   private AccessResolver  accessResolver;
@@ -61,6 +68,20 @@ public class GrouperSession extends GrouperAPI {
     this.rootSession  = null;
   } 
 
+  /**
+   * stop a session quietly
+   * @param session
+   */
+  public static void stopQuietly(GrouperSession session) {
+    if (session != null) {
+      try {
+        session.stop();
+      } catch (Exception e) {
+        LOG.error(e);
+      }
+    }
+
+  }
   
   // PUBLIC CLASS METHODS //
 

@@ -27,7 +27,7 @@ import  org.hibernate.cfg.*;
  * Base Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.3 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.4 2008-03-19 20:43:24 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {
@@ -35,7 +35,6 @@ abstract class Hib3DAO {
   // PRIVATE CLASS CONSTANTS //
   private static final Configuration  CFG;
   private static final SessionFactory FACTORY;
-
 
   // STATIC //
   static {
@@ -87,7 +86,7 @@ abstract class Hib3DAO {
    * DONT CALL THIS METHOD, IT IS FOR INTERNAL GROUPER FRAMEWORK USE
    * ONLY.  Use the HibernateSession callback to get a hibernate Session
    * object
-   * @return
+   * @return the session
    * @throws HibernateException
    */
 	public static Session session()

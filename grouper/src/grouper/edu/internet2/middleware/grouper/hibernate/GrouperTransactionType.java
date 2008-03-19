@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 /**
@@ -18,13 +20,22 @@ public enum GrouperTransactionType {
   READONLY_OR_USE_EXISTING {
     
     /**
+     * if there is a transaction (e.g. not NONE)
+     * @return the transaction type
+     */
+    @Override
+    public boolean isTransactional() {
+      return true;
+    }
+
+    /**
      * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
      * know if readonly or not...
      * @return true if known readonly, false, if known read_write
      */
     @Override
     public boolean isReadonly() {
-      throw new RuntimeException("The transaction type if " + this + " so it is not known if" +
+      throw new RuntimeException("The transaction type is " + this + " so it is not known if" +
       		" readonly or not!");
     }
     
@@ -59,11 +70,74 @@ public enum GrouperTransactionType {
     }
   },
   
+  /** even if in a current tx, do not use transactions */
+  NONE {
+    
+    /**
+     * if there is a transaction (e.g. not NONE)
+     * @return the transaction type
+     */
+    @Override
+    public boolean isTransactional() {
+      return false;
+    }
+
+    /**
+     * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
+     * know if readonly or not...
+     * @return true if known readonly, false, if known read_write
+     */
+    @Override
+    public boolean isReadonly() {
+      //none should not have any work in it, but if so, then readonly
+      return true;
+    }
+    
+    /**
+     * return if new autonomous transaction
+     * @return true if known readonly, false, if known read_write
+     */
+    @Override
+    public boolean isNewAutonomous() {
+      return true;
+    }
+    
+    /**
+     * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
+     * know if readonly or not...
+     * @param existingGrouperTransactionType if null, no parent, if not, then this is the enclosing
+     * type
+     * @throws GrouperDAOException if there is a compatibility problem
+     */
+    @Override
+    public void checkCompatibility(GrouperTransactionType existingGrouperTransactionType)
+      throws GrouperDAOException {
+      
+      //if the underlying is readonly or not, we are fine...
+    }
+    /**
+     * convert the declared tx type to one that is not "if exists"...
+     * @return the type to use (e.g. not an if exists one)
+     */
+    public GrouperTransactionType grouperTransactionTypeToUse() {
+      return NONE;
+    }
+  },
+  
   /** even if in the middle of a transaction, create a new readonly autonomous nested transaction.  Code
    * in this state cannot commit or rollback.
    */
   READONLY_NEW {
     
+    /**
+     * if there is a transaction (e.g. not NONE)
+     * @return the transaction type
+     */
+    @Override
+    public boolean isTransactional() {
+      return true;
+    }
+
     /**
      * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
      * know if readonly or not...
@@ -117,6 +191,15 @@ public enum GrouperTransactionType {
   READ_WRITE_OR_USE_EXISTING {
     
     /**
+     * if there is a transaction (e.g. not NONE)
+     * @return the transaction type
+     */
+    @Override
+    public boolean isTransactional() {
+      return true;
+    }
+
+    /**
      * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
      * know if readonly or not...
      * @return true if known readonly, false, if known read_write
@@ -169,6 +252,15 @@ public enum GrouperTransactionType {
   READ_WRITE_NEW {
     
     /**
+     * if there is a transaction (e.g. not NONE)
+     * @return the transaction type
+     */
+    @Override
+    public boolean isTransactional() {
+      return true;
+    }
+
+    /**
      * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
      * know if readonly or not...
      * @return true if known readonly, false, if known read_write
@@ -210,6 +302,30 @@ public enum GrouperTransactionType {
   };
   
   /**
+   * do a case-insensitive matching
+   * 
+   * @param string
+   * @return the enum or null or exception if not found
+   */
+  public static GrouperTransactionType valueOfIgnoreCase(String string) {
+    if (StringUtils.isBlank(string)) {
+      return null;
+    }
+    for (GrouperTransactionType grouperTransactionType : GrouperTransactionType.values()) {
+      if (StringUtils.equalsIgnoreCase(string, grouperTransactionType.name())) {
+        return grouperTransactionType;
+      }
+    }
+    StringBuilder error = new StringBuilder(
+        "Cant find grouperTransactionType from string: '").append(string);
+    error.append("', expecting one of: ");
+    for (GrouperTransactionType grouperTransactionType : GrouperTransactionType.values()) {
+      error.append(grouperTransactionType.name()).append(", ");
+    }
+    throw new RuntimeException(error.toString());
+  }
+
+  /**
    * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
    * know if readonly or not...
    * @return true if known readonly, false, if known read_write
@@ -222,6 +338,12 @@ public enum GrouperTransactionType {
    */
   public abstract boolean isNewAutonomous();
 
+  /**
+   * if there is a transaction (e.g. not NONE)
+   * @return the transaction type
+   */
+  public abstract boolean isTransactional();
+  
   /**
    * return if readonly.  note if readonly_if_not_exist it will throw exception since it doesnt 
    * know if readonly or not...

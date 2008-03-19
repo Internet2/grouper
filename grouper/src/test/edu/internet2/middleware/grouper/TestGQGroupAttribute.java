@@ -19,10 +19,10 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 
 /**
- * Test {@link GroupAttributeFilter}.
+ * Test {@link GruopAttributeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupAttribute.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGQGroupAttribute.java,v 1.7 2008-03-19 20:43:24 mchyzer Exp $
  */
 public class TestGQGroupAttribute extends TestCase {
 
