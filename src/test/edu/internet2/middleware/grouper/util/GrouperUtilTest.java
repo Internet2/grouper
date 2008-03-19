@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.1 2008-03-06 19:10:29 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.2 2008-03-19 20:43:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -13,7 +13,17 @@ import junit.framework.TestCase;
  *
  */
 public class GrouperUtilTest extends TestCase {
-
+  
+  /**
+   * 
+   * @param args
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new TestGroup0("testStaticSaveGroupTransactions"));
+    //TestRunner.run(TestGroup0.class);
+    //runPerfProblem();
+  }
   /**
    * @param name
    */

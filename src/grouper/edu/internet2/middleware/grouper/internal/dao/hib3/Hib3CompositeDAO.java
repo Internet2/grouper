@@ -16,26 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.CompositeNotFoundException;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
+import edu.internet2.middleware.grouper.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import java.util.List;
-import  java.util.Set;
-import  org.hibernate.*;
+import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.util.Rosetta;
 
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.3 2008-03-19 20:43:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
@@ -249,19 +253,29 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
             
             Iterator it = toDelete.iterator();
             while (it.hasNext()) {
-              hs.delete( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.delete( grouperDAO );
             } 
+            hs.flush();
+            
             it = toAdd.iterator();
             while (it.hasNext()) {
-              hs.save( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.save( grouperDAO );
             }
+            hs.flush();
+
             it = modGroups.iterator();
             while (it.hasNext()) {
-              hs.update( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.update( grouperDAO );
             }
+            hs.flush();
+
             it = modStems.iterator();
             while (it.hasNext()) {
-              hs.update( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.update( grouperDAO );
             }
             return null;
           }

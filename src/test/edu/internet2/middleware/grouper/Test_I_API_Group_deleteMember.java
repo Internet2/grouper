@@ -16,14 +16,26 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
+import junit.textui.TestRunner;
 import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteMember.java,v 1.2 2007-05-31 19:01:11 blair Exp $
+ * @version $Id: Test_I_API_Group_deleteMember.java,v 1.3 2008-03-19 20:43:24 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteMember extends GrouperTest {
+
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    TestRunner.run(new Test_I_API_Group_deleteMember("test_DeleteSubjectsRemovedFromFactorsFromWhereTheyAreEffective"));
+  }
 
   // PRIVATE INSTANCE VARIABLES //
   private Group           gA, gB, gC, gD;
@@ -34,6 +46,20 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
 
 
   // TESTING INFRASTRUCTURE //
+
+  /**
+   * 
+   */
+  public Test_I_API_Group_deleteMember() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_I_API_Group_deleteMember(String name) {
+    super(name);
+  }
 
   public void setUp() {
     super.setUp();
@@ -91,7 +117,7 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
       gA.deleteMember(subjX);
     }
     catch (Exception eShouldNotHappen) {
-      fail( "ERROR INITIALIZING TEST: " + eShouldNotHappen.getMessage() );
+      fail( "ERROR INITIALIZING TEST: " + ExceptionUtils.getFullStackTrace(eShouldNotHappen) );
     }
     assertFalse( "gC !has subjX", gC.hasMember(subjX) );
     assertTrue(  "gC has subjY",  gC.hasMember(subjY) );

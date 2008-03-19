@@ -28,7 +28,7 @@ public class Hib3TransactionDAO implements TransactionDAO {
   }
 
   /**
-   *
+   * any runtime exceptions will propagate to the outer method call
    * @see edu.internet2.middleware.grouper.internal.dao.TransactionDAO#transactionCallback(edu.internet2.middleware.grouper.hibernate.GrouperTransactionType, edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler, edu.internet2.middleware.grouper.hibernate.GrouperTransaction)
    */
   public Object transactionCallback(

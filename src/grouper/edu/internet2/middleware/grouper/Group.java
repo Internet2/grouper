@@ -46,10 +46,19 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.176 2008-03-06 19:10:29 mchyzer Exp $
+ * @version $Id: Group.java,v 1.177 2008-03-19 20:43:24 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
+  /**
+   * if this is a composite group, get the composite object for this group
+   * @return the composite group
+   * @throws CompositeNotFoundException if composite not found
+   */
+  public Composite getComposite() throws CompositeNotFoundException {
+    return CompositeFinder.findAsOwner(this);
+  }
+  
   /**
    * <pre>
    * create or update a group.  Note this will not rename a group.

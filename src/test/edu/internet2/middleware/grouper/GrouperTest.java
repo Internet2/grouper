@@ -22,13 +22,14 @@ import  java.util.Date;
 import  junit.framework.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import  org.apache.commons.logging.*;
 
 /**
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.2 2008-02-15 09:02:00 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.3 2008-03-19 20:43:24 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -487,7 +488,7 @@ public class GrouperTest extends TestCase {
    */
   public void unexpectedException(Exception e) {
     e.printStackTrace();
-    fail( "UNEXPECTED EXCEPTION: " + e.getMessage() );
+    fail( "UNEXPECTED EXCEPTION: " + ExceptionUtils.getFullStackTrace(e) );
   } // public void unexpectedException(e)
 
 

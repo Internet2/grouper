@@ -17,12 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 
+import junit.textui.TestRunner;
+
 
 /**
  * Test {@link ChildGroupFilter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_ChildGroupFilter.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_api_ChildGroupFilter.java,v 1.4 2008-03-19 20:43:24 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_ChildGroupFilter extends GrouperTest {
@@ -30,6 +32,34 @@ public class Test_api_ChildGroupFilter extends GrouperTest {
 
   private GrouperSession  s;
   private Stem            child, root, top;
+
+  /**
+   * 
+   */
+  public Test_api_ChildGroupFilter() {
+    super();
+  }
+
+
+  /**
+   * @param name
+   */
+  public Test_api_ChildGroupFilter(String name) {
+    super(name);
+  }
+
+
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new TestGroup0("testStaticSaveGroupTransactions"));
+    //TestRunner.run(TestGroup0.class);
+    //runPerfProblem();
+    TestRunner.run(new Test_api_ChildGroupFilter("test_Constructor_nullStem"));
+  }
 
 
   public void setUp() {

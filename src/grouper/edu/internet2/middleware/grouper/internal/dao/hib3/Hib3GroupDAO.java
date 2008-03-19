@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
@@ -55,7 +56,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.9 2008-03-12 12:42:59 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.10 2008-03-19 20:43:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -116,8 +117,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             // delete memberships
             Iterator it = mships.iterator();
             while (it.hasNext()) {
-              hs.delete( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.delete( grouperDAO );
             }
+            hs.flush();
+            
             // delete attributes
             Query qry = hs.createQuery("delete from Hib3AttributeDAO where group_id = :group");
             qry.setString("group", _g.getUuid() );
@@ -654,12 +658,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             Session hs  = hibernateSession.getSession();
             Iterator it = mof.getDeletes().iterator();
             while (it.hasNext()) {
-              hs.delete( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.delete( grouperDAO );
             }
+            hs.flush();
+            
             it = mof.getSaves().iterator();
             while (it.hasNext()) {
-              hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.saveOrUpdate( grouperDAO);
             }
+            hs.flush();
+            
             hs.update( Rosetta.getDAO(_g) );
             return null;
           }
