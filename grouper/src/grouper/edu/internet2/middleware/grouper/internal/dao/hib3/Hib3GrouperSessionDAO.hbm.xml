@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GrouperSessionDAO.hbm.xml,v 1.3 2008-03-17 20:38:42 shilen Exp $ -->
+<!-- $Id: Hib3GrouperSessionDAO.hbm.xml,v 1.3.2.1 2008-03-19 18:46:10 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3GrouperSessionDAO" table="grouper_sessions">
@@ -31,15 +31,19 @@
     <cache usage="read-write"/>
 
     <!-- id -->
-    <id name="id" 
+    <id name="uuid"  column="id" unsaved-value="none"
         type="string"
-        unsaved-value="null"
         length="128"
     >
-      <meta attribute="use-in-tostring">false</meta>
-      <generator class="uuid.hex"/>
+      <!--  generator class="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3IdentifierGenerator"/ -->
+      <generator class="assigned" />
     </id>
     <!-- id -->
+
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <property name="hibernateVersion" column="hibernate_version" 
+           not-null="true"
+    />
 
     <!-- memberUuid -->
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
@@ -62,18 +66,6 @@
               update="false"
     />
     <!-- startTime -->
-
-    <!-- uuid -->
-    <property name="uuid"
-              type="string"
-    >
-      <column name="session_uuid"
-              length="128"
-              not-null="true"
-              unique="true"
-      />
-    </property>
-    <!-- uuid -->
 
   </class>
 </hibernate-mapping>

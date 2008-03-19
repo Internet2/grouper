@@ -7,6 +7,7 @@ import java.lang.reflect.Array;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Junction;
@@ -19,6 +20,54 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class HibUtils {
+
+  
+  /**
+   * find the property index based on property name
+   * @param propertyNames
+   * @param propertyName e.g. userId
+   * @return the index (0 based) in the data arrays where the object is
+   */
+  public static int propertyIndex(String[] propertyNames, String propertyName) {
+    int propertiesSize = GrouperUtil.length(propertyNames);
+    for (int i=0;i<propertiesSize;i++) {
+      if (StringUtils.equals(propertyNames[i], propertyName)) {
+        return i;
+      }
+    }
+    throw new RuntimeException("Cant find property: " + propertyName 
+        + " in list: " + GrouperUtil.toStringForLog(propertyNames));
+  }
+
+  /**
+   * assign a property in hibernates arrays of states
+   * @param state
+   * @param propertyNames
+   * @param propertyName
+   * @param propertyValue
+   */
+  public static void assignProperty(Object[] state, String[] propertyNames, 
+      String propertyName, Object propertyValue) {
+    //first find which index
+    int propertyIndex = propertyIndex(propertyNames, propertyName);
+    //next assign the value
+    state[propertyIndex] = propertyValue;
+  }
+  
+  /**
+   * find a property value in hibernates arrays of states
+   * @param state
+   * @param propertyNames
+   * @param propertyName
+   * @return the object
+   */
+  public static Object propertyValue(Object[] state, String[] propertyNames, 
+      String propertyName) {
+    //first find which index
+    int propertyIndex = propertyIndex(propertyNames, propertyName);
+    //next get the value
+    return state[propertyIndex];
+  }
 
   /**
    * close a prepared statement

@@ -16,27 +16,47 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>GrouperSession</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDTO.java,v 1.10 2007-04-19 19:40:17 blair Exp $
+ * @version $Id: GrouperSessionDTO.java,v 1.10.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class GrouperSessionDTO implements GrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
-  private String          id;
   private String          memberUUID;
   private long            startTime;
   private Subject         subject;
   private String          uuid;
+  private long hibernateVersion = -1;
 
+
+  
+  /**
+   * @return the hibernateVersion
+   */
+  public long getHibernateVersion() {
+    return this.hibernateVersion;
+  }
+
+  
+  /**
+   * @param hibernateVersion the hibernateSession to set
+   */
+  public GrouperSessionDTO setHibernateVersion(long hibernateVersion) {
+    this.hibernateVersion = hibernateVersion;
+    return this;
+  }
 
   // PUBLIC INSTANCE METHODS //
   /**
@@ -62,20 +82,13 @@ public class GrouperSessionDTO implements GrouperDTO {
    */
   public GrouperDAO getDAO() {
     return GrouperDAOFactory.getFactory().getGrouperSession()
-      .setId( this.getId() )
+      .setHibernateVersion(this.getHibernateVersion())
       .setMemberUuid( this.getMemberUuid() )
       .setStartTime( this.getStartTime() )
       .setUuid( this.getUuid() )
       ;
   }
   
-  /**
-   * @since   1.2.0
-   */
-  public String getId() {
-    return this.id;
-  } 
-
   /**
    * @since   1.2.0
    */
@@ -114,14 +127,6 @@ public class GrouperSessionDTO implements GrouperDTO {
       .append( this.getUuid()       )
       .toHashCode();
   } // public int hashCode()
-
-  /**
-   * @since   1.2.0
-   */
-  public GrouperSessionDTO setId(String id) {
-    this.id = id;
-    return this;
-  }
 
   /**
    * @since   1.2.0

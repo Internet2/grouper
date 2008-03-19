@@ -16,17 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 
 /** 
  * Basic <code>GroupType</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupTypeDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: GroupTypeDTO.java,v 1.4.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class GroupTypeDTO implements GrouperDTO {
@@ -35,9 +39,9 @@ public class GroupTypeDTO implements GrouperDTO {
   private String  creatorUUID;
   private long    createTime;
   private Set     fields;
+  private long hibernateVersion = -1;
   private boolean isAssignable  = true;
   private boolean isInternal    = false;
-  private String  id;
   private String  name;
   private String  uuid;
 
@@ -85,7 +89,7 @@ public class GroupTypeDTO implements GrouperDTO {
       .setCreateTime( this.getCreateTime() )
       .setCreatorUuid( this.getCreatorUuid() )
       .setFields( this.getFields() )
-      .setId( this.getId() )
+      .setHibernateVersion(this.getHibernateVersion())
       .setIsAssignable( this.getIsAssignable() )
       .setIsInternal( this.getIsInternal() )
       .setName( this.getName() )
@@ -112,13 +116,6 @@ public class GroupTypeDTO implements GrouperDTO {
    */ 
   public boolean getIsInternal() {
     return this.isInternal;
-  }
- 
-  /**
-   * @since   1.2.0
-   */ 
-  public String getId() {
-    return this.id;
   }
  
   /**
@@ -187,14 +184,6 @@ public class GroupTypeDTO implements GrouperDTO {
   /**
    * @since   1.2.0
    */ 
-  public GroupTypeDTO setId(String id) {
-    this.id = id;
-    return this;
-  }
-  
-  /**
-   * @since   1.2.0
-   */ 
   public GroupTypeDTO setName(String name) {
     this.name = name;
     return this;
@@ -232,12 +221,29 @@ public class GroupTypeDTO implements GrouperDTO {
       .setCreateTime( dao.getCreateTime() )
       .setCreatorUuid( dao.getCreatorUuid() )
       .setFields( dao.getFields() )
-      .setId( dao.getId() )
+      .setHibernateVersion(dao.getHibernateVersion())
       .setIsAssignable( dao.getIsAssignable() )
       .setIsInternal( dao.getIsInternal() )
       .setName( dao.getName() )
       .setUuid( dao.getUuid() )
       ;
+  }
+
+  
+  /**
+   * @return the hibernateVersion
+   */
+  public long getHibernateVersion() {
+    return this.hibernateVersion;
+  }
+
+  
+  /**
+   * @param hibernateVersion the hibernateVersion to set
+   */
+  public GroupTypeDTO setHibernateVersion(long hibernateVersion) {
+    this.hibernateVersion = hibernateVersion;
+    return this;
   }
 
 } 

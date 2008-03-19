@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import  edu.internet2.middleware.grouper.cfg.BuildConfig;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
 
 
@@ -27,7 +28,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.54 2008-01-31 16:16:38 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.54.2.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -39,7 +40,7 @@ public class GrouperConfig {
    * <p/>
    * @since   1.2.0
    */
-  public static final String DEFAULT_DAO_FACTORY  = "edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFactory";
+  public static final String DEFAULT_DAO_FACTORY  = Hib3DAOFactory.class.getName();
   /**
    * String with value of <code>""</code>.
    */
@@ -90,10 +91,10 @@ public class GrouperConfig {
   protected static final String ATTR_C        = "createSubject";
   protected static final String ATTR_CT       = "createTime";
   protected static final String ATTR_D        = "description";
-  protected static final String ATTR_DE       = "displayExtension";
-  protected static final String ATTR_DN       = "displayName";
-  protected static final String ATTR_E        = "extension";
-  protected static final String ATTR_N        = "name";
+  public static final String ATTR_DE       = "displayExtension";
+  public static final String ATTR_DN       = "displayName";
+  public static final String ATTR_E        = "extension";
+  public static final String ATTR_N        = "name";
   protected static final String BT            = "true";
   protected static final String GCGAA         = "groups.create.grant.all.admin";
   protected static final String GCGAOI        = "groups.create.grant.all.optin";

@@ -16,21 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 
 /** 
  * Basic <code>Member</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.6 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.6.4.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class MemberDTO implements GrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
-  private String  id;
+  private long hibernateVersion = -1;
   private String  memberUUID;
   private String  subjectID;
   private String  subjectSourceID;
@@ -63,7 +66,7 @@ public class MemberDTO implements GrouperDTO {
    */
   public GrouperDAO getDAO() {
     return GrouperDAOFactory.getFactory().getMember()
-      .setId( this.getId() )
+      .setHibernateVersion(this.getHibernateVersion())
       .setSubjectId( this.getSubjectId() )
       .setSubjectSourceId( this.getSubjectSourceId() )
       .setSubjectTypeId( this.getSubjectTypeId() )
@@ -77,7 +80,7 @@ public class MemberDTO implements GrouperDTO {
    */ 
   public static MemberDTO getDTO(MemberDAO dao) {
     return new MemberDTO()
-      .setId( dao.getId() )
+      .setHibernateVersion(dao.getHibernateVersion())
       .setSubjectId( dao.getSubjectId() )
       .setSubjectSourceId( dao.getSubjectSourceId() )
       .setSubjectTypeId( dao.getSubjectTypeId() )
@@ -85,13 +88,6 @@ public class MemberDTO implements GrouperDTO {
       ;
   }
   
-  /**
-   * @since   1.2.0
-   */
-  public String getId() {
-    return this.id;
-  }
-
   /**
    * @since   1.2.0
    */
@@ -135,14 +131,6 @@ public class MemberDTO implements GrouperDTO {
   /**
    * @since   1.2.0
    */
-  public MemberDTO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public MemberDTO setSubjectId(String subjectID) {
     this.subjectID = subjectID;
     return this;
@@ -182,6 +170,23 @@ public class MemberDTO implements GrouperDTO {
       .append( "subjectTypeId",   this.getSubjectTypeId()   )
       .append( "uuid",            this.getUuid()            )
       .toString();
+  }
+
+  
+  /**
+   * @return the hibernateVersion
+   */
+  public long getHibernateVersion() {
+    return this.hibernateVersion;
+  }
+
+  
+  /**
+   * @param hibernateVersion the hibernateVersion to set
+   */
+  public MemberDTO setHibernateVersion(long hibernateVersion) {
+    this.hibernateVersion = hibernateVersion;
+    return this;
   }
 
 } 

@@ -16,16 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 
 /** 
  * Basic <code>Stem</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: StemDTO.java,v 1.4.4.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class StemDTO implements GrouperDTO {
 
@@ -37,7 +40,7 @@ public class StemDTO implements GrouperDTO {
   private String  displayExtension;
   private String  displayName;
   private String  extension;
-  private String  id;
+  private long hibernateVersion = -1;
   private String  modifierUUID;
   private String  modifySource;
   private long    modifyTime;
@@ -96,7 +99,7 @@ public class StemDTO implements GrouperDTO {
       .setDisplayExtension( this.getDisplayExtension() )
       .setDisplayName( this.getDisplayName() )
       .setExtension( this.getExtension() )
-      .setId( this.getId() )
+      .setHibernateVersion(this.getHibernateVersion())
       .setModifierUuid( this.getModifierUuid() )
       .setModifySource( this.getModifySource() )
       .setModifyTime( this.getModifyTime() )
@@ -132,13 +135,6 @@ public class StemDTO implements GrouperDTO {
    */
   public String getExtension() {
     return this.extension;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public String getId() {
-    return this.id;
   }
 
   /**
@@ -251,14 +247,6 @@ public class StemDTO implements GrouperDTO {
   /**
    * @since   1.2.0
    */
-  public StemDTO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public StemDTO setModifierUuid(String modifierUUID) {
     this.modifierUUID = modifierUUID;
     return this;
@@ -340,7 +328,7 @@ public class StemDTO implements GrouperDTO {
       .setDisplayExtension( dao.getDisplayExtension() )
       .setDisplayName( dao.getDisplayName() )
       .setExtension( dao.getExtension() )
-      .setId( dao.getId() )
+      .setHibernateVersion(dao.getHibernateVersion())
       .setModifierUuid( dao.getModifierUuid() )
       .setModifySource( dao.getModifySource() )
       .setModifyTime( dao.getModifyTime() )
@@ -348,6 +336,23 @@ public class StemDTO implements GrouperDTO {
       .setUuid( dao.getUuid() )
       .setParentUuid( dao.getParentUuid() )
       ;
+  }
+
+  
+  /**
+   * @return the hibernateVersion
+   */
+  public long getHibernateVersion() {
+    return this.hibernateVersion;
+  }
+
+  
+  /**
+   * @param hibernateVersion the hibernateVersion to set
+   */
+  public StemDTO setHibernateVersion(long hibernateVersion) {
+    this.hibernateVersion = hibernateVersion;
+    return this;
   }
 
 } 

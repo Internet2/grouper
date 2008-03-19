@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -46,7 +47,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.7 2008-02-24 07:43:15 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.7.2.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -730,7 +731,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             Session     hs  = hibernateSession.getSession();
             Iterator it = mof.getDeletes().iterator();
             while (it.hasNext()) {
-              hs.delete( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.delete( grouperDAO );
             }
             it = mof.getSaves().iterator();
             while (it.hasNext()) {
@@ -738,11 +740,13 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             }
             it = mof.getModifiedGroups().iterator();
             while (it.hasNext()) {
-              hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.saveOrUpdate( grouperDAO );
             }
             it = mof.getModifiedStems().iterator();
             while (it.hasNext()) {
-              hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.saveOrUpdate( grouperDAO );
             }
             return null;
           }

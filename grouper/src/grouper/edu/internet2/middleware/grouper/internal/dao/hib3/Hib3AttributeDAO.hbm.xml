@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeDAO.hbm.xml,v 1.3 2008-03-17 20:38:42 shilen Exp $ -->
+<!-- $Id: Hib3AttributeDAO.hbm.xml,v 1.3.2.1 2008-03-19 18:46:11 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3AttributeDAO" table="grouper_attributes">
@@ -49,10 +49,11 @@
     <!-- [@since 1.2.0] Refers to group's UUID, not ID -->
     <property name="groupUuid"
               type="string"
+              unique="false"
+              not-null="true"
     >
       <column name="group_id"
               length="128"
-              not-null="true"
               index="attribute_group_idx"
               unique-key="attribute_uniq_idx"
       />
@@ -62,6 +63,8 @@
     <!-- attrName -->
     <property name="attrName"
               type="string"
+              not-null="true"
+              unique="false"
               update="false"
     >
       <column name="field_name"

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.3 2008-03-17 20:38:42 shilen Exp $ -->
+<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.3.2.1 2008-03-19 18:46:11 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3MemberDAO" table="grouper_members">
@@ -31,27 +31,19 @@
     <cache usage="read-write"/>
 
     <!-- id -->
-    <id name="id" 
-        type="string"
-        unsaved-value="null"
+    <id name="uuid" unsaved-value="none"
+        type="string" column="id"
         length="128"
     >
-      <generator class="uuid.hex"/>
+      <!-- generator class="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3IdentifierGenerator"/ -->
+      <generator class="assigned" />
     </id>
     <!-- id -->
 
-    <!-- uuid -->
-    <property 
-      name="uuid"
-      type="string"
-    >
-      <column name="member_uuid"
-              not-null="true"
-              length="128"
-              unique="true"
-      />
-    </property>
-    <!-- uuid -->
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <property name="hibernateVersion" column="hibernate_version" 
+           not-null="true"
+    />
 
     <!-- subjectId -->
     <property 

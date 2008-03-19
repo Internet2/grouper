@@ -16,31 +16,34 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.FieldType;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.FieldType;
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 
 /** 
  * Basic <code>Field</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: FieldDTO.java,v 1.5 2007-04-19 14:39:29 blair Exp $    
+ * @version $Id: FieldDTO.java,v 1.5.4.1 2008-03-19 18:46:11 mchyzer Exp $    
  * @since   1.2.0
  */
 public class FieldDTO implements GrouperDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String    groupTypeUUID;
-  private String    id;
   private boolean   isNullable;
   private String    name;
   private String    readPrivilege;
   private String    type;
   private String    uuid;
   private String    writePrivilege;
+  private long hibernateVersion = -1;
 
     
   // PUBLIC INSTANCE METHODS //
@@ -67,7 +70,7 @@ public class FieldDTO implements GrouperDTO {
   public GrouperDAO getDAO() {
     return GrouperDAOFactory.getFactory().getField()
       .setGroupTypeUuid( this.getGroupTypeUuid() )
-      .setId( this.getId() )
+      .setHibernateVersion(this.getHibernateVersion())
       .setIsNullable( this.getIsNullable() )
       .setName( this.getName() )
       .setReadPrivilege( this.getReadPrivilege() )
@@ -82,13 +85,6 @@ public class FieldDTO implements GrouperDTO {
    */
   public String getGroupTypeUuid() {
     return this.groupTypeUUID;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public String getId() {
-    return this.id;
   }
 
   /**
@@ -147,14 +143,6 @@ public class FieldDTO implements GrouperDTO {
    */
   public FieldDTO setGroupTypeUuid(String groupTypeUUID) {
     this.groupTypeUUID = groupTypeUUID;
-    return this;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public FieldDTO setId(String id) {
-    this.id = id;
     return this;
   }
 
@@ -252,7 +240,7 @@ public class FieldDTO implements GrouperDTO {
   public static FieldDTO getDTO(FieldDAO dao) {
     return new FieldDTO()
       .setGroupTypeUuid( dao.getGroupTypeUuid() )
-      .setId( dao.getId() )
+      .setHibernateVersion(dao.getHibernateVersion())
       .setIsNullable( dao.getIsNullable() )
       .setName( dao.getName() )
       .setReadPrivilege( dao.getReadPrivilege() )
@@ -260,6 +248,23 @@ public class FieldDTO implements GrouperDTO {
       .setUuid( dao.getUuid() )
       .setWritePrivilege( dao.getWritePrivilege() )
       ;
+  }
+
+  
+  /**
+   * @return the hibernateVersion
+   */
+  public long getHibernateVersion() {
+    return this.hibernateVersion;
+  }
+
+  
+  /**
+   * @param hibernateVersion the hibernateVersion to set
+   */
+  public FieldDTO setHibernateVersion(long hibernateVersion) {
+    this.hibernateVersion = hibernateVersion;
+    return this;
   } 
 
 } 

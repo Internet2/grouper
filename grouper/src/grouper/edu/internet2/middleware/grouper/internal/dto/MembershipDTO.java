@@ -16,19 +16,23 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.Membership;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  java.util.Date;
-import  org.apache.commons.lang.builder.*;
+import java.util.Date;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /** 
  * Basic <code>Membership</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.6 2008-01-09 14:07:01 isgwb Exp $
+ * @version $Id: MembershipDTO.java,v 1.6.2.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class MembershipDTO implements GrouperDTO {

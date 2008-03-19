@@ -25,21 +25,33 @@ import  java.util.Set;
  * Basic <code>GroupType</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupTypeDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: GroupTypeDAO.java,v 1.3.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupTypeDAO extends GrouperDAO {
 
   /**
+   * hibernate version, int for each insert/update, negative is new
+   * @return hibernate version
+   */
+  long getHibernateVersion();
+  
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @param theHibernateVersion
+   */
+  GroupTypeDAO setHibernateVersion(long theHibernateVersion);
+
+  /**
    * @since   1.2.0
    */
-  String create(GroupTypeDTO _gt)
+  long create(GroupTypeDTO _gt)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  String createField(FieldDTO _f)
+  long createField(FieldDTO _f)
     throws  GrouperDAOException;
 
   /**
@@ -102,11 +114,6 @@ public interface GroupTypeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String getId();
-
-  /**
-   * @since   1.2.0
-   */
   String getName();
 
   /**
@@ -138,11 +145,6 @@ public interface GroupTypeDAO extends GrouperDAO {
    * @since   1.2.0
    */
   GroupTypeDAO setIsInternal(boolean isInternal);
-
-  /**
-   * @since   1.2.0
-   */
-  GroupTypeDAO setId(String id);
 
   /**
    * @since   1.2.0

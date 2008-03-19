@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.GrouperConfig;
 
 
@@ -22,7 +20,7 @@ import edu.internet2.middleware.grouper.GrouperConfig;
  * <p />
  * Note, evictions are check for periodically, but only when the map is accessed (and even then only every few minutes).
  * so you can check for evictions externally, or clear the map if you are done with it.
- * @version $Id: ExpirableCache.java,v 1.1 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: ExpirableCache.java,v 1.1.2.1 2008-03-19 18:46:11 mchyzer Exp $
  * @author mchyzer
  * @param <K> key type
  * @param <V> value type

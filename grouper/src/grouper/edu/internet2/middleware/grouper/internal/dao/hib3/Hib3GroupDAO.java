@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
@@ -55,10 +56,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.9 2008-03-12 12:42:59 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.9.2.1 2008-03-19 18:46:10 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
+public class Hib3GroupDAO extends Hib3HibernateVersioned implements GroupDAO, Lifecycle {
 
 
   private               Map                       attributes = null;
@@ -67,16 +68,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   private               String                    creatorUUID;
   private static        HashMap<String, Boolean>  existsCache = new HashMap<String, Boolean>();
   private static  final String                    KLASS                         = Hib3GroupDAO.class.getName();
-  private               String                    id;
   private               String                    modifierUUID;
   private               String                    modifySource;
   private               long                      modifyTime;
   private               String                    parentUUID;
   private               String                    uuid;
-
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * @since   @HEAD@
    */
@@ -116,8 +112,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             // delete memberships
             Iterator it = mships.iterator();
             while (it.hasNext()) {
-              hs.delete( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.delete( grouperDAO );
             }
+            hs.flush();
+            
             // delete attributes
             Query qry = hs.createQuery("delete from Hib3AttributeDAO where group_id = :group");
             qry.setString("group", _g.getUuid() );
@@ -562,13 +561,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   /**
    * @since   @HEAD@
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public String getModifierUuid() {
     return this.modifierUUID;
   }
@@ -625,8 +617,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   public boolean onSave(Session hs) 
     throws  CallbackException
   {
-    existsCache.put( this.getUuid(), true );
-    return Lifecycle.NO_VETO;
+      existsCache.put( this.getUuid(), true );
+      return Lifecycle.NO_VETO;
   } 
 
   // @since   @HEAD@
@@ -654,12 +646,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             Session hs  = hibernateSession.getSession();
             Iterator it = mof.getDeletes().iterator();
             while (it.hasNext()) {
-              hs.delete( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.delete( grouperDAO );
             }
+            hs.flush();
+            
             it = mof.getSaves().iterator();
             while (it.hasNext()) {
-              hs.saveOrUpdate( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.saveOrUpdate( grouperDAO);
             }
+            hs.flush();
+            
             hs.update( Rosetta.getDAO(_g) );
             return null;
           }
@@ -715,14 +713,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
    */
   public GroupDAO setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public GroupDAO setId(String id) {
-    this.id = id;
     return this;
   }
 
@@ -966,5 +956,21 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     return groups;
   } // private Set _getGroupsFromGroupsAndAttributesQuery(qry)
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#getId()
+   */
+  @Override
+  protected String getId() {
+    return this.uuid;
+  }
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3HibernateVersioned#setHibernateVersion(long)
+   */
+  @Override
+  public Hib3GroupDAO setHibernateVersion(long hibernateVersion) {
+    return (Hib3GroupDAO)super.setHibernateVersion(hibernateVersion);
+  }
 } 
 

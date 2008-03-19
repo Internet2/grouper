@@ -36,10 +36,10 @@ import edu.internet2.middleware.grouper.internal.dto.FieldDTO;
  * Basic Hibernate <code>Field</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.3 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.3.2.1 2008-03-19 18:46:10 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
+public class Hib3FieldDAO extends Hib3HibernateVersioned implements FieldDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3FieldDAO.class.getName();
@@ -47,17 +47,12 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  groupTypeUUID;
-  private String  id;
   private boolean isNullable;
   private String  name;
   private String  readPrivilege;
   private String  type;
   private String  uuid;
   private String  writePrivilege;
-
-
-  // PUBliC INSTANCE METHODS //
-
   /**
    * @since   @HEAD@
    */
@@ -151,7 +146,7 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    * @since   @HEAD@
    */
   public String getId() {
-    return this.id;
+    return this.uuid;
   }
 
   /**
@@ -231,14 +226,6 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   /**
    * @since   @HEAD@
    */
-  public FieldDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public FieldDAO setIsNullable(boolean isNullable) {
     this.isNullable = isNullable;
     return this;
@@ -284,5 +271,13 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
     return this;
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3HibernateVersioned#setHibernateVersion(long)
+   */
+  @Override
+  public Hib3FieldDAO setHibernateVersion(long hibernateVersion) {
+    return (Hib3FieldDAO)super.setHibernateVersion(hibernateVersion);
+  }
 } 
 

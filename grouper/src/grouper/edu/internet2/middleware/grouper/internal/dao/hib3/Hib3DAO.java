@@ -16,18 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.ErrorLog;
-import  edu.internet2.middleware.grouper.GrouperConfig;
-import  java.io.InputStream;
-import  java.util.Properties;
-import  org.hibernate.*;
-import  org.hibernate.cfg.*;
+import java.io.InputStream;
+import java.util.Properties;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+import edu.internet2.middleware.grouper.ErrorLog;
+import edu.internet2.middleware.grouper.GrouperConfig;
 
 /**
  * Base Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.3 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.3.2.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {
@@ -62,6 +66,7 @@ abstract class Hib3DAO {
         .addClass(Hib3RegistrySubjectDAO.class)
         .addClass(Hib3RegistrySubjectAttributeDAO.class)
         .addClass(Hib3StemDAO.class)
+        .setInterceptor(new Hib3SessionInterceptor())
         ;
       // And finally create our session factory
       FACTORY = CFG.buildSessionFactory();
@@ -87,7 +92,7 @@ abstract class Hib3DAO {
    * DONT CALL THIS METHOD, IT IS FOR INTERNAL GROUPER FRAMEWORK USE
    * ONLY.  Use the HibernateSession callback to get a hibernate Session
    * object
-   * @return
+   * @return the session
    * @throws HibernateException
    */
 	public static Session session()

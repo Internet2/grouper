@@ -16,15 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 
 /** 
  * Basic <code>RegistrySubject</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: RegistrySubjectDTO.java,v 1.4.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubjectDTO implements GrouperDTO {

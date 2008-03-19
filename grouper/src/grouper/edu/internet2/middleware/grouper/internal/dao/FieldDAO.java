@@ -26,10 +26,22 @@ import  java.util.Set;
  * Basic <code>Field</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: FieldDAO.java,v 1.3 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: FieldDAO.java,v 1.3.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public interface FieldDAO extends GrouperDAO {
+
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @return hibernate version
+   */
+  long getHibernateVersion();
+  
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @param theHibernateVersion
+   */
+  FieldDAO setHibernateVersion(long theHibernateVersion);
 
   /**
    * @since   1.2.0
@@ -59,11 +71,6 @@ public interface FieldDAO extends GrouperDAO {
    * @since   1.2.0
    */
   String getGroupTypeUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  String getId();
 
   /**
    * @since   1.2.0
@@ -107,11 +114,6 @@ public interface FieldDAO extends GrouperDAO {
    * @since   1.2.0
    */
   FieldDAO setGroupTypeUuid(String groupTypeUUID);
-
-  /**
-   * @since   1.2.0
-   */
-  FieldDAO setId(String id);
 
   /**
    * @since   1.2.0

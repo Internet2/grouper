@@ -16,24 +16,26 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  java.io.Serializable;
-import  java.util.Date;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
-import  org.apache.commons.lang.time.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.time.StopWatch;
+
+import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dto.FieldDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.internal.util.Quote;
 
 /** 
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.54 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: GroupType.java,v 1.54.4.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -371,7 +373,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       .setUuid( GrouperUuid.getUuid() )
       ;
     try {
-      _gt.setId( dao.create(_gt) );
+      _gt.setHibernateVersion( dao.create(_gt) );
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
@@ -414,7 +416,7 @@ public class GroupType extends GrouperAPI implements Serializable {
         .setUuid( GrouperUuid.getUuid() )
         .setWritePrivilege(write)
         ;
-      _f.setId( GrouperDAOFactory.getFactory().getGroupType().createField(_f) );
+      _f.setHibernateVersion( GrouperDAOFactory.getFactory().getGroupType().createField(_f) );
 
       Field f = new Field();
       f.setDTO(_f);

@@ -16,14 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  java.io.Serializable;
-import  org.apache.commons.lang.builder.*;
+import java.io.Serializable;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /** 
  * Hibernate representation of the JDBC <code>SubjectAttribute</code> table.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectAttributeDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: Hib3RegistrySubjectAttributeDAO.java,v 1.1.4.1 2008-03-19 18:46:10 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistrySubjectAttributeDAO implements Serializable {

@@ -16,19 +16,23 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperConfig;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  java.util.Map;
-import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 
 /** 
  * Basic <code>Group</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDTO.java,v 1.5 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: GroupDTO.java,v 1.5.4.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class GroupDTO implements GrouperDTO {
 
@@ -40,7 +44,7 @@ public class GroupDTO implements GrouperDTO {
   private long      createTime      = 0; // default to the epoch
   private String    creatorUUID;
   private GroupDAO  dao;
-  private String    id;
+  private long hibernateVersion = -1;
   private String    modifierUUID;
   private String    modifySource;
   private long      modifyTime      = 0; // default to the epoch
@@ -114,7 +118,7 @@ public class GroupDTO implements GrouperDTO {
       .setCreateSource( this.getCreateSource() )
       .setCreateTime( this.getCreateTime() )
       .setCreatorUuid( this.getCreatorUuid() )
-      .setId( this.getId() )
+      .setHibernateVersion(this.getHibernateVersion())
       .setModifierUuid( this.getModifierUuid() )
       .setModifySource( this.getModifySource() )
       .setModifyTime( this.getModifyTime() )
@@ -124,16 +128,6 @@ public class GroupDTO implements GrouperDTO {
       ;
   }
   
-  /**
-   * @since   1.2.0
-   */
-  public String getId() {
-    if (this.id == null && this.dao != null) {
-      this.id = this.dao.getId();
-    }
-    return this.id;
-  }
-
   /**
    * @since   1.2.0
    */
@@ -238,14 +232,6 @@ public class GroupDTO implements GrouperDTO {
   /**
    * @since   1.2.0
    */
-  public GroupDTO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public GroupDTO setModifierUuid(String modifierUUID) {
     this.modifierUUID = modifierUUID;
     return this;
@@ -328,6 +314,26 @@ public class GroupDTO implements GrouperDTO {
   private void _setDAO(GroupDAO dao) {
     this.dao = dao;
   } // private void _setDAO(dao)
+
+  
+  /**
+   * @return the hibernateVersion
+   */
+  public long getHibernateVersion() {
+    if (this.hibernateVersion == -1 && this.dao != null) {
+      this.hibernateVersion = this.dao.getHibernateVersion();
+    }
+    return this.hibernateVersion;
+  }
+
+  
+  /**
+   * @param hibernateVersion the hibernateVersion to set
+   */
+  public GroupDTO setHibernateVersion(long hibernateVersion) {
+    this.hibernateVersion = hibernateVersion;
+    return this;
+  }
 
 } 
 

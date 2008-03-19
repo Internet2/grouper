@@ -17,14 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 
-import  java.util.*;
+import java.util.Set;
 
 
 /** 
  * Query by group name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupNameFilter.java,v 1.12 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: GroupNameFilter.java,v 1.12.4.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class GroupNameFilter extends BaseQueryFilter {
 

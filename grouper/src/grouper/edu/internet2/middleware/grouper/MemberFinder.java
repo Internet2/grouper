@@ -28,7 +28,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.49 2008-02-19 22:13:11 tzeller Exp $
+ * @version $Id: MemberFinder.java,v 1.49.2.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -189,7 +189,7 @@ public class MemberFinder {
         .setSubjectTypeId(type)
         .setUuid( GrouperUuid.getUuid() )
         ;
-      return _m.setId( GrouperDAOFactory.getFactory().getMember().create(_m) );
+      return _m.setHibernateVersion( GrouperDAOFactory.getFactory().getMember().create(_m) );
     }
   } // protected static MemberDTO internal_findOrCreateBySubject(id, src, type)
 

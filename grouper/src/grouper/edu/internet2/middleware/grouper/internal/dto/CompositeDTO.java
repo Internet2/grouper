@@ -16,29 +16,38 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 
 /** 
  * Basic <code>Composite</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.4.4.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class CompositeDTO implements GrouperDTO {
 
+  /**
+   * empty constructor
+   */
+  public CompositeDTO() {
+    //nothing
+  }
+  
   // PRIVATE INSTANCE VARIABLES //
   private long    createTime;
   private String  creatorUUID;
   private String  factorOwnerUUID;
-  private String  id;
   private String  leftFactorUUID;
   private String  rightFactorUUID;
   private String  type;
   private String  uuid;
-
+	private long hibernateVersion = -1;
 
   // PUBLIC INSTANCE METHODS //
 
@@ -79,11 +88,11 @@ public class CompositeDTO implements GrouperDTO {
       .setCreateTime( this.getCreateTime() )
       .setCreatorUuid( this.getCreatorUuid() )
       .setFactorOwnerUuid( this.getFactorOwnerUuid() )
-      .setId( this.getId() )
       .setLeftFactorUuid( this.getLeftFactorUuid() )
       .setUuid( this.getUuid() )
       .setRightFactorUuid( this.getRightFactorUuid() )
       .setType( this.getType() )
+      .setHibernateVersion(this.getHibernateVersion())
       ;
   } 
 
@@ -92,13 +101,6 @@ public class CompositeDTO implements GrouperDTO {
    */
   public String getFactorOwnerUuid() {
     return this.factorOwnerUUID;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public String getId() {
-    return this.id;
   }
 
   /**
@@ -166,14 +168,6 @@ public class CompositeDTO implements GrouperDTO {
   /**
    * @since   1.2.0
    */
-  public CompositeDTO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public CompositeDTO setLeftFactorUuid(String leftFactorUUID) {
     this.leftFactorUUID = leftFactorUUID;
     return this;
@@ -204,6 +198,21 @@ public class CompositeDTO implements GrouperDTO {
   }
 
   /**
+   */
+  public CompositeDTO setHibernateVersion(long theHibernateVersion) {
+    this.hibernateVersion = theHibernateVersion;
+    return this;
+  }
+
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @return the version
+   */
+  public long getHibernateVersion() {
+    return this.hibernateVersion;
+  }
+  
+  /**
    * @since   1.2.0
    */
   public String toString() {
@@ -227,7 +236,7 @@ public class CompositeDTO implements GrouperDTO {
       .setCreateTime( dao.getCreateTime() )
       .setCreatorUuid( dao.getCreatorUuid() )
       .setFactorOwnerUuid( dao.getFactorOwnerUuid() )
-      .setId( dao.getId() )
+      .setHibernateVersion(dao.getHibernateVersion())
       .setLeftFactorUuid( dao.getLeftFactorUuid() )
       .setUuid( dao.getUuid() )
       .setRightFactorUuid( dao.getRightFactorUuid() )

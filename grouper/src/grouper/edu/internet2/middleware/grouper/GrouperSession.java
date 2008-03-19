@@ -16,28 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import  edu.internet2.middleware.grouper.privs.AccessResolver;
-import  edu.internet2.middleware.grouper.privs.AccessResolverFactory;
-import  edu.internet2.middleware.grouper.privs.NamingResolver;
-import  edu.internet2.middleware.grouper.privs.NamingResolverFactory;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.Realize;
-import  edu.internet2.middleware.subject.*;
-import  java.util.Date;
+import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
-import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.lang.time.*;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.time.StopWatch;
+
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.privs.AccessResolver;
+import edu.internet2.middleware.grouper.privs.AccessResolverFactory;
+import edu.internet2.middleware.grouper.privs.NamingResolver;
+import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
+import edu.internet2.middleware.subject.Subject;
 
 
 /** 
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.75 2008-01-14 07:36:49 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.75.2.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -91,7 +93,7 @@ public class GrouperSession extends GrouperAPI {
         .setSubject(subject)
         .setUuid( GrouperUuid.getUuid() )
         ;
-      s.setDTO( _s.setId( GrouperDAOFactory.getFactory().getGrouperSession().create(_s) ) );
+      s.setDTO( _s.setHibernateVersion( GrouperDAOFactory.getFactory().getGrouperSession().create(_s) ) );
 
       sw.stop();
       EventLog.info( s.toString(), M.S_START, sw );
@@ -324,7 +326,7 @@ public class GrouperSession extends GrouperAPI {
   public void stop() 
     throws  SessionException
   {
-    if ( this._getDTO().getId() != null ) { // We have a persistent session
+    if ( this._getDTO().getHibernateVersion() >= 0 ) { // We have a persistent session
       StopWatch sw    = new StopWatch();
       sw.start();
       long      start = this.getStartTime().getTime();

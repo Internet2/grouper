@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3CompositeDAO.hbm.xml,v 1.4 2008-03-17 20:38:42 shilen Exp $ -->
+<!-- $Id: Hib3CompositeDAO.hbm.xml,v 1.4.2.1 2008-03-19 18:46:11 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3"  default-lazy="false">
-  <class name="Hib3CompositeDAO" table="grouper_composites">
+  <class name="Hib3CompositeDAO" table="grouper_composites" >
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -31,26 +31,20 @@
     <cache usage="read-write"/>
 
     <!-- id -->
-    <id name="id" 
+    <id name="uuid"  unsaved-value="none"
         type="string" 
-        unsaved-value="null"
+        column="id"
         length="128"
     >
-      <generator class="uuid.hex"/>
+      <!--  generator class="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3IdentifierGenerator"/ -->
+      <generator class="assigned" />
     </id>
     <!-- id -->
-
-    <!-- uuid -->
-    <property name="uuid"
-              type="string"
-    >
-      <column name="uuid"
-              length="128"
-              unique="true"
-              not-null="true"
+    
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <property name="hibernateVersion" column="hibernate_version"
+       not-null="true"
       />
-    </property>
-    <!-- uuid -->
 
     <!-- factorOwnerUuid -->
     <!-- [@since 1.2.0] Refers to owner's UUID, not ID -->

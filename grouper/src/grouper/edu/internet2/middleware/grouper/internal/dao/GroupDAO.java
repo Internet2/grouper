@@ -28,10 +28,22 @@ import  java.util.Set;
  * Basic <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.7 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: GroupDAO.java,v 1.7.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
+
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @return hibernate version
+   */
+  long getHibernateVersion();
+  
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @param theHibernateVersion
+   */
+  GroupDAO setHibernateVersion(long theHibernateVersion);
 
   /**
    * @since   1.2.0
@@ -164,11 +176,6 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String getId();
-
-  /**
-   * @since   1.2.0
-   */
   String getModifierUuid();
 
   /**
@@ -227,11 +234,6 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.2.0
    */
   GroupDAO setCreatorUuid(String creatorUUID);
-
-  /**
-   * @since   1.2.0
-   */
-  GroupDAO setId(String id);
 
   /**
    * @since   1.2.0

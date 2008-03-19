@@ -18,7 +18,6 @@ package edu.internet2.middleware.grouper;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -32,16 +31,13 @@ import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDAOFactory;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.10 2008-03-06 19:10:29 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.10.2.1 2008-03-19 18:46:11 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -500,9 +496,9 @@ public class TestGroup0 extends GrouperTest {
    */
   public void testTransaction() {
     
-    if (GrouperDAOFactory.getFactory() instanceof HibernateDAOFactory) {
-      fail("This doesnt work with hib2 at the moment (only hib3 that I know of)...");
-    }
+//    if (GrouperDAOFactory.getFactory() instanceof HibernateDAOFactory) {
+//      fail("This doesnt work with hib2 at the moment (only hib3 that I know of)...");
+//    }
     
     final GrouperSession rootSession = SessionHelper.getRootSession();
     final String displayExtension = "testing123 display";

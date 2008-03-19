@@ -16,29 +16,33 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.CompositeNotFoundException;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
+import edu.internet2.middleware.grouper.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import java.util.List;
-import  java.util.Set;
-import  org.hibernate.*;
+import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.util.Rosetta;
 
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.2.2.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
+public class Hib3CompositeDAO extends Hib3HibernateVersioned implements CompositeDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3CompositeDAO.class.getName();
@@ -48,12 +52,10 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   private long    createTime;
   private String  creatorUUID;
   private String  factorOwnerUUID;
-  private String  id;
   private String  leftFactorUUID;
   private String  rightFactorUUID;
   private String  type;
   private String  uuid;
-
 
   // PUBLIC INSTANCE METHODS //
 
@@ -138,13 +140,6 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   /**
    * @since   @HEAD@
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public String getLeftFactorUuid() {
     return this.leftFactorUUID;
   }
@@ -197,14 +192,6 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   /**
    * @since   @HEAD@
    */
-  public CompositeDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public CompositeDAO setLeftFactorUuid(String leftFactorUUID) {
     this.leftFactorUUID = leftFactorUUID;
     return this;
@@ -249,19 +236,29 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
             
             Iterator it = toDelete.iterator();
             while (it.hasNext()) {
-              hs.delete( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.delete( grouperDAO );
             } 
+            hs.flush();
+            
             it = toAdd.iterator();
             while (it.hasNext()) {
-              hs.save( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.save( grouperDAO );
             }
+            hs.flush();
+
             it = modGroups.iterator();
             while (it.hasNext()) {
-              hs.update( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.update( grouperDAO );
             }
+            hs.flush();
+
             it = modStems.iterator();
             while (it.hasNext()) {
-              hs.update( Rosetta.getDAO( it.next() ) );
+              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
+              hs.update( grouperDAO );
             }
             return null;
           }
@@ -277,7 +274,23 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
     throws  HibernateException
   {
     hs.createQuery("delete from Hib3CompositeDAO").executeUpdate();
-  } 
+  }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#getId()
+   */
+  @Override
+  protected String getId() {
+    return this.uuid;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3HibernateVersioned#setHibernateVersion(long)
+   */
+  @Override
+  public Hib3CompositeDAO setHibernateVersion(long hibernateVersion) {
+    return (Hib3CompositeDAO)super.setHibernateVersion(hibernateVersion);
+  }
 } 
 

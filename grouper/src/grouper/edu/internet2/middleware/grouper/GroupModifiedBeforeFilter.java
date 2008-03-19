@@ -16,14 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
+import java.util.Date;
+import java.util.Set;
 
 
 /** 
  * Query by groups modified before the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupModifiedBeforeFilter.java,v 1.8 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: GroupModifiedBeforeFilter.java,v 1.8.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.1.0
  */
 public class GroupModifiedBeforeFilter extends BaseQueryFilter {

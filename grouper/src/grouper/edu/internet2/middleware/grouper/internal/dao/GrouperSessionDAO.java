@@ -22,15 +22,27 @@ import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
  * Basic <code>GrouperSession</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperSessionDAO.java,v 1.4 2007-04-19 19:33:42 blair Exp $
+ * @version $Id: GrouperSessionDAO.java,v 1.4.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GrouperSessionDAO extends GrouperDAO {
 
   /**
+   * hibernate version, int for each insert/update, negative is new
+   * @return hibernate version
+   */
+  long getHibernateVersion();
+  
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @param theHibernateVersion
+   */
+  GrouperSessionDAO setHibernateVersion(long theHibernateVersion);
+
+  /**
    * @since   1.2.0
    */
-  String create(GrouperSessionDTO _s)
+  long create(GrouperSessionDTO _s)
     throws  GrouperDAOException;
 
   /**
@@ -38,11 +50,6 @@ public interface GrouperSessionDAO extends GrouperDAO {
    */
   void delete(GrouperSessionDTO _s)
     throws  GrouperDAOException;
-
-  /**
-   * @since   1.2.0
-   */
-  String getId();
 
   /**
    * @since   1.2.0
@@ -58,11 +65,6 @@ public interface GrouperSessionDAO extends GrouperDAO {
    * @since   1.2.0
    */
   String getUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  GrouperSessionDAO setId(String id);
 
   /**
    * @since   1.2.0

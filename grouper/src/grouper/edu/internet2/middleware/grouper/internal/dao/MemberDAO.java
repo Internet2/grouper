@@ -27,15 +27,27 @@ import  edu.internet2.middleware.subject.Subject;
  * Basic <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
+ * @version $Id: MemberDAO.java,v 1.4.2.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MemberDAO extends GrouperDAO {
 
   /**
+   * hibernate version, int for each insert/update, negative is new
+   * @return hibernate version
+   */
+  long getHibernateVersion();
+  
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @param theHibernateVersion
+   */
+  MemberDAO setHibernateVersion(long theHibernateVersion);
+
+  /**
    * @since   1.2.0
    */
-  String create(MemberDTO _m) 
+  long create(MemberDTO _m) 
     throws  GrouperDAOException;
 
   /**
@@ -83,11 +95,6 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String getId();
-
-  /**
-   * @since   1.2.0
-   */
   String getSubjectId();
 
   /**
@@ -104,11 +111,6 @@ public interface MemberDAO extends GrouperDAO {
    * @since   1.2.0
    */
   String getUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  MemberDAO setId(String id);
 
   /**
    * @since   1.2.0

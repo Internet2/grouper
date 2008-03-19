@@ -12,7 +12,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.util.Rosetta;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**

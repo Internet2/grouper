@@ -25,11 +25,23 @@ import  java.util.Set;
  * Basic <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.4 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: CompositeDAO.java,v 1.4.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
 
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @return hibernate version
+   */
+  long getHibernateVersion();
+  
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @param theHibernateVersion
+   */
+  CompositeDAO setHibernateVersion(long theHibernateVersion);
+  
   /**
    * @since   1.2.0
    */
@@ -70,11 +82,6 @@ public interface CompositeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String getId();
-
-  /**
-   * @since   1.2.0
-   */
   String getLeftFactorUuid();
 
   /**
@@ -106,11 +113,6 @@ public interface CompositeDAO extends GrouperDAO {
    * @since   1.2.0
    */
   CompositeDAO setFactorOwnerUuid(String factorOwnerUUID);
-
-  /**
-   * @since   1.2.0
-   */
-  CompositeDAO setId(String id);
 
   /**
    * @since   1.2.0

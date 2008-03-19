@@ -8,16 +8,24 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +34,8 @@ import net.sf.cglib.proxy.Enhancer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.mchange.util.AssertException;
 
@@ -36,7 +46,188 @@ import com.mchange.util.AssertException;
  */
 @SuppressWarnings("serial")
 public class GrouperUtil {
+
+  /**
+   * get the extension from name.  if name is a:b:c, name is c
+   * @param name
+   * @return the name
+   */
+  public static String extensionFromName(String name) {
+    int lastColonIndex = name.lastIndexOf(':');
+    if (lastColonIndex == -1) {
+      return name;
+    }
+    String extension = name.substring(lastColonIndex+1);
+    return extension;
+  }
   
+  /**
+   * <pre>Returns the class object.</pre>
+   * @param origClassName is fully qualified
+   * @return the class
+   */
+  public static Class forName(String origClassName) {
+        
+    try {
+      return Class.forName(origClassName);
+    } catch (Throwable t) {
+      throw new RuntimeException("Problem loading class: " + origClassName, t);
+    }
+    
+  }
+  
+  /**
+   * Construct a class
+   * @param theClass
+   * @return the instance
+   */
+  public static Object newInstance(Class theClass) {
+    try {
+      return theClass.newInstance();
+    } catch (Throwable e) {
+      if (theClass != null && Modifier.isAbstract(theClass.getModifiers())) {
+        throw new RuntimeException("Problem with class: " + theClass + ", maybe because it is abstract!", e);        
+      }
+      throw new RuntimeException("Problem with class: " + theClass, e);
+    }
+  }
+  
+  /**
+   * get the parent stem name from name.  if already a root stem
+   * then just return null.  e.g. if the name is a:b:c then
+   * the return value is a:b
+   * @param name
+   * @return the parent stem name or null if none
+   */
+  public static String parentStemNameFromName(String name) {
+    int lastColonIndex = name.lastIndexOf(':');
+    if (lastColonIndex == -1) {
+      return null;
+    }
+    String parentStemName = name.substring(0,lastColonIndex);
+    return parentStemName;
+
+  }
+  
+  /**
+   * return the string or the other if the first is blank
+   * @param string
+   * @param defaultStringIfBlank
+   * @return the string or the default one
+   */
+  public static String defaultIfBlank(String string, String defaultStringIfBlank) {
+    return StringUtils.isBlank(string) ? defaultStringIfBlank : string;
+  }
+  
+  /**
+   * genericized method to see if first is null, if so then return second, else first.
+   * @param <T>
+   * @param theValue first input
+   * @param defaultIfTheValueIsNull second input
+   * @return the first if not null, second if no
+   */
+  public static <T> T defaultIfNull(T theValue, T defaultIfTheValueIsNull) {
+    return theValue != null ? theValue : defaultIfTheValueIsNull;
+  }
+  
+  /**
+   * add each element of listToAdd if it is not already in list
+   * @param <T>
+   * @param list to add to
+   * @param listToAdd each element will be added to list
+   */
+  public static <T> void addIfNotThere(Collection<T> list, Collection<T> listToAdd) {
+    for (T t : listToAdd) {
+      if (!list.contains(t)) {
+        list.add(t);
+      }
+    }
+  }
+
+  
+  /**
+   * print out various types of objects
+   * 
+   * @param object
+   * @param maxChars is where it should stop when figuring out object.  note, result might be longer than max...
+   * need to abbreviate when back
+   * @param result is where to append to
+   */
+  private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
+    
+    try {
+      if (object == null) {
+        result.append("null");
+      } else if (object.getClass().isArray()) {
+        // handle arrays
+        int length = Array.getLength(object);
+        if (length == 0) {
+          result.append("Empty array");
+        } else {
+          result.append("Array size: ").append(length).append(": ");
+          for (int i = 0; i < length; i++) {
+            result.append("[").append(i).append("]: ").append(
+                Array.get(object, i)).append("\n");
+            if (maxChars != -1 && result.length() > maxChars) {
+              return;
+            }
+          }
+        }
+      } else if (object instanceof Collection) {
+        //give size and type if collection
+        Collection<Object> collection = (Collection<Object>) object;
+        int collectionSize = collection.size();
+        if (collectionSize == 0) {
+          result.append("Empty ").append(object.getClass().getSimpleName());
+        } else {
+          result.append(object.getClass().getSimpleName()).append(" size: ").append(collectionSize).append(": ");
+          int i=0;
+          for (Object collectionObject : collection) {
+            result.append("[").append(i).append("]: ").append(
+                collectionObject).append("\n");
+            if (maxChars != -1 && result.length() > maxChars) {
+              return;
+            }
+          }
+        }
+      } else {
+        result.append(object.toString());
+      }
+    } catch (Exception e) {
+      result.append("<<exception>> ").append(object.getClass()).append(":\n")
+        .append(ExceptionUtils.getFullStackTrace(e)).append("\n");
+    }
+  }
+
+  /**
+   * print out various types of objects
+   * 
+   * @param object
+   * @return the string value
+   */
+  public static String toStringForLog(Object object) {
+    StringBuilder result = new StringBuilder();
+    toStringForLogHelper(object, -1, result);
+    return result.toString();
+  }
+
+  /**
+   * print out various types of objects
+   * 
+   * @param object
+   * @param maxChars is the max chars that should be returned (abbreviate if longer), or -1 for any amount
+   * @return the string value
+   */
+  public static String toStringForLog(Object object, int maxChars) {
+    StringBuilder result = new StringBuilder();
+    toStringForLogHelper(object, -1, result);
+    String resultString = result.toString();
+    if (maxChars != -1) {
+      return StringUtils.abbreviate(resultString, maxChars);
+    }
+    return resultString;
+  }
+
   /**
    * If batching this is the number of batches
    * @param count is size of set
@@ -87,7 +278,7 @@ public class GrouperUtil {
     List<T> theBatchObjects = new ArrayList<T>();
 
     // lets get the type of the first element if possible
-//    Object first = FastObjectUtils.get(arrayOrCollection, 0);
+//    Object first = get(arrayOrCollection, 0);
 //
 //    Class theType = first == null ? Object.class : first.getClass();
 
@@ -199,6 +390,28 @@ public class GrouperUtil {
   }
   
   /**
+   * make sure a list is non null.  If null, then return an empty set
+   * @param <T>
+   * @param set
+   * @return the set or empty set if null
+   */
+  public static <T> Set<T> nonNull(Set<T> set) {
+    return set == null ? new HashSet<T>() : set;
+  }
+  
+  /**
+   * make sure it is non null, if null, then give new map
+   * 
+   * @param <K> key of map
+   * @param <V> value of map
+   * @param map is map
+   * @return set non null
+   */
+  public static <K,V> Map<K,V> nonNull(Map<K,V> map) {
+    return map == null ? new HashMap<K,V>() : map;
+  }
+
+  /**
    * return a list of objects from varargs.
    * 
    * @param <T>
@@ -216,9 +429,78 @@ public class GrouperUtil {
   }
 
   /**
+   * return a set of objects from varargs.
+   * 
+   * @param <T> template type of the objects
+   * @param objects
+   * @return the set
+   */
+  public static <T> Set<T> toSet(T... objects) {
+
+    Set<T> result = new LinkedHashSet<T>();
+    for (T object : objects) {
+      result.add(object);
+    }
+    return result;
+  }
+
+  /**
    * cache separator
    */
   private static final String CACHE_SEPARATOR = "__";
+
+  /**
+   * string format of dates
+   */
+  public static final String DATE_FORMAT = "yyyyMMdd";
+
+  /**
+   * format including minutes and seconds: yyyy/MM/dd HH:mm:ss
+   */
+  public static final String DATE_MINUTES_SECONDS_FORMAT = "yyyy/MM/dd HH:mm:ss";
+
+  /**
+   * format including minutes and seconds: yyyyMMdd HH:mm:ss
+   */
+  public static final String DATE_MINUTES_SECONDS_NO_SLASH_FORMAT = "yyyyMMdd HH:mm:ss";
+
+  /**
+   * format on screen of config for milestone: yyyy/MM/dd HH:mm:ss.SSS
+   */
+  public static final String TIMESTAMP_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
+
+  /**
+   * format on screen of config for milestone: yyyyMMdd HH:mm:ss.SSS
+   */
+  public static final String TIMESTAMP_NO_SLASH_FORMAT = "yyyyMMdd HH:mm:ss.SSS";
+
+  /**
+   * date format, make sure to synchronize
+   */
+  final static SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
+  /**
+   * synchronize code that uses this standard formatter for dates with minutes and seconds
+   */
+  final static SimpleDateFormat dateMinutesSecondsFormat = new SimpleDateFormat(
+      DATE_MINUTES_SECONDS_FORMAT);
+
+  /**
+   * synchronize code that uses this standard formatter for dates with minutes and seconds
+   */
+  final static SimpleDateFormat dateMinutesSecondsNoSlashFormat = new SimpleDateFormat(
+      DATE_MINUTES_SECONDS_NO_SLASH_FORMAT);
+
+  /**
+   * <pre> format: yyyy/MM/dd HH:mm:ss.SSS synchronize code that uses this standard formatter for timestamps </pre>
+   */
+  final static SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_FORMAT);
+
+  /**
+   * synchronize code that uses this standard formatter for timestamps
+   */
+  final static SimpleDateFormat timestampNoSlashFormat = new SimpleDateFormat(
+      TIMESTAMP_NO_SLASH_FORMAT);
 
   /**
    * If false, throw an assertException, and give a reason
@@ -255,6 +537,18 @@ public class GrouperUtil {
       return super.put(key, value);
     }
   };
+
+  /**
+   * use the field cache, expire every day (just to be sure no leaks) 
+   */
+  private static ExpirableCache<String, Set<Method>> getterSetCache = new ExpirableCache<String, Set<Method>>(
+      60 * 24);
+
+  /**
+   * use the field cache, expire every day (just to be sure no leaks) 
+   */
+  private static ExpirableCache<String, Set<Method>> setterSetCache = new ExpirableCache<String, Set<Method>>(
+      60 * 24);
 
   /**
    * assign data to a field
@@ -328,14 +622,12 @@ public class GrouperUtil {
       Object dataToAssign, boolean overrideSecurity, boolean typeCast) {
 
     try {
-     // Class fieldType = field.getType();
+      Class fieldType = field.getType();
       // typecast
       if (typeCast) {
-        //TODO add this in
-        //dataToAssign = /*
-        //         * ObjectUtils.typeCast(dataToAssign, fieldType,
-        //         * true, true);
-        //         */dataToAssign;
+        dataToAssign = 
+                 typeCast(dataToAssign, fieldType,
+                 true, true);
       }
       if (overrideSecurity) {
         field.setAccessible(true);
@@ -548,13 +840,13 @@ public class GrouperUtil {
       Annotation annotation = field
           .getAnnotation(annotationWithValueOverride);
       if (annotation != null) {
-        /*
-         * // type of the value, or String if not specific Class
-         * typeOfAnnotationValue = typeCast ? field.getType() :
-         * String.class; dataToAssign =
-         * AnnotationUtils.retrieveAnnotationValue(
-         * typeOfAnnotationValue, annotation, "value");
-         */
+        
+         // type of the value, or String if not specific Class
+          // typeOfAnnotationValue = typeCast ? field.getType() :
+          // String.class; dataToAssign =
+          // AnnotationUtils.retrieveAnnotationValue(
+          // typeOfAnnotationValue, annotation, "value");
+        
         throw new RuntimeException("Not supported");
       }
     }
@@ -742,7 +1034,7 @@ public class GrouperUtil {
     Set<Field> fieldSet = fieldsHelper(theClass, superclassToStopAt,
         fieldType, includeSuperclassToStopAt, includeStaticFields,
         includeFinalFields, markerAnnotation, includeAnnotation);
-    Set<String> fieldNameSet = new HashSet<String>();
+    Set<String> fieldNameSet = new LinkedHashSet<String>();
     for (Field field : fieldSet) {
       fieldNameSet.add(field.getName());
     }
@@ -853,7 +1145,7 @@ public class GrouperUtil {
       return fieldNameSet;
     }
 
-    fieldNameSet = new HashSet<Field>();
+    fieldNameSet = new LinkedHashSet<Field>();
     fieldsHelper(theClass, superclassToStopAt, fieldType,
         includeSuperclassToStopAt, includeStaticFields,
         includeFinalFields, markerAnnotation, fieldNameSet,
@@ -1996,5 +2288,1331 @@ public class GrouperUtil {
     } catch (Exception e) {
       return "<<exception>> " + object.getClass() + ":\n" + ExceptionUtils.getFullStackTrace(e) + "\n";
     }
+  }
+
+  /**
+   * get the boolean value for an object, cant be null or blank
+   * 
+   * @param object
+   * @return the boolean
+   */
+  public static boolean booleanValue(Object object) {
+  	// first handle blanks
+  	if (nullOrBlank(object)) {
+  		throw new RuntimeException(
+  				"Expecting something which can be converted to boolean, but is null or blank: '"
+  						+ object + "'");
+  	}
+  	// its not blank, just convert
+  	if (object instanceof Boolean) {
+  		return (Boolean) object;
+  	}
+  	if (object instanceof String) {
+  		String string = (String) object;
+  		if (StringUtils.equalsIgnoreCase(string, "true")
+  				|| StringUtils.equalsIgnoreCase(string, "t")) {
+  			return true;
+  		}
+  		if (StringUtils.equalsIgnoreCase(string, "false")
+  				|| StringUtils.equalsIgnoreCase(string, "f")) {
+  			return false;
+  		}
+  		throw new RuntimeException(
+  				"Invalid string to boolean conversion: '" + string
+  						+ "' expecting true|false or t|f case insensitive");
+  
+  	}
+  	throw new RuntimeException("Cant convert object to boolean: "
+  			+ object.getClass());
+  
+  }
+
+  /**
+   * get the boolean value for an object
+   * 
+   * @param object
+   * @param defaultBoolean
+   *            if object is null or empty
+   * @return the boolean
+   */
+  public static boolean booleanValue(Object object, boolean defaultBoolean) {
+  	if (nullOrBlank(object)) {
+  		return defaultBoolean;
+  	}
+  	return booleanValue(object);
+  }
+
+  /**
+   * get the Boolean value for an object
+   * 
+   * @param object
+   * @return the Boolean or null if null or empty
+   */
+  public static Boolean booleanObjectValue(Object object) {
+    if (GrouperUtil.nullOrBlank(object)) {
+      return null;
+    }
+    return GrouperUtil.booleanValue(object);
+  }
+
+  /**
+   * is an object null or blank
+   * 
+   * @param object
+   * @return true if null or blank
+   */
+  public static boolean nullOrBlank(Object object) {
+  	// first handle blanks and nulls
+  	if (object == null) {
+  		return true;
+  	}
+  	if (object instanceof String && StringUtils.isBlank(((String) object))) {
+  		return true;
+  	}
+  	return false;
+  
+  }
+
+  /**
+   * get a getter method object for a class, potentially in superclasses
+   * @param theClass
+   * @param fieldName
+   * @param callOnSupers true if superclasses should be looked in for the getter
+   * @param throwExceptionIfNotFound will throw runtime exception if not found
+   * @return the getter object or null if not found (or exception if param is set)
+   */
+  public static Method getter(Class theClass, String fieldName, boolean callOnSupers, 
+      boolean throwExceptionIfNotFound) {
+    String getterName = getterNameFromPropertyName(fieldName);
+    return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
+  }
+
+  /**
+   * get a setter method object for a class, potentially in superclasses
+   * @param theClass
+   * @param fieldName
+   * @param getterName name of setter
+   * @param callOnSupers true if superclasses should be looked in for the setter
+   * @param throwExceptionIfNotFound will throw runtime exception if not found
+   * @return the setter object or null if not found (or exception if param is set)
+   */
+  public static Method getterHelper(Class theClass, String fieldName, String getterName, 
+      boolean callOnSupers, boolean throwExceptionIfNotFound) {
+    Method[] methods = retrieveDeclaredMethods(theClass);
+    if (methods != null) {
+      for (Method method : methods) {
+        if (StringUtils.equals(getterName, method.getName()) && isGetter(method)) {
+          return method;
+        }
+      }
+    }
+    //if method not found
+    //if traversing up, and not Object, and not instance method
+    if (callOnSupers && !theClass.equals(Object.class)) {
+      return getterHelper(theClass.getSuperclass(), fieldName, getterName, 
+          callOnSupers, throwExceptionIfNotFound);
+    }
+    //maybe throw an exception
+    if (throwExceptionIfNotFound) {
+      throw new PropertyDoesNotExistUnchecked("Cant find getter: "
+          + getterName + ", in: " + theClass
+          + ", callOnSupers: " + callOnSupers);
+    }
+    return null;
+  }
+
+  /**
+   * generate getBb from bb
+   * @param propertyName
+   * @return the getter 
+   */
+  public static String getterNameFromPropertyName(String propertyName) {
+    return "get" + StringUtils.capitalize(propertyName);
+  }
+
+  /**
+   * get all getters from a class, including superclasses (if specified) (up to and including the specified superclass).  
+   * ignore a certain marker annotation, or only include it.
+   * Dont get static or final getters, and get getters of all types
+   * @param theClass to look for fields in
+   * @param superclassToStopAt to go up to or null to go up to Object
+   * @param markerAnnotation if this is not null, then if the field has this annotation, then do not
+   * include in list (if includeAnnotation is false)
+   * @param includeAnnotation true if the attribute should be included if annotation is present, false if exclude
+   * @return the set of field names or empty set if none
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<Method> getters(Class theClass, Class superclassToStopAt,
+      Class<? extends Annotation> markerAnnotation, Boolean includeAnnotation) {
+    return gettersHelper(theClass, superclassToStopAt, null, true, 
+        markerAnnotation, includeAnnotation);
+  }
+
+  /**
+   * get all getters from a class, including superclasses (if specified)
+   * @param theClass to look for fields in
+   * @param superclassToStopAt to go up to or null to go up to Object
+   * @param fieldType is the type of the field to get
+   * @param includeSuperclassToStopAt if we should include the superclass
+   * @param markerAnnotation if this is not null, then if the field has this annotation, then do not
+   * include in list (if includeAnnotation is false)
+   * @param includeAnnotation true if the attribute should be included if annotation is present, false if exclude
+   * @return the set of fields (wont return null)
+   */
+  @SuppressWarnings("unchecked")
+  static Set<Method> gettersHelper(Class theClass, Class superclassToStopAt, Class<?> fieldType,
+      boolean includeSuperclassToStopAt, 
+      Class<? extends Annotation> markerAnnotation, Boolean includeAnnotation) {
+    //MAKE SURE IF ANY MORE PARAMS ARE ADDED, THE CACHE KEY IS CHANGED!
+    
+    Set<Method> getterSet = null;
+    String cacheKey = theClass + CACHE_SEPARATOR + superclassToStopAt + CACHE_SEPARATOR + fieldType + CACHE_SEPARATOR
+      + includeSuperclassToStopAt + CACHE_SEPARATOR + markerAnnotation + CACHE_SEPARATOR + includeAnnotation;
+    getterSet = getterSetCache.get(cacheKey);
+    if (getterSet != null) {
+      return getterSet;
+    }
+    
+    getterSet = new LinkedHashSet<Method>();
+    gettersHelper(theClass, superclassToStopAt, fieldType, includeSuperclassToStopAt, 
+        markerAnnotation, getterSet, includeAnnotation);
+  
+    //add to cache
+    getterSetCache.put(cacheKey, getterSet);
+    
+    return getterSet;
+    
+  }
+
+  /**
+   * get all getters from a class, including superclasses (if specified)
+   * @param theClass to look for fields in
+   * @param superclassToStopAt to go up to or null to go up to Object
+   * @param propertyType is the type of the field to get
+   * @param includeSuperclassToStopAt if we should include the superclass
+   * @param markerAnnotation if this is not null, then if the field has this annotation, then do not
+   * include in list
+   * @param getterSet set to add fields to
+   * @param includeAnnotation if include or exclude
+   */
+  @SuppressWarnings("unchecked")
+  private static void gettersHelper(Class theClass, Class superclassToStopAt, Class<?> propertyType,
+      boolean includeSuperclassToStopAt,  
+      Class<? extends Annotation> markerAnnotation, Set<Method> getterSet, Boolean includeAnnotation) {
+    theClass = unenhanceClass(theClass);
+    Method[] methods = retrieveDeclaredMethods(theClass);
+    if (length(methods) != 0) {
+      for (Method method: methods) {
+        //must be a getter
+        if (!isGetter(method)) {
+          continue;
+        }
+        //if checking for annotation
+        if (markerAnnotation != null
+            && (includeAnnotation != method.isAnnotationPresent(markerAnnotation))) {
+          continue;
+        }
+        //if checking for type, and not right type, continue
+        if (propertyType != null && !propertyType.isAssignableFrom(method.getReturnType())) {
+          continue;
+        }
+        
+        //go for it
+        getterSet.add(method);
+      }
+    }
+    //see if done recursing (if superclassToStopAt is null, then stop at Object
+    if (theClass.equals(superclassToStopAt) || theClass.equals(Object.class)) {
+      return;
+    }
+    Class superclass = theClass.getSuperclass();
+    if (!includeSuperclassToStopAt && superclass.equals(superclassToStopAt)) {
+      return;
+    }
+    //recurse
+    gettersHelper(superclass, superclassToStopAt, propertyType, 
+        includeSuperclassToStopAt, markerAnnotation, getterSet,
+        includeAnnotation);
+  }
+
+  /**
+   * if the method name starts with get, and takes no args, and returns something, 
+   * then getter
+   * @param method 
+   * @return true if getter
+   */
+  public static boolean isGetter(Method method) {
+    
+    //must start with get
+    String methodName = method.getName();
+    if (!methodName.startsWith("get") && !methodName.startsWith("is")) {
+      return false;
+    }
+  
+    //must not be void
+    if (method.getReturnType() == Void.TYPE) {
+      return false;
+    }
+    
+    //must not take args
+    if (length(method.getParameterTypes()) != 0) {
+      return false;
+    }
+    
+    //must not be static
+    if (Modifier.isStatic(method.getModifiers())) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * assign data to a setter.  Will find the field in superclasses, will typecast, 
+   * and will override security (private, protected, etc)
+   * @param invokeOn to call on or null for static
+   * @param fieldName method name to call
+   * @param dataToAssign data  
+   * @param typeCast will typecast if true
+   * @throws PropertyDoesNotExistUnchecked if not there
+   */
+  public static void assignSetter(Object invokeOn, 
+      String fieldName, Object dataToAssign, boolean typeCast) {
+    Class invokeOnClass = invokeOn.getClass();
+    Method setter = setter(invokeOnClass, fieldName, true, true);
+    setter.setAccessible(true);
+    if (typeCast) {
+      dataToAssign = typeCast(dataToAssign, setter.getParameterTypes()[0]);
+    }
+    try {
+      setter.invoke(invokeOn, new Object[]{dataToAssign});
+    } catch (Exception e) {
+      throw new RuntimeException("Problem assigning setter: " + fieldName
+          + " on class: " + invokeOnClass + ", type of data is: " + GrouperUtil.className(dataToAssign), e);
+    }
+  }
+
+  /**
+   * if the method name starts with get, and takes no args, and returns something, 
+   * then getter
+   * @param method 
+   * @return true if getter
+   */
+  public static boolean isSetter(Method method) {
+    
+    //must start with get
+    if (!method.getName().startsWith("set")) {
+      return false;
+    }
+  
+    //must be void
+    if (method.getReturnType() != Void.TYPE) {
+      return false;
+    }
+    
+    //must take one arg
+    if (length(method.getParameterTypes()) != 1) {
+      return false;
+    }
+    
+    //must not be static
+    if (Modifier.isStatic(method.getModifiers())) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * get a setter method object for a class, potentially in superclasses
+   * @param theClass
+   * @param fieldName
+   * @param callOnSupers true if superclasses should be looked in for the setter
+   * @param throwExceptionIfNotFound will throw runtime exception if not found
+   * @return the setter object or null if not found (or exception if param is set)
+   */
+  public static Method setter(Class theClass, String fieldName, boolean callOnSupers, 
+      boolean throwExceptionIfNotFound) {
+    String setterName = setterNameFromPropertyName(fieldName);
+    return setterHelper(theClass, fieldName, setterName, callOnSupers, throwExceptionIfNotFound);
+  }
+
+  /**
+   * get a setter method object for a class, potentially in superclasses
+   * @param theClass
+   * @param fieldName
+   * @param setterName name of setter
+   * @param callOnSupers true if superclasses should be looked in for the setter
+   * @param throwExceptionIfNotFound will throw runtime exception if not found
+   * @return the setter object or null if not found (or exception if param is set)
+   */
+  public static Method setterHelper(Class theClass, String fieldName, String setterName, 
+      boolean callOnSupers, boolean throwExceptionIfNotFound) {
+    Method[] methods = retrieveDeclaredMethods(theClass);
+    if (methods != null) {
+      for (Method method : methods) {
+        if (StringUtils.equals(setterName, method.getName()) && isSetter(method)) {
+          return method;
+        }
+      }
+    }
+    //if method not found
+    //if traversing up, and not Object, and not instance method
+    if (callOnSupers && !theClass.equals(Object.class)) {
+      return setterHelper(theClass.getSuperclass(), fieldName, setterName, 
+          callOnSupers, throwExceptionIfNotFound);
+    }
+    //maybe throw an exception
+    if (throwExceptionIfNotFound) {
+      throw new PropertyDoesNotExistUnchecked("Cant find setter: "
+          + setterName + ", in: " + theClass
+          + ", callOnSupers: " + callOnSupers);
+    }
+    return null;
+  }
+
+  /**
+   * generate setBb from bb
+   * @param propertyName
+   * @return the setter 
+   */
+  public static String setterNameFromPropertyName(String propertyName) {
+    return "set" + StringUtils.capitalize(propertyName);
+  }
+
+  /**
+   * get all setters from a class, including superclasses (if specified)
+   * @param theClass to look for fields in
+   * @param superclassToStopAt to go up to or null to go up to Object
+   * @param fieldType is the type of the field to get
+   * @param includeSuperclassToStopAt if we should include the superclass
+   * @param markerAnnotation if this is not null, then if the field has this annotation, then do not
+   * include in list (if includeAnnotation is false)
+   * @param includeAnnotation true if the attribute should be included if annotation is present, false if exclude
+   * @return the set of fields (wont return null)
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<Method> setters(Class theClass, Class superclassToStopAt, Class<?> fieldType,
+      boolean includeSuperclassToStopAt, 
+      Class<? extends Annotation> markerAnnotation, boolean includeAnnotation) {
+    return settersHelper(theClass, superclassToStopAt, fieldType, 
+        includeSuperclassToStopAt, markerAnnotation, includeAnnotation);
+  }
+
+  /**
+   * get all setters from a class, including superclasses (if specified)
+   * @param theClass to look for fields in
+   * @param superclassToStopAt to go up to or null to go up to Object
+   * @param fieldType is the type of the field to get
+   * @param includeSuperclassToStopAt if we should include the superclass
+   * @param markerAnnotation if this is not null, then if the field has this annotation, then do not
+   * include in list (if includeAnnotation is false)
+   * @param includeAnnotation true if the attribute should be included if annotation is present, false if exclude
+   * @return the set of fields (wont return null)
+   */
+  @SuppressWarnings("unchecked")
+  static Set<Method> settersHelper(Class theClass, Class superclassToStopAt, Class<?> fieldType,
+      boolean includeSuperclassToStopAt, 
+      Class<? extends Annotation> markerAnnotation, boolean includeAnnotation) {
+    //MAKE SURE IF ANY MORE PARAMS ARE ADDED, THE CACHE KEY IS CHANGED!
+    
+    Set<Method> setterSet = null;
+    String cacheKey = theClass + CACHE_SEPARATOR + superclassToStopAt + CACHE_SEPARATOR + fieldType + CACHE_SEPARATOR
+      + includeSuperclassToStopAt + CACHE_SEPARATOR + markerAnnotation + CACHE_SEPARATOR + includeAnnotation;
+    setterSet = setterSetCache.get(cacheKey);
+    if (setterSet != null) {
+      return setterSet;
+    }
+    
+    setterSet = new LinkedHashSet<Method>();
+    settersHelper(theClass, superclassToStopAt, fieldType, includeSuperclassToStopAt, 
+        markerAnnotation, setterSet, includeAnnotation);
+  
+    //add to cache
+    setterSetCache.put(cacheKey, setterSet);
+    
+    return setterSet;
+    
+  }
+
+  /**
+   * get all setters from a class, including superclasses (if specified)
+   * @param theClass to look for fields in
+   * @param superclassToStopAt to go up to or null to go up to Object
+   * @param propertyType is the type of the field to get
+   * @param includeSuperclassToStopAt if we should include the superclass
+   * @param markerAnnotation if this is not null, then if the field has this annotation, then do not
+   * include in list
+   * @param setterSet set to add fields to
+   * @param includeAnnotation if include or exclude (or null if not looking for annotations)
+   */
+  @SuppressWarnings("unchecked")
+  private static void settersHelper(Class theClass, Class superclassToStopAt, Class<?> propertyType,
+      boolean includeSuperclassToStopAt,  
+      Class<? extends Annotation> markerAnnotation, Set<Method> setterSet, Boolean includeAnnotation) {
+    theClass = unenhanceClass(theClass);
+    Method[] methods = retrieveDeclaredMethods(theClass);
+    if (length(methods) != 0) {
+      for (Method method: methods) {
+        //must be a getter
+        if (!isSetter(method)) {
+          continue;
+        }
+        //if checking for annotation
+        if (markerAnnotation != null
+            && (includeAnnotation != method.isAnnotationPresent(markerAnnotation))) {
+          continue;
+        }
+        //if checking for type, and not right type, continue
+        if (propertyType != null && !propertyType.isAssignableFrom(method.getParameterTypes()[0])) {
+          continue;
+        }
+        
+        //go for it
+        setterSet.add(method);
+      }
+    }
+    //see if done recursing (if superclassToStopAt is null, then stop at Object
+    if (theClass.equals(superclassToStopAt) || theClass.equals(Object.class)) {
+      return;
+    }
+    Class superclass = theClass.getSuperclass();
+    if (!includeSuperclassToStopAt && superclass.equals(superclassToStopAt)) {
+      return;
+    }
+    //recurse
+    settersHelper(superclass, superclassToStopAt, propertyType, 
+        includeSuperclassToStopAt, markerAnnotation, setterSet,
+        includeAnnotation);
+  }
+
+  /**
+   * If this is a getter or setter, then get the property name
+   * @param method
+   * @return the property name
+   */
+  public static String propertyName(Method method) {
+    String methodName = method.getName();
+    boolean isGetter = methodName.startsWith("get");
+    boolean isSetter = methodName.startsWith("set");
+    boolean isIsser = methodName.startsWith("is");
+    int expectedLength = isIsser ? 2 : 3; 
+    int length = methodName.length();
+    if ((!(isGetter || isSetter || isIsser)) || (length <= expectedLength)) {
+      throw new RuntimeException("Not a getter or setter: " + methodName);
+    }
+    char fourthCharLower = Character.toLowerCase(methodName.charAt(expectedLength));
+    //if size 4, then return the string
+    if (length == expectedLength +1) {
+      return Character.toString(fourthCharLower);
+    }
+    //return the lower appended with the rest
+    return fourthCharLower + methodName.substring(expectedLength+1, length);
+  }
+
+  /**
+   * use reflection to get a property type based on getter or setter or field
+   * @param theClass
+   * @param propertyName
+   * @return the property type
+   */
+  public static Class propertyType(Class theClass, String propertyName) {
+    theClass = unenhanceClass(theClass);
+    Method method = getter(theClass, propertyName, true, false);
+    if (method != null) {
+      return method.getReturnType();
+    }
+    //use setter
+    method = setter(theClass, propertyName, true, false);
+    if (method != null) {
+      return method.getParameterTypes()[0];
+    }
+    //no setter or getter, use field
+    Field field = field(theClass, propertyName, true, true);
+    return field.getType();
+  }
+
+  /**
+   * If necessary, convert an object to another type.  if type is Object.class, just return the input.
+   * Do not convert null to an empty primitive
+   * @param <T> is template type
+   * @param value
+   * @param theClass
+   * @return the object of that instance converted into something else
+   */
+  public static <T> T typeCast(Object value, Class<T> theClass) {
+    //default behavior is not to convert null to empty primitive
+    return typeCast(value, theClass, false, false);
+  }
+
+  /**
+   * <pre>
+   * Convert an object to a java.util.Date.  allows, dates, null, blank, 
+   * yyyymmdd or yyyymmdd hh24:mm:ss
+   * or yyyy/MM/dd HH:mm:ss.SSS
+   * </pre>
+   * @param inputObject
+   *          is the String or Date to convert
+   * 
+   * @return the Date
+   */
+  public static Date dateValue(Object inputObject) {
+    if (inputObject == null) {
+      return null;
+    } 
+
+    if (inputObject instanceof java.util.Date) {
+      return (Date)inputObject;
+    }
+
+    if (inputObject instanceof String) {
+      String input = (String)inputObject;
+      //trim and handle null and empty
+      if (StringUtils.isBlank(input)) {
+        return null;
+      }
+
+      try {
+        if (input.length() == 8) {
+          
+          return dateFormat().parse(input);
+        }
+        if (!StringUtils.contains(input, '.')) {
+          if (StringUtils.contains(input, '/')) {
+            return dateMinutesSecondsFormat.parse(input);
+          }
+          //else no slash
+          return dateMinutesSecondsNoSlashFormat.parse(input);
+        }
+        if (StringUtils.contains(input, '/')) {
+          //see if the period is 6 back
+          int lastDotIndex = input.lastIndexOf('.');
+          if (lastDotIndex == input.length() - 7) {
+            String nonNanoInput = input.substring(0,input.length()-3);
+            Date date = timestampFormat.parse(nonNanoInput);
+            //get the last 3
+            String lastThree = input.substring(input.length()-3,input.length());
+            int lastThreeInt = Integer.parseInt(lastThree);
+            Timestamp timestamp = new Timestamp(date.getTime());
+            timestamp.setNanos(timestamp.getNanos() + (lastThreeInt * 1000));
+            return timestamp;
+          }
+          return timestampFormat.parse(input);
+        }
+        //else no slash
+        return timestampNoSlashFormat.parse(input);
+      } catch (ParseException pe) {
+        throw new RuntimeException(errorStart + toStringForLog(input));
+      }
+    }
+    
+    throw new RuntimeException("Cannot convert Object to date : " + toStringForLog(inputObject));
+  }
+
+  /**
+   * See if the input is null or if string, if it is empty or blank (whitespace)
+   * @param input
+   * @return true if blank
+   */
+  public static boolean isBlank(Object input) {
+    if (null == input) {
+      return true;
+    }
+    return (input instanceof String && StringUtils.isBlank((String)input));
+  }
+
+  /**
+   * If necessary, convert an object to another type.  if type is Object.class, just return the input
+   * @param <T> is the type to return
+   * @param value
+   * @param theClass
+   * @param convertNullToDefaultPrimitive if the value is null, and theClass is primitive, should we
+   * convert the null to a primitive default value
+   * @param useNewInstanceHooks if theClass is not recognized, then honor the string "null", "newInstance",
+   * or get a constructor with one param, and call it
+   * @return the object of that instance converted into something else
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T typeCast(Object value, Class<T> theClass, 
+      boolean convertNullToDefaultPrimitive, boolean useNewInstanceHooks) {
+    
+    if (Object.class.equals(theClass)) {
+      return (T)value;
+    }
+    
+    if (value==null) {
+      if (convertNullToDefaultPrimitive && theClass.isPrimitive()) {
+        if ( theClass == boolean.class ) {
+          return (T)Boolean.FALSE;
+        }
+        if ( theClass == char.class ) {
+          return (T)(Object)0;
+        }
+        //convert 0 to the type
+        return typeCast(0, theClass, false, false);
+      }
+      return null;
+    }
+  
+    if (theClass.isInstance(value)) {
+      return (T)value;
+    }
+    
+    //if array, get the base class
+    if (theClass.isArray() && theClass.getComponentType() != null) {
+      theClass = (Class<T>)theClass.getComponentType();
+    }
+    Object resultValue = null;
+    //loop through and see the primitive types etc
+    if (theClass.equals(Date.class)) {
+      resultValue = dateValue(value);
+    } else if (theClass.equals(String.class)) {
+      resultValue = stringValue(value);
+    } else if (theClass.equals(Timestamp.class)) {
+      resultValue = toTimestamp(value);
+    } else if (theClass.equals(Boolean.class) || theClass.equals(boolean.class)) {
+      resultValue = booleanObjectValue(value);
+    } else if (theClass.equals(Integer.class) || theClass.equals(int.class)) {
+      resultValue = intObjectValue(value, true);
+    } else if (theClass.equals(Double.class) || theClass.equals(double.class)) {
+      resultValue = doubleObjectValue(value, true);
+    } else if (theClass.equals(Float.class) || theClass.equals(float.class)) {
+      resultValue = floatObjectValue(value, true);
+    } else if (theClass.equals(Long.class) || theClass.equals(long.class)) {
+      resultValue = longObjectValue(value, true);
+    } else if (theClass.equals(Byte.class) || theClass.equals(byte.class)) {
+      resultValue = byteObjectValue(value);
+    } else if (theClass.equals(Character.class) || theClass.equals(char.class)) {
+      resultValue = charObjectValue(value);
+    } else if (theClass.equals(Short.class) || theClass.equals(short.class)) {
+      resultValue = shortObjectValue(value);
+    } else if ( theClass.isEnum() && (value instanceof String) ) {
+      resultValue = Enum.valueOf((Class)theClass, (String) value);
+    } else if ( theClass.equals(Class.class) && (value instanceof String) ) {
+      resultValue = forName((String)value);
+    } else if (useNewInstanceHooks && value instanceof String) {
+      String stringValue = (String)value;
+      if ( StringUtils.equals("null", stringValue)) {
+        resultValue = null;
+      } else if (StringUtils.equals("newInstance", stringValue)) {
+        resultValue = newInstance(theClass);
+      } else { // instantiate using string
+        //note, we could typecast this to fit whatever is there... right now this is used for annotation
+        try {
+          Constructor constructor = theClass.getConstructor(new Class[] {String.class} );
+          resultValue = constructor.newInstance(new Object[] {stringValue} );            
+        } catch (Exception e) {
+          throw new RuntimeException("Cant find constructor with string for class: " + theClass);
+        }
+      }
+    } else {
+      throw new RuntimeException("Cannot convert from type: " + value.getClass() + " to type: " + theClass);
+    }
+  
+    return (T)resultValue;
+  }
+
+  /**
+   * <pre>
+   * Convert a string or object to a timestamp (could be string, date, timestamp, etc)
+   * yyyymmdd
+   * or
+   * yyyy/MM/dd HH:mm:ss
+   * or
+   * yyyy/MM/dd HH:mm:ss.SSS
+   * or
+   * yyyy/MM/dd HH:mm:ss.SSSSSS
+   * 
+   * </pre>
+   * 
+   * @param input
+   * @return the timestamp 
+   * @throws RuntimeException if invalid format
+   */
+  public static Timestamp toTimestamp(Object input) {
+
+    if (null == input) {
+      return null;
+    } else if (input instanceof java.sql.Timestamp) {
+      return (Timestamp) input;
+    } else if (input instanceof String) {
+      return stringToTimestamp((String) input);
+    } else if (input instanceof Date) {
+      return new Timestamp(((Date)input).getTime());
+    } else if (input instanceof java.sql.Date) {
+      return new Timestamp(((java.sql.Date)input).getTime());
+    } else {
+      throw new RuntimeException("Cannot convert Object to timestamp : " + input);
+    }
+
+  }
+
+  /**
+   * convert an object to a string
+   * 
+   * @param input
+   *          is the object to convert
+   * 
+   * @return the String conversion of the object
+   */
+  public static String stringValue(Object input) {
+    //this isnt needed
+    if (input == null) {
+      return (String) input;
+    }
+
+    if (input instanceof Timestamp) {
+      //convert to yyyy/MM/dd HH:mm:ss.SSS
+      return timestampToString((Timestamp) input);
+    }
+
+    if (input instanceof Date) {
+      //convert to yyyymmdd
+      return stringValue((Date) input);
+    }
+
+    if (input instanceof Number) {
+      DecimalFormat decimalFormat = new DecimalFormat(
+          "###################.###############");
+      return decimalFormat.format(((Number) input).doubleValue());
+
+    }
+
+    return input.toString();
+  }
+
+  /**
+   * Convert a timestamp into a string: yyyy/MM/dd HH:mm:ss.SSS
+   * @param timestamp
+   * @return the string representation
+   */
+  public synchronized static String timestampToString(Date timestamp) {
+    if (timestamp == null) {
+      return null;
+    }
+    return timestampFormat.format(timestamp);
+  }
+
+  /**
+   * get the timestamp format for this thread
+   * if you call this make sure to synchronize on FastDateUtils.class
+   * @return the timestamp format
+   */
+  synchronized static SimpleDateFormat dateFormat() {
+    return dateFormat;
+  }
+
+  /**
+   * convert a date to the standard string yyyymmdd
+   * @param date 
+   * @return the string value
+   */
+  public static String stringValue(java.util.Date date) {
+    synchronized (GrouperUtil.class) {
+      if (date == null) {
+        return null;
+      }
+  
+      String theString = dateFormat().format(date);
+  
+      return theString;
+    }
+  }
+
+  /**
+   * <pre>convert a string to timestamp based on the following formats:
+   * yyyyMMdd
+   * yyyy/MM/dd HH:mm:ss
+   * yyyy/MM/dd HH:mm:ss.SSS
+   * yyyy/MM/dd HH:mm:ss.SSSSSS
+   * </pre>
+   * @param input
+   * @return the timestamp object
+   */
+  public static Timestamp stringToTimestamp(String input) {
+    Date date = stringToTimestampHelper(input);
+    if (date == null) {
+      return null;
+    }
+    //maybe already a timestamp
+    if (date instanceof Timestamp) {
+      return (Timestamp)date; 
+    }
+    return new Timestamp(date.getTime());
+  }
+
+  /**
+   * return a date based on input, null safe.  Allow any of the three 
+   * formats:
+   * yyyyMMdd
+   * yyyy/MM/dd HH:mm:ss
+   * yyyy/MM/dd HH:mm:ss.SSS
+   * yyyy/MM/dd HH:mm:ss.SSSSSS
+   * 
+   * @param input
+   * @return the millis, -1 for null
+   */
+  synchronized static Date stringToTimestampHelper(String input) {
+    //trim and handle null and empty
+    if (StringUtils.isBlank(input)) {
+      return null;
+    }
+  
+    try {
+      //convert mainframe
+      if (StringUtils.equals("99999999", input)
+          || StringUtils.equals("999999", input)) {
+        input = "20991231";
+      }
+      if (input.length() == 8) {
+        
+        return dateFormat().parse(input);
+      }
+      if (!StringUtils.contains(input, '.')) {
+        if (StringUtils.contains(input, '/')) {
+          return dateMinutesSecondsFormat.parse(input);
+        }
+        //else no slash
+        return dateMinutesSecondsNoSlashFormat.parse(input);
+      }
+      if (StringUtils.contains(input, '/')) {
+        //see if the period is 6 back
+        int lastDotIndex = input.lastIndexOf('.');
+        if (lastDotIndex == input.length() - 7) {
+          String nonNanoInput = input.substring(0,input.length()-3);
+          Date date = timestampFormat.parse(nonNanoInput);
+          //get the last 3
+          String lastThree = input.substring(input.length()-3,input.length());
+          int lastThreeInt = Integer.parseInt(lastThree);
+          Timestamp timestamp = new Timestamp(date.getTime());
+          timestamp.setNanos(timestamp.getNanos() + (lastThreeInt * 1000));
+          return timestamp;
+        }
+        return timestampFormat.parse(input);
+      }
+      //else no slash
+      return timestampNoSlashFormat.parse(input);
+    } catch (ParseException pe) {
+      throw new RuntimeException(errorStart + input);
+    }
+  }
+
+  /**
+   * start of error parsing messages
+   */
+  private static final String errorStart = "Invalid timestamp, please use any of the formats: "
+    + DATE_FORMAT + ", " + TIMESTAMP_FORMAT 
+    + ", " + DATE_MINUTES_SECONDS_FORMAT + ": ";
+
+  /**
+   * Convert an object to a byte, allow nulls
+   * @param input
+   * @return the boolean object value
+   */
+  public static BigDecimal bigDecimalObjectValue(Object input) {
+    if (input instanceof BigDecimal) {
+      return (BigDecimal)input;
+    }
+    if (isBlank(input)) {
+      return null;
+    }
+    return BigDecimal.valueOf(doubleValue(input));
+  }
+
+  /**
+   * Convert an object to a byte, allow nulls
+   * @param input
+   * @return the boolean object value
+   */
+  public static Byte byteObjectValue(Object input) {
+    if (input instanceof Byte) {
+      return (Byte)input;
+    }
+    if (isBlank(input)) {
+      return null;
+    }
+    return Byte.valueOf(byteValue(input));
+  }
+
+  /**
+   * convert an object to a byte
+   * @param input
+   * @return the byte
+   */
+  public static byte byteValue(Object input) {
+    if (input instanceof String) {
+      String string = (String)input;
+      return Byte.parseByte(string);
+    }
+    if (input instanceof Number) {
+      return ((Number)input).byteValue();
+    }
+    throw new RuntimeException("Cannot convert to byte: " + className(input));
+  }
+
+  /**
+   * get the Double value of an object
+   * 
+   * @param input
+   *          is a number or String
+   * @param allowNullBlank used to default to false, if true, return null if nul inputted 
+   * 
+   * @return the Double equivalent
+   */
+  public static Double doubleObjectValue(Object input, boolean allowNullBlank) {
+  
+    if (input instanceof Double) {
+      return (Double) input;
+    } 
+    
+    if (allowNullBlank && isBlank(input)) {
+      return null;
+    }
+    
+    return Double.valueOf(doubleValue(input));
+  }
+
+  /**
+   * get the double value of an object
+   * 
+   * @param input
+   *          is a number or String
+   * 
+   * @return the double equivalent
+   */
+  public static double doubleValue(Object input) {
+    if (input instanceof String) {
+      String string = (String)input;
+      return Double.parseDouble(string);
+    }
+    if (input instanceof Number) {
+      return ((Number)input).doubleValue();
+    }
+    throw new RuntimeException("Cannot convert to double: "  + className(input));
+  }
+
+  /**
+   * get the double value of an object, do not throw an 
+   * exception if there is an
+   * error
+   * 
+   * @param input
+   *          is a number or String
+   * 
+   * @return the double equivalent
+   */
+  public static double doubleValueNoError(Object input) {
+    if (input == null || (input instanceof String 
+        && StringUtils.isBlank((String)input))) {
+      return NOT_FOUND;
+    }
+  
+    try {
+      return doubleValue(input);
+    } catch (Exception e) {
+      //no need to log here
+    }
+  
+    return NOT_FOUND;
+  }
+
+  /**
+   * get the Float value of an object
+   * 
+   * @param input
+   *          is a number or String
+   * @param allowNullBlank true if allow null or blank
+   * 
+   * @return the Float equivalent
+   */
+  public static Float floatObjectValue(Object input, boolean allowNullBlank) {
+  
+    if (input instanceof Float) {
+      return (Float) input;
+    } 
+  
+    if (allowNullBlank && isBlank(input)) {
+      return null;
+    }
+    return Float.valueOf(floatValue(input));
+  }
+
+  /**
+   * get the float value of an object
+   * 
+   * @param input
+   *          is a number or String
+   * 
+   * @return the float equivalent
+   */
+  public static float floatValue(Object input) {
+    if (input instanceof String) {
+      String string = (String)input;
+      return Float.parseFloat(string);
+    }
+    if (input instanceof Number) {
+      return ((Number)input).floatValue();
+    }
+    throw new RuntimeException("Cannot convert to float: " + className(input));
+  }
+
+  /**
+   * get the float value of an object, do not throw an exception if there is an
+   * error
+   * 
+   * @param input
+   *          is a number or String
+   * 
+   * @return the float equivalent
+   */
+  public static float floatValueNoError(Object input) {
+    if (input == null || (input instanceof String 
+        && StringUtils.isBlank((String)input))) {
+      return NOT_FOUND;
+    }
+    try {
+      return floatValue(input);
+    } catch (Exception e) {
+      LOG.error(e);
+    }
+  
+    return NOT_FOUND;
+  }
+
+  /**
+   * get the Integer value of an object
+   * 
+   * @param input
+   *          is a number or String
+   * @param allowNullBlank true if convert null or blank to null
+   * 
+   * @return the Integer equivalent
+   */
+  public static Integer intObjectValue(Object input, boolean allowNullBlank) {
+  
+    if (input instanceof Integer) {
+      return (Integer) input;
+    } 
+  
+    if (allowNullBlank && isBlank(input)) {
+      return null;
+    }
+    
+    return Integer.valueOf(intValue(input));
+  }
+
+  /**
+   * convert an object to a int
+   * @param input
+   * @return the number
+   */
+  public static int intValue(Object input) {
+    if (input instanceof String) {
+      String string = (String)input;
+      return Integer.parseInt(string);
+    }
+    if (input instanceof Number) {
+      return ((Number)input).intValue();
+    }
+    if (false) {
+      if (input == null) {
+        return 0;
+      }
+      if (input instanceof String || StringUtils.isBlank((String)input)) {
+        return 0;
+      }
+    }
+    
+    throw new RuntimeException("Cannot convert to int: " + className(input));
+  }
+
+  /**
+   * convert an object to a int
+   * @param input
+   * @param valueIfNull is if the input is null or empty, return this value
+   * @return the number
+   */
+  public static int intValue(Object input, int valueIfNull) {
+    if (input == null || "".equals(input)) {
+      return valueIfNull;
+    }
+    return intObjectValue(input, false);
+  }
+
+  /**
+   * get the int value of an object, do not throw an exception if there is an
+   * error
+   * 
+   * @param input
+   *          is a number or String
+   * 
+   * @return the int equivalent
+   */
+  public static int intValueNoError(Object input) {
+    if (input == null || (input instanceof String 
+        && StringUtils.isBlank((String)input))) {
+      return NOT_FOUND;
+    }
+    try {
+      return intValue(input);
+    } catch (Exception e) {
+      //no need to log here
+    }
+  
+    return NOT_FOUND;
+  }
+
+  /** special number when a number is not found */
+  public static final int NOT_FOUND = -999999999;
+
+  /**
+   * logger 
+   */
+  private static final Log LOG = LogFactory.getLog(GrouperUtil.class);
+
+  /**
+   * get the Long value of an object
+   * 
+   * @param input
+   *          is a number or String
+   * @param allowNullBlank true if null or blank converts to null
+   * 
+   * @return the Long equivalent
+   */
+  public static Long longObjectValue(Object input, boolean allowNullBlank) {
+  
+    if (input instanceof Long) {
+      return (Long) input;
+    } 
+  
+    if (allowNullBlank && isBlank(input)) {
+      return null;
+    } 
+    
+    return Long.valueOf(longValue(input));
+  }
+
+  /**
+   * convert an object to a long
+   * @param input
+   * @return the number
+   */
+  public static long longValue(Object input) {
+    if (input instanceof String) {
+      String string = (String)input;
+      return Long.parseLong(string);
+    }
+    if (input instanceof Number) {
+      return ((Number)input).longValue();
+    }
+    throw new RuntimeException("Cannot convert to long: " + className(input));
+  }
+
+  /**
+   * convert an object to a long
+   * @param input
+   * @param valueIfNull is if the input is null or empty, return this value
+   * @return the number
+   */
+  public static long longValue(Object input, long valueIfNull) {
+    if (input == null || "".equals(input)) {
+      return valueIfNull;
+    }
+    return longObjectValue(input, false);
+  }
+
+  /**
+   * get the long value of an object, do not throw an exception if there is an
+   * error
+   * 
+   * @param input
+   *          is a number or String
+   * 
+   * @return the long equivalent
+   */
+  public static long longValueNoError(Object input) {
+    if (input == null || (input instanceof String 
+        && StringUtils.isBlank((String)input))) {
+      return NOT_FOUND;
+    }
+    try {
+      return longValue(input);
+    } catch (Exception e) {
+      //no need to log here
+    }
+  
+    return NOT_FOUND;
+  }
+
+  /**
+   * get the Short value of an object.  converts null or blank to null
+   * 
+   * @param input
+   *          is a number or String
+   * 
+   * @return the Long equivalent
+   */
+  public static Short shortObjectValue(Object input) {
+  
+    if (input instanceof Short) {
+      return (Short) input;
+    }
+  
+    if (isBlank(input)) {
+      return null;
+    } 
+    
+    return Short.valueOf(shortValue(input));
+  }
+
+  /**
+   * convert an object to a short
+   * @param input
+   * @return the number
+   */
+  public static short shortValue(Object input) {
+    if (input instanceof String) {
+      String string = (String)input;
+      return Short.parseShort(string);
+    }
+    if (input instanceof Number) {
+      return ((Number)input).shortValue();
+    }
+    throw new RuntimeException("Cannot convert to short: " + className(input));
+  }
+
+  /**
+   * get the Character wrapper value for the input
+   * @param input allow null, return null
+   * @return the Character object wrapper
+   */
+  public static Character charObjectValue(Object input) {
+    if (input instanceof Character) {
+      return (Character) input;
+    }
+    if (isBlank(input)) {
+      return null;
+    }
+    return new Character(charValue(input));
+  }
+
+  /**
+   * convert an object to a char
+   * @param input
+   * @return the number
+   */
+  public static char charValue(Object input) {
+    if (input instanceof Character) {
+      return ((Character) input).charValue();
+    }
+    //if string length 1, thats ok
+    if (input instanceof String) {
+      String inputString = (String) input;
+      if (inputString.length() == 1) {
+        return inputString.charAt(0);
+      }
+    }
+    throw new RuntimeException("Cannot convert to char: "
+        + (input == null ? null : (input.getClass() + ", " + input)));
   }
 }

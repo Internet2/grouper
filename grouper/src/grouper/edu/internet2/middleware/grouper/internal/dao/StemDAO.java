@@ -29,27 +29,39 @@ import  java.util.Set;
  * Basic <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.8 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: StemDAO.java,v 1.8.4.1 2008-03-19 18:46:11 mchyzer Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
 
   /**
+   * hibernate version, int for each insert/update, negative is new
+   * @return hibernate version
+   */
+  long getHibernateVersion();
+  
+  /**
+   * hibernate version, int for each insert/update, negative is new
+   * @param theHibernateVersion
+   */
+  StemDAO setHibernateVersion(long theHibernateVersion);
+
+  /**
    * @since   1.2.0
    */
-  String createChildGroup(StemDTO _parent, GroupDTO _child, MemberDTO _m)
+  long createChildGroup(StemDTO _parent, GroupDTO _child, MemberDTO _m)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  String createChildStem(StemDTO _parent, StemDTO _child)
+  long createChildStem(StemDTO _parent, StemDTO _child)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  String createRootStem(StemDTO _root)
+  long createRootStem(StemDTO _root)
     throws  GrouperDAOException;
 
   /**
@@ -171,11 +183,6 @@ public interface StemDAO extends GrouperDAO {
    */
   String getExtension();
 
-  /** 
-   * @since   1.2.0
-   */
-  String getId();
-
   /**
    * @since   1.2.0
    */
@@ -258,11 +265,6 @@ public interface StemDAO extends GrouperDAO {
    * @since   1.2.0
    */
   StemDAO setExtension(String extension);
-
-  /**
-   * @since   1.2.0
-   */
-  StemDAO setId(String id);
 
   /**
    * @since   1.2.0

@@ -16,32 +16,39 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.SchemaException;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
-import  java.io.Serializable;
+import java.io.Serializable;
 import java.util.ArrayList;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
-import  org.hibernate.*;
-import  org.hibernate.classic.Lifecycle;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.CallbackException;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.classic.Lifecycle;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
+import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dto.FieldDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.util.Rosetta;
 
 
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.2.2.1 2008-03-19 18:46:10 mchyzer Exp $
  */
-public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle {
+public class Hib3GroupTypeDAO extends Hib3HibernateVersioned implements GroupTypeDAO, Lifecycle {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3GroupTypeDAO.class.getName();
@@ -52,31 +59,29 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle
   private long    createTime;
   private boolean isAssignable  = true;
   private boolean isInternal    = false;
-  private String  id;
   private String  name;
   private String  uuid;
-
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * @since   @HEAD@
    */
-  public String create(GroupTypeDTO _gt)
+  public long create(GroupTypeDTO _gt)
     throws  GrouperDAOException {
     Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_gt);
     HibernateSession.byObjectStatic().save(dao);
-    return dao.getId();
+    return ((GroupTypeDAO)dao).getHibernateVersion();
   } 
 
   /**
+   * @param _f 
+   * @return the id
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public String createField(FieldDTO _f)
+  public long createField(FieldDTO _f)
     throws  GrouperDAOException {
     Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_f);
     HibernateSession.byObjectStatic().save(dao);
-    return dao.getId();
+    return ((FieldDAO)dao).getHibernateVersion();
   } 
 
   /**
@@ -207,13 +212,6 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle
   /**
    * @since   @HEAD@
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public String getName() {
     return this.name;
   }
@@ -303,14 +301,6 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle
   /**
    * @since   @HEAD@
    */
-  public GroupTypeDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public GroupTypeDAO setName(String name) {
     this.name = name;
     return this;
@@ -363,5 +353,21 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle
     }
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#getId()
+   */
+  @Override
+  protected String getId() {
+    return this.uuid;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3HibernateVersioned#setHibernateVersion(long)
+   */
+  @Override
+  public Hib3GroupTypeDAO setHibernateVersion(long hibernateVersion) {
+    return (Hib3GroupTypeDAO)super.setHibernateVersion(hibernateVersion);
+  }
 } 
 

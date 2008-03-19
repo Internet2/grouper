@@ -43,33 +43,28 @@ import edu.internet2.middleware.subject.Subject;
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.4.2.1 2008-03-19 18:46:10 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
+public class Hib3MemberDAO extends Hib3HibernateVersioned implements Lifecycle,MemberDAO {
 
 
   private static        HashMap<String, Boolean>    existsCache     = new HashMap<String, Boolean>();
-  private               String                      id;
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
   private static        HashMap<String, MemberDTO>  uuid2dtoCache   = new HashMap<String, MemberDTO>();
   private               String                      subjectID;
   private               String                      subjectSourceID;
   private               String                      subjectTypeID;
   private               String                      uuid;
-
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * @since   @HEAD@
    */
-  public String create(MemberDTO _m) 
+  public long create(MemberDTO _m) 
     throws  GrouperDAOException {
 
     Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_m);
     HibernateSession.byObjectStatic().save(dao);
-    return dao.getId();
+    return ((MemberDAO)dao).getHibernateVersion();
   } 
 
   /**
@@ -130,7 +125,7 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
     List<Hib3MemberDAO> memberDAOs = byHqlStatic.list(Hib3MemberDAO.class);  
     for(Hib3MemberDAO memberDAO : memberDAOs) {
       members.add(new MemberDTO()
-        .setId(memberDAO.getId())
+        .setHibernateVersion(memberDAO.getHibernateVersion())
         .setUuid(memberDAO.getUuid())
         .setSubjectId(memberDAO.getSubjectId())
         .setSubjectSourceId(memberDAO.getSubjectSourceId())
@@ -170,7 +165,7 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
       throw new MemberNotFoundException();
     }
     MemberDTO _m = new MemberDTO()
-      .setId( dao.getId() )
+      .setHibernateVersion(dao.getHibernateVersion())
       .setUuid( dao.getUuid() )
       .setSubjectId( dao.getSubjectId() )
       .setSubjectSourceId( dao.getSubjectSourceId() )
@@ -209,20 +204,12 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
       throw new MemberNotFoundException();
     }
     MemberDTO _m = new MemberDTO()
-      .setId( dao.getId() )
       .setUuid( dao.getUuid() )
       .setSubjectId( dao.getSubjectId() )
       .setSubjectSourceId( dao.getSubjectSourceId() )
       .setSubjectTypeId( dao.getSubjectTypeId() );
     uuid2dtoCache.put(uuid, _m);
     return _m;
-  } 
-
-  /** 
-   * @since   @HEAD@
-   */
-  public String getId() {
-    return this.id;
   } 
 
   /** 
@@ -284,14 +271,6 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
   } // public boolean onUpdate(hs)k
 
 
-  /** 
-   * @since   @HEAD@
-   */
-  public MemberDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
   /**
    * @since   @HEAD@
    */
@@ -346,7 +325,23 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
       .executeUpdate()
       ;
     existsCache = new HashMap<String, Boolean>();
-  } 
+  }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#getId()
+   */
+  @Override
+  protected String getId() {
+    return this.uuid;
+  }
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3HibernateVersioned#setHibernateVersion(long)
+   */
+  @Override
+  public Hib3MemberDAO setHibernateVersion(long hibernateVersion) {
+    return (Hib3MemberDAO)super.setHibernateVersion(hibernateVersion);
+  }
 } 
 

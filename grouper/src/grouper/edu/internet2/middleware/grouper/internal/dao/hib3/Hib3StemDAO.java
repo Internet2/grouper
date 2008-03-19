@@ -16,40 +16,43 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.ErrorLog;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.DefaultMemberOf;
-import  edu.internet2.middleware.grouper.Stem;
-import  edu.internet2.middleware.grouper.StemNotFoundException;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+
+import edu.internet2.middleware.grouper.DefaultMemberOf;
+import edu.internet2.middleware.grouper.ErrorLog;
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  edu.internet2.middleware.grouper.internal.util.Rosetta;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import edu.internet2.middleware.grouper.internal.util.Rosetta;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
-import  java.util.Date;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.List;
-import  java.util.Map;
-import  java.util.Set;
-import  org.hibernate.*;
 
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.4 2008-03-12 12:42:59 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.4.2.1 2008-03-19 18:46:10 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3StemDAO extends Hib3DAO implements StemDAO {
+public class Hib3StemDAO extends Hib3HibernateVersioned implements StemDAO {
 
   // PRIVATE CLASS CONSTANTS //
   /** */
@@ -72,8 +75,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /** */
   private String  extension;
   /** */
-  private String  id;
-  /** */
   private String  name;
   /** */
   private String  modifierUUID;
@@ -92,11 +93,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public String createChildGroup(final StemDTO _parent, final GroupDTO _child, final MemberDTO _m)
+  public long createChildGroup(final StemDTO _parent, final GroupDTO _child, final MemberDTO _m)
     throws  GrouperDAOException {
     
     try {
-      String id = (String)HibernateSession.callbackHibernateSession(
+      long id = (Long)HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
           new HibernateHandler() {
 
@@ -129,7 +130,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               if ( !GrouperDAOFactory.getFactory().getMember().exists( _m.getUuid() ) ) {
                 hs.save( Rosetta.getDAO(_m) );
               }
-              return dao.getId();
+              return ((GroupDAO)dao).getHibernateVersion();
             }
         
       });
@@ -145,10 +146,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public String createChildStem(final StemDTO _parent, final StemDTO _child)
+  public long createChildStem(final StemDTO _parent, final StemDTO _child)
     throws  GrouperDAOException {
     try {
-      String id = (String)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+      long id = (Long)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
@@ -156,8 +157,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               Session       hs  = hibernateSession.getSession();
               Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_child);
               hs.save(dao);
-              hs.update( Rosetta.getDAO(_parent) );
-              return dao.getId();
+              GrouperDAO grouperDAO = Rosetta.getDAO(_parent);
+              hs.update(grouperDAO);
+              return ((StemDAO)dao).getHibernateVersion();
             }
         
       });
@@ -173,12 +175,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public String createRootStem(StemDTO _root)
+  public long createRootStem(StemDTO _root)
     throws  GrouperDAOException {
     try {
       Hib3StemDAO  dao = (Hib3StemDAO) _root.getDAO();
       HibernateSession.byObjectStatic().save(dao);
-      return dao.getId();
+      return ((StemDAO)dao).getHibernateVersion();
     }
     catch (GrouperDAOException e) {
       String error = "Problem creating root stem: " + GrouperUtil.toStringSafe(_root)
@@ -590,13 +592,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /** 
    * @since   @HEAD@
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public String getModifierUuid() {
     return this.modifierUUID;
   }
@@ -649,12 +644,17 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               Session     hs  = hibernateSession.getSession();
               Iterator it = mof.getDeletes().iterator();
               while (it.hasNext()) {
-                hs.delete( Rosetta.getDAO( it.next() ) );
+                GrouperDAO grouperDAO = Rosetta.getDAO( it.next());
+                hs.delete(  grouperDAO );
               }
+              hs.flush();
+              
               it = mof.getSaves().iterator();
               while (it.hasNext()) {
                 hs.saveOrUpdate( it.next() );
               }
+              hs.flush();
+              
               hs.update( _ns.getDAO() );
               return null;
             }
@@ -785,14 +785,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public StemDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public StemDAO setModifierUuid(String modifierUUID) {
     this.modifierUUID = modifierUUID;
     return this;
@@ -872,5 +864,22 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       ;
   } 
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3HibernateVersioned#setHibernateVersion(long)
+   */
+  @Override
+  protected String getId() {
+    return this.uuid;
+  } 
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3HibernateVersioned#setHibernateVersion(long)
+   */
+  @Override
+  public Hib3StemDAO setHibernateVersion(long hibernateVersion) {
+    return (Hib3StemDAO)super.setHibernateVersion(hibernateVersion);
+  }
 } 
 
