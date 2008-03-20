@@ -28,7 +28,7 @@ import  java.util.Set;
  * Basic <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.7 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: GroupDAO.java,v 1.8 2008-03-20 16:40:22 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -75,6 +75,14 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.2.0
    */
   Set findAllByApproximateAttr(String attr, String val) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+
+  /**
+   * @since   1.3
+   */
+  Set<GroupDTO> findAllByAttr(String attr, String val) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
