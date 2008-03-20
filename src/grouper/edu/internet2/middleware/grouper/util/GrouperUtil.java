@@ -2310,16 +2310,20 @@ public class GrouperUtil {
   	if (object instanceof String) {
   		String string = (String) object;
   		if (StringUtils.equalsIgnoreCase(string, "true")
-  				|| StringUtils.equalsIgnoreCase(string, "t")) {
+  				|| StringUtils.equalsIgnoreCase(string, "t")
+  				|| StringUtils.equalsIgnoreCase(string, "yes")
+  				|| StringUtils.equalsIgnoreCase(string, "y")) {
   			return true;
   		}
   		if (StringUtils.equalsIgnoreCase(string, "false")
-  				|| StringUtils.equalsIgnoreCase(string, "f")) {
+  				|| StringUtils.equalsIgnoreCase(string, "f")
+  				|| StringUtils.equalsIgnoreCase(string, "no")
+  				|| StringUtils.equalsIgnoreCase(string, "n")) {
   			return false;
   		}
   		throw new RuntimeException(
   				"Invalid string to boolean conversion: '" + string
-  						+ "' expecting true|false or t|f case insensitive");
+  						+ "' expecting true|false or t|f or yes|no or y|n case insensitive");
   
   	}
   	throw new RuntimeException("Cant convert object to boolean: "

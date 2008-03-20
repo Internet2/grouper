@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.10 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.11 2008-03-20 16:40:22 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -975,6 +975,40 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     }
     return groups;
   } // private Set _getGroupsFromGroupsAndAttributesQuery(qry)
+
+  /**
+   * <p><b>Implementation Notes.</b></p>
+   * <ol>
+   * <li>This looks for groups by exact attribute value</li>
+   * <li>Hibernate caching is <b>not</b> enabled.</li>
+   * </ol>
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findAllByAttr(java.lang.String, java.lang.String)
+   */
+  public Set<GroupDTO> findAllByAttr(final String attr, final String val) throws GrouperDAOException,
+      IllegalStateException {
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+        new HibernateHandler() {
+
+          public Object callback(HibernateSession hibernateSession) {
+            Session hs  = hibernateSession.getSession();
+            Query   qry = hs.createQuery(
+                "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a," +
+                "Hib3AttributeDAO as a2 where a.groupUuid = g.uuid " +
+                "and a.groupUuid = a2.groupUuid and a2.attrName = :field and a2.value = :value"
+              );
+            qry.setCacheable(false);
+            qry.setCacheRegion(KLASS + ".FindAllByAttr");
+            qry.setString("field", attr);
+            qry.setString( "value", val );
+
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+            return groups;
+            
+          }
+    });
+
+    return resultGroups;
+  }
 
 } 
 
