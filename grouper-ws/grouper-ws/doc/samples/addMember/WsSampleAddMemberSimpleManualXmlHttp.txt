@@ -32,7 +32,7 @@ X-Grouper-responseCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/xml;charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 24 Mar 2008 08:32:32 GMT
+Date: Mon, 24 Mar 2008 19:26:15 GMT
 
 8a6
 <ns:addMemberSimpleResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
@@ -43,8 +43,8 @@ Date: Mon, 24 Mar 2008 08:32:32 GMT
     </ns:responseMetadata>
     <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
       <ns:resultCode>SUCCESS</ns:resultCode>
-      <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@151c2b4[group=&lt;null>,uuid=,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@c5b819[subject=&lt;null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b98117[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSource=], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+      <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1493995[group=&lt;null>,uuid=,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@638ee4[subject=&lt;null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@3a2a52[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSource=], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</ns:resultMessage>
       <ns:success>T</ns:success>
     </ns:resultMetadata>
@@ -261,6 +261,6 @@ public class WsSampleAddMemberSimpleManualXmlHttp implements WsSampleManualXmlHt
 #########################################
 
 
-Success: T, resultCode: SUCCESS, subjectId: 10021368, errorMessage: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@151c2b4[group=<null>,uuid=,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@c5b819[subject=<null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b98117[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSource=], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Success: T, resultCode: SUCCESS, subjectId: 10021368, errorMessage: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1493995[group=<null>,uuid=,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@638ee4[subject=<null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@3a2a52[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSource=], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

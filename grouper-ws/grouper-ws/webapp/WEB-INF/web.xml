@@ -7,14 +7,19 @@
 
 <web-app>
   <filter>
-    <filter-name>Axis filter</filter-name>
-    <filter-class>edu.internet2.middleware.grouper.webservices.GrouperServiceJ2ee</filter-class>
+    <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
+    <filter-name>Grouper service filter</filter-name>
+    <filter-class>edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee</filter-class>
   </filter>
 
   <!-- Map the filter to a Servlet or URL -->
   <filter-mapping>
-    <filter-name>Axis filter</filter-name>
+    <filter-name>Grouper service filter</filter-name>
     <url-pattern>/services/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>Grouper service filter</filter-name>
+    <url-pattern>/servicesLite/*</url-pattern>
   </filter-mapping>
 	<servlet>
 		<servlet-name>AxisServlet</servlet-name>
@@ -25,10 +30,20 @@
 		</servlet-class -->
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	<servlet-mapping>
-		<servlet-name>AxisServlet</servlet-name>
-		<url-pattern>/services/*</url-pattern>
-	</servlet-mapping>
+  <servlet>
+    <servlet-name>LiteServlet</servlet-name>
+    <display-name>WS Lite Servlet</display-name>
+    <servlet-class>edu.internet2.middleware.grouper.ws.lite.GrouperLiteServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>LiteServlet</servlet-name>
+    <url-pattern>/servicesLite/*</url-pattern>
+  </servlet-mapping>
 
 	<security-constraint>
 		<web-resource-collection>
@@ -40,6 +55,17 @@
 			<role-name>grouper_user</role-name>
 		</auth-constraint>
 	</security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Web services</web-resource-name>
+      <url-pattern>/servicesLite/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <!-- NOTE:  This role is not present in the default users file -->
+      <role-name>grouper_user</role-name>
+    </auth-constraint>
+  </security-constraint>
 
 	<!-- Define the Login Configuration for this Application -->
 	<login-config>

@@ -25,18 +25,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsLiteAddMemberSimpleRequest">
       <p class="fieldName" />
-      <p class="clientVersion" />
       <p class="groupName" />
-      <p class="groupUuid" />
-      <p class="subjectId" />
-      <p class="subjectSource" />
-      <p class="subjectIdentifier" />
-      <p class="actAsSubjectId">GrouperSystem</p>
-      <p class="actAsSubjectSource" />
-      <p class="actAsSubjectIdentifier" />
+      <p class="clientVersion" />
       <p class="includeGroupDetail" />
       <p class="includeSubjectDetail" />
       <p class="subjectAttributeNames" />
+      <p class="subjectId" />
+      <p class="subjectIdentifier" />
+      <p class="subjectSource" />
+      <p class="groupUuid" />
+      <p class="actAsSubjectId">GrouperSystem</p>
+      <p class="actAsSubjectSource" />
+      <p class="actAsSubjectIdentifier" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
@@ -63,9 +63,9 @@ X-Grouper-responseCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/xhtml+xml
 Transfer-Encoding: chunked
-Date: Mon, 24 Mar 2008 08:41:29 GMT
+Date: Mon, 24 Mar 2008 19:26:22 GMT
 
-729
+727
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -76,8 +76,8 @@ Date: Mon, 24 Mar 2008 08:41:29 GMT
     <div title="WsAddMemberSimpleResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@6156d8[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@8c822d[subject=&lt;null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b689e0[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSource=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@7bf4c3[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@24d3a[subject=&lt;null>...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@11c5342[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSource=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</p>
         <p class="resultCode">SUCCESS</p>
       </div>
@@ -86,20 +86,20 @@ Date: Mon, 24 Mar 2008 08:41:29 GMT
         <p class="serverVersion">v1_3_000</p>
       </div>
       <div class="wsGroupAssigned" title="WsGroup">
+        <p class="uuid">cd89f7c5-913e-4788-9a67-c78a5fee1fba</p>
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">test group</p>
         <p class="name">aStem:aGroup</p>
         <p class="displayName">a stem:test group</p>
         <p class="description">somedescription</p>
-        <p class="uuid">cd89f7c5-913e-4788-9a67-c78a5fee1fba</p>
-        <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="displayExtension">test group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
+        <p class="success">T</p>
+        <p class="resultCode">SUCCESS</p>
         <p class="name" />
         <p class="id">10021368</p>
         <p class="source">QSUOB JDBC Source Adapter</p>
-        <p class="success">T</p>
-        <p class="resultCode">SUCCESS</p>
       </div>
     </div>
   </body>
@@ -240,4 +240,4 @@ public class WsSampleAddMemberSimpleLite implements WsSampleRest {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult@b4e29b
+edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult@aa0877

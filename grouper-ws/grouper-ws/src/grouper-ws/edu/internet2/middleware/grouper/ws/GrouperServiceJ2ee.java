@@ -1,0 +1,364 @@
+/**
+ * 
+ */
+package edu.internet2.middleware.grouper.ws;
+
+import java.io.IOException;
+import java.security.Principal;
+import java.util.Map;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.util.ExpirableCache;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.soap.GrouperService;
+import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+
+/**
+ * Extend the servlet to get user info
+ * 
+ * @author mchyzer
+ * 
+ */
+public class GrouperServiceJ2ee implements Filter {
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = LogFactory.getLog(GrouperService.class);
+
+  /**
+   * get a single parameter value for key.  If nultiple exist, throw error
+   * @param paramMap is the map of params.  will get value from here if no request object
+   * @param httpServletRequest optional.  if there, will make sure no dupes
+   * @param key to lookup
+   * @return the value
+   */
+  public static String parameterValue(Map<String, String> paramMap, HttpServletRequest httpServletRequest, String key) {
+    //if no servlet (probably just testing), get from map
+    if (httpServletRequest == null) {
+      return paramMap.get(key);
+    }
+    String[] values = httpServletRequest.getParameterValues(key);
+    if (values == null || values.length == 0) {
+      return null;
+    }
+    //there is probably something wrong if multiple values detected
+    if (values.length > 1) {
+      throw new RuntimeException("Multiple request parameter values where detected for key: " + key
+          + ", when only one is expected: " + GrouperUtil.toStringForLog(values));
+    }
+    return values[0];
+  }
+  
+  /**
+   * retrieve the user principal (who is authenticated) from the (threadlocal)
+   * request object
+   * 
+   * @return the user principal name
+   */
+  public static String retrieveUserPrincipalNameFromRequest() {
+
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+    GrouperUtil
+        .assertion(httpServletRequest != null,
+            "HttpServletRequest is null, is the GrouperServiceServlet mapped in the web.xml?");
+    Principal principal = httpServletRequest.getUserPrincipal();
+    GrouperUtil.assertion(principal != null,
+        "There is no user logged in, make sure the container requires authentication");
+    return principal.getName();
+  }
+
+  /**
+   * retrieve the subject logged in to web service
+   * If there are four colons, then this is the source and subjectId since
+   * overlap in namespace
+   * 
+   * @return the subject
+   */
+  public static Subject retrieveSubjectLoggedIn() {
+    // use this to be the user connected, or the user act-as
+    String userIdLoggedIn = retrieveUserPrincipalNameFromRequest();
+
+    // cant be blank!
+    if (StringUtils.isBlank(userIdLoggedIn)) {
+      //server is having trouble if got this far, but also the user's fault
+      throw new WsInvalidQueryException("No user is logged in");
+    }
+
+    //null means dont look in a certain source
+    String source = null;
+
+    //see if we need to split with 4 colons in login name
+    if (StringUtils.contains(userIdLoggedIn, GrouperWsConfig.WS_SEPARATOR)) {
+      String[] sourceSubjectId = GrouperUtil.splitTrim(userIdLoggedIn,
+          GrouperWsConfig.WS_SEPARATOR);
+      source = sourceSubjectId[0];
+      userIdLoggedIn = sourceSubjectId[1];
+    } else {
+      //see if there is a default source for all users to web service
+      source = StringUtils.trimToNull(GrouperWsConfig
+          .getPropertyString(GrouperWsConfig.WS_LOGGED_IN_SUBJECT_DEFAULT_SOURCE));
+    }
+
+    Subject caller = null;
+    try {
+      //see if across all sources
+      if (source == null) {
+        try {
+          caller = SubjectFinder.findById(userIdLoggedIn);
+        } catch (SubjectNotFoundException snfe) {
+          // if not found, then try any identifier
+          caller = SubjectFinder.findByIdentifier(userIdLoggedIn);
+        }
+      } else {
+        //see if only in one source
+        try {
+          caller = SubjectFinder.getSource(source).getSubject(userIdLoggedIn);
+        } catch (SubjectNotFoundException snfe) {
+          // if not found, then try any identifier
+          caller = SubjectFinder.getSource(source).getSubjectByIdentifier(userIdLoggedIn);
+        }
+
+      }
+
+    } catch (Exception e) {
+      //this is probably a system error...  not a user error
+      throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
+    }
+    return caller;
+  }
+
+  /** cache the actAs */
+  private static ExpirableCache<MultiKey, Boolean> actAsCache = null;
+
+  /**
+   * get the actAsCache, and init if not initted
+   * @return the actAsCache
+   */
+  private static ExpirableCache<MultiKey, Boolean> actAsCache() {
+    if (actAsCache == null) {
+      int actAsTimeoutMinutes = GrouperWsConfig.getPropertyInt(
+          GrouperWsConfig.WS_ACT_AS_CACHE_MINUTES, 30);
+      actAsCache = new ExpirableCache<MultiKey, Boolean>(actAsTimeoutMinutes);
+    }
+    return actAsCache;
+  }
+
+  /**
+   * retrieve the subject to act as
+   * 
+   * @param actAsLookup that the caller wants to act as
+   * @return the subject
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  public static Subject retrieveSubjectActAs(WsSubjectLookup actAsLookup)
+      throws WsInvalidQueryException {
+
+    //TODO test this
+    Subject loggedInSubject = retrieveSubjectLoggedIn();
+
+    // if there is no actAs specified, then just use the logged in user
+    if (actAsLookup == null || actAsLookup.blank()) {
+      return loggedInSubject;
+    }
+
+    Subject actAsSubject = actAsLookup.retrieveSubject("actAsSubject");
+
+    //lets see if in cache
+    String loggedInSubjectString = new ReflectionToStringBuilder(loggedInSubject)
+        .toString();
+    String actAsSubjectString = new ReflectionToStringBuilder(actAsSubject).toString();
+
+    //cache key to get or set if a user can act as another
+    MultiKey cacheKey = new MultiKey(loggedInSubjectString, actAsSubjectString);
+    Boolean inCache = actAsCache().get(cacheKey);
+
+    if (inCache != null && Boolean.TRUE.equals(inCache)) {
+      //if in cache, then allow
+      return actAsSubject;
+    }
+
+    // so there is an actAs specified, lets see if we are allowed to use it
+    // first lets get the group you have to be in if you are going to
+    String actAsGroupName = GrouperWsConfig
+        .getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
+
+    // make sure there is one there
+    if (StringUtils.isBlank(actAsGroupName)) {
+
+      //if none configured, then probably a caller problem
+      throw new WsInvalidQueryException(
+          "A web service is specifying an actAsUser, but there is no '"
+              + GrouperWsConfig.WS_ACT_AS_GROUP
+              + "' specified in the grouper-ws.properties");
+    }
+
+    GrouperSession session = null;
+    // get the all powerful user
+    Subject rootSubject = SubjectFinder.findRootSubject();
+
+    try {
+      session = GrouperSession.start(rootSubject);
+
+      //first separate by comma
+      String[] groupEntries = GrouperUtil.splitTrim(actAsGroupName, ",");
+
+      //see if all throw exceptions
+      int countNoExceptions = 0;
+
+      //we could also cache which entries the user is in...  not sure how many entries will be here
+      for (String groupEntry : groupEntries) {
+
+        //each entry should be failsafe
+        try {
+          //now see if it is a multi input
+          if (StringUtils.contains(groupEntry, GrouperWsConfig.WS_SEPARATOR)) {
+
+            //it is the group the user is in, and the group the act as has to be in
+            String[] groupEntryArray = GrouperUtil.splitTrim(groupEntry,
+                GrouperWsConfig.WS_SEPARATOR);
+            String userMustBeInGroupName = groupEntryArray[0];
+            String actAsMustBeInGroupName = groupEntryArray[1];
+
+            Group userMustBeInGroup = GroupFinder.findByName(session,
+                userMustBeInGroupName);
+            Group actAsMustBeInGroup = GroupFinder.findByName(session,
+                actAsMustBeInGroupName);
+
+            if (userMustBeInGroup.hasMember(loggedInSubject)
+                && actAsMustBeInGroup.hasMember(actAsSubject)) {
+              //its ok, lets add to cache
+              actAsCache().put(cacheKey, Boolean.TRUE);
+              return actAsSubject;
+            }
+
+          } else {
+            //else this is a simple rule where the logged in user just has to be in a group and
+            //can act as anyone
+            Group actAsGroup = GroupFinder.findByName(session, actAsGroupName);
+
+            // if the logged in user is a member of the actAs group, then allow
+            // the actAs
+            if (actAsGroup.hasMember(loggedInSubject)) {
+              //its ok, lets add to cache
+              actAsCache().put(cacheKey, Boolean.TRUE);
+              // this is the subject the web service wants to use
+              return actAsSubject;
+            }
+          }
+          countNoExceptions++;
+        } catch (Exception e) {
+          //just log and dont act since other entries could be fine
+          LOG.error("Problem with groupEntry: " + groupEntry + ", loggedInUser: "
+              + loggedInSubject + ", actAsSubject: " + actAsSubject, e);
+        }
+
+      }
+
+      if (countNoExceptions == 0) {
+        throw new RuntimeException("Problems seeing is web service user '"
+            + loggedInSubject + "' can actAs the other subject: '" + actAsSubjectString
+            + "'");
+      }
+      // if not an effective member
+      throw new RuntimeException(
+          "A web service is specifying an actAsUser, but the groups specified in "
+              + GrouperWsConfig.WS_ACT_AS_GROUP + " in the grouper-ws.properties "
+              + " does not have a valid rule for member: '" + loggedInSubject
+              + "', and actAs: '" + actAsSubject + "'");
+    } catch (SessionException se) {
+      throw new RuntimeException(se);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+
+  }
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * thread local for request
+   */
+  private static ThreadLocal<HttpServletRequest> threadLocalRequest = new ThreadLocal<HttpServletRequest>();
+
+  /**
+   * thread local for response
+   */
+  private static ThreadLocal<HttpServletResponse> threadLocalResponse = new ThreadLocal<HttpServletResponse>();
+
+  /**
+   * public method to get the http servlet request
+   * 
+   * @return the http servlet request
+   */
+  public static HttpServletRequest retrieveHttpServletRequest() {
+    return threadLocalRequest.get();
+  }
+
+  /**
+   * public method to get the http servlet request
+   * 
+   * @return the http servlet request
+   */
+  public static HttpServletResponse retrieveHttpServletResponse() {
+    return threadLocalResponse.get();
+  }
+
+  /**
+   * filter method
+   */
+  public void destroy() {
+    // not needed
+
+  }
+
+  public void doFilter(ServletRequest request, ServletResponse response,
+      FilterChain filterChain) throws IOException, ServletException {
+
+    //make sure nulls are not returned for params for Axis bug where
+    //empty strings work, but nulls make things off a bit
+    request = new WsHttpServletRequest((HttpServletRequest) request);
+
+    threadLocalRequest.set((HttpServletRequest) request);
+    threadLocalResponse.set((HttpServletResponse) response);
+    try {
+      filterChain.doFilter(request, response);
+    } finally {
+      threadLocalRequest.remove();
+      threadLocalResponse.remove();
+    }
+
+  }
+
+  /**
+   * filter method
+   */
+  public void init(FilterConfig arg0) throws ServletException {
+    // not needed
+  }
+
+}

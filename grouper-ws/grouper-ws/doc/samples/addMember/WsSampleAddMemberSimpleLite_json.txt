@@ -40,9 +40,9 @@ X-Grouper-responseCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/xhtml+xml
 Transfer-Encoding: chunked
-Date: Mon, 24 Mar 2008 08:41:32 GMT
+Date: Mon, 24 Mar 2008 19:26:24 GMT
 
-4ff
+500
 {
   "WsAddMemberSimpleResult":{
     "resultMetadata":{
@@ -51,7 +51,7 @@ Date: Mon, 24 Mar 2008 08:41:32 GMT
         "$":"SUCCESS"
       },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1a709f1[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@17db74b[subject=<nul...\n, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@8cbb70[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSource=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@10a94c5[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1ad4242[subject=<nul...\n, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1d91382[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSource=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
       "success":"T",
       "httpStatusCode":201
     },
@@ -210,4 +210,4 @@ public class WsSampleAddMemberSimpleLite implements WsSampleRest {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult@29ce8c
+edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult@1a1c42f

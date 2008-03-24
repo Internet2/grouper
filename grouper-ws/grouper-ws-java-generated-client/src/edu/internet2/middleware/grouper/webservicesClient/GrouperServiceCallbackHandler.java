@@ -129,21 +129,6 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
-     * auto generated Axis2 call back method for getMembersSimple method
-     * override this method for handling normal response from getMembersSimple operation
-     */
-    public void receiveResultgetMembersSimple(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembersSimpleResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from getMembersSimple operation
-     */
-    public void receiveErrorgetMembersSimple(java.lang.Exception e) {
-    }
-
-    /**
      * auto generated Axis2 call back method for viewOrEditAttributesSimple method
      * override this method for handling normal response from viewOrEditAttributesSimple operation
      */
@@ -156,6 +141,21 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from viewOrEditAttributesSimple operation
      */
     public void receiveErrorviewOrEditAttributesSimple(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for getMembersSimple method
+     * override this method for handling normal response from getMembersSimple operation
+     */
+    public void receiveResultgetMembersSimple(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembersSimpleResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from getMembersSimple operation
+     */
+    public void receiveErrorgetMembersSimple(java.lang.Exception e) {
     }
 
     /**

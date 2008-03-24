@@ -1,0 +1,43 @@
+<ns:addMemberSimpleResponse
+  xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
+  <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult">
+    <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
+      <ns:resultWarnings></ns:resultWarnings>
+      <ns:serverVersion>v1_3_000</ns:serverVersion>
+    </ns:responseMetadata>
+    <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+      <ns:resultCode>SUCCESS</ns:resultCode>
+      <ns:resultMessage>
+        Success for: clientVersion: v1_3_000, wsGroupLookup:
+        edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d4ff95[group=&lt;null>,uuid=,groupName=aStem:aGroup,groupFindResult=&lt;null>],
+        subjectLookups: Array size: 1: [0]:
+        edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@2f54[subject=&lt;null>,...
+        , replaceAllExisting: false, actAsSubject:
+        edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@235085[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSource=],
+        fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail:
+        false, subjectAttributeNames: null , paramNames: null, paramValues: null
+      </ns:resultMessage>
+      <ns:success>T</ns:success>
+    </ns:resultMetadata>
+    <ns:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:nil="true" />
+    <ns:wsGroupAssigned type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+      <ns:description>somedescription</ns:description>
+      <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      <ns:displayExtension>test group</ns:displayExtension>
+      <ns:displayName>a stem:test group</ns:displayName>
+      <ns:extension>aGroup</ns:extension>
+      <ns:name>aStem:aGroup</ns:name>
+      <ns:uuid>cd89f7c5-913e-4788-9a67-c78a5fee1fba</ns:uuid>
+    </ns:wsGroupAssigned>
+    <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+      <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:nil="true" />
+      <ns:id>10021368</ns:id>
+      <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      <ns:resultCode>SUCCESS</ns:resultCode>
+      <ns:source>QSUOB JDBC Source Adapter</ns:source>
+      <ns:success>T</ns:success>
+    </ns:wsSubject>
+  </ns:return>
+</ns:addMemberSimpleResponse>

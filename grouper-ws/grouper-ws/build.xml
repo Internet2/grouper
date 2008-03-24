@@ -107,9 +107,9 @@
 			<arg value="-of" />
 			<arg value="GrouperService.wsdl" />
 			<arg value="-cn" />
-			<arg value="edu.internet2.middleware.grouper.webservices.GrouperService" />
+			<arg value="edu.internet2.middleware.grouper.ws.soap.GrouperService" />
 			<arg value="-stn" />
-			<arg value="http://webservices.grouper.middleware.internet2.edu/xsd" />
+			<arg value="http://soap.ws.grouper.middleware.internet2.edu/xsd" />
 			<arg value="-l" />
 			<arg value="http://localhost:8090/grouper-ws/services/GrouperService" />
 
@@ -143,11 +143,11 @@
 		<mkdir dir="${webservice.folder}/classes" />
 		<copy toDir="${webservice.folder}/classes" failonerror="false">
 			<fileset dir="${build.dir.grouper-ws}">
-				<include name="edu/internet2/middleware/grouper/webservices/**/*.class" />
+				<include name="edu/internet2/middleware/grouper/ws/**/*.class" />
 			</fileset>
 		</copy>
 		<jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService.aar">
-			<fileset excludes="edu/internet2/middleware/grouper/webservices/**/*Test.class" dir="${webservice.folder}/classes" />
+			<fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
 			<fileset dir="webservices/GrouperService.aar" />
 		</jar>
 		<!-- copy the aar to the build dir -->
@@ -352,6 +352,7 @@
 		</echo>
 	</target>
 	<target name="grouper" description="build the grouper jar and copy to the lib dir">
+	  <echo message="Building grouper from: ${grouper.dir}, target is dist, dist dir is: ${grouper.dist.dir}" />
 		<ant dir="${grouper.dir}" inheritall="false" target="dist" />
 		<!-- now the grouper jar is in   -->
 		<!-- copy it to ws, and rename -->

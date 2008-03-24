@@ -73,9 +73,9 @@ X-Grouper-responseCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/xhtml+xml
 Transfer-Encoding: chunked
-Date: Mon, 24 Mar 2008 08:32:33 GMT
+Date: Mon, 24 Mar 2008 19:26:16 GMT
 
-957
+955
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -86,8 +86,8 @@ Date: Mon, 24 Mar 2008 08:32:33 GMT
     <div title="WsAddMemberResults">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@6afa2[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@f4d063[subject=&lt;null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@14c428f[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSource=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@193b022[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@110b205[subject=&lt;nul...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@78f83a[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSource=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</p>
         <p class="resultCode">SUCCESS</p>
       </div>
@@ -103,11 +103,11 @@ Date: Mon, 24 Mar 2008 08:32:33 GMT
             <p class="resultCode">SUCCESS</p>
           </div>
           <div class="wsSubject" title="WsSubject">
+            <p class="success">T</p>
+            <p class="resultCode">SUCCESS</p>
             <p class="name" />
             <p class="id">10021368</p>
             <p class="source">QSUOB JDBC Source Adapter</p>
-            <p class="success">T</p>
-            <p class="resultCode">SUCCESS</p>
           </div>
         </li>
         <li title="WsAddMemberResult">
@@ -117,22 +117,22 @@ Date: Mon, 24 Mar 2008 08:32:33 GMT
             <p class="resultCode">SUCCESS</p>
           </div>
           <div class="wsSubject" title="WsSubject">
+            <p class="success">T</p>
+            <p class="resultCode">SUCCESS</p>
             <p class="name" />
             <p class="id">10039438</p>
             <p class="source">QSUOB JDBC Source Adapter</p>
-            <p class="success">T</p>
-            <p class="resultCode">SUCCESS</p>
           </div>
         </li>
       </ul>
       <div class="wsGroupAssigned" title="WsGroup">
+        <p class="uuid">cd89f7c5-913e-4788-9a67-c78a5fee1fba</p>
+        <div class="detail" title="WsGroupDetail" />
+        <p class="displayExtension">test group</p>
         <p class="name">aStem:aGroup</p>
         <p class="displayName">a stem:test group</p>
         <p class="description">somedescription</p>
-        <p class="uuid">cd89f7c5-913e-4788-9a67-c78a5fee1fba</p>
-        <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="displayExtension">test group</p>
       </div>
     </div>
   </body>
@@ -293,4 +293,4 @@ public class WsSampleAddMemberLite implements WsSampleRest {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults@129b0e1
+edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults@14a18d
