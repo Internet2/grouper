@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.11 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.12 2008-03-24 20:15:36 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -495,7 +495,7 @@ public class TestGroup0 extends GrouperTest {
 
   /**
    * show simple transaction
-   * @throws Exception if problem
+   * @throws RuntimeException if problem
    */
   public void testTransaction() {
     

@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.privs;
 import  edu.internet2.middleware.grouper.AccessAdapter;
 import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.UnableToPerformException;
 import  edu.internet2.middleware.subject.Subject;
@@ -29,7 +30,7 @@ import  java.util.Set;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.3 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: AccessResolver.java,v 1.4 2008-03-24 20:15:35 mchyzer Exp $
  * @since   1.2.1
  */
 public interface AccessResolver {
@@ -48,7 +49,7 @@ public interface AccessResolver {
    * @param privilege 
    * @return the set
    * @throws  IllegalArgumentException if any parameter is null.
-   * @see     AccessAdapter#getGroupsWhereSubjectHasPriv(GrouperSession, Subject, Privilege)
+   * @see     AccessAdapter#getGroupsWhereSubjectHasPriv(edu.internet2.middleware.grouper.GrouperSession, Subject, Privilege)
    * @since   1.2.1
    */
   Set<Group> getGroupsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)

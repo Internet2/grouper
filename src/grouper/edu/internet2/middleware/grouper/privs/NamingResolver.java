@@ -16,19 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import  edu.internet2.middleware.grouper.NamingAdapter;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.Stem;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.NamingAdapter;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.subject.Subject;
 
 
 /** 
  * Facade for the {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: NamingResolver.java,v 1.4 2008-03-24 20:15:35 mchyzer Exp $
  * @since   1.2.1
  */
 public interface NamingResolver {
