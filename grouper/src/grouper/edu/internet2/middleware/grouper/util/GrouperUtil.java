@@ -3,7 +3,13 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
@@ -38,6 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.mchange.util.AssertException;
+import com.p6spy.engine.common.FastExternalUtils;
 
 /**
  * utility methods for grouper
@@ -47,6 +54,111 @@ import com.mchange.util.AssertException;
 @SuppressWarnings("serial")
 public class GrouperUtil {
 
+  /**
+   * get the prefix or suffix of a string based on a separator
+   * 
+   * @param startString
+   *          is the string to start with
+   * @param separator
+   *          is the separator to split on
+   * @param isPrefix
+   *          if thre prefix or suffix should be returned
+   * 
+   * @return the prefix or suffix, if the separator isnt there, return the
+   *         original string
+   */
+  public static String prefixOrSuffix(String startString, String separator,
+      boolean isPrefix) {
+    String prefixOrSuffix = null;
+
+    //no nulls
+    if (startString == null) {
+      return startString;
+    }
+
+    //where is the separator
+    int separatorIndex = startString.indexOf(separator);
+
+    //if none exists, dont proceed
+    if (separatorIndex == -1) {
+      return startString;
+    }
+
+    //maybe the separator isnt on character
+    int separatorLength = separator.length();
+
+    if (isPrefix) {
+      prefixOrSuffix = startString.substring(0, separatorIndex);
+    } else {
+      prefixOrSuffix = startString.substring(separatorIndex + separatorLength,
+          startString.length());
+    }
+
+    return prefixOrSuffix;
+  }
+
+  /**
+   * <pre>
+   * this method will indent xml or json.
+   * this is for logging or documentations purposes only and should
+   * not be used for a production use (since it is not 100% tested
+   * or compliant with all constructs like xml CDATA
+   * 
+   * For xml, assumes elements either have text or sub elements, not both.
+   * No cdata, nothing fancy.
+   * 
+   * If the input is &lt;a&gt;&lt;b&gt;&lt;c&gt;hey&lt;/c&gt;&lt;d&gt;&lt;e&gt;there&lt;/e&gt;&lt;/d&gt;&lt;/b&gt;&lt;/a&gt;
+   * It would output:
+   * &lt;a&gt;
+   *   &lt;b&gt;
+   *     &lt;c&gt;hey&lt;/c&gt;
+   *     &lt;d&gt;
+   *       &lt;e&gt;there&lt;/e&gt;
+   *     &lt;/d&gt;
+   *   &lt;/b&gt;
+   * &lt;/a&gt;
+   * 
+   * For json, if the input is: {"a":{"b\"b":{"c\\":"d"},"e":"f","g":["h":"i"]}}
+   * It would output:
+   * {
+   *   "a":{
+   *     "b\"b":{
+   *       "c\\":"d"
+   *     },
+   *     "e":"f",
+   *     "g":[
+   *       "h":"i"
+   *     ]
+   *   }
+   * }
+   * 
+   * 
+   * <pre>
+   * @param string
+   * @param failIfTypeNotFound
+   * @return the indented string, 2 spaces per line
+   */
+  public static String indent(String string, boolean failIfTypeNotFound) {
+    if (string == null) {
+      return null;
+    }
+    string = StringUtils.trim(string);
+    if (string.startsWith("<")) {
+      //this is xml
+      return new XmlIndenter(string).result();
+    }
+    if (string.startsWith("{")) {
+      return new JsonIndenter(string).result();
+    }
+    if (!failIfTypeNotFound) {
+      //just return if cant indent
+      return string;
+    }
+    throw new RuntimeException("Cant find type of string: " + string);
+    
+    
+  }
+  
   /**
    * get the extension from name.  if name is a:b:c, name is c
    * @param name
@@ -134,9 +246,13 @@ public class GrouperUtil {
    * add each element of listToAdd if it is not already in list
    * @param <T>
    * @param list to add to
-   * @param listToAdd each element will be added to list
+   * @param listToAdd each element will be added to list, or null if none
    */
   public static <T> void addIfNotThere(Collection<T> list, Collection<T> listToAdd) {
+    //maybe nothing to do
+    if (listToAdd == null) {
+      return;
+    }
     for (T t : listToAdd) {
       if (!list.contains(t)) {
         list.add(t);
@@ -320,7 +436,6 @@ public class GrouperUtil {
     }
     return theBatchObjects;
   }
-
   /**
    * split a string based on a separator into an array, and trim each entry (see
    * the Commons Util StringUtils.trim() for more details)
@@ -333,12 +448,28 @@ public class GrouperUtil {
    * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
    */
   public static String[] splitTrim(String input, String separator) {
+    return splitTrim(input, separator, true);
+  }
+
+  /**
+   * split a string based on a separator into an array, and trim each entry (see
+   * the Commons Util StringUtils.trim() for more details)
+   * 
+   * @param input
+   *          is the delimited input to split and trim
+   * @param separator
+   *          is what to split on
+   * @param treatAdjacentSeparatorsAsOne
+   * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
+   */
+  public static String[] splitTrim(String input, String separator, boolean treatAdjacentSeparatorsAsOne) {
     if (StringUtils.isBlank(input)) {
       return null;
     }
 
     //first split
-    String[] items = StringUtils.split(input, separator);
+    String[] items = treatAdjacentSeparatorsAsOne ? StringUtils.split(input, separator) : 
+      StringUtils.splitPreserveAllTokens(input, separator);
 
     //then trim
     for (int i = 0; (items != null) && (i < items.length); i++) {
@@ -417,10 +548,12 @@ public class GrouperUtil {
    * @param <T>
    *            template type of the objects
    * @param objects
-   * @return the list
+   * @return the list or null if objects is null
    */
   public static <T> List<T> toList(T... objects) {
-
+    if (objects == null) {
+      return null;
+    }
     List<T> result = new ArrayList<T>();
     for (T object : objects) {
       result.add(object);
@@ -1444,6 +1577,23 @@ public class GrouperUtil {
     }
 
     return invokeMethod(method, invokeOn, paramsOrListOrArray);
+
+  }
+  
+  /** pass this in the invokeOn to signify no params */
+  private static final Object NO_PARAMS = new Object();
+  
+  /**
+   * Safely invoke a reflection method that takes no args
+   * 
+   * @param method
+   *            to invoke
+   * @param invokeOn
+   * if GrouperUtil.NO_PARAMS then will not pass in params.
+   * @return the result
+   */
+  public static Object invokeMethod(Method method, Object invokeOn) {
+    return invokeMethod(method, invokeOn, NO_PARAMS);
   }
 
   /**
@@ -1452,18 +1602,19 @@ public class GrouperUtil {
    * @param method
    *            to invoke
    * @param invokeOn
-   * @param paramsOrListOrArray
+   * @param paramsOrListOrArray must be an arg.  If null, will pass null.
+   * if GrouperUtil.NO_PARAMS then will not pass in params.
    * @return the result
    */
   public static Object invokeMethod(Method method, Object invokeOn,
       Object paramsOrListOrArray) {
 
-    Object[] args = (Object[]) toArray(paramsOrListOrArray);
+    Object[] args = paramsOrListOrArray == NO_PARAMS ? null : (Object[]) toArray(paramsOrListOrArray);
 
-    // we want to make sure things are accessible
+    //we want to make sure things are accessible
     method.setAccessible(true);
 
-    // only if the method exists, try to execute
+    //only if the method exists, try to execute
     Object result = null;
     try {
       result = method.invoke(invokeOn, args);
@@ -2583,12 +2734,12 @@ public class GrouperUtil {
   public static void assignSetter(Object invokeOn, 
       String fieldName, Object dataToAssign, boolean typeCast) {
     Class invokeOnClass = invokeOn.getClass();
-    Method setter = setter(invokeOnClass, fieldName, true, true);
-    setter.setAccessible(true);
-    if (typeCast) {
-      dataToAssign = typeCast(dataToAssign, setter.getParameterTypes()[0]);
-    }
     try {
+      Method setter = setter(invokeOnClass, fieldName, true, true);
+      setter.setAccessible(true);
+      if (typeCast) {
+        dataToAssign = typeCast(dataToAssign, setter.getParameterTypes()[0]);
+      }
       setter.invoke(invokeOn, new Object[]{dataToAssign});
     } catch (Exception e) {
       throw new RuntimeException("Problem assigning setter: " + fieldName
@@ -3015,7 +3166,45 @@ public class GrouperUtil {
   
     return (T)resultValue;
   }
-
+  
+  /**
+   * see if a class is a scalar (not bean, not array or list, etc)
+   * @param type
+   * @return true if scalar
+   */
+  public static boolean isScalar(Class<?> type) {
+    
+    if (type.isArray()) {
+      return false;
+    }
+    
+    //definitely all primitives
+    if (type.isPrimitive()) {
+      return true;
+    }
+    //Integer, Float, etc
+    if (Number.class.isAssignableFrom(type)) {
+      return true;
+    }
+    //Date, Timestamp
+    if (Date.class.isAssignableFrom(type)) {
+      return true;
+    }
+    if (Character.class.equals(type)) {
+      return true;
+    }
+    //handles strings and string builders
+    if (CharSequence.class.equals(type) || CharSequence.class.isAssignableFrom(type)) {
+      return true;
+    }
+    if (Class.class == type || Boolean.class == type || type.isEnum()) {
+      return true;
+    }
+    //appears not to be a scalar
+    return false;
+  }
+  
+  
   /**
    * <pre>
    * Convert a string or object to a timestamp (could be string, date, timestamp, etc)
@@ -3475,6 +3664,11 @@ public class GrouperUtil {
   private static final Log LOG = LogFactory.getLog(GrouperUtil.class);
 
   /**
+   * The name says it all.
+   */
+  public static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+
+  /**
    * get the Long value of an object
    * 
    * @param input
@@ -3618,5 +3812,257 @@ public class GrouperUtil {
     }
     throw new RuntimeException("Cannot convert to char: "
         + (input == null ? null : (input.getClass() + ", " + input)));
+  }
+
+  /**
+   * Create the parent directories for a file if they do not already exist
+   * @param file
+   */
+  public static void createParentDirectories(File file) {
+    if (!file.getParentFile().exists()) {
+      if (!file.getParentFile().mkdirs()) {
+        throw new RuntimeException("Could not create directory : " + file.getParentFile());
+      }
+    }
+  }
+
+  /**
+   * save a string into a file, file does not have to exist
+   * 
+   * @param file
+   *          is the file to save to
+   * @param contents
+   *          is the contents of the file
+   */
+  public static void saveStringIntoFile(File file, String contents) {
+    try {
+      writeStringToFile(file, contents, "ISO-8859-1");
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  /**
+   * save a string into a file, file does not have to exist
+   * 
+   * @param file
+   *          is the file to save to
+   * @param contents
+   *          is the contents of the file
+   * @param onlyIfDifferentContents true if only saving due to different contents
+   * @param ignoreWhitespace true to ignore whitespace
+   * @return true if contents were saved (thus different if param set)
+   */
+  public static boolean saveStringIntoFile(File file, String contents, 
+      boolean onlyIfDifferentContents, boolean ignoreWhitespace) {
+    if (onlyIfDifferentContents && file.exists()) {
+      String fileContents = readFileIntoString(file);
+      String compressedContents = contents;
+      if (ignoreWhitespace) {
+        compressedContents = replaceWhitespaceWithSpace(compressedContents);
+        fileContents = replaceWhitespaceWithSpace(fileContents);
+      }
+      
+      //they are the same, dont worry about it
+      if (StringUtils.equals(fileContents, compressedContents)) {
+        return false;
+      }
+  
+    }
+    FastExternalUtils.saveStringIntoFile(file, contents);
+    return true;
+  }
+
+  /**
+   * <p>
+   * Writes data to a file. The file will be created if it does not exist.
+   * </p>
+   * <p>
+   * There is no readFileToString method without encoding parameter because
+   * the default encoding can differ between platforms and therefore results
+   * in inconsistent results.
+   * </p>
+   *
+   * @param file the file to write.
+   * @param data The content to write to the file.
+   * @param encoding encoding to use
+   * @throws IOException in case of an I/O error
+   * @throws UnsupportedEncodingException if the encoding is not supported
+   *   by the VM
+   */
+  public static void writeStringToFile(File file, String data, String encoding)
+      throws IOException {
+    OutputStream out = new java.io.FileOutputStream(file);
+    try {
+      out.write(data.getBytes(encoding));
+    } finally {
+      closeQuietly(out);
+    }
+  }
+
+  /**
+   * @param file
+   *          is the file to read into a string
+   * 
+   * @return String
+   */
+  public static String readFileIntoString(File file) {
+  
+    if (file == null) {
+      return null;
+    }
+    try {
+      return readFileToString(file, "ISO-8859-1");
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  /**
+   * <p>
+   * Reads the contents of a file into a String.
+   * </p>
+   * <p>
+   * There is no readFileToString method without encoding parameter because
+   * the default encoding can differ between platforms and therefore results
+   * in inconsistent results.
+   * </p>
+   *
+   * @param file the file to read.
+   * @param encoding the encoding to use
+   * @return The file contents or null if read failed.
+   * @throws IOException in case of an I/O error
+   */
+  public static String readFileToString(File file, String encoding) throws IOException {
+    InputStream in = new java.io.FileInputStream(file);
+    try {
+      return toString(in, encoding);
+    } finally {
+      closeQuietly(in);
+    }
+  }
+
+  /**
+   * replace all whitespace with space
+   * @param input
+   * @return the string
+   */
+  public static String replaceWhitespaceWithSpace(String input) {
+    if (input == null) {
+      return input;
+    }
+    return input.replaceAll("\\s+", " ");
+  }
+
+  /**
+   * Unconditionally close an <code>InputStream</code>.
+   * Equivalent to {@link InputStream#close()}, except any exceptions will be ignored.
+   * @param input A (possibly null) InputStream
+   */
+  public static void closeQuietly(InputStream input) {
+    if (input == null) {
+      return;
+    }
+  
+    try {
+      input.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
+   * Unconditionally close an <code>OutputStream</code>.
+   * Equivalent to {@link OutputStream#close()}, except any exceptions will be ignored.
+   * @param output A (possibly null) OutputStream
+   */
+  public static void closeQuietly(OutputStream output) {
+    if (output == null) {
+      return;
+    }
+  
+    try {
+      output.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
+   * Unconditionally close an <code>Reader</code>.
+   * Equivalent to {@link Reader#close()}, except any exceptions will be ignored.
+   *
+   * @param input A (possibly null) Reader
+   */
+  public static void closeQuietly(Reader input) {
+    if (input == null) {
+      return;
+    }
+  
+    try {
+      input.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
+   * close a writer quietly
+   * @param writer
+   */
+  public static void closeQuietly(Writer writer) {
+    if (writer != null) {
+      try {
+        writer.close();
+      } catch (IOException e) {
+        //swallow, its ok
+      }
+    }
+  }
+
+  /**
+   * Get the contents of an <code>InputStream</code> as a String.
+   * @param input the <code>InputStream</code> to read from
+   * @param encoding The name of a supported character encoding. See the
+   *   <a href="http://www.iana.org/assignments/character-sets">IANA
+   *   Charset Registry</a> for a list of valid encoding types.
+   * @return the requested <code>String</code>
+   * @throws IOException In case of an I/O problem
+   */
+  public static String toString(InputStream input, String encoding) throws IOException {
+    StringWriter sw = new StringWriter();
+    copy(input, sw, encoding);
+    return sw.toString();
+  }
+
+  /**
+   * Copy and convert bytes from an <code>InputStream</code> to chars on a
+   * <code>Writer</code>, using the specified encoding.
+   * @param input the <code>InputStream</code> to read from
+   * @param output the <code>Writer</code> to write to
+   * @param encoding The name of a supported character encoding. See the
+   * <a href="http://www.iana.org/assignments/character-sets">IANA
+   * Charset Registry</a> for a list of valid encoding types.
+   * @throws IOException In case of an I/O problem
+   */
+  public static void copy(InputStream input, Writer output, String encoding)
+      throws IOException {
+    InputStreamReader in = new InputStreamReader(input, encoding);
+    copy(in, output);
+  }
+
+  /**
+   * Copy chars from a <code>Reader</code> to a <code>Writer</code>.
+   * @param input the <code>Reader</code> to read from
+   * @param output the <code>Writer</code> to write to
+   * @return the number of characters copied
+   * @throws IOException In case of an I/O problem
+   */
+  public static int copy(Reader input, Writer output) throws IOException {
+    char[] buffer = new char[DEFAULT_BUFFER_SIZE];
+    int count = 0;
+    int n = 0;
+    while (-1 != (n = input.read(buffer))) {
+      output.write(buffer, 0, n);
+      count += n;
+    }
+    return count;
   }
 }

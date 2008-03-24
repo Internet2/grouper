@@ -20,9 +20,9 @@ import  edu.internet2.middleware.grouper.*;
 import  org.apache.commons.logging.*;      
 
 /**
- * Base {@link GrouperBenchark} implementation.
+ * Base {@link GrouperBenchmark} implementation.
  * @author  blair christensen.
- * @version $Id: BaseGrouperBenchmark.java,v 1.3 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: BaseGrouperBenchmark.java,v 1.4 2008-03-24 20:15:36 mchyzer Exp $
  * @since   1.1.0
  */
 public class BaseGrouperBenchmark implements GrouperBenchmark {

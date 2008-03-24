@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.36 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: SubjectFinder.java,v 1.37 2008-03-24 20:15:36 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -259,7 +259,6 @@ public class SubjectFinder {
    * <pre class="eg">
    * Subject all = SubjectFinder.findAllSubject();
    *  </pre>
-   * @return  The <i>GrouperAll</i> subject.
    * @throws  GrouperRuntimeException if unable to retrieve <i>GrouperAll</i>.
    * @since   1.1.0
    */

@@ -44,7 +44,7 @@ public class GrouperTransaction {
    * @param grouperTransactionHandler
    *          will get the callback
    * @return the object returned from the callback
-   * @throws Exception if something wrong inside, not sure which exceptions... its
+   * @throws RuntimeException if something wrong inside, not sure which exceptions... its
    * whatever your methods throw
    */
   public static Object callbackGrouperTransaction(
@@ -64,7 +64,7 @@ public class GrouperTransaction {
    * @param grouperTransactionHandler
    *          will get the callback
    * @return the object returned from the callback
-   * @throws Exception if something wrong inside, not sure which exceptions... its
+   * @throws RuntimeException if something wrong inside, not sure which exceptions... its
    * whatever your methods throw
    */
   public static Object callbackGrouperTransaction(

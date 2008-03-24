@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.177 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Group.java,v 1.178 2008-03-24 20:15:36 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -878,7 +878,6 @@ public class Group extends GrouperAPI implements Owner {
    * @param   subj  Delete this {@link Subject}
    * @throws  InsufficientPrivilegeException
    * @throws  MemberDeleteException
-   * @throws  SchemaException
    */
   public void deleteMember(Subject subj)
     throws  InsufficientPrivilegeException,

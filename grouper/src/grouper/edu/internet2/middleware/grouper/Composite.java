@@ -40,7 +40,7 @@ import  org.apache.commons.lang.time.*;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.48 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.49 2008-03-24 20:15:36 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -305,7 +305,7 @@ public class Composite extends GrouperAPI {
 
   /**
    * Update composites where modified group is a factor.
-   * @return  <i>Set</i> of factor owner UUIDs for use by {@link _updateWhereFactorOwnersAreImmediateMembers(Group, Set)}.
+   * @return  <i>Set</i> of factor owner UUIDs for use by {@link #_updateWhereFactorOwnersAreImmediateMembers(Group, Set)}.
    * @since   1.2.0
    */
   private static Set _updateWhereGroupIsFactor(Group g) {
