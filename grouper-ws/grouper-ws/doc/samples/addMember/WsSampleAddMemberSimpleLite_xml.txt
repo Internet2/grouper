@@ -1,0 +1,210 @@
+Grouper web service sample of service: addMember, WsSampleAddMemberSimpleLite, manually written lite/rest, format: xml, for version: v1_3_000
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+PUT /grouper-ws/servicesLite/v1_3_000/group/aStem%3AaGroup/members/10021368 HTTP/1.1
+Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
+User-Agent: Jakarta Commons-HttpClient/3.0.1
+Host: localhost:8092
+Content-Length: 107
+Content-Type: text/xml; charset=UTF-8
+
+<WsLiteAddMemberSimpleRequest>
+  <actAsSubjectId>GrouperSystem</actAsSubjectId>
+</WsLiteAddMemberSimpleRequest>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
+X-Grouper-responseCode: SUCCESS
+X-Grouper-success: T
+Content-Type: application/xhtml+xml
+Transfer-Encoding: chunked
+Date: Mon, 24 Mar 2008 08:41:35 GMT
+
+3f9
+<WsAddMemberSimpleResult>
+  <resultMetadata>
+    <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult$WsAddMemberSimpleResultCode">SUCCESS</wsResultCode>
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1881feb[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1e7b36d[subject=&lt;nul...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b4ee66[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSource=&lt;null&gt;], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null</resultMessage>
+    <success>T</success>
+    <httpStatusCode>201</httpStatusCode>
+  </
+204
+resultMetadata>
+  <wsGroupAssigned>
+    <extension>aGroup</extension>
+    <displayExtension>test group</displayExtension>
+    <description>somedescription</description>
+    <displayName>a stem:test group</displayName>
+    <name>aStem:aGroup</name>
+    <uuid>cd89f7c5-913e-4788-9a67-c78a5fee1fba</uuid>
+  </wsGroupAssigned>
+  <wsSubject>
+    <resultCode>SUCCESS</resultCode>
+    <success>T</success>
+    <id>10021368</id>
+    <source>QSUOB JDBC Source Adapter</source>
+  </wsSubject>
+  <responseMetadata>
+    <resultWarnings></resultWarnings>
+  </responseMetadata>
+</WsAddMemberSimpleResult>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+package edu.internet2.middleware.grouper.ws.samples.rest;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
+import edu.internet2.middleware.grouper.ws.lite.group.WsLiteAddMemberSimpleRequest;
+import edu.internet2.middleware.grouper.ws.samples.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleAddMemberSimpleLite implements WsSampleRest {
+
+  /**
+   * add member simple web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  public static void addMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      //URL e.g. http://localhost:8093/grouper-ws/servicesLite
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      PutMethod method = new PutMethod(
+          RestClientSettings.URL + "/v1_3_000/group/aStem%3AaGroup/members/10021368");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
+          ManualClientSettings.PASS);
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsLiteAddMemberSimpleRequest addMemberSimple = new WsLiteAddMemberSimpleRequest();
+
+      // set the act as id
+      addMemberSimple.setActAsSubjectId("GrouperSystem");
+
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberSimple);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+      
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String responseCode = method.getResponseHeader("X-Grouper-responseCode").getValue();
+      
+      int statusCode = method.getStatusCode();
+
+      // see if request worked or not
+      if (statusCode != 200 || !success) {
+        throw new RuntimeException("Bad response from web service: " + statusCode + ", responseCode: " + responseCode);
+      }
+
+      String response = method.getResponseBodyAsString();
+
+      //convert to object (from xhtml, xml, json, etc)
+      WsAddMemberSimpleResult wsAddMemberSimpleResult = (WsAddMemberSimpleResult)wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      System.out.println(wsAddMemberSimpleResult);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+    addMemberSimpleLite(WsSampleRestType.xhtml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    addMemberSimpleLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    //allow all
+    return true;
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult@69d02b
