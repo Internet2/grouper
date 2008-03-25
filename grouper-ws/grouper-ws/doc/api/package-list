@@ -1,10 +1,10 @@
 edu.internet2.middleware.grouper.ws
 edu.internet2.middleware.grouper.ws.exceptions
-edu.internet2.middleware.grouper.ws.lite
-edu.internet2.middleware.grouper.ws.lite.contentType
-edu.internet2.middleware.grouper.ws.lite.group
-edu.internet2.middleware.grouper.ws.lite.method
 edu.internet2.middleware.grouper.ws.member
 edu.internet2.middleware.grouper.ws.query
+edu.internet2.middleware.grouper.ws.rest
+edu.internet2.middleware.grouper.ws.rest.contentType
+edu.internet2.middleware.grouper.ws.rest.group
+edu.internet2.middleware.grouper.ws.rest.method
 edu.internet2.middleware.grouper.ws.soap
 edu.internet2.middleware.grouper.ws.util

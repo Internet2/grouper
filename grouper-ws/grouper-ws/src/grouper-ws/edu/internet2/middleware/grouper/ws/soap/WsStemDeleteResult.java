@@ -56,7 +56,7 @@ public class WsStemDeleteResult {
     /** successful addition */
     SUCCESS,
 
-    /** invalid query, can only happen if simple query */
+    /** invalid query, can only happen if lite query */
     INVALID_QUERY,
 
     /** the stem was not found */

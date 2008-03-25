@@ -114,7 +114,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the groups, or no groups if none found
    */
-  public WsFindGroupsResults findGroupsSimple(final String clientVersion,
+  public WsFindGroupsResults findGroupsLite(final String clientVersion,
       String queryFilterType, String groupName, String stemName, String stemNameScope,
       String groupUuid, String groupAttributeName, String groupAttributeValue,
       String theType, String actAsSubjectId, String actAsSubjectSource,
@@ -320,7 +320,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the memberships, or none if none found
    */
-  public WsGetMembershipsResults getMembershipsSimple(final String clientVersion,
+  public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
       String groupName, String groupUuid, String membershipFilter,
       String includeSubjectDetail, String actAsSubjectId, String actAsSubjectSource,
       String actAsSubjectIdentifier, String fieldName, String subjectAttributeNames,
@@ -386,7 +386,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the members, or no members if none found
    */
-  public WsGetMembersResults getMembersSimple(final String clientVersion,
+  public WsGetMembersResults getMembersLite(final String clientVersion,
       String groupName, String groupUuid, String memberFilter, String actAsSubjectId,
       String actAsSubjectSource, String actAsSubjectIdentifier, final String fieldName,
       String includeSubjectDetail, String subjectAttributeNames,
@@ -840,7 +840,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsStemDeleteResults stemDeleteSimple(final String clientVersion,
+  public WsStemDeleteResults stemDeleteLite(final String clientVersion,
       String stemName, String stemUuid, String actAsSubjectId, String actAsSubjectSource,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
@@ -889,7 +889,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsGroupDeleteResults groupDeleteSimple(final String clientVersion,
+  public WsGroupDeleteResults groupDeleteLite(final String clientVersion,
       String groupName, String groupUuid, String actAsSubjectId,
       String actAsSubjectSource, String actAsSubjectIdentifier,
       final String includeGroupDetail, String paramName0, String paramValue0,
@@ -949,7 +949,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsViewOrEditAttributesResults viewOrEditAttributesSimple(
+  public WsViewOrEditAttributesResults viewOrEditAttributesLite(
       final String clientVersion, String groupName, String groupUuid,
       String attributeName0, String attributeValue0, String attributeDelete0,
       String attributeName1, String attributeValue1, String attributeDelete1,
@@ -1030,7 +1030,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsGroupSaveResults groupSaveSimple(final String clientVersion, String groupName,
+  public WsGroupSaveResults groupSaveLite(final String clientVersion, String groupName,
       String groupUuid, String description, String displayExtension, String saveMode,
       String createStemsIfNotExist, String actAsSubjectId, String actAsSubjectSource,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
@@ -1086,7 +1086,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsStemSaveResults stemSaveSimple(final String clientVersion,
+  public WsStemSaveResults stemSaveLite(final String clientVersion,
       String stemLookupUuid, String stemLookupName, String stemName, String stemUuid,
       String description, String displayExtension, String saveMode,
       String createStemsIfNotExist, String actAsSubjectId, String actAsSubjectSource,
@@ -2685,7 +2685,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsGetGroupsResults getGroupsSimple(final String clientVersion, String subjectId,
+  public WsGetGroupsResults getGroupsLite(final String clientVersion, String subjectId,
       String subjectSource, String subjectIdentifier, String memberFilter,
       String includeGroupDetail, String actAsSubjectId, String actAsSubjectSource,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
@@ -2750,13 +2750,13 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsAddMemberSimpleResult addMemberSimple(final String clientVersion,
+  public WsAddMemberLiteResult addMemberLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String subjectSource,
       String subjectIdentifier, String actAsSubjectId, String actAsSubjectSource,
       String actAsSubjectIdentifier, String fieldName, String includeGroupDetail,
       String includeSubjectDetail, String subjectAttributeNames, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
-    //NOTE!!! IF YOU CHANGE A PARAM ABOVE, YOU MUST EDIT WsLiteAddMemberSimpleRequest
+    //NOTE!!! IF YOU CHANGE A PARAM ABOVE, YOU MUST EDIT WsLiteAddMemberLiteRequest
     // setup the group lookup
     WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
 
@@ -2774,9 +2774,9 @@ public class GrouperService {
         subjectLookups, "F", actAsSubjectLookup, fieldName, null, includeGroupDetail,
         includeSubjectDetail, subjectAttributeArray, params);
 
-    WsAddMemberSimpleResult wsAddMemberSimpleResult = new WsAddMemberSimpleResult(
+    WsAddMemberLiteResult wsAddMemberLiteResult = new WsAddMemberLiteResult(
         wsAddMemberResults);
-    return wsAddMemberSimpleResult;
+    return wsAddMemberLiteResult;
   }
 
   /**
@@ -2826,7 +2826,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsViewOrEditPrivilegesResults viewOrEditPrivilegesSimple(
+  public WsViewOrEditPrivilegesResults viewOrEditPrivilegesLite(
       final String clientVersion, String groupName, String groupUuid, String subjectId,
       String subjectSource, String subjectIdentifier, String adminAllowed,
       String optinAllowed, String optoutAllowed, String readAllowed,
@@ -2912,7 +2912,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member query
    */
-  public WsHasMemberResults hasMemberSimple(final String clientVersion, String groupName,
+  public WsHasMemberResults hasMemberLite(final String clientVersion, String groupName,
       String groupUuid, String subjectId, String subjectSource, String subjectIdentifier,
       String includeSubjectDetail, String subjectAttributeNames, String memberFilter,
       String actAsSubjectId, String actAsSubjectSource, String actAsSubjectIdentifier,
@@ -2978,7 +2978,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member delete
    */
-  public WsDeleteMemberResults deleteMemberSimple(final String clientVersion,
+  public WsDeleteMemberResults deleteMemberLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String subjectSource,
       String subjectIdentifier, String actAsSubjectId, String actAsSubjectSource,
       String actAsSubjectIdentifier, final String fieldName,
@@ -3047,7 +3047,7 @@ public class GrouperService {
    *            reserved for future use
    * @return the stems, or no stems if none found
    */
-  public WsFindStemsResults findStemsSimple(final String clientVersion,
+  public WsFindStemsResults findStemsLite(final String clientVersion,
       String stemQueryFilterType, String stemName, String parentStemName,
       String parentStemNameScope, String stemUuid, String stemAttributeName,
       String stemAttributeValue, String theType, String actAsSubjectId,

@@ -36,9 +36,9 @@ import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.lite.GrouperLiteServlet;
-import edu.internet2.middleware.grouper.ws.lite.WsLiteClassLookup;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
+import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
+import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
@@ -112,7 +112,7 @@ public final class GrouperServiceUtils {
       namesForWarnings.addAll(paramMap.keySet());
     } else {
       
-      Class<?> objectClass = WsLiteClassLookup.retrieveClassBySimpleName(objectTypeSimpleName); 
+      Class<?> objectClass = WsRestClassLookup.retrieveClassBySimpleName(objectTypeSimpleName); 
       object = GrouperUtil.newInstance(objectClass);
       
       //lets assign other params
@@ -201,7 +201,7 @@ public final class GrouperServiceUtils {
    * @param includeClassName true to include the classname in the params
    * @return the query string
    */
-  public static String marshalSimpleBeanToQueryString(Object object, boolean convertNullToEmpty, boolean includeClassName) {
+  public static String marshalLiteBeanToQueryString(Object object, boolean convertNullToEmpty, boolean includeClassName) {
     
     //if no object, then dont worry about it
     if (object == null) {
@@ -900,8 +900,8 @@ public final class GrouperServiceUtils {
    */
   public static void addResponseHeaders(HttpServletResponse response, String success,
       String resultCode) {
-    response.addHeader(GrouperLiteServlet.X_GROUPER_RESPONSE_CODE, resultCode);
-    response.addHeader(GrouperLiteServlet.X_GROUPER_SUCCESS, success);
+    response.addHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE, resultCode);
+    response.addHeader(GrouperRestServlet.X_GROUPER_SUCCESS, success);
   }
 
   /**

@@ -43,7 +43,7 @@ public class WsStemSaveResult {
     /** successful addition */
     SUCCESS,
 
-    /** invalid query, can only happen if simple query */
+    /** invalid query, can only happen if lite query */
     INVALID_QUERY,
 
     /** the save was not found */

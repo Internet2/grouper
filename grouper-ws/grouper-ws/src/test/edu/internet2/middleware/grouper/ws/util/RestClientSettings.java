@@ -1,7 +1,13 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.1 2008-03-24 20:19:49 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.2 2008-03-25 05:15:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
+
+import java.io.InputStream;
+import java.io.StringWriter;
+
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.io.IOUtils;
 
 
 /**
@@ -24,5 +30,26 @@ public class RestClientSettings {
     public static final String HOST = "localhost";
     
     /** url prefix */
-    public static final String URL = "http://localhost:8093/grouper-ws/servicesLite";
+    public static final String URL = "http://localhost:8093/grouper-ws/servicesRest";
+    
+    /**
+     * for testing, get the response body as a string
+     * @param method
+     * @return the string of response body
+     */
+    public static String responseBodyAsString(HttpMethodBase method) {
+      InputStream inputStream = null;
+      try {
+        
+        StringWriter writer = new StringWriter();
+        inputStream = method.getResponseBodyAsStream();
+        IOUtils.copy(inputStream, writer);
+        return writer.toString();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      } finally {
+        IOUtils.closeQuietly(inputStream);
+      }
+      
+    }
 }

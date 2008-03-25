@@ -33,7 +33,7 @@ public class WsGroupSaveResult {
     /** successful addition (success: T) */
     SUCCESS,
 
-    /** invalid query, can only happen if simple query (success: F) */
+    /** invalid query, can only happen if Lite query (success: F) */
     INVALID_QUERY,
 
     /** the group was not found (success: F) */

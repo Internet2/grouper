@@ -3,24 +3,22 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import java.lang.reflect.Array;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMember;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.WsSampleGenerated;
-import edu.internet2.middleware.grouper.ws.samples.WsSampleGeneratedType;
-
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
-import java.lang.reflect.Array;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 
 
 /**
@@ -33,7 +31,7 @@ public class WsSampleAddMember implements WsSampleGenerated {
      * @param args
      */
     public static void main(String[] args) {
-        addMember(WsSampleGeneratedType.SOAP);
+        addMember(WsSampleGeneratedType.soap);
     }
 
     /**
@@ -53,11 +51,6 @@ public class WsSampleAddMember implements WsSampleGenerated {
             options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
-
-            if (WsSampleGeneratedType.XML_HTTP.equals(wsSampleGeneratedType)) {
-                options.setProperty(Constants.Configuration.ENABLE_REST,
-                    Constants.VALUE_TRUE);
-            }
 
             AddMember addMember = AddMember.class.newInstance();
 
@@ -111,7 +104,7 @@ public class WsSampleAddMember implements WsSampleGenerated {
     }
 
     /**
-     * @see edu.internet2.middleware.grouper.ws.samples.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.WsSampleGeneratedType)
+     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
      */
     public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
         addMember(wsSampleGeneratedType);

@@ -3,21 +3,17 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSave;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemSaveResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemSaveResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemToSave;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
-import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.WsSampleGenerated;
-import edu.internet2.middleware.grouper.ws.samples.WsSampleGeneratedType;
-
 import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSave;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemToSave;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 
 
 /**
@@ -30,11 +26,11 @@ public class WsSampleStemSave implements WsSampleGenerated {
      * @param args
      */
     public static void main(String[] args) {
-        stemSave(WsSampleGeneratedType.SOAP);
+        stemSave(WsSampleGeneratedType.soap);
     }
 
     /**
-     * @see edu.internet2.middleware.grouper.ws.samples.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.WsSampleGeneratedType)
+     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
      */
     public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
         stemSave(wsSampleGeneratedType);
@@ -57,11 +53,6 @@ public class WsSampleStemSave implements WsSampleGenerated {
             options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
                 new Integer(3600000));
-
-            if (WsSampleGeneratedType.XML_HTTP.equals(wsSampleGeneratedType)) {
-                options.setProperty(Constants.Configuration.ENABLE_REST,
-                    Constants.VALUE_TRUE);
-            }
 
             StemSave stemSave = StemSave.class.newInstance();
 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.1 2008-03-24 20:19:50 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.2 2008-03-25 05:15:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -14,12 +14,12 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberManualXmlHttp;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberSimple;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberSimpleManualXmlHttp;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberSimpleLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRestLite;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSample;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleClientType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.TcpCaptureServer;
 
@@ -46,18 +46,14 @@ public class SampleCapture {
    * all add member captures
    */
   public static void captureAddMember() {
-    captureSample(WsSampleClientType.GENERATED_SOAP_XML_HTTP,  
-        WsSampleAddMember.class, "addMember", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP_XML_HTTP,  
-        WsSampleAddMemberSimple.class, "addMember", null);
-    captureSample(WsSampleClientType.MANUAL_XML_HTTP,  
-        WsSampleAddMemberManualXmlHttp.class, "addMember", null);
-    captureSample(WsSampleClientType.MANUAL_XML_HTTP,  
-        WsSampleAddMemberSimpleManualXmlHttp.class, "addMember", null);
-    captureSample(WsSampleClientType.MANUAL_LITE_REST,  
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAddMember.class, "addMember", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleAddMemberLite.class, "addMember", null);
-    captureSample(WsSampleClientType.MANUAL_LITE_REST,  
-        WsSampleAddMemberSimpleLite.class, "addMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAddMemberRest.class, "addMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAddMemberRestLite.class, "addMember", null);
     
   }
   

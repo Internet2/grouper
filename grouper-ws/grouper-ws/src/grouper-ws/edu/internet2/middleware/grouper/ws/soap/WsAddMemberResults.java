@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.lite.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
 
 /**
@@ -284,7 +284,7 @@ public class WsAddMemberResults implements WsResponseBean {
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
-   * @see edu.internet2.middleware.grouper.ws.lite.WsResponseBean#getResponseMetadata()
+   * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
    * @return the response metadata
    */
   public WsResponseMeta getResponseMetadata() {

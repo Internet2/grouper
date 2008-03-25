@@ -19,7 +19,7 @@
   </filter-mapping>
   <filter-mapping>
     <filter-name>Grouper service filter</filter-name>
-    <url-pattern>/servicesLite/*</url-pattern>
+    <url-pattern>/servicesRest/*</url-pattern>
   </filter-mapping>
 	<servlet>
 		<servlet-name>AxisServlet</servlet-name>
@@ -31,9 +31,9 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
   <servlet>
-    <servlet-name>LiteServlet</servlet-name>
-    <display-name>WS Lite Servlet</display-name>
-    <servlet-class>edu.internet2.middleware.grouper.ws.lite.GrouperLiteServlet</servlet-class>
+    <servlet-name>RestServlet</servlet-name>
+    <display-name>WS REST Servlet</display-name>
+    <servlet-class>edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
@@ -41,8 +41,8 @@
     <url-pattern>/services/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
-    <servlet-name>LiteServlet</servlet-name>
-    <url-pattern>/servicesLite/*</url-pattern>
+    <servlet-name>RestServlet</servlet-name>
+    <url-pattern>/servicesRest/*</url-pattern>
   </servlet-mapping>
 
 	<security-constraint>
@@ -59,7 +59,7 @@
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>Web services</web-resource-name>
-      <url-pattern>/servicesLite/*</url-pattern>
+      <url-pattern>/servicesRest/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <!-- NOTE:  This role is not present in the default users file -->

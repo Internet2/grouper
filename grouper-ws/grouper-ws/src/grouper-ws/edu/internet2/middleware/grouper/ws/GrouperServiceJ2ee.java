@@ -254,7 +254,7 @@ public class GrouperServiceJ2ee implements Filter {
             }
 
           } else {
-            //else this is a simple rule where the logged in user just has to be in a group and
+            //else this is a straightforward rule where the logged in user just has to be in a group and
             //can act as anyone
             Group actAsGroup = GroupFinder.findByName(session, actAsGroupName);
 

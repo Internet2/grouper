@@ -236,11 +236,11 @@ public final class GrouperWsConfig {
   public static final String WS_VIEW_OR_EDIT_PRIVILEGES_SUBJECTS_MAX = "ws.view.or.edit.privileges.subjects.max";
 
   /**
-   * name of param: ws.lite.default.response.content.type
+   * name of param: ws.rest.default.response.content.type
    * if the request has no content type (http params), and the response content type is not
    * specified in the url, then put it here.  must be a valid value of WsLiteResponseContentType
    * defaults to xhtml if blank
    */
-  public static final String WS_LITE_DEFAULT_RESPONSE_CONTENT_TYPE 
-    = "ws.lite.default.response.content.type";
+  public static final String WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE 
+    = "ws.rest.default.response.content.type";
 }

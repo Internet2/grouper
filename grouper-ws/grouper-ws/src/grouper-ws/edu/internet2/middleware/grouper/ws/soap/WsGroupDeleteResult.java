@@ -83,7 +83,7 @@ public class WsGroupDeleteResult {
     /** successful addition (lite status code 200) */
     SUCCESS,
 
-    /** invalid query, can only happen if simple query */
+    /** invalid query, can only happen if Lite query */
     INVALID_QUERY,
 
     /** the group was not found */

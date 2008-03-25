@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperServiceUtilsTest.java,v 1.1 2008-03-24 20:19:49 mchyzer Exp $
+ * $Id: GrouperServiceUtilsTest.java,v 1.2 2008-03-25 05:15:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -8,8 +8,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.ws.lite.group.WsLiteAddMemberSimpleRequest;
-import edu.internet2.middleware.grouper.ws.lite.group.WsLiteGetMembersSimpleRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersLiteRequest;
 
 
 
@@ -40,13 +40,13 @@ public class GrouperServiceUtilsTest extends TestCase {
    * create some query strings
    */
   public void testQueryStringsAddMemberSimple() {
-    WsLiteAddMemberSimpleRequest wsLiteAddMemberSimpleRequest = 
-      new WsLiteAddMemberSimpleRequest();
+    WsRestAddMemberLiteRequest wsLiteAddMemberSimpleRequest = 
+      new WsRestAddMemberLiteRequest();
     wsLiteAddMemberSimpleRequest.setClientVersion("v1_3_000");
     wsLiteAddMemberSimpleRequest.setGroupName("aStem:aGroup");
     wsLiteAddMemberSimpleRequest.setSubjectId("10021368");
     wsLiteAddMemberSimpleRequest.setActAsSubjectId("GrouperSystem");
-    String queryString = GrouperServiceUtils.marshalSimpleBeanToQueryString(wsLiteAddMemberSimpleRequest,
+    String queryString = GrouperServiceUtils.marshalLiteBeanToQueryString(wsLiteAddMemberSimpleRequest,
         true, false);
     System.out.println(queryString);
   }
@@ -55,20 +55,20 @@ public class GrouperServiceUtilsTest extends TestCase {
    * make sure http params marshal correctly
    */
   public void testMarshalHttp() {
-    WsLiteGetMembersSimpleRequest wsLiteGetMembersSimpleRequest 
-      = new WsLiteGetMembersSimpleRequest();
+    WsRestGetMembersLiteRequest wsLiteGetMembersSimpleRequest 
+      = new WsRestGetMembersLiteRequest();
     wsLiteGetMembersSimpleRequest.setActAsSubjectId("abc");
     wsLiteGetMembersSimpleRequest.setMemberFilter("123");
     
     String queryString = GrouperServiceUtils
-      .marshalSimpleBeanToQueryString(wsLiteGetMembersSimpleRequest, true, true);
+      .marshalLiteBeanToQueryString(wsLiteGetMembersSimpleRequest, true, true);
     //System.out.println(queryString);
     
     //create map that mimics a real request map
     Map<String, String> paramMap = GrouperServiceUtils.convertQueryStringToMap(
         queryString);
     
-    wsLiteGetMembersSimpleRequest = (WsLiteGetMembersSimpleRequest)
+    wsLiteGetMembersSimpleRequest = (WsRestGetMembersLiteRequest)
       GrouperServiceUtils.marshalHttpParamsToObject(paramMap, null, null);
     
     assertEquals("abc", wsLiteGetMembersSimpleRequest.getActAsSubjectId());

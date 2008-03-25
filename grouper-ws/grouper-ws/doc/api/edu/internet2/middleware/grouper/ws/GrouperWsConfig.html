@@ -201,22 +201,22 @@ config constants for WS
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_LITE_DEFAULT_RESPONSE_CONTENT_TYPE">WS_LITE_DEFAULT_RESPONSE_CONTENT_TYPE</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param: ws.lite.default.response.content.type
- if the request has no content type (http params), and the response content type is not
- specified in the url, then put it here.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_LOGGED_IN_SUBJECT_DEFAULT_SOURCE">WS_LOGGED_IN_SUBJECT_DEFAULT_SOURCE</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param: ws.logged.in.subject.default.source
  if you have subject namespace overlap (or not), set the default subject 
  source to lookup the user if none specified in user name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE">WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param: ws.rest.default.response.content.type
+ if the request has no content type (http params), and the response content type is not
+ specified in the url, then put it here.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -560,18 +560,18 @@ public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/S
 </DL>
 <HR>
 
-<A NAME="WS_LITE_DEFAULT_RESPONSE_CONTENT_TYPE"><!-- --></A><H3>
-WS_LITE_DEFAULT_RESPONSE_CONTENT_TYPE</H3>
+<A NAME="WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE"><!-- --></A><H3>
+WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE</H3>
 <PRE>
-public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>WS_LITE_DEFAULT_RESPONSE_CONTENT_TYPE</B></PRE>
+public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE</B></PRE>
 <DL>
-<DD>name of param: ws.lite.default.response.content.type
+<DD>name of param: ws.rest.default.response.content.type
  if the request has no content type (http params), and the response content type is not
  specified in the url, then put it here.  must be a valid value of WsLiteResponseContentType
  defaults to xhtml if blank
 <P>
 <DL>
-<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_LITE_DEFAULT_RESPONSE_CONTENT_TYPE">Constant Field Values</A></DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE">Constant Field Values</A></DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->

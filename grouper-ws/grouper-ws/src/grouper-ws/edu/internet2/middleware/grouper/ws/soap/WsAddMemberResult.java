@@ -7,7 +7,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult.WsAddMemberSimpleResultCode;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult.WsAddMemberLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
 
 /**
@@ -58,8 +58,8 @@ public class WsAddMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsAddMemberSimpleResultCode convertToSimpleCode() {
-        return WsAddMemberSimpleResultCode.INVALID_QUERY;
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.INVALID_QUERY;
       }
 
     },
@@ -72,8 +72,8 @@ public class WsAddMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsAddMemberSimpleResultCode convertToSimpleCode() {
-        return WsAddMemberSimpleResultCode.GROUP_NOT_FOUND;
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.GROUP_NOT_FOUND;
       }
 
     },
@@ -86,8 +86,8 @@ public class WsAddMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsAddMemberSimpleResultCode convertToSimpleCode() {
-        return WsAddMemberSimpleResultCode.SUCCESS;
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.SUCCESS;
       }
 
     },
@@ -100,8 +100,8 @@ public class WsAddMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsAddMemberSimpleResultCode convertToSimpleCode() {
-        return WsAddMemberSimpleResultCode.SUBJECT_NOT_FOUND;
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.SUBJECT_NOT_FOUND;
       }
 
     },
@@ -114,8 +114,8 @@ public class WsAddMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsAddMemberSimpleResultCode convertToSimpleCode() {
-        return WsAddMemberSimpleResultCode.EXCEPTION;
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.EXCEPTION;
       }
 
     },
@@ -128,8 +128,8 @@ public class WsAddMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsAddMemberSimpleResultCode convertToSimpleCode() {
-        return WsAddMemberSimpleResultCode.INSUFFICIENT_PRIVILEGES;
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.INSUFFICIENT_PRIVILEGES;
       }
 
     },
@@ -142,9 +142,9 @@ public class WsAddMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsAddMemberSimpleResultCode convertToSimpleCode() {
+      public WsAddMemberLiteResultCode convertToLiteCode() {
         //shouldnt happen (one result with rollback)
-        return WsAddMemberSimpleResultCode.EXCEPTION;
+        return WsAddMemberLiteResultCode.EXCEPTION;
       }
 
     },
@@ -157,8 +157,8 @@ public class WsAddMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsAddMemberSimpleResultCode convertToSimpleCode() {
-        return WsAddMemberSimpleResultCode.SUBJECT_DUPLICATE;
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.SUBJECT_DUPLICATE;
       }
 
     };
@@ -175,7 +175,7 @@ public class WsAddMemberResult {
      * if there is one result, convert to the results code
      * @return result code
      */
-    public abstract WsAddMemberSimpleResultCode convertToSimpleCode();
+    public abstract WsAddMemberLiteResultCode convertToLiteCode();
   }
 
   /**

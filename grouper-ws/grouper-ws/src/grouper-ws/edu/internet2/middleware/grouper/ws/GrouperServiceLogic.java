@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.1 2008-03-24 20:19:49 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.2 2008-03-25 05:15:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberSimpleResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
@@ -269,7 +269,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsAddMemberSimpleResult addMemberSimple(
+  public static WsAddMemberLiteResult addMemberLite(
       final GrouperWsVersion clientVersion, String groupName, String groupUuid,
       String subjectId, String subjectSource, String subjectIdentifier,
       String actAsSubjectId, String actAsSubjectSource, String actAsSubjectIdentifier,
@@ -294,9 +294,9 @@ public class GrouperServiceLogic {
         subjectLookups, false, actAsSubjectLookup, fieldName, null, includeGroupDetail,
         includeSubjectDetail, subjectAttributeArray, params);
 
-    WsAddMemberSimpleResult wsAddMemberSimpleResult = new WsAddMemberSimpleResult(
+    WsAddMemberLiteResult wsAddMemberLiteResult = new WsAddMemberLiteResult(
         wsAddMemberResults);
-    return wsAddMemberSimpleResult;
+    return wsAddMemberLiteResult;
   }
 
 }
