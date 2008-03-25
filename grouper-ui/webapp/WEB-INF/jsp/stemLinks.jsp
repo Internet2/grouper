@@ -3,15 +3,15 @@
 		 on the privileges of the current user for the current stem
 --%><%--
   @author Gary Brown.
-  @version $Id: stemLinks.jsp,v 1.5 2007-10-16 11:26:07 isgwb Exp $
+  @version $Id: stemLinks.jsp,v 1.6 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endStemLinks" class="noCSSOnly"><fmt:message bundle="${nav}" key="page.skip.stem-links"/></a>
+<a href="<c:out value="${pageUrl}"/>#endStemLinks" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.stem-links"/></a>
 <c:if test="${browsePrivs.STEM || browsePrivs.CREATE}">
 
 <h2 class="actionheader">
-<fmt:message bundle="${nav}" key="stems.heading.manage"/>
+<grouper:message bundle="${nav}" key="stems.heading.manage"/>
 </h2>
 <br/>
 <div class="linkButton">
@@ -19,19 +19,19 @@
 <tiles:insert definition="selectStemPrivilegeDef"/>
 </c:if>
 <c:if test="${browsePrivs.STEM && !empty currentLocation.id}">
-<html:link page="/populateEditStem.do"><fmt:message bundle="${nav}" key="stems.action.edit"/></html:link>
+<html:link page="/populateEditStem.do"><grouper:message bundle="${nav}" key="stems.action.edit"/></html:link>
 
 </c:if>
 
 
 <c:if test="${!stemHasChildren && browsePrivs.STEM}"> 
-<html:link page="/deleteStem.do" onclick="return confirm('${navMap['stems.delete.warn']}')"><fmt:message bundle="${nav}" key="stems.action.delete" /></html:link>
+<html:link page="/deleteStem.do" onclick="return confirm('${navMap['stems.delete.warn']}')"><grouper:message bundle="${nav}" key="stems.action.delete" /></html:link>
 </c:if>
 <c:if test="${browsePrivs.STEM}"> 
-<html:link page="/populateCreateStem.do"><fmt:message bundle="${nav}" key="stems.action.create"/></html:link>
+<html:link page="/populateCreateStem.do"><grouper:message bundle="${nav}" key="stems.action.create"/></html:link>
 </c:if>
 <c:if test="${browsePrivs.CREATE}"> 
-<html:link page="/populateCreateGroup.do" ><fmt:message bundle="${nav}" key="groups.action.create"/></html:link>
+<html:link page="/populateCreateGroup.do" ><grouper:message bundle="${nav}" key="groups.action.create"/></html:link>
 </c:if>
 </div><!--linkbutton1-->
 <br/>

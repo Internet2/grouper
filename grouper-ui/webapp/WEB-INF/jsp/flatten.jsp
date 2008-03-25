@@ -4,7 +4,7 @@
 		 	hierarchy or a flat list of groups or stems
 --%><%--
   @author Gary Brown.
-  @version $Id: flatten.jsp,v 1.2 2006-01-03 13:31:27 isgwb Exp $
+  @version $Id: flatten.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -15,22 +15,22 @@
 			<c:choose>
 				<c:when test="${isFlat}">
 					<c:set var="makeFlatFalse" value="false"/>
-					<html:link page="/${pageName}.do" paramId="flat" paramName="makeFlatFalse"><fmt:message bundle="${nav}" key="${flattenType}.action.unflatten"/></html:link>
+					<html:link page="/${pageName}.do" paramId="flat" paramName="makeFlatFalse"><grouper:message bundle="${nav}" key="${flattenType}.action.unflatten"/></html:link>
 				</c:when>
 				<c:otherwise>
 					<c:set var="makeFlatTrue" value="true"/>
-					<html:link page="/${pageName}.do" paramId="flat" paramName="makeFlatTrue"><fmt:message bundle="${nav}" key="${flattenType}.action.flatten"/></html:link>
+					<html:link page="/${pageName}.do" paramId="flat" paramName="makeFlatTrue"><grouper:message bundle="${nav}" key="${flattenType}.action.flatten"/></html:link>
 				</c:otherwise>
 			</c:choose>
 			<c:if test="${isQuickLinks && empty initialStems}">
 			<c:set var="reset" value="Y"/>
-			<html:link page="/${pageName}.do" paramId="resetBrowse" paramName="reset"><fmt:message bundle="${nav}" key="find.browse.return-to-quick-links"/></html:link>
+			<html:link page="/${pageName}.do" paramId="resetBrowse" paramName="reset"><grouper:message bundle="${nav}" key="find.browse.return-to-quick-links"/></html:link>
 			</c:if>
 		<%--</c:when>
 		<c:otherwise>--%>
 		<c:if test="${isQuickLinks && !empty initialStems}">
 		<c:set var="reset" value="Y"/>
-			<html:link page="/${pageName}.do" paramId="hideQuickLinks" paramName="reset"><fmt:message bundle="${nav}" key="find.browse.hide-quick-links"/></html:link>
+			<html:link page="/${pageName}.do" paramId="hideQuickLinks" paramName="reset"><grouper:message bundle="${nav}" key="find.browse.hide-quick-links"/></html:link>
 		</c:if>
 		</div><!--linkbutton-->
 		<%--</c:otherwise>

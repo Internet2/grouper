@@ -3,7 +3,7 @@
 		in GroupSummaryDef
 --%><%--
   @author Gary Brown.
-  @version $Id: groupInfo.jsp,v 1.4 2006-10-05 15:28:15 isgwb Exp $
+  @version $Id: groupInfo.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -43,7 +43,7 @@
 <c:if test="${!empty group.description}">
 <div class="formRow">
 	<div class="formLeft">
-		<fmt:message bundle="${nav}" key="groups.summary.description"/>
+		<grouper:message bundle="${nav}" key="groups.summary.description"/>
 	</div>
 	<div class="formRight">
 		<c:out value="${group.description}"/>
@@ -52,7 +52,7 @@
 </c:if>
 <div class="formRow">
 	<div class="formLeft">
-		<fmt:message bundle="${nav}" key="groups.summary.id"/>
+		<grouper:message bundle="${nav}" key="groups.summary.id"/>
 	</div>
 	<div class="formRight">
 		<c:out value="${group.id}"/>
@@ -60,7 +60,7 @@
 </div>
 <c:if test="${!empty group.types}">
 <div class="formRow">
-	<div class="formLeft"><fmt:message bundle="${nav}" key="groups.summary.types"/></div>
+	<div class="formLeft"><grouper:message bundle="${nav}" key="groups.summary.types"/></div>
 </div>
 <div class="formRight">
 <div class="groupTypes">

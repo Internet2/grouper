@@ -2,12 +2,12 @@
 		  Dynamic tile which is the default view of a Composite
 --%><%--
   @author Gary Brown.
-  @version $Id: compositeView.jsp,v 1.1 2006-07-06 15:17:50 isgwb Exp $
+  @version $Id: compositeView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
  <div class="composite">
-<fmt:message bundle="${nav}" key="groups.composite-member.indicator"/>
+<grouper:message bundle="${nav}" key="groups.composite-member.indicator"/>
 <div class="compositeLeft">
 <tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="viewObject" beanProperty="leftGroup"/>

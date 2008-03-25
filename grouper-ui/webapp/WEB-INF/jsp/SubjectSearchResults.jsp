@@ -2,12 +2,12 @@
 		  Display paged results for Subject search
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSearchResults.jsp,v 1.2 2006-02-21 16:37:11 isgwb Exp $
+  @version $Id: SubjectSearchResults.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%><tiles:importAttribute />
-<div class="searchedFor"><fmt:message bundle="${nav}" key="find.subjects.searched-for">
-	<fmt:param value="${pager.params.searchTerm}"/>
-</fmt:message></div>
+<div class="searchedFor"><grouper:message bundle="${nav}" key="find.subjects.searched-for">
+	<grouper:param value="${pager.params.searchTerm}"/>
+</grouper:message></div>
 
 <c:if test="${empty groupSearchResultField}"><c:set scope="request" var="groupSearchResultField" value="${mediaMap['search.group.result-field']}"/></c:if>
 

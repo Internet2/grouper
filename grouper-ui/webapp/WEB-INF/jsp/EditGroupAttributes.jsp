@@ -19,15 +19,15 @@ Can save and
 <div class="typesHeader">
 	<div class="formRow">
 		<div class="formLeft">
-			<fmt:message bundle="${nav}" key="groups.edit-attributes.types-header"/>
+			<grouper:message bundle="${nav}" key="groups.edit-attributes.types-header"/>
 		</div>
 		<div class="formRight">
 			<div class="formRow">
 				<div class="formLeft">
-					<fmt:message bundle="${nav}" key="groups.edit-attributes.attributes-header"/>
+					<grouper:message bundle="${nav}" key="groups.edit-attributes.attributes-header"/>
 				</div>
 				<div class="formRight">
-					<fmt:message bundle="${nav}" key="groups.edit-attributes.values-header"/>
+					<grouper:message bundle="${nav}" key="groups.edit-attributes.values-header"/>
 				</div>
 			</div>
 		</div>

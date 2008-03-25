@@ -2,7 +2,7 @@
 		Tile which displays the generic subject search functionality. Designed to be embedded in actual forms
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectSearchFragment.jsp,v 1.4 2007-11-08 14:40:03 isgwb Exp $
+  @version $Id: subjectSearchFragment.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute/>
@@ -10,7 +10,7 @@
 <div class="subjectSearchFragment">
 <div class="formRow"><hr/></div>
 <div class="formRow">
-<div class="formLeft"><fmt:message bundle="${nav}" key="find.search-source"/></div>
+<div class="formLeft"><grouper:message bundle="${nav}" key="find.search-source"/></div>
 </div>
 <c:if test="${'all' == subjectSource}"><c:set var="checked"> checked="checked"</c:set></c:if>
 <div class="formRow">
@@ -20,7 +20,7 @@
 						   name="subjectSource"
 						   id="allRadio"/>
 	</div>
-	<div class="formRight"><label for="<c:out value="allRadio"/>"><fmt:message bundle="${nav}" key="find.search-all-sources"/></label></div>
+	<div class="formRight"><label for="<c:out value="allRadio"/>"><grouper:message bundle="${nav}" key="find.search-all-sources"/></label></div>
 
 </div>
 <c:remove var="checked"/>

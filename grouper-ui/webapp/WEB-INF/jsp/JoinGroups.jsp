@@ -2,16 +2,16 @@
 		  Main page for the 'Join' browse mode
 --%><%--
   @author Gary Brown.
-  @version $Id: JoinGroups.jsp,v 1.3 2006-01-03 13:30:13 isgwb Exp $
+  @version $Id: JoinGroups.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
 	<c:when test="${!isAdvancedSearch}">
 <div class="pageBlurb">
-	<fmt:message bundle="${nav}" key="groups.join.can"/>
+	<grouper:message bundle="${nav}" key="groups.join.can"/>
 </div>
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.browse"/>
+	<grouper:message bundle="${nav}" key="groups.heading.browse"/>
 </h2>
 <tiles:insert definition="browseStemsDef"/>
 <tiles:insert definition="flattenDef"/>

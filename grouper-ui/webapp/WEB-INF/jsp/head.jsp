@@ -4,7 +4,7 @@
 			overridden
 --%><%--
   @author Gary Brown.
-  @version $Id: head.jsp,v 1.6 2008-02-02 05:58:59 mchyzer Exp $
+  @version $Id: head.jsp,v 1.7 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -27,7 +27,7 @@ base.append("/");
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <meta name="robots" content="noindex, nofollow" />
-<title><fmt:message bundle="${nav}" key="app.name"/></title>
+<title><grouper:message bundle="${nav}" key="app.name"/></title>
 
 <c:if test="${!debugPrefs.doHideStyles}">
 <c:if test="${mediaMap['grouper-css.hide']!='true'}">

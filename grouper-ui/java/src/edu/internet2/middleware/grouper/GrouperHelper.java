@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.41 2008-03-03 13:54:52 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.42 2008-03-25 14:59:51 mchyzer Exp $
  */
 
 
@@ -112,8 +112,8 @@ public class GrouperHelper {
 			"OPTIN", "OPTOUT","MEMBER" };
 	
 	//Privs which relate to Stems - naming privileges
-	private static String[] stemPrivs = { "STEM", "CREATE" };
-
+	//CH 20080324 change for UI from:  "STEM", "CREATE" 
+	private static String[] stemPrivs = {"Create Folder", "Create Group"};
 	public static void main(String args[]) throws Exception{
 		Subject subj = SubjectFinder.findById("GrouperSystem");
 		GrouperSession s = GrouperSession.start(subj);

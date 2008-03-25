@@ -2,7 +2,7 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePriv.jsp,v 1.4 2007-12-03 12:01:41 isgwb Exp $
+  @version $Id: effectivePriv.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -19,15 +19,15 @@
 				<c:set target="${params}" property="subjectType" value="application"/>
 				<c:set target="${params}" property="asMemberOf" value="${browseParent.id}"/>
 				<c:set var="memberPage" value="/populateGroupMember.do"/>
-			<fmt:message bundle="${nav}" key="subject.privileges.from-groupersystem"/>
+			<grouper:message bundle="${nav}" key="subject.privileges.from-groupersystem"/>
 	</c:when>
 		<c:when test="${groupOrStemPrivEntry.key!='GrouperAll'}">
 			<c:set target="${params}" property="asMemberOf" value="${group.id}"/>
 			<%--  Use params to make link title descriptive for accessibility --%>		
-			<c:set var="linkTitle"><fmt:message bundle="${nav}" key="browse.assign.title">
-						<fmt:param value="${viewObject.desc}"/>
-						<fmt:param value="${group.desc}"/>
-				</fmt:message></c:set>
+			<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title">
+						<grouper:param value="${viewObject.desc}"/>
+						<grouper:param value="${group.desc}"/>
+				</grouper:message></c:set>
 			
 			<c:choose>
 				<c:when test="${group.composite}">
@@ -61,17 +61,17 @@
 					<c:set var="memberPage" value="/populateStemMember.do"/>
 				</c:if>
 				 <%--  Use params to make link title descriptive for accessibility --%>		
-			<c:set var="linkTitle"><fmt:message bundle="${nav}" key="browse.assign.title">
-						<fmt:param value="${group.desc}"/>
-						<fmt:param value="${browseParent.displayExtension}"/>
-			</fmt:message></c:set>
+			<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title">
+						<grouper:param value="${group.desc}"/>
+						<grouper:param value="${browseParent.displayExtension}"/>
+			</grouper:message></c:set>
 		</c:when>
 		<c:otherwise>
 				<c:set target="${params}" property="subjectId" value="GrouperAll"/>
 				<c:set target="${params}" property="subjectType" value="application"/>
 				<c:set target="${params}" property="asMemberOf" value="${browseParent.id}"/>
 				<c:set var="memberPage" value="/populateGroupMember.do"/>
-			<fmt:message bundle="${nav}" key="subject.privileges.from-grouperall"/>
+			<grouper:message bundle="${nav}" key="subject.privileges.from-grouperall"/>
 		</c:otherwise>
 		</c:choose>
 		<c:out value="${linkSeparator}" escapeXml="false"/>

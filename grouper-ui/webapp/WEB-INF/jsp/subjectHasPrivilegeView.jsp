@@ -2,18 +2,18 @@
 		  Dynamic tile used to display has privilege links + actual privileges
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectHasPrivilegeView.jsp,v 1.3 2007-12-03 12:01:41 isgwb Exp $
+  @version $Id: subjectHasPrivilegeView.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 		<span class="hasPriv">
 		<c:choose>
 			<c:when test="${params.subjectId=='GrouperSystem'}">
-			<fmt:message bundle="${nav}" key="subject.privileges.has-for"/>
+			<grouper:message bundle="${nav}" key="subject.privileges.has-for"/>
 			</c:when>
 			<c:otherwise>
 		<html:link page="${memberPage}" name="params" title="${linkTitle}">
-			<fmt:message bundle="${nav}" key="subject.privileges.has-for"/></html:link> 
+			<grouper:message bundle="${nav}" key="subject.privileges.has-for"/></html:link> 
 			</c:otherwise>
 		</c:choose>
 		<c:forEach var="priv" items="${possibleEffectivePrivs}">

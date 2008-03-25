@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.12 2007-04-11 08:11:05 isgwb Exp $
+  @version $Id: GroupMembers.jsp,v 1.13 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -12,7 +12,7 @@
 <tiles:insert definition="changeMembershipScopeDef"/>
 
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.list-members"/>
+	<grouper:message bundle="${nav}" key="groups.heading.list-members"/>
 </h2>
 
 <c:choose>
@@ -58,14 +58,14 @@
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
 					<html:link page="/removeComposite.do" name="groupMembership" onclick="return confirm('${navMap['groups.remove.all.warn']}')">
-						<fmt:message bundle="${nav}" key="groups.composite.remove"/>
+						<grouper:message bundle="${nav}" key="groups.composite.remove"/>
 					</html:link>
 					
 				</c:when>
 				<c:otherwise>
 				<c:if test="${empty $param.callerPageId}">
 					<html:link page="/populateFindNewMembers.do" name="groupMembership">
-						<fmt:message bundle="${nav}" key="find.groups.add-new-members"/>
+						<grouper:message bundle="${nav}" key="find.groups.add-new-members"/>
 					</html:link>
 				</c:if>
 				</c:otherwise>
@@ -75,10 +75,10 @@
 		<html:link page="/populateAddComposite.do" name="groupMembership" onclick="return confirm('${navMap['groups.remove.all.warn']}')">
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
-						<fmt:message bundle="${nav}" key="groups.composite.replace"/>
+						<grouper:message bundle="${nav}" key="groups.composite.replace"/>
 				</c:when>
 				<c:otherwise>
-					<fmt:message bundle="${nav}" key="groups.composite.members-replace"/>
+					<grouper:message bundle="${nav}" key="groups.composite.members-replace"/>
 				</c:otherwise>
 			</c:choose>
 					</html:link>
@@ -86,14 +86,14 @@
 		
 		<c:set target="${groupMembership}" property="callerPageId"></c:set>
 		<html:link page="/populateGroupSummary.do" name="groupMembership">
-			<fmt:message bundle="${nav}" key="find.groups.done"/>
+			<grouper:message bundle="${nav}" key="find.groups.done"/>
 		</html:link>
 		
 		<tiles:insert definition="callerPageButtonDef"/>
 	</c:when>
 	<c:otherwise>
 		<html:link page="/populateSubjectSummary.do">
-			<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+			<grouper:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
 		</html:link>
 	</c:otherwise>
 </c:choose>

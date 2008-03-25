@@ -4,19 +4,19 @@
 <tiles:insert definition="showStemsLocationDef"/>
 
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.composite.add">
+	<grouper:message bundle="${nav}" key="groups.composite.add">
 
-	</fmt:message>
+	</grouper:message>
 </h2>
-<p class="helpLink"><a href="<c:out value="${pageUrl}"/>#groupMathHelp"/><fmt:message bundle="${nav}" key="groups.help.link.group-math" /></a></p>
+<p class="helpLink"><a href="<c:out value="${pageUrl}"/>#groupMathHelp"/><grouper:message bundle="${nav}" key="groups.help.link.group-math" /></a></p>
 <c:if test="${savedSubjectsSize<2}">
-<fmt:message bundle="${nav}" key="groups.composite.add.insufficient-saved"/>
+<grouper:message bundle="${nav}" key="groups.composite.add.insufficient-saved"/>
 </c:if>
 <html:form action="/saveComposite" method="post">
 <input type="hidden" name="groupId" value="<c:out value="${browseParent.groupId}"/>">
 <fieldset>
 <div class="formRow">
-	<div class="formLeft"><fmt:message bundle="${nav}" key="groups.composite.leftGroup"/></div>
+	<div class="formLeft"><grouper:message bundle="${nav}" key="groups.composite.leftGroup"/></div>
 	<div class="formRight">
 		<html:select property="leftGroup">
 			<html:options collection="savedSubjects" property="id" labelProperty="displayName"/>		
@@ -24,17 +24,17 @@
 	</div>
 </div>
 <div class="formRow">
-	<div class="formLeft"><fmt:message bundle="${nav}" key="groups.composite.type"/></div>
+	<div class="formLeft"><grouper:message bundle="${nav}" key="groups.composite.type"/></div>
 	<div class="formRight">
 		<select name="compositeType">
-			<option value="union"><fmt:message bundle="${nav}" key="union"/></option>
-			<option value="intersection"><fmt:message bundle="${nav}" key="intersection"/></option>
-			<option value="complement"><fmt:message bundle="${nav}" key="complement"/></option>
+			<option value="union"><grouper:message bundle="${nav}" key="union"/></option>
+			<option value="intersection"><grouper:message bundle="${nav}" key="intersection"/></option>
+			<option value="complement"><grouper:message bundle="${nav}" key="complement"/></option>
 		</select>
 	</div>
 </div>
 <div class="formRow">
-	<div class="formLeft"><fmt:message bundle="${nav}" key="groups.composite.rightGroup"/></div>
+	<div class="formLeft"><grouper:message bundle="${nav}" key="groups.composite.rightGroup"/></div>
 	<div class="formRight">
 		<html:select property="rightGroup">
 			<html:options collection="savedSubjects" property="id" labelProperty="displayName"/>		

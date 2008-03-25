@@ -2,7 +2,7 @@
 			Imports data from uploaded file and displays output
 --%><%--
   @author Gary Brown.
-  @version $Id: ImportMembers.jsp,v 1.2 2007-08-08 11:36:23 isgwb Exp $
+  @version $Id: ImportMembers.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%><c:choose>
 	<c:when test="${canWriteField}"><%importMembers(request,response);%>
 		<c:if test="${mediaMap['membership-import.allow-textarea']=='true'}">
@@ -18,7 +18,7 @@
 <html:hidden property="groupId"/>
 	<c:if test="${MembershipImportManager.active}">
 	<h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.import-members-string"/>
+	<grouper:message bundle="${nav}" key="groups.heading.import-members-string"/>
 	</h2>
 		<c:choose>
 			<c:when test="${MembershipImportmanager.numberOfAvailableFormats ==1}">
@@ -33,7 +33,7 @@
 			</select>
 			</c:otherwise>
 		</c:choose><br/><br/>
-		<p><fmt:message bundle="${nav}" key="groups.import.textarea-title"/></p>
+		<p><grouper:message bundle="${nav}" key="groups.import.textarea-title"/></p>
 		<html:textarea rows="20" cols="50" property="importString" title="${navMap['groups.import.textarea-title']}"/>
 		<br/>
 		<input type="submit" name="submit.import" value="<c:out value="${navMap['groups.import.submit']}"/>"/>
@@ -44,13 +44,13 @@
 		</c:if>
 	</c:when>
 	<c:otherwise>
-		<fmt:message bundle="${nav}" key="groups.import.message.insufficient-privileges"/>
+		<grouper:message bundle="${nav}" key="groups.import.message.insufficient-privileges"/>
 	</c:otherwise>
 </c:choose>
 
 <div class="linkButton">
 <html:link page="/populateGroupMembers.do"  name="listGroupParams">
-				<fmt:message bundle="${nav}" key="groups.action.edit-members"/>
+				<grouper:message bundle="${nav}" key="groups.action.edit-members"/>
 			</html:link>
 </div>
 

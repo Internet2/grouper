@@ -2,7 +2,7 @@
 		  Dynamic tile used to render a link to GroupMembers
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinkMembersView.jsp,v 1.1 2006-07-06 15:24:09 isgwb Exp $
+  @version $Id: groupLinkMembersView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -11,6 +11,6 @@
 </c:if>
 <span class="isMemberof">
 	<html:link page="/populateGroupMembers.do" name="viewObject" title="${linkTitle}">
-	<fmt:message bundle="${nav}" key="${linkKey}"/></html:link>
+	<grouper:message bundle="${nav}" key="${linkKey}"/></html:link>
 </span>
 			

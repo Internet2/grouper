@@ -2,7 +2,7 @@
 			Displays exported membership data. Only used if export format does not specify a content-type 
 --%><%--
   @author Gary Brown.
-  @version $Id: ExportMembers.jsp,v 1.1 2007-03-21 11:09:49 isgwb Exp $
+  @version $Id: ExportMembers.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -10,7 +10,7 @@
 
 
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.export-members"/>
+	<grouper:message bundle="${nav}" key="groups.heading.export-members"/>
 </h2>
 
 <form>

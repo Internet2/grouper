@@ -3,7 +3,7 @@
 		  to render child groups
 --%><%--
   @author Gary Brown.
-  @version $Id: browseForFindChildGroup.jsp,v 1.3 2006-02-21 16:16:28 isgwb Exp $
+  @version $Id: browseForFindChildGroup.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -17,7 +17,7 @@
 	</c:choose>
 	   <input type="hidden" name="subjectType:<c:out value="${viewObject.id}"/>" value="group"/>
        <label for="members<c:out value="${itemPos}"/>" class="noCSSOnly">
-	   	<fmt:message bundle="${nav}" key="browse.select.group"/> <c:out value="${viewObject.displayExtension}"/>
+	   	<grouper:message bundle="${nav}" key="browse.select.group"/> <c:out value="${viewObject.displayExtension}"/>
 		</label>
 		<c:set var="areAssignableChildren" value="true" scope="request"/>
 	   <input type="checkbox" name="members" id="members<c:out value="${itemPos}"/>" value="<c:out value="${viewObject.id}"/>" <c:out escapeXml="false" value="${checked}"/>/> 
@@ -29,15 +29,15 @@
 					name="attrLink" 
 					title="${linkTitle}">
 					
-						<fmt:message bundle="${nav}" key="groups.membership.view-members"/>
+						<grouper:message bundle="${nav}" key="groups.membership.view-members"/>
 		</html:link> /
 		
 			   <html:link 	page="/populateGroupSummary.do" 
 					name="attrLink"
 					title="${linkTitle}">
 					
-						<fmt:message bundle="${nav}" key="groups.membership.view-group-attributes"/>
-		</html:link>	<fmt:message bundle="${nav}" key="groups.membership.for"/> [<c:out value="${viewObject[groupSearchResultField]}"/>]
+						<grouper:message bundle="${nav}" key="groups.membership.view-group-attributes"/>
+		</html:link>	<grouper:message bundle="${nav}" key="groups.membership.for"/> [<c:out value="${viewObject[groupSearchResultField]}"/>]
 
 
 		

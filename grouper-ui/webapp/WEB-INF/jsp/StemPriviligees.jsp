@@ -3,14 +3,14 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: StemPriviligees.jsp,v 1.4 2006-02-02 16:38:08 isgwb Exp $
+  @version $Id: StemPriviligees.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
 <tiles:insert definition="selectStemPrivilegeDef"/>
 
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="stems.heading.list-members"/>
+	<grouper:message bundle="${nav}" key="stems.heading.list-members"/>
 </h2>
 
 <tiles:insert definition="dynamicTileDef">
@@ -30,19 +30,19 @@
 <%--<c:if test="${!empty searchObj && searchObj.trueSearch}">
 	<c:set target="${searchObj}" property="stems" value="true"/>
 	<html:link page="/searchNewMembers.do" name="searchObj">
-		<fmt:message bundle="${nav}" key="find.stems.membersreturn-results"/>
+		<grouper:message bundle="${nav}" key="find.stems.membersreturn-results"/>
 	</html:link>
 </c:if>--%>
 
 <html:link page="/populateFindNewMembersForStems.do" name="stemMembership">
-	<fmt:message bundle="${nav}" key="find.stems.add-new-privilegees"/>
+	<grouper:message bundle="${nav}" key="find.stems.add-new-privilegees"/>
 </html:link>
 <html:link page="/populate${browseMode}Groups.do" >
-	<fmt:message bundle="${nav}" key="priv.stems.list.cancel"/>
+	<grouper:message bundle="${nav}" key="priv.stems.list.cancel"/>
 </html:link>
 <c:if test="${isNewStem && !empty findForNode}">
 <html:link page="/populate${browseMode}Groups.do" paramId="currentNode" paramName="findForNode">
-	<fmt:message bundle="${nav}" key="priv.stems.list.cancel-and-work-in-new"/>
+	<grouper:message bundle="${nav}" key="priv.stems.list.cancel-and-work-in-new"/>
 </html:link>
 </c:if>
 </div>

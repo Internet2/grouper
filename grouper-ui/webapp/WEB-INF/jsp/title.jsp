@@ -3,22 +3,22 @@
 		 below the subheader
 --%><%--
   @author Gary Brown.
-  @version $Id: title.jsp,v 1.1.1.1 2005-08-23 13:04:20 isgwb Exp $
+  @version $Id: title.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:if test="${!empty title || !empty subtitle}">
-	<div class="tableheader">
+	<div>
 		<c:if test="${!empty title}">
     		<h1 id="title">
-        		<fmt:message bundle="${nav}" key="${title}"/><span id="subtitle">
+        		<grouper:message bundle="${nav}" key="${title}" tooltipDisable="true" /><span id="subtitle">
     	<c:if test="${!empty subtitle}">
     
-        		&nbsp;-&nbsp;<fmt:message bundle="${nav}" key="${subtitle}">
+        		&nbsp;-&nbsp;<grouper:message bundle="${nav}" key="${subtitle}">
 					<c:forEach var="arg" items="${subtitleArgs}">
-						<fmt:param value="${arg}"/>
+						<grouper:param value="${arg}"/>
 					</c:forEach>
-				</fmt:message>
+				</grouper:message>
     		
 		</c:if>
 		</span>

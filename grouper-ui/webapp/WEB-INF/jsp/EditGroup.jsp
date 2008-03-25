@@ -2,7 +2,7 @@
 			Form for creating new groups or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.8 2007-03-06 11:05:49 isgwb Exp $
+  @version $Id: EditGroup.jsp,v 1.9 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -37,12 +37,12 @@
 
 <div class="formRow">
 <div class="formLeft">
-<fmt:message bundle="${nav}" key="groups.create.privs-for-all"/>
+<grouper:message bundle="${nav}" key="groups.create.privs-for-all"/>
 </div><div class="formRight">
 <c:forEach var="priv" items="${privileges}">
 <span class="checkbox">
 	<input <c:if test="${!empty preSelected[priv]}">checked="checked"</c:if> type="checkbox" name="privileges" value="<c:out value="${priv}"/>"  id="priv<c:out value="${priv}"/>"/> 
-					<label for="priv<c:out value="${priv}"/>"><fmt:message bundle="${nav}" key="priv.${priv}"/></label></span>
+					<label for="priv<c:out value="${priv}"/>"><grouper:message bundle="${nav}" key="priv.${priv}"/></label></span>
 </c:forEach>
 					
 </div>
@@ -51,7 +51,7 @@
 
 
 <div class="formRow">
-<div class="formLeft"><fmt:message bundle="${nav}" key="groups.edit.type"/></div>
+<div class="formLeft"><grouper:message bundle="${nav}" key="groups.edit.type"/></div>
 <div class="formRight">
 <tiles:insert definition="multiOptionDef">
 	<tiles:put name="items" beanName="allGroupTypes"/>
@@ -66,7 +66,7 @@
 
 
 <!--<tr>
-    <td valign="top"><fmt:message bundle="${nav}" key="groups.edit.type"/></td>
+    <td valign="top"><grouper:message bundle="${nav}" key="groups.edit.type"/></td>
     <td valign="top"><html:select property="groupType" disabled="${editMode}">
     <htmlx:options name="groupTypes" />
    </html:select>
@@ -85,13 +85,13 @@
 <div class="linkButton">
 <c:if test="${! editMode}">
 <html:link page="/populate${browseMode}Groups.do">
-	<fmt:message bundle="${nav}" key="groups.create.cancel"/>
+	<grouper:message bundle="${nav}" key="groups.create.cancel"/>
 </html:link>
 </c:if>
 <c:if test="${editMode}">
 <c:set var="groupAttr" value="${GroupFormBean.map}"/>
 <html:link page="/populateGroupSummary.do" paramId="groupId" paramName="groupAttr" paramProperty="groupId">
-	<fmt:message bundle="${nav}" key="groups.edit.cancel"/>
+	<grouper:message bundle="${nav}" key="groups.edit.cancel"/>
 </html:link>
 </c:if>
 </div>

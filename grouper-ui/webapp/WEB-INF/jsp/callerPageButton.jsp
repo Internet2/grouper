@@ -2,7 +2,7 @@
 		  Shows 'back' button - can pass in text and title
 --%><%--
   @author Gary Brown.
-  @version $Id: callerPageButton.jsp,v 1.1 2005-11-08 15:08:29 isgwb Exp $
+  @version $Id: callerPageButton.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -13,10 +13,10 @@
 </c:if>
 
 <c:if test="${empty buttonTitle}">
-	<c:set var="buttonTitle"><fmt:message bundle="${nav}" key="cancel.to.caller-page-title"/></c:set>
+	<c:set var="buttonTitle"><grouper:message bundle="${nav}" key="cancel.to.caller-page-title"/></c:set>
 </c:if>
 <c:if test="${empty buttonText}">
-	<c:set var="buttonText"><fmt:message bundle="${nav}" key="cancel.to.caller-page"/></c:set>
+	<c:set var="buttonText"><grouper:message bundle="${nav}" key="cancel.to.caller-page"/></c:set>
 </c:if>
 
 

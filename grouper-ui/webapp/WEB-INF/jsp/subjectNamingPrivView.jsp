@@ -3,7 +3,7 @@
 		  render naming privileges from subject perspecive
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectNamingPrivView.jsp,v 1.2 2005-12-22 13:54:43 isgwb Exp $
+  @version $Id: subjectNamingPrivView.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -19,17 +19,17 @@
 <c:set target="${pagerParams}" property="contextSubjectType" value="${viewObject.subjectType}"/> 
 
  <%--  Use params to make link title descriptive for accessibility --%>		
-<c:set var="linkTitle"><fmt:message bundle="${nav}" key="stems.access.chain.title">
-		 		<fmt:param value="${SubjectFormBean.map.namingPriv}"/>
-				<fmt:param value="${viewObject.desc}"/>
-				<fmt:param value="${viewObject.memberOfGroup.desc}"/>
-</fmt:message></c:set>
+<c:set var="linkTitle"><grouper:message bundle="${nav}" key="stems.access.chain.title">
+		 		<grouper:param value="${SubjectFormBean.map.namingPriv}"/>
+				<grouper:param value="${viewObject.desc}"/>
+				<grouper:param value="${viewObject.memberOfGroup.desc}"/>
+</grouper:message></c:set>
   <span class="stemMemberLink">
 		<html:link page="/populateStemMember.do" name="pagerParams" title="${linkTitle} 
 			${viewObject.desc}">
-		 <fmt:message bundle="${nav}" key="groups.privilege.has-for">
-		 	<fmt:param value="${SubjectFormBean.map.namingPriv}"/>
-			</fmt:message></html:link></span> <c:out value="${linkSeparator}" escapeXml="false"/>
+		 <grouper:message bundle="${nav}" key="groups.privilege.has-for">
+		 	<grouper:param value="${SubjectFormBean.map.namingPriv}"/>
+			</grouper:message></html:link></span> <c:out value="${linkSeparator}" escapeXml="false"/>
 		
 	
  <c:set var="group" value="${viewObject.memberOfGroup}"/>

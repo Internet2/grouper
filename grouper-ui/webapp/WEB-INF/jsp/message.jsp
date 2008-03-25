@@ -4,17 +4,17 @@
 		 'message'
 --%><%--
   @author Gary Brown.
-  @version $Id: message.jsp,v 1.2 2005-11-08 16:13:47 isgwb Exp $
+  @version $Id: message.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div id="<c:out value="${message.containerId}"/>">
 <!--message-->
-<fmt:message bundle="${nav}" key="${message.text}">
+<grouper:message bundle="${nav}" key="${message.text}">
 <c:forEach var="arg" items="${message.args}">
-   <fmt:param value="${arg}"/>
+   <grouper:param value="${arg}"/>
 </c:forEach>
-</fmt:message>
+</grouper:message>
 <!--/message-->
 </div>
 <p>&nbsp;</p>

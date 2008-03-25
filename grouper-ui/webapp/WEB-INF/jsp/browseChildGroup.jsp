@@ -3,13 +3,13 @@
 		  to display a child group
 --%><%--
   @author Gary Brown.
-  @version $Id: browseChildGroup.jsp,v 1.5 2007-03-15 15:30:16 isgwb Exp $
+  @version $Id: browseChildGroup.jsp,v 1.6 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<c:set var="linkTitle"><fmt:message bundle="${nav}" key="browse.to.group.summary">
-		 		<fmt:param value="${viewObject.displayExtension}"/>
-</fmt:message></c:set>
+<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.group.summary">
+		 		<grouper:param value="${viewObject.displayExtension}"/>
+</grouper:message></c:set>
 
 [<html:link page="/populateGroupSummary.do" 
 			paramId="groupId" 

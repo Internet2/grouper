@@ -3,12 +3,12 @@
 		or stem. The stem names are not links
 --%><%--
   @author Gary Brown.
-  @version $Id: showStemsLocation.jsp,v 1.4 2005-12-22 10:49:18 isgwb Exp $
+  @version $Id: showStemsLocation.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endLocation" class="noCSSOnly"><fmt:message bundle="${nav}" key="page.skip.current-location"/><br/></a>
-<div class="browseStemsLocation"><strong><fmt:message bundle="${nav}" key="find.browse.here"/></strong>
+<a href="<c:out value="${pageUrl}"/>#endLocation" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.current-location"/><br/></a>
+<div class="browseStemsLocation"><strong><grouper:message bundle="${nav}" key="find.browse.here"/></strong>
 	<c:forEach var="stem" items="${browsePath}">
 		<span class="browseStemsLocationPart"><c:out value="${stem.displayExtension}"/><c:out value="${stemSeparator}"/></span>
 	</c:forEach>

@@ -4,7 +4,7 @@
 		has selected Access privilege, and stems where subject has selected Naming privilege
 --%><%--
   @author Gary Brown.
-  @version $Id: changeSubjectSummaryScope.jsp,v 1.3 2007-09-30 08:58:17 isgwb Exp $
+  @version $Id: changeSubjectSummaryScope.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -19,38 +19,38 @@
 		<span class="membershipListScope">
 		
 			<html:select property="listField">
-				<option value=""><fmt:message bundle="${nav}" key="groups.list-members.scope.ordinary-membership"/></option>
+				<option value=""><grouper:message bundle="${nav}" key="groups.list-members.scope.ordinary-membership"/></option>
 				<html:options name="memberOfListFields"/>
-			</html:select> <fmt:message bundle="${nav}" key="groups.list-members.scope.select-list"/>
+			</html:select> <grouper:message bundle="${nav}" key="groups.list-members.scope.select-list"/>
 		</span>
 	</c:if>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="imm"/> <fmt:message bundle="${nav}" key="subject.list-membership.scope.imm"/>
+		<html:radio property="membershipListScope" value="imm"/> <grouper:message bundle="${nav}" key="subject.list-membership.scope.imm"/>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="eff"/> <fmt:message bundle="${nav}" key="subject.list-membership.scope.eff"/>
+		<html:radio property="membershipListScope" value="eff"/> <grouper:message bundle="${nav}" key="subject.list-membership.scope.eff"/>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="all"/> <fmt:message bundle="${nav}" key="subject.list-membership.scope.all"/>
+		<html:radio property="membershipListScope" value="all"/> <grouper:message bundle="${nav}" key="subject.list-membership.scope.all"/>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="access"/> <fmt:message bundle="${nav}" key="subject.list-access.scope.priv"/>
+		<html:radio property="membershipListScope" value="access"/> <grouper:message bundle="${nav}" key="subject.list-access.scope.priv"/>
 		<html:select property="accessPriv">
 			<html:options name="allAccessPrivs"/>
 		</html:select>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="any-access"/> <fmt:message bundle="${nav}" key="subject.list-all-access.scope.priv"/>
+		<html:radio property="membershipListScope" value="any-access"/> <grouper:message bundle="${nav}" key="subject.list-all-access.scope.priv"/>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="naming"/> <fmt:message bundle="${nav}" key="subject.list-naming.scope.priv"/>
+		<html:radio property="membershipListScope" value="naming"/> <grouper:message bundle="${nav}" key="subject.list-naming.scope.priv"/>
 		<html:select property="namingPriv">
 			<html:options name="allNamingPrivs"/>
 		</html:select>
 	</span>
 
 	<span class="membershipListScope">
-		<input type="submit" value="<fmt:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
+		<input type="submit" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
 	</span>
 	</fieldset>
 </html:form>

@@ -4,7 +4,7 @@
 		  the group summary and shows the appropriate privileges for the user selected through SubjectSummary page
 --%><%--
   @author Gary Brown.
-  @version $Id: groupSearchResultWithPrivsView.jsp,v 1.1 2007-09-30 08:58:17 isgwb Exp $
+  @version $Id: groupSearchResultWithPrivsView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute name="viewObject"/>
@@ -38,7 +38,7 @@
 	</c:choose>
 	
 	<c:if test="${hasPriv != 'false'}">
-		<span class="has<c:out value="${hasPriv}"/>PrivForGroup"><fmt:message bundle="${nav}" key="${priv}"/></span>
+		<span class="has<c:out value="${hasPriv}"/>PrivForGroup"><grouper:message bundle="${nav}" key="${priv}"/></span>
 	</c:if>
 	</td>
   </c:forTokens>

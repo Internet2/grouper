@@ -42,7 +42,8 @@ import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
-import edu.internet2.middleware.grouper.ui.util.GrouperUtils;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * <p>
@@ -158,7 +159,7 @@ public class GrouperMessageTag extends MessageTag {
 		} else {
 			// localization context taken from 'bundle' attribute
 			if (locCtxt.getLocale() != null) {
-				GrouperUtils.callMethod(SetLocaleSupport.class,
+				GrouperUtil.callMethod(SetLocaleSupport.class,
 						"setResponseLocale", new Class[] { PageContext.class,
 								Locale.class }, new Object[] {
 								this.pageContext, locCtxt.getLocale() });
@@ -179,7 +180,7 @@ public class GrouperMessageTag extends MessageTag {
 						keyInput = prefix + keyInput;
 					message = bundle.getString(keyInput);
 					// Perform parametric replacement if required
-					List params = (List) GrouperUtils
+					List params = (List) GrouperUtil
 							.fieldValue(this, "params");
 					if (!params.isEmpty()) {
 						Object[] messageArgs = params.toArray();
@@ -195,13 +196,13 @@ public class GrouperMessageTag extends MessageTag {
 				}
 			}
 		}
-		String var = (String) GrouperUtils.fieldValue(this, "var");
+		String var = (String) GrouperUtil.fieldValue(this, "var");
 
 		//CH 20080129 at this point we need to make the tooltip subsitutions
 		message = substituteTooltips(message);
 		
 		if (var != null) {
-			int scope = (Integer) GrouperUtils.fieldValue(this, "scope");
+			int scope = (Integer) GrouperUtil.fieldValue(this, "scope");
 			pageContext.setAttribute(var, message, scope);
 		} else {
 			try {
@@ -406,7 +407,7 @@ public class GrouperMessageTag extends MessageTag {
 		List<String> tooltipValues = tooltipValues();
 		
 		//substitute, and remove if replaced
-		String result = GrouperUtils.replace(message, tooltipKeys, tooltipValues, false, true);
+		String result = GrouperUtil.replace(message, tooltipKeys, tooltipValues, false, true);
 		
 		//TODO cache this result if possible, check in properties file if contains vars
 		return result;

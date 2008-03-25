@@ -3,7 +3,7 @@
 			the maintenance of the subject
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSummary.jsp,v 1.5 2006-07-06 15:01:05 isgwb Exp $
+  @version $Id: SubjectSummary.jsp,v 1.6 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="subjectSummary">
@@ -35,7 +35,7 @@
 	<div class="changeSubjectSummaryScope" style="clear:left;">
 		<tiles:insert definition="changeSubjectSummaryScopeDef"/>
 	</div>
-	<h2 style="clear:left;" class="actionheader"><fmt:message bundle="${nav}" key="${scopeListData.titleKey}"/></h2>
+	<h2 style="clear:left;" class="actionheader"><grouper:message bundle="${nav}" key="${scopeListData.titleKey}"/></h2>
 		<tiles:insert definition="dynamicTileDef">
 			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
 			<tiles:put name="view" value="${scopeListData.view}"/>
@@ -51,7 +51,7 @@
 		</tiles:insert>
 		
 	<c:if test="${pager.count==0}">
-		<div class="searchCountZero"><fmt:message bundle="${nav}" key="${scopeListData.noResultsKey}"/></div>
+		<div class="searchCountZero"><grouper:message bundle="${nav}" key="${scopeListData.noResultsKey}"/></div>
 	</c:if>
 </c:if>
 </div><!-- subjectSummary-->

@@ -2,16 +2,16 @@
 		  Main page for the 'Create' browse mode
 --%><%--
   @author Gary Brown.
-  @version $Id: CreateGroups.jsp,v 1.2 2006-01-03 13:30:13 isgwb Exp $
+  @version $Id: CreateGroups.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
 	<c:when test="${!isAdvancedSearch}">
 <div class="pageBlurb">
-	<fmt:message bundle="${nav}" key="groups.create.can"/>
+	<grouper:message bundle="${nav}" key="groups.create.can"/>
 </div>
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="stems.heading.browse"/>
+	<grouper:message bundle="${nav}" key="stems.heading.browse"/>
 </h2>
 <tiles:insert definition="browseStemsDef"/>
 <tiles:insert definition="flattenDef"/>

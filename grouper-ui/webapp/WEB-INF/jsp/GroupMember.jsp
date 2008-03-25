@@ -4,7 +4,7 @@
 			active group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMember.jsp,v 1.4 2006-04-03 12:52:43 isgwb Exp $
+  @version $Id: GroupMember.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:if test="${!empty failedRevocations}">
@@ -15,14 +15,14 @@
 <c:choose>
 <c:when test="${authUserPriv.UPDATE || authUserPriv.ADMIN}">
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="find.heading.select-privs">
-	<fmt:param>
+	<grouper:message bundle="${nav}" key="find.heading.select-privs">
+	<grouper:param>
 	<tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="subject"/>
 	  <tiles:put name="view" value="groupMember"/>
 	  </tiles:insert>
-	</fmt:param>
-	</fmt:message>
+	</grouper:param>
+	</grouper:message>
 
 </h2>
 
@@ -31,7 +31,7 @@
 	<tiles:insert definition="groupMemberPrivsDef"/> 
 </c:when>
 <c:otherwise>
-<fmt:message bundle="${nav}" key="privs.group.member.none"/>
+<grouper:message bundle="${nav}" key="privs.group.member.none"/>
 </c:otherwise>
 </c:choose>
 <div class="linkButton">
@@ -46,7 +46,7 @@
 		<c:set target="${contextParams}" property="groupId" value="${GroupOrStemMemberFormBean.map.contextGroup}"/>
 				<c:if test="${GroupOrStemMemberFormBean.map.contextSubject!='true'}">
 					<html:link page="/populateChains.do" name="contextParams">
-						<fmt:message bundle="${nav}" key="privs.group.member.return-to-chains"/>
+						<grouper:message bundle="${nav}" key="privs.group.member.return-to-chains"/>
 					</html:link>
 				</c:if>
 			<c:choose>
@@ -54,7 +54,7 @@
 					
 					<tiles:insert definition="callerPageButtonDef"  flush="false"/>
 					<html:link page="/populateSubjectSummary.do">
-						<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+						<grouper:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
 					</html:link>
 				</c:when>
 				<c:when test="${!empty GroupOrStemMemberFormBean.map.callerPageId}">
@@ -62,7 +62,7 @@
 				</c:when>
 				<c:otherwise>
 					<html:link page="/populateGroupMembers.do" paramName="browseParent" paramProperty="id" paramId="groupId">
-						<fmt:message bundle="${nav}" key="privs.group.member.cancel"/>
+						<grouper:message bundle="${nav}" key="privs.group.member.cancel"/>
 					</html:link>
 				</c:otherwise>
 			</c:choose>
@@ -74,7 +74,7 @@
 				<c:set target="${params}" property="groupId" value="${GroupOrStemMemberFormBean.map.asMemberOf}"/>
 				<c:set target="${params}" property="privilege" value="${GroupOrStemMemberFormBean.map.privilege}"/>
 				<html:link page="/populateGroupPriviligees.do" name="params">
-					<fmt:message bundle="${nav}" key="privs.group.member.cancel"/>
+					<grouper:message bundle="${nav}" key="privs.group.member.cancel"/>
 				</html:link>	
 			</c:when>
 			<c:when test="${!empty GroupOrStemMemberFormBean.map.callerPageId}">
@@ -82,13 +82,13 @@
 			</c:when>
 			<c:when test="${GroupOrStemMemberFormBean.map.contextSubject=='true'}">
 					<html:link page="/populateSubjectSummary.do">
-						<fmt:message bundle="${nav}" key="members.return-to-subject-summary"/>
+						<grouper:message bundle="${nav}" key="members.return-to-subject-summary"/>
 					</html:link>
 				
 			</c:when>
 			<c:otherwise>
 				<html:link page="/populateGroupMembers.do" paramName="GroupOrStemMemberFormBean" paramProperty="asMemberOf" paramId="groupId">
-					<fmt:message bundle="${nav}" key="privs.group.member.cancel"/>
+					<grouper:message bundle="${nav}" key="privs.group.member.cancel"/>
 				</html:link>
 				
 			</c:otherwise>

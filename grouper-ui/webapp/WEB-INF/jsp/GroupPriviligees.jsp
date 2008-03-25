@@ -3,7 +3,7 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupPriviligees.jsp,v 1.3 2008-01-09 13:26:18 isgwb Exp $
+  @version $Id: GroupPriviligees.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -11,7 +11,7 @@
 <tiles:insert definition="selectGroupPrivilegeDef"/>
 
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.list-privilegees"/>
+	<grouper:message bundle="${nav}" key="groups.heading.list-privilegees"/>
 </h2>
 
 <tiles:insert definition="dynamicTileDef">
@@ -31,17 +31,17 @@
 <div class="linkButton">
 <c:if test="${!empty searchObj && searchObj.trueSearch}">
 	<html:link page="/searchNewMembers.do" name="searchObj">
-		<fmt:message bundle="${nav}" key="find.return-results"/>
+		<grouper:message bundle="${nav}" key="find.return-results"/>
 	</html:link>
 </c:if>
 
 <c:if test="${groupPrivResolver.canManagePrivileges}">
 <html:link page="/populateFindNewMembers.do" name="groupMembership">
-	<fmt:message bundle="${nav}" key="find.groups.add-new-privilegees"/>
+	<grouper:message bundle="${nav}" key="find.groups.add-new-privilegees"/>
 </html:link>
 </c:if>
 <html:link page="/populateGroupSummary.do" name="groupMembership">
-	<fmt:message bundle="${nav}" key="find.groups.done"/>
+	<grouper:message bundle="${nav}" key="find.groups.done"/>
 </html:link>
 </div>
 <br/>

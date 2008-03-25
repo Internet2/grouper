@@ -2,7 +2,7 @@
 		  Allow user to select which fields they want to search
 --%><%--
   @author Gary Brown.
-  @version $Id: selectStemSearchFields.jsp,v 1.1 2007-03-13 17:26:37 isgwb Exp $
+  @version $Id: selectStemSearchFields.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -10,10 +10,10 @@
 <div class="searchFieldTitle">
 		<div class="formRow">
 			<div class="formLeft">
-				<strong><fmt:message bundle="${nav}" key="find.search.in-field"/></strong>	
+				<strong><grouper:message bundle="${nav}" key="find.search.in-field"/></strong>	
 			</div>
 			<div class="formRight">
-				<strong><fmt:message bundle="${nav}" key="find.search.in-field-input"/></strong>	
+				<strong><grouper:message bundle="${nav}" key="find.search.in-field-input"/></strong>	
 			</div>
 			</div>
 </div>
@@ -54,9 +54,9 @@
 		
 			<c:if test="${maxFields != fieldCount.count}">
 			<select name="<c:out value="${searchFieldAndOrNot}"/>">
-				<option value="or" <c:if test="${advancedSearchStemFieldParams[searchFieldAndOrNot]=='or'}">selected="selected"</c:if>><fmt:message bundle="${nav}" key="find.search.or"/></option>
-				<option value="and"  <c:if test="${advancedSearchStemFieldParams[searchFieldAndOrNot]=='and'}">selected="selected"</c:if>><fmt:message bundle="${nav}" key="find.search.and"/></option>
-				<option value="not" <c:if test="${advancedSearchStemFieldParams[searchFieldAndOrNot]=='not'}">selected="selected"</c:if>><fmt:message bundle="${nav}" key="find.search.not"/></option>
+				<option value="or" <c:if test="${advancedSearchStemFieldParams[searchFieldAndOrNot]=='or'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.or"/></option>
+				<option value="and"  <c:if test="${advancedSearchStemFieldParams[searchFieldAndOrNot]=='and'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.and"/></option>
+				<option value="not" <c:if test="${advancedSearchStemFieldParams[searchFieldAndOrNot]=='not'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.not"/></option>
 			</select>
 			</c:if>
 		</div>

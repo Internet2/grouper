@@ -6,12 +6,12 @@
 		If configured, an dthe user has appropriate privileges, it is possible to import/export members from/to flat files
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.6 2007-09-27 14:07:16 isgwb Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.7 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.change-members-list-scope"/>
+	<grouper:message bundle="${nav}" key="groups.heading.change-members-list-scope"/>
 </h2>
 <div class="changeScope">
 <html:form  action="/populateGroupMembers" enctype="multipart/form-data">
@@ -23,35 +23,35 @@
 <input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 <fieldset>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="imm"/> <fmt:message bundle="${nav}" key="groups.list-members.scope.imm"/>
+		<html:radio property="membershipListScope" value="imm"/> <grouper:message bundle="${nav}" key="groups.list-members.scope.imm"/>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="eff"/> <fmt:message bundle="${nav}" key="groups.list-members.scope.eff"/>
+		<html:radio property="membershipListScope" value="eff"/> <grouper:message bundle="${nav}" key="groups.list-members.scope.eff"/>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="all"/> <fmt:message bundle="${nav}" key="groups.list-members.scope.all"/>
+		<html:radio property="membershipListScope" value="all"/> <grouper:message bundle="${nav}" key="groups.list-members.scope.all"/>
 	</span>
 	<c:if test="${listFieldsSize gt 0}">
 		<span class="membershipListScope">
 		
 			<html:select property="listField">
-				<option value=""><fmt:message bundle="${nav}" key="groups.list-members.scope.ordinary-membership"/></option>
+				<option value=""><grouper:message bundle="${nav}" key="groups.list-members.scope.ordinary-membership"/></option>
 				<html:options name="listFields"/>
-			</html:select> <fmt:message bundle="${nav}" key="groups.list-members.scope.select-list"/>
+			</html:select> <grouper:message bundle="${nav}" key="groups.list-members.scope.select-list"/>
 		</span>
 	</c:if>
 	<c:if test="${mediaMap['members.filter.by-source']=='true' && sourcesSize > 1}">
-	<fmt:message bundle="${nav}" key="groups.list-members.filter-by-source"/> <html:select property="selectedSource">
-	<html:option value="_void_"><fmt:message bundle="${nav}" key="groups.list-members.any-source"/></html:option>
+	<grouper:message bundle="${nav}" key="groups.list-members.filter-by-source"/> <html:select property="selectedSource">
+	<html:option value="_void_"><grouper:message bundle="${nav}" key="groups.list-members.any-source"/></html:option>
 	<html:options collection="sources" property="key" labelProperty="value"/>
 	</html:select>
 	</c:if>
 	<span class="membershipListScope">
-		<input name="submit.changeScope" type="submit" value="<fmt:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
+		<input name="submit.changeScope" type="submit" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
 	</span>
 	<c:if test="${MembershipExporter.active}">
 	<h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.export-members"/>
+	<grouper:message bundle="${nav}" key="groups.heading.export-members"/>
 	</h2>
 	
 		<c:choose>
@@ -72,7 +72,7 @@
 <html:hidden property="groupId"/>
 	<c:if test="${MembershipImportManager.active}">
 	<h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.import-members"/>
+	<grouper:message bundle="${nav}" key="groups.heading.import-members"/>
 	</h2>
 	<html:file property="importData" title="${navMap['groups.import.select-file-title']}"/>
 		<c:choose>

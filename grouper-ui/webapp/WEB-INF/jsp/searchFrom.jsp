@@ -3,14 +3,14 @@
 		to a branch of the groups hierarchy
 --%><%--
   @author Gary Brown.
-  @version $Id: searchFrom.jsp,v 1.2 2005-12-22 10:49:18 isgwb Exp $
+  @version $Id: searchFrom.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:if test="${!empty browsePath}">
 <div class="formRow">
 	<div class="formLeft">
-	<label for="searchFrom"><fmt:message bundle="${nav}" key="find.search-from"/></label>
+	<label for="searchFrom"><grouper:message bundle="${nav}" key="find.search-from"/></label>
 	</div>
 	<div class="formRight">
 	<select name="searchFrom" id="searchFrom">
@@ -20,7 +20,7 @@
 		<option value="<c:out value="${stem.name}"/>">
 			<c:choose>
 				<c:when test="${empty stem.displayExtension}">
-					<fmt:message bundle="${nav}" key="stem.root.display-name"/>
+					<grouper:message bundle="${nav}" key="stem.root.display-name"/>
 				</c:when>
 				<c:otherwise>
 					<c:out value="${stem.displayExtension}"/>

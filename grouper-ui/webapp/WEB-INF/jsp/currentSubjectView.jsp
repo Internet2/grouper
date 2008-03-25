@@ -3,12 +3,12 @@
 		  render memberships from Subject perspective
 --%><%--
   @author Gary Brown.
-  @version $Id: currentSubjectView.jsp,v 1.1 2006-02-02 16:40:48 isgwb Exp $
+  @version $Id: currentSubjectView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
  <span class="currentSubject">
-<fmt:message bundle="${nav}" key="subject.privileges.current"/>
+<grouper:message bundle="${nav}" key="subject.privileges.current"/>
 <tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="viewObject"/>
 	  <tiles:put name="view" value="subjectSummaryLink"/>

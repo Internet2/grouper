@@ -2,16 +2,16 @@
 		Tile which displays the simple search form for people and groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearch.jsp,v 1.3 2007-03-06 11:05:49 isgwb Exp $
+  @version $Id: simpleSearch.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><fmt:message bundle="${nav}" key="page.skip.search"/></a>
+<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
 <div class="searchGroups">
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="find.heading.search"/>
+	<grouper:message bundle="${nav}" key="find.heading.search"/>
 </h2>
-<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><fmt:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a></p>
+<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a></p>
 
  <html:form styleId="SearchFormBean" action="/searchNewMembers" method="post">
  		<html:hidden property="searchInNameOrExtension"/>
@@ -27,7 +27,7 @@
 <input type="hidden" name="stems" value="<c:out value="${forStems}"/>"/>
 <div class="formRow">
 	<div class="formLeft">
-	<label for="searchTerm"><fmt:message bundle="${nav}" key="find.search-term"/></label>
+	<label for="searchTerm"><grouper:message bundle="${nav}" key="find.search-term"/></label>
 	</div>
 	<div class="formRight">
 	<input name="searchTerm" type="text" id="searchTerm"/>

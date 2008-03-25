@@ -3,7 +3,7 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.8 2006-07-19 11:41:28 isgwb Exp $
+  @version $Id: GroupSummary.jsp,v 1.9 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -12,7 +12,7 @@
 <div class="buttonContainer">
 <c:set var="saveButton" scope="request">
 			<html:link page="/addSavedSubject.do" name="saveParams">
-				<fmt:message bundle="${nav}" key="saved-subjects.add.group"/>
+				<grouper:message bundle="${nav}" key="saved-subjects.add.group"/>
 			</html:link>
 </c:set>
 <c:if test="${(empty GroupFormBean.map.contextGroup) && (empty GroupFormBean.map.contextSubject) && (empty GroupFormBean.map.callerPageId)}">
@@ -32,10 +32,10 @@
 		<c:out value="${saveButton}" escapeXml="false"/>
 		<tiles:insert definition="callerPageButtonDef"/>
 		<html:link page="/populateChains.do" name="contextParams">
-					<fmt:message bundle="${nav}" key="privs.group.member.return-to-chains"/>
+					<grouper:message bundle="${nav}" key="privs.group.member.return-to-chains"/>
 		</html:link>
 		<html:link page="/populateGroupSummary.do" name="browseParent">
-					<fmt:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
+					<grouper:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
 		</html:link>
 		</div>
 		</div>
@@ -47,11 +47,11 @@
 		<c:out value="${saveButton}" escapeXml="false"/>
 		<tiles:insert definition="callerPageButtonDef"/>
 		<html:link page="/populateSubjectSummary.do">
-					<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+					<grouper:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
 		</html:link>
 		<c:set target="${browseParent}" property="changeMode" value="true"/>
 		<html:link page="/populateGroupSummary.do" name="browseParent">
-					<fmt:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
+					<grouper:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
 		</html:link>
 		</div>
 		</div>
@@ -62,7 +62,7 @@
 		<tiles:insert definition="callerPageButtonDef"/>
 
 		<html:link page="/populateGroupSummary.do" name="browseParent">
-					<fmt:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
+					<grouper:message bundle="${nav}" key="groups.action.summary.start-again-here"/>
 		</html:link>
 		</div>
 		</div>
@@ -71,14 +71,14 @@
 		<c:if test="${isFlat}">
 			<div class="linkButton">
 			<html:link page="/populate${functionalArea}.do">
-				<fmt:message bundle="${nav}" key="groups.summary.cancel"/>
+				<grouper:message bundle="${nav}" key="groups.summary.cancel"/>
 			</html:link>
 			</div>
 			</c:if>
 			</div>
 			<c:if test="${!isFlat}">
 			<h2 class="actionheader">
-				<fmt:message bundle="${nav}" key="groups.heading.select-other"/>
+				<grouper:message bundle="${nav}" key="groups.heading.select-other"/>
 			</h2>
 			<tiles:insert definition="browseStemsLocationDef" />
 		</c:if>

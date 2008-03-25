@@ -6,10 +6,10 @@ assign privileges for the Subject --%>
 <tiles:insert definition="showStemsLocationDef"/>
 
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.show-chain">
-		<fmt:param value="${subject.desc}"/>
-		<fmt:param value="${browseParent.desc}"/>
-	</fmt:message>
+	<grouper:message bundle="${nav}" key="groups.heading.show-chain">
+		<grouper:param value="${subject.desc}"/>
+		<grouper:param value="${browseParent.desc}"/>
+	</grouper:message>
 </h2>
 <c:choose>
 	<c:when test="${!empty composite}">
@@ -45,14 +45,14 @@ assign privileges for the Subject --%>
 </tiles:insert>
 <c:choose>
 	<c:when test="${privsSize>0}">
-		<fmt:message bundle="${nav}" key="subject.privileges.chain"/>
+		<grouper:message bundle="${nav}" key="subject.privileges.chain"/>
 		<c:forEach var="priv" items="${privs}">
 			<c:out value="${priv}"/><tiles:insert definition="linkSeparatorDef" flush="false"/>
 		</c:forEach>
-		<c:set var="linkText"><fmt:message bundle="${nav}" key="subject.privileges.chain.change"/></c:set>
+		<c:set var="linkText"><grouper:message bundle="${nav}" key="subject.privileges.chain.change"/></c:set>
 	</c:when>
-	<c:otherwise><fmt:message bundle="${nav}" key="subject.privileges.chain.none"/> 
-		<c:set var="linkText"><fmt:message bundle="${nav}" key="subject.privileges.chain.assign"/></c:set>
+	<c:otherwise><grouper:message bundle="${nav}" key="subject.privileges.chain.none"/> 
+		<c:set var="linkText"><grouper:message bundle="${nav}" key="subject.privileges.chain.assign"/></c:set>
 	</c:otherwise>
 </c:choose>
 <html:link page="/populateGroupMember.do" name="groupMemberParams"><c:out value="${linkText}"/></html:link>
@@ -62,7 +62,7 @@ assign privileges for the Subject --%>
 <c:choose>
 	<c:when test="${GroupFormBean.map.contextSubject=='true'}">
 		<html:link page="/populateSubjectSummary.do">
-					<fmt:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+					<grouper:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
 		</html:link>
 	</c:when>
 	<c:when test="${!empty composite}">
@@ -70,7 +70,7 @@ assign privileges for the Subject --%>
 	</c:when>
 	<c:otherwise>
 		<html:link page="/populateGroupMembers.do" name="requestParams">
-			<fmt:message bundle="${nav}" key="groups.membership.chain.cancel"/>
+			<grouper:message bundle="${nav}" key="groups.membership.chain.cancel"/>
 		</html:link>
 	</c:otherwise>
 </c:choose>

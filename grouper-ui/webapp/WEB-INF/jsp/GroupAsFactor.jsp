@@ -2,15 +2,15 @@
 			Top level JSP which shows where a group is present as a factor
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupAsFactor.jsp,v 1.1 2006-07-06 15:20:57 isgwb Exp $
+  @version $Id: GroupAsFactor.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
 <tiles:insert definition="showStemsLocationDef" controllerUrl="/prepareBrowsePath.do"/>
 <h2 class="actionheader">
-	<fmt:message bundle="${nav}" key="groups.heading.where-is-factor">
-		<fmt:param value="${browseParent.displayExtension}"/>
-	</fmt:message>
+	<grouper:message bundle="${nav}" key="groups.heading.where-is-factor">
+		<grouper:param value="${browseParent.displayExtension}"/>
+	</grouper:message>
 </h2>
 		<tiles:insert definition="dynamicTileDef">
 			<tiles:put name="viewObject" beanName="composites"/>
