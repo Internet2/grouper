@@ -3,7 +3,7 @@
 		  render individual Access privileges for current subject
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectAccessPrivView.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: subjectAccessPrivView.jsp,v 1.5 2008-03-25 16:30:18 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -26,9 +26,9 @@
 </grouper:message></c:set>
 <span class="groupMemberLink">		
 		<html:link page="/populateGroupMember.do" name="pagerParams" title="${linkTitle}">
-		 	<grouper:message bundle="${nav}" key="groups.privilege.has-for">
-		 	<grouper:param value="${SubjectFormBean.map.accessPriv}"/>
-			</grouper:message>
+		 	<fmt:message bundle="${nav}" key="groups.privilege.has-for">
+		 	<fmt:param value="${SubjectFormBean.map.accessPriv}"/>
+			</fmt:message>
 		</html:link></span> <c:out value="${linkSeparator}" escapeXml="false"/>
 		
 	

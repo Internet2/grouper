@@ -3,7 +3,7 @@
 		  render naming privileges from subject perspecive
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectNamingPrivView.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: subjectNamingPrivView.jsp,v 1.4 2008-03-25 16:30:18 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -27,9 +27,9 @@
   <span class="stemMemberLink">
 		<html:link page="/populateStemMember.do" name="pagerParams" title="${linkTitle} 
 			${viewObject.desc}">
-		 <grouper:message bundle="${nav}" key="groups.privilege.has-for">
-		 	<grouper:param value="${SubjectFormBean.map.namingPriv}"/>
-			</grouper:message></html:link></span> <c:out value="${linkSeparator}" escapeXml="false"/>
+		 <fmt:message bundle="${nav}" key="groups.privilege.has-for">
+		 	<fmt:param value="${SubjectFormBean.map.namingPriv}"/>
+			</fmt:message></html:link></span> <c:out value="${linkSeparator}" escapeXml="false"/>
 		
 	
  <c:set var="group" value="${viewObject.memberOfGroup}"/>

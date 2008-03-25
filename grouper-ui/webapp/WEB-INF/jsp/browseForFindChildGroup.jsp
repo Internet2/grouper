@@ -3,7 +3,7 @@
 		  to render child groups
 --%><%--
   @author Gary Brown.
-  @version $Id: browseForFindChildGroup.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: browseForFindChildGroup.jsp,v 1.5 2008-03-25 16:30:18 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -29,14 +29,14 @@
 					name="attrLink" 
 					title="${linkTitle}">
 					
-						<grouper:message bundle="${nav}" key="groups.membership.view-members"/>
+						<fmt:message bundle="${nav}" key="groups.membership.view-members"/>
 		</html:link> /
 		
 			   <html:link 	page="/populateGroupSummary.do" 
 					name="attrLink"
 					title="${linkTitle}">
 					
-						<grouper:message bundle="${nav}" key="groups.membership.view-group-attributes"/>
+						<fmt:message bundle="${nav}" key="groups.membership.view-group-attributes"/>
 		</html:link>	<grouper:message bundle="${nav}" key="groups.membership.for"/> [<c:out value="${viewObject[groupSearchResultField]}"/>]
 
 

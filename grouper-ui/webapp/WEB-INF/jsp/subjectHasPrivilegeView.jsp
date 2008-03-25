@@ -2,7 +2,7 @@
 		  Dynamic tile used to display has privilege links + actual privileges
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectHasPrivilegeView.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: subjectHasPrivilegeView.jsp,v 1.5 2008-03-25 16:30:18 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -13,7 +13,7 @@
 			</c:when>
 			<c:otherwise>
 		<html:link page="${memberPage}" name="params" title="${linkTitle}">
-			<grouper:message bundle="${nav}" key="subject.privileges.has-for"/></html:link> 
+			<fmt:message bundle="${nav}" key="subject.privileges.has-for"/></html:link> 
 			</c:otherwise>
 		</c:choose>
 		<c:forEach var="priv" items="${possibleEffectivePrivs}">

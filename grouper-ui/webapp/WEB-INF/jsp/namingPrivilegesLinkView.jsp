@@ -2,7 +2,7 @@
 			Displays link to show naming privileges for given subject on given group
 --%><%--
   @author Gary Brown.
-  @version $Id: namingPrivilegesLinkView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: namingPrivilegesLinkView.jsp,v 1.3 2008-03-25 16:30:18 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -14,4 +14,4 @@
 <c:if test="${!viewObject.isDirect}"><c:set var="linkText" value="stems.privilege.indirect"/></c:if>		
 
 <html:link page="/populateStemMember.do" name="params" 
-	title="${linkTitle}"><grouper:message bundle="${nav}" key="${linkText}"/></html:link> 
+	title="${linkTitle}"><fmt:message bundle="${nav}" key="${linkText}"/></html:link> 
