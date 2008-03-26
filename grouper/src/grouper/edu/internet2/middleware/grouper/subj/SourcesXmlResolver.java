@@ -16,31 +16,41 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
-import  edu.internet2.middleware.grouper.InternalSourceAdapter;
-import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
-import  edu.internet2.middleware.subject.Source;
-import  edu.internet2.middleware.subject.SourceUnavailableException;
-import  edu.internet2.middleware.subject.Subject;
-import  edu.internet2.middleware.subject.SubjectNotFoundException;
-import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  edu.internet2.middleware.subject.provider.SourceManager;
-import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import  java.util.ArrayList;
-import  java.util.LinkedHashSet;
-import  java.util.List;
-import  java.util.Set;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 
 /**
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.4 2007-08-27 16:40:16 blair Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.5 2008-03-26 04:31:23 mchyzer Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
 
 
+  /**
+   * logger 
+   */
+  private static final Log LOG = LogFactory.getLog(SourcesXmlResolver.class);
+  
+  
   private static  ParameterHelper param = new ParameterHelper();
   private         SourceManager   mgr;
 
@@ -211,11 +221,15 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   public Source getSource(String id) 
     throws  IllegalArgumentException,
-            SourceUnavailableException
-  {
-    return this.mgr.getSource(id);
+            SourceUnavailableException { 
+    try {
+      return this.mgr.getSource(id);
+    } catch (SourceUnavailableException sue) {
+      throw new SourceUnavailableException("Cant find source with id: '" + id + "', " 
+          + this.sourceIdErrorSafe());
+    }
   }
- 
+  
   /**
    * @see     SubjectResolver#getSources()
    * @since   1.2.1
@@ -225,12 +239,30 @@ public class SourcesXmlResolver implements SubjectResolver {
   }
 
   /**
+   * return the error string related to source id's, dont fail
+   * @return the error string related to source id's, dont fail
+   */
+  private String sourceIdErrorSafe() {
+    try {
+      StringBuilder result = new StringBuilder();
+      result.append("Possible source id's: ");
+      for (Source source : this.getSources()) {
+        result.append("'").append(source.getId()).append("', ");
+      }
+      return result.toString();
+    } catch (Exception e) {
+      LOG.error("Error calculating source id error message: ", e);
+    }
+    return "";
+  }
+  
+  /**
    * @see     SubjectResolver#getSources(String)
    * @since   1.2.1
    */
   public Set<Source> getSources(String subjectType) 
     throws  IllegalArgumentException
-  {
+  { 
     return new LinkedHashSet( this.mgr.getSources( SubjectTypeEnum.valueOf(subjectType) ) );
   }
 
