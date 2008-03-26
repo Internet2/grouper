@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 
 /**
@@ -23,7 +24,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDelet
  * </pre>
  * @author mchyzer
  */
-public class WsGroupDeleteResults {
+public class WsGroupDeleteResults implements WsResponseBean {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsGroupDeleteResults.class);
@@ -101,6 +102,11 @@ public class WsGroupDeleteResults {
    * metadata about the result
    */
   private WsResultMeta resultMetadata = new WsResultMeta();
+
+  /**
+   * metadata about the result
+   */
+  private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
    * results for each deletion sent in
@@ -219,5 +225,20 @@ public class WsGroupDeleteResults {
    */
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
+   * @return the response metadata
+   */
+  public WsResponseMeta getResponseMetadata() {
+    return this.responseMetadata;
+  }
+
+  /**
+   * @param responseMetadata1 the responseMetadata to set
+   */
+  public void setResponseMetadata(WsResponseMeta responseMetadata1) {
+    this.responseMetadata = responseMetadata1;
   }
 }

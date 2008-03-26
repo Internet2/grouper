@@ -33,22 +33,22 @@ public class WsAddMemberResults implements WsResponseBean {
    */
   public enum WsAddMemberResultsCode implements WsResultCode {
 
-    /** cant find group (lite http status code 404) (success: F) */
+    /** cant find group (rest http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),
 
-    /** found the subject (lite http status code 201) (success: T) */
+    /** found the subject (rest http status code 201) (success: T) */
     SUCCESS(201),
 
-    /** found the subject (lite http status code 500) (success: F) */
+    /** found the subject (rest http status code 500) (success: F) */
     EXCEPTION(500),
 
-    /** problem deleting existing members (lite http status code 500) (success: F) */
+    /** problem deleting existing members (rest http status code 500) (success: F) */
     PROBLEM_DELETING_MEMBERS(500),
 
-    /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
+    /** invalid query (e.g. if everything blank) (rest http status code 400) (success: F) */
     INVALID_QUERY(400),
 
-    /** something in one assignment wasnt successful (lite http status code 500) (success: F) */
+    /** something in one assignment wasnt successful (rest http status code 500) (success: F) */
     PROBLEM_WITH_ASSIGNMENT(500);
 
     /**

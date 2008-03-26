@@ -603,45 +603,6 @@ public final class GrouperServiceUtils {
   }
 
   /**
-   * if wrong size or a name is blank, then throw descriptive exception.  Assumes all params can be put into a map,
-   * only one name can be sent per request, no blank names.
-   * @param paramNames
-   * @param paramValues
-   * @return the map of names to values, will not return null
-   * @throws WsInvalidQueryException if problem with inputs
-   */
-  public static Map<String, String> convertParamsToMap(String[] paramNames,
-      String[] paramValues) throws WsInvalidQueryException {
-    //TODO delete this method
-    int namesLength = GrouperUtil.length(paramNames);
-    int valuesLength = GrouperUtil.length(paramValues);
-
-    if (namesLength != valuesLength) {
-      throw new WsInvalidQueryException("Param names length (" + namesLength
-          + ") does not equal param values length (" + valuesLength + "), and it should!");
-    }
-
-    Map<String, String> result = new LinkedHashMap<String, String>(namesLength);
-    if (namesLength != 0) {
-      int i = 0;
-      for (String paramName : paramNames) {
-        if (StringUtils.isBlank(paramName)) {
-          throw new WsInvalidQueryException("Param name index " + i
-              + " cannot be blank: '" + paramName + "'");
-        }
-        if (result.containsKey(paramName)) {
-          throw new WsInvalidQueryException("Param name index " + i
-              + " cannot be submitted twice: '" + paramName + "'");
-        }
-        result.put(paramName, paramValues[i]);
-
-        i++;
-      }
-    }
-    return result;
-  }
-
-  /**
    * @param requestedAttributes
    * @param requestedAttributesLength
    * @param includeSubjectDetailBoolean
@@ -798,44 +759,6 @@ public final class GrouperServiceUtils {
 
 
   /**
-   * validate and organize params
-   * 
-   * @param paramName0
-   * @param paramName1
-   * @return the array param names
-   */
-  public static String[] paramNames(String paramName0, String paramName1) {
-    String[] paramNames = null;
-    if (!StringUtils.isBlank(paramName0)) {
-      if (!StringUtils.isBlank(paramName1)) {
-        paramNames = new String[] { paramName0, paramName1 };
-      } else {
-        paramNames = new String[] { paramName0 };
-      }
-    }
-    return paramNames;
-  }
-
-  /**
-   * validate and organize params
-   * 
-   * @param paramValue0
-   * @param paramValue1
-   * @return the array param values
-   */
-  public static String[] paramValues(String paramValue0, String paramValue1) {
-    String[] paramValues = null;
-    if (!StringUtils.isBlank(paramValue0)) {
-      if (!StringUtils.isBlank(paramValue1)) {
-        paramValues = new String[] { paramValue0, paramValue1 };
-      } else {
-        paramValues = new String[] { paramValue0 };
-      }
-    }
-    return paramValues;
-  }
-
-  /**
    * convert a set of access privileges to privileges
    * 
    * @param accessPrivileges
@@ -900,8 +823,12 @@ public final class GrouperServiceUtils {
    */
   public static void addResponseHeaders(HttpServletResponse response, String success,
       String resultCode) {
-    response.addHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE, resultCode);
-    response.addHeader(GrouperRestServlet.X_GROUPER_SUCCESS, success);
+    if (!response.containsHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE)) {
+      response.addHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE, resultCode);
+    }
+    if (!response.containsHeader(GrouperRestServlet.X_GROUPER_SUCCESS)) {
+      response.addHeader(GrouperRestServlet.X_GROUPER_SUCCESS, success);
+    }
   }
 
   /**

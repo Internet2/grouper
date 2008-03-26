@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult.WsDeleteMemberResultCode;
 
 /**
@@ -24,7 +25,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult.WsDeleteMem
  * </pre>
  * @author mchyzer
  */
-public class WsDeleteMemberResults {
+public class WsDeleteMemberResults implements WsResponseBean {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsDeleteMemberResults.class);
@@ -69,37 +70,19 @@ public class WsDeleteMemberResults {
    */
   public enum WsDeleteMemberResultsCode implements WsResultCode {
 
-    /** cant find group (lite http status code 404) (success: F) */
+    /** cant find group (rest http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),
 
-    /** found the subject (lite http status code 200) (success: T) */
+    /** found the subject (rest http status code 200) (success: T) */
     SUCCESS(200),
 
-    /** found the subject (lite http status code 500) (success: F) */
+    /** found the subject (rest http status code 500) (success: F) */
     EXCEPTION(500),
 
-    /** problem deleting existing members (lite http status code 500) (success: F) */
+    /** problem deleting existing members (rest http status code 500) (success: F) */
     PROBLEM_DELETING_MEMBERS(500),
 
-    /** if there is one delete, and it is subject duplicate (lite http status code 409) (success: F) */
-    SUBJECT_DUPLICATE(409),
-
-    /** if there is one delete, and it is insufficient privs (lite http status code 403) (success: F) */
-    INSUFFICIENT_PRIVILEGES(403),
-
-    /** if there is one delete, and it is SUCCESS_BUT_HAS_EFFECTIVE (lite http status code 200) (success: T) */
-    SUCCESS_BUT_HAS_EFFECTIVE(200),
-
-    /** if there is one delete, and it is SUCCESS_WASNT_IMMEDIATE (lite http status code 200) (success: T) */
-    SUCCESS_WASNT_IMMEDIATE(200),
-
-    /** if there is one delete, and it is SUCCESS_WASNT_IMMEDIATE_BUT_HAS_EFFECTIVE (lite http status code 200) (success: T) */
-    SUCCESS_WASNT_IMMEDIATE_BUT_HAS_EFFECTIVE(200),
-
-    /** if there is one delete, and it is SUBJECT_NOT_FOUND (lite http status code 404) (success: F) */
-    SUBJECT_NOT_FOUND(404),
-
-    /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
+    /** invalid query (e.g. if everything blank) (rest http status code 400) (success: F) */
     INVALID_QUERY(400);
 
     /**
@@ -191,10 +174,6 @@ public class WsDeleteMemberResults {
       } else {
         this.assignResultCode(WsDeleteMemberResultsCode.SUCCESS);
       }
-      //if there is one result, just set that as the result code of parent
-      if (GrouperUtil.length(this.getResults()) == 0) {
-        this.assignResultCode(this.getResults()[0].resultCode().convertToResultsCode());
-      }
 
     } else {
       //none is not ok, must pass one in
@@ -227,12 +206,22 @@ public class WsDeleteMemberResults {
   /**
    * group assigned to
    */
-  private WsGroup wsGroupAssigned;
+  private WsGroup wsGroup;
 
   /**
    * metadata about the result
    */
   private WsResultMeta resultMetadata = new WsResultMeta();
+
+  /**
+   * metadata about the result
+   */
+  private WsResponseMeta responseMetadata = new WsResponseMeta();
+
+  /**
+   * attributes of subjects returned, in same order as the data
+   */
+  private String[] subjectAttributeNames;
 
   /**
    * results for each assignment sent in
@@ -254,16 +243,16 @@ public class WsDeleteMemberResults {
    * group assigned to
    * @return the wsGroupLookup
    */
-  public WsGroup getWsGroupAssigned() {
-    return this.wsGroupAssigned;
+  public WsGroup getWsGroup() {
+    return this.wsGroup;
   }
 
   /**
    * group assigned to
    * @param theWsGroupLookupAssigned the wsGroupLookup to set
    */
-  public void setWsGroupAssigned(WsGroup theWsGroupLookupAssigned) {
-    this.wsGroupAssigned = theWsGroupLookupAssigned;
+  public void setWsGroup(WsGroup theWsGroupLookupAssigned) {
+    this.wsGroup = theWsGroupLookupAssigned;
   }
 
   /**
@@ -271,6 +260,45 @@ public class WsDeleteMemberResults {
    */
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
+  }
+
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
+   * @return the response metadata
+   */
+  public WsResponseMeta getResponseMetadata() {
+    return this.responseMetadata;
+  }
+
+  /**
+   * @param responseMetadata1 the responseMetadata to set
+   */
+  public void setResponseMetadata(WsResponseMeta responseMetadata1) {
+    this.responseMetadata = responseMetadata1;
+  }
+
+  /**
+   * attributes of subjects returned, in same order as the data
+   * @return the attributeNames
+   */
+  public String[] getSubjectAttributeNames() {
+    return this.subjectAttributeNames;
+  }
+
+  /**
+   * attributes of subjects returned, in same order as the data
+   * @param attributeNamesa the attributeNames to set
+   */
+  public void setSubjectAttributeNames(String[] attributeNamesa) {
+    this.subjectAttributeNames = attributeNamesa;
   }
 
 }

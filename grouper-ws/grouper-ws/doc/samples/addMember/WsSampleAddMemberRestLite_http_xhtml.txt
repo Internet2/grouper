@@ -9,14 +9,12 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, man
 #########################################
 
 
-PUT /grouper-ws/servicesRest/v1_3_000/group/aStem%3AaGroup/members/10021368 HTTP/1.1
+PUT /grouper-ws/servicesRest/xhtml/v1_3_000/group/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
 Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
 User-Agent: Jakarta Commons-HttpClient/3.0.1
 Host: localhost:8092
-Content-Length: 72
-
-wsLiteObjectType=WsRestAddMemberLiteRequest&actAsSubjectId=GrouperSystem
+Content-Length: 0
 
 
 #########################################
@@ -27,15 +25,15 @@ wsLiteObjectType=WsRestAddMemberLiteRequest&actAsSubjectId=GrouperSystem
 #########################################
 
 
-HTTP/1.1 200 OK
+HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-X-Grouper-responseCode: SUCCESS
+X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/xhtml+xml
-Date: Tue, 25 Mar 2008 05:11:41 GMT
+Date: Wed, 26 Mar 2008 07:36:14 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -48,8 +46,8 @@ Connection: close
     <div title="WsAddMemberLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@13eb5bd[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@da9ae[subject=&lt;null>...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@fee7c4[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSource=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@11b12e1[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@74a7af[subject=&lt;null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@ad0bd6[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</p>
         <p class="resultCode">SUCCESS</p>
       </div>
@@ -59,19 +57,19 @@ Connection: close
       </div>
       <div class="wsGroupAssigned" title="WsGroup">
         <p class="name">aStem:aGroup</p>
-        <p class="displayName">a stem:test group</p>
-        <p class="description">somedescription</p>
-        <p class="uuid">cd89f7c5-913e-4788-9a67-c78a5fee1fba</p>
+        <p class="displayName">a stem:a group</p>
+        <p class="description">a group description</p>
+        <p class="uuid">ef8194b1-700d-4ea7-98e3-6da4af6d8b6b</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="displayExtension">test group</p>
+        <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="name" />
         <p class="id">10021368</p>
-        <p class="source">QSUOB JDBC Source Adapter</p>
         <p class="success">T</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="sourceId">qsuob</p>
       </div>
     </div>
   </body>
@@ -96,11 +94,9 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
@@ -120,10 +116,12 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
     try {
       HttpClient httpClient = new HttpClient();
       
-      //URL e.g. http://localhost:8093/grouper-ws/servicesLite
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
-          RestClientSettings.URL + "/v1_3_000/group/aStem%3AaGroup/members/10021368");
+          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+            + "/" + RestClientSettings.VERSION  
+            + "/group/aStem%3AaGroup/members/10021368");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
@@ -136,21 +134,6 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
       httpClient.getState()
           .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
 
-      //Make the body of the request, in this case with beans and marshaling, but you can make
-      //your request document in whatever language or way you want
-      WsRestAddMemberLiteRequest addMemberSimple = new WsRestAddMemberLiteRequest();
-
-      // set the act as id
-      addMemberSimple.setActAsSubjectId("GrouperSystem");
-
-      //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberSimple);
-      
-      //make sure right content type is in request (e.g. application/xhtml+xml
-      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
-      
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
       httpClient.executeMethod(method);
 
       //make sure a request came back
@@ -160,22 +143,26 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String responseCode = method.getResponseHeader("X-Grouper-responseCode").getValue();
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
       
-      int statusCode = method.getStatusCode();
-
-      // see if request worked or not
-      if (statusCode != 200 || !success) {
-        throw new RuntimeException("Bad response from web service: " + statusCode + ", responseCode: " + responseCode);
-      }
-
       String response = RestClientSettings.responseBodyAsString(method);
 
       //convert to object (from xhtml, xml, json, etc)
       WsAddMemberLiteResult wsAddMemberSimpleResult = (WsAddMemberLiteResult)wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
       
-      System.out.println(wsAddMemberSimpleResult);
+      String resultMessage = wsAddMemberSimpleResult.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsAddMemberSimpleResult.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -214,4 +201,6 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult@17779e3
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@11b12e1[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@74a7af[subject=<null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@ad0bd6[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null

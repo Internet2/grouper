@@ -14,14 +14,10 @@ Connection: close
 Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
 User-Agent: Jakarta Commons-HttpClient/3.0.1
 Host: localhost:8092
-Content-Length: 438
+Content-Length: 333
 Content-Type: text/xml; charset=UTF-8
 
 <WsRestAddMemberRequest>
-  <clientVersion>v1_3_000</clientVersion>
-  <wsGroupLookup>
-    <groupName>aStem:aGroup</groupName>
-  </wsGroupLookup>
   <subjectLookups>
     <WsSubjectLookup>
       <subjectId>10021368</subjectId>
@@ -45,15 +41,15 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
+HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-X-Grouper-responseCode: SUCCESS
+X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
-Content-Type: application/xhtml+xml
-Date: Tue, 25 Mar 2008 05:11:36 GMT
+Content-Type: text/xml
+Date: Wed, 26 Mar 2008 07:36:07 GMT
 Connection: close
 
 <WsAddMemberResults>
@@ -63,13 +59,13 @@ Connection: close
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
         <id>10021368</id>
-        <source>QSUOB JDBC Source Adapter</source>
+        <sourceId>qsuob</sourceId>
       </wsSubject>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
         <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>-1</httpStatusCode>
+        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsAddMemberResult>
     <WsAddMemberResult>
@@ -77,29 +73,29 @@ Connection: close
         <resultCode>SUCCESS</resultCode>
         <success>T</success>
         <id>10039438</id>
-        <source>QSUOB JDBC Source Adapter</source>
+        <sourceId>qsuob</sourceId>
       </wsSubject>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
         <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>-1</httpStatusCode>
+        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsAddMemberResult>
   </results>
   <wsGroupAssigned>
     <extension>aGroup</extension>
-    <displayExtension>test group</displayExtension>
-    <description>somedescription</description>
-    <displayName>a stem:test group</displayName>
+    <displayExtension>a group</displayExtension>
+    <description>a group description</description>
+    <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>cd89f7c5-913e-4788-9a67-c78a5fee1fba</uuid>
+    <uuid>ef8194b1-700d-4ea7-98e3-6da4af6d8b6b</uuid>
   </wsGroupAssigned>
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults$WsAddMemberResultsCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@12cf6d3[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@100c776[subject=&lt;nul...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1b248c8[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSource=&lt;null&gt;], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d32ea0[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@9a288b[subject=&lt;null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@128d1f4[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</resultMessage>
     <success>T</success>
     <httpStatusCode>201</httpStatusCode>
@@ -137,7 +133,6 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
@@ -155,10 +150,11 @@ public class WsSampleAddMemberRest implements WsSampleRest {
     try {
       HttpClient httpClient = new HttpClient();
       
-      //URL e.g. http://localhost:8093/grouper-ws/servicesLite
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
-          RestClientSettings.URL + "/v1_3_000/group/aStem%3AaGroup/members");
+          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/group/aStem%3AaGroup/members");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
@@ -181,12 +177,6 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 
       // just add, dont replace
       addMember.setReplaceAllExisting("F");
-
-      WsGroupLookup wsGroupLookup = new WsGroupLookup("aStem:aGroup", null);
-      addMember.setWsGroupLookup(wsGroupLookup);
-
-      //version, e.g. v1_3_000
-      addMember.setClientVersion(RestClientSettings.VERSION);
 
       // add two subjects to the group
       WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
@@ -213,14 +203,7 @@ public class WsSampleAddMemberRest implements WsSampleRest {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String responseCode = method.getResponseHeader("X-Grouper-responseCode").getValue();
-      
-      int statusCode = method.getStatusCode();
-
-      // see if request worked or not
-      if (statusCode != 200 || !success) {
-        throw new RuntimeException("Bad response from web service: " + statusCode + ", responseCode: " + responseCode);
-      }
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
       
       String response = RestClientSettings.responseBodyAsString(method);
 
@@ -228,7 +211,17 @@ public class WsSampleAddMemberRest implements WsSampleRest {
       WsAddMemberResults wsAddMemberResults = (WsAddMemberResults)wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
       
-      System.out.println(wsAddMemberResults);
+      String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsAddMemberResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -267,4 +260,6 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults@4977e2
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d32ea0[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@9a288b[subject=<null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@128d1f4[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null

@@ -151,7 +151,7 @@ public class WsSubjectLookup {
 
       boolean hasSubjectId = !StringUtils.isBlank(this.subjectId);
       boolean hasSubjectIdentifier = !StringUtils.isBlank(this.subjectIdentifier);
-      boolean hasSubjectSource = !StringUtils.isBlank(this.subjectSource);
+      boolean hasSubjectSource = !StringUtils.isBlank(this.subjectSourceId);
 
       //must have an id
       if (!hasSubjectId && !hasSubjectIdentifier) {
@@ -165,7 +165,7 @@ public class WsSubjectLookup {
 
         //cant have source without type
         if (hasSubjectSource) {
-          this.subject = SubjectFinder.getSource(this.subjectSource).getSubject(
+          this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubject(
               this.subjectId);
           return;
         } 
@@ -175,7 +175,7 @@ public class WsSubjectLookup {
 
         //cant have source without type
         if (hasSubjectSource) {
-          this.subject = SubjectFinder.getSource(this.subjectSource).getSubject(
+          this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubject(
               this.subjectIdentifier);
           return;
         }
@@ -215,22 +215,22 @@ public class WsSubjectLookup {
   private String subjectIdentifier;
 
   /** optional: source of subject in the subject api source list */
-  private String subjectSource;
+  private String subjectSourceId;
 
   /**
    * optional: source of subject in the subject api source list
    * @return the subjectSource
    */
-  public String getSubjectSource() {
-    return this.subjectSource;
+  public String getSubjectSourceId() {
+    return this.subjectSourceId;
   }
 
   /**
    * optional: source of subject in the subject api source list
    * @param subjectSource1 the subjectSource to set
    */
-  public void setSubjectSource(String subjectSource1) {
-    this.subjectSource = subjectSource1;
+  public void setSubjectSourceId(String subjectSource1) {
+    this.subjectSourceId = subjectSource1;
     this.clearSubject();
   }
 
@@ -319,7 +319,7 @@ public class WsSubjectLookup {
   public WsSubjectLookup(String subjectId1, String subjectSource1,
       String subjectIdentifier1) {
     this.subjectId = subjectId1;
-    this.subjectSource = subjectSource1;
+    this.subjectSourceId = subjectSource1;
     this.subjectIdentifier = subjectIdentifier1;
   }
 

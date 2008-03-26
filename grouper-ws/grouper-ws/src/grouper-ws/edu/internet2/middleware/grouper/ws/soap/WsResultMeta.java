@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsResultMeta.java,v 1.1 2008-03-24 20:19:48 mchyzer Exp $
+ * @author mchyzer $Id: WsResultMeta.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -61,8 +61,8 @@ public class WsResultMeta {
   /** T or F as to whether it was a successful assignment */
   private String success;
 
-  /** status code, if -1, then not set */
-  private int httpStatusCode = -1;
+  /** status code, if 500, then not set */
+  private int httpStatusCode = 500;
 
   /**
    * append error message to list of error messages
@@ -172,7 +172,7 @@ public class WsResultMeta {
 
   /**
    * status code for http lite / rest .  not a getter so isnt in soap/lite response
-   * @return the status code e.g. 200, if -1, then not initted
+   * @return the status code e.g. 200, if 500, then not initted
    */
   public int retrieveHttpStatusCode() {
     return this.httpStatusCode;
@@ -180,7 +180,7 @@ public class WsResultMeta {
 
   /**
    * status code for http lite / rest .  not a setter so isnt in soap/lite response
-   * @param statusCode1 the status code e.g. 200, if -1, then not initted
+   * @param statusCode1 the status code e.g. 200, if 500, then not initted
    */
   public void assignHttpStatusCode(int statusCode1) {
     this.httpStatusCode = statusCode1;

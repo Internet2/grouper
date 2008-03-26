@@ -7,13 +7,12 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
 
-/**
+/*
  *  GrouperServiceTest Junit test case
  */
 public class GrouperServiceTest extends junit.framework.TestCase {
     /**
      * Auto generated test method
-     * @throws Exception
      */
     public void testfindStems() throws java.lang.Exception {
         edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub stub =

@@ -1,9 +1,10 @@
 /*
- * @author mchyzer $Id: WsRestRequestContentType.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * @author mchyzer $Id: WsRestRequestContentType.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
 import java.io.StringWriter;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,7 +47,7 @@ public enum WsRestRequestContentType {
      */
     @Override
     public WsRestResponseContentType calculateResponseContentType() {
-      return WsRestResponseContentType.xhtml;
+      return null;
     }
 
     /**
@@ -78,8 +79,16 @@ public enum WsRestRequestContentType {
     public Object parseString(String input, StringBuilder warnings) {
       HttpServletRequest httpServletRequest = GrouperServiceJ2ee.retrieveHttpServletRequest();
       //marshal the object out of there
+      Map<String, String> params = httpServletRequest.getParameterMap();
+      
+      //see if in query string in body
+      if (!StringUtils.isBlank(input)) {
+        params = GrouperServiceUtils.convertQueryStringToMap(input);
+        //dont worry about params in request anymore
+        httpServletRequest = null;
+      }
       Object object = GrouperServiceUtils.marshalHttpParamsToObject(
-          httpServletRequest.getParameterMap(), httpServletRequest, warnings);
+          params, httpServletRequest, warnings);
       return object;
     }
 
@@ -194,7 +203,7 @@ public enum WsRestRequestContentType {
 
   /**
    * based on the request type, calculate the response type
-   * @return the response type
+   * @return the response type or null if there is not a clear winner
    */
   public abstract WsRestResponseContentType calculateResponseContentType();
   

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPutGroup.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPutGroup.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -15,11 +15,11 @@ import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
 /**
- * all first level resources on a get request
+ * all first level resources on a put request
  */
 public enum GrouperWsRestPutGroup {
 
-  /** group get requests for members */
+  /** group put requests for members */
   members {
 
     /**
@@ -74,7 +74,7 @@ public enum GrouperWsRestPutGroup {
   };
 
   /**
-     * handle the incoming request based on HTTP method GET and group as resource
+     * handle the incoming request based on HTTP method put and group as resource
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
      * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/group/a:b/members

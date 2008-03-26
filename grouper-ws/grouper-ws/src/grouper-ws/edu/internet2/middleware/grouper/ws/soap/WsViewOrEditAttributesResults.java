@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+
 /**
  * <pre>
  * results for the viewOrEditAttributes
@@ -14,7 +16,7 @@ import org.apache.commons.lang.StringUtils;
  * </pre>
  * @author mchyzer
  */
-public class WsViewOrEditAttributesResults {
+public class WsViewOrEditAttributesResults implements WsResponseBean {
 
   /**
    * result code of a request
@@ -80,6 +82,11 @@ public class WsViewOrEditAttributesResults {
   private WsResultMeta resultMetadata = new WsResultMeta();
 
   /**
+   * metadata about the result
+   */
+  private WsResponseMeta responseMetadata = new WsResponseMeta();
+
+  /**
    * results for each assignment sent in
    * @return the results
    */
@@ -100,6 +107,21 @@ public class WsViewOrEditAttributesResults {
    */
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
+   * @return the response metadata
+   */
+  public WsResponseMeta getResponseMetadata() {
+    return this.responseMetadata;
+  }
+
+  /**
+   * @param responseMetadata1 the responseMetadata to set
+   */
+  public void setResponseMetadata(WsResponseMeta responseMetadata1) {
+    this.responseMetadata = responseMetadata1;
   }
 
 }

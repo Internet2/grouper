@@ -51,7 +51,7 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-X-Grouper-responseCode: SUCCESS
+X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/soap+xml; action="urn:addMemberResponse";charset=UTF-8
 Transfer-Encoding: chunked

@@ -111,7 +111,7 @@ public class WsSubject {
   public WsSubject(WsSubjectLookup wsSubjectLookup) {
     this.id = StringUtils.defaultIfEmpty(wsSubjectLookup.getSubjectId(),
         wsSubjectLookup.getSubjectIdentifier());
-    this.source = wsSubjectLookup.getSubjectSource();
+    this.sourceId = wsSubjectLookup.getSubjectSourceId();
   }
 
   /**
@@ -136,7 +136,7 @@ public class WsSubject {
   */
   public WsSubject(Member member, String[] subjectAttributeNames) {
     this.setId(member.getSubjectId());
-    this.setSource(member.getSubjectSource().getName());
+    this.setSourceId(member.getSubjectSource().getId());
 
     int attributesLength = GrouperUtil.length(subjectAttributeNames);
 
@@ -175,7 +175,7 @@ public class WsSubject {
     }
 
     this.setId(subject.getId());
-    this.setSource(subject.getSource().getName());
+    this.setSourceId(subject.getSource().getId());
 
     int attributesLength = GrouperUtil.length(subjectAttributeNames);
 
@@ -218,7 +218,7 @@ public class WsSubject {
   private String name;
 
   /** source of subject */
-  private String source;
+  private String sourceId;
 
   /**
    * attribute data of subjects in group (in same order as attributeNames)
@@ -281,15 +281,15 @@ public class WsSubject {
   /**
    * @return the source
    */
-  public String getSource() {
-    return this.source;
+  public String getSourceId() {
+    return this.sourceId;
   }
 
   /**
    * @param source1 the source to set
    */
-  public void setSource(String source1) {
-    this.source = source1;
+  public void setSourceId(String source1) {
+    this.sourceId = source1;
   }
 
   /**

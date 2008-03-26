@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestResponseContentType.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * @author mchyzer $Id: WsRestResponseContentType.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -22,6 +22,15 @@ public enum WsRestResponseContentType {
 
   /** default xhtml content type */
   xhtml {
+
+    /**
+     * get the content type
+     * @return the http content type
+     */
+    @Override
+    public String getContentType() {
+      return WsRestRequestContentType.xhtml.getContentType();
+    }
 
     /**
      * write a string representation to an outputstream
@@ -50,6 +59,15 @@ public enum WsRestResponseContentType {
   xml {
 
     /**
+     * get the content type
+     * @return the http content type
+     */
+    @Override
+    public String getContentType() {
+      return WsRestRequestContentType.xml.getContentType();
+    }
+
+    /**
      * write a string representation to an outputstream
      * @param object to write to output
      * @param writer to write to (e.g. back to http client)
@@ -75,6 +93,15 @@ public enum WsRestResponseContentType {
   },
   /** json content type */
   json {
+
+    /**
+     * get the content type
+     * @return the http content type
+     */
+    @Override
+    public String getContentType() {
+      return WsRestRequestContentType.json.getContentType();
+    }
 
     /**
      * write a string representation to an outputstream
@@ -114,6 +141,12 @@ public enum WsRestResponseContentType {
    * @return the object
    */
   public abstract Object parseString(String input);
+
+  /**
+   * get the content type
+   * @return the http content type
+   */
+  public abstract String getContentType();
 
   /**
    * setup an xstream object for input/output

@@ -14,7 +14,6 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
@@ -32,10 +31,11 @@ public class WsSampleAddMemberRest implements WsSampleRest {
     try {
       HttpClient httpClient = new HttpClient();
       
-      //URL e.g. http://localhost:8093/grouper-ws/servicesLite
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
-          RestClientSettings.URL + "/v1_3_000/group/aStem%3AaGroup/members");
+          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/group/aStem%3AaGroup/members");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
@@ -58,12 +58,6 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 
       // just add, dont replace
       addMember.setReplaceAllExisting("F");
-
-      WsGroupLookup wsGroupLookup = new WsGroupLookup("aStem:aGroup", null);
-      addMember.setWsGroupLookup(wsGroupLookup);
-
-      //version, e.g. v1_3_000
-      addMember.setClientVersion(RestClientSettings.VERSION);
 
       // add two subjects to the group
       WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
@@ -90,14 +84,7 @@ public class WsSampleAddMemberRest implements WsSampleRest {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String responseCode = method.getResponseHeader("X-Grouper-responseCode").getValue();
-      
-      int statusCode = method.getStatusCode();
-
-      // see if request worked or not
-      if (statusCode != 200 || !success) {
-        throw new RuntimeException("Bad response from web service: " + statusCode + ", responseCode: " + responseCode);
-      }
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
       
       String response = RestClientSettings.responseBodyAsString(method);
 
@@ -105,7 +92,17 @@ public class WsSampleAddMemberRest implements WsSampleRest {
       WsAddMemberResults wsAddMemberResults = (WsAddMemberResults)wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
       
-      System.out.println(wsAddMemberResults);
+      String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsAddMemberResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

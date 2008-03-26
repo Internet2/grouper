@@ -14,15 +14,11 @@ Connection: close
 Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
 User-Agent: Jakarta Commons-HttpClient/3.0.1
 Host: localhost:8092
-Content-Length: 261
+Content-Length: 189
 Content-Type: text/x-json; charset=UTF-8
 
 {
   "WsRestAddMemberRequest":{
-    "clientVersion":"v1_3_000",
-    "wsGroupLookup":{
-      "groupName":"aStem:aGroup"
-    },
     "subjectLookups":{
       "WsSubjectLookup":[
         {
@@ -50,15 +46,15 @@ Content-Type: text/x-json; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 200 OK
+HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
 Pragma: No-cache
 Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
-X-Grouper-responseCode: SUCCESS
+X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
-Content-Type: application/xhtml+xml
-Date: Tue, 25 Mar 2008 05:11:34 GMT
+Content-Type: text/x-json
+Date: Wed, 26 Mar 2008 07:36:05 GMT
 Connection: close
 
 {
@@ -70,13 +66,13 @@ Connection: close
             "resultCode":"SUCCESS",
             "success":"T",
             "id":10021368,
-            "source":"QSUOB JDBC Source Adapter"
+            "sourceId":"qsuob"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS",
             "resultMessage":"",
             "success":"T",
-            "httpStatusCode":-1
+            "httpStatusCode":500
           }
           
         },
@@ -85,13 +81,13 @@ Connection: close
             "resultCode":"SUCCESS",
             "success":"T",
             "id":10039438,
-            "source":"QSUOB JDBC Source Adapter"
+            "sourceId":"qsuob"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS",
             "resultMessage":"",
             "success":"T",
-            "httpStatusCode":-1
+            "httpStatusCode":500
           }
         }
       ]
@@ -99,11 +95,11 @@ Connection: close
     },
     "wsGroupAssigned":{
       "extension":"aGroup",
-      "displayExtension":"test group",
-      "description":"somedescription",
-      "displayName":"a stem:test group",
+      "displayExtension":"a group",
+      "description":"a group description",
+      "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"cd89f7c5-913e-4788-9a67-c78a5fee1fba"
+      "uuid":"ef8194b1-700d-4ea7-98e3-6da4af6d8b6b"
     },
     "resultMetadata":{
       "wsResultCode":{
@@ -111,7 +107,7 @@ Connection: close
         "$":"SUCCESS"
       },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@106856d[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@121bfd6[subject=<nul...\n, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1f4a7c7[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSource=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@18bdf2a[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1e84244[subject=<nul...\n, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@3a1e23[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
       "success":"T",
       "httpStatusCode":201
     },
@@ -149,7 +145,6 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
@@ -167,10 +162,11 @@ public class WsSampleAddMemberRest implements WsSampleRest {
     try {
       HttpClient httpClient = new HttpClient();
       
-      //URL e.g. http://localhost:8093/grouper-ws/servicesLite
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
-          RestClientSettings.URL + "/v1_3_000/group/aStem%3AaGroup/members");
+          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/group/aStem%3AaGroup/members");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
@@ -193,12 +189,6 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 
       // just add, dont replace
       addMember.setReplaceAllExisting("F");
-
-      WsGroupLookup wsGroupLookup = new WsGroupLookup("aStem:aGroup", null);
-      addMember.setWsGroupLookup(wsGroupLookup);
-
-      //version, e.g. v1_3_000
-      addMember.setClientVersion(RestClientSettings.VERSION);
 
       // add two subjects to the group
       WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
@@ -225,14 +215,7 @@ public class WsSampleAddMemberRest implements WsSampleRest {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String responseCode = method.getResponseHeader("X-Grouper-responseCode").getValue();
-      
-      int statusCode = method.getStatusCode();
-
-      // see if request worked or not
-      if (statusCode != 200 || !success) {
-        throw new RuntimeException("Bad response from web service: " + statusCode + ", responseCode: " + responseCode);
-      }
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
       
       String response = RestClientSettings.responseBodyAsString(method);
 
@@ -240,7 +223,17 @@ public class WsSampleAddMemberRest implements WsSampleRest {
       WsAddMemberResults wsAddMemberResults = (WsAddMemberResults)wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
       
-      System.out.println(wsAddMemberResults);
+      String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsAddMemberResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -279,4 +272,6 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 #########################################
 
 
-edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults@29c204
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@18bdf2a[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1e84244[subject=<nul...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@3a1e23[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null

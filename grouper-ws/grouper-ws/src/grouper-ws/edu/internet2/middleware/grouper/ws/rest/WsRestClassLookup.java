@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -13,12 +13,15 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersLiteRequest;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAttribute;
 import edu.internet2.middleware.grouper.ws.soap.WsAttributeEdit;
+import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
@@ -108,6 +111,9 @@ public class WsRestClassLookup {
     addAliasClass(WsRestAddMemberRequest.class);
     addAliasClass(WsRestAddMemberLiteRequest.class);
     addAliasClass(WsRestResultProblem.class);
+    addAliasClass(WsRestDeleteMemberLiteRequest.class);
+    addAliasClass(WsRestDeleteMemberRequest.class);
+    addAliasClass(WsDeleteMemberLiteResult.class);
     
   }
   

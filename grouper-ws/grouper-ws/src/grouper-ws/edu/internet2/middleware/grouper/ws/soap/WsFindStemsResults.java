@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
 /**
  * returned from the stem find query, if none found, return none
@@ -18,7 +19,7 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  * @author mchyzer
  * 
  */
-public class WsFindStemsResults {
+public class WsFindStemsResults implements WsResponseBean {
 
   /**
    * result code of a request
@@ -131,6 +132,11 @@ public class WsFindStemsResults {
   private WsResultMeta resultMetadata = new WsResultMeta();
 
   /**
+   * metadata about the result
+   */
+  private WsResponseMeta responseMetadata = new WsResponseMeta();
+
+  /**
    * has 0 to many stems that match the query by example
    * 
    * @return the stemResults
@@ -186,6 +192,21 @@ public class WsFindStemsResults {
    */
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
+   * @return the response metadata
+   */
+  public WsResponseMeta getResponseMetadata() {
+    return this.responseMetadata;
+  }
+
+  /**
+   * @param responseMetadata1 the responseMetadata to set
+   */
+  public void setResponseMetadata(WsResponseMeta responseMetadata1) {
+    this.responseMetadata = responseMetadata1;
   }
 
 }

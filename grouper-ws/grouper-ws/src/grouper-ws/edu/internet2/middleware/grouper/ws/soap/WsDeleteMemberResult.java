@@ -3,12 +3,11 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults.WsDeleteMemberResultsCode;
+import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult.WsDeleteMemberLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -22,6 +21,9 @@ public class WsDeleteMemberResult {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsDeleteMemberResult.class);
+
+  /** subject that was added */
+  private WsSubject wsSubject;
 
   /**
    * result code of a request
@@ -45,8 +47,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.GROUP_NOT_FOUND;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.GROUP_NOT_FOUND;
       }
     },
 
@@ -67,8 +69,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.INVALID_QUERY;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.INVALID_QUERY;
       }
     },
 
@@ -89,8 +91,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.SUCCESS;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.SUCCESS;
       }
     },
 
@@ -111,8 +113,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.SUCCESS_BUT_HAS_EFFECTIVE;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.SUCCESS_BUT_HAS_EFFECTIVE;
       }
     },
 
@@ -133,8 +135,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.SUCCESS_WASNT_IMMEDIATE;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.SUCCESS_WASNT_IMMEDIATE;
       }
     },
 
@@ -155,8 +157,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.SUCCESS_WASNT_IMMEDIATE_BUT_HAS_EFFECTIVE;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.SUCCESS_WASNT_IMMEDIATE_BUT_HAS_EFFECTIVE;
       }
     },
 
@@ -177,8 +179,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.SUBJECT_NOT_FOUND;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.SUBJECT_NOT_FOUND;
       }
     },
 
@@ -199,8 +201,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.EXCEPTION;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.EXCEPTION;
       }
 
     },
@@ -222,8 +224,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.INSUFFICIENT_PRIVILEGES;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.INSUFFICIENT_PRIVILEGES;
       }
 
     },
@@ -245,9 +247,9 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
         //this should never happen, rolled back on one record
-        return WsDeleteMemberResultsCode.EXCEPTION;
+        return WsDeleteMemberLiteResultCode.EXCEPTION;
       }
     },
 
@@ -268,8 +270,8 @@ public class WsDeleteMemberResult {
        * @return WsAddMemberResultsCode
        */
       @Override
-      public WsDeleteMemberResultsCode convertToResultsCode() {
-        return WsDeleteMemberResultsCode.SUBJECT_DUPLICATE;
+      public WsDeleteMemberLiteResultCode convertToLiteCode() {
+        return WsDeleteMemberLiteResultCode.SUBJECT_DUPLICATE;
       }
 
     };
@@ -284,15 +286,9 @@ public class WsDeleteMemberResult {
      * if there is one result, convert to the results code
      * @return result code
      */
-    public abstract WsDeleteMemberResultsCode convertToResultsCode();
+    public abstract WsDeleteMemberLiteResultCode convertToLiteCode();
 
   }
-
-  /** subject that was deleteed */
-  private String subjectId;
-
-  /** subject identifier (if this is what was passed in) that was deleteed */
-  private String subjectIdentifier;
 
   /**
    * convert string to result code
@@ -306,38 +302,6 @@ public class WsDeleteMemberResult {
    * metadata about the result
    */
   private WsResultMeta resultMetadata = new WsResultMeta();
-
-  /**
-   * subject that was deleteed
-   * @return the subjectId
-   */
-  public String getSubjectId() {
-    return this.subjectId;
-  }
-
-  /**
-   * subject that was deleteed
-   * @param subjectId1 the subjectId to set
-   */
-  public void setSubjectId(String subjectId1) {
-    this.subjectId = subjectId1;
-  }
-
-  /**
-   * subject identifier (if this is what was passed in) that was deleteed
-   * @return the subjectIdentifier
-   */
-  public String getSubjectIdentifier() {
-    return this.subjectIdentifier;
-  }
-
-  /**
-   * subject identifier (if this is what was passed in) that was deleteed
-   * @param subjectIdentifier1 the subjectIdentifier to set
-   */
-  public void setSubjectIdentifier(String subjectIdentifier1) {
-    this.subjectIdentifier = subjectIdentifier1;
-  }
 
   /**
    * assign the code from the enum
@@ -380,19 +344,17 @@ public class WsDeleteMemberResult {
 
   /**
    * assign the code from the enum
-   * @param wsSubjectLookup
+   * @param wsSubjectLookup1
+   * @param subjectAttributeNames
    */
-  public void processSubject(WsSubjectLookup wsSubjectLookup) {
+  public void processSubject(WsSubjectLookup wsSubjectLookup1,
+      String[] subjectAttributeNames) {
 
-    this.setSubjectId(wsSubjectLookup.getSubjectId());
-    this.setSubjectIdentifier(wsSubjectLookup.getSubjectIdentifier());
+    this.setWsSubject(new WsSubject(wsSubjectLookup1));
+    this.setWsSubject(new WsSubject(wsSubjectLookup1.retrieveSubject("Subject"),
+        subjectAttributeNames));
 
-    // these will probably match, but just in case
-    if (StringUtils.isBlank(this.getSubjectId())) {
-      this.setSubjectId(wsSubjectLookup.retrieveSubject().getId());
-    }
-
-    SubjectFindResult subjectFindResult = wsSubjectLookup.retrieveSubjectFindResult();
+    SubjectFindResult subjectFindResult = wsSubjectLookup1.retrieveSubjectFindResult();
 
     switch (subjectFindResult) {
       case INVALID_QUERY:
@@ -412,7 +374,7 @@ public class WsDeleteMemberResult {
     }
 
     this.getResultMetadata().setResultMessage(
-        "Subject: " + wsSubjectLookup + " had problems: " + subjectFindResult);
+        "Subject: " + wsSubjectLookup1 + " had problems: " + subjectFindResult);
 
   }
 
@@ -421,6 +383,30 @@ public class WsDeleteMemberResult {
    */
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
+  }
+
+  
+  /**
+   * @return the wsSubject
+   */
+  public WsSubject getWsSubject() {
+    return this.wsSubject;
+  }
+
+  
+  /**
+   * @param wsSubject1 the wsSubject to set
+   */
+  public void setWsSubject(WsSubject wsSubject1) {
+    this.wsSubject = wsSubject1;
+  }
+
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
   }
 
 }

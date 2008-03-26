@@ -3,12 +3,6 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembers;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
@@ -17,6 +11,13 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsS
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.Constants;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**

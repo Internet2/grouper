@@ -3,17 +3,18 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSaveLite;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemSaveResults;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.Constants;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -39,8 +40,7 @@ public class WsSampleStemSaveLite implements WsSampleGenerated {
     /**
      * @param wsSampleGeneratedType can run as soap or xml/http
      */
-    public static void stemSaveLite(
-        WsSampleGeneratedType wsSampleGeneratedType) {
+    public static void stemSaveLite(WsSampleGeneratedType wsSampleGeneratedType) {
         try {
             //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
             GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);

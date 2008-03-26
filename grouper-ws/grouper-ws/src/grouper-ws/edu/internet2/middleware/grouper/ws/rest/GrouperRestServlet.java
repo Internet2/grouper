@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -19,11 +19,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestResponseContentType;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * servlet for rest web services
@@ -38,7 +40,7 @@ public class GrouperRestServlet extends HttpServlet {
   /**
    * response header for the grouper response code
    */
-  public static final String X_GROUPER_RESPONSE_CODE = "X-Grouper-responseCode";
+  public static final String X_GROUPER_RESPONSE_CODE = "X-Grouper-resultCode";
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperRestServlet.class);
@@ -51,6 +53,7 @@ public class GrouperRestServlet extends HttpServlet {
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
+  @SuppressWarnings("unchecked")
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
@@ -58,14 +61,17 @@ public class GrouperRestServlet extends HttpServlet {
     List<String> urlStrings = null;
     StringBuilder warnings = new StringBuilder();
     WsResponseBean wsResponseBean = null;
-    //default to xhtml
+    //we need something here if errors, so default to xhtml
     WsRestResponseContentType wsRestResponseContentType = WsRestResponseContentType.xhtml;
 
     try {
-      //get the method and validate
-      GrouperRestHttpMethod grouperRestHttpMethod = GrouperRestHttpMethod
-          .valueOfIgnoreCase(request.getMethod(), true);
-
+      
+      
+      //default to xhtml, or whatever is in the config file
+      String configResponseType = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE);
+      wsRestResponseContentType = StringUtils.isBlank(configResponseType) ? wsRestResponseContentType
+          : WsRestResponseContentType.valueOfIgnoreCase(configResponseType, true);
+      
       urlStrings = extractUrlStrings(request);
       int urlStringsLength = GrouperUtil.length(urlStrings);
 
@@ -79,8 +85,11 @@ public class GrouperRestServlet extends HttpServlet {
       WsRestRequestContentType wsRestRequestContentType = WsRestRequestContentType
         .findByContentType(contentType, body);
       
+      //if there is a recommendation based on request content type, use that, else the config or default
+      wsRestResponseContentType = GrouperUtil.defaultIfNull(
+          wsRestRequestContentType.calculateResponseContentType(), wsRestResponseContentType);
+      
       GrouperWsVersion clientVersion = null;
-      wsRestResponseContentType = null;
 
       if (urlStringsLength > 0) {
         boolean firstIsVersion = false;
@@ -107,12 +116,6 @@ public class GrouperRestServlet extends HttpServlet {
           }
         } 
       }
-      //if no response type, calculate:
-      if (wsRestResponseContentType == null) {
-        wsRestResponseContentType = wsRestRequestContentType
-          .calculateResponseContentType();
-      }
-      
       //will get enum and validate
       String clientVersionString = null;
       if (urlStringsLength > 0) {
@@ -129,6 +132,19 @@ public class GrouperRestServlet extends HttpServlet {
         requestObject = (WsRequestBean) wsRestRequestContentType.parseString(body,
             warnings);
       }
+      
+      //might be in params (which might not be in body
+      if (requestObject == null) {
+        //might be in http params...
+        requestObject = (WsRequestBean) GrouperServiceUtils.marshalHttpParamsToObject(
+            request.getParameterMap(), request, warnings);
+
+      }
+      
+      //get the method and validate (either from object, or HTTP method
+      GrouperRestHttpMethod grouperRestHttpMethod = requestObject == null ? GrouperRestHttpMethod
+          .valueOfIgnoreCase(request.getMethod(), true) : requestObject.retrieveRestHttpMethod();
+
       wsResponseBean = grouperRestHttpMethod.service(clientVersion, urlStrings, requestObject);
 
     } catch (GrouperRestInvalidRequest glir) {
@@ -156,23 +172,23 @@ public class GrouperRestServlet extends HttpServlet {
       wsResultMeta.assignSuccess("F");
       wsResultMeta.assignResultCode("EXCEPTION");
       wsResultMeta.assignHttpStatusCode(500);
+
     }
 
+    //set response headers (they should be set at this point, but make sure)
+    GrouperServiceUtils.addResponseHeaders(wsResponseBean.getResultMetadata());
+    
+    //set http status code, content type, and write the response
     try {
       if (warnings.length() > 0) {
         wsResponseBean.getResponseMetadata().appendResultWarning(warnings.toString());
       }
-      //response code
-      //better be there
-      //TODO       if (wsResponseBean.getResultMetadata().re)
+      
+      //headers should be there by now
+      //set the status code
+      response.setStatus(wsResponseBean.getResultMetadata().retrieveHttpStatusCode());
 
-      //headers, response code
-      //      int httpCode();
-      //      String statusCode();
-
-      //TODO
-      response.setContentType("application/xhtml+xml");
-      //      GrouperServiceUtils.addResponseHeaders(response, GrouperServiceUtils.booleanToStringOneChar(success), resultCode);
+      response.setContentType(wsRestResponseContentType.getContentType());
 
       wsRestResponseContentType.writeString(wsResponseBean, response.getWriter());
     } catch (RuntimeException re) {

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestHttpMethod.java,v 1.1 2008-03-25 05:15:10 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestHttpMethod.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -120,7 +120,20 @@ public enum GrouperRestHttpMethod {
     public WsResponseBean service(
         GrouperWsVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
-      throw new RuntimeException("Invalid DELETE request");
+      int urlStringsLength = GrouperUtil.length(urlStrings);
+
+      //skip the request/response type, and the version
+      String firstResource = null;
+      if (urlStringsLength > 0) {
+        firstResource = urlStrings.get(0);
+      }
+
+      //validate and get the first resource
+      GrouperWsRestDelete grouperWsRestDelete = GrouperWsRestDelete.valueOfIgnoreCase(
+          firstResource, true);
+
+      return grouperWsRestDelete.service(
+          clientVersion, urlStrings, requestObject);
     }
 
   };

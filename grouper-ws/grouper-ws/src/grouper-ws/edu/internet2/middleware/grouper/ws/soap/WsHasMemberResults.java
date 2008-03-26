@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
 /**
  * <pre>
@@ -22,7 +23,7 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
  * </pre>
  * @author mchyzer
  */
-public class WsHasMemberResults {
+public class WsHasMemberResults implements WsResponseBean {
 
   /**
    * logger 
@@ -117,6 +118,11 @@ public class WsHasMemberResults {
    * attributes of subjects returned, in same order as the data
    */
   private String[] subjectAttributeNames;
+
+  /**
+   * metadata about the result
+   */
+  private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
    * results for each assignment sent in
@@ -246,6 +252,21 @@ public class WsHasMemberResults {
    */
   public void setSubjectAttributeNames(String[] attributeNamesa) {
     this.subjectAttributeNames = attributeNamesa;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
+   * @return the response metadata
+   */
+  public WsResponseMeta getResponseMetadata() {
+    return this.responseMetadata;
+  }
+
+  /**
+   * @param responseMetadata1 the responseMetadata to set
+   */
+  public void setResponseMetadata(WsResponseMeta responseMetadata1) {
+    this.responseMetadata = responseMetadata1;
   }
 
 }

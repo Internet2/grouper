@@ -122,13 +122,13 @@ result code of a request
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD#EXCEPTION">EXCEPTION</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;found the subject (lite http status code 500) (success: F)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;found the subject (rest http status code 500) (success: F)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD#GROUP_NOT_FOUND">GROUP_NOT_FOUND</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cant find group (lite http status code 404) (success: F)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cant find group (rest http status code 404) (success: F)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD#INVALID_QUERY">INVALID_QUERY</A></B></CODE>
@@ -140,19 +140,19 @@ result code of a request
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD#PROBLEM_DELETING_MEMBERS">PROBLEM_DELETING_MEMBERS</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem deleting existing members (lite http status code 500) (success: F)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem deleting existing members (rest http status code 500) (success: F)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD#PROBLEM_WITH_ASSIGNMENT">PROBLEM_WITH_ASSIGNMENT</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;something in one assignment wasnt successful (lite http status code 500) (success: F)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;something in one assignment wasnt successful (rest http status code 500) (success: F)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS">SUCCESS</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;found the subject (lite http status code 201) (success: T)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;found the subject (rest http status code 201) (success: T)</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -243,7 +243,7 @@ GROUP_NOT_FOUND</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAddMemberResults.WsAddMemberResultsCode</A> <B>GROUP_NOT_FOUND</B></PRE>
 <DL>
-<DD>cant find group (lite http status code 404) (success: F)
+<DD>cant find group (rest http status code 404) (success: F)
 <P>
 <DL>
 </DL>
@@ -255,7 +255,7 @@ SUCCESS</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAddMemberResults.WsAddMemberResultsCode</A> <B>SUCCESS</B></PRE>
 <DL>
-<DD>found the subject (lite http status code 201) (success: T)
+<DD>found the subject (rest http status code 201) (success: T)
 <P>
 <DL>
 </DL>
@@ -267,7 +267,7 @@ EXCEPTION</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAddMemberResults.WsAddMemberResultsCode</A> <B>EXCEPTION</B></PRE>
 <DL>
-<DD>found the subject (lite http status code 500) (success: F)
+<DD>found the subject (rest http status code 500) (success: F)
 <P>
 <DL>
 </DL>
@@ -279,7 +279,7 @@ PROBLEM_DELETING_MEMBERS</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAddMemberResults.WsAddMemberResultsCode</A> <B>PROBLEM_DELETING_MEMBERS</B></PRE>
 <DL>
-<DD>problem deleting existing members (lite http status code 500) (success: F)
+<DD>problem deleting existing members (rest http status code 500) (success: F)
 <P>
 <DL>
 </DL>
@@ -291,7 +291,7 @@ INVALID_QUERY</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAddMemberResults.WsAddMemberResultsCode</A> <B>INVALID_QUERY</B></PRE>
 <DL>
-<DD>invalid query (e.g. if everything blank) (lite http status code 400) (success: F)
+<DD>invalid query (e.g. if everything blank) (rest http status code 400) (success: F)
 <P>
 <DL>
 </DL>
@@ -303,7 +303,7 @@ PROBLEM_WITH_ASSIGNMENT</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResults.WsAddMemberResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAddMemberResults.WsAddMemberResultsCode</A> <B>PROBLEM_WITH_ASSIGNMENT</B></PRE>
 <DL>
-<DD>something in one assignment wasnt successful (lite http status code 500) (success: F)
+<DD>something in one assignment wasnt successful (rest http status code 500) (success: F)
 <P>
 <DL>
 </DL>

@@ -1,11 +1,12 @@
 /*
  * @author mchyzer
- * $Id: WsRestAddMemberLiteRequest.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * $Id: WsRestAddMemberLiteRequest.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
+import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
 
 
@@ -316,6 +317,12 @@ public class WsRestAddMemberLiteRequest implements WsRequestBean {
   public void setParamValue1(String _paramValue1) {
     this.paramValue1 = _paramValue1;
   }
-  
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
+   */
+  public GrouperRestHttpMethod retrieveRestHttpMethod() {
+    return GrouperRestHttpMethod.PUT;
+  }
 
 }

@@ -6,11 +6,9 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
@@ -30,10 +28,12 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
     try {
       HttpClient httpClient = new HttpClient();
       
-      //URL e.g. http://localhost:8093/grouper-ws/servicesLite
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
-          RestClientSettings.URL + "/v1_3_000/group/aStem%3AaGroup/members/10021368");
+          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+            + "/" + RestClientSettings.VERSION  
+            + "/group/aStem%3AaGroup/members/10021368");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
@@ -46,21 +46,6 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
       httpClient.getState()
           .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
 
-      //Make the body of the request, in this case with beans and marshaling, but you can make
-      //your request document in whatever language or way you want
-      WsRestAddMemberLiteRequest addMemberSimple = new WsRestAddMemberLiteRequest();
-
-      // set the act as id
-      addMemberSimple.setActAsSubjectId("GrouperSystem");
-
-      //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberSimple);
-      
-      //make sure right content type is in request (e.g. application/xhtml+xml
-      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
-      
-      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
       httpClient.executeMethod(method);
 
       //make sure a request came back
@@ -70,22 +55,26 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
         throw new RuntimeException("Web service did not even respond!");
       }
       boolean success = "T".equals(successString);
-      String responseCode = method.getResponseHeader("X-Grouper-responseCode").getValue();
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
       
-      int statusCode = method.getStatusCode();
-
-      // see if request worked or not
-      if (statusCode != 200 || !success) {
-        throw new RuntimeException("Bad response from web service: " + statusCode + ", responseCode: " + responseCode);
-      }
-
       String response = RestClientSettings.responseBodyAsString(method);
 
       //convert to object (from xhtml, xml, json, etc)
       WsAddMemberLiteResult wsAddMemberSimpleResult = (WsAddMemberLiteResult)wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
       
-      System.out.println(wsAddMemberSimpleResult);
+      String resultMessage = wsAddMemberSimpleResult.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsAddMemberSimpleResult.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

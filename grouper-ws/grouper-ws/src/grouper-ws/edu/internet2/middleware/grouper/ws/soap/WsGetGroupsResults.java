@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.MemberNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
@@ -28,7 +29,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * </pre>
  * @author mchyzer
  */
-public class WsGetGroupsResults {
+public class WsGetGroupsResults implements WsResponseBean {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsGetGroupsResults.class);
@@ -114,6 +115,11 @@ public class WsGetGroupsResults {
   private WsResultMeta resultMetadata = new WsResultMeta();
 
   /**
+   * metadata about the result
+   */
+  private WsResponseMeta responseMetadata = new WsResponseMeta();
+
+  /**
    * results for each assignment sent in
    * @return the results
    */
@@ -195,6 +201,21 @@ public class WsGetGroupsResults {
    */
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
+   * @return the response metadata
+   */
+  public WsResponseMeta getResponseMetadata() {
+    return this.responseMetadata;
+  }
+
+  /**
+   * @param responseMetadata1 the responseMetadata to set
+   */
+  public void setResponseMetadata(WsResponseMeta responseMetadata1) {
+    this.responseMetadata = responseMetadata1;
   }
 
 }

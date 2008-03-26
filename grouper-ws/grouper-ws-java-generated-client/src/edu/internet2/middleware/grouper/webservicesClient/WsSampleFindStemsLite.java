@@ -3,17 +3,17 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsLite;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsLiteResponse;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindStemsResults;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.Constants;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
 
 
 /**

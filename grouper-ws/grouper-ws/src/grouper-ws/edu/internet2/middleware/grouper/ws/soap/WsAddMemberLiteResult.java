@@ -74,31 +74,31 @@ public class WsAddMemberLiteResult implements WsResponseBean {
    */
   public enum WsAddMemberLiteResultCode implements WsResultCode {
 
-    /** cant find group (lite http status code 404) (success: F) */
+    /** cant find group (rest http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),
 
-    /** found the subject (lite http status code 201) (success: T) */
+    /** found the subject (rest http status code 201) (success: T) */
     SUCCESS(201),
 
-    /** found the subject (lite http status code 500) (success: F) */
+    /** found the subject (rest http status code 500) (success: F) */
     EXCEPTION(500),
 
-    /** problem deleting existing members (lite http status code 500) (success: F) */
+    /** problem deleting existing members (rest http status code 500) (success: F) */
     PROBLEM_DELETING_MEMBERS(500),
 
-    /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
+    /** invalid query (e.g. if everything blank) (rest http status code 400) (success: F) */
     INVALID_QUERY(400),
 
-    /** if one request, and that is a duplicate (lite http status code 409) (success: F) */
+    /** if one request, and that is a duplicate (rest http status code 409) (success: F) */
     SUBJECT_DUPLICATE(409),
 
-    /** if one request, and that is a subject not found (lite http status code 404) (success: F) */
+    /** if one request, and that is a subject not found (rest http status code 404) (success: F) */
     SUBJECT_NOT_FOUND(404),
 
-    /** if one request, and that is a insufficient privileges (lite http status code 403) (success: F) */
+    /** if one request, and that is a insufficient privileges (rest http status code 403) (success: F) */
     INSUFFICIENT_PRIVILEGES(403),
 
-    /** something in one assignment wasnt successful (lite http status code 500) (success: F) */
+    /** something in one assignment wasnt successful (rest http status code 500) (success: F) */
     PROBLEM_WITH_ASSIGNMENT(500);
 
     /**

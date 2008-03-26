@@ -3,17 +3,18 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 
 /**
@@ -51,13 +52,13 @@ public class WsSampleAddMemberLite implements WsSampleGenerated {
             addMemberLite.setGroupUuid("");
 
             addMemberLite.setSubjectId("10021368");
-            addMemberLite.setSubjectSource("");
+            addMemberLite.setSubjectSourceId("");
             addMemberLite.setSubjectIdentifier("");
 
             // set the act as id
             addMemberLite.setActAsSubjectId("GrouperSystem");
 
-            addMemberLite.setActAsSubjectSource("");
+            addMemberLite.setActAsSubjectSourceId("");
             addMemberLite.setActAsSubjectIdentifier("");
             addMemberLite.setFieldName("");
             addMemberLite.setIncludeGroupDetail("");
@@ -69,7 +70,7 @@ public class WsSampleAddMemberLite implements WsSampleGenerated {
             addMemberLite.setParamValue1("");
 
             WsAddMemberLiteResult wsAddMemberLiteResult = stub.addMemberLite(addMemberLite)
-                                                                  .get_return();
+                                                              .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsAddMemberLiteResult, ToStringStyle.MULTI_LINE_STYLE));

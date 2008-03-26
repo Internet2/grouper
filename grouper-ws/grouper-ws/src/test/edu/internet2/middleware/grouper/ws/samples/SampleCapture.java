@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.2 2008-03-25 05:15:10 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.3 2008-03-26 07:39:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -12,16 +12,28 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSample;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleClientType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.TcpCaptureServer;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -39,9 +51,38 @@ public class SampleCapture {
    */
   public static void main(String[] args) {
     
+    setupData();
+    
     captureAddMember();
+    captureDeleteMember();
   }
 
+  /** certain data has to exist for samples to run */
+  private static void setupData() {
+    GrouperSession grouperSession = null;
+    try {
+      Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem");
+      grouperSession = GrouperSession.start(grouperSystemSubject);
+      
+      Stem.saveStem(grouperSession, "aStem", "a stem description", "a stem", "aStem", null, null, false);
+      
+      Group.saveGroup(grouperSession, "a group description", "a group", "aStem:aGroup", null, null, false);
+      
+      Group aGroup = GroupFinder.findByName(grouperSession, "aStem:aGroup");
+      
+      //make sure assigned
+      aGroup.addMember(grouperSystemSubject, false);
+      
+      //anything else?
+      
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+     
+  }
+  
   /**
    * all add member captures
    */
@@ -54,6 +95,25 @@ public class SampleCapture {
         WsSampleAddMemberRest.class, "addMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAddMemberRestLite.class, "addMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAddMemberRestLite2.class, "addMember", "_withInput");
+    
+  }
+
+  /**
+   * all add member captures
+   */
+  public static void captureDeleteMember() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleDeleteMember.class, "addMember", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleDeleteMemberLite.class, "addMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleDeleteMemberRest.class, "deleteMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleDeleteMemberRestLite.class, "deleteMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleDeleteMemberRestLite2.class, "deleteMember", "_withInput");
     
   }
   
@@ -214,7 +274,7 @@ public class SampleCapture {
       
     } catch (Exception e) {
       String error = "Problem with: " + clientType.name() + ", " 
-          + clientClass.toString() + e.getMessage();
+          + clientClass.toString() + ", " + format + ", " + e.getMessage();
       System.out.println(error);
       LOG.error(error, e);
     }

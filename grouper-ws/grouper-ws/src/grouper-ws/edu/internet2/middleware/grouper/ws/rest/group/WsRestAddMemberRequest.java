@@ -1,11 +1,12 @@
 /*
  * @author mchyzer
- * $Id: WsRestAddMemberRequest.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * $Id: WsRestAddMemberRequest.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
+import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
@@ -226,4 +227,12 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   public void setParams(WsParam[] params1) {
     this.params = params1;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
+   */
+  public GrouperRestHttpMethod retrieveRestHttpMethod() {
+    return GrouperRestHttpMethod.PUT;
+  }
+
 }

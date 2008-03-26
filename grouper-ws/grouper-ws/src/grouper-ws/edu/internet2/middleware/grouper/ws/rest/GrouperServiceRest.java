@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -7,10 +7,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersLiteRequest;
 import edu.internet2.middleware.grouper.ws.soap.GrouperService;
-import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -145,5 +149,87 @@ public class GrouperServiceRest {
   
   }
 
+  /**
+   * <pre>
+   * based on a group name, delete the member
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param groupName is the name of the group including stems, e.g. a:b:c
+   * @param subjectId from url, e.g. /v1_3_000/group/aStem:aGroup/members/123412345
+   * @param sourceId from url (optional) e.g.
+   * /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+   * @param wsRestAddMemberLiteRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsDeleteMemberLiteResult deleteMemberLite(
+      GrouperWsVersion clientVersion, String groupName, String subjectId, String sourceId,
+      WsRestDeleteMemberLiteRequest wsRestDeleteMemberLiteRequest) {
+  
+    //make sure not null
+    wsRestDeleteMemberLiteRequest = wsRestDeleteMemberLiteRequest == null ? new WsRestDeleteMemberLiteRequest()
+        : wsRestDeleteMemberLiteRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(), wsRestDeleteMemberLiteRequest.getClientVersion(), false, "clientVersion");
+    groupName = GrouperServiceUtils.pickOne(groupName, wsRestDeleteMemberLiteRequest.getGroupName(), false, "groupName");
+    subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestDeleteMemberLiteRequest.getSubjectId(), false, "subjectId");
+    sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestDeleteMemberLiteRequest.getSubjectSource(), true, "sourceId");
+    
+    //get the results
+    WsDeleteMemberLiteResult wsDeleteMemberLiteResult = new GrouperService().deleteMemberLite(
+        clientVersionString, groupName, wsRestDeleteMemberLiteRequest.getGroupUuid(), 
+        subjectId, sourceId,
+        wsRestDeleteMemberLiteRequest.getSubjectIdentifier(), wsRestDeleteMemberLiteRequest.getActAsSubjectId(),
+        wsRestDeleteMemberLiteRequest.getActAsSubjectSource(), wsRestDeleteMemberLiteRequest.getActAsSubjectIdentifier(),
+        wsRestDeleteMemberLiteRequest.getFieldName(), wsRestDeleteMemberLiteRequest.getIncludeGroupDetail(),
+        wsRestDeleteMemberLiteRequest.getIncludeSubjectDetail(), wsRestDeleteMemberLiteRequest.getSubjectAttributeNames(),
+        wsRestDeleteMemberLiteRequest.getParamName0(), wsRestDeleteMemberLiteRequest.getParamValue0(),
+        wsRestDeleteMemberLiteRequest.getParamName1(), wsRestDeleteMemberLiteRequest.getParamValue1());
+  
+    //return result
+    return wsDeleteMemberLiteResult;
+  
+  }
+
+  /**
+   * <pre>
+   * based on a group name, put multiple members, or all members.  e.g. url:
+   * /v1_3_000/group/aStem:aGroup/members
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param groupName is the name of the group including stems, e.g. a:b:c
+   * @param wsRestDeleteMembersRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsDeleteMemberResults deleteMember(
+      GrouperWsVersion clientVersion, String groupName,
+      WsRestDeleteMemberRequest wsRestDeleteMembersRequest) {
+  
+    //cant be null
+    GrouperUtil.assertion(wsRestDeleteMembersRequest != null, "Body of request must contain an instance of " 
+        + WsRestDeleteMemberRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(), wsRestDeleteMembersRequest.getClientVersion(), false, "clientVersion");
+
+    WsGroupLookup wsGroupLookup = wsRestDeleteMembersRequest.getWsGroupLookup();
+    if (wsGroupLookup == null) {
+      wsGroupLookup = new WsGroupLookup();
+    }
+    
+    groupName = GrouperServiceUtils.pickOne(groupName, wsGroupLookup.getGroupName(), false, "groupName");
+    wsGroupLookup.setGroupName(groupName);
+    
+    //get the results
+    WsDeleteMemberResults wsDeleteMemberResults = new GrouperService().deleteMember(
+        clientVersionString, wsGroupLookup, wsRestDeleteMembersRequest.getSubjectLookups(), 
+        wsRestDeleteMembersRequest.getActAsSubjectLookup(),
+        wsRestDeleteMembersRequest.getFieldName(), wsRestDeleteMembersRequest.getTxType(), 
+        wsRestDeleteMembersRequest.getIncludeGroupDetail(),
+        wsRestDeleteMembersRequest.getIncludeSubjectDetail(), wsRestDeleteMembersRequest.getSubjectAttributeNames(), 
+        wsRestDeleteMembersRequest.getParams());
+
+    //return result
+    return wsDeleteMemberResults;
+  
+  }
 }
 
