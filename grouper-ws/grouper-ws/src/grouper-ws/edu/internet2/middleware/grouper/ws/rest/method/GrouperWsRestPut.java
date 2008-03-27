@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPut.java,v 1.1 2008-03-25 05:15:10 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPut.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.GrouperWsRestPutGroup;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * all first level resources on a put request
@@ -37,17 +38,8 @@ public enum GrouperWsRestPut {
         WsRequestBean requestObject) {
 
       //url should be: /v1_3_000/group/aStem:aGroup/members
-      String groupName = null;
-      int urlStringsLength = GrouperUtil.length(urlStrings);
-
-      if (urlStringsLength > 1) {
-        groupName = urlStrings.get(1);
-      }
-      String operation = null;
-
-      if (urlStringsLength > 2) {
-        operation = urlStrings.get(2);
-      }
+      String groupName = GrouperServiceUtils.popUrlString(urlStrings);
+      String operation = GrouperServiceUtils.popUrlString(urlStrings);
 
       //validate and get the operation
       GrouperWsRestPutGroup grouperWsRestPutGroup = GrouperWsRestPutGroup
@@ -79,21 +71,8 @@ public enum GrouperWsRestPut {
    */
   public static GrouperWsRestPut valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (GrouperWsRestPut grouperWsRestPut : GrouperWsRestPut.values()) {
-      if (StringUtils.equalsIgnoreCase(string, grouperWsRestPut.name())) {
-        return grouperWsRestPut;
-      }
-    }
-    StringBuilder error = new StringBuilder("Cant find grouperWsLitePut from string: '")
-        .append(string);
-    error.append("', expecting one of: ");
-    for (GrouperWsRestPut grouperWsLitePut : GrouperWsRestPut.values()) {
-      error.append(grouperWsLitePut.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsRestPut.class, 
+        string, exceptionOnNotFound);
   }
 
 }

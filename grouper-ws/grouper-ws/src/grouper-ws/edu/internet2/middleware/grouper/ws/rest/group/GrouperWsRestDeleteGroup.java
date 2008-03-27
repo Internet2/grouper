@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestDeleteGroup.java,v 1.1 2008-03-26 07:39:10 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestDeleteGroup.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -13,6 +13,8 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestResponseContentType;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * all first level resources on a delete request
@@ -39,7 +41,7 @@ public enum GrouperWsRestDeleteGroup {
 
       //maybe deleting all members (url strings size 3)
       //url should be: /v1_3_000/group/aStem:aGroup/members
-      if (urlStrings.size() == 3 && (!(requestObject instanceof WsRestDeleteMemberLiteRequest))) {
+      if (urlStrings.size() == 0 && (!(requestObject instanceof WsRestDeleteMemberLiteRequest))) {
         
         WsRestDeleteMemberRequest wsRestDeleteMembersRequest = GrouperUtil.typeCast(
             requestObject, WsRestDeleteMemberRequest.class);
@@ -53,21 +55,9 @@ public enum GrouperWsRestDeleteGroup {
           requestObject, WsRestDeleteMemberLiteRequest.class);
       
       //url should be: /v1_3_000/group/aStem:aGroup/members/123412345
-      //TODO make this generic
-      String subjectId = null;
-      String sourceId = null;
-      if (urlStrings.size() == 4) {
-        subjectId = urlStrings.get(3);
-      } else {
-        //url should be: /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
-        if (urlStrings.size() == 7) {
-          subjectId = urlStrings.get(6);
-          sourceId = urlStrings.get(4);
-        }
-      }
-      //for (int i=0;i<urlStrings.size();i++) {
-      //  System.out.println("[" + i + "]: " + urlStrings.get(i));
-      //}
+      String subjectId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, false, false);
+      String sourceId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, true, true);
+
       return GrouperServiceRest.deleteMemberLite(clientVersion, groupName, subjectId, sourceId,
           wsRestDeleteMemberLiteRequest);
 
@@ -99,21 +89,8 @@ public enum GrouperWsRestDeleteGroup {
    */
   public static GrouperWsRestDeleteGroup valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (GrouperWsRestDeleteGroup grouperWsRestDeleteGroup : GrouperWsRestDeleteGroup.values()) {
-      if (StringUtils.equalsIgnoreCase(string, grouperWsRestDeleteGroup.name())) {
-        return grouperWsRestDeleteGroup;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find GrouperWsRestDeleteGroup from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (GrouperWsRestDeleteGroup grouperWsRestDeleteGroup : GrouperWsRestDeleteGroup.values()) {
-      error.append(grouperWsRestDeleteGroup.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsRestDeleteGroup.class, 
+        string, exceptionOnNotFound);
   }
 
 }

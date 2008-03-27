@@ -13,13 +13,13 @@ import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 
 /**
  * <pre>
- * results for the add member call.
+ * results for the has member call.
  * 
  * result code:
  * code of the result for this group overall
  * SUCCESS: means everything ok
- * GROUP_NOT_FOUND: cant find the group
  * GROUP_DUPLICATE: found multiple groups
+ * etc
  * </pre>
  * @author mchyzer
  */
@@ -35,7 +35,7 @@ public class WsHasMemberResults implements WsResponseBean {
    */
   public enum WsHasMemberResultsCode implements WsResultCode {
 
-    /** discovered if each was a member of not (lite http status code 500) (success: F) */
+    /** problem discovering if each was a member of not (lite http status code 500) (success: F) */
     PROBLEM_CHECKING_MEMBERS(500),
 
     /** discovered if each was a member of not (lite http status code 200) (success: T) */
@@ -46,9 +46,6 @@ public class WsHasMemberResults implements WsResponseBean {
 
     /** had an exception while figuring out if the subjects were members (lite http status code 500) (success: F) */
     EXCEPTION(500),
-
-    /** had a problem with one or more of the queries (lite http status code 400) (success: F) */
-    PROBLEM_WITH_QUERY(400),
 
     /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
     INVALID_QUERY(400);
@@ -267,6 +264,14 @@ public class WsHasMemberResults implements WsResponseBean {
    */
   public void setResponseMetadata(WsResponseMeta responseMetadata1) {
     this.responseMetadata = responseMetadata1;
+  }
+
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
   }
 
 }

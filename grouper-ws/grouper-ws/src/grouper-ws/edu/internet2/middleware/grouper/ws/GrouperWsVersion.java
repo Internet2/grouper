@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.1 2008-03-24 20:19:49 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -7,6 +7,8 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilterType;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * grouper service version
@@ -79,27 +81,9 @@ public enum GrouperWsVersion {
    * @return the enum or null or exception if not found
    */
   public static GrouperWsVersion valueOfIgnoreCase(String string, boolean exceptionOnNull) {
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsVersion.class, 
+        string, exceptionOnNull);
 
-    //maybe blank is ok
-    if (!exceptionOnNull && StringUtils.isBlank(string)) {
-      return null;
-    }
-
-    //blank is not allowed
-    if (!StringUtils.isBlank(string)) {
-      for (GrouperWsVersion grouperServiceVersion : GrouperWsVersion.values()) {
-        if (StringUtils.equalsIgnoreCase(string, grouperServiceVersion.name())) {
-          return grouperServiceVersion;
-        }
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find grouperServiceVersion from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (GrouperWsVersion grouperServiceVersion : GrouperWsVersion.values()) {
-      error.append(grouperServiceVersion.name()).append(", ");
-    }
-    throw new WsInvalidQueryException(error.toString());
   }
 
 }

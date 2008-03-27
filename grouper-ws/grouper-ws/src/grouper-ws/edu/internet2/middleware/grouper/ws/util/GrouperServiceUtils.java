@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
+import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
@@ -55,6 +56,105 @@ import edu.internet2.middleware.subject.Subject;
  */
 public final class GrouperServiceUtils {
 
+  /**
+   * do a case-insensitive matching
+   * @param theEnumClass class of the enum
+   * @param <E> generic type
+   * 
+   * @param string
+   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @return the enum or null or exception if not found
+   * @throws GrouperRestInvalidRequest if there is a problem
+   */
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
+      boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
+    
+    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
+      return null;
+    }
+    for (E e : theEnumClass.getEnumConstants()) {
+      if (StringUtils.equalsIgnoreCase(string, e.name())) {
+        return e;
+      }
+    }
+    StringBuilder error = new StringBuilder(
+        "Cant find " + theEnumClass.getSimpleName() + " from string: '").append(string);
+    error.append("', expecting one of: ");
+    for (E e : theEnumClass.getEnumConstants()) {
+      error.append(e.name()).append(", ");
+    }
+    throw new GrouperRestInvalidRequest(error.toString());
+
+  }
+  
+  /**
+   * pop first url string, retrieve, and remove, or null if not there
+   * @param urlStrings
+   * @return the string or null if not there
+   */
+  public static String popUrlString(List<String> urlStrings) {
+    
+    int urlStringsLength = GrouperUtil.length(urlStrings);
+
+    if (urlStringsLength > 0) {
+      String firstResource = urlStrings.get(0);
+      //pop off
+      urlStrings.remove(0);
+      //return
+      return firstResource;
+    }
+    return null;
+  }
+  
+  /**
+   * <pre>
+   * from url strings, get the subjectId
+   * e.g. if the url is: /group/aStem:aGroup/members/123412345
+   * then the index should be 3 (0 for group, 1 for group name, etc) 
+   * 
+   * if url is: /group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+   * then index is still 3
+   * </pre>
+   * @param urlStrings
+   * @param startIndex
+   * @param removeSubjectUrlStrings true to remove these url strings after getting data
+   * @param sourceIdOrSubjectId true to get sourceId, false to get subjectId
+   * @return the subjectId if it is found, null if not
+   */
+  public static String extractSubjectIdFromUrlStrings(List<String> urlStrings, int startIndex, boolean sourceIdOrSubjectId,
+      boolean removeSubjectUrlStrings) {
+    String subjectId = null;
+    String sourceId = null;
+      
+    //url should be: /group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+    if (urlStrings.size() == startIndex + 4 
+        && StringUtils.equalsIgnoreCase("sourceId", urlStrings.get(startIndex))
+        && StringUtils.equalsIgnoreCase("subjectId", urlStrings.get(startIndex+2))) {
+      subjectId = urlStrings.get(startIndex + 3);
+      sourceId = urlStrings.get(startIndex + 1);
+      if (removeSubjectUrlStrings) {
+        //remove 4
+        for (int i=0;i<4;i++) {
+          //these will collapse so different ones are removed
+          urlStrings.remove(startIndex);
+        }
+      }
+      //no sourceId in this setup
+      return sourceIdOrSubjectId ? sourceId : subjectId;
+    }
+  
+    // /group/aStem:aGroup/members/123412345
+    if (urlStrings.size() == startIndex + 1) {
+      subjectId = urlStrings.get(startIndex);
+      if (removeSubjectUrlStrings) {
+        urlStrings.remove(startIndex);
+      }
+      //no sourceId in this setup
+      return sourceIdOrSubjectId ? null : subjectId;
+    }
+    return null;
+  }
+  
   /**
    * pick one of the values which is not null or empty.
    * if both sent in, make sure they are equal.

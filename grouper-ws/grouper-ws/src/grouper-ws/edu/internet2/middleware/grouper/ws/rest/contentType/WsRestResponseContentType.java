@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestResponseContentType.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
+ * @author mchyzer $Id: WsRestResponseContentType.java,v 1.3 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -14,6 +14,7 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * possible content types by grouper ws rest
@@ -175,23 +176,8 @@ public enum WsRestResponseContentType {
    */
   public static WsRestResponseContentType valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (WsRestResponseContentType wsRestResponseContentType : WsRestResponseContentType
-        .values()) {
-      if (StringUtils.equalsIgnoreCase(string, wsRestResponseContentType.name())) {
-        return wsRestResponseContentType;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find wsRestResponseContentType from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (WsRestResponseContentType wsRestResponseContentType : WsRestResponseContentType
-        .values()) {
-      error.append(wsRestResponseContentType.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(WsRestResponseContentType.class, 
+        string, exceptionOnNotFound);
   }
 
 }

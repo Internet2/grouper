@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestGetMembersLiteRequest.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * @author mchyzer $Id: WsRestGetMembersLiteRequest.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -27,7 +27,7 @@ public class WsRestGetMembersLiteRequest {
   private String actAsSubjectId;
 
   /** actAsSubjectSource */
-  private String actAsSubjectSource;
+  private String actAsSubjectSourceId;
 
   /** actAsSubjectIdentifier */
   private String actAsSubjectIdentifier;
@@ -105,16 +105,16 @@ public class WsRestGetMembersLiteRequest {
    * actAsSubjectSource
    * @return actAsSubjectSource
    */
-  public String getActAsSubjectSource() {
-    return this.actAsSubjectSource;
+  public String getActAsSubjectSourceId() {
+    return this.actAsSubjectSourceId;
   }
 
   /**
    * actAsSubjectSource
    * @param actAsSubjectSource1
    */
-  public void setActAsSubjectSource(String actAsSubjectSource1) {
-    this.actAsSubjectSource = actAsSubjectSource1;
+  public void setActAsSubjectSourceId(String actAsSubjectSource1) {
+    this.actAsSubjectSourceId = actAsSubjectSource1;
   }
 
   /**

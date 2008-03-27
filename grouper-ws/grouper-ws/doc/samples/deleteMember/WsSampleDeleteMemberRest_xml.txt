@@ -45,7 +45,7 @@ Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: text/xml
-Date: Wed, 26 Mar 2008 07:36:46 GMT
+Date: Thu, 27 Mar 2008 20:33:59 GMT
 Connection: close
 
 <WsDeleteMemberResults>
@@ -85,13 +85,13 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>ef8194b1-700d-4ea7-98e3-6da4af6d8b6b</uuid>
+    <uuid>d8be0f16-5716-44e4-8af1-2ab5b42ad282</uuid>
   </wsGroup>
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults$WsDeleteMemberResultsCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1405ea9[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@106c17b[subject=&lt;nul...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1acde15[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, txType: NONE
+    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1191056[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@7f9d70[subject=&lt;null...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@dd197d[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, txType: NONE
 , params: null</resultMessage>
     <success>T</success>
     <httpStatusCode>200</httpStatusCode>
@@ -125,6 +125,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
@@ -138,10 +139,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleDeleteMemberRest implements WsSampleRest {
 
   /**
-   * add member simple web service with REST
+   * delete member simple web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void addMemberLite(WsSampleRestType wsSampleRestType) {
+  public static void deleteMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -171,7 +172,7 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
       WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
       deleteMember.setActAsSubjectLookup(actAsSubject);
 
-      // add two subjects to the group
+      // delete two subjects from the group
       WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
       subjectLookups[0] = new WsSubjectLookup("10021368", null, null);
 
@@ -200,9 +201,15 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
+      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
+      
+      //see if problem
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
+      }
+
       //convert to object (from xhtml, xml, json, etc)
-      WsDeleteMemberResults wsDeleteMemberResults = (WsDeleteMemberResults)wsSampleRestType
-        .getWsLiteResponseContentType().parseString(response);
+      WsDeleteMemberResults wsDeleteMemberResults = (WsDeleteMemberResults)resultObject;
       
       String resultMessage = wsDeleteMemberResults.getResultMetadata().getResultMessage();
 
@@ -227,14 +234,14 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    deleteMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    addMemberLite(wsSampleRestType);
+    deleteMemberLite(wsSampleRestType);
   }
 
   /**
@@ -254,6 +261,6 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1405ea9[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@106c17b[subject=<nul...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1acde15[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1191056[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@7f9d70[subject=<null...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@dd197d[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE
 , params: null

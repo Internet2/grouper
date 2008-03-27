@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.3 2008-03-27 20:39:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -119,9 +119,7 @@ public class GrouperRestServlet extends HttpServlet {
       //will get enum and validate
       String clientVersionString = null;
       if (urlStringsLength > 0) {
-        clientVersionString = urlStrings.get(0);
-        //pop this off
-        urlStrings.remove(0);
+        clientVersionString = GrouperServiceUtils.popUrlString(urlStrings);
       }
       //will get enum and validate
       clientVersion = GrouperWsVersion.valueOfIgnoreCase(clientVersionString, true);

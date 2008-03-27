@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestDelete.java,v 1.1 2008-03-26 07:39:10 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestDelete.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -7,12 +7,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.GrouperWsRestDeleteGroup;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * all first level resources on a Delete request
@@ -37,17 +37,9 @@ public enum GrouperWsRestDelete {
         WsRequestBean requestObject) {
 
       //url should be: /v1_3_000/group/aStem:aGroup/members
-      String groupName = null;
-      int urlStringsLength = GrouperUtil.length(urlStrings);
-
-      if (urlStringsLength > 1) {
-        groupName = urlStrings.get(1);
-      }
-      String operation = null;
-
-      if (urlStringsLength > 2) {
-        operation = urlStrings.get(2);
-      }
+      String groupName = GrouperServiceUtils.popUrlString(urlStrings);
+      //operation, e.g. members
+      String operation = GrouperServiceUtils.popUrlString(urlStrings);
 
       //validate and get the operation
       GrouperWsRestDeleteGroup grouperWsRestDeleteGroup = GrouperWsRestDeleteGroup
@@ -79,21 +71,8 @@ public enum GrouperWsRestDelete {
    */
   public static GrouperWsRestDelete valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (GrouperWsRestDelete grouperWsRestDelete : GrouperWsRestDelete.values()) {
-      if (StringUtils.equalsIgnoreCase(string, grouperWsRestDelete.name())) {
-        return grouperWsRestDelete;
-      }
-    }
-    StringBuilder error = new StringBuilder("Cant find grouperWsLiteDelete from string: '")
-        .append(string);
-    error.append("', expecting one of: ");
-    for (GrouperWsRestDelete grouperWsLiteDelete : GrouperWsRestDelete.values()) {
-      error.append(grouperWsLiteDelete.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsRestDelete.class, 
+        string, exceptionOnNotFound);
   }
 
 }

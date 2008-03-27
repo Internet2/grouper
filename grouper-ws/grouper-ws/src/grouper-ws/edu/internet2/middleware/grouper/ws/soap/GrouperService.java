@@ -41,7 +41,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDelet
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult.WsGroupSaveResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults.WsGroupSaveResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup.StemFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult.WsStemSaveResultCode;
@@ -690,34 +689,18 @@ public class GrouperService {
   @SuppressWarnings("unchecked")
   public WsHasMemberResults hasMember(final String clientVersion,
       WsGroupLookup wsGroupLookup, WsSubjectLookup[] subjectLookups,
-      String includeSubjectDetail, String[] subjectAttributeNames, String memberFilter,
+      String memberFilter,
       WsSubjectLookup actAsSubjectLookup, String fieldName,
-      final String includeGroupDetail, WsParam[] params) {
+      final String includeGroupDetail, 
+      String includeSubjectDetail, String[] subjectAttributeNames, 
+      WsParam[] params) {
 
     WsHasMemberResults wsHasMemberResults = new WsHasMemberResults();
 
-    GrouperSession session = null;
-    String theSummary = null;
     try {
 
-      theSummary = "clientVersion: " + clientVersion + ", wsGroupLookup: "
-          + wsGroupLookup + ", subjectLookups: "
-          + GrouperUtil.toStringForLog(subjectLookups, 200)
-          + "\n, includeSubjectDetail: " + includeSubjectDetail
-          + ", subjectAttributeNames: "
-          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, memberFilter: "
-          + memberFilter + ", actAsSubject: " + actAsSubjectLookup + ", fieldName: "
-          + fieldName + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n";
-
-      //start session based on logged in user or the actAs passed in
-      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-
-      //convert the options to a map for easy access, and validate them
-      @SuppressWarnings("unused")
-      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-          params);
-
-      Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
+      WsMemberFilter wsMemberFilter = GrouperServiceUtils
+        .convertMemberFilter(memberFilter);
 
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -725,60 +708,24 @@ public class GrouperService {
       boolean includeSubjectDetailBoolean = GrouperServiceUtils.booleanValue(
           includeSubjectDetail, false, "includeSubjectDetail");
 
-      //assign the group to the result to be descriptive
-      wsHasMemberResults.setWsGroup(new WsGroup(group, includeGroupDetailBoolean));
-
-      WsMemberFilter wsMemberFilter = GrouperServiceUtils
-          .convertMemberFilter(memberFilter);
-
       //get the field or null or invalid query exception
       Field field = GrouperServiceUtils.retrieveField(fieldName);
 
-      String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
-          .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetailBoolean);
-
-      int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(subjectLookups,
-          GrouperWsConfig.WS_HAS_MEMBER_SUBJECTS_MAX, 1000000);
-
-      wsHasMemberResults.setResults(new WsHasMemberResult[subjectLength]);
-
-      int resultIndex = 0;
-
-      for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
-        WsHasMemberResult wsHasMemberResult = null;
-        try {
-          wsHasMemberResult = new WsHasMemberResult(wsSubjectLookup,
-              subjectAttributeNamesToRetrieve);
-          wsHasMemberResults.getResults()[resultIndex++] = wsHasMemberResult;
-
-          //see if subject found
-          if (!GrouperUtil.booleanValue(wsHasMemberResult.getResultMetadata()
-              .getSuccess(), true)) {
-            continue;
-          }
-
-          boolean hasMember = wsMemberFilter.hasMember(group, wsSubjectLookup
-              .retrieveSubject(), field);
-          wsHasMemberResult.assignResultCode(hasMember ? WsHasMemberResultCode.IS_MEMBER
-              : WsHasMemberResultCode.IS_NOT_MEMBER);
-
-        } catch (Exception e) {
-          wsHasMemberResult.assignResultCodeException(e, wsSubjectLookup);
-        }
-      }
-
-      //see if all success
-      wsHasMemberResults.tallyResults(theSummary);
-
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+      
+      wsHasMemberResults = GrouperServiceLogic.hasMember(grouperWsVersion, wsGroupLookup,
+          subjectLookups, wsMemberFilter, actAsSubjectLookup, field,
+          includeGroupDetailBoolean, includeSubjectDetailBoolean,
+          subjectAttributeNames, params);
     } catch (Exception e) {
-      wsHasMemberResults.assignResultCodeException(null, theSummary, e);
-    } finally {
-      GrouperSession.stopQuietly(session);
+      wsHasMemberResults.assignResultCodeException(null, null, e);
     }
 
     //set response headers
     GrouperServiceUtils.addResponseHeaders(wsHasMemberResults.getResultMetadata());
 
+    //this should be the first and only return, or else it is exiting too early
     return wsHasMemberResults;
 
   }
@@ -2758,11 +2705,12 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member query
    */
-  public WsHasMemberResults hasMemberLite(final String clientVersion, String groupName,
+  public WsHasMemberLiteResult hasMemberLite(final String clientVersion, String groupName,
       String groupUuid, String subjectId, String subjectSourceId, String subjectIdentifier,
-      String includeSubjectDetail, String subjectAttributeNames, String memberFilter,
+      String memberFilter,
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
-      String fieldName, final String includeGroupDetail, String paramName0,
+      String fieldName, final String includeGroupDetail, 
+      String includeSubjectDetail, String subjectAttributeNames, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
 
     // setup the group lookup
@@ -2779,10 +2727,11 @@ public class GrouperService {
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
 
     WsHasMemberResults wsHasMemberResults = hasMember(clientVersion, wsGroupLookup,
-        subjectLookups, includeSubjectDetail, subjectAttributeArray, memberFilter,
-        actAsSubjectLookup, fieldName, includeGroupDetail, params);
+        subjectLookups, memberFilter,
+        actAsSubjectLookup, fieldName, includeGroupDetail, 
+        includeSubjectDetail, subjectAttributeArray, params);
 
-    return wsHasMemberResults;
+    return new WsHasMemberLiteResult(wsHasMemberResults);
   }
 
   /**

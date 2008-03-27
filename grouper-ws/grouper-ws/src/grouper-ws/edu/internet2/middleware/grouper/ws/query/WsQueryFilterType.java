@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsQueryFilterType.java,v 1.1 2008-03-24 20:19:50 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilterType.java,v 1.2 2008-03-27 20:39:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.queryFilter.GroupUuidFilter;
 import edu.internet2.middleware.grouper.queryFilter.GroupsInStemFilter;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * type of find group queries
@@ -370,21 +371,7 @@ public enum WsQueryFilterType {
    * @return the enum or null or exception if not found
    */
   public static WsQueryFilterType valueOfIgnoreCase(String string) {
-    if (StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (WsQueryFilterType wsQueryFilterType : WsQueryFilterType.values()) {
-      if (StringUtils.equalsIgnoreCase(string, wsQueryFilterType.name())) {
-        return wsQueryFilterType;
-      }
-    }
-    StringBuilder error = new StringBuilder("Cant find wsQueryFilterType from string: '")
-        .append(string);
-    error.append("', expecting one of: ");
-    for (WsQueryFilterType wsQueryFilterType : WsQueryFilterType.values()) {
-      error.append(wsQueryFilterType.name()).append(", ");
-    }
-    throw new RuntimeException(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(WsQueryFilterType.class, string, false);
   }
 
   /**

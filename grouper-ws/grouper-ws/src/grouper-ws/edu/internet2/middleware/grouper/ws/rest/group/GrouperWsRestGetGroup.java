@@ -1,11 +1,9 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGetGroup.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGetGroup.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
@@ -13,6 +11,7 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * all first level resources on a get request
@@ -37,15 +36,49 @@ public enum GrouperWsRestGetGroup {
         GrouperWsVersion clientVersion, String groupName, List<String> urlStrings,
         WsRequestBean requestObject) {
 
-      //make sure right type
-      WsRestGetMembersLiteRequest wsRestGetMembersLiteRequest = GrouperUtil.typeCast(
-          requestObject, WsRestGetMembersLiteRequest.class);
+      if (GrouperUtil.length(urlStrings) == 0 && (requestObject == null ||
+          requestObject instanceof WsRestGetMembersLiteRequest)) {
+        //make sure right type
+        WsRestGetMembersLiteRequest wsRestGetMembersLiteRequest = GrouperUtil.typeCast(
+            requestObject, WsRestGetMembersLiteRequest.class);
 
-      //url should be: /xhtml/v1_3_000/group/aStem:aGroup/members
-      return GrouperServiceRest.getMembersLite(
-          clientVersion, groupName,
-          wsRestGetMembersLiteRequest);
+        //url should be: /xhtml/v1_3_000/group/aStem:aGroup/members
+        return GrouperServiceRest.getMembersLite(
+            clientVersion, groupName,
+            wsRestGetMembersLiteRequest);
+        
+      }
+      
+      if (requestObject instanceof WsRestHasMemberRequest) {
 
+        //make sure right type
+        WsRestHasMemberRequest wsRestHasMemberRequest = GrouperUtil.typeCast(
+            requestObject, WsRestHasMemberRequest.class);
+
+        //url should be: /xhtml/v1_3_000/group/aStem:aGroup/members
+        return GrouperServiceRest.hasMember(
+            clientVersion, groupName,
+            wsRestHasMemberRequest);
+        
+      }
+      
+      //if the member id is on the end, then get that
+      String subjectId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, false, false);
+      String sourceId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, true, true);
+      
+      if (requestObject == null || requestObject instanceof WsRestHasMemberLiteRequest) {
+        //make sure right type
+        WsRestHasMemberLiteRequest wsRestHasMemberLiteRequest = GrouperUtil.typeCast(
+            requestObject, WsRestHasMemberLiteRequest.class);
+
+        //url should be: /xhtml/v1_3_000/group/aStem:aGroup/members
+        return GrouperServiceRest.hasMemberLite(
+            clientVersion, groupName, subjectId, sourceId,
+            wsRestHasMemberLiteRequest);
+      }
+      
+      throw new RuntimeException("Invalid REST GET Group request: " + clientVersion + " , " + groupName 
+          + ", " + GrouperUtil.toStringForLog(urlStrings));
     }
 
   };
@@ -74,21 +107,8 @@ public enum GrouperWsRestGetGroup {
    */
   public static GrouperWsRestGetGroup valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (GrouperWsRestGetGroup grouperWsRestGetGroup : GrouperWsRestGetGroup.values()) {
-      if (StringUtils.equalsIgnoreCase(string, grouperWsRestGetGroup.name())) {
-        return grouperWsRestGetGroup;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find GrouperWsRestGetGroup from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (GrouperWsRestGetGroup grouperWsRestGetGroup : GrouperWsRestGetGroup.values()) {
-      error.append(grouperWsRestGetGroup.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsRestGetGroup.class, 
+        string, exceptionOnNotFound);
   }
 
 }

@@ -293,6 +293,38 @@ Class GrouperServiceUtils</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;E extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Enum.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Enum</A>&lt;?&gt;&gt; 
+<BR>
+E</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#enumValueOfIgnoreCase(java.lang.Class, java.lang.String, boolean)">enumValueOfIgnoreCase</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Class</A>&lt;E&gt;&nbsp;theEnumClass,
+                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;string,
+                      boolean&nbsp;exceptionOnNotFound)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do a case-insensitive matching</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#extractSubjectIdFromUrlStrings(java.util.List, int, boolean, boolean)">extractSubjectIdFromUrlStrings</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/List.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">List</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&gt;&nbsp;urlStrings,
+                               int&nbsp;startIndex,
+                               boolean&nbsp;sourceIdOrSubjectId,
+                               boolean&nbsp;removeSubjectUrlStrings)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ from url strings, get the subjectId
+ e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#fieldName(edu.internet2.middleware.grouper.Field)">fieldName</A></B>(edu.internet2.middleware.grouper.Field&nbsp;field)</CODE>
 
@@ -364,6 +396,14 @@ Class GrouperServiceUtils</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pick one of the values which is not null or empty.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#popUrlString(java.util.List)">popUrlString</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/List.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">List</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&gt;&nbsp;urlStrings)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pop first url string, retrieve, and remove, or null if not there</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -447,6 +487,63 @@ public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/S
 <B>Method Detail</B></FONT></TH>
 </TR>
 </TABLE>
+
+<A NAME="enumValueOfIgnoreCase(java.lang.Class, java.lang.String, boolean)"><!-- --></A><H3>
+enumValueOfIgnoreCase</H3>
+<PRE>
+public static &lt;E extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Enum.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Enum</A>&lt;?&gt;&gt; E <B>enumValueOfIgnoreCase</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Class.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Class</A>&lt;E&gt;&nbsp;theEnumClass,
+                                                          <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;string,
+                                                          boolean&nbsp;exceptionOnNotFound)
+                                               throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperRestInvalidRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest">GrouperRestInvalidRequest</A></PRE>
+<DL>
+<DD>do a case-insensitive matching
+<P>
+<DD><DL>
+<DT><B>Type Parameters:</B><DD><CODE>E</CODE> - generic type<DT><B>Parameters:</B><DD><CODE>theEnumClass</CODE> - class of the enum<DD><CODE>string</CODE> - <DD><CODE>exceptionOnNotFound</CODE> - true if exception should be thrown on not found
+<DT><B>Returns:</B><DD>the enum or null or exception if not found
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperRestInvalidRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest">GrouperRestInvalidRequest</A></CODE> - if there is a problem</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="popUrlString(java.util.List)"><!-- --></A><H3>
+popUrlString</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>popUrlString</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/List.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">List</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&gt;&nbsp;urlStrings)</PRE>
+<DL>
+<DD>pop first url string, retrieve, and remove, or null if not there
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>urlStrings</CODE> - 
+<DT><B>Returns:</B><DD>the string or null if not there</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="extractSubjectIdFromUrlStrings(java.util.List, int, boolean, boolean)"><!-- --></A><H3>
+extractSubjectIdFromUrlStrings</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>extractSubjectIdFromUrlStrings</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/List.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">List</A>&lt;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&gt;&nbsp;urlStrings,
+                                                    int&nbsp;startIndex,
+                                                    boolean&nbsp;sourceIdOrSubjectId,
+                                                    boolean&nbsp;removeSubjectUrlStrings)</PRE>
+<DL>
+<DD><pre>
+ from url strings, get the subjectId
+ e.g. if the url is: /group/aStem:aGroup/members/123412345
+ then the index should be 3 (0 for group, 1 for group name, etc) 
+ 
+ if url is: /group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+ then index is still 3
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>urlStrings</CODE> - <DD><CODE>startIndex</CODE> - <DD><CODE>removeSubjectUrlStrings</CODE> - true to remove these url strings after getting data<DD><CODE>sourceIdOrSubjectId</CODE> - true to get sourceId, false to get subjectId
+<DT><B>Returns:</B><DD>the subjectId if it is found, null if not</DL>
+</DD>
+</DL>
+<HR>
 
 <A NAME="pickOne(java.lang.String, java.lang.String, boolean, java.lang.String)"><!-- --></A><H3>
 pickOne</H3>

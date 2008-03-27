@@ -10,6 +10,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
@@ -75,9 +76,15 @@ public class WsSampleDeleteMemberRestLite2 implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
+      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
+      
+      //see if problem
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
+      }
+
       //convert to object (from xhtml, xml, json, etc)
-      WsDeleteMemberLiteResult wsDeleteMemberLiteResult = (WsDeleteMemberLiteResult)wsSampleRestType
-        .getWsLiteResponseContentType().parseString(response);
+      WsDeleteMemberLiteResult wsDeleteMemberLiteResult = (WsDeleteMemberLiteResult)resultObject;
       
       String resultMessage = wsDeleteMemberLiteResult.getResultMetadata().getResultMessage();
 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestAddMemberLiteRequest.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
+ * $Id: WsRestAddMemberLiteRequest.java,v 1.3 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -28,14 +28,14 @@ public class WsRestAddMemberLiteRequest implements WsRequestBean {
   /** field */
   private String subjectId;
   /** field */
-  private String subjectSource;
+  private String subjectSourceId;
   
   /** field */
   private String subjectIdentifier;
   /** field */
   private String actAsSubjectId;
   /** field */
-  private String actAsSubjectSource;
+  private String actAsSubjectSourceId;
   
   /** field */
   private String actAsSubjectIdentifier;
@@ -123,16 +123,16 @@ public class WsRestAddMemberLiteRequest implements WsRequestBean {
    * 
    * @return field
    */
-  public String getSubjectSource() {
-    return this.subjectSource;
+  public String getSubjectSourceId() {
+    return this.subjectSourceId;
   }
   
   /**
    * 
    * @param subjectSource1
    */
-  public void setSubjectSource(String subjectSource1) {
-    this.subjectSource = subjectSource1;
+  public void setSubjectSourceId(String subjectSource1) {
+    this.subjectSourceId = subjectSource1;
   }
   
   /**
@@ -171,16 +171,16 @@ public class WsRestAddMemberLiteRequest implements WsRequestBean {
    * 
    * @return field
    */
-  public String getActAsSubjectSource() {
-    return this.actAsSubjectSource;
+  public String getActAsSubjectSourceId() {
+    return this.actAsSubjectSourceId;
   }
   
   /**
    * 
    * @param actAsSubjectSource1
    */
-  public void setActAsSubjectSource(String actAsSubjectSource1) {
-    this.actAsSubjectSource = actAsSubjectSource1;
+  public void setActAsSubjectSourceId(String actAsSubjectSource1) {
+    this.actAsSubjectSourceId = actAsSubjectSource1;
   }
   
   /**

@@ -63,10 +63,10 @@ public class WsSampleDeleteMemberLite implements WsSampleGenerated {
             deleteMemberLite.setSubjectId("10021368");
 
             WsDeleteMemberLiteResult wsDeleteMemberLiteResult = stub.deleteMemberLite(deleteMemberLite)
-                                                              .get_return();
+                                                                    .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                wsDeleteMemberLiteResult));
+                    wsDeleteMemberLiteResult));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

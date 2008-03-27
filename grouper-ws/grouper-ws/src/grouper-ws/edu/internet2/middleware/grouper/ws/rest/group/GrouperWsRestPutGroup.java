@@ -1,11 +1,9 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPutGroup.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPutGroup.java,v 1.3 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
@@ -13,6 +11,7 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * all first level resources on a put request
@@ -39,7 +38,7 @@ public enum GrouperWsRestPutGroup {
 
       //maybe putting all members (url strings size 3)
       //url should be: /v1_3_000/group/aStem:aGroup/members
-      if (urlStrings.size() == 3 && (!(requestObject instanceof WsRestAddMemberLiteRequest))) {
+      if (urlStrings.size() == 0 && (!(requestObject instanceof WsRestAddMemberLiteRequest))) {
         
         WsRestAddMemberRequest wsRestAddMembersRequest = GrouperUtil.typeCast(
             requestObject, WsRestAddMemberRequest.class);
@@ -53,18 +52,9 @@ public enum GrouperWsRestPutGroup {
           requestObject, WsRestAddMemberLiteRequest.class);
       
       //url should be: /v1_3_000/group/aStem:aGroup/members/123412345
-      //TODO make this generic
-      String subjectId = null;
-      String sourceId = null;
-      if (urlStrings.size() == 4) {
-        subjectId = urlStrings.get(3);
-      } else {
-        //url should be: /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
-        if (urlStrings.size() == 7) {
-          subjectId = urlStrings.get(6);
-          sourceId = urlStrings.get(4);
-        }
-      }
+      //or url should be: /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+      String subjectId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, false, false);
+      String sourceId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, true, true);
       
       return GrouperServiceRest.addMemberLite(clientVersion, groupName, subjectId, sourceId,
           wsRestAddMemberLiteRequest);
@@ -97,21 +87,8 @@ public enum GrouperWsRestPutGroup {
    */
   public static GrouperWsRestPutGroup valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (GrouperWsRestPutGroup grouperWsRestPutGroup : GrouperWsRestPutGroup.values()) {
-      if (StringUtils.equalsIgnoreCase(string, grouperWsRestPutGroup.name())) {
-        return grouperWsRestPutGroup;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find GrouperWsRestPutGroup from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (GrouperWsRestPutGroup grouperWsRestPutGroup : GrouperWsRestPutGroup.values()) {
-      error.append(grouperWsRestPutGroup.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsRestPutGroup.class, 
+        string, exceptionOnNotFound);
   }
 
 }

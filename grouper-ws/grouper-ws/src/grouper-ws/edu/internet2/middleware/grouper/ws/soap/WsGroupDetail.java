@@ -107,7 +107,8 @@ public class WsGroupDetail {
   @SuppressWarnings("unchecked")
   public WsGroupDetail(Group group) {
     if (group != null) {
-      this.setCreateSource(group.getCreateSource());
+      //this group method isnt implemented, so dont send in web service
+      //this.setCreateSourceId(group.getCreateSource());
       String createSubjectIdString = null;
       try {
         Subject createSubject = group.getCreateSubject();
@@ -190,11 +191,6 @@ public class WsGroupDetail {
   }
 
   /**
-   * Get (optional and questionable) create source for this group.
-   */
-  private String createSource;
-
-  /**
    * id of the subject that created this group
    */
   private String createSubjectId;
@@ -228,25 +224,6 @@ public class WsGroupDetail {
    * Get last modified time for this group. yyyy/mm/dd hh24:mi:ss.SSS
    */
   private String modifyTime;
-
-  /**
-   * Get (optional and questionable) create source for this group.
-   * 
-   * @return the createSource
-   */
-  public String getCreateSource() {
-    return this.createSource;
-  }
-
-  /**
-   * Get (optional and questionable) create source for this group.
-   * 
-   * @param createSource1
-   *            the createSource to set
-   */
-  public void setCreateSource(String createSource1) {
-    this.createSource = createSource1;
-  }
 
   /**
    * id of the subject that created this group

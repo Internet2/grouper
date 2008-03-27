@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.3 2008-03-27 20:39:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -16,6 +16,8 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
@@ -37,6 +39,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsMembership;
@@ -114,7 +117,10 @@ public class WsRestClassLookup {
     addAliasClass(WsRestDeleteMemberLiteRequest.class);
     addAliasClass(WsRestDeleteMemberRequest.class);
     addAliasClass(WsDeleteMemberLiteResult.class);
-    
+    addAliasClass(WsRestHasMemberLiteRequest.class);
+    addAliasClass(WsRestHasMemberRequest.class);
+    addAliasClass(WsHasMemberLiteResult.class);
+
   }
   
   /**

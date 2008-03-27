@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.3 2008-03-26 07:39:11 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.4 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -495,9 +495,6 @@ public class GrouperServiceLogic {
       GrouperSession.stopQuietly(session);
     }
   
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsDeleteMemberResults.getResultMetadata());
-  
     //this should be the first and only return, or else it is exiting too early
     return wsDeleteMemberResults;
   }
@@ -586,7 +583,7 @@ public class GrouperServiceLogic {
    * @return the groups, or no groups if none found
    */
   @SuppressWarnings("unchecked")
-  public static WsFindGroupsResults findGroups(final String clientVersion,
+  public static WsFindGroupsResults findGroups(final GrouperWsVersion clientVersion,
       WsQueryFilter wsQueryFilter, boolean includeGroupDetail,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
   
@@ -630,9 +627,6 @@ public class GrouperServiceLogic {
     } finally {
       GrouperSession.stopQuietly(session);
     }
-  
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsFindGroupsResults.getResultMetadata());
   
     return wsFindGroupsResults;
   }
@@ -681,7 +675,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the groups, or no groups if none found
    */
-  public static WsFindGroupsResults findGroupsLite(final String clientVersion,
+  public static WsFindGroupsResults findGroupsLite(final GrouperWsVersion clientVersion,
       String queryFilterType, String groupName, String stemName, String stemNameScope,
       String groupUuid, String groupAttributeName, String groupAttributeValue,
       String theType, String actAsSubjectId, String actAsSubjectSourceId,
@@ -722,7 +716,7 @@ public class GrouperServiceLogic {
    * @return the stems, or no stems if none found
    */
   @SuppressWarnings("unchecked")
-  public static WsFindStemsResults findStems(final String clientVersion,
+  public static WsFindStemsResults findStems(final GrouperWsVersion clientVersion,
       WsStemQueryFilter wsStemQueryFilter, WsSubjectLookup actAsSubjectLookup,
       WsParam[] params) {
   
@@ -765,9 +759,6 @@ public class GrouperServiceLogic {
     } finally {
       GrouperSession.stopQuietly(session);
     }
-  
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsFindStemsResults.getResultMetadata());
   
     return wsFindStemsResults;
   }
@@ -815,7 +806,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the stems, or no stems if none found
    */
-  public static WsFindStemsResults findStemsLite(final String clientVersion,
+  public static WsFindStemsResults findStemsLite(final GrouperWsVersion clientVersion,
       String stemQueryFilterType, String stemName, String parentStemName,
       String parentStemNameScope, String stemUuid, String stemAttributeName,
       String stemAttributeValue, String theType, String actAsSubjectId,
@@ -863,8 +854,8 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsGetGroupsResults getGroups(final String clientVersion,
-      WsSubjectLookup subjectLookup, String memberFilter, boolean includeGroupDetail,
+  public static WsGetGroupsResults getGroups(final GrouperWsVersion clientVersion,
+      WsSubjectLookup subjectLookup, WsMemberFilter memberFilter, boolean includeGroupDetail,
       WsSubjectLookup actAsSubjectLookup, WsParam[] params) {
   
     final WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
@@ -886,14 +877,11 @@ public class GrouperServiceLogic {
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
   
-      WsMemberFilter wsMemberFilter = GrouperServiceUtils
-          .convertMemberFilter(memberFilter);
-  
       Subject subject = subjectLookup.retrieveSubject("subjectLookup");
   
       Member member = GrouperServiceUtils.convertSubjectToMember(session, subject);
   
-      Set<Group> groups = wsMemberFilter.getGroups(member);
+      Set<Group> groups = memberFilter.getGroups(member);
       int groupsSize = groups.size();
       if (groupsSize == 0) {
         // no groups, just return
@@ -912,9 +900,6 @@ public class GrouperServiceLogic {
     } finally {
       GrouperSession.stopQuietly(session);
     }
-  
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetGroupsResults.getResultMetadata());
   
     return wsGetGroupsResults;
   
@@ -956,8 +941,8 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsGetGroupsResults getGroupsLite(final String clientVersion, String subjectId,
-      String subjectSourceId, String subjectIdentifier, String memberFilter,
+  public static WsGetGroupsResults getGroupsLite(final GrouperWsVersion clientVersion, String subjectId,
+      String subjectSourceId, String subjectIdentifier, WsMemberFilter memberFilter,
       boolean includeGroupDetail, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
@@ -998,8 +983,8 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsGetMembersResults getMembers(final String clientVersion,
-      WsGroupLookup wsGroupLookup, String memberFilter,
+  public static WsGetMembersResults getMembers(final GrouperWsVersion clientVersion,
+      WsGroupLookup wsGroupLookup, WsMemberFilter memberFilter,
       WsSubjectLookup actAsSubjectLookup, final Field fieldName,
       boolean includeSubjectDetail, String[] subjectAttributeNames,
       boolean includeGroupDetail, WsParam[] params) {
@@ -1031,14 +1016,11 @@ public class GrouperServiceLogic {
       //assign the group to the result to be descriptive
       wsGetMembersResults.setWsGroup(new WsGroup(group, includeGroupDetail));
   
-      WsMemberFilter wsMemberFilter = GrouperServiceUtils
-          .convertMemberFilter(memberFilter);
-  
       String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
           .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
   
       // lets get the members, cant be null
-      Set<Member> members = wsMemberFilter.getMembers(group, fieldName);
+      Set<Member> members = memberFilter.getMembers(group, fieldName);
   
       wsGetMembersResults.assignSubjectResult(members, subjectAttributeNamesToRetrieve);
   
@@ -1050,9 +1032,6 @@ public class GrouperServiceLogic {
     } finally {
       GrouperSession.stopQuietly(session);
     }
-  
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetMembersResults.getResultMetadata());
   
     return wsGetMembersResults;
   }
@@ -1078,7 +1057,7 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsGetMembershipsResults getMemberships(final String clientVersion,
+  public static WsGetMembershipsResults getMemberships(final GrouperWsVersion clientVersion,
       WsGroupLookup wsGroupLookup, String membershipFilter,
       WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
       String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params) {
@@ -1131,9 +1110,6 @@ public class GrouperServiceLogic {
       GrouperSession.stopQuietly(session);
     }
   
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetMembershipsResults.getResultMetadata());
-  
     return wsGetMembershipsResults;
   
   }
@@ -1178,7 +1154,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the memberships, or none if none found
    */
-  public static WsGetMembershipsResults getMembershipsLite(final String clientVersion,
+  public static WsGetMembershipsResults getMembershipsLite(final GrouperWsVersion clientVersion,
       String groupName, String groupUuid, String membershipFilter,
       boolean includeSubjectDetail, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, Field fieldName, String subjectAttributeNames,
@@ -1243,8 +1219,8 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the members, or no members if none found
    */
-  public static WsGetMembersResults getMembersLite(final String clientVersion,
-      String groupName, String groupUuid, String memberFilter, String actAsSubjectId,
+  public static WsGetMembersResults getMembersLite(final GrouperWsVersion clientVersion,
+      String groupName, String groupUuid, WsMemberFilter memberFilter, String actAsSubjectId,
       String actAsSubjectSourceId, String actAsSubjectIdentifier, final Field fieldName,
       boolean includeSubjectDetail, String subjectAttributeNames,
       boolean includeGroupDetail, String paramName0, String paramValue0,
@@ -1283,7 +1259,7 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsGroupDeleteResults groupDelete(final String clientVersion,
+  public static WsGroupDeleteResults groupDelete(final GrouperWsVersion clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       final GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
   
@@ -1385,9 +1361,6 @@ public class GrouperServiceLogic {
       GrouperSession.stopQuietly(session);
     }
   
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGroupDeleteResults.getResultMetadata());
-  
     //this should be the first and only return, or else it is exiting too early
     return wsGroupDeleteResults;
   
@@ -1422,7 +1395,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsGroupDeleteResults groupDeleteLite(final String clientVersion,
+  public static WsGroupDeleteResults groupDeleteLite(final GrouperWsVersion clientVersion,
       String groupName, String groupUuid, String actAsSubjectId,
       String actAsSubjectSourceId, String actAsSubjectIdentifier,
       final boolean includeGroupDetail, String paramName0, String paramValue0,
@@ -1457,7 +1430,7 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsGroupSaveResults groupSave(final String clientVersion,
+  public static WsGroupSaveResults groupSave(final GrouperWsVersion clientVersion,
       final WsGroupToSave[] wsGroupsToSave, final WsSubjectLookup actAsSubjectLookup,
       final GrouperTransactionType txType, final WsParam[] params) {
   
@@ -1657,7 +1630,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsGroupSaveResults groupSaveLite(final String clientVersion, String groupName,
+  public static WsGroupSaveResults groupSaveLite(final GrouperWsVersion clientVersion, String groupName,
       String groupUuid, String description, String displayExtension, String saveMode,
       String createStemsIfNotExist, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
@@ -1708,11 +1681,11 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsHasMemberResults hasMember(final String clientVersion,
+  public static WsHasMemberResults hasMember(final GrouperWsVersion clientVersion,
       WsGroupLookup wsGroupLookup, WsSubjectLookup[] subjectLookups,
-      boolean includeSubjectDetail, String[] subjectAttributeNames, String memberFilter,
+      WsMemberFilter memberFilter,
       WsSubjectLookup actAsSubjectLookup, Field fieldName,
-      final boolean includeGroupDetail, WsParam[] params) {
+      final boolean includeGroupDetail, boolean includeSubjectDetail, String[] subjectAttributeNames, WsParam[] params) {
   
     WsHasMemberResults wsHasMemberResults = new WsHasMemberResults();
   
@@ -1723,11 +1696,13 @@ public class GrouperServiceLogic {
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookup: "
           + wsGroupLookup + ", subjectLookups: "
           + GrouperUtil.toStringForLog(subjectLookups, 200)
-          + "\n, includeSubjectDetail: " + includeSubjectDetail
-          + ", subjectAttributeNames: "
-          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, memberFilter: "
+          + "\n memberFilter: "
           + memberFilter + ", actAsSubject: " + actAsSubjectLookup + ", fieldName: "
-          + fieldName + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n";
+          + fieldName + ", includeGroupDetail: " + includeGroupDetail 
+          + ", includeSubjectDetail: " + includeSubjectDetail
+          + ", subjectAttributeNames: "
+          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n," +
+          		"params: " + GrouperUtil.toStringForLog(params, 100) + "\n";
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -1741,9 +1716,6 @@ public class GrouperServiceLogic {
   
       //assign the group to the result to be descriptive
       wsHasMemberResults.setWsGroup(new WsGroup(group, includeGroupDetail));
-  
-      WsMemberFilter wsMemberFilter = GrouperServiceUtils
-          .convertMemberFilter(memberFilter);
   
       String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
           .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
@@ -1768,7 +1740,7 @@ public class GrouperServiceLogic {
             continue;
           }
   
-          boolean hasMember = wsMemberFilter.hasMember(group, wsSubjectLookup
+          boolean hasMember = memberFilter.hasMember(group, wsSubjectLookup
               .retrieveSubject(), fieldName);
           wsHasMemberResult.assignResultCode(hasMember ? WsHasMemberResultCode.IS_MEMBER
               : WsHasMemberResultCode.IS_NOT_MEMBER);
@@ -1786,9 +1758,6 @@ public class GrouperServiceLogic {
     } finally {
       GrouperSession.stopQuietly(session);
     }
-  
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsHasMemberResults.getResultMetadata());
   
     return wsHasMemberResults;
   
@@ -1841,11 +1810,12 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member query
    */
-  public static WsHasMemberResults hasMemberLite(final String clientVersion, String groupName,
+  public static WsHasMemberResults hasMemberLite(final GrouperWsVersion clientVersion, String groupName,
       String groupUuid, String subjectId, String subjectSourceId, String subjectIdentifier,
-      boolean includeSubjectDetail, String subjectAttributeNames, String memberFilter,
+      WsMemberFilter memberFilter,
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
-      Field fieldName, final boolean includeGroupDetail, String paramName0,
+      Field fieldName, final boolean includeGroupDetail, boolean includeSubjectDetail, String subjectAttributeNames, 
+      String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
   
     // setup the group lookup
@@ -1862,8 +1832,9 @@ public class GrouperServiceLogic {
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
     WsHasMemberResults wsHasMemberResults = hasMember(clientVersion, wsGroupLookup,
-        subjectLookups, includeSubjectDetail, subjectAttributeArray, memberFilter,
-        actAsSubjectLookup, fieldName, includeGroupDetail, params);
+        subjectLookups, memberFilter,
+        actAsSubjectLookup, fieldName, includeGroupDetail, 
+        includeSubjectDetail, subjectAttributeArray, params);
   
     return wsHasMemberResults;
   }
@@ -1883,7 +1854,7 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsStemDeleteResults stemDelete(final String clientVersion,
+  public static WsStemDeleteResults stemDelete(final GrouperWsVersion clientVersion,
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       final GrouperTransactionType txType, final WsParam[] params) {
   
@@ -1977,9 +1948,6 @@ public class GrouperServiceLogic {
       GrouperSession.stopQuietly(session);
     }
   
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsStemDeleteResults.getResultMetadata());
-  
     //this should be the first and only return, or else it is exiting too early
     return wsStemDeleteResults;
   
@@ -2013,7 +1981,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsStemDeleteResults stemDeleteLite(final String clientVersion,
+  public static WsStemDeleteResults stemDeleteLite(final GrouperWsVersion clientVersion,
       String stemName, String stemUuid, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
@@ -2047,7 +2015,7 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsStemSaveResults stemSave(final String clientVersion,
+  public static WsStemSaveResults stemSave(final GrouperWsVersion clientVersion,
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       final GrouperTransactionType txType, final WsParam[] params) {
   
@@ -2123,9 +2091,6 @@ public class GrouperServiceLogic {
       GrouperSession.stopQuietly(session);
     }
   
-    //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsStemSaveResults.getResultMetadata());
-  
     //this should be the first and only return, or else it is exiting too early
     return wsStemSaveResults;
   }
@@ -2164,7 +2129,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsStemSaveResults stemSaveLite(final String clientVersion,
+  public static WsStemSaveResults stemSaveLite(final GrouperWsVersion clientVersion,
       String stemLookupUuid, String stemLookupName, String stemName, String stemUuid,
       String description, String displayExtension, String saveMode,
       String createStemsIfNotExist, String actAsSubjectId, String actAsSubjectSourceId,
@@ -2216,7 +2181,7 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsViewOrEditAttributesResults viewOrEditAttributes(final String clientVersion,
+  public static WsViewOrEditAttributesResults viewOrEditAttributes(final GrouperWsVersion clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsAttributeEdit[] wsAttributeEdits,
       final WsSubjectLookup actAsSubjectLookup, final GrouperTransactionType txType,
       final WsParam[] params) {
@@ -2484,7 +2449,7 @@ public class GrouperServiceLogic {
    * @return the result of one member add
    */
   public static WsViewOrEditAttributesResults viewOrEditAttributesLite(
-      final String clientVersion, String groupName, String groupUuid,
+      final GrouperWsVersion clientVersion, String groupName, String groupUuid,
       String attributeName0, String attributeValue0, String attributeDelete0,
       String attributeName1, String attributeValue1, String attributeDelete1,
       String attributeName2, String attributeValue2, String attributeDelete2,
@@ -2546,7 +2511,7 @@ public class GrouperServiceLogic {
    * @return the results
    */
   @SuppressWarnings("unchecked")
-  public static WsViewOrEditPrivilegesResults viewOrEditPrivileges(final String clientVersion,
+  public static WsViewOrEditPrivilegesResults viewOrEditPrivileges(final GrouperWsVersion clientVersion,
       final WsPrivilege[] privileges, final WsSubjectLookup actAsSubjectLookup,
       final GrouperTransactionType txType, final WsParam[] params) {
   
@@ -2696,9 +2661,6 @@ public class GrouperServiceLogic {
     //      GrouperSession.stopQuietly(session);
     //    }
     //
-    //    //set response headers
-    //    GrouperServiceUtils.addResponseHeaders(wsViewOrEditPrivilegesResults.getResultMetadata().getSuccess(),
-    //        wsViewOrEditPrivilegesResults.getResultMetadata().getResultCode());
     //
     //    //this should be the first and only return, or else it is exiting too early
     //    return wsViewOrEditPrivilegesResults;
@@ -3041,7 +3003,7 @@ public class GrouperServiceLogic {
    * @return the result of one member add
    */
   public static WsViewOrEditPrivilegesResults viewOrEditPrivilegesLite(
-      final String clientVersion, String groupName, String groupUuid, String subjectId,
+      final GrouperWsVersion clientVersion, String groupName, String groupUuid, String subjectId,
       String subjectSourceId, String subjectIdentifier, String adminAllowed,
       String optinAllowed, String optoutAllowed, String readAllowed,
       String updateAllowed, String viewAllowed, String actAsSubjectId,

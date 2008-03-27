@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsStemQueryFilterType.java,v 1.1 2008-03-24 20:19:48 mchyzer Exp $
+ * @author mchyzer $Id: WsStemQueryFilterType.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -19,6 +19,8 @@ import edu.internet2.middleware.grouper.queryFilter.StemUuidFilter;
 import edu.internet2.middleware.grouper.queryFilter.StemsInStemFilter;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
+import edu.internet2.middleware.grouper.ws.rest.method.GrouperWsRestPut;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * type of find group queries
@@ -335,21 +337,8 @@ public enum WsStemQueryFilterType {
    * @return the enum or null or exception if not found
    */
   public static WsStemQueryFilterType valueOfIgnoreCase(String string) {
-    if (StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (WsStemQueryFilterType wsStemQueryFilterType : WsStemQueryFilterType.values()) {
-      if (StringUtils.equalsIgnoreCase(string, wsStemQueryFilterType.name())) {
-        return wsStemQueryFilterType;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find wsStemQueryFilterType from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (WsStemQueryFilterType wsStemQueryFilterType : WsStemQueryFilterType.values()) {
-      error.append(wsStemQueryFilterType.name()).append(", ");
-    }
-    throw new RuntimeException(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(WsStemQueryFilterType.class, 
+        string, false);
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.3 2008-03-26 07:39:11 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.4 2008-03-27 20:39:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -22,6 +22,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMember;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMemberLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRestLite;
@@ -29,6 +31,9 @@ import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRestLit
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSample;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleClientType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -55,6 +60,7 @@ public class SampleCapture {
     
     captureAddMember();
     captureDeleteMember();
+    captureHasMember();
   }
 
   /** certain data has to exist for samples to run */
@@ -105,15 +111,32 @@ public class SampleCapture {
    */
   public static void captureDeleteMember() {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleDeleteMember.class, "addMember", (String)null);
+        WsSampleDeleteMember.class, "deleteMember", (String)null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleDeleteMemberLite.class, "addMember", null);
+        WsSampleDeleteMemberLite.class, "deleteMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleDeleteMemberRest.class, "deleteMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleDeleteMemberRestLite.class, "deleteMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleDeleteMemberRestLite2.class, "deleteMember", "_withInput");
+    
+  }
+  
+  /**
+   * all add member captures
+   */
+  public static void captureHasMember() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleHasMember.class, "hasMember", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleHasMemberLite.class, "hasMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleHasMemberRest.class, "hasMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleHasMemberRestLite.class, "hasMember", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleHasMemberRestLite2.class, "hasMember", "_withInput");
     
   }
   

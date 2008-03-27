@@ -33,17 +33,11 @@ public class WsMembership {
     /** found the stem (or not) */
     SUCCESS,
 
-    /** member not found */
-    MEMBER_NOT_FOUND,
-
     /** cant find subject */
     SUBJECT_NOT_FOUND,
 
     /** duplicate subject records found */
     SUBJECT_DUPLICATE,
-
-    /** source was unavailable */
-    SOURCE_UNAVAILABLE,
 
     /** subject is in member table, but cant be found from subject source */
     UNRESOLVABLE;

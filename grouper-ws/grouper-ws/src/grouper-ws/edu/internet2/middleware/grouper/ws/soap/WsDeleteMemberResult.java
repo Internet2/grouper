@@ -44,7 +44,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -66,7 +66,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -88,7 +88,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -110,7 +110,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -132,7 +132,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -154,7 +154,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -176,7 +176,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -198,7 +198,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -221,7 +221,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -244,7 +244,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {
@@ -267,7 +267,7 @@ public class WsDeleteMemberResult {
 
       /** 
        * if there is one result, convert to the results code
-       * @return WsAddMemberResultsCode
+       * @return WsDeleteMemberLiteResultCode
        */
       @Override
       public WsDeleteMemberLiteResultCode convertToLiteCode() {

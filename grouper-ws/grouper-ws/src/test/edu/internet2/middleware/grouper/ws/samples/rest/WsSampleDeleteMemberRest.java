@@ -10,6 +10,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
@@ -23,10 +24,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleDeleteMemberRest implements WsSampleRest {
 
   /**
-   * add member simple web service with REST
+   * delete member simple web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void addMemberLite(WsSampleRestType wsSampleRestType) {
+  public static void deleteMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -56,7 +57,7 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
       WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
       deleteMember.setActAsSubjectLookup(actAsSubject);
 
-      // add two subjects to the group
+      // delete two subjects from the group
       WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
       subjectLookups[0] = new WsSubjectLookup("10021368", null, null);
 
@@ -85,9 +86,15 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
+      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
+      
+      //see if problem
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
+      }
+
       //convert to object (from xhtml, xml, json, etc)
-      WsDeleteMemberResults wsDeleteMemberResults = (WsDeleteMemberResults)wsSampleRestType
-        .getWsLiteResponseContentType().parseString(response);
+      WsDeleteMemberResults wsDeleteMemberResults = (WsDeleteMemberResults)resultObject;
       
       String resultMessage = wsDeleteMemberResults.getResultMetadata().getResultMessage();
 
@@ -112,14 +119,14 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    deleteMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    addMemberLite(wsSampleRestType);
+    deleteMemberLite(wsSampleRestType);
   }
 
   /**

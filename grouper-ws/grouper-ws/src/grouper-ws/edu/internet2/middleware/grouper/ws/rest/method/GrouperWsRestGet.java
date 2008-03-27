@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGet.java,v 1.1 2008-03-25 05:15:10 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGet.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.GrouperWsRestGetGroup;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * all first level resources on a get request
@@ -37,17 +38,8 @@ public enum GrouperWsRestGet {
         WsRequestBean requestObject) {
 
       //url should be: /xhtml/v1_3_000/group/aStem:aGroup/members?subjectIdentifierRequested=pennkey
-      String groupName = null;
-      int urlStringsLength = GrouperUtil.length(urlStrings);
-
-      if (urlStringsLength > 1) {
-        groupName = urlStrings.get(1);
-      }
-      String operation = null;
-
-      if (urlStringsLength > 2) {
-        operation = urlStrings.get(2);
-      }
+      String groupName = GrouperServiceUtils.popUrlString(urlStrings);
+      String operation = GrouperServiceUtils.popUrlString(urlStrings);
 
       //validate and get the operation
       GrouperWsRestGetGroup grouperWsRestGetGroup = GrouperWsRestGetGroup
@@ -80,21 +72,7 @@ public enum GrouperWsRestGet {
    */
   public static GrouperWsRestGet valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (GrouperWsRestGet grouperWsRestGet : GrouperWsRestGet.values()) {
-      if (StringUtils.equalsIgnoreCase(string, grouperWsRestGet.name())) {
-        return grouperWsRestGet;
-      }
-    }
-    StringBuilder error = new StringBuilder("Cant find grouperWsRestGet from string: '")
-        .append(string);
-    error.append("', expecting one of: ");
-    for (GrouperWsRestGet grouperWsRestGet : GrouperWsRestGet.values()) {
-      error.append(grouperWsRestGet.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperWsRestGet.class, 
+        string, exceptionOnNotFound);
   }
-
 }

@@ -5,8 +5,6 @@ package edu.internet2.middleware.grouper.ws.member;
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
@@ -14,6 +12,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -372,20 +371,6 @@ public enum WsMemberFilter {
    * @return the enum or null or exception if not found
    */
   public static WsMemberFilter valueOfIgnoreCase(String string) {
-    if (StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (WsMemberFilter wsMemberFilter : WsMemberFilter.values()) {
-      if (StringUtils.equalsIgnoreCase(string, wsMemberFilter.name())) {
-        return wsMemberFilter;
-      }
-    }
-    StringBuilder error = new StringBuilder("Cant find wsMemberFilter from string: '")
-        .append(string);
-    error.append("', expecting one of: ");
-    for (WsMemberFilter wsMemberFilter : WsMemberFilter.values()) {
-      error.append(wsMemberFilter.name()).append(", ");
-    }
-    throw new RuntimeException(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(WsMemberFilter.class, string, false);
   }
 }

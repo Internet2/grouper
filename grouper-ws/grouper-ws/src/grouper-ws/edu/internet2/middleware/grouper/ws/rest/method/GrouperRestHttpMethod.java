@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestHttpMethod.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestHttpMethod.java,v 1.3 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -12,6 +12,8 @@ import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.group.GrouperWsRestPutGroup;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * types of http methods accepted by grouper rest
@@ -34,13 +36,8 @@ public enum GrouperRestHttpMethod {
     public WsResponseBean service(
         GrouperWsVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
-      int urlStringsLength = GrouperUtil.length(urlStrings);
 
-      //skip the request/response type, and the version
-      String firstResource = null;
-      if (urlStringsLength > 0) {
-        firstResource = urlStrings.get(0);
-      }
+      String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
 
       //validate and get the first resource
       GrouperWsRestGet grouperWsRestGet = GrouperWsRestGet.valueOfIgnoreCase(
@@ -87,14 +84,8 @@ public enum GrouperRestHttpMethod {
         GrouperWsVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
       
-      int urlStringsLength = GrouperUtil.length(urlStrings);
-
-      //skip the request/response type, and the version
-      String firstResource = null;
-      if (urlStringsLength > 0) {
-        firstResource = urlStrings.get(0);
-      }
-
+      String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
+      
       //validate and get the first resource
       GrouperWsRestPut grouperWsRestPut = GrouperWsRestPut.valueOfIgnoreCase(
           firstResource, true);
@@ -120,13 +111,8 @@ public enum GrouperRestHttpMethod {
     public WsResponseBean service(
         GrouperWsVersion clientVersion, List<String> urlStrings,
         WsRequestBean requestObject) {
-      int urlStringsLength = GrouperUtil.length(urlStrings);
 
-      //skip the request/response type, and the version
-      String firstResource = null;
-      if (urlStringsLength > 0) {
-        firstResource = urlStrings.get(0);
-      }
+      String firstResource = GrouperServiceUtils.popUrlString(urlStrings);
 
       //validate and get the first resource
       GrouperWsRestDelete grouperWsRestDelete = GrouperWsRestDelete.valueOfIgnoreCase(
@@ -159,20 +145,7 @@ public enum GrouperRestHttpMethod {
    */
   public static GrouperRestHttpMethod valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (GrouperRestHttpMethod grouperRestHttpMethod : GrouperRestHttpMethod.values()) {
-      if (StringUtils.equalsIgnoreCase(string, grouperRestHttpMethod.name())) {
-        return grouperRestHttpMethod;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find grouperLiteHttpMethod from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (GrouperRestHttpMethod grouperLiteHttpMethod : GrouperRestHttpMethod.values()) {
-      error.append(grouperLiteHttpMethod.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(GrouperRestHttpMethod.class, 
+        string, exceptionOnNotFound);
   }
 }

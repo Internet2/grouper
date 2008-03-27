@@ -47,7 +47,8 @@ public class WsSubjectLookup {
        */
       @Override
       public WsHasMemberResultCode convertToHasMemberResultCode() {
-        return WsHasMemberResultCode.SUCCESS;
+        //shouldnt be converting success
+        throw new RuntimeException("Shouldnt be converting success...");
       }
     },
 
@@ -95,7 +96,7 @@ public class WsSubjectLookup {
        */
       @Override
       public WsHasMemberResultCode convertToHasMemberResultCode() {
-        return WsHasMemberResultCode.SOURCE_UNAVAILABLE;
+        return WsHasMemberResultCode.EXCEPTION;
       }
     };
 

@@ -1,11 +1,13 @@
 /*
- * @author mchyzer $Id: StemScope.java,v 1.1 2008-03-24 20:19:50 mchyzer Exp $
+ * @author mchyzer $Id: StemScope.java,v 1.2 2008-03-27 20:39:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * scope of groups under a stem.  either all or just one level (immediate)
@@ -45,21 +47,7 @@ public enum StemScope {
    * @return the enum or null or exception if not found
    */
   public static StemScope valueOfIgnoreCase(String string) {
-    if (StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (StemScope stemScope : StemScope.values()) {
-      if (StringUtils.equalsIgnoreCase(string, stemScope.name())) {
-        return stemScope;
-      }
-    }
-    StringBuilder error = new StringBuilder("Cant find sctemScope from string: '")
-        .append(string);
-    error.append("', expecting one of: ");
-    for (StemScope stemScope : StemScope.values()) {
-      error.append(stemScope.name()).append(", ");
-    }
-    throw new RuntimeException(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(StemScope.class, string, false);
   }
 
   /**

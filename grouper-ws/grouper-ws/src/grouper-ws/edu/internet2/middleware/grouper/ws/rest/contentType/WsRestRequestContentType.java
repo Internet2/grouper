@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestRequestContentType.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
+ * @author mchyzer $Id: WsRestRequestContentType.java,v 1.3 2008-03-27 20:39:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -313,23 +313,7 @@ public enum WsRestRequestContentType {
    */
   public static WsRestRequestContentType valueOfIgnoreCase(String string,
       boolean exceptionOnNotFound) throws GrouperRestInvalidRequest {
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (WsRestRequestContentType wsRestRequestContentType : WsRestRequestContentType
-        .values()) {
-      if (StringUtils.equalsIgnoreCase(string, wsRestRequestContentType.name())) {
-        return wsRestRequestContentType;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find wsLiteRequestContentType from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (WsRestRequestContentType wsLiteRequestContentType : WsRestRequestContentType
-        .values()) {
-      error.append(wsLiteRequestContentType.name()).append(", ");
-    }
-    throw new GrouperRestInvalidRequest(error.toString());
+    return GrouperServiceUtils.enumValueOfIgnoreCase(WsRestRequestContentType.class, string, exceptionOnNotFound);
   }
 
 }
