@@ -35,7 +35,7 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/group/aStem%3AaGroup/members/10021368");
+            + "/groups/aStem%3AaGroup/members/10021368");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 

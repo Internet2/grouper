@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestDeleteGroup.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestDeleteGroup.java,v 1.3 2008-03-28 16:45:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -55,8 +55,8 @@ public enum GrouperWsRestDeleteGroup {
           requestObject, WsRestDeleteMemberLiteRequest.class);
       
       //url should be: /v1_3_000/group/aStem:aGroup/members/123412345
-      String subjectId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, false, false);
-      String sourceId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, true, true);
+      String subjectId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, false, false);
+      String sourceId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, true, true);
 
       return GrouperServiceRest.deleteMemberLite(clientVersion, groupName, subjectId, sourceId,
           wsRestDeleteMemberLiteRequest);

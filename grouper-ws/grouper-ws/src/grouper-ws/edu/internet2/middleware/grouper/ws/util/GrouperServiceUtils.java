@@ -121,14 +121,14 @@ public final class GrouperServiceUtils {
    * @param sourceIdOrSubjectId true to get sourceId, false to get subjectId
    * @return the subjectId if it is found, null if not
    */
-  public static String extractSubjectIdFromUrlStrings(List<String> urlStrings, int startIndex, boolean sourceIdOrSubjectId,
+  public static String extractSubjectInfoFromUrlStrings(List<String> urlStrings, int startIndex, boolean sourceIdOrSubjectId,
       boolean removeSubjectUrlStrings) {
     String subjectId = null;
     String sourceId = null;
       
-    //url should be: /group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
-    if (urlStrings.size() == startIndex + 4 
-        && StringUtils.equalsIgnoreCase("sourceId", urlStrings.get(startIndex))
+    //url should be: /groups/aStem:aGroup/members/sourceIds/someSource/subjectIds/123412345
+    if (urlStrings.size() >= startIndex + 4 
+        && StringUtils.equalsIgnoreCase("sources", urlStrings.get(startIndex))
         && StringUtils.equalsIgnoreCase("subjectId", urlStrings.get(startIndex+2))) {
       subjectId = urlStrings.get(startIndex + 3);
       sourceId = urlStrings.get(startIndex + 1);
@@ -143,8 +143,8 @@ public final class GrouperServiceUtils {
       return sourceIdOrSubjectId ? sourceId : subjectId;
     }
   
-    // /group/aStem:aGroup/members/123412345
-    if (urlStrings.size() == startIndex + 1) {
+    // /groups/aStem:aGroup/members/123412345
+    if (urlStrings.size() >= startIndex + 1) {
       subjectId = urlStrings.get(startIndex);
       if (removeSubjectUrlStrings) {
         urlStrings.remove(startIndex);

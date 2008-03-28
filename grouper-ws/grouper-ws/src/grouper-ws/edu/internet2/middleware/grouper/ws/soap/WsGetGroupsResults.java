@@ -1,61 +1,55 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.MemberNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * <pre>
- * results for the add member call.
+ * results for the get groups call.
  * 
  * result code:
  * code of the result for this group overall
  * SUCCESS: means everything ok
- * SUBJECT_NOT_FOUND: cant find the subject
- * SUBJECT_DUPLICATE: found multiple groups
- * EXCEPTION
+ * EXCEPTION: something bad happened
+ * etc.
  * </pre>
+ * 
  * @author mchyzer
  */
 public class WsGetGroupsResults implements WsResponseBean {
-
-  /** logger */
-  private static final Log LOG = LogFactory.getLog(WsGetGroupsResults.class);
 
   /**
    * result code of a request
    */
   public enum WsGetGroupsResultsCode implements WsResultCode {
 
-    /** found the subject (lite http status code 200) (success: T) */
-    SUCCESS(200),
+    /** found the subject (rest http status code 201) (success: T) */
+    SUCCESS(201),
 
-    /** problem (lite http status code 500) (success: F) */
+    /** found the subject (rest http status code 500) (success: F) */
     EXCEPTION(500),
 
-    /** problem (lite http status code 400) (success: F) */
-    INVALID_QUERY(400),
+    /** problem deleting existing members (rest http status code 500) (success: F) */
+    PROBLEM_RETRIEVING_GROUPS(500),
 
-    /** couldnt find the member to query (lite http status code 404) (success: F) */
-    MEMBER_NOT_FOUND(404),
+    /** invalid query (e.g. if everything blank) (rest http status code 400) (success: F) */
+    INVALID_QUERY(400);
 
-    /** couldnt find the subject to query (lite http status code 404) (success: F) */
-    SUBJECT_NOT_FOUND(404),
-
-    /** problem querying the subject, was duplicate (lite http status code 409) (success: F) */
-    SUBJECT_DUPLICATE(409);
+    /**
+     * if this is a successful result
+     * 
+     * @return true if success
+     */
+    public boolean isSuccess() {
+      return this == SUCCESS;
+    }
 
     /** http status code for rest/lite e.g. 200 */
     private int httpStatusCode;
@@ -74,27 +68,20 @@ public class WsGetGroupsResults implements WsResponseBean {
     public int getHttpStatusCode() {
       return this.httpStatusCode;
     }
-
-    /**
-     * if this is a successful result
-     * @return true if success
-     */
-    public boolean isSuccess() {
-      return this == SUCCESS;
-    }
-
   }
 
   /**
    * assign the code from the enum
-   * @param wsGetGroupsResultsCode
+   * 
+   * @param getGroupsResultsCode
    */
-  public void assignResultCode(WsGetGroupsResultsCode wsGetGroupsResultsCode) {
-    this.getResultMetadata().assignResultCode(wsGetGroupsResultsCode);
+  public void assignResultCode(WsGetGroupsResultsCode getGroupsResultsCode) {
+    this.getResultMetadata().assignResultCode(getGroupsResultsCode);
   }
 
   /**
    * convert the result code back to enum
+   * 
    * @return the enum code
    */
   public WsGetGroupsResultsCode retrieveResultCode() {
@@ -107,38 +94,14 @@ public class WsGetGroupsResults implements WsResponseBean {
   /**
    * results for each assignment sent in
    */
-  private WsGroup[] results;
+  private WsGetGroupsResult[] results;
 
-  /**
-   * metadata about the result
-   */
-  private WsResultMeta resultMetadata = new WsResultMeta();
-
-  /**
-   * metadata about the result
-   */
-  private WsResponseMeta responseMetadata = new WsResponseMeta();
-
-  /**
-   * results for each assignment sent in
-   * @return the results
-   */
-  public WsGroup[] getResults() {
-    return this.results;
-  }
-
-  /**
-   * results for each assignment sent in
-   * @param results1 the results to set
-   */
-  public void setResults(WsGroup[] results1) {
-    this.results = results1;
-  }
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(WsGetGroupsResults.class);
 
   /**
    * prcess an exception, log, etc
-   * @param wsGetGroupsResultsCodeOverride 
-   * @param wsAddMemberResultsCodeOverride
+   * @param wsGetGroupsResultsCodeOverride
    * @param theError
    * @param e
    */
@@ -146,19 +109,8 @@ public class WsGetGroupsResults implements WsResponseBean {
       WsGetGroupsResultsCode wsGetGroupsResultsCodeOverride, String theError, Exception e) {
 
     if (e instanceof WsInvalidQueryException) {
-
       wsGetGroupsResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsGetGroupsResultsCodeOverride, WsGetGroupsResultsCode.INVALID_QUERY);
-
-      //see if really something else
-      if (e.getCause() instanceof SubjectNotFoundException) {
-        wsGetGroupsResultsCodeOverride = WsGetGroupsResultsCode.SUBJECT_NOT_FOUND;
-      } else if (e.getCause() instanceof SubjectNotUniqueException) {
-        wsGetGroupsResultsCodeOverride = WsGetGroupsResultsCode.SUBJECT_DUPLICATE;
-      } else if (e.getCause() instanceof MemberNotFoundException) {
-        wsGetGroupsResultsCodeOverride = WsGetGroupsResultsCode.MEMBER_NOT_FOUND;
-      }
-
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetGroupsResultsCodeOverride);
       this.getResultMetadata().appendResultMessage(e.getMessage());
@@ -179,22 +131,86 @@ public class WsGetGroupsResults implements WsResponseBean {
   }
 
   /**
-   * put a group in the results
-   * @param includeDetail true if the detail for each group should be included
-   * @param group
+   * make sure if there is an error, to record that as an error
+   * @param grouperTransactionType for request
+   * @param theSummary
+   * @return true if success, false if not
    */
-  public void assignGroupResult(Group group, boolean includeDetail) {
-    this.assignGroupResult(GrouperUtil.toSet(group), includeDetail);
+  public boolean tallyResults(String theSummary) {
+    //maybe already a failure
+    boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
+        .getSuccess(), true);
+    if (this.getResults() != null) {
+      // check all entries
+      int successes = 0;
+      int failures = 0;
+      for (WsGetGroupsResult wsGetGroupsResult : this.getResults()) {
+        boolean theSuccess = "T".equalsIgnoreCase(wsGetGroupsResult.getResultMetadata()
+            .getSuccess());
+        if (theSuccess) {
+          successes++;
+        } else {
+          failures++;
+        }
+      }
+
+      if (failures > 0) {
+        this.getResultMetadata().appendResultMessage(
+            "There were " + successes + " successes and " + failures
+                + " failures of groups retrieved for subjects.   ");
+        this.assignResultCode(WsGetGroupsResultsCode.PROBLEM_RETRIEVING_GROUPS);
+        //this might not be a problem
+        LOG.warn(this.getResultMetadata().getResultMessage());
+
+      } else {
+        //if we havent already seen an error...
+        if (successOverall) {
+          this.assignResultCode(WsGetGroupsResultsCode.SUCCESS);
+        }
+      }
+    } else {
+      //none is not ok, must pass one in
+      this.assignResultCode(WsGetGroupsResultsCode.INVALID_QUERY);
+      this.getResultMetadata().appendResultMessage(
+          "You must pass in at least one subject");
+    }
+    //make response descriptive
+    if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {
+      this.getResultMetadata().appendResultMessage("Success for: " + theSummary);
+      return true;
+    }
+    //I guess false if it wasnt just true...
+    return false;
   }
 
   /**
-   * put a group in the results
-   * @param includeDetail true if the detail for each group should be included
-   * @param groupSet
+   * results for each assignment sent in
+   * 
+   * @return the results
    */
-  public void assignGroupResult(Set<Group> groupSet, boolean includeDetail) {
-    this.setResults(WsGroup.convertGroups(groupSet, includeDetail));
+  public WsGetGroupsResult[] getResults() {
+    return this.results;
   }
+
+  /**
+   * results for each assignment sent in
+   * 
+   * @param results1
+   *            the results to set
+   */
+  public void setResults(WsGetGroupsResult[] results1) {
+    this.results = results1;
+  }
+
+  /**
+   * metadata about the result
+   */
+  private WsResultMeta resultMetadata = new WsResultMeta();
+
+  /**
+   * attributes of subjects returned, in same order as the data
+   */
+  private String[] subjectAttributeNames;
 
   /**
    * @return the resultMetadata
@@ -204,6 +220,27 @@ public class WsGetGroupsResults implements WsResponseBean {
   }
 
   /**
+   * attributes of subjects returned, in same order as the data
+   * @return the attributeNames
+   */
+  public String[] getSubjectAttributeNames() {
+    return this.subjectAttributeNames;
+  }
+
+  /**
+   * attributes of subjects returned, in same order as the data
+   * @param attributeNamesa the attributeNames to set
+   */
+  public void setSubjectAttributeNames(String[] attributeNamesa) {
+    this.subjectAttributeNames = attributeNamesa;
+  }
+
+  /**
+   * metadata about the result
+   */
+  private WsResponseMeta responseMetadata = new WsResponseMeta();
+
+  /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
    * @return the response metadata
    */
@@ -211,6 +248,15 @@ public class WsGetGroupsResults implements WsResponseBean {
     return this.responseMetadata;
   }
 
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
+  }
+
+  
   /**
    * @param responseMetadata1 the responseMetadata to set
    */

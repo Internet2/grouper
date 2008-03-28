@@ -41,11 +41,13 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+X-Grouper-resultCode: INVALID_QUERY
+X-Grouper-success: F
 Content-Type: application/soap+xml; action="urn:deleteMemberLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 27 Mar 2008 20:33:55 GMT
+Date: Fri, 28 Mar 2008 16:38:10 GMT
 
-735
+74c
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -57,8 +59,8 @@ Date: Thu, 27 Mar 2008 20:33:55 GMT
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:resultCode>INVALID_QUERY</ns:resultCode>
-          <ns:resultMessage>Group name 'aStem:aGroup' and uuid '10021368' do not match for 'wsGroupLookup', edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d75d4e[group=&lt;null>,uuid=10021368,groupName=aStem:aGroup,groupFindResult=GROUP_UUID_DOESNT_MATCH_NAME]clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d75d4e[group=&lt;null>,uuid=10021368,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@12edf9a[subject=&lt;nul...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5a3497[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: NONE
+          <ns:resultMessage>Group name 'aStem:aGroup' and uuid '10021368' do not match for 'wsGroupLookup', edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@ac5024[group=&lt;null>,uuid=10021368,groupName=aStem:aGroup,groupFindResult=GROUP_UUID_DOESNT_MATCH_NAME]clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@ac5024[group=&lt;null>,uuid=10021368,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@c195e3[subject=&lt;null...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1578210[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
 , params: null</ns:resultMessage>
           <ns:success>F</ns:success>
         </ns:resultMetadata>
@@ -172,4 +174,4 @@ public class WsSampleDeleteMemberLite implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberLiteResult@1697023[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@187275d,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@2982d8,localResultMetadataTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=<null>,localWsGroupTracker=true,localWsSubject=<null>,localWsSubjectTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberLiteResult@9a99eb[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1d47f59,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1f4cdd2,localResultMetadataTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=<null>,localWsGroupTracker=true,localWsSubject=<null>,localWsSubjectTracker=true]

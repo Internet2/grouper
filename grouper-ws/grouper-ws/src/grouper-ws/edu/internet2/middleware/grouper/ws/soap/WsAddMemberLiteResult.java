@@ -3,10 +3,15 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -48,6 +53,50 @@ public class WsAddMemberLiteResult implements WsResponseBean {
   /** logger */
   @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(WsAddMemberLiteResult.class);
+
+
+  /**
+   * prcess an exception, log, etc
+   * @param wsAddMemberLiteResultCodeOverride
+   * @param theError
+   * @param e
+   */
+  public void assignResultCodeException(
+      WsAddMemberLiteResultCode wsAddMemberLiteResultCodeOverride, 
+      String theError, Exception e) {
+
+    if (e instanceof WsInvalidQueryException) {
+      wsAddMemberLiteResultCodeOverride = GrouperUtil.defaultIfNull(
+          wsAddMemberLiteResultCodeOverride, WsAddMemberLiteResultCode.INVALID_QUERY);
+      if (e.getCause() instanceof GroupNotFoundException) {
+        wsAddMemberLiteResultCodeOverride = WsAddMemberLiteResultCode.GROUP_NOT_FOUND;
+      }
+      //a helpful exception will probably be in the getMessage()
+      this.assignResultCode(wsAddMemberLiteResultCodeOverride);
+      this.getResultMetadata().appendResultMessage(e.getMessage());
+      this.getResultMetadata().appendResultMessage(theError);
+      LOG.warn(e);
+
+    } else {
+      wsAddMemberLiteResultCodeOverride = GrouperUtil.defaultIfNull(
+          wsAddMemberLiteResultCodeOverride, WsAddMemberLiteResultCode.EXCEPTION);
+      LOG.error(theError, e);
+
+      theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
+      this.getResultMetadata().appendResultMessage(
+          theError + ExceptionUtils.getFullStackTrace(e));
+      this.assignResultCode(wsAddMemberLiteResultCodeOverride);
+
+    }
+  }
+
+  /**
+   * assign the code from the enum
+   * @param addMemberLiteResultCode1
+   */
+  public void assignResultCode(WsAddMemberLiteResultCode addMemberLiteResultCode1) {
+    this.getResultMetadata().assignResultCode(addMemberLiteResultCode1);
+  }
 
   /**
     * metadata about the result

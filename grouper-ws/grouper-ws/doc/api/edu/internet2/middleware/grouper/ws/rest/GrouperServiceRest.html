@@ -180,6 +180,29 @@ consolidated static list of of rest web services (only web service methods here
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co&pathrev=HEAD#getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest)">getGroups</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+          <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>&nbsp;wsRestGetGroupsRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ based on a subject id name, get groups
+ /v1_3_000/subjects/123/groups</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsLiteResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co&pathrev=HEAD#getGroupsLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest)">getGroupsLite</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+              <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsLiteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsLiteRequest</A>&nbsp;wsRestGetGroupsLiteRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ based on a group name, put the member</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetMembersResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetMembersResults</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co&pathrev=HEAD#getMembersLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersLiteRequest)">getMembersLite</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
                <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
@@ -326,7 +349,7 @@ public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soa
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>groupName</CODE> - is the name of the group including stems, e.g. a:b:c<DD><CODE>subjectId</CODE> - from url, e.g. /v1_3_000/group/aStem:aGroup/members/123412345<DD><CODE>sourceId</CODE> - from url (optional) e.g.
- /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345<DD><CODE>wsRestAddMemberLiteRequest</CODE> - is the request body converted to an object
+ /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345<DD><CODE>wsRestDeleteMemberLiteRequest</CODE> - is the request body converted to an object
 <DT><B>Returns:</B><DD>the result</DL>
 </DD>
 </DL>
@@ -386,6 +409,44 @@ public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soa
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>groupName</CODE> - is the name of the group including stems, e.g. a:b:c<DD><CODE>subjectId</CODE> - from url, e.g. /v1_3_000/group/aStem:aGroup/members/123412345<DD><CODE>sourceId</CODE> - from url (optional) e.g.
  /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345<DD><CODE>wsRestHasMemberLiteRequest</CODE> - is the request body converted to an object
+<DT><B>Returns:</B><DD>the result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest)"><!-- --></A><H3>
+getGroups</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults</A> <B>getGroups</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                           <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsRequest</A>&nbsp;wsRestGetGroupsRequest)</PRE>
+<DL>
+<DD><pre>
+ based on a subject id name, get groups
+ /v1_3_000/subjects/123/groups
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>sourceId</CODE> - is the source of the service<DD><CODE>subjectId</CODE> - is the subject to search for groups<DD><CODE>wsRestGetGroupsRequest</CODE> - is the request body converted to an object
+<DT><B>Returns:</B><DD>the result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroupsLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest)"><!-- --></A><H3>
+getGroupsLite</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsLiteResult</A> <B>getGroupsLite</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;sourceId,
+                                                  <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGroupsLiteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGroupsLiteRequest</A>&nbsp;wsRestGetGroupsLiteRequest)</PRE>
+<DL>
+<DD><pre>
+ based on a group name, put the member
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>groupName</CODE> - is the name of the group including stems, e.g. a:b:c<DD><CODE>subjectId</CODE> - from url, e.g. /v1_3_000/group/aStem:aGroup/members/123412345<DD><CODE>sourceId</CODE> - from url (optional) e.g.
+ /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345<DD><CODE>wsRestGetGroupsLiteRequest</CODE> - is the request body converted to an object
 <DT><B>Returns:</B><DD>the result</DL>
 </DD>
 </DL>

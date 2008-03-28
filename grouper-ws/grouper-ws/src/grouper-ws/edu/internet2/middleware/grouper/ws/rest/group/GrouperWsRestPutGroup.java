@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPutGroup.java,v 1.3 2008-03-27 20:39:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPutGroup.java,v 1.4 2008-03-28 16:45:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -25,8 +25,8 @@ public enum GrouperWsRestPutGroup {
      * handle the incoming request based on HTTP method PUT and group as resource, and members as subresource
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/grouper-ws/servicesRest/xhtml/xhtml/v3_0_000/group/a:b/members
-     * the urlStrings would be size three: {"group", "a:b", "members"}
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b/members
+     * the urlStrings would be size three: {"groups", "a:b", "members"}
      * @param groupName in url
      * @param requestObject is the request body converted to object
      * @return the return object
@@ -37,7 +37,7 @@ public enum GrouperWsRestPutGroup {
         WsRequestBean requestObject) {
 
       //maybe putting all members (url strings size 3)
-      //url should be: /v1_3_000/group/aStem:aGroup/members
+      //url should be: /v1_3_000/groups/aStem:aGroup/members
       if (urlStrings.size() == 0 && (!(requestObject instanceof WsRestAddMemberLiteRequest))) {
         
         WsRestAddMemberRequest wsRestAddMembersRequest = GrouperUtil.typeCast(
@@ -51,10 +51,10 @@ public enum GrouperWsRestPutGroup {
       WsRestAddMemberLiteRequest wsRestAddMemberLiteRequest = GrouperUtil.typeCast(
           requestObject, WsRestAddMemberLiteRequest.class);
       
-      //url should be: /v1_3_000/group/aStem:aGroup/members/123412345
-      //or url should be: /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
-      String subjectId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, false, false);
-      String sourceId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, true, true);
+      //url should be: /v1_3_000/groups/aStem:aGroup/members/123412345
+      //or url should be: /v1_3_000/groups/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+      String subjectId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, false, false);
+      String sourceId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, true, true);
       
       return GrouperServiceRest.addMemberLite(clientVersion, groupName, subjectId, sourceId,
           wsRestAddMemberLiteRequest);

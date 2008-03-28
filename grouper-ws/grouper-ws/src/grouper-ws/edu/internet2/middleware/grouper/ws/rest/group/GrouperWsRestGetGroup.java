@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGetGroup.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGetGroup.java,v 1.3 2008-03-28 16:45:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -25,8 +25,8 @@ public enum GrouperWsRestGetGroup {
      * handle the incoming request based on HTTP method GET and group as resource, and members as subresource
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/grouper-ws/servicesRest/xhtml/xhtml/v3_0_000/group/a:b/members
-     * the urlStrings would be size three: {"group", "a:b", "members"}
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b/members
+     * the urlStrings would be size three: {"group", "a:b", "member"}
      * @param groupName in url
      * @param requestObject is the request body converted to object
      * @return the return object
@@ -42,7 +42,7 @@ public enum GrouperWsRestGetGroup {
         WsRestGetMembersLiteRequest wsRestGetMembersLiteRequest = GrouperUtil.typeCast(
             requestObject, WsRestGetMembersLiteRequest.class);
 
-        //url should be: /xhtml/v1_3_000/group/aStem:aGroup/members
+        //url should be: /xhtml/v1_3_000/groups/aStem:aGroup/members
         return GrouperServiceRest.getMembersLite(
             clientVersion, groupName,
             wsRestGetMembersLiteRequest);
@@ -55,7 +55,7 @@ public enum GrouperWsRestGetGroup {
         WsRestHasMemberRequest wsRestHasMemberRequest = GrouperUtil.typeCast(
             requestObject, WsRestHasMemberRequest.class);
 
-        //url should be: /xhtml/v1_3_000/group/aStem:aGroup/members
+        //url should be: /xhtml/v1_3_000/groups/aStem:aGroup/members
         return GrouperServiceRest.hasMember(
             clientVersion, groupName,
             wsRestHasMemberRequest);
@@ -63,15 +63,15 @@ public enum GrouperWsRestGetGroup {
       }
       
       //if the member id is on the end, then get that
-      String subjectId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, false, false);
-      String sourceId = GrouperServiceUtils.extractSubjectIdFromUrlStrings(urlStrings, 0, true, true);
+      String subjectId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, false, false);
+      String sourceId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, true, true);
       
       if (requestObject == null || requestObject instanceof WsRestHasMemberLiteRequest) {
         //make sure right type
         WsRestHasMemberLiteRequest wsRestHasMemberLiteRequest = GrouperUtil.typeCast(
             requestObject, WsRestHasMemberLiteRequest.class);
 
-        //url should be: /xhtml/v1_3_000/group/aStem:aGroup/members
+        //url should be: /xhtml/v1_3_000/groups/aStem:aGroup/members
         return GrouperServiceRest.hasMemberLite(
             clientVersion, groupName, subjectId, sourceId,
             wsRestHasMemberLiteRequest);

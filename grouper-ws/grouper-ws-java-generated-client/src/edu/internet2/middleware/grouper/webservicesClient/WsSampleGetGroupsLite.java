@@ -3,19 +3,17 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGroupsLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroup;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -62,21 +60,23 @@ public class WsSampleGetGroupsLite implements WsSampleGenerated {
             getGroupsLite.setClientVersion(GeneratedClientSettings.VERSION);
 
             getGroupsLite.setActAsSubjectId("GrouperSystem");
+            getGroupsLite.setActAsSubjectIdentifier("");
+            getGroupsLite.setActAsSubjectSourceId("");
 
             // check all
             getGroupsLite.setMemberFilter("All");
 
-            getGroupsLite.setActAsSubjectIdentifier("");
             getGroupsLite.setSubjectId("GrouperSystem");
             getGroupsLite.setSubjectIdentifier("");
-
-            WsGetGroupsResults wsGetGroupsResults = stub.getGroupsLite(getGroupsLite)
-                                                        .get_return();
+            getGroupsLite.setSubjectSourceId("");
+            
+            WsGetGroupsLiteResult wsGetGroupsLiteResult = 
+              stub.getGroupsLite(getGroupsLite).get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsGetGroupsResults));
+                wsGetGroupsLiteResult));
 
-            WsGroup[] results = wsGetGroupsResults.getResults();
+            WsGroup[] results = wsGetGroupsLiteResult.getWsGroups();
 
             if (results != null) {
                 for (WsGroup wsGroup : results) {

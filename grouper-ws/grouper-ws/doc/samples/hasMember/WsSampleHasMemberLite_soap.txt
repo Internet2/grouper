@@ -49,7 +49,7 @@ X-Grouper-resultCode: INVALID_QUERY
 X-Grouper-success: F
 Content-Type: application/soap+xml; action="urn:hasMemberLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 27 Mar 2008 20:34:14 GMT
+Date: Fri, 28 Mar 2008 16:38:29 GMT
 
 511
 <?xml version='1.0' encoding='UTF-8'?>
@@ -92,16 +92,17 @@ Date: Thu, 27 Mar 2008 20:34:14 GMT
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -160,10 +161,10 @@ public class WsSampleHasMemberLite implements WsSampleGenerated {
             hasMemberLite.setSubjectIdentifier("");
 
             WsHasMemberLiteResult wsHasMemberLiteResult = stub.hasMemberLite(hasMemberLite)
-                                                        .get_return();
+                                                              .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                wsHasMemberLiteResult));
+                    wsHasMemberLiteResult));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -178,4 +179,4 @@ public class WsSampleHasMemberLite implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsHasMemberLiteResult@b5d05b[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1292738,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@cdd54e,localResultMetadataTracker=true,localResults={<null>},localResultsTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=<null>,localWsGroupTracker=true,localWsSubject=<null>,localWsSubjectTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsHasMemberLiteResult@18e8fe0[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1bb8694,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@80669d,localResultMetadataTracker=true,localResults={<null>},localResultsTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=<null>,localWsGroupTracker=true,localWsSubject=<null>,localWsSubjectTracker=true]

@@ -122,6 +122,14 @@ public final class GrouperWsConfig {
   public static final String WS_ADD_MEMBER_SUBJECTS_MAX = "ws.add.member.subjects.max";
 
   /**
+   * name of param for get groups web service max, default is 1000000
+   *  # Max number of subjects to be able to pass to getGroups service,
+   * default is 1000000 ws.get.groups.subjects.max = 20000
+   * 
+   */
+  public static final String WS_GET_GROUPS_SUBJECTS_MAX = "ws.get.groups.subjects.max";
+
+  /**
    * name of param for group delete, max groups to be able to delete at once,
    * default is 1000000
    *  # Max number of groups to be able to pass to groupDelete service,

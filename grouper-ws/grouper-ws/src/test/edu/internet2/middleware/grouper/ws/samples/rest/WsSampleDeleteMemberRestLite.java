@@ -33,7 +33,7 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
       DeleteMethod method = new DeleteMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/group/aStem%3AaGroup/members/10021368");
+            + "/groups/aStem%3AaGroup/members/10021368");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 

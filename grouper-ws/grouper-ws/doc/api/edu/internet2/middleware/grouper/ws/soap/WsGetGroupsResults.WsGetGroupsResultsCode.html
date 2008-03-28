@@ -122,37 +122,25 @@ result code of a request
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD#EXCEPTION">EXCEPTION</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem (lite http status code 500) (success: F)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;found the subject (rest http status code 500) (success: F)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD#INVALID_QUERY">INVALID_QUERY</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem (lite http status code 400) (success: F)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid query (e.g.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD#MEMBER_NOT_FOUND">MEMBER_NOT_FOUND</A></B></CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD#PROBLEM_RETRIEVING_GROUPS">PROBLEM_RETRIEVING_GROUPS</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;couldnt find the member to query (lite http status code 404) (success: F)</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD#SUBJECT_DUPLICATE">SUBJECT_DUPLICATE</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem querying the subject, was duplicate (lite http status code 409) (success: F)</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD#SUBJECT_NOT_FOUND">SUBJECT_NOT_FOUND</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;couldnt find the subject to query (lite http status code 404) (success: F)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem deleting existing members (rest http status code 500) (success: F)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS">SUCCESS</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;found the subject (lite http status code 200) (success: T)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;found the subject (rest http status code 201) (success: T)</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -243,7 +231,7 @@ SUCCESS</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults.WsGetGroupsResultsCode</A> <B>SUCCESS</B></PRE>
 <DL>
-<DD>found the subject (lite http status code 200) (success: T)
+<DD>found the subject (rest http status code 201) (success: T)
 <P>
 <DL>
 </DL>
@@ -255,7 +243,19 @@ EXCEPTION</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults.WsGetGroupsResultsCode</A> <B>EXCEPTION</B></PRE>
 <DL>
-<DD>problem (lite http status code 500) (success: F)
+<DD>found the subject (rest http status code 500) (success: F)
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="PROBLEM_RETRIEVING_GROUPS"><!-- --></A><H3>
+PROBLEM_RETRIEVING_GROUPS</H3>
+<PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults.WsGetGroupsResultsCode</A> <B>PROBLEM_RETRIEVING_GROUPS</B></PRE>
+<DL>
+<DD>problem deleting existing members (rest http status code 500) (success: F)
 <P>
 <DL>
 </DL>
@@ -267,43 +267,7 @@ INVALID_QUERY</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults.WsGetGroupsResultsCode</A> <B>INVALID_QUERY</B></PRE>
 <DL>
-<DD>problem (lite http status code 400) (success: F)
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="MEMBER_NOT_FOUND"><!-- --></A><H3>
-MEMBER_NOT_FOUND</H3>
-<PRE>
-public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults.WsGetGroupsResultsCode</A> <B>MEMBER_NOT_FOUND</B></PRE>
-<DL>
-<DD>couldnt find the member to query (lite http status code 404) (success: F)
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="SUBJECT_NOT_FOUND"><!-- --></A><H3>
-SUBJECT_NOT_FOUND</H3>
-<PRE>
-public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults.WsGetGroupsResultsCode</A> <B>SUBJECT_NOT_FOUND</B></PRE>
-<DL>
-<DD>couldnt find the subject to query (lite http status code 404) (success: F)
-<P>
-<DL>
-</DL>
-</DL>
-<HR>
-
-<A NAME="SUBJECT_DUPLICATE"><!-- --></A><H3>
-SUBJECT_DUPLICATE</H3>
-<PRE>
-public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.WsGetGroupsResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults.WsGetGroupsResultsCode</A> <B>SUBJECT_DUPLICATE</B></PRE>
-<DL>
-<DD>problem querying the subject, was duplicate (lite http status code 409) (success: F)
+<DD>invalid query (e.g. if everything blank) (rest http status code 400) (success: F)
 <P>
 <DL>
 </DL>
@@ -366,6 +330,23 @@ with the specified name</DL>
 </DL>
 <HR>
 
+<A NAME="isSuccess()"><!-- --></A><H3>
+isSuccess</H3>
+<PRE>
+public boolean <B>isSuccess</B>()</PRE>
+<DL>
+<DD>if this is a successful result
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/WsResultCode.html?root=I2MI&view=co&pathrev=HEAD#isSuccess()">isSuccess</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/WsResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">WsResultCode</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if success</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="getHttpStatusCode()"><!-- --></A><H3>
 getHttpStatusCode</H3>
 <PRE>
@@ -380,23 +361,6 @@ public int <B>getHttpStatusCode</B>()</PRE>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the status code e.g. 200<DT><B>See Also:</B><DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/WsResultCode.html?root=I2MI&view=co&pathrev=HEAD#getHttpStatusCode()"><CODE>WsResultCode.getHttpStatusCode()</CODE></A></DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="isSuccess()"><!-- --></A><H3>
-isSuccess</H3>
-<PRE>
-public boolean <B>isSuccess</B>()</PRE>
-<DL>
-<DD>if this is a successful result
-<P>
-<DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/WsResultCode.html?root=I2MI&view=co&pathrev=HEAD#isSuccess()">isSuccess</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/WsResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">WsResultCode</A></CODE></DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>true if success</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

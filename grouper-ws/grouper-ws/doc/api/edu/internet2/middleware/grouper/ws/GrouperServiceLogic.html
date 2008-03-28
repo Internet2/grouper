@@ -190,7 +190,7 @@ Meant to be delegate from GrouperService which has the same params (and names)
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberResults</A></CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberLiteResult</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#deleteMemberLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">deleteMemberLite</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
@@ -285,11 +285,13 @@ Meant to be delegate from GrouperService which has the same params (and names)
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, boolean, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup, edu.internet2.middleware.grouper.ws.soap.WsParam[])">getGroups</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
-          <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>&nbsp;subjectLookup,
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup, boolean, boolean, java.lang.String[], edu.internet2.middleware.grouper.ws.soap.WsParam[])">getGroups</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+          <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;subjectLookups,
           <A HREF="../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>&nbsp;memberFilter,
-          boolean&nbsp;includeGroupDetail,
           <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>&nbsp;actAsSubjectLookup,
+          boolean&nbsp;includeGroupDetail,
+          boolean&nbsp;includeSubjectDetail,
+          <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>[]&nbsp;subjectAttributeNames,
           <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A>[]&nbsp;params)</CODE>
 
 <BR>
@@ -297,16 +299,18 @@ Meant to be delegate from GrouperService which has the same params (and names)
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#getGroupsLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">getGroupsLite</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsLiteResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#getGroupsLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, java.lang.String, java.lang.String, java.lang.String, boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">getGroupsLite</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
               <A HREF="../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>&nbsp;memberFilter,
-              boolean&nbsp;includeGroupDetail,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
+              boolean&nbsp;includeGroupDetail,
+              boolean&nbsp;includeSubjectDetail,
+              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
@@ -478,7 +482,7 @@ Meant to be delegate from GrouperService which has the same params (and names)
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsHasMemberResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsHasMemberResults</A></CODE></FONT></TD>
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsHasMemberLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsHasMemberLiteResult</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#hasMemberLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">hasMemberLite</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
@@ -783,23 +787,23 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/W
 <A NAME="deleteMemberLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 deleteMemberLite</H3>
 <PRE>
-public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberResults</A> <B>deleteMemberLite</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
-                                                     edu.internet2.middleware.grouper.Field&nbsp;fieldName,
-                                                     boolean&nbsp;includeGroupDetail,
-                                                     boolean&nbsp;includeSubjectDetail,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
-                                                     <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberLiteResult</A> <B>deleteMemberLite</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
+                                                        edu.internet2.middleware.grouper.Field&nbsp;fieldName,
+                                                        boolean&nbsp;includeGroupDetail,
+                                                        boolean&nbsp;includeSubjectDetail,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
+                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
 <DL>
 <DD>delete member to a group (if not already a direct member, ignore)
 <P>
@@ -945,14 +949,16 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/W
 </DL>
 <HR>
 
-<A NAME="getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, boolean, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup, edu.internet2.middleware.grouper.ws.soap.WsParam[])"><!-- --></A><H3>
+<A NAME="getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup, boolean, boolean, java.lang.String[], edu.internet2.middleware.grouper.ws.soap.WsParam[])"><!-- --></A><H3>
 getGroups</H3>
 <PRE>
 public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults</A> <B>getGroups</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
-                                           <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>&nbsp;subjectLookup,
+                                           <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;subjectLookups,
                                            <A HREF="../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>&nbsp;memberFilter,
-                                           boolean&nbsp;includeGroupDetail,
                                            <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>&nbsp;actAsSubjectLookup,
+                                           boolean&nbsp;includeGroupDetail,
+                                           boolean&nbsp;includeSubjectDetail,
+                                           <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>[]&nbsp;subjectAttributeNames,
                                            <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A>[]&nbsp;params)</PRE>
 <DL>
 <DD>get groups from members based on filter (accepts batch of members)
@@ -961,28 +967,32 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/W
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>subjectLookup</CODE> - <DD><CODE>subjectLookups</CODE> - subjects to be examined to see if in group<DD><CODE>memberFilter</CODE> - can be All, Effective (non immediate), Immediate (direct),
             Composite (if composite group with group math (union, minus,
             etc)<DD><CODE>actAsSubjectLookup</CODE> - to act as a different user than the logged in user<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be
- included (defaults to F)<DD><CODE>params</CODE> - optional: reserved for future use
+ included (defaults to F)<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
+            returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
+ If blank, whatever is configured in the grouper-ws.properties will be sent<DD><CODE>params</CODE> - optional: reserved for future use
 <DT><B>Returns:</B><DD>the results</DL>
 </DD>
 </DL>
 <HR>
 
-<A NAME="getGroupsLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+<A NAME="getGroupsLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, java.lang.String, java.lang.String, java.lang.String, boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 getGroupsLite</H3>
 <PRE>
-public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsResults</A> <B>getGroupsLite</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
-                                               <A HREF="../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>&nbsp;memberFilter,
-                                               boolean&nbsp;includeGroupDetail,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsLiteResult</A> <B>getGroupsLite</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
+                                                  <A HREF="../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>&nbsp;memberFilter,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
+                                                  boolean&nbsp;includeGroupDetail,
+                                                  boolean&nbsp;includeSubjectDetail,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
 <DL>
 <DD>get groups for a subject based on filter
 <P>
@@ -996,7 +1006,9 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/W
             actAsSubjectIdentifer<DD><CODE>actAsSubjectSourceId</CODE> - is source of act as subject to narrow the result and prevent
  duplicates<DD><CODE>actAsSubjectIdentifier</CODE> - optional: is the subject identifier of subject to act as (if
             proxying). Only pass one of actAsSubjectId or
-            actAsSubjectIdentifer<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use
+            actAsSubjectIdentifer<DD><CODE>subjectIdentifier</CODE> - to query (mutually exclusive with subjectId)<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
+            returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
+ If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use
 <DT><B>Returns:</B><DD>the result of one member add</DL>
 </DD>
 </DL>
@@ -1248,14 +1260,14 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/W
 <DD>see if a group has members based on filter (accepts batch of members)
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>wsGroupLookup</CODE> - for the group to see if the members are in there<DD><CODE>subjectLookups</CODE> - subjects to be examined to see if in group<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
-            returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
- If blank, whatever is configured in the grouper-ws.properties will be sent<DD><CODE>memberFilter</CODE> - can be All, Effective (non immediate), Immediate (direct),
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>wsGroupLookup</CODE> - for the group to see if the members are in there<DD><CODE>subjectLookups</CODE> - subjects to be examined to see if in group<DD><CODE>memberFilter</CODE> - can be All, Effective (non immediate), Immediate (direct),
             Composite (if composite group with group math (union, minus,
             etc)<DD><CODE>actAsSubjectLookup</CODE> - to act as a different user than the logged in user<DD><CODE>fieldName</CODE> - is if the Group.hasMember() method with field is to be called
             (e.g. admins, optouts, optins, etc from Field table in DB)<DD><CODE>txType</CODE> - is the GrouperTransactionType for the request.  If blank, defaults to
  NONE (will finish as much as possible).  Generally the only values for this param that make sense
- are NONE (or blank), and READ_WRITE_NEW.<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>params</CODE> - optional: reserved for future use
+ are NONE (or blank), and READ_WRITE_NEW.<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
+            returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
+ If blank, whatever is configured in the grouper-ws.properties will be sent<DD><CODE>params</CODE> - optional: reserved for future use
 <DT><B>Returns:</B><DD>the results</DL>
 </DD>
 </DL>
@@ -1264,32 +1276,30 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/W
 <A NAME="hasMemberLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.ws.member.WsMemberFilter, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, boolean, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 hasMemberLite</H3>
 <PRE>
-public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsHasMemberResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsHasMemberResults</A> <B>hasMemberLite</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
-                                               <A HREF="../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>&nbsp;memberFilter,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
-                                               edu.internet2.middleware.grouper.Field&nbsp;fieldName,
-                                               boolean&nbsp;includeGroupDetail,
-                                               boolean&nbsp;includeSubjectDetail,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
-                                               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsHasMemberLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsHasMemberLiteResult</A> <B>hasMemberLite</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
+                                                  <A HREF="../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A>&nbsp;memberFilter,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
+                                                  edu.internet2.middleware.grouper.Field&nbsp;fieldName,
+                                                  boolean&nbsp;includeGroupDetail,
+                                                  boolean&nbsp;includeSubjectDetail,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
+                                                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
 <DL>
 <DD>see if a group has a member (if already a direct member, ignore)
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>groupName</CODE> - to lookup the group (mutually exclusive with groupUuid)<DD><CODE>groupUuid</CODE> - to lookup the group (mutually exclusive with groupName)<DD><CODE>subjectId</CODE> - to query (mutually exclusive with subjectIdentifier)<DD><CODE>subjectSourceId</CODE> - is source of subject to narrow the result and prevent
- duplicates<DD><CODE>subjectIdentifier</CODE> - to query (mutually exclusive with subjectId)<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
-            returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
- If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)<DD><CODE>memberFilter</CODE> - can be All, Effective (non immediate), Immediate (direct),
+ duplicates<DD><CODE>memberFilter</CODE> - can be All, Effective (non immediate), Immediate (direct),
             Composite (if composite group with group math (union, minus,
             etc)<DD><CODE>actAsSubjectId</CODE> - optional: is the subject id of subject to act as (if
             proxying). Only pass one of actAsSubjectId or
@@ -1297,7 +1307,9 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/W
  duplicates<DD><CODE>actAsSubjectIdentifier</CODE> - optional: is the subject identifier of subject to act as (if
             proxying). Only pass one of actAsSubjectId or
             actAsSubjectIdentifer<DD><CODE>fieldName</CODE> - is if the Group.hasMember() method with field is to be called
-            (e.g. admins, optouts, optins, etc from Field table in DB)<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use
+            (e.g. admins, optouts, optins, etc from Field table in DB)<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>subjectIdentifier</CODE> - to query (mutually exclusive with subjectId)<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
+            returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
+ If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use
 <DT><B>Returns:</B><DD>the result of one member query</DL>
 </DD>
 </DL>

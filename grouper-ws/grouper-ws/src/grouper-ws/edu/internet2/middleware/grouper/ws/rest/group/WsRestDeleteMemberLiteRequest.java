@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestDeleteMemberLiteRequest.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
+ * $Id: WsRestDeleteMemberLiteRequest.java,v 1.3 2008-03-28 16:45:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -12,7 +12,7 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
 /**
  * lite bean that will be the data from rest request
- * @see GrouperServiceLogic#addMemberLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, String, String, String, String, String, String, String, String, edu.internet2.middleware.grouper.Field, boolean, boolean, String, String, String, String, String)
+ * @see GrouperServiceLogic#deleteMemberLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, String, String, String, String, String, String, String, String, edu.internet2.middleware.grouper.Field, boolean, boolean, String, String, String, String, String)
  * for lite method
  */
 public class WsRestDeleteMemberLiteRequest implements WsRequestBean {

@@ -66,6 +66,11 @@ public class HibernateSession {
     }
     
     if (this.isNewHibernateSession()) {
+      
+      if (grouperTransactionType == null) {
+        throw new NullPointerException("transaction type is null in hibernate session");
+      }
+      
       this.immediateGrouperTransactionTypeUsed = grouperTransactionType
           .grouperTransactionTypeToUse();
 
@@ -240,7 +245,7 @@ public class HibernateSession {
       // committed or rolledback,
       // then rollback.
       //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
-      if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
+      if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
         if (hibernateSession.immediateTransaction.isActive()) {
           hibernateSession.immediateTransaction.rollback();
         }
@@ -265,15 +270,16 @@ public class HibernateSession {
       throw new GrouperDAOException(errorString, e);
 
     } finally {
-
-      // take out of threadlocal stack
-      removeStaticHibernateSession(hibernateSession);
-      // take out of threadlocal if supposed to
-      if (hibernateSession.isNewHibernateSession()) {
-        // we should close the hibernate session if we opened it, and if not
-        // already closed
-        // transaction is already closed...
-        closeSessionIfNotClosed(hibernateSession.immediateSession);
+      if (hibernateSession != null) {
+        // take out of threadlocal stack
+        removeStaticHibernateSession(hibernateSession);
+        // take out of threadlocal if supposed to
+        if (hibernateSession.isNewHibernateSession()) {
+          // we should close the hibernate session if we opened it, and if not
+          // already closed
+          // transaction is already closed...
+          closeSessionIfNotClosed(hibernateSession.immediateSession);
+        }
       }
     }
     return ret;

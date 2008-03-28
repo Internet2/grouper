@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestHasMemberRequest.java,v 1.1 2008-03-27 20:39:26 mchyzer Exp $
+ * $Id: WsRestHasMemberRequest.java,v 1.2 2008-03-28 16:45:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
 
@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 
 /**
  * bean that will be the data from rest request
- * @see GrouperServiceLogic#addMember(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup, WsSubjectLookup[], boolean, WsSubjectLookup, edu.internet2.middleware.grouper.Field, edu.internet2.middleware.grouper.hibernate.GrouperTransactionType, boolean, boolean, String[], String[], String[])
+ * @see GrouperServiceLogic#hasMember(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup, WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, boolean, String[], WsParam[])
  * for method
  */
 public class WsRestHasMemberRequest implements WsRequestBean {

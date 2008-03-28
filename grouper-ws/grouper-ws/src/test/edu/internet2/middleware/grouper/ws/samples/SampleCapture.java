@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.4 2008-03-27 20:39:27 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.5 2008-03-28 16:45:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -22,6 +22,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroups;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMemberLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
@@ -31,6 +33,9 @@ import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRestLit
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetGroupsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetGroupsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetGroupsRestLite2;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRestLite2;
@@ -61,6 +66,7 @@ public class SampleCapture {
     captureAddMember();
     captureDeleteMember();
     captureHasMember();
+    captureGetGroups();
   }
 
   /** certain data has to exist for samples to run */
@@ -68,6 +74,8 @@ public class SampleCapture {
     GrouperSession grouperSession = null;
     try {
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem");
+      Subject subject1 = SubjectFinder.findById("10039438");
+      Subject subject2 = SubjectFinder.findById("10021368");
       grouperSession = GrouperSession.start(grouperSystemSubject);
       
       Stem.saveStem(grouperSession, "aStem", "a stem description", "a stem", "aStem", null, null, false);
@@ -78,6 +86,9 @@ public class SampleCapture {
       
       //make sure assigned
       aGroup.addMember(grouperSystemSubject, false);
+      aGroup.addMember(subject1, false);
+      aGroup.addMember(subject2, false);
+      
       
       //anything else?
       
@@ -137,6 +148,23 @@ public class SampleCapture {
         WsSampleHasMemberRestLite.class, "hasMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleHasMemberRestLite2.class, "hasMember", "_withInput");
+    
+  }
+  
+  /**
+   * all add member captures
+   */
+  public static void captureGetGroups() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetGroups.class, "getGroups", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetGroupsLite.class, "getGroups", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetGroupsRest.class, "getGroups", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetGroupsRestLite.class, "getGroups", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetGroupsRestLite2.class, "getGroups", "_withInput");
     
   }
   
