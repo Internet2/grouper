@@ -35,14 +35,8 @@ public class WsFindStemsResults implements WsResponseBean {
     /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
     INVALID_QUERY(400),
 
-    /** some stems had problems (lite http status code 500) (success: F) */
-    PROBLEM_WITH_STEMS(500),
-
     /** if the parent was not found in a search by parent (lite http status code 404) (success: F) */
-    PARENT_STEM_NOT_FOUND(404),
-
-    /** if query with parent stem, and if that stem not found (lite http status code 404) (success: F) */
-    QUERY_PARENT_STEM_NOT_FOUND(404);
+    PARENT_STEM_NOT_FOUND(404);
 
     /** http status code for rest/lite e.g. 200 */
     private int httpStatusCode;
@@ -207,6 +201,14 @@ public class WsFindStemsResults implements WsResponseBean {
    */
   public void setResponseMetadata(WsResponseMeta responseMetadata1) {
     this.responseMetadata = responseMetadata1;
+  }
+
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
   }
 
 }

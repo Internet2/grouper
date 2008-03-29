@@ -23,10 +23,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleAddMemberRestLite2 implements WsSampleRest {
 
   /**
-   * add member simple web service with REST
+   * add member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void addMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void addMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -50,13 +50,13 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestAddMemberLiteRequest addMemberSimple = new WsRestAddMemberLiteRequest();
+      WsRestAddMemberLiteRequest addMemberLite = new WsRestAddMemberLiteRequest();
 
       // set the act as id
-      addMemberSimple.setActAsSubjectId("GrouperSystem");
+      addMemberLite.setActAsSubjectId("GrouperSystem");
 
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberSimple);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -84,9 +84,9 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
       }
 
       //convert to object (from xhtml, xml, json, etc)
-      WsAddMemberLiteResult wsAddMemberSimpleResult = (WsAddMemberLiteResult)resultObject;
+      WsAddMemberLiteResult wsAddMemberLiteResult = (WsAddMemberLiteResult)resultObject;
       
-      String resultMessage = wsAddMemberSimpleResult.getResultMetadata().getResultMessage();
+      String resultMessage = wsAddMemberLiteResult.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
@@ -94,7 +94,7 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsAddMemberSimpleResult.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsAddMemberLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -109,14 +109,14 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberSimpleLite(WsSampleRestType.xhtml);
+    addMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    addMemberSimpleLite(wsSampleRestType);
+    addMemberLite(wsSampleRestType);
   }
 
   /**

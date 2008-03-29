@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestHttpMethod.java,v 1.4 2008-03-28 16:45:00 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestHttpMethod.java,v 1.5 2008-03-29 10:50:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -23,7 +23,7 @@ public enum GrouperRestHttpMethod {
      * handle the incoming request based on HTTP method
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
-     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/group/a:b
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
      * the urlStrings would be size two: {"group", "a:b"}
      * @param requestObject is the request body converted to object
      * @return the resultObject
@@ -50,7 +50,7 @@ public enum GrouperRestHttpMethod {
     /**
      * handle the incoming request based on HTTP method
      * @param clientVersion version of client, e.g. v1_3_000
-     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/group/a:b
+     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
      * the urlStrings would be size two: {"group", "a:b"}
      * @param requestObject is the request body converted to object
      * @return the resultObject
@@ -70,7 +70,7 @@ public enum GrouperRestHttpMethod {
     /**
      * handle the incoming request based on HTTP method
      * @param clientVersion version of client, e.g. v1_3_000
-     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/group/a:b
+     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
      * the urlStrings would be size two: {"group", "a:b"}
      * @param requestObject is the request body converted to object
      * @return the resultObject
@@ -98,7 +98,7 @@ public enum GrouperRestHttpMethod {
     /**
      * handle the incoming request based on HTTP method
      * @param clientVersion version of client, e.g. v1_3_000
-     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/group/a:b
+     * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
      * the urlStrings would be size two: {"group", "a:b"}
      * @param requestObject is the request body converted to object
      * @return the resultObject
@@ -123,7 +123,7 @@ public enum GrouperRestHttpMethod {
   /**
    * handle the incoming request based on HTTP method
    * @param clientVersion version of client, e.g. v1_3_000
-   * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/group/a:b
+   * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
    * the urlStrings would be size two: {"group", "a:b"}
    * @param requestObject is the request body converted to object
    * @return the resultObject

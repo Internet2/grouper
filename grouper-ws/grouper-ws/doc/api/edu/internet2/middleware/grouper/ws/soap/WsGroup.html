@@ -124,7 +124,8 @@ Result of one group being retrieved since a user is a member of it.  The number 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no arg constructor</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroup.html?root=I2MI&view=co&pathrev=HEAD#WsGroup(edu.internet2.middleware.grouper.Group, boolean)">WsGroup</A></B>(edu.internet2.middleware.grouper.Group&nbsp;group,
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroup.html?root=I2MI&view=co&pathrev=HEAD#WsGroup(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup, boolean)">WsGroup</A></B>(edu.internet2.middleware.grouper.Group&nbsp;group,
+        <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>&nbsp;wsGroupLookup,
         boolean&nbsp;includeDetail)</CODE>
 
 <BR>
@@ -296,16 +297,17 @@ public <B>WsGroup</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="WsGroup(edu.internet2.middleware.grouper.Group, boolean)"><!-- --></A><H3>
+<A NAME="WsGroup(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup, boolean)"><!-- --></A><H3>
 WsGroup</H3>
 <PRE>
 public <B>WsGroup</B>(edu.internet2.middleware.grouper.Group&nbsp;group,
+               <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>&nbsp;wsGroupLookup,
                boolean&nbsp;includeDetail)</PRE>
 <DL>
 <DD>construct based on group, assign all fields
 <P>
 <DL>
-<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>includeDetail</CODE> - true to include detail about group</DL>
+<DT><B>Parameters:</B><DD><CODE>group</CODE> - <DD><CODE>wsGroupLookup</CODE> - is the lookup to set looked up values<DD><CODE>includeDetail</CODE> - true to include detail about group</DL>
 </DL>
 
 <!-- ============ METHOD DETAIL ========== -->

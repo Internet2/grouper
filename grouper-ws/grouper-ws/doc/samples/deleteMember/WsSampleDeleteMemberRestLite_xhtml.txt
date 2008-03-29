@@ -32,7 +32,7 @@ Expires: Wed, 31 Dec 1969 19:00:00 EST
 X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 Content-Type: application/xhtml+xml
-Date: Fri, 28 Mar 2008 16:38:17 GMT
+Date: Sat, 29 Mar 2008 10:33:21 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -45,8 +45,8 @@ Connection: close
     <div title="WsDeleteMemberLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@af281[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b72884[subject=&lt;null...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@c505f7[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@10abc94[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1e2c00f[subject=&lt;nul...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1af5853[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
 , params: null</p>
         <p class="resultCode">SUCCESS_WASNT_IMMEDIATE</p>
       </div>
@@ -107,10 +107,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 
   /**
-   * delete member simple web service with REST
+   * delete member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void deleteMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void deleteMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -173,14 +173,14 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    deleteMemberSimpleLite(WsSampleRestType.xhtml);
+    deleteMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    deleteMemberSimpleLite(wsSampleRestType);
+    deleteMemberLite(wsSampleRestType);
   }
 
   /**
@@ -199,6 +199,6 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@af281[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b72884[subject=<null...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@c505f7[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
+Server version: v1_3_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@10abc94[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1e2c00f[subject=<nul...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1af5853[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
 , params: null

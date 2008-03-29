@@ -23,10 +23,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleHasMemberRestLite2 implements WsSampleRest {
 
   /**
-   * has member simple web service with REST
+   * has member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void hasMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void hasMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -50,13 +50,13 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestHasMemberLiteRequest hasMemberSimple = new WsRestHasMemberLiteRequest();
+      WsRestHasMemberLiteRequest hasMemberLite = new WsRestHasMemberLiteRequest();
 
       // set the act as id
-      hasMemberSimple.setActAsSubjectId("GrouperSystem");
+      hasMemberLite.setActAsSubjectId("GrouperSystem");
 
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(hasMemberSimple);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(hasMemberLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -109,14 +109,14 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    hasMemberSimpleLite(WsSampleRestType.xhtml);
+    hasMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    hasMemberSimpleLite(wsSampleRestType);
+    hasMemberLite(wsSampleRestType);
   }
 
   /**

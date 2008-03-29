@@ -50,8 +50,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestDelete.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestPut.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestDeleteGroup.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestGetGroup.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperWsRestGet.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -120,6 +120,12 @@ all first level resources on a get request
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;group get requests</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestGet.html?root=I2MI&view=co&pathrev=HEAD#stems">stems</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stem get requests</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestGet.html?root=I2MI&view=co&pathrev=HEAD#subjects">subjects</A></B></CODE>
@@ -217,6 +223,18 @@ public static final <A HREF="../../../../../../../edu/internet2/middleware/group
 </DL>
 <HR>
 
+<A NAME="stems"><!-- --></A><H3>
+stems</H3>
+<PRE>
+public static final <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestGet.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method">GrouperWsRestGet</A> <B>stems</B></PRE>
+<DL>
+<DD>stem get requests
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
 <A NAME="subjects"><!-- --></A><H3>
 subjects</H3>
 <PRE>
@@ -289,7 +307,7 @@ public abstract <A HREF="../../../../../../../edu/internet2/middleware/grouper/w
 <DD>handle the incoming request based on HTTP method
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>urlStrings</CODE> - not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/group/a:b
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>urlStrings</CODE> - not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
  the urlStrings would be size two: {"group", "a:b"}<DD><CODE>requestObject</CODE> - is the request body converted to object
 <DT><B>Returns:</B><DD>the result object</DL>
 </DD>
@@ -342,8 +360,8 @@ public static <A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestDelete.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestPut.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestDeleteGroup.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../../edu/internet2/middleware/grouper/ws/rest/method/GrouperWsRestGetGroup.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.rest.method"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperWsRestGet.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;

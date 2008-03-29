@@ -56,10 +56,11 @@ public class WsGroupDeleteResult {
   /**
    * create a result based on group
    * @param group
+   * @param wsGroupLookup
    * @param includeDetail
    */
-  public void assignGroup(Group group, boolean includeDetail) {
-    this.setWsGroup(new WsGroup(group, includeDetail));
+  public void assignGroup(Group group, WsGroupLookup wsGroupLookup, boolean includeDetail) {
+    this.setWsGroup(new WsGroup(group, wsGroupLookup, includeDetail));
   }
 
   /**

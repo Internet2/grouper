@@ -3,11 +3,6 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGroups;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsResults;
@@ -16,6 +11,12 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsS
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -70,9 +71,12 @@ public class WsSampleGetGroups implements WsSampleGenerated {
 
             WsSubjectLookup wsSubjectLookup = WsSubjectLookup.class.newInstance();
             wsSubjectLookup.setSubjectId("GrouperSystem");
+
             WsSubjectLookup wsSubjectLookup2 = WsSubjectLookup.class.newInstance();
             wsSubjectLookup2.setSubjectId("10021368");
-            getGroups.setSubjectLookups(new WsSubjectLookup[]{wsSubjectLookup, wsSubjectLookup2});
+            getGroups.setSubjectLookups(new WsSubjectLookup[] {
+                    wsSubjectLookup, wsSubjectLookup2
+                });
 
             WsGetGroupsResults wsGetGroupsResults = stub.getGroups(getGroups)
                                                         .get_return();
@@ -84,14 +88,14 @@ public class WsSampleGetGroups implements WsSampleGenerated {
 
             if (results != null) {
                 for (WsGetGroupsResult result : results) {
-                  
-                  WsGroup[] wsGroups = result.getWsGroups();
-                  if (wsGroups != null) {
-                    for (WsGroup wsGroup :  wsGroups) {
-                      System.out.println(ToStringBuilder.reflectionToString(
-                              wsGroup));
+                    WsGroup[] wsGroups = result.getWsGroups();
+
+                    if (wsGroups != null) {
+                        for (WsGroup wsGroup : wsGroups) {
+                            System.out.println(ToStringBuilder.reflectionToString(
+                                    wsGroup));
+                        }
                     }
-                  }
                 }
             }
         } catch (Exception e) {

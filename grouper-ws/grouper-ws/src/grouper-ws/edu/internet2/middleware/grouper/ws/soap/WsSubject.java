@@ -157,6 +157,9 @@ public class WsSubject {
         return;
       }
       this.assignSubjectData(subject, subjectAttributeNames);
+    } else {
+      //if no other data, then success
+      this.assignResultCode(WsSubjectResultCode.SUCCESS);
     }
   }
 

@@ -1,12 +1,10 @@
 /*
- * @author mchyzer $Id: WsRestResponseContentType.java,v 1.3 2008-03-27 20:39:26 mchyzer Exp $
+ * @author mchyzer $Id: WsRestResponseContentType.java,v 1.4 2008-03-29 10:50:45 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
 import java.io.Writer;
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;

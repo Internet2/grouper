@@ -6,6 +6,6 @@ edu.internet2.middleware.grouper.ws.rest
 edu.internet2.middleware.grouper.ws.rest.contentType
 edu.internet2.middleware.grouper.ws.rest.group
 edu.internet2.middleware.grouper.ws.rest.method
-edu.internet2.middleware.grouper.ws.rest.subject
+edu.internet2.middleware.grouper.ws.rest.stem
 edu.internet2.middleware.grouper.ws.soap
 edu.internet2.middleware.grouper.ws.util

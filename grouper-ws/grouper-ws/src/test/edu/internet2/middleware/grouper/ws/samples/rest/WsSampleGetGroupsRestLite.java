@@ -20,10 +20,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleGetGroupsRestLite implements WsSampleRest {
 
   /**
-   * get groups simple web service with REST
+   * get groups lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void getGroupsSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void getGroupsLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -86,14 +86,14 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getGroupsSimpleLite(WsSampleRestType.xhtml);
+    getGroupsLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    getGroupsSimpleLite(wsSampleRestType);
+    getGroupsLite(wsSampleRestType);
   }
 
   /**

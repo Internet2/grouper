@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsQueryFilterType.java,v 1.2 2008-03-27 20:39:27 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilterType.java,v 1.3 2008-03-29 10:50:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.ComplementFilter;
 import edu.internet2.middleware.grouper.GroupAnyAttributeFilter;
 import edu.internet2.middleware.grouper.GroupAttributeFilter;
+import edu.internet2.middleware.grouper.GroupNameFilter;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFilter;
 import edu.internet2.middleware.grouper.IntersectionFilter;
@@ -50,7 +51,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoQueryFilter1();
       wsQueryFilter.validateNoStemName();
       wsQueryFilter.validateNoStemNameScope();
-      wsQueryFilter.validateNoType();
+      wsQueryFilter.validateNoGroupTypeName();
 
     }
 
@@ -88,7 +89,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoQueryFilter1();
       wsQueryFilter.validateNoStemName();
       wsQueryFilter.validateNoStemNameScope();
-      wsQueryFilter.validateNoType();
+      wsQueryFilter.validateNoGroupTypeName();
 
     }
 
@@ -100,6 +101,49 @@ public enum WsQueryFilterType {
     @Override
     public QueryFilter retrieveQueryFilter(WsQueryFilter wsQueryFilter) {
       return new GroupNameExactFilter(wsQueryFilter.getGroupName());
+    }
+
+  },
+
+  /**
+   * find by approx name, pass the name in, and optionally a stem name
+   */
+  FIND_BY_GROUP_NAME_APPROXIMATE {
+
+    /**
+     * make sure that based on the inputs, that this is a valid query
+     * @param wsQueryFilter is the query params to validate based on type
+     * @throws WsInvalidQueryException if invalid
+     */
+    @Override
+    public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
+
+      //for a name, needs the name and nothing else
+      wsQueryFilter.validateHasGroupName();
+      wsQueryFilter.validateNoGroupUuid();
+      wsQueryFilter.validateNoGroupAttributeName();
+      wsQueryFilter.validateNoGroupAttributeValue();
+      wsQueryFilter.validateNoQueryFilter0();
+      wsQueryFilter.validateNoQueryFilter1();
+      //optional wsQueryFilter.validateNoStemName();
+      wsQueryFilter.validateNoStemNameScope();
+      wsQueryFilter.validateNoGroupTypeName();
+
+    }
+
+    /**
+     * return the query filter
+     * @param wsQueryFilter
+     * @return the query filter
+     */
+    @Override
+    public QueryFilter retrieveQueryFilter(WsQueryFilter wsQueryFilter) {
+      Stem stem = wsQueryFilter.retrieveStem();
+      if (stem == null) {
+        //if not passed in, then use root
+        stem = StemFinder.findRootStem(wsQueryFilter.retrieveGrouperSession());
+      }
+      return new GroupNameFilter(wsQueryFilter.getGroupName(), stem);
     }
 
   },
@@ -122,11 +166,11 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoGroupUuid();
       wsQueryFilter.validateNoGroupAttributeName();
       wsQueryFilter.validateNoGroupAttributeValue();
-      wsQueryFilter.validateHasQueryFilter0();
-      wsQueryFilter.validateHasQueryFilter1();
+      wsQueryFilter.validateNoQueryFilter0();
+      wsQueryFilter.validateNoQueryFilter1();
       wsQueryFilter.validateHasStemName();
       // optional wsQueryFilter.validateNoStemNameScope();
-      wsQueryFilter.validateNoType();
+      wsQueryFilter.validateNoGroupTypeName();
 
     }
 
@@ -168,7 +212,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoQueryFilter1();
       // optional wsQueryFilter.validateNoStemName();
       wsQueryFilter.validateNoStemNameScope();
-      wsQueryFilter.validateNoType();
+      wsQueryFilter.validateNoGroupTypeName();
     }
 
     /**
@@ -214,7 +258,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateNoQueryFilter1();
       // optional wsQueryFilter.validateNoStemName();
       wsQueryFilter.validateNoStemNameScope();
-      wsQueryFilter.validateHasType();
+      wsQueryFilter.validateHasGroupTypeName();
 
     }
 
@@ -231,7 +275,7 @@ public enum WsQueryFilterType {
         //if not passed in, then use root
         stem = StemFinder.findRootStem(wsQueryFilter.retrieveGrouperSession());
       }
-      GroupType groupType = wsQueryFilter.retrieveType();
+      GroupType groupType = wsQueryFilter.retrieveGroupType();
 
       return new GroupTypeFilter(groupType, stem);
     }
@@ -260,7 +304,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateHasQueryFilter1();
       wsQueryFilter.validateNoStemName();
       wsQueryFilter.validateNoStemNameScope();
-      wsQueryFilter.validateNoType();
+      wsQueryFilter.validateNoGroupTypeName();
 
     }
 
@@ -299,7 +343,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateHasQueryFilter1();
       wsQueryFilter.validateNoStemName();
       wsQueryFilter.validateNoStemNameScope();
-      wsQueryFilter.validateNoType();
+      wsQueryFilter.validateNoGroupTypeName();
 
     }
 
@@ -339,7 +383,7 @@ public enum WsQueryFilterType {
       wsQueryFilter.validateHasQueryFilter1();
       wsQueryFilter.validateNoStemName();
       wsQueryFilter.validateNoStemNameScope();
-      wsQueryFilter.validateNoType();
+      wsQueryFilter.validateNoGroupTypeName();
 
     }
 

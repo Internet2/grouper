@@ -164,6 +164,14 @@ this represents a query which can be and'ed or or'ed
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#getGroupTypeName()">getGroupTypeName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if searching by type, this is the type to search for.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#getGroupUuid()">getGroupUuid</A></B>()</CODE>
 
 <BR>
@@ -192,7 +200,7 @@ this represents a query which can be and'ed or or'ed
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#getQueryFilterType()">getQueryFilterType</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;findGroupType is the WsStemQueryType enum for which type of find is happening: e.g.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;findGroupType is the WsQueryFilterType enum for which type of find is happening: e.g.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -223,19 +231,20 @@ this represents a query which can be and'ed or or'ed
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#getTheType()">getTheType</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if searching by type, this is the type to search for</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;edu.internet2.middleware.grouper.GrouperSession</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#retrieveGrouperSession()">retrieveGrouperSession</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grouper session</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.grouper.GroupType</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#retrieveGroupType()">retrieveGroupType</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is no group type name, return null
+ if there is a group type name, then find it, and return it.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -271,15 +280,6 @@ this represents a query which can be and'ed or or'ed
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;edu.internet2.middleware.grouper.GroupType</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#retrieveType()">retrieveType</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is no group type name, return null
- if there is a group type name, then find it, and return it.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#setGroupAttributeName(java.lang.String)">setGroupAttributeName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;attributeName1)</CODE>
 
@@ -302,6 +302,14 @@ this represents a query which can be and'ed or or'ed
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;groupName search by group name (must match exactly), cannot use other params with this</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#setGroupTypeName(java.lang.String)">setGroupTypeName</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;theType1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if searching by type, this is the type to search for.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -334,7 +342,7 @@ this represents a query which can be and'ed or or'ed
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#setQueryFilterType(java.lang.String)">setQueryFilterType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;findGroupType1)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;findGroupType is the WsStemQueryType enum for which type of find is happening: 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;findGroupType is the WsQueryFilterType enum for which type of find is happening: 
  e.g.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -363,14 +371,6 @@ this represents a query which can be and'ed or or'ed
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stemNameScope
  if searching by stem, ONE_LEVEL is for one level,
  ALL_IN_SUBTREE will return all in sub tree.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#setTheType(java.lang.String)">setTheType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;theType1)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if searching by type, this is the type to search for</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -415,6 +415,14 @@ this represents a query which can be and'ed or or'ed
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#validateHasGroupTypeName()">validateHasGroupTypeName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is no type, there should be</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#validateHasGroupUuid()">validateHasGroupUuid</A></B>()</CODE>
 
 <BR>
@@ -455,14 +463,6 @@ this represents a query which can be and'ed or or'ed
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#validateHasType()">validateHasType</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is no type, there should be</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#validateNoGroupAttributeName()">validateNoGroupAttributeName</A></B>()</CODE>
 
 <BR>
@@ -483,6 +483,14 @@ this represents a query which can be and'ed or or'ed
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a group name, there shouldnt be</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#validateNoGroupTypeName()">validateNoGroupTypeName</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a type, there shouldnt be</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -523,14 +531,6 @@ this represents a query which can be and'ed or or'ed
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a group name, there shouldnt be</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD#validateNoType()">validateNoType</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is a type, there shouldnt be</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -728,10 +728,10 @@ public void <B>validateHasGroupAttributeName</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="validateNoType()"><!-- --></A><H3>
-validateNoType</H3>
+<A NAME="validateNoGroupTypeName()"><!-- --></A><H3>
+validateNoGroupTypeName</H3>
 <PRE>
-public void <B>validateNoType</B>()</PRE>
+public void <B>validateNoGroupTypeName</B>()</PRE>
 <DL>
 <DD>if there is a type, there shouldnt be
 <P>
@@ -741,10 +741,10 @@ public void <B>validateNoType</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="validateHasType()"><!-- --></A><H3>
-validateHasType</H3>
+<A NAME="validateHasGroupTypeName()"><!-- --></A><H3>
+validateHasGroupTypeName</H3>
 <PRE>
-public void <B>validateHasType</B>()</PRE>
+public void <B>validateHasGroupTypeName</B>()</PRE>
 <DL>
 <DD>if there is no type, there should be
 <P>
@@ -811,9 +811,9 @@ getQueryFilterType</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>getQueryFilterType</B>()</PRE>
 <DL>
-<DD>findGroupType is the WsStemQueryType enum for which type of find is happening: e.g. 
+<DD>findGroupType is the WsQueryFilterType enum for which type of find is happening: e.g. 
  FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, 
- FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE, 
+ FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE,  FIND_BY_GROUP_NAME_APPROXIMATE,
  FIND_BY_TYPE, AND, OR, MINUS;
 <P>
 <DD><DL>
@@ -828,9 +828,9 @@ setQueryFilterType</H3>
 <PRE>
 public void <B>setQueryFilterType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;findGroupType1)</PRE>
 <DL>
-<DD>findGroupType is the WsStemQueryType enum for which type of find is happening: 
+<DD>findGroupType is the WsQueryFilterType enum for which type of find is happening: 
  e.g. FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, 
- FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE, 
+ FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE,  FIND_BY_GROUP_NAME_APPROXIMATE,
  FIND_BY_TYPE, AND, OR, MINUS;
 <P>
 <DD><DL>
@@ -1023,12 +1023,12 @@ public void <B>setGroupAttributeName</B>(<A HREF="http://java.sun.com/j2se/1.4.2
 </DL>
 <HR>
 
-<A NAME="getTheType()"><!-- --></A><H3>
-getTheType</H3>
+<A NAME="getGroupTypeName()"><!-- --></A><H3>
+getGroupTypeName</H3>
 <PRE>
-public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>getTheType</B>()</PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>getGroupTypeName</B>()</PRE>
 <DL>
-<DD>if searching by type, this is the type to search for
+<DD>if searching by type, this is the type to search for.  not yet implemented
 <P>
 <DD><DL>
 
@@ -1037,12 +1037,12 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?ro
 </DL>
 <HR>
 
-<A NAME="setTheType(java.lang.String)"><!-- --></A><H3>
-setTheType</H3>
+<A NAME="setGroupTypeName(java.lang.String)"><!-- --></A><H3>
+setGroupTypeName</H3>
 <PRE>
-public void <B>setTheType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;theType1)</PRE>
+public void <B>setGroupTypeName</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;theType1)</PRE>
 <DL>
-<DD>if searching by type, this is the type to search for
+<DD>if searching by type, this is the type to search for.  not yet implemented
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>theType1</CODE> - the theType to set</DL>
@@ -1175,10 +1175,10 @@ public edu.internet2.middleware.grouper.Stem <B>retrieveStem</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="retrieveType()"><!-- --></A><H3>
-retrieveType</H3>
+<A NAME="retrieveGroupType()"><!-- --></A><H3>
+retrieveGroupType</H3>
 <PRE>
-public edu.internet2.middleware.grouper.GroupType <B>retrieveType</B>()</PRE>
+public edu.internet2.middleware.grouper.GroupType <B>retrieveGroupType</B>()</PRE>
 <DL>
 <DD>if there is no group type name, return null
  if there is a group type name, then find it, and return it.  If not found, then 

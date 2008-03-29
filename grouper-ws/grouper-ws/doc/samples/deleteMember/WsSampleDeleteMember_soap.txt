@@ -52,9 +52,9 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 Content-Type: application/soap+xml; action="urn:deleteMemberResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 28 Mar 2008 16:38:09 GMT
+Date: Sat, 29 Mar 2008 10:33:13 GMT
 
-c96
+c97
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -66,8 +66,8 @@ c96
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@13aa7d4[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@49968b[subject=&lt;null...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@a87a8[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: NONE
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1440638[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@4ab168[subject=&lt;null...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@f2a824[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: NONE
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -232,4 +232,4 @@ public class WsSampleDeleteMember implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberResults@38462a[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@17b79a6,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@16f8834,localResultMetadataTracker=true,localResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberResult@13f99af,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberResult@82c23d},localResultsTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@e62121,localWsGroupTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberResults@1eb7d25[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@39d811,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1984f7d,localResultMetadataTracker=true,localResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberResult@125d92c,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberResult@1d4e49a},localResultsTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@731f3f,localWsGroupTracker=true]

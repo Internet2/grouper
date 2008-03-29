@@ -1,18 +1,14 @@
 /*
- * @author mchyzer $Id: WsQueryFilter.java,v 1.1 2008-03-24 20:19:48 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilter.java,v 1.2 2008-03-29 10:50:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
-
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.QueryFilter;
-import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
@@ -20,6 +16,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
+import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
  * this represents a query which can be and'ed or or'ed
@@ -30,9 +27,9 @@ public class WsQueryFilter {
   private GrouperSession grouperSession = null;
 
   /**
-   * findGroupType is the WsStemQueryType enum for which type of find is happening:  e.g.
+   * findGroupType is the WsQueryFilterType enum for which type of find is happening:  e.g.
    * FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, 
-   * FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE, 
+   * FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE,   FIND_BY_GROUP_NAME_APPROXIMATE,
    * FIND_BY_TYPE, AND, OR, MINUS;
    */
   private String queryFilterType;
@@ -158,22 +155,22 @@ public class WsQueryFilter {
   }
 
   /**
-   * if searching by type, this is the type to search for
+   * if searching by type, this is the type to search for.  not yet implemented
    */
-  private String theType;
+  private String groupTypeName;
 
   /**
    * if there is a type, there shouldnt be
    */
-  public void validateNoType() {
-    this.validateBlank("type", this.theType);
+  public void validateNoGroupTypeName() {
+    this.validateBlank("type", this.groupTypeName);
   }
 
   /**
    * if there is no type, there should be
    */
-  public void validateHasType() {
-    this.validateNotBlank("type", this.theType);
+  public void validateHasGroupTypeName() {
+    this.validateNotBlank("type", this.groupTypeName);
   }
 
   /**
@@ -255,9 +252,9 @@ public class WsQueryFilter {
   }
 
   /**
-   * findGroupType is the WsStemQueryType enum for which type of find is happening: e.g. 
+   * findGroupType is the WsQueryFilterType enum for which type of find is happening: e.g. 
    * FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, 
-   * FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE, 
+   * FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE,  FIND_BY_GROUP_NAME_APPROXIMATE,
    * FIND_BY_TYPE, AND, OR, MINUS; 
    * @return the findGroupType
    */
@@ -266,9 +263,9 @@ public class WsQueryFilter {
   }
 
   /**
-   * findGroupType is the WsStemQueryType enum for which type of find is happening: 
+   * findGroupType is the WsQueryFilterType enum for which type of find is happening: 
    * e.g. FIND_BY_GROUP_UUID, FIND_BY_GROUP_NAME_EXACT, FIND_BY_STEM_NAME, 
-   * FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE, 
+   * FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE,  FIND_BY_GROUP_NAME_APPROXIMATE,
    * FIND_BY_TYPE, AND, OR, MINUS; 
    * @param findGroupType1 the findGroupType to set
    */
@@ -391,19 +388,19 @@ public class WsQueryFilter {
   }
 
   /**
-   * if searching by type, this is the type to search for
+   * if searching by type, this is the type to search for.  not yet implemented
    * @return the theType
    */
-  public String getTheType() {
-    return this.theType;
+  public String getGroupTypeName() {
+    return this.groupTypeName;
   }
 
   /**
-   * if searching by type, this is the type to search for
+   * if searching by type, this is the type to search for.  not yet implemented
    * @param theType1 the theType to set
    */
-  public void setTheType(String theType1) {
-    this.theType = theType1;
+  public void setGroupTypeName(String theType1) {
+    this.groupTypeName = theType1;
   }
 
   /**
@@ -509,24 +506,8 @@ public class WsQueryFilter {
    * @return the stem or null
    */
   @SuppressWarnings("unchecked")
-  public GroupType retrieveType() {
-    if (StringUtils.isBlank(this.stemName)) {
-      return null;
-    }
-    try {
-      GroupType groupType = GroupTypeFinder.find(this.theType);
-      return groupType;
-    } catch (SchemaException se) {
-
-      //give a descriptive error, shouldnt be a security problem
-      StringBuilder error = new StringBuilder("Cant find group type: '").append(
-          this.theType).append("', valid types are: ");
-      Set<GroupType> groupTypes = GroupTypeFinder.findAll();
-      for (GroupType groupType : groupTypes) {
-        error.append(groupType.getName()).append(", ");
-      }
-      throw new WsInvalidQueryException(error.toString());
-    }
+  public GroupType retrieveGroupType() {
+    return GrouperServiceUtils.retrieveGroupType(this.groupTypeName);
   }
 
   /**

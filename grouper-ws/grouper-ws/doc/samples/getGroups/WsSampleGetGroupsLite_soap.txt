@@ -49,9 +49,9 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/soap+xml; action="urn:getGroupsLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Fri, 28 Mar 2008 16:38:49 GMT
+Date: Sat, 29 Mar 2008 10:33:55 GMT
 
-895
+a4e
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -63,9 +63,9 @@ Date: Fri, 28 Mar 2008 16:38:49 GMT
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@81f8f[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=]
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1b66175[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=]
 
-memberFilter: All, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@14ffad7[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=]
+memberFilter: All, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b86e21[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=]
 , params: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -78,6 +78,15 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: edu.internet2.middle
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
           <ns:uuid>d8be0f16-5716-44e4-8af1-2ab5b42ad282</ns:uuid>
+        </ns:wsGroups>
+        <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+          <ns:description>a group description2</ns:description>
+          <ns:detail xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:displayExtension>a group2</ns:displayExtension>
+          <ns:displayName>a stem:a group2</ns:displayName>
+          <ns:extension>aGroup2</ns:extension>
+          <ns:name>aStem:aGroup2</ns:name>
+          <ns:uuid>f7a9e321-6a1d-4866-95ed-c301f88b54ae</ns:uuid>
         </ns:wsGroups>
         <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
           <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -109,17 +118,18 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: edu.internet2.middle
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroup;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -175,12 +185,12 @@ public class WsSampleGetGroupsLite implements WsSampleGenerated {
             getGroupsLite.setSubjectId("GrouperSystem");
             getGroupsLite.setSubjectIdentifier("");
             getGroupsLite.setSubjectSourceId("");
-            
-            WsGetGroupsLiteResult wsGetGroupsLiteResult = 
-              stub.getGroupsLite(getGroupsLite).get_return();
+
+            WsGetGroupsLiteResult wsGetGroupsLiteResult = stub.getGroupsLite(getGroupsLite)
+                                                              .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                wsGetGroupsLiteResult));
+                    wsGetGroupsLiteResult));
 
             WsGroup[] results = wsGetGroupsLiteResult.getWsGroups();
 
@@ -204,5 +214,6 @@ public class WsSampleGetGroupsLite implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGetGroupsLiteResult@b64f2e[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@5f7d3f,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@117b450,localResultMetadataTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroups={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@2b2057},localWsGroupsTracker=true,localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@158497c,localWsSubjectTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@2b2057[localDescription=a group description,localDescriptionTracker=true,localDetail=<null>,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=d8be0f16-5716-44e4-8af1-2ab5b42ad282,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGetGroupsLiteResult@186b11c[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@44b7f7,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@189cecf,localResultMetadataTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroups={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@ebaf12,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@132e910},localWsGroupsTracker=true,localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@1635aad,localWsSubjectTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@ebaf12[localDescription=a group description,localDescriptionTracker=true,localDetail=<null>,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=d8be0f16-5716-44e4-8af1-2ab5b42ad282,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@132e910[localDescription=a group description2,localDescriptionTracker=true,localDetail=<null>,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=f7a9e321-6a1d-4866-95ed-c301f88b54ae,localUuidTracker=true]

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.4 2008-03-28 16:45:00 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.5 2008-03-29 10:50:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -15,11 +15,16 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberLiteRequest
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
@@ -33,6 +38,8 @@ import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
@@ -55,6 +62,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.soap.WsStem;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter;
 import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.soap.WsSubject;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
@@ -87,6 +95,7 @@ public class WsRestClassLookup {
     addAliasClass(WsGetGroupsResult.class);
     addAliasClass(WsGetGroupsResults.class);
     addAliasClass(WsGetMembershipsResults.class);
+    addAliasClass(WsGetMembersResult.class);
     addAliasClass(WsGetMembersResults.class);
     addAliasClass(WsGroup.class);
     addAliasClass(WsGroupDeleteResult.class);
@@ -107,6 +116,7 @@ public class WsRestClassLookup {
     addAliasClass(WsStem.class);
     addAliasClass(WsStemDeleteResult.class);
     addAliasClass(WsStemDeleteResults.class);
+    addAliasClass(WsStemQueryFilter.class);
     addAliasClass(WsStemToSave.class);
     addAliasClass(WsSubject.class);
     addAliasClass(WsSubjectLookup.class);
@@ -131,6 +141,15 @@ public class WsRestClassLookup {
     addAliasClass(WsRestGetGroupsLiteRequest.class);
     addAliasClass(WsRestGetGroupsRequest.class);
     addAliasClass(WsGetGroupsLiteResult.class);
+
+    addAliasClass(WsRestGetMembersLiteRequest.class);
+    addAliasClass(WsRestGetMembersRequest.class);
+    addAliasClass(WsGetMembersLiteResult.class);
+  
+    addAliasClass(WsRestFindGroupsLiteRequest.class);
+    addAliasClass(WsRestFindGroupsRequest.class);
+    addAliasClass(WsRestFindStemsLiteRequest.class);
+    addAliasClass(WsRestFindStemsRequest.class);
   }
   
   /**

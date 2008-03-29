@@ -134,9 +134,8 @@ public class WsGetGroupsResults implements WsResponseBean {
    * make sure if there is an error, to record that as an error
    * @param grouperTransactionType for request
    * @param theSummary
-   * @return true if success, false if not
    */
-  public boolean tallyResults(String theSummary) {
+  public void tallyResults(String theSummary) {
     //maybe already a failure
     boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
         .getSuccess(), true);
@@ -177,10 +176,8 @@ public class WsGetGroupsResults implements WsResponseBean {
     //make response descriptive
     if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {
       this.getResultMetadata().appendResultMessage("Success for: " + theSummary);
-      return true;
+      return;
     }
-    //I guess false if it wasnt just true...
-    return false;
   }
 
   /**

@@ -18,4 +18,5 @@ grouper.hibernate.example.properties
 <Context docBase="C:\mchyzer\isc\dev\grouper\grouper-ws\build\dist\grouper-ws" 
 path="/grouper-ws" reloadable="false"/>
 
+- manage your db driver.  Some db drivers are included with grouper-ws.  Delete/add to the lib dir as appropriate.
 - do a "dist" build, and get started

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.3 2008-03-27 20:39:27 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.4 2008-03-29 10:50:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -238,7 +238,7 @@ public class GrouperRestServlet extends HttpServlet {
    * <pre>
    * take a request uri and break up the url strings not including the app name or servlet
    * this does not include the url params (if applicable)
-   * if the input is: grouper-ws/servicesRest/xhtml/v1_3_000/group/members
+   * if the input is: grouper-ws/servicesRest/xhtml/v1_3_000/groups/members
    * then the result is a list of size 2: {"group", "members"}
    * 
    * </pre>

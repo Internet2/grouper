@@ -1,17 +1,14 @@
 /*
- * @author mchyzer $Id: GrouperWsRestDelete.java,v 1.3 2008-03-28 16:45:00 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestDelete.java,v 1.4 2008-03-29 10:50:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
-import edu.internet2.middleware.grouper.ws.rest.group.GrouperWsRestDeleteGroup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -53,7 +50,7 @@ public enum GrouperWsRestDelete {
   /**
    * handle the incoming request based on HTTP method
    * @param clientVersion version of client, e.g. v1_3_000
-   * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/group/a:b
+   * @param urlStrings not including the app name or servlet.  for http://localhost/grouper-ws/servicesRest/groups/a:b
    * the urlStrings would be size two: {"group", "a:b"}
    * @param requestObject is the request body converted to object
    * @return the result object

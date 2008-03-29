@@ -4,15 +4,16 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembers;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubject;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedUtils;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 
-import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
@@ -70,9 +71,13 @@ public class WsSampleGetMembers implements WsSampleGenerated {
 
             WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
             wsGroupLookup.setGroupName("aStem:aGroup");
-            getMembers.setWsGroupLookup(wsGroupLookup);
 
+            WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
+            getMembers.setWsGroupLookups(wsGroupLookups);
+
+            getMembers.setFieldName("");
             getMembers.setMemberFilter("All");
+            getMembers.setIncludeGroupDetail("F");
             getMembers.setIncludeSubjectDetail("T");
 
             WsGetMembersResults wsGetMembersResults = stub.getMembers(getMembers)
@@ -81,10 +86,21 @@ public class WsSampleGetMembers implements WsSampleGenerated {
             System.out.println(ToStringBuilder.reflectionToString(
                     wsGetMembersResults));
 
-            WsSubject[] wsSubjectArray = wsGetMembersResults.getResults();
+            WsGetMembersResult[] wsGetMemberResults = wsGetMembersResults.getResults();
+            int i = 0;
 
-            for (WsSubject wsSubject : wsSubjectArray) {
-                System.out.println(ToStringBuilder.reflectionToString(wsSubject));
+            for (WsGetMembersResult wsGetMembersResult : GeneratedUtils.nonNull(
+                    wsGetMemberResults)) {
+                System.out.println("Result: " + i++ + ": code: " +
+                    wsGetMembersResult.getResultMetadata().getResultCode());
+
+                WsSubject[] wsSubjectArray = wsGetMembersResult.getWsSubjects();
+
+                for (WsSubject wsSubject : GeneratedUtils.nonNull(
+                        wsSubjectArray)) {
+                    System.out.println(ToStringBuilder.reflectionToString(
+                            wsSubject));
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

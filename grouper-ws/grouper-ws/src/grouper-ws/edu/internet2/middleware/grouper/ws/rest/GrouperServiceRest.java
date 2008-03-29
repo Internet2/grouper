@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.4 2008-03-28 16:45:00 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.5 2008-03-29 10:50:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -9,18 +9,26 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberLiteRequest
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.soap.GrouperService;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
@@ -30,10 +38,72 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 /**
  * consolidated static list of of rest web services (only web service methods here
  * to have clean javadoc).  the method name corresponds to the url and request method.
- * e.g. "GET /group/a:b:c/members" will correspond to groupMembersGet()
+ * e.g. "GET /groups/a:b:c/members" will correspond to groupMembersGet()
  */
 public class GrouperServiceRest {
 
+  /**
+   * <pre>
+   * based on a group query, get the groups
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestFindGroupsRequest is the request body converted to an object
+   * @return the results
+   */
+  public static WsFindGroupsResults findGroups(
+      GrouperWsVersion clientVersion, 
+      WsRestFindGroupsRequest wsRestFindGroupsRequest) {
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(), 
+        wsRestFindGroupsRequest.getClientVersion(), false, "clientVersion");
+
+    //get the results
+    WsFindGroupsResults wsFindGroupsResults = new GrouperService().findGroups(
+        clientVersionString, wsRestFindGroupsRequest.getWsQueryFilter(), 
+        wsRestFindGroupsRequest.getActAsSubjectLookup(), 
+        wsRestFindGroupsRequest.getIncludeGroupDetail(), 
+        wsRestFindGroupsRequest.getParams());
+
+    //return result
+    return wsFindGroupsResults;
+  }
+  
+  /**
+   * <pre>
+   * based on a group query, get the groups
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestFindGroupsLiteRequest is the request body converted to an object
+   * @return the results
+   */
+  public static WsFindGroupsResults findGroupsLite(
+      GrouperWsVersion clientVersion, 
+      WsRestFindGroupsLiteRequest wsRestFindGroupsLiteRequest) {
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(), 
+        wsRestFindGroupsLiteRequest.getClientVersion(), false, "clientVersion");
+
+    //get the results
+    WsFindGroupsResults wsFindGroupsResults = new GrouperService().findGroupsLite(
+        clientVersionString, wsRestFindGroupsLiteRequest.getQueryFilterType(), 
+        wsRestFindGroupsLiteRequest.getGroupName(), wsRestFindGroupsLiteRequest.getStemName(), 
+        wsRestFindGroupsLiteRequest.getStemNameScope(), wsRestFindGroupsLiteRequest.getGroupUuid(), 
+        wsRestFindGroupsLiteRequest.getGroupAttributeName(), 
+        wsRestFindGroupsLiteRequest.getGroupAttributeValue(), 
+        wsRestFindGroupsLiteRequest.getGroupTypeName(), 
+        wsRestFindGroupsLiteRequest.getActAsSubjectId(), 
+        wsRestFindGroupsLiteRequest.getActAsSubjectSourceId(), 
+        wsRestFindGroupsLiteRequest.getActAsSubjectIdentifier(), 
+        wsRestFindGroupsLiteRequest.getIncludeGroupDetail(), 
+        wsRestFindGroupsLiteRequest.getParamName0(), 
+        wsRestFindGroupsLiteRequest.getParamValue0(), 
+        wsRestFindGroupsLiteRequest.getParamName1(), 
+        wsRestFindGroupsLiteRequest.getParamValue1());
+
+    //return result
+    return wsFindGroupsResults;
+  }
+    
   /**
    * <pre>
    * based on a group name, get the members
@@ -42,8 +112,8 @@ public class GrouperServiceRest {
    * @param groupName is the name of the group including stems, e.g. a:b:c
    * @param wsRestGroupGetMembersRequest is the request body converted to an object
    * @return the results
-   */  //TODO change result type to a Lite response
-  public static WsGetMembersResults getMembersLite(
+   */
+  public static WsGetMembersLiteResult getMembersLite(
       GrouperWsVersion clientVersion, String groupName,
       WsRestGetMembersLiteRequest wsRestGroupGetMembersRequest) {
 
@@ -57,20 +127,22 @@ public class GrouperServiceRest {
         wsRestGroupGetMembersRequest.getGroupName(), false, "groupName");
 
     //get the results
-    WsGetMembersResults wsGetMembersResults = new GrouperService().getMembersLite(
-        clientVersionString, groupName, null, wsRestGroupGetMembersRequest
-            .getMemberFilter(), wsRestGroupGetMembersRequest.getRetrieveSubjectDetail(),
+    WsGetMembersLiteResult wsGetMembersLiteResult = new GrouperService().getMembersLite(
+        clientVersionString, groupName, wsRestGroupGetMembersRequest.getGroupUuid(), 
+        wsRestGroupGetMembersRequest
+            .getMemberFilter(), 
         wsRestGroupGetMembersRequest.getActAsSubjectId(), wsRestGroupGetMembersRequest
             .getActAsSubjectSourceId(), wsRestGroupGetMembersRequest
             .getActAsSubjectIdentifier(), wsRestGroupGetMembersRequest.getFieldName(),
-        wsRestGroupGetMembersRequest.getSubjectAttributeNames(),
         wsRestGroupGetMembersRequest.getIncludeGroupDetail(),
+        wsRestGroupGetMembersRequest.getRetrieveSubjectDetail(),
+        wsRestGroupGetMembersRequest.getSubjectAttributeNames(),
         wsRestGroupGetMembersRequest.getParamName0(), wsRestGroupGetMembersRequest
             .getParamValue0(), wsRestGroupGetMembersRequest.getParamName1(),
         wsRestGroupGetMembersRequest.getParamName1());
 
     //return result
-    return wsGetMembersResults;
+    return wsGetMembersLiteResult;
 
   }
 
@@ -80,9 +152,9 @@ public class GrouperServiceRest {
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group including stems, e.g. a:b:c
-   * @param subjectId from url, e.g. /v1_3_000/group/aStem:aGroup/members/123412345
+   * @param subjectId from url, e.g. /v1_3_000/groups/aStem:aGroup/members/123412345
    * @param sourceId from url (optional) e.g.
-   * /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+   * /v1_3_000/groups/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
    * @param wsRestAddMemberLiteRequest is the request body converted to an object
    * @return the result
    */
@@ -118,7 +190,7 @@ public class GrouperServiceRest {
   /**
    * <pre>
    * based on a group name, put multiple members, or all members.  e.g. url:
-   * /v1_3_000/group/aStem:aGroup/members
+   * /v1_3_000/groups/aStem:aGroup/members
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group including stems, e.g. a:b:c
@@ -163,9 +235,9 @@ public class GrouperServiceRest {
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group including stems, e.g. a:b:c
-   * @param subjectId from url, e.g. /v1_3_000/group/aStem:aGroup/members/123412345
+   * @param subjectId from url, e.g. /v1_3_000/groups/aStem:aGroup/members/123412345
    * @param sourceId from url (optional) e.g.
-   * /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+   * /v1_3_000/groups/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
    * @param wsRestDeleteMemberLiteRequest is the request body converted to an object
    * @return the result
    */
@@ -201,7 +273,7 @@ public class GrouperServiceRest {
   /**
    * <pre>
    * based on a group name, put multiple members, or all members.  e.g. url:
-   * /v1_3_000/group/aStem:aGroup/members
+   * /v1_3_000/groups/aStem:aGroup/members
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group including stems, e.g. a:b:c
@@ -243,7 +315,7 @@ public class GrouperServiceRest {
   /**
    * <pre>
    * based on a group name, and multiple subjects, see if they are members .  e.g. url:
-   * /v1_3_000/group/aStem:aGroup/members
+   * /v1_3_000/groups/aStem:aGroup/members
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group including stems, e.g. a:b:c
@@ -284,13 +356,48 @@ public class GrouperServiceRest {
 
   /**
    * <pre>
+   * based on a group name, get members .  e.g. url:
+   * /v1_3_000/groups/aStem:aGroup/members
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param groupName is the name of the group including stems, e.g. a:b:c
+   * @param wsRestGetMembersRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGetMembersResults getMembers(
+      GrouperWsVersion clientVersion,
+      WsRestGetMembersRequest wsRestGetMembersRequest) {
+  
+    //cant be null
+    GrouperUtil.assertion(wsRestGetMembersRequest != null, "Body of request must contain an instance of " 
+        + WsRestGetMembersRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(), 
+        wsRestGetMembersRequest.getClientVersion(), false, "clientVersion");
+    
+    //get the results
+    WsGetMembersResults wsGetMembersResults = new GrouperService().getMembers(
+        clientVersionString, wsRestGetMembersRequest.getWsGroupLookups(), 
+        wsRestGetMembersRequest.getMemberFilter(), wsRestGetMembersRequest.getActAsSubjectLookup(),
+        wsRestGetMembersRequest.getFieldName(),  
+        wsRestGetMembersRequest.getIncludeGroupDetail(),
+        wsRestGetMembersRequest.getIncludeSubjectDetail(), wsRestGetMembersRequest.getSubjectAttributeNames(), 
+        wsRestGetMembersRequest.getParams());
+  
+    //return result
+    return wsGetMembersResults;
+  
+  }
+
+  /**
+   * <pre>
    * based on a group name, and a subject, see if member
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group including stems, e.g. a:b:c
-   * @param subjectId from url, e.g. /v1_3_000/group/aStem:aGroup/members/123412345
+   * @param subjectId from url, e.g. /v1_3_000/groups/aStem:aGroup/members/123412345
    * @param sourceId from url (optional) e.g.
-   * /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+   * /v1_3_000/groups/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
    * @param wsRestHasMemberLiteRequest is the request body converted to an object
    * @return the result
    */
@@ -364,9 +471,9 @@ public class GrouperServiceRest {
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group including stems, e.g. a:b:c
-   * @param subjectId from url, e.g. /v1_3_000/group/aStem:aGroup/members/123412345
+   * @param subjectId from url, e.g. /v1_3_000/groups/aStem:aGroup/members/123412345
    * @param sourceId from url (optional) e.g.
-   * /v1_3_000/group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+   * /v1_3_000/groups/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
    * @param wsRestGetGroupsLiteRequest is the request body converted to an object
    * @return the result
    */
@@ -396,6 +503,65 @@ public class GrouperServiceRest {
     //return result
     return wsGetGroupsLiteResult;
   
+  }
+
+  /**
+   * <pre>
+   * based on a stem query, get the stems
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestFindStemsRequest is the request body converted to an object
+   * @return the results
+   */
+  public static WsFindStemsResults findStems(
+      GrouperWsVersion clientVersion, 
+      WsRestFindStemsRequest wsRestFindStemsRequest) {
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(), 
+        wsRestFindStemsRequest.getClientVersion(), false, "clientVersion");
+  
+    //get the results
+    WsFindStemsResults wsFindStemsResults = new GrouperService().findStems(
+        clientVersionString, wsRestFindStemsRequest.getWsStemQueryFilter(), 
+        wsRestFindStemsRequest.getActAsSubjectLookup(), 
+        wsRestFindStemsRequest.getParams());
+  
+    //return result
+    return wsFindStemsResults;
+  }
+
+  /**
+   * <pre>
+   * based on a stem query, get the stems
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestFindStemsLiteRequest is the request body converted to an object
+   * @return the results
+   */
+  public static WsFindStemsResults findStemsLite(
+      GrouperWsVersion clientVersion, 
+      WsRestFindStemsLiteRequest wsRestFindStemsLiteRequest) {
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(), 
+        wsRestFindStemsLiteRequest.getClientVersion(), false, "clientVersion");
+  
+    //get the results
+    WsFindStemsResults wsFindStemsResults = new GrouperService().findStemsLite(
+        clientVersionString, wsRestFindStemsLiteRequest.getStemQueryFilterType(), 
+        wsRestFindStemsLiteRequest.getStemName(), wsRestFindStemsLiteRequest.getParentStemName(), 
+        wsRestFindStemsLiteRequest.getParentStemNameScope(), wsRestFindStemsLiteRequest.getStemUuid(), 
+        wsRestFindStemsLiteRequest.getStemAttributeName(), 
+        wsRestFindStemsLiteRequest.getStemAttributeValue(), 
+        wsRestFindStemsLiteRequest.getActAsSubjectId(), 
+        wsRestFindStemsLiteRequest.getActAsSubjectSourceId(), 
+        wsRestFindStemsLiteRequest.getActAsSubjectIdentifier(), 
+        wsRestFindStemsLiteRequest.getParamName0(), 
+        wsRestFindStemsLiteRequest.getParamValue0(), 
+        wsRestFindStemsLiteRequest.getParamName1(), 
+        wsRestFindStemsLiteRequest.getParamValue1());
+  
+    //return result
+    return wsFindStemsResults;
   }
 }
 

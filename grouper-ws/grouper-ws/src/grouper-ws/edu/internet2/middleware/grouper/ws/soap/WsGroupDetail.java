@@ -135,8 +135,8 @@ public class WsGroupDetail {
         }
 
         try {
-          this.setLeftGroup(new WsGroup(composite.getLeftGroup(), false));
-          this.setRightGroup(new WsGroup(composite.getRightGroup(), false));
+          this.setLeftGroup(new WsGroup(composite.getLeftGroup(), null, false));
+          this.setRightGroup(new WsGroup(composite.getRightGroup(), null, false));
         } catch (GroupNotFoundException gnfe) {
           //this means something bad is happening
           throw new RuntimeException(gnfe);

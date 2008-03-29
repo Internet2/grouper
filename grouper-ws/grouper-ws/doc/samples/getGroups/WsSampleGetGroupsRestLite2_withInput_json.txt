@@ -39,7 +39,7 @@ Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: text/x-json
-Date: Fri, 28 Mar 2008 16:39:03 GMT
+Date: Sat, 29 Mar 2008 10:34:10 GMT
 Connection: close
 
 {
@@ -50,13 +50,42 @@ Connection: close
         "$":"SUCCESS"
       },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1ee475a[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...\nmemberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@8e836c[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1d6768f[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...\nmemberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@101dfa5[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]\n, params: null",
       "success":"T",
       "httpStatusCode":200
     },
     "responseMetadata":{
       "resultWarnings":"",
       "serverVersion":"v1_3_000"
+    },
+    "wsGroups":{
+      "WsGroup":{
+        "extension":"aGroup2",
+        "displayExtension":"a group2",
+        "description":"a group description2",
+        "displayName":"a stem:a group2",
+        "name":"aStem:aGroup2",
+        "uuid":"f7a9e321-6a1d-4866-95ed-c301f88b54ae",
+        "detail":{
+          "hasComposite":"F",
+          "typeNames":{
+            "string":"base"
+          },
+          "attributeNames":{
+            "string":"description"
+          },
+          "attributeValues":{
+            "string":"a group description2"
+          },
+          "createSubjectId":"GrouperSystem",
+          "createTime":"2008\/03\/29 06:32:31.699",
+          "isCompositeFactor":"F",
+          "modifySource":"",
+          "modifySubjectId":"GrouperSystem",
+          "modifyTime":"2008\/03\/29 06:32:32.355"
+        }
+      }
+      
     },
     "wsSubject":{
       "resultCode":"SUCCESS",
@@ -103,10 +132,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 
   /**
-   * get groups simple web service with REST
+   * get groups lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void getGroupsSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void getGroupsLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -130,16 +159,16 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestGetGroupsLiteRequest getGroupsSimple = new WsRestGetGroupsLiteRequest();
+      WsRestGetGroupsLiteRequest getGroupsLite = new WsRestGetGroupsLiteRequest();
 
       // set the act as id
-      getGroupsSimple.setActAsSubjectId("GrouperSystem");
+      getGroupsLite.setActAsSubjectId("GrouperSystem");
 
-      getGroupsSimple.setIncludeGroupDetail("T");
-      getGroupsSimple.setIncludeSubjectDetail("T");
+      getGroupsLite.setIncludeGroupDetail("T");
+      getGroupsLite.setIncludeSubjectDetail("T");
       
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroupsSimple);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroupsLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -192,14 +221,14 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getGroupsSimpleLite(WsSampleRestType.xhtml);
+    getGroupsLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    getGroupsSimpleLite(wsSampleRestType);
+    getGroupsLite(wsSampleRestType);
   }
 
   /**
@@ -219,6 +248,6 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1ee475a[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...
-memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@8e836c[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1d6768f[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...
+memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@101dfa5[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
 , params: null

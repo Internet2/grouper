@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult.WsGetMembersResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 
 /**
@@ -44,10 +45,18 @@ public class WsGroupLookup {
        * @return the code
        */
       @Override
-      public WsGroupDeleteResultCode convertToDeleteCode() {
+      public WsGroupDeleteResultCode convertToGroupDeleteResultCode() {
         return WsGroupDeleteResultCode.SUCCESS;
       }
 
+      /**
+       * convert this code to a members code
+       * @return the code
+       */
+      @Override
+      public WsGetMembersResultCode convertToGetMembersResultCode() {
+        return WsGetMembersResultCode.SUCCESS;
+      }
     },
 
     /** uuid doesnt match name */
@@ -58,10 +67,18 @@ public class WsGroupLookup {
        * @return the code
        */
       @Override
-      public WsGroupDeleteResultCode convertToDeleteCode() {
+      public WsGroupDeleteResultCode convertToGroupDeleteResultCode() {
         return WsGroupDeleteResultCode.GROUP_UUID_DOESNT_MATCH_NAME;
       }
 
+      /**
+       * convert this code to a members code
+       * @return the code
+       */
+      @Override
+      public WsGetMembersResultCode convertToGetMembersResultCode() {
+        return WsGetMembersResultCode.GROUP_UUID_DOESNT_MATCH_NAME;
+      }
     },
 
     /** cant find the subject */
@@ -72,10 +89,18 @@ public class WsGroupLookup {
        * @return the code
        */
       @Override
-      public WsGroupDeleteResultCode convertToDeleteCode() {
+      public WsGroupDeleteResultCode convertToGroupDeleteResultCode() {
         return WsGroupDeleteResultCode.GROUP_NOT_FOUND;
       }
 
+      /**
+       * convert this code to a members code
+       * @return the code
+       */
+      @Override
+      public WsGetMembersResultCode convertToGetMembersResultCode() {
+        return WsGetMembersResultCode.GROUP_NOT_FOUND;
+      }
     },
 
     /** incvalid query (e.g. if everything blank) */
@@ -86,8 +111,17 @@ public class WsGroupLookup {
        * @return the code
        */
       @Override
-      public WsGroupDeleteResultCode convertToDeleteCode() {
+      public WsGroupDeleteResultCode convertToGroupDeleteResultCode() {
         return WsGroupDeleteResultCode.INVALID_QUERY;
+      }
+
+      /**
+       * convert this code to a members code
+       * @return the code
+       */
+      @Override
+      public WsGetMembersResultCode convertToGetMembersResultCode() {
+        return WsGetMembersResultCode.INVALID_QUERY;
       }
 
     };
@@ -104,17 +138,34 @@ public class WsGroupLookup {
      * convert this code to a delete code
      * @return the code
      */
-    public abstract WsGroupDeleteResultCode convertToDeleteCode();
+    public abstract WsGroupDeleteResultCode convertToGroupDeleteResultCode();
+
+    /**
+     * convert this code to a get members code
+     * @return the code
+     */
+    public abstract WsGetMembersResultCode convertToGetMembersResultCode();
 
     /**
      * null safe equivalent to convertToDeleteCode
      * @param groupFindResult to convert
      * @return the code
      */
-    public static WsGroupDeleteResultCode convertToDeleteCodeStatic(
+    public static WsGroupDeleteResultCode convertToGroupDeleteCodeStatic(
         GroupFindResult groupFindResult) {
       return groupFindResult == null ? WsGroupDeleteResultCode.EXCEPTION
-          : groupFindResult.convertToDeleteCode();
+          : groupFindResult.convertToGroupDeleteResultCode();
+    }
+    
+    /**
+     * null safe equivalent to convertToGetMembersResultCode
+     * @param groupFindResult to convert
+     * @return the code
+     */
+    public static WsGetMembersResultCode convertToGetMembersCodeStatic(
+        GroupFindResult groupFindResult) {
+      return groupFindResult == null ? WsGetMembersResultCode.EXCEPTION
+          : groupFindResult.convertToGetMembersResultCode();
     }
   }
 

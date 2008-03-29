@@ -1,12 +1,15 @@
 /*
- * @author mchyzer $Id: WsRestGetMembersLiteRequest.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
+ * @author mchyzer $Id: WsRestGetMembersLiteRequest.java,v 1.3 2008-03-29 10:50:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.group;
+
+import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
+import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
 /**
  * request bean for rest get members request
  */
-public class WsRestGetMembersLiteRequest {
+public class WsRestGetMembersLiteRequest implements WsRequestBean {
 
   /** client version */
   private String clientVersion;
@@ -285,5 +288,12 @@ public class WsRestGetMembersLiteRequest {
    */
   public void setClientVersion(String clientVersion1) {
     this.clientVersion = clientVersion1;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()
+   */
+  public GrouperRestHttpMethod retrieveRestHttpMethod() {
+    return GrouperRestHttpMethod.GET;
   }
 }

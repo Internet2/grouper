@@ -35,7 +35,7 @@ Server: Apache-Coyote/1.1
 X-Grouper-resultCode: IS_NOT_MEMBER
 X-Grouper-success: T
 Content-Type: text/xml
-Date: Fri, 28 Mar 2008 16:38:46 GMT
+Date: Sat, 29 Mar 2008 10:33:53 GMT
 Connection: close
 
 <WsHasMemberLiteResult>
@@ -50,8 +50,8 @@ Connection: close
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult$WsHasMemberLiteResultCode">IS_NOT_MEMBER</wsResultCode>
     <resultCode>IS_NOT_MEMBER</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e7bff8[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1ec4639[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=10021368,subjectIdentifier=&lt;null&gt;,subjectSourceId...
-memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@f65160[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d547f8[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@67fb9f[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=10021368,subjectIdentifier=&lt;null&gt;,subjectSourceId=...
+memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b88d29[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
 </resultMessage>
     <success>T</success>
@@ -105,10 +105,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleHasMemberRestLite2 implements WsSampleRest {
 
   /**
-   * has member simple web service with REST
+   * has member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void hasMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void hasMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -132,13 +132,13 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestHasMemberLiteRequest hasMemberSimple = new WsRestHasMemberLiteRequest();
+      WsRestHasMemberLiteRequest hasMemberLite = new WsRestHasMemberLiteRequest();
 
       // set the act as id
-      hasMemberSimple.setActAsSubjectId("GrouperSystem");
+      hasMemberLite.setActAsSubjectId("GrouperSystem");
 
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(hasMemberSimple);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(hasMemberLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -191,14 +191,14 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    hasMemberSimpleLite(WsSampleRestType.xhtml);
+    hasMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    hasMemberSimpleLite(wsSampleRestType);
+    hasMemberLite(wsSampleRestType);
   }
 
   /**
@@ -218,7 +218,7 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e7bff8[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1ec4639[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...
- memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@f65160[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Server version: v1_3_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d547f8[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@67fb9f[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId=...
+ memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b88d29[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
 

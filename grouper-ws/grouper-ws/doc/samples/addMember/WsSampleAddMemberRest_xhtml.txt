@@ -70,7 +70,7 @@ Expires: Wed, 31 Dec 1969 19:00:00 EST
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/xhtml+xml
-Date: Fri, 28 Mar 2008 16:37:52 GMT
+Date: Sat, 29 Mar 2008 10:32:55 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -83,8 +83,8 @@ Connection: close
     <div title="WsAddMemberResults">
       <div class="resultMetadata" title="WsResultMeta">
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@10a08e[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@19cfefb[subject=&lt;nul...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@986e62[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@654dec[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@decb6a[subject=&lt;null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@156dbdd[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</p>
         <p class="resultCode">SUCCESS</p>
       </div>
@@ -172,7 +172,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleAddMemberRest implements WsSampleRest {
 
   /**
-   * add member simple web service with REST
+   * add member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   public static void addMemberLite(WsSampleRestType wsSampleRestType) {
@@ -296,6 +296,6 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@10a08e[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@19cfefb[subject=<nul...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@986e62[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@654dec[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@decb6a[subject=<null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@156dbdd[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

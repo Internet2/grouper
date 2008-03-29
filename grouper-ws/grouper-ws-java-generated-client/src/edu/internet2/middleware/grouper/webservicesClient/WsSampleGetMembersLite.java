@@ -4,13 +4,13 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembersLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResults;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubject;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedUtils;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 
-import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
@@ -57,21 +57,24 @@ public class WsSampleGetMembersLite implements WsSampleGenerated {
 
             // set the act as id
             getMembersLite.setActAsSubjectId("GrouperSystem");
-
+            getMembersLite.setActAsSubjectIdentifier("");
+            getMembersLite.setActAsSubjectSourceId("");
+            getMembersLite.setFieldName("");
             getMembersLite.setGroupName("aStem:aGroup");
             getMembersLite.setGroupUuid("");
             getMembersLite.setMemberFilter("All");
-            getMembersLite.setIncludeSubjectDetail("true");
+            getMembersLite.setIncludeGroupDetail("T");
+            getMembersLite.setIncludeSubjectDetail("F");
 
-            WsGetMembersResults wsGetMembersResults = stub.getMembersLite(getMembersLite)
-                                                          .get_return();
+            WsGetMembersLiteResult wsGetMembersLiteResult = stub.getMembersLite(getMembersLite)
+                                                                .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsGetMembersResults));
+                    wsGetMembersLiteResult));
 
-            WsSubject[] wsSubjectArray = wsGetMembersResults.getResults();
+            WsSubject[] wsSubjectArray = wsGetMembersLiteResult.getWsSubjects();
 
-            for (WsSubject wsSubject : wsSubjectArray) {
+            for (WsSubject wsSubject : GeneratedUtils.nonNull(wsSubjectArray)) {
                 System.out.println(ToStringBuilder.reflectionToString(wsSubject));
             }
         } catch (Exception e) {

@@ -23,12 +23,15 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import edu.internet2.middleware.grouper.AccessPrivilege;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.MemberNotFoundException;
 import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.SaveMode;
+import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -56,6 +59,33 @@ import edu.internet2.middleware.subject.Subject;
  */
 public final class GrouperServiceUtils {
 
+  /**
+   * retrieve group type based on name
+   * @param groupTypeName
+   * @return group type
+   */
+  @SuppressWarnings("unchecked")
+  public static GroupType retrieveGroupType(String groupTypeName) {
+    if (StringUtils.isBlank(groupTypeName)) {
+      return null;
+    }
+    try {
+      GroupType groupType = GroupTypeFinder.find(groupTypeName);
+      return groupType;
+    } catch (SchemaException se) {
+
+      //give a descriptive error, shouldnt be a security problem
+      StringBuilder error = new StringBuilder("Cant find group type: '").append(
+          groupTypeName).append("', valid types are: ");
+      Set<GroupType> groupTypes = GroupTypeFinder.findAll();
+      for (GroupType groupType : groupTypes) {
+        error.append(groupType.getName()).append(", ");
+      }
+      throw new WsInvalidQueryException(error.toString());
+    }
+
+  }
+  
   /**
    * do a case-insensitive matching
    * @param theEnumClass class of the enum
@@ -109,10 +139,10 @@ public final class GrouperServiceUtils {
   /**
    * <pre>
    * from url strings, get the subjectId
-   * e.g. if the url is: /group/aStem:aGroup/members/123412345
+   * e.g. if the url is: /groups/aStem:aGroup/members/123412345
    * then the index should be 3 (0 for group, 1 for group name, etc) 
    * 
-   * if url is: /group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+   * if url is: /groups/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
    * then index is still 3
    * </pre>
    * @param urlStrings

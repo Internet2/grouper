@@ -1,14 +1,10 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.GroupNotFoundException;
-import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -34,9 +30,6 @@ public class WsGetMembersResults implements WsResponseBean {
    */
   private static final Log LOG = LogFactory.getLog(WsGetMembersResults.class);
 
-  /** group that we are checking */
-  private WsGroup wsGroup;
-
   /**
    * attributes of subjects returned, in same order as the data
    */
@@ -48,9 +41,6 @@ public class WsGetMembersResults implements WsResponseBean {
    * SUCCESS(200), EXCEPTION(500), INVALID_QUERY(400)
    */
   public enum WsGetMembersResultsCode implements WsResultCode {
-
-    /** cant find group (lite status code 400) (success: F)  */
-    GROUP_NOT_FOUND(400),
 
     /** found the members (lite status code 200) (success: T) */
     SUCCESS(200),
@@ -112,9 +102,6 @@ public class WsGetMembersResults implements WsResponseBean {
     if (e instanceof WsInvalidQueryException) {
       wsGetMembersResultsCodeOverride = GrouperUtil.defaultIfNull(
           wsGetMembersResultsCodeOverride, WsGetMembersResultsCode.INVALID_QUERY);
-      if (e.getCause() instanceof GroupNotFoundException) {
-        wsGetMembersResultsCodeOverride = WsGetMembersResultsCode.GROUP_NOT_FOUND;
-      }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsGetMembersResultsCodeOverride);
       this.getResultMetadata().appendResultMessage(e.getMessage());
@@ -135,27 +122,6 @@ public class WsGetMembersResults implements WsResponseBean {
   }
 
   /**
-   * results for each assignment sent in
-   */
-  private WsSubject[] results;
-
-  /**
-   * results for each assignment sent in
-   * @return the results
-   */
-  public WsSubject[] getResults() {
-    return this.results;
-  }
-
-  /**
-   * results for each assignment sent in
-   * @param results1 the results to set
-   */
-  public void setResults(WsSubject[] results1) {
-    this.results = results1;
-  }
-
-  /**
    * attributes of subjects returned, in same order as the data
    * @return the attributeNames
    */
@@ -172,30 +138,6 @@ public class WsGetMembersResults implements WsResponseBean {
   }
 
   /**
-   * @return the wsGroup
-   */
-  public WsGroup getWsGroup() {
-    return this.wsGroup;
-  }
-
-  /**
-   * @param wsGroup1 the wsGroup to set
-   */
-  public void setWsGroup(WsGroup wsGroup1) {
-    this.wsGroup = wsGroup1;
-  }
-
-  /**
-   * convert members to subject results
-   * @param attributeNames1 to get from subjects
-   * @param memberSet
-   */
-  public void assignSubjectResult(Set<Member> memberSet, String[] attributeNames1) {
-    this.setSubjectAttributeNames(attributeNames1);
-    this.setResults(WsSubject.convertMembers(memberSet, attributeNames1));
-  }
-
-  /**
    * make sure if there is an error, to record that as an error
    * @param theSummary
    */
@@ -207,8 +149,9 @@ public class WsGetMembersResults implements WsResponseBean {
       // check all entries
       int successes = 0;
       int failures = 0;
-      for (WsSubject wsSubject : this.getResults()) {
-        boolean theSuccess = GrouperUtil.booleanValue(wsSubject.getSuccess(), false);
+      for (WsGetMembersResult wsGetMembersResult : this.getResults()) {
+        boolean theSuccess = "T".equalsIgnoreCase(wsGetMembersResult.getResultMetadata()
+            .getSuccess());
         if (theSuccess) {
           successes++;
         } else {
@@ -216,25 +159,30 @@ public class WsGetMembersResults implements WsResponseBean {
         }
       }
 
-      if (failures > 0 || !successOverall) {
+      if (failures > 0) {
         this.getResultMetadata().appendResultMessage(
             "There were " + successes + " successes and " + failures
-                + " failures getting members from the group.   ");
+                + " failures of getting members for groups.   ");
         this.assignResultCode(WsGetMembersResultsCode.PROBLEM_GETTING_MEMBERS);
+        //this might not be a problem
+        LOG.warn(this.getResultMetadata().getResultMessage());
 
       } else {
-        //ok if not failure
-        this.assignResultCode(WsGetMembersResultsCode.SUCCESS);
+        //if we havent already seen an error...
+        if (successOverall) {
+          this.assignResultCode(WsGetMembersResultsCode.SUCCESS);
+        }
       }
     } else {
-      //ok if none
-      this.assignResultCode(WsGetMembersResultsCode.SUCCESS);
+      //none is not ok, must pass one in
+      this.assignResultCode(WsGetMembersResultsCode.INVALID_QUERY);
+      this.getResultMetadata().appendResultMessage(
+          "You must pass in at least one group");
     }
     //make response descriptive
     if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {
       this.getResultMetadata().appendResultMessage("Success for: " + theSummary);
     }
-
   }
 
   /**
@@ -255,11 +203,51 @@ public class WsGetMembersResults implements WsResponseBean {
   private WsResponseMeta responseMetadata = new WsResponseMeta();
 
   /**
+   * results for each assignment sent in
+   */
+  private WsGetMembersResult[] results;
+
+  /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()
    * @return the response metadata
    */
   public WsResponseMeta getResponseMetadata() {
     return this.responseMetadata;
+  }
+
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
+  }
+
+  
+  /**
+   * @param responseMetadata1 the responseMetadata to set
+   */
+  public void setResponseMetadata(WsResponseMeta responseMetadata1) {
+    this.responseMetadata = responseMetadata1;
+  }
+
+  /**
+   * results for each assignment sent in
+   * 
+   * @return the results
+   */
+  public WsGetMembersResult[] getResults() {
+    return this.results;
+  }
+
+  /**
+   * results for each assignment sent in
+   * 
+   * @param results1
+   *            the results to set
+   */
+  public void setResults(WsGetMembersResult[] results1) {
+    this.results = results1;
   }
 
 }

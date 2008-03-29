@@ -437,6 +437,14 @@ E</CODE></FONT></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;edu.internet2.middleware.grouper.GroupType</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#retrieveGroupType(java.lang.String)">retrieveGroupType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupTypeName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve group type based on name</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Date.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">Date</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#stringToDate(java.lang.String)">stringToDate</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;dateString)</CODE>
 
@@ -488,6 +496,20 @@ public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/S
 </TR>
 </TABLE>
 
+<A NAME="retrieveGroupType(java.lang.String)"><!-- --></A><H3>
+retrieveGroupType</H3>
+<PRE>
+public static edu.internet2.middleware.grouper.GroupType <B>retrieveGroupType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupTypeName)</PRE>
+<DL>
+<DD>retrieve group type based on name
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupTypeName</CODE> - 
+<DT><B>Returns:</B><DD>group type</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="enumValueOfIgnoreCase(java.lang.Class, java.lang.String, boolean)"><!-- --></A><H3>
 enumValueOfIgnoreCase</H3>
 <PRE>
@@ -531,10 +553,10 @@ public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.
 <DL>
 <DD><pre>
  from url strings, get the subjectId
- e.g. if the url is: /group/aStem:aGroup/members/123412345
+ e.g. if the url is: /groups/aStem:aGroup/members/123412345
  then the index should be 3 (0 for group, 1 for group name, etc) 
  
- if url is: /group/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
+ if url is: /groups/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
  then index is still 3
  </pre>
 <P>

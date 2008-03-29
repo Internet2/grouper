@@ -1,12 +1,9 @@
 /*
- * @author mchyzer $Id: StemScope.java,v 1.2 2008-03-27 20:39:27 mchyzer Exp $
+ * @author mchyzer $Id: StemScope.java,v 1.3 2008-03-29 10:50:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**

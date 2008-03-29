@@ -38,15 +38,15 @@ Expires: Wed, 31 Dec 1969 19:00:00 EST
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: text/xml
-Date: Fri, 28 Mar 2008 16:38:07 GMT
+Date: Sat, 29 Mar 2008 10:33:11 GMT
 Connection: close
 
 <WsAddMemberLiteResult>
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult$WsAddMemberLiteResultCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@4e904[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5e34ce[subject=&lt;null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@dce479[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1870147[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@650e56[subject=&lt;null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@90649e[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</resultMessage>
     <success>T</success>
     <httpStatusCode>201</httpStatusCode>
@@ -107,10 +107,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleAddMemberRestLite2 implements WsSampleRest {
 
   /**
-   * add member simple web service with REST
+   * add member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void addMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void addMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -134,13 +134,13 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestAddMemberLiteRequest addMemberSimple = new WsRestAddMemberLiteRequest();
+      WsRestAddMemberLiteRequest addMemberLite = new WsRestAddMemberLiteRequest();
 
       // set the act as id
-      addMemberSimple.setActAsSubjectId("GrouperSystem");
+      addMemberLite.setActAsSubjectId("GrouperSystem");
 
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberSimple);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -168,9 +168,9 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
       }
 
       //convert to object (from xhtml, xml, json, etc)
-      WsAddMemberLiteResult wsAddMemberSimpleResult = (WsAddMemberLiteResult)resultObject;
+      WsAddMemberLiteResult wsAddMemberLiteResult = (WsAddMemberLiteResult)resultObject;
       
-      String resultMessage = wsAddMemberSimpleResult.getResultMetadata().getResultMessage();
+      String resultMessage = wsAddMemberLiteResult.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
@@ -178,7 +178,7 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsAddMemberSimpleResult.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsAddMemberLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -193,14 +193,14 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberSimpleLite(WsSampleRestType.xhtml);
+    addMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    addMemberSimpleLite(wsSampleRestType);
+    addMemberLite(wsSampleRestType);
   }
 
   /**
@@ -220,6 +220,6 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@4e904[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5e34ce[subject=<null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@dce479[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1870147[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@650e56[subject=<null...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@90649e[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

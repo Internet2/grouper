@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleAddMemberRest implements WsSampleRest {
 
   /**
-   * add member simple web service with REST
+   * add member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   public static void addMemberLite(WsSampleRestType wsSampleRestType) {

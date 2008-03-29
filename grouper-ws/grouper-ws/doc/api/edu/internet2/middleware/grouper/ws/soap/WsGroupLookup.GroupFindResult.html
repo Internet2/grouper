@@ -154,19 +154,35 @@ result of group find
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>abstract &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD#convertToDeleteCode()">convertToDeleteCode</A></B>()</CODE>
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetMembersResult.WsGetMembersResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetMembersResult.WsGetMembersResultCode</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD#convertToGetMembersCodeStatic(edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult)">convertToGetMembersCodeStatic</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A>&nbsp;groupFindResult)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert this code to a delete code</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null safe equivalent to convertToGetMembersResultCode</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetMembersResult.WsGetMembersResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetMembersResult.WsGetMembersResultCode</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD#convertToGetMembersResultCode()">convertToGetMembersResultCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert this code to a get members code</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD#convertToDeleteCodeStatic(edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult)">convertToDeleteCodeStatic</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A>&nbsp;groupFindResult)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD#convertToGroupDeleteCodeStatic(edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult)">convertToGroupDeleteCodeStatic</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A>&nbsp;groupFindResult)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null safe equivalent to convertToDeleteCode</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD#convertToGroupDeleteResultCode()">convertToGroupDeleteResultCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert this code to a delete code</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -337,10 +353,10 @@ public boolean <B>isSuccess</B>()</PRE>
 </DL>
 <HR>
 
-<A NAME="convertToDeleteCode()"><!-- --></A><H3>
-convertToDeleteCode</H3>
+<A NAME="convertToGroupDeleteResultCode()"><!-- --></A><H3>
+convertToGroupDeleteResultCode</H3>
 <PRE>
-public abstract <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A> <B>convertToDeleteCode</B>()</PRE>
+public abstract <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A> <B>convertToGroupDeleteResultCode</B>()</PRE>
 <DL>
 <DD>convert this code to a delete code
 <P>
@@ -351,12 +367,40 @@ public abstract <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/s
 </DL>
 <HR>
 
-<A NAME="convertToDeleteCodeStatic(edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult)"><!-- --></A><H3>
-convertToDeleteCodeStatic</H3>
+<A NAME="convertToGetMembersResultCode()"><!-- --></A><H3>
+convertToGetMembersResultCode</H3>
 <PRE>
-public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A> <B>convertToDeleteCodeStatic</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A>&nbsp;groupFindResult)</PRE>
+public abstract <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetMembersResult.WsGetMembersResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetMembersResult.WsGetMembersResultCode</A> <B>convertToGetMembersResultCode</B>()</PRE>
+<DL>
+<DD>convert this code to a get members code
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the code</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToGroupDeleteCodeStatic(edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult)"><!-- --></A><H3>
+convertToGroupDeleteCodeStatic</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A> <B>convertToGroupDeleteCodeStatic</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A>&nbsp;groupFindResult)</PRE>
 <DL>
 <DD>null safe equivalent to convertToDeleteCode
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>groupFindResult</CODE> - to convert
+<DT><B>Returns:</B><DD>the code</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToGetMembersCodeStatic(edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult)"><!-- --></A><H3>
+convertToGetMembersCodeStatic</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetMembersResult.WsGetMembersResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetMembersResult.WsGetMembersResultCode</A> <B>convertToGetMembersCodeStatic</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.GroupFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup.GroupFindResult</A>&nbsp;groupFindResult)</PRE>
+<DL>
+<DD>null safe equivalent to convertToGetMembersResultCode
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>groupFindResult</CODE> - to convert

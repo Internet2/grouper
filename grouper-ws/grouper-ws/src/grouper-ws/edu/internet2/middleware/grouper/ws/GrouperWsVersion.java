@@ -1,13 +1,9 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.2 2008-03-27 20:39:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.3 2008-03-29 10:50:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
-import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilterType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**

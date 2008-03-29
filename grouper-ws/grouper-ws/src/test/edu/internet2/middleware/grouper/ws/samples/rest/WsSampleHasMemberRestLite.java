@@ -20,10 +20,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleHasMemberRestLite implements WsSampleRest {
 
   /**
-   * has member simple web service with REST
+   * has member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void hasMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void hasMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -86,14 +86,14 @@ public class WsSampleHasMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    hasMemberSimpleLite(WsSampleRestType.xhtml);
+    hasMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    hasMemberSimpleLite(wsSampleRestType);
+    hasMemberLite(wsSampleRestType);
   }
 
   /**

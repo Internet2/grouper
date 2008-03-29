@@ -35,7 +35,7 @@ public class WsGroup {
     WsGroup[] wsGroupResults = new WsGroup[groupSetSize];
     int index = 0;
     for (Group group : groupSet) {
-      WsGroup wsGroup = new WsGroup(group, includeDetail);
+      WsGroup wsGroup = new WsGroup(group, null, includeDetail);
       wsGroupResults[index] = wsGroup;
       index++;
     }
@@ -79,9 +79,10 @@ public class WsGroup {
   /**
    * construct based on group, assign all fields
    * @param group 
+   * @param wsGroupLookup is the lookup to set looked up values
    * @param includeDetail true to include detail about group
    */
-  public WsGroup(Group group, boolean includeDetail) {
+  public WsGroup(Group group, WsGroupLookup wsGroupLookup, boolean includeDetail) {
     if (group != null) {
       this.setDescription(group.getDescription());
       this.setDisplayName(group.getDisplayName());
@@ -93,6 +94,12 @@ public class WsGroup {
       //see if detail info is needed
       if (includeDetail) {
         this.setDetail(new WsGroupDetail(group));
+      }
+    } else {
+      if (wsGroupLookup != null) {
+        //no group, set the look values so the caller can keep things in sync
+        this.setName(wsGroupLookup.getGroupName());
+        this.setUuid(wsGroupLookup.getUuid());
       }
     }
   }

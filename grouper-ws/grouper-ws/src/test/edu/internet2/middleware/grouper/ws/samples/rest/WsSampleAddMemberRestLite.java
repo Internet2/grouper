@@ -20,10 +20,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleAddMemberRestLite implements WsSampleRest {
 
   /**
-   * add member simple web service with REST
+   * add member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void addMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void addMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -60,10 +60,10 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
       String response = RestClientSettings.responseBodyAsString(method);
 
       //convert to object (from xhtml, xml, json, etc)
-      WsAddMemberLiteResult wsAddMemberSimpleResult = (WsAddMemberLiteResult)wsSampleRestType
+      WsAddMemberLiteResult wsAddMemberLiteResult = (WsAddMemberLiteResult)wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
       
-      String resultMessage = wsAddMemberSimpleResult.getResultMetadata().getResultMessage();
+      String resultMessage = wsAddMemberLiteResult.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
@@ -71,7 +71,7 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsAddMemberSimpleResult.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsAddMemberLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -86,14 +86,14 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberSimpleLite(WsSampleRestType.xhtml);
+    addMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    addMemberSimpleLite(wsSampleRestType);
+    addMemberLite(wsSampleRestType);
   }
 
   /**

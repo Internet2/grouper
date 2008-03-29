@@ -3,19 +3,17 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroup;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-
-import org.apache.axis2.Constants;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -52,12 +50,20 @@ public class WsSampleFindGroupsLite implements WsSampleGenerated {
 
             FindGroupsLite findGroupsLite = FindGroupsLite.class.newInstance();
 
+            findGroupsLite.setActAsSubjectId("");
+            findGroupsLite.setActAsSubjectIdentifier("");
+            findGroupsLite.setActAsSubjectSourceId("");
             //version, e.g. v1_3_000
             findGroupsLite.setClientVersion(GeneratedClientSettings.VERSION);
-
+            findGroupsLite.setGroupAttributeName("");
+            findGroupsLite.setGroupAttributeValue("");
             findGroupsLite.setGroupName("");
+            findGroupsLite.setGroupTypeName("");
+            findGroupsLite.setGroupUuid("");
             findGroupsLite.setStemName("aStem");
             findGroupsLite.setStemNameScope("ALL_IN_SUBTREE");
+            findGroupsLite.setIncludeGroupDetail("T");
+            findGroupsLite.setQueryFilterType("FIND_BY_STEM_NAME");
 
             // set the act as id
             // findGroupsLite.setActAsSubjectId("GrouperSystem");

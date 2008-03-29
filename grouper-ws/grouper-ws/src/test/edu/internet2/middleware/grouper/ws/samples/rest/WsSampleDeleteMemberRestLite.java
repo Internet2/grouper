@@ -20,10 +20,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 
   /**
-   * delete member simple web service with REST
+   * delete member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void deleteMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void deleteMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -86,14 +86,14 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    deleteMemberSimpleLite(WsSampleRestType.xhtml);
+    deleteMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    deleteMemberSimpleLite(wsSampleRestType);
+    deleteMemberLite(wsSampleRestType);
   }
 
   /**

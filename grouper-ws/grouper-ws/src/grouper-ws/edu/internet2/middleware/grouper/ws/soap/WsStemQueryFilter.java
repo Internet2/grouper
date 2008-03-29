@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsStemQueryFilter.java,v 1.1 2008-03-24 20:19:48 mchyzer Exp $
+ * @author mchyzer $Id: WsStemQueryFilter.java,v 1.2 2008-03-29 10:50:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
+import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
 
 /**
  * this represents a query which can be and'ed or or'ed

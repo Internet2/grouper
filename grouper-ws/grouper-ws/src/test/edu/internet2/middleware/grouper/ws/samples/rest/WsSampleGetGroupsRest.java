@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleGetGroupsRest implements WsSampleRest {
 
   /**
-   * get groups simple web service with REST
+   * get groups lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   public static void getGroupsLite(WsSampleRestType wsSampleRestType) {

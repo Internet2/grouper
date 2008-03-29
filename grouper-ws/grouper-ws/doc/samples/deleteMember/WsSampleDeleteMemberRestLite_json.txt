@@ -32,7 +32,7 @@ Expires: Wed, 31 Dec 1969 19:00:00 EST
 X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 Content-Type: text/x-json
-Date: Fri, 28 Mar 2008 16:38:19 GMT
+Date: Sat, 29 Mar 2008 10:33:22 GMT
 Connection: close
 
 {
@@ -43,7 +43,7 @@ Connection: close
         "$":"SUCCESS_WASNT_IMMEDIATE"
       },
       "resultCode":"SUCCESS_WASNT_IMMEDIATE",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@102c065[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1a531a9[subject=<nul...\n, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5f8368[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@2d3853[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@ccd65d[subject=<null...\n, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@d8377[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING\n, params: null",
       "success":"T",
       "httpStatusCode":200
     },
@@ -101,10 +101,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 
   /**
-   * delete member simple web service with REST
+   * delete member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void deleteMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void deleteMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -167,14 +167,14 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    deleteMemberSimpleLite(WsSampleRestType.xhtml);
+    deleteMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    deleteMemberSimpleLite(wsSampleRestType);
+    deleteMemberLite(wsSampleRestType);
   }
 
   /**
@@ -193,6 +193,6 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@102c065[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1a531a9[subject=<nul...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5f8368[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
+Server version: v1_3_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@2d3853[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@ccd65d[subject=<null...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@d8377[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
 , params: null

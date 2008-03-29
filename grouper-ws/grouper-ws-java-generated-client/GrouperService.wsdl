@@ -232,8 +232,8 @@
                     <xs:sequence>
                         <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="wsQueryFilter" nillable="true" type="ns:WsQueryFilter"/>
-                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -243,6 +243,7 @@
                     <xs:element minOccurs="0" name="groupAttributeName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="groupAttributeValue" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="groupTypeName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="queryFilter0" nillable="true" type="ns:WsQueryFilter"/>
                     <xs:element minOccurs="0" name="queryFilter1" nillable="true" type="ns:WsQueryFilter"/>
@@ -250,7 +251,6 @@
                     <xs:element minOccurs="0" name="queryTerm" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="stemName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="stemNameScope" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="theType" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="findGroupsResponse">
@@ -278,7 +278,7 @@
                         <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="groupAttributeName" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="groupAttributeValue" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="theType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupTypeName" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
@@ -356,7 +356,6 @@
                         <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="stemAttributeName" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="stemAttributeValue" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="theType" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
@@ -447,17 +446,54 @@
                     <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="getMembersLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getMembersLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetMembersLiteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsGetMembersLiteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="getMembers">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="wsGroupLookup" nillable="true" type="ns:WsGroupLookup"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsGroupLookups" nillable="true" type="ns:WsGroupLookup"/>
                         <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
                         <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -473,39 +509,17 @@
                 <xs:sequence>
                     <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsSubject"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsGetMembersResult"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:element name="getMembersLite">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="groupUuid" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="memberFilter" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="fieldName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="includeGroupDetail" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getMembersLiteResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsGetMembersResults"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
+            <xs:complexType name="WsGetMembersResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="wsSubjects" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="getMemberships">
                 <xs:complexType>
                     <xs:sequence>

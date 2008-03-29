@@ -32,7 +32,7 @@ Expires: Wed, 31 Dec 1969 19:00:00 EST
 X-Grouper-resultCode: IS_NOT_MEMBER
 X-Grouper-success: T
 Content-Type: text/xml
-Date: Fri, 28 Mar 2008 16:38:40 GMT
+Date: Sat, 29 Mar 2008 10:33:46 GMT
 Connection: close
 
 <WsHasMemberLiteResult>
@@ -47,8 +47,8 @@ Connection: close
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult$WsHasMemberLiteResultCode">IS_NOT_MEMBER</wsResultCode>
     <resultCode>IS_NOT_MEMBER</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@967746[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@70c52d[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=10021368,subjectIdentifier=&lt;null&gt;,subjectSourceId=...
-memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1a142ec[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=&lt;null&gt;,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1d6e29a[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b70f41[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=10021368,subjectIdentifier=&lt;null&gt;,subjectSourceId=...
+memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@4a9dcd[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=&lt;null&gt;,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
 </resultMessage>
     <success>T</success>
@@ -99,10 +99,10 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 public class WsSampleHasMemberRestLite implements WsSampleRest {
 
   /**
-   * has member simple web service with REST
+   * has member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void hasMemberSimpleLite(WsSampleRestType wsSampleRestType) {
+  public static void hasMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -165,14 +165,14 @@ public class WsSampleHasMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    hasMemberSimpleLite(WsSampleRestType.xhtml);
+    hasMemberLite(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    hasMemberSimpleLite(wsSampleRestType);
+    hasMemberLite(wsSampleRestType);
   }
 
   /**
@@ -191,7 +191,7 @@ public class WsSampleHasMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@967746[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@70c52d[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId=...
- memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1a142ec[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Server version: v1_3_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1d6e29a[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@b70f41[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId=...
+ memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@4a9dcd[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
 

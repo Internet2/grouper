@@ -55,6 +55,17 @@ import com.p6spy.engine.common.FastExternalUtils;
 public class GrouperUtil {
 
   /**
+   * make sure a array is non null.  If null, then return an empty array.
+   * Note: this will probably not work for primitive arrays (e.g. int[])
+   * @param <T>
+   * @param array
+   * @return the list or empty list if null
+   */
+  public static <T> T[] nonNull(T[] array) {
+    return array == null ? ((T[])new Object[0]) : array;
+  }
+  
+  /**
    * get the prefix or suffix of a string based on a separator
    * 
    * @param startString
