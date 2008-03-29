@@ -21,10 +21,10 @@ import  java.util.*;
 
 
 /** 
- * Query by group name.
+ * Query by stem name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemNameAnyFilter.java,v 1.8 2007-02-28 17:40:45 blair Exp $
+ * @version $Id: StemNameAnyFilter.java,v 1.9 2008-03-29 10:50:27 mchyzer Exp $
  */
 public class StemNameAnyFilter extends BaseQueryFilter {
 
