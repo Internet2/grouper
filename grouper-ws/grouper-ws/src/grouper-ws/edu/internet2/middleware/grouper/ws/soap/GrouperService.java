@@ -13,19 +13,14 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SaveMode;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemNotFoundException;
-import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
@@ -35,13 +30,7 @@ import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult.WsGroupSaveResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults.WsGroupSaveResultsCode;
-import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup.StemFindResult;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult.WsStemSaveResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditAttributesResult.WsViewOrEditAttributesResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditAttributesResults.WsViewOrEditAttributesResultsCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -698,23 +687,29 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsStemDeleteResults stemDeleteLite(final String clientVersion,
+  public WsStemDeleteLiteResult stemDeleteLite(final String clientVersion,
       String stemName, String stemUuid, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
 
-    // setup the stem lookup
-    WsStemLookup wsStemLookup = new WsStemLookup(stemName, stemUuid);
-    WsStemLookup[] wsStemLookups = new WsStemLookup[] { wsStemLookup };
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
-        actAsSubjectSourceId, actAsSubjectIdentifier);
+    WsStemDeleteLiteResult wsStemDeleteLiteResult = new WsStemDeleteLiteResult();
 
-    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+    try {
 
-    WsStemDeleteResults wsStemDeleteResults = stemDelete(clientVersion, wsStemLookups,
-        actAsSubjectLookup, null, params);
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+      
+      wsStemDeleteLiteResult = GrouperServiceLogic.stemDeleteLite(grouperWsVersion, stemName, stemUuid, actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, 
+          paramName0, paramValue0, paramName1, paramValue1);
+    } catch (Exception e) {
+      wsStemDeleteLiteResult.assignResultCodeException(null, null, e);
+    }
 
-    return wsStemDeleteResults;
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsStemDeleteLiteResult.getResultMetadata());
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsStemDeleteLiteResult;
   }
 
   /**
@@ -746,24 +741,34 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsGroupDeleteResults groupDeleteLite(final String clientVersion,
+  public WsGroupDeleteLiteResult groupDeleteLite(final String clientVersion,
       String groupName, String groupUuid, String actAsSubjectId,
       String actAsSubjectSourceId, String actAsSubjectIdentifier,
       final String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
 
-    // setup the group lookup
-    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
-    WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
-        actAsSubjectSourceId, actAsSubjectIdentifier);
+    WsGroupDeleteLiteResult wsGroupDeleteLiteResult = new WsGroupDeleteLiteResult();
 
-    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+    try {
 
-    WsGroupDeleteResults wsGroupDeleteResults = groupDelete(clientVersion,
-        wsGroupLookups, actAsSubjectLookup, null, includeGroupDetail, params);
+      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeGroupDetail, false, "includeGroupDetail");
 
-    return wsGroupDeleteResults;
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+      
+      wsGroupDeleteLiteResult = GrouperServiceLogic.groupDeleteLite(grouperWsVersion, groupName,
+          groupUuid, actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean, paramName0, paramValue0, paramName1, paramValue1);
+    } catch (Exception e) {
+      wsGroupDeleteLiteResult.assignResultCodeException(null, null, e);
+    }
+
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsGroupDeleteLiteResult.getResultMetadata());
+
+    //this should be the first and only return, or else it is exiting too early
+    return wsGroupDeleteLiteResult;
+
   }
 
   /**
@@ -862,8 +867,6 @@ public class GrouperService {
    * @param displayExtension
    *            display name of the group, empty will be ignored
    * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
-   * @param createStemsIfNotExist
-   *            if the stems should be created if not exist
    * @param actAsSubjectId
    *            optional: is the subject id of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
@@ -874,6 +877,7 @@ public class GrouperService {
    *            optional: is the subject identifier of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
    *            actAsSubjectIdentifer
+   * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param paramName0
    *            reserved for future use
    * @param paramValue0
@@ -886,13 +890,13 @@ public class GrouperService {
    */
   public WsGroupSaveResults groupSaveLite(final String clientVersion, String groupName,
       String groupUuid, String description, String displayExtension, String saveMode,
-      String createStemsIfNotExist, String actAsSubjectId, String actAsSubjectSourceId,
-      String actAsSubjectIdentifier, String paramName0, String paramValue0,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, final String includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
 
     // setup the group lookup
     WsGroupToSave wsGroupToSave = new WsGroupToSave(groupUuid, description,
-        displayExtension, saveMode, createStemsIfNotExist, groupName);
+        displayExtension, saveMode, groupName);
     WsGroupToSave[] wsGroupsToSave = new WsGroupToSave[] { wsGroupToSave };
 
     WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
@@ -901,7 +905,7 @@ public class GrouperService {
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
 
     WsGroupSaveResults wsGroupSaveResults = groupSave(clientVersion, wsGroupsToSave,
-        actAsSubjectLookup, null, params);
+        actAsSubjectLookup, null, includeGroupDetail, params);
     return wsGroupSaveResults;
   }
 
@@ -917,8 +921,6 @@ public class GrouperService {
    * @param description of the stem
    * @param displayExtension of the stem
    * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
-   * @param createStemsIfNotExist
-   *            if the stems should be created if not exist
    * @param actAsSubjectId
    *            optional: is the subject id of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
@@ -939,40 +941,35 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
-  public WsStemSaveResults stemSaveLite(final String clientVersion,
+  public WsStemSaveLiteResult stemSaveLite(final String clientVersion,
       String stemLookupUuid, String stemLookupName, String stemName, String stemUuid,
       String description, String displayExtension, String saveMode,
-      String createStemsIfNotExist, String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
 
-    // setup the stem lookup
-    WsStemToSave wsStemToSave = new WsStemToSave();
+    WsStemSaveLiteResult wsStemSaveLiteResult = new WsStemSaveLiteResult();
 
-    WsStem wsStem = new WsStem();
-    wsStem.setDescription(description);
-    wsStem.setDisplayExtension(displayExtension);
-    wsStem.setName(stemName);
-    wsStem.setUuid(stemUuid);
+    try {
 
-    wsStemToSave.setWsStem(wsStem);
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+      
+      SaveMode saveModeEnum = SaveMode.valueOfIgnoreCase(saveMode);
+      
+      wsStemSaveLiteResult = GrouperServiceLogic.stemSaveLite(grouperWsVersion, stemLookupUuid,
+          stemLookupName, stemName, stemUuid, description, displayExtension, saveModeEnum,
+          actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, 
+          paramName0, paramValue0, paramName1, paramValue1);
+    } catch (Exception e) {
+      wsStemSaveLiteResult.assignResultCodeException(null, null, e);
+    }
 
-    WsStemLookup wsStemLookup = new WsStemLookup(stemLookupName, stemLookupUuid);
-    wsStemToSave.setWsStemLookup(wsStemLookup);
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsStemSaveLiteResult.getResultMetadata());
 
-    wsStemToSave.setSaveMode(saveMode);
-
-    WsStemToSave[] wsStemsToSave = new WsStemToSave[] { wsStemToSave };
-
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
-        actAsSubjectSourceId, actAsSubjectIdentifier);
-
-    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
-
-    WsStemSaveResults wsStemSaveResults = stemSave(clientVersion, wsStemsToSave,
-        actAsSubjectLookup, null, params);
-
-    return wsStemSaveResults;
+    //this should be the first and only return, or else it is exiting too early
+    return wsStemSaveLiteResult;
   }
 
   /**
@@ -1244,16 +1241,14 @@ public class GrouperService {
    * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
    * NONE (will finish as much as possible).  Generally the only values for this param that make sense
    * are NONE (or blank), and READ_WRITE_NEW.
+   * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param params optional: reserved for future use
    * @return the results
    */
   @SuppressWarnings("unchecked")
   public WsGroupSaveResults groupSave(final String clientVersion,
       final WsGroupToSave[] wsGroupsToSave, final WsSubjectLookup actAsSubjectLookup,
-      final String txType, final WsParam[] params) {
-
-    GrouperSession session = null;
-    int groupsSize = wsGroupsToSave == null ? 0 : wsGroupsToSave.length;
+      final String txType, final String includeGroupDetail, final WsParam[] params) {
 
     WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
 
@@ -1281,146 +1276,147 @@ public class GrouperService {
       return wsGroupSaveResults;
     }
 
-    // see if greater than the max (or default)
-    int maxSaveGroup = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_GROUP_SAVE_MAX,
-        1000000);
-    if (groupsSize > maxSaveGroup) {
-      wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.INVALID_QUERY);
-      wsGroupSaveResults.getResultMetadata().appendResultMessage(
-          "Number of groups must be less than max: " + maxSaveGroup + " (sent in "
-              + groupsSize + ")");
-      return wsGroupSaveResults;
-    }
+    //TODO FIXME
+//    // see if greater than the max (or default)
+//    int maxSaveGroup = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_GROUP_SAVE_MAX,
+//        1000000);
+//    if (groupsSize > maxSaveGroup) {
+//      wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.INVALID_QUERY);
+//      wsGroupSaveResults.getResultMetadata().appendResultMessage(
+//          "Number of groups must be less than max: " + maxSaveGroup + " (sent in "
+//              + groupsSize + ")");
+//      return wsGroupSaveResults;
+//    }
 
-    // assume success
-    wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.SUCCESS);
-    Subject actAsSubject = null;
-    // TODO have common try/catch
-    try {
-      actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
-
-      if (actAsSubject == null) {
-        // TODO make this a result code
-        throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
-      }
-
-      // use this to be the user connected, or the user act-as
-      try {
-        session = GrouperSession.start(actAsSubject);
-      } catch (SessionException se) {
-        // TODO make this a result code
-        throw new RuntimeException("Problem with session for subject: " + actAsSubject,
-            se);
-      }
-
-      int resultIndex = 0;
-
-      wsGroupSaveResults.setResults(new WsGroupSaveResult[groupsSize]);
-      for (WsGroupToSave wsGroupToSave : wsGroupsToSave) {
-        WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult();
-        wsGroupSaveResults.getResults()[resultIndex++] = wsGroupSaveResult;
-        Group group = null;
-
-        try {
-          wsGroupSaveResult.setGroupName(wsGroupToSave.getGroupName());
-          // TODO change this to groupUuid
-          wsGroupSaveResult.setGroupUuid(wsGroupToSave.getUuid());
-
-          try {
-            wsGroupToSave.validate();
-          } catch (Exception e) {
-            wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.INVALID_QUERY);
-            wsGroupSaveResult.getResultMetadata().setResultMessage(
-                ExceptionUtils.getFullStackTrace(e));
-            continue;
-          }
-
-          group = wsGroupToSave.save(session);
-
-          // these will probably match, but just in case
-          if (StringUtils.isBlank(wsGroupSaveResult.getGroupName())) {
-            wsGroupSaveResult.setGroupName(group.getName());
-          }
-          if (StringUtils.isBlank(wsGroupSaveResult.getGroupUuid())) {
-            wsGroupSaveResult.setGroupUuid(group.getUuid());
-          }
-          //TODO use the WsResultCode
-          wsGroupSaveResult.getResultMetadata().assignSuccess("T");
-          wsGroupSaveResult.getResultMetadata().assignResultCode("SUCCESS");
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              "Group '" + group.getName() + "' was saved.");
-        } catch (InsufficientPrivilegeException ipe) {
-          wsGroupSaveResult
-              .assignResultCode(WsGroupSaveResultCode.INSUFFICIENT_PRIVILEGES);
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              "Error: insufficient privileges to save group '"
-                  + wsGroupToSave.getGroupName() + "'");
-        } catch (StemNotFoundException snfe) {
-          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.STEM_NOT_FOUND);
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              "Error: stem not found to save group '" + wsGroupToSave.getGroupName()
-                  + "'");
-        } catch (GroupNotFoundException gnfe) {
-          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.GROUP_NOT_FOUND);
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              "Error: group not found to save group '" + wsGroupToSave.getGroupName()
-                  + "'");
-        } catch (Exception e) {
-          // lump the rest in there, group_add_exception, etc
-          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.EXCEPTION);
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              ExceptionUtils.getFullStackTrace(e));
-          LOG.error(wsGroupToSave + ", " + e, e);
-        }
-      }
-
-    } catch (RuntimeException re) {
-      wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.EXCEPTION);
-      String theError = "Problem saving groups: wsGroupsToSave: "
-          + GrouperUtil.toStringForLog(wsGroupsToSave) + ", actAsSubject: "
-          + actAsSubject + ".  \n" + "";
-      wsGroupSaveResults.getResultMetadata().appendResultMessage(theError);
-      // this is sent back to the caller anyway, so just log, and not send
-      // back again
-      LOG.error(theError + ", wsGroupSaveResults: "
-          + GrouperUtil.toStringForLog(wsGroupSaveResults), re);
-    } finally {
-      if (session != null) {
-        try {
-          session.stop();
-        } catch (Exception e) {
-          LOG.error(e.getMessage(), e);
-        }
-      }
-    }
-
-    if (wsGroupSaveResults.getResults() != null) {
-      // check all entries
-      int successes = 0;
-      int failures = 0;
-      for (WsGroupSaveResult wsGroupSaveResult : wsGroupSaveResults.getResults()) {
-        boolean success = "T".equalsIgnoreCase(wsGroupSaveResult == null ? null
-            : wsGroupSaveResult.getResultMetadata().getSuccess());
-        if (success) {
-          successes++;
-        } else {
-          failures++;
-        }
-      }
-      if (failures > 0) {
-        wsGroupSaveResults.getResultMetadata().appendResultMessage(
-            "There were " + successes + " successes and " + failures
-                + " failures of saving groups.   ");
-        wsGroupSaveResults
-            .assignResultCode(WsGroupSaveResultsCode.PROBLEM_DELETING_GROUPS);
-      } else {
-        wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.SUCCESS);
-      }
-    }
-    if (!"T".equalsIgnoreCase(wsGroupSaveResults.getResultMetadata().getSuccess())) {
-
-      LOG.error(wsGroupSaveResults.getResultMetadata().getResultMessage());
-    }
+//    // assume success
+//    wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.SUCCESS);
+//    Subject actAsSubject = null;
+//    // TODO have common try/catch
+//    try {
+//      actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
+//
+//      if (actAsSubject == null) {
+//        // TODO make this a result code
+//        throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+//      }
+//
+//      // use this to be the user connected, or the user act-as
+//      try {
+//        session = GrouperSession.start(actAsSubject);
+//      } catch (SessionException se) {
+//        // TODO make this a result code
+//        throw new RuntimeException("Problem with session for subject: " + actAsSubject,
+//            se);
+//      }
+//
+//      int resultIndex = 0;
+//
+//      wsGroupSaveResults.setResults(new WsGroupSaveResult[groupsSize]);
+//      for (WsGroupToSave wsGroupToSave : wsGroupsToSave) {
+//        WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult();
+//        wsGroupSaveResults.getResults()[resultIndex++] = wsGroupSaveResult;
+//        Group group = null;
+//
+//        try {
+//          wsGroupSaveResult.setGroupName(wsGroupToSave.getGroupName());
+//          // TODO change this to groupUuid
+//          wsGroupSaveResult.setGroupUuid(wsGroupToSave.getUuid());
+//
+//          try {
+//            wsGroupToSave.validate();
+//          } catch (Exception e) {
+//            wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.INVALID_QUERY);
+//            wsGroupSaveResult.getResultMetadata().setResultMessage(
+//                ExceptionUtils.getFullStackTrace(e));
+//            continue;
+//          }
+//
+//          group = wsGroupToSave.save(session);
+//
+//          // these will probably match, but just in case
+//          if (StringUtils.isBlank(wsGroupSaveResult.getGroupName())) {
+//            wsGroupSaveResult.setGroupName(group.getName());
+//          }
+//          if (StringUtils.isBlank(wsGroupSaveResult.getGroupUuid())) {
+//            wsGroupSaveResult.setGroupUuid(group.getUuid());
+//          }
+//          //TODO use the WsResultCode
+//          wsGroupSaveResult.getResultMetadata().assignSuccess("T");
+//          wsGroupSaveResult.getResultMetadata().assignResultCode("SUCCESS");
+//          wsGroupSaveResult.getResultMetadata().setResultMessage(
+//              "Group '" + group.getName() + "' was saved.");
+//        } catch (InsufficientPrivilegeException ipe) {
+//          wsGroupSaveResult
+//              .assignResultCode(WsGroupSaveResultCode.INSUFFICIENT_PRIVILEGES);
+//          wsGroupSaveResult.getResultMetadata().setResultMessage(
+//              "Error: insufficient privileges to save group '"
+//                  + wsGroupToSave.getGroupName() + "'");
+//        } catch (StemNotFoundException snfe) {
+//          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.STEM_NOT_FOUND);
+//          wsGroupSaveResult.getResultMetadata().setResultMessage(
+//              "Error: stem not found to save group '" + wsGroupToSave.getGroupName()
+//                  + "'");
+//        } catch (GroupNotFoundException gnfe) {
+//          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.GROUP_NOT_FOUND);
+//          wsGroupSaveResult.getResultMetadata().setResultMessage(
+//              "Error: group not found to save group '" + wsGroupToSave.getGroupName()
+//                  + "'");
+//        } catch (Exception e) {
+//          // lump the rest in there, group_add_exception, etc
+//          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.EXCEPTION);
+//          wsGroupSaveResult.getResultMetadata().setResultMessage(
+//              ExceptionUtils.getFullStackTrace(e));
+//          LOG.error(wsGroupToSave + ", " + e, e);
+//        }
+//      }
+//
+//    } catch (RuntimeException re) {
+//      wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.EXCEPTION);
+//      String theError = "Problem saving groups: wsGroupsToSave: "
+//          + GrouperUtil.toStringForLog(wsGroupsToSave) + ", actAsSubject: "
+//          + actAsSubject + ".  \n" + "";
+//      wsGroupSaveResults.getResultMetadata().appendResultMessage(theError);
+//      // this is sent back to the caller anyway, so just log, and not send
+//      // back again
+//      LOG.error(theError + ", wsGroupSaveResults: "
+//          + GrouperUtil.toStringForLog(wsGroupSaveResults), re);
+//    } finally {
+//      if (session != null) {
+//        try {
+//          session.stop();
+//        } catch (Exception e) {
+//          LOG.error(e.getMessage(), e);
+//        }
+//      }
+//    }
+//
+//    if (wsGroupSaveResults.getResults() != null) {
+//      // check all entries
+//      int successes = 0;
+//      int failures = 0;
+//      for (WsGroupSaveResult wsGroupSaveResult : wsGroupSaveResults.getResults()) {
+//        boolean success = "T".equalsIgnoreCase(wsGroupSaveResult == null ? null
+//            : wsGroupSaveResult.getResultMetadata().getSuccess());
+//        if (success) {
+//          successes++;
+//        } else {
+//          failures++;
+//        }
+//      }
+//      if (failures > 0) {
+//        wsGroupSaveResults.getResultMetadata().appendResultMessage(
+//            "There were " + successes + " successes and " + failures
+//                + " failures of saving groups.   ");
+//        wsGroupSaveResults
+//            .assignResultCode(WsGroupSaveResultsCode.PROBLEM_DELETING_GROUPS);
+//      } else {
+//        wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.SUCCESS);
+//      }
+//    }
+//    if (!"T".equalsIgnoreCase(wsGroupSaveResults.getResultMetadata().getSuccess())) {
+//
+//      LOG.error(wsGroupSaveResults.getResultMetadata().getResultMessage());
+//    }
     return wsGroupSaveResults;
   }
 
@@ -1443,80 +1439,22 @@ public class GrouperService {
       final WsStemToSave[] wsStemToSaves, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final WsParam[] params) {
 
-    final WsStemSaveResults wsStemSaveResults = new WsStemSaveResults();
+    WsStemSaveResults wsStemSaveResults = new WsStemSaveResults();
 
-    GrouperSession session = null;
-    String theSummary = null;
     try {
-
-      theSummary = "clientVersion: " + clientVersion + ", wsStemToSaves: "
-          + GrouperUtil.toStringForLog(wsStemSaveResults, 200) + "\n, actAsSubject: "
-          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
-
-      final String THE_SUMMARY = theSummary;
-
-      //start session based on logged in user or the actAs passed in
-      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-
-      final GrouperSession SESSION = session;
 
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
 
-      //start a transaction (or not if none)
-      GrouperTransaction.callbackGrouperTransaction(grouperTransactionType,
-          new GrouperTransactionHandler() {
-
-            public Object callback(GrouperTransaction grouperTransaction)
-                throws GrouperDAOException {
-
-              //convert the options to a map for easy access, and validate them
-              @SuppressWarnings("unused")
-              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-                  params);
-
-              int wsStemsLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-                  wsStemToSaves, GrouperWsConfig.WS_STEM_SAVE_MAX, 1000000);
-
-              wsStemSaveResults.setResults(new WsStemSaveResult[wsStemsLength]);
-
-              int resultIndex = 0;
-
-              //loop through all stems and do the save
-              for (WsStemToSave wsStemToSave : wsStemToSaves) {
-                WsStemSaveResult wsStemSaveResult = new WsStemSaveResult();
-                wsStemSaveResults.getResults()[resultIndex++] = wsStemSaveResult;
-                wsStemSaveResult.setWsStemLookup(wsStemToSave.getWsStemLookup());
-
-                try {
-                  //make sure everything is in order
-                  wsStemToSave.validate();
-                  Stem stem = wsStemToSave.save(SESSION);
-
-                  wsStemSaveResult.setWsStem(new WsStem(stem));
-                  wsStemSaveResult.assignResultCode(WsStemSaveResultCode.SUCCESS);
-
-                } catch (InsufficientPrivilegeException ipe) {
-                  wsStemSaveResult
-                      .assignResultCode(WsStemSaveResultCode.INSUFFICIENT_PRIVILEGES);
-                } catch (Exception e) {
-                  wsStemSaveResult.assignResultCodeException(e, wsStemToSave);
-                }
-              }
-              //see if any inner failures cause the whole tx to fail, and/or change the outer status
-              if (!wsStemSaveResults.tallyResults(grouperTransactionType, THE_SUMMARY)) {
-                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
-              }
-
-              return null;
-            }
-          });
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+      
+      wsStemSaveResults = GrouperServiceLogic.stemSave(grouperWsVersion, wsStemToSaves,
+          actAsSubjectLookup, 
+          grouperTransactionType, params);
     } catch (Exception e) {
-      wsStemSaveResults.assignResultCodeException(null, theSummary, e);
-    } finally {
-      GrouperSession.stopQuietly(session);
+      wsStemSaveResults.assignResultCodeException(null, null, e);
     }
 
     //set response headers
@@ -1545,98 +1483,22 @@ public class GrouperService {
       final WsStemLookup[] wsStemLookups, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final WsParam[] params) {
 
-    final WsStemDeleteResults wsStemDeleteResults = new WsStemDeleteResults();
+    WsStemDeleteResults wsStemDeleteResults = new WsStemDeleteResults();
 
-    GrouperSession session = null;
-    String theSummary = null;
     try {
-
-      theSummary = "clientVersion: " + clientVersion + ", wsStemLookups: "
-          + GrouperUtil.toStringForLog(wsStemLookups, 200) + "\n, actAsSubject: "
-          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
-
-      final String THE_SUMMARY = theSummary;
-
-      //start session based on logged in user or the actAs passed in
-      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-
-      final GrouperSession SESSION = session;
 
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
 
-      //start a transaction (or not if none)
-      GrouperTransaction.callbackGrouperTransaction(grouperTransactionType,
-          new GrouperTransactionHandler() {
-
-            public Object callback(GrouperTransaction grouperTransaction)
-                throws GrouperDAOException {
-
-              //convert the options to a map for easy access, and validate them
-              @SuppressWarnings("unused")
-              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-                  params);
-
-              int stemsSize = GrouperServiceUtils.arrayLengthAtLeastOne(wsStemLookups,
-                  GrouperWsConfig.WS_STEM_DELETE_MAX, 1000000);
-
-              wsStemDeleteResults.setResults(new WsStemDeleteResult[stemsSize]);
-
-              int resultIndex = 0;
-
-              //loop through all groups and do the delete
-              for (WsStemLookup wsStemLookup : wsStemLookups) {
-
-                WsStemDeleteResult wsStemDeleteResult = new WsStemDeleteResult(
-                    wsStemLookup);
-                wsStemDeleteResults.getResults()[resultIndex++] = wsStemDeleteResult;
-
-                wsStemLookup.retrieveStemIfNeeded(SESSION, true);
-                Stem stem = wsStemLookup.retrieveStem();
-
-                if (stem == null) {
-                  wsStemDeleteResult.assignResultCode(StemFindResult
-                      .convertToDeleteCodeStatic(wsStemLookup.retrieveStemFindResult()));
-                  wsStemDeleteResult.getResultMetadata().setResultMessage(
-                      "Cant find stem: '" + wsStemLookup + "'.  ");
-                  continue;
-                }
-
-                //make each stem failsafe
-                try {
-                  wsStemDeleteResult.setWsStem(new WsStem(stem));
-                  stem.delete();
-
-                  wsStemDeleteResult.assignResultCode(WsStemDeleteResultCode.SUCCESS);
-                  wsStemDeleteResult.getResultMetadata().setResultMessage(
-                      "Stem '" + stem.getName() + "' was deleted.");
-
-                } catch (InsufficientPrivilegeException ipe) {
-                  wsStemDeleteResult
-                      .assignResultCode(WsStemDeleteResultCode.INSUFFICIENT_PRIVILEGES);
-                  wsStemDeleteResult.getResultMetadata().setResultMessage(
-                      "Error: insufficient privileges to delete stem '" + stem.getName()
-                          + "'");
-                } catch (Exception e) {
-                  wsStemDeleteResult.assignResultCodeException(e, wsStemLookup);
-                }
-
-              }
-
-              //see if any inner failures cause the whole tx to fail, and/or change the outer status
-              if (!wsStemDeleteResults.tallyResults(grouperTransactionType, THE_SUMMARY)) {
-                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
-              }
-
-              return null;
-            }
-          });
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+      
+      wsStemDeleteResults = GrouperServiceLogic.stemDelete(grouperWsVersion, wsStemLookups,
+          actAsSubjectLookup, 
+          grouperTransactionType, params);
     } catch (Exception e) {
-      wsStemDeleteResults.assignResultCodeException(null, theSummary, e);
-    } finally {
-      GrouperSession.stopQuietly(session);
+      wsStemDeleteResults.assignResultCodeException(null, null, e);
     }
 
     //set response headers
@@ -1666,110 +1528,25 @@ public class GrouperService {
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
       final String txType, final String includeGroupDetail, final WsParam[] params) {
 
-    final WsGroupDeleteResults wsGroupDeleteResults = new WsGroupDeleteResults();
+    WsGroupDeleteResults wsGroupDeleteResults = new WsGroupDeleteResults();
 
-    GrouperSession session = null;
-    String theSummary = null;
     try {
-
-      theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
-          + GrouperUtil.toStringForLog(wsGroupLookups, 200) + "\n, actAsSubject: "
-          + actAsSubjectLookup + ", txType: " + txType + ", includeGroupDetail: "
-          + includeGroupDetail + ", paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
-
-      final String THE_SUMMARY = theSummary;
-
-      //start session based on logged in user or the actAs passed in
-      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-
-      final GrouperSession SESSION = session;
 
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
 
-      //start a transaction (or not if none)
-      GrouperTransaction.callbackGrouperTransaction(grouperTransactionType,
-          new GrouperTransactionHandler() {
+      boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
+          includeGroupDetail, false, "includeGroupDetail");
 
-            public Object callback(GrouperTransaction grouperTransaction)
-                throws GrouperDAOException {
-
-              //convert the options to a map for easy access, and validate them
-              @SuppressWarnings("unused")
-              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-                  params);
-
-              int groupsSize = GrouperServiceUtils.arrayLengthAtLeastOne(wsGroupLookups,
-                  GrouperWsConfig.WS_GROUP_DELETE_MAX, 1000000);
-
-              boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
-                  includeGroupDetail, false, "includeGroupDetail");
-
-              wsGroupDeleteResults.setResults(new WsGroupDeleteResult[groupsSize]);
-
-              int resultIndex = 0;
-
-              //loop through all groups and do the delete
-              for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
-
-                WsGroupDeleteResult wsGroupDeleteResult = new WsGroupDeleteResult(
-                    wsGroupLookup);
-                wsGroupDeleteResults.getResults()[resultIndex++] = wsGroupDeleteResult;
-
-                wsGroupLookup.retrieveGroupIfNeeded(SESSION);
-                Group group = wsGroupLookup.retrieveGroup();
-
-
-                //make each group failsafe
-                try {
-                  wsGroupDeleteResult.assignGroup(group, wsGroupLookup, includeGroupDetailBoolean);
-
-                  if (group == null) {
-
-                    wsGroupDeleteResult
-                        .assignResultCode(GroupFindResult
-                            .convertToGroupDeleteCodeStatic(wsGroupLookup
-                                .retrieveGroupFindResult()));
-                    wsGroupDeleteResult.getResultMetadata().setResultMessage(
-                        "Problem with group: '" + wsGroupLookup + "'.  ");
-                    //should we short circuit if transactional?
-                    continue;
-                  }
-
-                  //if there was already a problem, then dont continue
-                  if (!GrouperUtil.booleanValue(wsGroupDeleteResult.getResultMetadata()
-                      .getSuccess(), true)) {
-                    continue;
-                  }
-
-                  group.delete();
-
-                  wsGroupDeleteResult.assignResultCode(WsGroupDeleteResultCode.SUCCESS);
-                  wsGroupDeleteResult.getResultMetadata().setResultMessage(
-                      "Group '" + group.getName() + "' was deleted.");
-
-                } catch (InsufficientPrivilegeException ipe) {
-                  wsGroupDeleteResult
-                      .assignResultCode(WsGroupDeleteResultCode.INSUFFICIENT_PRIVILEGES);
-                } catch (Exception e) {
-                  wsGroupDeleteResult.assignResultCodeException(e, wsGroupLookup);
-                }
-              }
-
-              //see if any inner failures cause the whole tx to fail, and/or change the outer status
-              if (!wsGroupDeleteResults.tallyResults(grouperTransactionType, THE_SUMMARY)) {
-                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
-              }
-
-              return null;
-            }
-          });
+      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+          clientVersion, true);
+      
+      wsGroupDeleteResults = GrouperServiceLogic.groupDelete(grouperWsVersion, wsGroupLookups,
+          actAsSubjectLookup, 
+          grouperTransactionType, includeGroupDetailBoolean, params);
     } catch (Exception e) {
-      wsGroupDeleteResults.assignResultCodeException(null, theSummary, e);
-    } finally {
-      GrouperSession.stopQuietly(session);
+      wsGroupDeleteResults.assignResultCodeException(null, null, e);
     }
 
     //set response headers
@@ -1777,7 +1554,6 @@ public class GrouperService {
 
     //this should be the first and only return, or else it is exiting too early
     return wsGroupDeleteResults;
-
   }
 
   /**

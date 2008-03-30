@@ -1,0 +1,288 @@
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xml, for version: v1_3_000
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouper-ws/servicesRest/v1_3_000/stems HTTP/1.1
+Connection: close
+Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
+User-Agent: Jakarta Commons-HttpClient/3.0.1
+Host: localhost:8092
+Content-Length: 589
+Content-Type: text/xml; charset=UTF-8
+
+<WsRestStemSaveRequest>
+  <wsStemToSaves>
+    <WsStemToSave>
+      <wsStemLookup>
+        <stemName>aStem:whateverStem</stemName>
+      </wsStemLookup>
+      <wsStem>
+        <extension>whateverStem</extension>
+        <displayExtension>disp1</displayExtension>
+        <description>desc1</description>
+        <name>aStem:whateverStem</name>
+      </wsStem>
+    </WsStemToSave>
+    <WsStemToSave>
+      <wsStemLookup>
+        <stemName>aStem:whateverStem2</stemName>
+      </wsStemLookup>
+      <wsStem>
+        <extension>whateverStem2</extension>
+        <displayExtension>disp2</displayExtension>
+        <description>descs</description>
+        <name>aStem:whateverStem2</name>
+      </wsStem>
+    </WsStemToSave>
+  </wsStemToSaves>
+</WsRestStemSaveRequest>
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 201 Created
+Server: Apache-Coyote/1.1
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+Content-Type: text/xml
+Date: Sun, 30 Mar 2008 08:25:21 GMT
+Connection: close
+
+<WsStemSaveResults>
+  <results>
+    <WsStemSaveResult>
+      <wsStem>
+        <extension>whateverStem</extension>
+        <displayExtension>disp1</displayExtension>
+        <description>desc1</description>
+        <displayName>a stem:disp1</displayName>
+        <name>aStem:whateverStem</name>
+        <uuid>3a0c6d84-fe66-4988-ae5d-79bfa5b80372</uuid>
+      </wsStem>
+      <resultMetadata>
+        <resultCode>SUCCESS</resultCode>
+        <resultMessage></resultMessage>
+        <success>T</success>
+        <httpStatusCode>500</httpStatusCode>
+      </resultMetadata>
+    </WsStemSaveResult>
+    <WsStemSaveResult>
+      <wsStem>
+        <extension>whateverStem2</extension>
+        <displayExtension>disp2</displayExtension>
+        <description>descs</description>
+        <displayName>a stem:disp2</displayName>
+        <name>aStem:whateverStem2</name>
+        <uuid>713cdea4-628f-4e20-9574-ac7218271d93</uuid>
+      </wsStem>
+      <resultMetadata>
+        <resultCode>SUCCESS</resultCode>
+        <resultMessage></resultMessage>
+        <success>T</success>
+        <httpStatusCode>500</httpStatusCode>
+      </resultMetadata>
+    </WsStemSaveResult>
+  </results>
+  <resultMetadata>
+    <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults$WsStemSaveResultsCode">SUCCESS</wsResultCode>
+    <resultCode>SUCCESS</resultCode>
+    <resultMessage>Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@f4d063[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@9d4d84[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:wha...
+, actAsSubject: null, txType: NONE, paramNames:
+, params: null</resultMessage>
+    <success>T</success>
+    <httpStatusCode>201</httpStatusCode>
+  </resultMetadata>
+  <responseMetadata>
+    <resultWarnings></resultWarnings>
+    <serverVersion>v1_3_000</serverVersion>
+  </responseMetadata>
+</WsStemSaveResults>
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+package edu.internet2.middleware.grouper.ws.samples.rest.stem;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.soap.WsStem;
+import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
+import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+
+/**
+ * @author mchyzer
+ */
+public class WsSampleStemSaveRest implements WsSampleRest {
+
+  /**
+   * stem save lite web service with REST
+   * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   */
+  public static void stemSaveLite(WsSampleRestType wsSampleRestType) {
+
+    try {
+      HttpClient httpClient = new HttpClient();
+      
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      PostMethod method = new PostMethod(
+          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
+            + "/stems");
+
+      httpClient.getParams().setAuthenticationPreemptive(true);
+      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
+          ManualClientSettings.PASS);
+
+      //no keep alive so response if easier to indent for tests
+      method.setRequestHeader("Connection", "close");
+      
+      //e.g. localhost and 8093
+      httpClient.getState()
+          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestStemSaveRequest stemSave = new WsRestStemSaveRequest();
+      
+      WsStemToSave wsStemToSave = new WsStemToSave();
+      wsStemToSave.setWsStemLookup(new WsStemLookup("aStem:whateverStem", null));
+      WsStem wsStem = new WsStem();
+      wsStem.setDescription("desc1");
+      wsStem.setDisplayExtension("disp1");
+      wsStem.setExtension("whateverStem");
+      wsStem.setName("aStem:whateverStem");
+      wsStemToSave.setWsStem(wsStem);
+      
+      WsStemToSave wsStemToSave2 = new WsStemToSave();
+      wsStemToSave2.setWsStemLookup(new WsStemLookup("aStem:whateverStem2", null));
+      WsStem wsStems = new WsStem();
+      wsStems.setDescription("descs");
+      wsStems.setDisplayExtension("disp2");
+      wsStems.setExtension("whateverStem2");
+      wsStems.setName("aStem:whateverStem2");
+      wsStemToSave2.setWsStem(wsStems);
+
+      WsStemToSave[] wsStemToSaves = new WsStemToSave[] {wsStemToSave, wsStemToSave2};
+      
+      stemSave.setWsStemToSaves(wsStemToSaves);
+      
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(stemSave);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+      
+      httpClient.executeMethod(method);
+
+      //make sure a request came back
+      Header successHeader = method.getResponseHeader("X-Grouper-success");
+      String successString = successHeader == null ? null : successHeader.getValue();
+      if (StringUtils.isBlank(successString)) {
+        throw new RuntimeException("Web service did not even respond!");
+      }
+      boolean success = "T".equals(successString);
+      String resultCode = method.getResponseHeader("X-Grouper-resultCode").getValue();
+      
+      String response = RestClientSettings.responseBodyAsString(method);
+
+      Object result = wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
+      
+      //see if problem
+      if (result instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      }
+      
+      //convert to object (from xhtml, xml, json, etc)
+      WsStemSaveResults wsStemSaveResults = (WsStemSaveResults)result;
+      
+      String resultMessage = wsStemSaveResults.getResultMetadata().getResultMessage();
+
+      // see if request worked or not
+      if (!success) {
+        throw new RuntimeException("Bad response from web service: successString: " + successString 
+            + ", resultCode: " + resultCode
+            + ", " + resultMessage);
+      }
+      
+      System.out.println("Server version: " + wsStemSaveResults.getResponseMetadata().getServerVersion()
+          + ", result code: " + resultCode
+          + ", result message: " + resultMessage );
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * @param args
+   */
+  @SuppressWarnings("unchecked")
+  public static void main(String[] args) {
+    stemSaveLite(WsSampleRestType.xhtml);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public void executeSample(WsSampleRestType wsSampleRestType) {
+    stemSaveLite(wsSampleRestType);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
+   */
+  public boolean validType(WsSampleRestType wsSampleRestType) {
+    //dont allow http params
+    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+  }
+}
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@f4d063[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@9d4d84[stem=<null>,uuid=<null>,stemName=aStem:wha...
+, actAsSubject: null, txType: NONE, paramNames: 
+, params: null

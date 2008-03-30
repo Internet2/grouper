@@ -52,23 +52,24 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/soap+xml; action="urn:getMembersResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 29 Mar 2008 10:34:15 GMT
+Date: Sun, 30 Mar 2008 08:52:07 GMT
 
-9e6
+a01
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:getMembersResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
+          <ns:millis>141</ns:millis>
           <ns:resultWarnings></ns:resultWarnings>
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@36c9d5[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>]
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@2096d7[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>]
 
-, memberFilter: All, includeSubjectDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@fced38[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, subjectAttributeNames: Empty array
+, memberFilter: All, includeSubjectDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@18f12dc[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, subjectAttributeNames: Empty array
 , paramNames:
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
@@ -233,6 +234,6 @@ public class WsSampleGetMembers implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGetMembersResults@28ab65[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1d4ee7e,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@75be38,localResultMetadataTracker=true,localResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGetMembersResult@a7ae01},localResultsTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGetMembersResults@1b7a553[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@135d18b,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@50078e,localResultMetadataTracker=true,localResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGetMembersResult@1cbcf91},localResultsTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true]
 Result: 0: code: SUCCESS
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@130cb4b[localAttributeValues={<null>},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localName=<null>,localNameTracker=false,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true,localSUBJECT_ATTRIBUTE_PREFIX=<null>,localSUBJECT_ATTRIBUTE_PREFIXTracker=false]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@62fb35[localAttributeValues={<null>},localAttributeValuesTracker=true,localId=GrouperSystem,localIdTracker=true,localName=<null>,localNameTracker=false,localResultCode=SUCCESS,localResultCodeTracker=true,localSourceId=g:isa,localSourceIdTracker=true,localSuccess=T,localSuccessTracker=true,localSUBJECT_ATTRIBUTE_PREFIX=<null>,localSUBJECT_ATTRIBUTE_PREFIXTracker=false]

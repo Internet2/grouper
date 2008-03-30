@@ -4,16 +4,21 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSave;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStem;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemLookup;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemSaveResult;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemSaveResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemToSave;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 
-import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -65,27 +70,32 @@ public class WsSampleStemSave implements WsSampleGenerated {
             stemSave.setActAsSubjectLookup(actAsSubject);
 
             WsStemToSave wsStemToSave = WsStemToSave.class.newInstance();
+            WsStem wsStem = WsStem.class.newInstance();
+            wsStem.setDescription("the test stem");
+            wsStem.setDisplayExtension("test stem");
+            wsStem.setName("aStem:testStem");
+            wsStemToSave.setSaveMode("");
+            wsStem.setUuid("");
+            wsStemToSave.setWsStem(wsStem);
 
-            /*
-               wsStemToSave.setCreateStemsIfNotExist("");
-               wsStemToSave.setDescription("the test stem");
-               wsStemToSave.setDisplayExtension("test stem");
-               wsStemToSave.setStemName("aStem:testStem");
-               wsStemToSave.setSaveMode("");
-               wsStemToSave.setStemUuid("");
-               stemSave.setWsStemsToSave(new WsStemToSave[] { wsStemToSave });
-               WsStemSaveResults wsStemSaveResults = stub.stemSave(stemSave)
-                                                         .get_return();
-               System.out.println(ToStringBuilder.reflectionToString(
-                       wsStemSaveResults));
-               WsStemSaveResult[] wsStemSaveResultArray = wsStemSaveResults.getResults();
-               if (wsStemSaveResultArray != null) {
-                   for (WsStemSaveResult wsStemSaveResult : wsStemSaveResultArray) {
-                       System.out.println(ToStringBuilder.reflectionToString(
-                               wsStemSaveResult));
-                   }
-               }
-             */
+            WsStemLookup wsStemLookup = WsStemLookup.class.newInstance();
+            wsStemLookup.setStemName("aStem:testStem");
+            wsStemToSave.setWsStemLookup(wsStemLookup);
+
+            stemSave.setWsStemToSaves(new WsStemToSave[] { wsStemToSave });
+
+            WsStemSaveResults wsStemSaveResults = stub.stemSave(stemSave)
+                                                      .get_return();
+            System.out.println(ToStringBuilder.reflectionToString(
+                    wsStemSaveResults));
+
+            WsStemSaveResult[] wsStemSaveResultArray = wsStemSaveResults.getResults();
+
+            for (WsStemSaveResult wsStemSaveResult : GeneratedClientSettings.nonNull(
+                    wsStemSaveResultArray)) {
+                System.out.println(ToStringBuilder.reflectionToString(
+                        wsStemSaveResult));
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

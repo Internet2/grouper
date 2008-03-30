@@ -3,11 +3,6 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsResponse;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindGroupsResults;
@@ -15,6 +10,12 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsQ
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -24,7 +25,7 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 public class WsSampleFindGroups implements WsSampleGenerated {
     /**
      * @param args
-     * @throws Exception 
+     * @throws Exception
      */
     public static void main(String[] args) throws Exception {
         findGroup(WsSampleGeneratedType.soap);
@@ -64,20 +65,20 @@ public class WsSampleFindGroups implements WsSampleGenerated {
 
             //version, e.g. v1_3_000
             findGroups.setClientVersion(GeneratedClientSettings.VERSION);
-            
+
             WsQueryFilter wsQueryFilter = new WsQueryFilter();
             wsQueryFilter.setGroupName("aGr");
             wsQueryFilter.setQueryFilterType("FIND_BY_GROUP_NAME_APPROXIMATE");
             wsQueryFilter.setStemName("aStem");
-            
+
             findGroups.setWsQueryFilter(wsQueryFilter);
 
             findGroupsResponse = stub.findGroups(findGroups);
             wsFindGroupsResults = findGroupsResponse.get_return();
             System.out.println(ToStringBuilder.reflectionToString(
-                       wsFindGroupsResults));
+                    wsFindGroupsResults));
             System.out.println(ToStringBuilder.reflectionToString(
-                   wsFindGroupsResults.getGroupResults()[0]));
+                    wsFindGroupsResults.getGroupResults()[0]));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

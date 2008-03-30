@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGet.java,v 1.4 2008-03-29 10:50:43 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGet.java,v 1.5 2008-03-30 09:01:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -16,7 +16,7 @@ import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -118,7 +118,7 @@ public enum GrouperWsRestGet {
         }
       }
       throw new RuntimeException("Invalid get stem request: " + clientVersion 
-          + ", " + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));
+          + ", " + stemName + ", " + operation + ", " + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));
     }
 
   },

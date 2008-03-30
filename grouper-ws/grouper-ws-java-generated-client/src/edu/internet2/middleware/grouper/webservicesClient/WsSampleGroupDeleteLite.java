@@ -4,12 +4,11 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDeleteLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteResults;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 
-import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
@@ -62,14 +61,16 @@ public class WsSampleGroupDeleteLite implements WsSampleGenerated {
 
             groupDeleteLite.setActAsSubjectId("GrouperSystem");
             groupDeleteLite.setActAsSubjectIdentifier("");
+            groupDeleteLite.setActAsSubjectSourceId("");
+            groupDeleteLite.setIncludeGroupDetail("T");
             groupDeleteLite.setGroupName("aStem:test");
             groupDeleteLite.setGroupUuid("");
 
-            WsGroupDeleteResults wsGroupDeleteResults = stub.groupDeleteLite(groupDeleteLite)
-                                                            .get_return();
+            WsGroupDeleteLiteResult wsGroupDeleteLiteResult = stub.groupDeleteLite(groupDeleteLite)
+                                                                  .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsGroupDeleteResults));
+                    wsGroupDeleteLiteResult));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

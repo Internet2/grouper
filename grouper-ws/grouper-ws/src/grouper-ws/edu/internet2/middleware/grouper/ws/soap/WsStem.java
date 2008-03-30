@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.ws.soap;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Result for finding a stem
@@ -41,6 +42,17 @@ public class WsStem {
     this.setUuid(stem.getUuid());
     this.setExtension(stem.getExtension());
     this.setDisplayExtension(stem.getDisplayExtension());
+  }
+
+  /**
+   * construct based on stem, assign all fields
+   * 
+   * @param stemLookup is what to construct from
+   */
+  public WsStem(WsStemLookup stemLookup) {
+    this.setName(stemLookup.getStemName());
+    this.setUuid(stemLookup.getUuid());
+    this.setExtension(GrouperUtil.extensionFromName(stemLookup.getStemName()));
   }
 
   /**

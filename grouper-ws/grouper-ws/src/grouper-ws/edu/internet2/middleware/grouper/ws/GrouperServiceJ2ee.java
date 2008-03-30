@@ -48,6 +48,15 @@ public class GrouperServiceJ2ee implements Filter {
   private static final Log LOG = LogFactory.getLog(GrouperService.class);
 
   /**
+   * if in request, get the start time
+   * @return the start time
+   */
+  public static long retrieveRequestStartMillis() {
+    Long requestStartMillis = threadLocalRequestStartMillis.get();
+    return GrouperUtil.longValue(requestStartMillis, 0);
+  }
+  
+  /**
    * get a single parameter value for key.  If nultiple exist, throw error
    * @param paramMap is the map of params.  will get value from here if no request object
    * @param httpServletRequest optional.  if there, will make sure no dupes
@@ -306,6 +315,11 @@ public class GrouperServiceJ2ee implements Filter {
   private static ThreadLocal<HttpServletRequest> threadLocalRequest = new ThreadLocal<HttpServletRequest>();
 
   /**
+   * thread local for request
+   */
+  private static ThreadLocal<Long> threadLocalRequestStartMillis = new ThreadLocal<Long>();
+
+  /**
    * thread local for response
    */
   private static ThreadLocal<HttpServletResponse> threadLocalResponse = new ThreadLocal<HttpServletResponse>();
@@ -345,11 +359,13 @@ public class GrouperServiceJ2ee implements Filter {
 
     threadLocalRequest.set((HttpServletRequest) request);
     threadLocalResponse.set((HttpServletResponse) response);
+    threadLocalRequestStartMillis.set(System.currentTimeMillis());
     try {
       filterChain.doFilter(request, response);
     } finally {
       threadLocalRequest.remove();
       threadLocalResponse.remove();
+      threadLocalRequestStartMillis.remove();
     }
 
   }

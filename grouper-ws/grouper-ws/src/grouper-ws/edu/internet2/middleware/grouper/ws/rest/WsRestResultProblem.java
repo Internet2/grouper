@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestResultProblem.java,v 1.2 2008-03-26 07:39:11 mchyzer Exp $
+ * @author mchyzer $Id: WsRestResultProblem.java,v 1.3 2008-03-30 09:01:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -11,6 +11,21 @@ import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
  */
 public class WsRestResultProblem implements WsResponseBean {
 
+  /**
+   * empty
+   */
+  public WsRestResultProblem() {
+    //empty
+  }
+  
+  /**
+   * construct with result
+   * @param wsResultMeta1
+   */
+  public WsRestResultProblem(WsResultMeta wsResultMeta1) {
+    this.resultMetadata = wsResultMeta1;
+  }
+  
   /**
    * metadata about the result
    */

@@ -4,12 +4,11 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemDeleteLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemDeleteResults;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsStemDeleteLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 
-import org.apache.axis2.Constants;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
@@ -66,11 +65,11 @@ public class WsSampleStemDeleteLite implements WsSampleGenerated {
             stemDeleteLite.setStemName("aStem:stemNotExist");
             stemDeleteLite.setStemUuid("");
 
-            WsStemDeleteResults wsStemDeleteResults = stub.stemDeleteLite(stemDeleteLite)
-                                                          .get_return();
+            WsStemDeleteLiteResult wsStemDeleteLiteResult = stub.stemDeleteLite(stemDeleteLite)
+                                                                .get_return();
 
             System.out.println(ToStringBuilder.reflectionToString(
-                    wsStemDeleteResults));
+                    wsStemDeleteLiteResult));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

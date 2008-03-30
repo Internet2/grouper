@@ -1,14 +1,22 @@
 /*
- * @author mchyzer $Id: GrouperWsRestDelete.java,v 1.4 2008-03-29 10:50:43 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestDelete.java,v 1.5 2008-03-30 09:01:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
+import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteRequest;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -16,11 +24,11 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public enum GrouperWsRestDelete {
 
-  /** group get requests */
+  /** group delete requests */
   groups {
 
     /**
-     * handle the incoming request based on GET HTTP method and group resource
+     * handle the incoming request based on DELETE HTTP method and group resource
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
      * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
@@ -38,6 +46,18 @@ public enum GrouperWsRestDelete {
       //operation, e.g. members
       String operation = GrouperServiceUtils.popUrlString(urlStrings);
 
+      if (requestObject instanceof WsRestGroupDeleteRequest) {
+        return GrouperServiceRest.groupDelete(clientVersion, 
+            (WsRestGroupDeleteRequest)requestObject);
+      }
+      
+      if ((requestObject == null || requestObject instanceof WsRestGroupDeleteLiteRequest) 
+          && StringUtils.isBlank(operation) ) {
+        return GrouperServiceRest.groupDeleteLite(clientVersion, groupName, 
+            (WsRestGroupDeleteLiteRequest)requestObject);
+      }
+
+      
       //validate and get the operation
       GrouperWsRestDeleteGroup grouperWsRestDeleteGroup = GrouperWsRestDeleteGroup
           .valueOfIgnoreCase(operation, true);
@@ -45,7 +65,48 @@ public enum GrouperWsRestDelete {
       return grouperWsRestDeleteGroup.service(clientVersion, groupName, urlStrings, requestObject);
     }
 
-  };
+  }, 
+  
+  /** stem delete requests */
+  stems {
+  
+      /**
+       * handle the incoming request based on DELETE HTTP method and stem resource
+       * @param clientVersion version of client, e.g. v1_3_000
+       * @param urlStrings not including the app name or servlet.  
+       * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
+       * the urlStrings would be size two: {"group", "a:b"}
+       * @param requestObject is the request body converted to object
+       * @return the result object
+       */
+      @Override
+      public WsResponseBean service(
+          GrouperWsVersion clientVersion, List<String> urlStrings,
+          WsRequestBean requestObject) {
+  
+        //url should be: /v1_3_000/stems/aStem:aStem2
+        String stemName = GrouperServiceUtils.popUrlString(urlStrings);
+        //operation not valid yet
+        String operation = GrouperServiceUtils.popUrlString(urlStrings);
+  
+        if (requestObject instanceof WsRestStemDeleteRequest) {
+          return GrouperServiceRest.stemDelete(clientVersion, 
+              (WsRestStemDeleteRequest)requestObject);
+        }
+        
+        if ((requestObject == null || requestObject instanceof WsRestStemDeleteLiteRequest) 
+            && StringUtils.isBlank(operation) ) {
+          return GrouperServiceRest.stemDeleteLite(clientVersion, stemName, 
+              (WsRestStemDeleteLiteRequest)requestObject);
+        }
+        
+        throw new RuntimeException("Invalid delete stem request: " + clientVersion 
+            + ", " + stemName + ", " + operation 
+            + ", " + GrouperUtil.toStringForLog(urlStrings) 
+            + ", " + GrouperUtil.className(requestObject));
+      }
+  
+    };
 
   /**
    * handle the incoming request based on HTTP method

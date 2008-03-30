@@ -59,7 +59,7 @@ public class WsStemLookup {
        */
       @Override
       public WsStemDeleteResultCode convertToDeleteCode() {
-        return WsStemDeleteResultCode.STEM_NOT_FOUND;
+        return WsStemDeleteResultCode.SUCCESS_STEM_NOT_FOUND;
       }
 
     },

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestDeleteGroup.java,v 1.1 2008-03-29 10:50:43 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestDeleteGroup.java,v 1.2 2008-03-30 09:01:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -11,8 +11,8 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestDeleteMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**

@@ -1,10 +1,12 @@
 /*
- * @author mchyzer $Id: WsResponseMeta.java,v 1.1 2008-03-24 20:19:48 mchyzer Exp $
+ * @author mchyzer $Id: WsResponseMeta.java,v 1.2 2008-03-30 09:01:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 
 /**
@@ -34,6 +36,27 @@ public class WsResponseMeta {
     return this.resultWarnings.toString();
   }
 
+  /**
+   * get the length of request (if specified in bean)
+   */
+  private long millis = -1;
+  
+  /**
+   * start of request
+   */
+  private long millisStart = GrouperServiceJ2ee.retrieveRequestStartMillis();
+  
+  /**
+   * 
+   * @return
+   */
+  public String getMillis() {
+    if (this.millis != -1) {
+      return Long.toString(this.millis);
+    }
+    return Long.toString(System.currentTimeMillis() - this.millisStart);
+  }
+  
   /** server version */
   private String serverVersion = GrouperWsVersion.currentVersion().name();
   /**
@@ -57,6 +80,14 @@ public class WsResponseMeta {
    */
   public void setResultWarnings(String resultWarnings1) {
     this.resultWarnings = new StringBuilder(StringUtils.defaultString(resultWarnings1));
+  }
+  
+  /**
+   * @param millis1 the millis to set
+   */
+  public void setMillis(String millis1) {
+    //reset to unset
+    this.millis = GrouperUtil.longValue(millis1, -1);
   }
 
 }

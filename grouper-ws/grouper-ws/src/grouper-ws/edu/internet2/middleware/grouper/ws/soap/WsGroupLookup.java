@@ -90,7 +90,7 @@ public class WsGroupLookup {
        */
       @Override
       public WsGroupDeleteResultCode convertToGroupDeleteResultCode() {
-        return WsGroupDeleteResultCode.GROUP_NOT_FOUND;
+        return WsGroupDeleteResultCode.SUCCESS_GROUP_NOT_FOUND;
       }
 
       /**

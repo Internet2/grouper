@@ -7,6 +7,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult.WsStemDeleteLiteResultCode;
+
 /**
  * Result of one stem being deleted.  The number of
  * these result objects will equal the number of stems sent in to the method
@@ -31,11 +33,8 @@ public class WsStemDeleteResult {
    * @param wsStemLookup1
    */
   public WsStemDeleteResult(WsStemLookup wsStemLookup1) {
-    this.wsStemLookup = wsStemLookup1;
+    this.wsStem = new WsStem(wsStemLookup1);
   }
-
-  /** stem lookup */
-  private WsStemLookup wsStemLookup;
 
   /** stem data */
   private WsStem wsStem;
@@ -46,35 +45,115 @@ public class WsStemDeleteResult {
   private WsResultMeta resultMetadata = new WsResultMeta();
 
   /**
+   * convert string to result code
+   * @return the result code
+   */
+  public WsStemDeleteResultCode resultCode() {
+    return WsStemDeleteResultCode.valueOf(this.getResultMetadata().getResultCode());
+  }
+
+  /**
    * result code of a request
    */
   public enum WsStemDeleteResultCode {
 
     /** if transactional call, and rolled back, otherwise success */
-    TRANSACTION_ROLLED_BACK,
+    TRANSACTION_ROLLED_BACK {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemDeleteLiteResultCode
+       */
+      @Override
+      public WsStemDeleteLiteResultCode convertToLiteCode() {
+        return WsStemDeleteLiteResultCode.EXCEPTION;
+      }
+
+    },
 
     /** successful addition */
-    SUCCESS,
+    SUCCESS {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemDeleteLiteResultCode
+       */
+      @Override
+      public WsStemDeleteLiteResultCode convertToLiteCode() {
+        return WsStemDeleteLiteResultCode.SUCCESS;
+      }
+
+    },
 
     /** invalid query, can only happen if lite query */
-    INVALID_QUERY,
+    INVALID_QUERY {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemDeleteLiteResultCode
+       */
+      @Override
+      public WsStemDeleteLiteResultCode convertToLiteCode() {
+        return WsStemDeleteLiteResultCode.INVALID_QUERY;
+      }
+
+    },
 
     /** the stem was not found */
-    STEM_NOT_FOUND,
+    SUCCESS_STEM_NOT_FOUND {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemDeleteLiteResultCode
+       */
+      @Override
+      public WsStemDeleteLiteResultCode convertToLiteCode() {
+        return WsStemDeleteLiteResultCode.SUCCESS_STEM_NOT_FOUND;
+      }
+
+    },
 
     /** problem with deleting */
-    EXCEPTION,
+    EXCEPTION {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemDeleteLiteResultCode
+       */
+      @Override
+      public WsStemDeleteLiteResultCode convertToLiteCode() {
+        return WsStemDeleteLiteResultCode.EXCEPTION;
+      }
+
+    },
 
     /** user not allowed */
-    INSUFFICIENT_PRIVILEGES;
+    INSUFFICIENT_PRIVILEGES {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemDeleteLiteResultCode
+       */
+      @Override
+      public WsStemDeleteLiteResultCode convertToLiteCode() {
+        return WsStemDeleteLiteResultCode.INSUFFICIENT_PRIVILEGES;
+      }
+
+    };
 
     /**
      * if this is a successful result
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS || this == STEM_NOT_FOUND;
+      return this == SUCCESS || this == SUCCESS_STEM_NOT_FOUND;
     }
+
+    /** 
+     * if there is one result, convert to the results code
+     * @return result code
+     */
+    public abstract WsStemDeleteLiteResultCode convertToLiteCode();
   }
 
   /**
@@ -85,20 +164,6 @@ public class WsStemDeleteResult {
     this.getResultMetadata().assignResultCode(
         stemDeleteResultCode == null ? null : stemDeleteResultCode.name());
     this.getResultMetadata().assignSuccess(stemDeleteResultCode.isSuccess() ? "T" : "F");
-  }
-
-  /**
-   * @return the wsStemLookup
-   */
-  public WsStemLookup getWsStemLookup() {
-    return this.wsStemLookup;
-  }
-
-  /**
-   * @param wsStemLookup1 the wsStemLookup to set
-   */
-  public void setWsStemLookup(WsStemLookup wsStemLookup1) {
-    this.wsStemLookup = wsStemLookup1;
   }
 
   /**
@@ -131,6 +196,14 @@ public class WsStemDeleteResult {
    */
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
+  }
+
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
   }
 
 }

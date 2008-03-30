@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.6 2008-03-29 10:50:44 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.7 2008-03-30 09:01:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.QueryFilter;
+import edu.internet2.middleware.grouper.SaveMode;
 import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.Stem;
@@ -58,6 +59,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
@@ -71,10 +73,12 @@ import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsPrivilege;
 import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.soap.WsStem;
+import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter;
+import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
@@ -187,7 +191,7 @@ public class GrouperServiceLogic {
                   params);
 
               int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-                  subjectLookups, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
+                  subjectLookups, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000, "subjectLookups");
 
               Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
 
@@ -439,7 +443,7 @@ public class GrouperServiceLogic {
                   params);
   
               int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-                  subjectLookups, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
+                  subjectLookups, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000, "subjectLookups");
   
               Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
   
@@ -895,7 +899,7 @@ public class GrouperServiceLogic {
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
       int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-          subjectLookups, GrouperWsConfig.WS_GET_GROUPS_SUBJECTS_MAX, 1000000);
+          subjectLookups, GrouperWsConfig.WS_GET_GROUPS_SUBJECTS_MAX, 1000000, "subjectLookups");
 
       int resultIndex = 0;
 
@@ -1343,7 +1347,7 @@ public class GrouperServiceLogic {
   @SuppressWarnings("unchecked")
   public static WsGroupDeleteResults groupDelete(final GrouperWsVersion clientVersion,
       final WsGroupLookup[] wsGroupLookups, final WsSubjectLookup actAsSubjectLookup,
-      final GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
+      GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
   
     final WsGroupDeleteResults wsGroupDeleteResults = new WsGroupDeleteResults();
   
@@ -1351,6 +1355,8 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      final GrouperTransactionType TX_TYPE = txType;
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
           + GrouperUtil.toStringForLog(wsGroupLookups, 200) + "\n, actAsSubject: "
           + actAsSubjectLookup + ", txType: " + txType + ", includeGroupDetail: "
@@ -1377,7 +1383,7 @@ public class GrouperServiceLogic {
                   params);
   
               int groupsSize = GrouperServiceUtils.arrayLengthAtLeastOne(wsGroupLookups,
-                  GrouperWsConfig.WS_GROUP_DELETE_MAX, 1000000);
+                  GrouperWsConfig.WS_GROUP_DELETE_MAX, 1000000, "groupLookups");
   
               wsGroupDeleteResults.setResults(new WsGroupDeleteResult[groupsSize]);
   
@@ -1430,7 +1436,7 @@ public class GrouperServiceLogic {
               }
   
               //see if any inner failures cause the whole tx to fail, and/or change the outer status
-              if (!wsGroupDeleteResults.tallyResults(txType, THE_SUMMARY)) {
+              if (!wsGroupDeleteResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
                 grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
               }
   
@@ -1477,7 +1483,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsGroupDeleteResults groupDeleteLite(final GrouperWsVersion clientVersion,
+  public static WsGroupDeleteLiteResult groupDeleteLite(final GrouperWsVersion clientVersion,
       String groupName, String groupUuid, String actAsSubjectId,
       String actAsSubjectSourceId, String actAsSubjectIdentifier,
       final boolean includeGroupDetail, String paramName0, String paramValue0,
@@ -1494,7 +1500,7 @@ public class GrouperServiceLogic {
     WsGroupDeleteResults wsGroupDeleteResults = groupDelete(clientVersion,
         wsGroupLookups, actAsSubjectLookup, null, includeGroupDetail, params);
   
-    return wsGroupDeleteResults;
+    return new WsGroupDeleteLiteResult(wsGroupDeleteResults);
   }
 
   /**
@@ -1509,29 +1515,27 @@ public class GrouperServiceLogic {
    * NONE (will finish as much as possible).  Generally the only values for this param that make sense
    * are NONE (or blank), and READ_WRITE_NEW.
    * @param params optional: reserved for future use
+   * @param includeGroupDetail T or F as to if the group detail should be returned
    * @return the results
    */
   @SuppressWarnings("unchecked")
   public static WsGroupSaveResults groupSave(final GrouperWsVersion clientVersion,
       final WsGroupToSave[] wsGroupsToSave, final WsSubjectLookup actAsSubjectLookup,
-      final GrouperTransactionType txType, final WsParam[] params) {
+      GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
   
     GrouperSession session = null;
-    int groupsSize = wsGroupsToSave == null ? 0 : wsGroupsToSave.length;
+    int groupsSize = GrouperServiceUtils.arrayLengthAtLeastOne(wsGroupsToSave,
+        GrouperWsConfig.WS_GROUP_SAVE_MAX, 1000000, "groupsToSave");
   
     WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
   
+    txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+    final GrouperTransactionType TX_TYPE = txType;
+
     //convert the options to a map for easy access, and validate them
     @SuppressWarnings("unused")
-    Map<String, String> paramMap = null;
-    try {
-      paramMap = GrouperServiceUtils.convertParamsToMap(params);
-    } catch (Exception e) {
-      wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.INVALID_QUERY);
-      wsGroupSaveResults.getResultMetadata().setResultMessage(
-          "Invalid params: " + e.getMessage());
-      return wsGroupSaveResults;
-    }
+    Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+        params);
   
     // see if greater than the max (or default)
     int maxSaveGroup = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_GROUP_SAVE_MAX,
@@ -1574,9 +1578,7 @@ public class GrouperServiceLogic {
         Group group = null;
   
         try {
-          wsGroupSaveResult.setGroupName(wsGroupToSave.getGroupName());
-          // TODO change this to groupUuid
-          wsGroupSaveResult.setGroupUuid(wsGroupToSave.getUuid());
+//TODO fix this          wsGroupSaveResult.setWsGroup(new WsGroup())
   
           try {
             wsGroupToSave.validate();
@@ -1588,14 +1590,15 @@ public class GrouperServiceLogic {
           }
   
           group = wsGroupToSave.save(session);
-  
-          // these will probably match, but just in case
-          if (StringUtils.isBlank(wsGroupSaveResult.getGroupName())) {
-            wsGroupSaveResult.setGroupName(group.getName());
-          }
-          if (StringUtils.isBlank(wsGroupSaveResult.getGroupUuid())) {
-            wsGroupSaveResult.setGroupUuid(group.getUuid());
-          }
+
+          //TODO FIXME
+//          // these will probably match, but just in case
+//          if (StringUtils.isBlank(wsGroupSaveResult.getGroupName())) {
+//            wsGroupSaveResult.setGroupName(group.getName());
+//          }
+//          if (StringUtils.isBlank(wsGroupSaveResult.getGroupUuid())) {
+//            wsGroupSaveResult.setGroupUuid(group.getUuid());
+//          }
           //TODO use the WsResultCode
           wsGroupSaveResult.getResultMetadata().assignSuccess("T");
           wsGroupSaveResult.getResultMetadata().assignResultCode("SUCCESS");
@@ -1690,8 +1693,6 @@ public class GrouperServiceLogic {
    * @param displayExtension
    *            display name of the group, empty will be ignored
    * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
-   * @param createStemsIfNotExist
-   *            if the stems should be created if not exist
    * @param actAsSubjectId
    *            optional: is the subject id of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
@@ -1702,6 +1703,7 @@ public class GrouperServiceLogic {
    *            optional: is the subject identifier of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
    *            actAsSubjectIdentifer
+   * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param paramName0
    *            reserved for future use
    * @param paramValue0
@@ -1714,13 +1716,13 @@ public class GrouperServiceLogic {
    */
   public static WsGroupSaveResults groupSaveLite(final GrouperWsVersion clientVersion, String groupName,
       String groupUuid, String description, String displayExtension, String saveMode,
-      String createStemsIfNotExist, String actAsSubjectId, String actAsSubjectSourceId,
-      String actAsSubjectIdentifier, String paramName0, String paramValue0,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, final boolean includeGroupDetail, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
   
     // setup the group lookup
     WsGroupToSave wsGroupToSave = new WsGroupToSave(groupUuid, description,
-        displayExtension, saveMode, createStemsIfNotExist, groupName);
+        displayExtension, saveMode, groupName);
     WsGroupToSave[] wsGroupsToSave = new WsGroupToSave[] { wsGroupToSave };
   
     WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
@@ -1729,7 +1731,7 @@ public class GrouperServiceLogic {
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
     WsGroupSaveResults wsGroupSaveResults = groupSave(clientVersion, wsGroupsToSave,
-        actAsSubjectLookup, null, params);
+        actAsSubjectLookup, null, includeGroupDetail, params);
     return wsGroupSaveResults;
   }
 
@@ -1750,9 +1752,6 @@ public class GrouperServiceLogic {
    * @param fieldName
    *            is if the Group.hasMember() method with field is to be called
    *            (e.g. admins, optouts, optins, etc from Field table in DB)
-   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
-   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
-   * are NONE (or blank), and READ_WRITE_NEW.
    * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param includeSubjectDetail
    *            T|F, for if the extended subject information should be
@@ -1804,7 +1803,7 @@ public class GrouperServiceLogic {
           .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
   
       int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(subjectLookups,
-          GrouperWsConfig.WS_HAS_MEMBER_SUBJECTS_MAX, 1000000);
+          GrouperWsConfig.WS_HAS_MEMBER_SUBJECTS_MAX, 1000000, "subjectLookups");
   
       wsHasMemberResults.setResults(new WsHasMemberResult[subjectLength]);
   
@@ -1975,7 +1974,7 @@ public class GrouperServiceLogic {
                   params);
   
               int stemsSize = GrouperServiceUtils.arrayLengthAtLeastOne(wsStemLookups,
-                  GrouperWsConfig.WS_STEM_DELETE_MAX, 1000000);
+                  GrouperWsConfig.WS_STEM_DELETE_MAX, 1000000, "stemLookups");
   
               wsStemDeleteResults.setResults(new WsStemDeleteResult[stemsSize]);
   
@@ -2067,7 +2066,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsStemDeleteResults stemDeleteLite(final GrouperWsVersion clientVersion,
+  public static WsStemDeleteLiteResult stemDeleteLite(final GrouperWsVersion clientVersion,
       String stemName, String stemUuid, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
@@ -2083,7 +2082,7 @@ public class GrouperServiceLogic {
     WsStemDeleteResults wsStemDeleteResults = stemDelete(clientVersion, wsStemLookups,
         actAsSubjectLookup, null, params);
   
-    return wsStemDeleteResults;
+    return new WsStemDeleteLiteResult(wsStemDeleteResults);
   }
 
   /**
@@ -2115,7 +2114,7 @@ public class GrouperServiceLogic {
       final GrouperTransactionType TX_TYPE = txType;
       
       theSummary = "clientVersion: " + clientVersion + ", wsStemToSaves: "
-          + GrouperUtil.toStringForLog(wsStemSaveResults, 200) + "\n, actAsSubject: "
+          + GrouperUtil.toStringForLog(wsStemToSaves, 200) + "\n, actAsSubject: "
           + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
   
@@ -2139,7 +2138,7 @@ public class GrouperServiceLogic {
                   params);
   
               int wsStemsLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-                  wsStemToSaves, GrouperWsConfig.WS_STEM_SAVE_MAX, 1000000);
+                  wsStemToSaves, GrouperWsConfig.WS_STEM_SAVE_MAX, 1000000, "stemsToSave");
   
               wsStemSaveResults.setResults(new WsStemSaveResult[wsStemsLength]);
   
@@ -2147,9 +2146,8 @@ public class GrouperServiceLogic {
   
               //loop through all stems and do the save
               for (WsStemToSave wsStemToSave : wsStemToSaves) {
-                WsStemSaveResult wsStemSaveResult = new WsStemSaveResult();
+                WsStemSaveResult wsStemSaveResult = new WsStemSaveResult(wsStemToSave.getWsStemLookup());
                 wsStemSaveResults.getResults()[resultIndex++] = wsStemSaveResult;
-                wsStemSaveResult.setWsStemLookup(wsStemToSave.getWsStemLookup());
   
                 try {
                   //make sure everything is in order
@@ -2196,8 +2194,6 @@ public class GrouperServiceLogic {
    * @param description of the stem
    * @param displayExtension of the stem
    * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
-   * @param createStemsIfNotExist
-   *            if the stems should be created if not exist
    * @param actAsSubjectId
    *            optional: is the subject id of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
@@ -2218,10 +2214,10 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsStemSaveResults stemSaveLite(final GrouperWsVersion clientVersion,
+  public static WsStemSaveLiteResult stemSaveLite(final GrouperWsVersion clientVersion,
       String stemLookupUuid, String stemLookupName, String stemName, String stemUuid,
-      String description, String displayExtension, String saveMode,
-      String createStemsIfNotExist, String actAsSubjectId, String actAsSubjectSourceId,
+      String description, String displayExtension, SaveMode saveMode,
+      String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
   
@@ -2239,7 +2235,7 @@ public class GrouperServiceLogic {
     WsStemLookup wsStemLookup = new WsStemLookup(stemLookupName, stemLookupUuid);
     wsStemToSave.setWsStemLookup(wsStemLookup);
   
-    wsStemToSave.setSaveMode(saveMode);
+    wsStemToSave.setSaveMode(saveMode == null ? null : saveMode.name());
   
     WsStemToSave[] wsStemsToSave = new WsStemToSave[] { wsStemToSave };
   
@@ -2251,7 +2247,7 @@ public class GrouperServiceLogic {
     WsStemSaveResults wsStemSaveResults = stemSave(clientVersion, wsStemsToSave,
         actAsSubjectLookup, null, params);
   
-    return wsStemSaveResults;
+    return new WsStemSaveLiteResult(wsStemSaveResults);
   }
 
   /**

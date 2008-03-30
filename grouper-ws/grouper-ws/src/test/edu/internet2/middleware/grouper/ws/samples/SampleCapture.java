@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.6 2008-03-29 10:50:45 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.7 2008-03-30 09:01:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -29,28 +29,42 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroups;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembers;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembersLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDelete;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDelete;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDeleteLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleAddMemberRestLite2;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleDeleteMemberRestLite2;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleFindGroupsRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleFindGroupsRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleFindStemsRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleFindStemsRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetGroupsRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetGroupsRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetGroupsRestLite2;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetMembersRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetMembersRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleGetMembersRestLite2;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRest;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRestLite;
-import edu.internet2.middleware.grouper.ws.samples.rest.WsSampleHasMemberRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleDeleteMemberRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleDeleteMemberRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleDeleteMemberRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleGetMembersRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleGetMembersRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleGetMembersRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMemberRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMemberRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMemberRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemSaveRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemSaveRestLite;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSample;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleClientType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -75,13 +89,16 @@ public class SampleCapture {
     
     setupData();
     
-//    captureAddMember();
-//    captureDeleteMember();
-//    captureHasMember();
-//    captureGetGroups();
-//    captureGetMembers();
-//    captureFindGroups();
+    captureAddMember();
+    captureDeleteMember();
+    captureHasMember();
+    captureGetGroups();
+    captureGetMembers();
+    captureFindGroups();
     captureFindStems();
+    captureStemDelete();
+    captureStemSave();
+    captureGroupDelete();
   }
 
   /** certain data has to exist for samples to run */
@@ -165,6 +182,57 @@ public class SampleCapture {
         WsSampleHasMemberRestLite.class, "hasMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleHasMemberRestLite2.class, "hasMember", "_withInput");
+    
+  }
+
+  /**
+   * all group delete captures
+   */
+  public static void captureGroupDelete() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGroupDelete.class, "groupDelete", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGroupDeleteLite.class, "groupDelete", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGroupDeleteRest.class, "groupDelete", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGroupDeleteRestLite.class, "groupDelete", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGroupDeleteRestLite2.class, "groupDelete", "_withInput");
+    
+  }
+
+  /**
+   * all stem delete captures
+   */
+  public static void captureStemDelete() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleStemDelete.class, "stemDelete", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleStemDeleteLite.class, "stemDelete", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleStemDeleteRest.class, "stemDelete", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleStemDeleteRestLite.class, "stemDelete", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleStemDeleteRestLite2.class, "stemDelete", "_withInput");
+    
+  }
+
+  /**
+   * all has member captures
+   */
+  public static void captureStemSave() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleStemSave.class, "stemSave", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleStemSaveLite.class, "stemSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleStemSaveRest.class, "stemSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleStemSaveRestLite.class, "stemSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleStemSaveRestLite.class, "stemSave", "_withInput");
     
   }
 

@@ -47,9 +47,9 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: application/soap+xml; action="urn:findGroupsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sat, 29 Mar 2008 10:34:34 GMT
+Date: Sun, 30 Mar 2008 08:52:28 GMT
 
-844
+85e
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -74,12 +74,13 @@ Date: Sat, 29 Mar 2008 10:34:34 GMT
           <ns:uuid>d8be0f16-5716-44e4-8af1-2ab5b42ad282</ns:uuid>
         </ns:groupResults>
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
+          <ns:millis>218</ns:millis>
           <ns:resultWarnings></ns:resultWarnings>
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@604dd8[grouperSession=&lt;null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=&lt;null>,groupUuid=&lt;null>,groupAttributeValue=&lt;null>,groupAttributeName=&lt;null>,groupTypeName=&lt;null>,queryFilter0=&lt;null>,queryFilter1=&lt;null>]
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@7be610[grouperSession=&lt;null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=&lt;null>,groupUuid=&lt;null>,groupAttributeValue=&lt;null>,groupAttributeName=&lt;null>,groupTypeName=&lt;null>,queryFilter0=&lt;null>,queryFilter1=&lt;null>]
 , includeGroupDetail: false, actAsSubject: null, paramNames:
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
@@ -106,11 +107,6 @@ Date: Sat, 29 Mar 2008 10:34:34 GMT
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroups;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsResponse;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindGroupsResults;
@@ -118,6 +114,12 @@ import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsQ
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -127,7 +129,7 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 public class WsSampleFindGroups implements WsSampleGenerated {
     /**
      * @param args
-     * @throws Exception 
+     * @throws Exception
      */
     public static void main(String[] args) throws Exception {
         findGroup(WsSampleGeneratedType.soap);
@@ -167,20 +169,20 @@ public class WsSampleFindGroups implements WsSampleGenerated {
 
             //version, e.g. v1_3_000
             findGroups.setClientVersion(GeneratedClientSettings.VERSION);
-            
+
             WsQueryFilter wsQueryFilter = new WsQueryFilter();
             wsQueryFilter.setGroupName("aGr");
             wsQueryFilter.setQueryFilterType("FIND_BY_GROUP_NAME_APPROXIMATE");
             wsQueryFilter.setStemName("aStem");
-            
+
             findGroups.setWsQueryFilter(wsQueryFilter);
 
             findGroupsResponse = stub.findGroups(findGroups);
             wsFindGroupsResults = findGroupsResponse.get_return();
             System.out.println(ToStringBuilder.reflectionToString(
-                       wsFindGroupsResults));
+                    wsFindGroupsResults));
             System.out.println(ToStringBuilder.reflectionToString(
-                   wsFindGroupsResults.getGroupResults()[0]));
+                    wsFindGroupsResults.getGroupResults()[0]));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -195,5 +197,5 @@ public class WsSampleFindGroups implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsFindGroupsResults@183e965[localGroupResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@1a99836,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@148083b},localGroupResultsTracker=true,localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1497b1,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1f31ad9,localResultMetadataTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@1a99836[localDescription=a group description2,localDescriptionTracker=true,localDetail=<null>,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=f7a9e321-6a1d-4866-95ed-c301f88b54ae,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsFindGroupsResults@138ec91[localGroupResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@1c0cd80,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@f3c5c4},localGroupResultsTracker=true,localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@3ce725,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@6b6ac8,localResultMetadataTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@1c0cd80[localDescription=a group description2,localDescriptionTracker=true,localDetail=<null>,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=f7a9e321-6a1d-4866-95ed-c301f88b54ae,localUuidTracker=true]

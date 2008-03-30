@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.ws.soap;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Result of one group being retrieved since a user is a member of it.  The number of
@@ -100,6 +101,8 @@ public class WsGroup {
         //no group, set the look values so the caller can keep things in sync
         this.setName(wsGroupLookup.getGroupName());
         this.setUuid(wsGroupLookup.getUuid());
+        this.setExtension(GrouperUtil.extensionFromName(wsGroupLookup.getGroupName()));
+
       }
     }
   }

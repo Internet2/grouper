@@ -46,9 +46,6 @@ public class WsGroupToSave {
   /** display extension is the friendly name (without path) */
   private String displayExtension;
 
-  /** if the stems should be created if not exist (T|F), defaults to false */
-  private String createStemsIfNotExist;
-
   /**
    * 
    */
@@ -62,16 +59,14 @@ public class WsGroupToSave {
    * @param description1 description
    * @param displayExtension1 display extension
    * @param saveMode1 save mode
-   * @param createStemsIfNotExist1 if parent stems should be created if not exist
    * @param groupName1 group name
    */
   public WsGroupToSave(String uuid1, String description1, String displayExtension1,
-      String saveMode1, String createStemsIfNotExist1, String groupName1) {
+      String saveMode1, String groupName1) {
     this.uuid = uuid1;
     this.description = description1;
     this.displayExtension = displayExtension1;
     this.saveMode = saveMode1;
-    this.createStemsIfNotExist = createStemsIfNotExist1;
     this.groupName = groupName1;
   }
 
@@ -111,25 +106,6 @@ public class WsGroupToSave {
    */
   public void setDisplayExtension(String displayExtension1) {
     this.displayExtension = displayExtension1;
-  }
-
-  /**
-   * if the stems should be created if not exist, defaults to false
-   * 
-   * @return the createStemsIfNotExist
-   */
-  public String getCreateStemsIfNotExist() {
-    return this.createStemsIfNotExist;
-  }
-
-  /**
-   * if the stems should be created if not exist, defaults to false
-   * 
-   * @param createStemsIfNotExist1
-   *            the createStemsIfNotExist to set
-   */
-  public void setCreateStemsIfNotExist(String createStemsIfNotExist1) {
-    this.createStemsIfNotExist = createStemsIfNotExist1;
   }
 
   /**
@@ -192,13 +168,6 @@ public class WsGroupToSave {
    */
   public void validate() {
     try {
-      GrouperUtil.booleanValue(this.createStemsIfNotExist, false);
-    } catch (Exception e) {
-      throw new RuntimeException("createStemsIfNotExist is invalid, must be blank, t, "
-          + "true, f, false (case insensitive): '" + this.createStemsIfNotExist + "', "
-          + this);
-    }
-    try {
       if (!StringUtils.isBlank(this.saveMode)) {
         //make sure it exists
         SaveMode.valueOfIgnoreCase(this.saveMode);
@@ -226,12 +195,10 @@ public class WsGroupToSave {
       GroupModifyException, StemAddException {
 
     SaveMode theSaveMode = SaveMode.valueOfIgnoreCase(this.saveMode);
-    boolean createStemsIfNotExistBoolean = GrouperUtil.booleanValue(
-        this.createStemsIfNotExist, true);
 
     Group group = Group.saveGroup(grouperSession, this.description,
         this.displayExtension, this.groupName, this.uuid, theSaveMode,
-        createStemsIfNotExistBoolean);
+        false);
     return group;
   }
 

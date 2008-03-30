@@ -176,6 +176,9 @@ public class GrouperUtil {
    * @return the name
    */
   public static String extensionFromName(String name) {
+    if (StringUtils.isBlank(name)) {
+      return name;
+    }
     int lastColonIndex = name.lastIndexOf(':');
     if (lastColonIndex == -1) {
       return name;

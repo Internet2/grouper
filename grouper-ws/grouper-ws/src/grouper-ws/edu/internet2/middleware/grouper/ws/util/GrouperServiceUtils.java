@@ -43,11 +43,8 @@ import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditPrivilegesResults.WsViewOrEditPrivilegesResultsCode;
@@ -610,94 +607,26 @@ public final class GrouperServiceUtils {
 
   /**
    * get array length, make sure at least 1 
-   * @param subjectLookups to count
+   * @param objects to count
    * @param configNameOfMax is the config name of grouper-ws.properties where the max number of subjects is
    * @param defaultMax is the default if not in the config file
+   * @param label for error
    * @return the length
    * @throws WsInvalidQueryException if array is null or size 0 or more than max
    */
-  public static int arrayLengthAtLeastOne(WsSubjectLookup[] subjectLookups,
-      String configNameOfMax, int defaultMax) throws WsInvalidQueryException {
-    int subjectLength = subjectLookups == null ? 0 : subjectLookups.length;
-    if (subjectLength == 0) {
-      throw new WsInvalidQueryException("Subjects length must be at least 1");
+  public static int arrayLengthAtLeastOne(Object[] objects,
+      String configNameOfMax, int defaultMax, String label) throws WsInvalidQueryException {
+    int objectsLength = objects == null ? 0 : objects.length;
+    if (objectsLength == 0) {
+      throw new WsInvalidQueryException(label + " length must be at least 1");
     }
     // see if greater than the max (or default)
-    int maxSubjects = GrouperWsConfig.getPropertyInt(configNameOfMax, 1000000);
-    if (subjectLength > maxSubjects) {
-      throw new WsInvalidQueryException("Subjects length must be less than max: "
-          + maxSubjects + " (sent in " + subjectLength + ")");
+    int maxObjects = GrouperWsConfig.getPropertyInt(configNameOfMax, 1000000);
+    if (objectsLength > maxObjects) {
+      throw new WsInvalidQueryException(label + " length must be less than max: "
+          + maxObjects + " (sent in " + objectsLength + ")");
     }
-    return subjectLength;
-  }
-
-  /**
-   * get array length, make sure at least 1 
-   * @param wsStemToSaves to count
-   * @param configNameOfMax is the config name of grouper-ws.properties where the max number of subjects is
-   * @param defaultMax is the default if not in the config file
-   * @return the length
-   * @throws WsInvalidQueryException if array is null or size 0 or more than max
-   */
-  public static int arrayLengthAtLeastOne(WsStemToSave[] wsStemToSaves,
-      String configNameOfMax, int defaultMax) throws WsInvalidQueryException {
-    int wsStemToSavesLength = wsStemToSaves == null ? 0 : wsStemToSaves.length;
-    if (wsStemToSavesLength == 0) {
-      throw new WsInvalidQueryException("WsStemToSaves length must be at least 1");
-    }
-    // see if greater than the max (or default)
-    int maxStemsToSave = GrouperWsConfig.getPropertyInt(configNameOfMax, 1000000);
-    if (wsStemToSavesLength > maxStemsToSave) {
-      throw new WsInvalidQueryException("WsStemToSaves length must be less than max: "
-          + maxStemsToSave + " (sent in " + wsStemToSavesLength + ")");
-    }
-    return wsStemToSavesLength;
-  }
-
-  /**
-   * get array length, make sure at least 1 
-   * @param stemLookups to count
-   * @param configNameOfMax is the config name of grouper-ws.properties where the max number of subjects is
-   * @param defaultMax is the default if not in the config file
-   * @return the length
-   * @throws WsInvalidQueryException if array is null or size 0
-   */
-  public static int arrayLengthAtLeastOne(WsStemLookup[] stemLookups,
-      String configNameOfMax, int defaultMax) throws WsInvalidQueryException {
-    int stemsLength = stemLookups == null ? 0 : stemLookups.length;
-    if (stemsLength == 0) {
-      throw new WsInvalidQueryException("Stems length must be at least 1");
-    }
-    // see if greater than the max (or default)
-    int maxStems = GrouperWsConfig.getPropertyInt(configNameOfMax, 1000000);
-    if (stemsLength > maxStems) {
-      throw new WsInvalidQueryException("Stems length must be less than max: " + maxStems
-          + " (sent in " + stemsLength + ")");
-    }
-    return stemsLength;
-  }
-
-  /**
-   * get array length, make sure at least 1 
-   * @param groupLookups to count
-   * @param configNameOfMax is the config name of grouper-ws.properties where the max number of subjects is
-   * @param defaultMax is the default if not in the config file
-   * @return the length
-   * @throws WsInvalidQueryException if array is null or size 0
-   */
-  public static int arrayLengthAtLeastOne(WsGroupLookup[] groupLookups,
-      String configNameOfMax, int defaultMax) throws WsInvalidQueryException {
-    int groupLength = groupLookups == null ? 0 : groupLookups.length;
-    if (groupLength == 0) {
-      throw new WsInvalidQueryException("Groups length must be at least 1");
-    }
-    // see if greater than the max (or default)
-    int maxGroups = GrouperWsConfig.getPropertyInt(configNameOfMax, 1000000);
-    if (groupLength > maxGroups) {
-      throw new WsInvalidQueryException("Groups length must be less than max: "
-          + maxGroups + " (sent in " + groupLength + ")");
-    }
-    return groupLength;
+    return objectsLength;
   }
 
   /**
@@ -954,10 +883,12 @@ public final class GrouperServiceUtils {
   public static void addResponseHeaders(HttpServletResponse response, String success,
       String resultCode) {
     if (!response.containsHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE)) {
-      response.addHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE, resultCode);
+      //default to NONE if not set for some reason (NONE will give clue that something wrong, why isnt it set???)
+      response.addHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE, StringUtils.defaultIfEmpty(resultCode, "NONE"));
     }
     if (!response.containsHeader(GrouperRestServlet.X_GROUPER_SUCCESS)) {
-      response.addHeader(GrouperRestServlet.X_GROUPER_SUCCESS, success);
+      //default to F if not set for some reason
+      response.addHeader(GrouperRestServlet.X_GROUPER_SUCCESS, StringUtils.defaultIfEmpty(success, "F"));
     }
   }
 

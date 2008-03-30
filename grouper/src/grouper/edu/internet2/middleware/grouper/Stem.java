@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.147 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.148 2008-03-30 09:00:55 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -1609,6 +1609,10 @@ public class Stem extends GrouperAPI implements Owner {
       stem.setDescription(description);
     }
     
+    if (!StringUtils.isBlank(uuid) && !StringUtils.equals(uuid, stem.getUuid())) {
+      //unfortunately the damage is done... so do this last...
+      throw new RuntimeException("UUID changes are not supported");
+    }
     return stem;
     
   }

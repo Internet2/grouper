@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperServiceUtilsTest.java,v 1.2 2008-03-25 05:15:11 mchyzer Exp $
+ * $Id: GrouperServiceUtilsTest.java,v 1.3 2008-03-30 09:01:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -8,8 +8,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestAddMemberLiteRequest;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetMembersLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
 
 
 

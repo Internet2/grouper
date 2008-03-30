@@ -37,7 +37,7 @@ Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 Content-Type: text/xml
-Date: Sat, 29 Mar 2008 10:45:43 GMT
+Date: Sun, 30 Mar 2008 08:52:55 GMT
 Connection: close
 
 <WsFindStemsResults>
@@ -50,17 +50,67 @@ Connection: close
       <name>aStem</name>
       <uuid>70f3b97b-8c13-4e36-b2db-6f22470264e2</uuid>
     </WsStem>
+    <WsStem>
+      <extension>testStem</extension>
+      <displayExtension>test stem</displayExtension>
+      <description>the test stem</description>
+      <displayName>a stem:test stem</displayName>
+      <name>aStem:testStem</name>
+      <uuid>0b950645-d36d-49a3-afde-f71b8eb0c2bd</uuid>
+    </WsStem>
+    <WsStem>
+      <extension>test</extension>
+      <displayExtension>the test stem</displayExtension>
+      <description>test stem</description>
+      <displayName>a stem:the test stem</displayName>
+      <name>aStem:test</name>
+      <uuid>02e32300-bdd8-4ab0-aa33-26b22f702f0c</uuid>
+    </WsStem>
+    <WsStem>
+      <extension>whateverStems</extension>
+      <displayExtension>disps</displayExtension>
+      <description>descs</description>
+      <displayName>a stem:disps</displayName>
+      <name>aStem:whateverStems</name>
+      <uuid>4d808bc7-a972-4135-8e63-495a293dd399</uuid>
+    </WsStem>
+    <WsStem>
+      <extension>aStemToSave</extension>
+      <displayExtension>disp1</displayExtension>
+      <description>desc1</description>
+      <displayName>a stem:disp1</displayName>
+      <name>aStem:aStemToSave</name>
+      <uuid>fae036ae-73c5-4e31-848b-960b1873b427</uuid>
+    </WsStem>
+    <WsStem>
+      <extension>whateverStem</extension>
+      <displayExtension>disp1</displayExtension>
+      <description>desc1</description>
+      <displayName>a stem:disp1</displayName>
+      <name>aStem:whateverStem</name>
+      <uuid>3a0c6d84-fe66-4988-ae5d-79bfa5b80372</uuid>
+    </WsStem>
+    <WsStem>
+      <extension>whateverStem2</extension>
+      <displayExtension>disp2</displayExtension>
+      <description>descs</description>
+      <displayName>a stem:disp2</displayName>
+      <name>aStem:whateverStem2</name>
+      <uuid>713cdea4-628f-4e20-9574-ac7218271d93</uuid>
+    </WsStem>
   </stemResults>
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults$WsFindStemsResultsCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@4a240d[grouperSession=&lt;null&gt;,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=&lt;null&gt;,parentStemNameScope=&lt;null&gt;,stemUuid=&lt;null&gt;,stemAttributeValue=&lt;null&gt;,stemAttributeName=&lt;null&gt;,stemQueryFilter0=&lt;null&gt;,stemQueryFilter1=&lt;null&gt;], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@18503e4[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;]
+    <resultMessage>Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@a31398[grouperSession=&lt;null&gt;,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=&lt;null&gt;,parentStemNameScope=&lt;null&gt;,stemUuid=&lt;null&gt;,stemAttributeValue=&lt;null&gt;,stemAttributeName=&lt;null&gt;,stemQueryFilter0=&lt;null&gt;,stemQueryFilter1=&lt;null&gt;], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5b99ed[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;]
 , params: null</resultMessage>
     <success>T</success>
     <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
+    <millis>-1</millis>
+    <millisStart>1206867175649</millisStart>
     <serverVersion>v1_3_000</serverVersion>
   </responseMetadata>
 </WsFindStemsResults>
@@ -76,7 +126,7 @@ Connection: close
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest;
+package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
@@ -218,5 +268,5 @@ public class WsSampleFindStemsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@4a240d[grouperSession=<null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=<null>,parentStemNameScope=<null>,stemUuid=<null>,stemAttributeValue=<null>,stemAttributeName=<null>,stemQueryFilter0=<null>,stemQueryFilter1=<null>], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@18503e4[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@a31398[grouperSession=<null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=<null>,parentStemNameScope=<null>,stemUuid=<null>,stemAttributeValue=<null>,stemAttributeName=<null>,stemQueryFilter0=<null>,stemQueryFilter1=<null>], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5b99ed[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
 , params: null

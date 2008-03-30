@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult.WsGroupDeleteLiteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -33,24 +34,7 @@ public class WsGroupDeleteResult {
    * @param wsGroupLookup is the group lookup to assign
    */
   public WsGroupDeleteResult(WsGroupLookup wsGroupLookup) {
-    this.groupLookup = wsGroupLookup;
-  }
-
-  /** the group that was looked up */
-  private WsGroupLookup groupLookup;
-
-  /**
-   * @return the groupLookup
-   */
-  public WsGroupLookup getGroupLookup() {
-    return this.groupLookup;
-  }
-
-  /**
-   * @param groupLookup1 the groupLookup to set
-   */
-  public void setGroupLookup(WsGroupLookup groupLookup1) {
-    this.groupLookup = groupLookup1;
+    this.wsGroup = new WsGroup(null, wsGroupLookup, false); 
   }
 
   /**
@@ -78,38 +62,131 @@ public class WsGroupDeleteResult {
    */
   public enum WsGroupDeleteResultCode {
 
-    /** in gorup lookup, the uuid doesnt match name */
-    GROUP_UUID_DOESNT_MATCH_NAME,
+    /** in group lookup, the uuid doesnt match name */
+    GROUP_UUID_DOESNT_MATCH_NAME {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupDeleteLiteResultCode
+       */
+      @Override
+      public WsGroupDeleteLiteResultCode convertToLiteCode() {
+        return WsGroupDeleteLiteResultCode.GROUP_UUID_DOESNT_MATCH_NAME;
+      }
+
+    },
 
     /** successful addition (lite status code 200) */
-    SUCCESS,
+    SUCCESS {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupDeleteLiteResultCode
+       */
+      @Override
+      public WsGroupDeleteLiteResultCode convertToLiteCode() {
+        return WsGroupDeleteLiteResultCode.SUCCESS;
+      }
+
+    },
 
     /** invalid query, can only happen if Lite query */
-    INVALID_QUERY,
+    INVALID_QUERY {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupDeleteLiteResultCode
+       */
+      @Override
+      public WsGroupDeleteLiteResultCode convertToLiteCode() {
+        return WsGroupDeleteLiteResultCode.INVALID_QUERY;
+      }
+
+    },
 
     /** the group was not found */
-    GROUP_NOT_FOUND,
+    SUCCESS_GROUP_NOT_FOUND {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupDeleteLiteResultCode
+       */
+      @Override
+      public WsGroupDeleteLiteResultCode convertToLiteCode() {
+        return WsGroupDeleteLiteResultCode.SUCCESS_GROUP_NOT_FOUND;
+      }
+
+    },
 
     /** problem with deleting */
-    EXCEPTION,
+    EXCEPTION {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupDeleteLiteResultCode
+       */
+      @Override
+      public WsGroupDeleteLiteResultCode convertToLiteCode() {
+        return WsGroupDeleteLiteResultCode.EXCEPTION;
+      }
+
+    },
 
     /** user not allowed */
-    INSUFFICIENT_PRIVILEGES,
+    INSUFFICIENT_PRIVILEGES {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupDeleteLiteResultCode
+       */
+      @Override
+      public WsGroupDeleteLiteResultCode convertToLiteCode() {
+        return WsGroupDeleteLiteResultCode.INSUFFICIENT_PRIVILEGES;
+      }
+
+    },
 
     /** transaction rolled back */
-    TRANSACTION_ROLLED_BACK,
+    TRANSACTION_ROLLED_BACK {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupDeleteLiteResultCode
+       */
+      @Override
+      public WsGroupDeleteLiteResultCode convertToLiteCode() {
+        return WsGroupDeleteLiteResultCode.EXCEPTION;
+      }
+
+    },
 
     /** if parent stem cant be found */
-    PARENT_STEM_NOT_FOUND;
+    PARENT_STEM_NOT_FOUND {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupDeleteLiteResultCode
+       */
+      @Override
+      public WsGroupDeleteLiteResultCode convertToLiteCode() {
+        return WsGroupDeleteLiteResultCode.PARENT_STEM_NOT_FOUND;
+      }
+
+    };
 
     /**
      * if this is a successful result
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS || this == GROUP_NOT_FOUND;
+      return this == SUCCESS || this == SUCCESS_GROUP_NOT_FOUND;
     }
 
+    /** 
+     * if there is one result, convert to the results code
+     * @return result code
+     */
+    public abstract WsGroupDeleteLiteResultCode convertToLiteCode();
   }
 
   /**
@@ -153,6 +230,22 @@ public class WsGroupDeleteResult {
    */
   public WsResultMeta getResultMetadata() {
     return this.resultMetadata;
+  }
+
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
+  }
+
+  /**
+   * convert string to result code
+   * @return the result code
+   */
+  public WsGroupDeleteResultCode resultCode() {
+    return WsGroupDeleteResultCode.valueOf(this.getResultMetadata().getResultCode());
   }
 
 }

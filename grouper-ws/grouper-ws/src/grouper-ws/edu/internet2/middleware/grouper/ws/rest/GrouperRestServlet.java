@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.4 2008-03-29 10:50:44 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.5 2008-03-30 09:01:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -157,6 +157,7 @@ public class GrouperRestServlet extends HttpServlet {
       wsResultMeta.appendResultMessage(error);
       wsResultMeta.assignHttpStatusCode(400);
       wsResultMeta.assignResultCode("INVALID_QUERY");
+      wsResultMeta.assignSuccess("F");
 
     } catch (RuntimeException e) {
 

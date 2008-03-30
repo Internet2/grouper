@@ -241,4 +241,12 @@ public class WsGroupDeleteResults implements WsResponseBean {
   public void setResponseMetadata(WsResponseMeta responseMetadata1) {
     this.responseMetadata = responseMetadata1;
   }
+
+  
+  /**
+   * @param resultMetadata1 the resultMetadata to set
+   */
+  public void setResultMetadata(WsResultMeta resultMetadata1) {
+    this.resultMetadata = resultMetadata1;
+  }
 }
