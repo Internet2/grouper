@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsQueryFilterType.java,v 1.3 2008-03-29 10:50:44 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilterType.java,v 1.4 2008-03-31 13:53:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.queryFilter.GroupAttributeExactFilter;
 import edu.internet2.middleware.grouper.queryFilter.GroupNameExactFilter;
 import edu.internet2.middleware.grouper.queryFilter.GroupUuidFilter;
 import edu.internet2.middleware.grouper.queryFilter.GroupsInStemFilter;
@@ -191,9 +192,53 @@ public enum WsQueryFilterType {
   },
 
   /**
-   * find by query, configure all the query params
+     * find by query, configure all the query params
+     */FIND_BY_APPROXIMATE_ATTRIBUTE{
+  
+      /**
+       * make sure that based on the inputs, that this is a valid query
+       * @param wsQueryFilter is the query params to validate based on type
+       * @throws WsInvalidQueryException if invalid
+       */
+      @Override
+      public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
+  
+        //for a attribute, need value, optional name, and optional stem name
+        wsQueryFilter.validateNoGroupName();
+        wsQueryFilter.validateNoGroupUuid();
+        // optional wsQueryFilter.validateHasGroupAttributeName();
+        wsQueryFilter.validateHasGroupAttributeValue();
+        wsQueryFilter.validateNoQueryFilter0();
+        wsQueryFilter.validateNoQueryFilter1();
+        // optional wsQueryFilter.validateNoStemName();
+        wsQueryFilter.validateNoStemNameScope();
+        wsQueryFilter.validateNoGroupTypeName();
+      }
+  
+      /**
+       * return the query filter
+       * @param wsQueryFilter
+       * @return the query filter
+       */
+      @Override
+      public QueryFilter retrieveQueryFilter(WsQueryFilter wsQueryFilter) {
+        Stem stem = wsQueryFilter.retrieveStem();
+        if (stem == null) {
+          //if not passed in, then use root
+          stem = StemFinder.findRootStem(wsQueryFilter.retrieveGrouperSession());
+        }
+        if (!StringUtils.isBlank(wsQueryFilter.getGroupAttributeName())) {
+          return new GroupAttributeFilter(wsQueryFilter.getGroupAttributeName(),
+              wsQueryFilter.getGroupAttributeValue(), stem);
+        }
+        return new GroupAnyAttributeFilter(wsQueryFilter.getGroupAttributeValue(), stem);
+      }
+  
+    }, 
+  /**
+   * find by exact attribute, configure all the query params
    */
-  FIND_BY_APPROXIMATE_ATTRIBUTE {
+  FIND_BY_EXACT_ATTRIBUTE {
 
     /**
      * make sure that based on the inputs, that this is a valid query
@@ -203,10 +248,10 @@ public enum WsQueryFilterType {
     @Override
     public void validate(WsQueryFilter wsQueryFilter) throws WsInvalidQueryException {
 
-      //for a attribute, need value, optional name, and optional stem name
+      //for a attribute, need value, name, and optional stem name
       wsQueryFilter.validateNoGroupName();
       wsQueryFilter.validateNoGroupUuid();
-      // optional wsQueryFilter.validateHasGroupAttributeName();
+      wsQueryFilter.validateHasGroupAttributeName();
       wsQueryFilter.validateHasGroupAttributeValue();
       wsQueryFilter.validateNoQueryFilter0();
       wsQueryFilter.validateNoQueryFilter1();
@@ -227,11 +272,8 @@ public enum WsQueryFilterType {
         //if not passed in, then use root
         stem = StemFinder.findRootStem(wsQueryFilter.retrieveGrouperSession());
       }
-      if (!StringUtils.isBlank(wsQueryFilter.getGroupAttributeName())) {
-        return new GroupAttributeFilter(wsQueryFilter.getGroupAttributeName(),
-            wsQueryFilter.getGroupAttributeValue(), stem);
-      }
-      return new GroupAnyAttributeFilter(wsQueryFilter.getGroupAttributeValue(), stem);
+      return new GroupAttributeExactFilter(wsQueryFilter.getGroupAttributeName(),
+          wsQueryFilter.getGroupAttributeValue(), stem);
     }
 
   },
