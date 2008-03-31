@@ -1,20 +1,16 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.8 2008-03-31 07:22:02 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.9 2008-03-31 07:35:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -22,11 +18,9 @@ import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.SaveMode;
 import edu.internet2.middleware.grouper.SchemaException;
-import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -42,8 +36,6 @@ import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsAttribute;
-import edu.internet2.middleware.grouper.ws.soap.WsAttributeEdit;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
@@ -55,7 +47,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
-import edu.internet2.middleware.grouper.ws.soap.WsGetMembershipsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult;
@@ -69,7 +60,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsPrivilege;
 import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.soap.WsStem;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult;
@@ -83,9 +73,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.soap.WsSubject;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditAttributesResult;
-import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditAttributesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditPrivilegesResults;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults.WsAddMemberResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult.WsDeleteMemberResultCode;
@@ -98,8 +85,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberRes
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup.StemFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult.WsStemSaveResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditAttributesResult.WsViewOrEditAttributesResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditAttributesResults.WsViewOrEditAttributesResultsCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Subject;
 
@@ -112,6 +97,7 @@ public class GrouperServiceLogic {
   /**
    * logger 
    */
+  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GrouperServiceLogic.class);
 
   /**
@@ -155,7 +141,7 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
       
-      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookup: "
@@ -412,7 +398,7 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
-      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookup: "
@@ -1353,7 +1339,7 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
-      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
           + GrouperUtil.toStringForLog(wsGroupLookups, 200) + "\n, actAsSubject: "
@@ -1527,7 +1513,7 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
-      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
       theSummary = "clientVersion: " + clientVersion + ", wsGroupToSaves: "
@@ -1807,7 +1793,7 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
-      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
       theSummary = "clientVersion: " + clientVersion + ", wsStemLookups: "
@@ -1971,7 +1957,7 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
-      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
       theSummary = "clientVersion: " + clientVersion + ", wsStemToSaves: "
