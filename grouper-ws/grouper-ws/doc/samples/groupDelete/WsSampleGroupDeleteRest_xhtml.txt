@@ -56,8 +56,9 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Sun, 30 Mar 2008 08:54:42 GMT
+Date: Mon, 31 Mar 2008 06:49:52 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -69,48 +70,51 @@ Connection: close
   <body>
     <div title="WsGroupDeleteResults">
       <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1eca9d2[group=&lt;null>,uuid=&lt;null>,groupName=aStem:whatever,groupFindResult=&lt;null>]
-[1]: edu.internet2.middleware.grouper.ws...
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@af908f[group=&lt;null>,uuid=&lt;null>,groupName=aStem:whatever,groupFindResult=&lt;null>]
+[1]: edu.internet2.middleware.grouper.ws....
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames:
 , params: null</p>
-        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">235</p>
+        <p class="millis">609</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_3_000</p>
       </div>
       <ul class="results">
         <li title="WsGroupDeleteResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="success">T</p>
-            <p class="resultMessage">Cant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1eca9d2[group=&lt;null>,uuid=&lt;null>,groupName=aStem:whatever,groupFindResult=GROUP_NOT_FOUND]'.  </p>
             <p class="resultCode">SUCCESS_GROUP_NOT_FOUND</p>
+            <p class="success">T</p>
+            <p class="resultMessage">Cant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@af908f[group=&lt;null>,uuid=&lt;null>,groupName=aStem:whatever,groupFindResult=GROUP_NOT_FOUND]'.  </p>
+            <p class="resultCode2" />
           </div>
           <div class="wsGroup" title="WsGroup">
             <p class="name">aStem:whatever</p>
             <p class="displayName" />
             <p class="description" />
-            <p class="uuid" />
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whatever</p>
+            <p class="uuid" />
             <p class="displayExtension" />
           </div>
         </li>
         <li title="WsGroupDeleteResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="success">T</p>
-            <p class="resultMessage">Cant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@812a5d[group=&lt;null>,uuid=&lt;null>,groupName=aStem:whatever2,groupFindResult=GROUP_NOT_FOUND]'.  </p>
             <p class="resultCode">SUCCESS_GROUP_NOT_FOUND</p>
+            <p class="success">T</p>
+            <p class="resultMessage">Cant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@3bbf83[group=&lt;null>,uuid=&lt;null>,groupName=aStem:whatever2,groupFindResult=GROUP_NOT_FOUND]'.  </p>
+            <p class="resultCode2" />
           </div>
           <div class="wsGroup" title="WsGroup">
             <p class="name">aStem:whatever2</p>
             <p class="displayName" />
             <p class="description" />
-            <p class="uuid" />
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whatever2</p>
+            <p class="uuid" />
             <p class="displayExtension" />
           </div>
         </li>
@@ -271,7 +275,7 @@ public class WsSampleGroupDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1eca9d2[group=<null>,uuid=<null>,groupName=aStem:whatever,groupFindResult=<null>]
-[1]: edu.internet2.middleware.grouper.ws...
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@af908f[group=<null>,uuid=<null>,groupName=aStem:whatever,groupFindResult=<null>]
+[1]: edu.internet2.middleware.grouper.ws....
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: 
 , params: null

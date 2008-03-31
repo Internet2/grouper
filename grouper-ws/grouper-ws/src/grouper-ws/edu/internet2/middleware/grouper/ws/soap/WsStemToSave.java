@@ -97,9 +97,10 @@ public class WsStemToSave {
 
     String stemNameLookup = stemLookedup == null ? null : stemLookedup.getName();
 
-    Stem stem = Stem.saveStem(grouperSession, stemNameLookup, this.getWsStem()
-        .getDescription(), this.getWsStem().getDisplayExtension(), this.getWsStem()
-        .getName(), this.getWsStem().getUuid(), theSaveMode, false);
+    Stem stem = Stem.saveStem(grouperSession, stemNameLookup, 
+        this.getWsStem().getUuid(), 
+        this.getWsStem().getName(), this.getWsStem().getDisplayExtension(), 
+        this.getWsStem().getDescription(), theSaveMode, false);
     return stem;
   }
 

@@ -44,24 +44,27 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findStemsResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 30 Mar 2008 08:52:43 GMT
+Date: Mon, 31 Mar 2008 06:48:22 GMT
 
-10ee
+1164
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:findStemsResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>484</ns:millis>
+          <ns:millis>140</ns:millis>
           <ns:resultWarnings></ns:resultWarnings>
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@1e24af0[grouperSession=&lt;null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=ste,parentStemName=&lt;null>,parentStemNameScope=&lt;null>,stemUuid=&lt;null>,stemAttributeValue=&lt;null>,stemAttributeName=&lt;null>,stemQueryFilter0=&lt;null>,stemQueryFilter1=&lt;null>], actAsSubject: null
+          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@ea25c3[grouperSession=&lt;null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=ste,parentStemName=&lt;null>,parentStemNameScope=&lt;null>,stemUuid=&lt;null>,stemAttributeValue=&lt;null>,stemAttributeName=&lt;null>,stemQueryFilter0=&lt;null>,stemQueryFilter1=&lt;null>], actAsSubject: null
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -71,7 +74,7 @@ Date: Sun, 30 Mar 2008 08:52:43 GMT
           <ns:displayName>internet2:stem a</ns:displayName>
           <ns:extension>a</ns:extension>
           <ns:name>i2:a</ns:name>
-          <ns:uuid>86714f4f-98cc-41d3-bab5-35cc190cb389</ns:uuid>
+          <ns:uuid>085e74db-78f4-4f96-a2c1-669444949691</ns:uuid>
         </ns:stemResults>
         <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
           <ns:description></ns:description>
@@ -79,7 +82,15 @@ Date: Sun, 30 Mar 2008 08:52:43 GMT
           <ns:displayName>internet2:stem b</ns:displayName>
           <ns:extension>b</ns:extension>
           <ns:name>i2:b</ns:name>
-          <ns:uuid>f4d86811-8fc4-4988-9849-182f98864c38</ns:uuid>
+          <ns:uuid>662fc6ff-717b-4dde-95c6-3fac46bf7f80</ns:uuid>
+        </ns:stemResults>
+        <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
+          <ns:description></ns:description>
+          <ns:displayExtension>aStem</ns:displayExtension>
+          <ns:displayName>aStem</ns:displayName>
+          <ns:extension>a stem</ns:extension>
+          <ns:name>a stem</ns:name>
+          <ns:uuid>a stem description</ns:uuid>
         </ns:stemResults>
         <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
           <ns:description>a stem description</ns:description>
@@ -87,7 +98,7 @@ Date: Sun, 30 Mar 2008 08:52:43 GMT
           <ns:displayName>a stem</ns:displayName>
           <ns:extension>aStem</ns:extension>
           <ns:name>aStem</ns:name>
-          <ns:uuid>70f3b97b-8c13-4e36-b2db-6f22470264e2</ns:uuid>
+          <ns:uuid>d16f5fda-80f5-40ea-a845-5d67dd5fffac</ns:uuid>
         </ns:stemResults>
         <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
           <ns:description>the test stem</ns:description>
@@ -95,7 +106,7 @@ Date: Sun, 30 Mar 2008 08:52:43 GMT
           <ns:displayName>a stem:test stem</ns:displayName>
           <ns:extension>testStem</ns:extension>
           <ns:name>aStem:testStem</ns:name>
-          <ns:uuid>0b950645-d36d-49a3-afde-f71b8eb0c2bd</ns:uuid>
+          <ns:uuid>163c8521-74fb-4975-ba95-df9ab284023c</ns:uuid>
         </ns:stemResults>
         <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
           <ns:description>test stem</ns:description>
@@ -103,15 +114,7 @@ Date: Sun, 30 Mar 2008 08:52:43 GMT
           <ns:displayName>a stem:the test stem</ns:displayName>
           <ns:extension>test</ns:extension>
           <ns:name>aStem:test</ns:name>
-          <ns:uuid>02e32300-bdd8-4ab0-aa33-26b22f702f0c</ns:uuid>
-        </ns:stemResults>
-        <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
-          <ns:description>descs</ns:description>
-          <ns:displayExtension>disps</ns:displayExtension>
-          <ns:displayName>a stem:disps</ns:displayName>
-          <ns:extension>whateverStems</ns:extension>
-          <ns:name>aStem:whateverStems</ns:name>
-          <ns:uuid>4d808bc7-a972-4135-8e63-495a293dd399</ns:uuid>
+          <ns:uuid>2067512d-b25e-4a45-8668-507157dda1f8</ns:uuid>
         </ns:stemResults>
         <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
           <ns:description>desc1</ns:description>
@@ -119,7 +122,7 @@ Date: Sun, 30 Mar 2008 08:52:43 GMT
           <ns:displayName>a stem:disp1</ns:displayName>
           <ns:extension>aStemToSave</ns:extension>
           <ns:name>aStem:aStemToSave</ns:name>
-          <ns:uuid>fae036ae-73c5-4e31-848b-960b1873b427</ns:uuid>
+          <ns:uuid>87a28251-f2cc-4589-b67b-bd14ee3ff290</ns:uuid>
         </ns:stemResults>
         <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
           <ns:description>desc1</ns:description>
@@ -127,7 +130,7 @@ Date: Sun, 30 Mar 2008 08:52:43 GMT
           <ns:displayName>a stem:disp1</ns:displayName>
           <ns:extension>whateverStem</ns:extension>
           <ns:name>aStem:whateverStem</ns:name>
-          <ns:uuid>3a0c6d84-fe66-4988-ae5d-79bfa5b80372</ns:uuid>
+          <ns:uuid>f9223f4e-37b1-4fbe-99c3-96a550c4fa8d</ns:uuid>
         </ns:stemResults>
         <ns:stemResults type="edu.internet2.middleware.grouper.ws.soap.WsStem">
           <ns:description>descs</ns:description>
@@ -135,7 +138,7 @@ Date: Sun, 30 Mar 2008 08:52:43 GMT
           <ns:displayName>a stem:disp2</ns:displayName>
           <ns:extension>whateverStem2</ns:extension>
           <ns:name>aStem:whateverStem2</ns:name>
-          <ns:uuid>713cdea4-628f-4e20-9574-ac7218271d93</ns:uuid>
+          <ns:uuid>09fbd59b-6a6d-41da-9a6c-394418b02f13</ns:uuid>
         </ns:stemResults>
       </ns:return>
     </ns:findStemsResponse>
@@ -256,13 +259,13 @@ public class WsSampleFindStems implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsFindStemsResults@16954e1[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@2250d5,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@e8eeca,localResultMetadataTracker=true,localStemResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@118a770,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@198d9cf,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@3e574,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@1cd427a,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@c791f4,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@3f58bb,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@da9067,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@13e9934,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@bc36ff},localStemResultsTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@118a770[localDescription=,localDescriptionTracker=true,localDisplayExtension=stem a,localDisplayExtensionTracker=true,localDisplayName=internet2:stem a,localDisplayNameTracker=true,localExtension=a,localExtensionTracker=true,localName=i2:a,localNameTracker=true,localUuid=86714f4f-98cc-41d3-bab5-35cc190cb389,localUuidTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@198d9cf[localDescription=,localDescriptionTracker=true,localDisplayExtension=stem b,localDisplayExtensionTracker=true,localDisplayName=internet2:stem b,localDisplayNameTracker=true,localExtension=b,localExtensionTracker=true,localName=i2:b,localNameTracker=true,localUuid=f4d86811-8fc4-4988-9849-182f98864c38,localUuidTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@3e574[localDescription=a stem description,localDescriptionTracker=true,localDisplayExtension=a stem,localDisplayExtensionTracker=true,localDisplayName=a stem,localDisplayNameTracker=true,localExtension=aStem,localExtensionTracker=true,localName=aStem,localNameTracker=true,localUuid=70f3b97b-8c13-4e36-b2db-6f22470264e2,localUuidTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@1cd427a[localDescription=the test stem,localDescriptionTracker=true,localDisplayExtension=test stem,localDisplayExtensionTracker=true,localDisplayName=a stem:test stem,localDisplayNameTracker=true,localExtension=testStem,localExtensionTracker=true,localName=aStem:testStem,localNameTracker=true,localUuid=0b950645-d36d-49a3-afde-f71b8eb0c2bd,localUuidTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@c791f4[localDescription=test stem,localDescriptionTracker=true,localDisplayExtension=the test stem,localDisplayExtensionTracker=true,localDisplayName=a stem:the test stem,localDisplayNameTracker=true,localExtension=test,localExtensionTracker=true,localName=aStem:test,localNameTracker=true,localUuid=02e32300-bdd8-4ab0-aa33-26b22f702f0c,localUuidTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@3f58bb[localDescription=descs,localDescriptionTracker=true,localDisplayExtension=disps,localDisplayExtensionTracker=true,localDisplayName=a stem:disps,localDisplayNameTracker=true,localExtension=whateverStems,localExtensionTracker=true,localName=aStem:whateverStems,localNameTracker=true,localUuid=4d808bc7-a972-4135-8e63-495a293dd399,localUuidTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@da9067[localDescription=desc1,localDescriptionTracker=true,localDisplayExtension=disp1,localDisplayExtensionTracker=true,localDisplayName=a stem:disp1,localDisplayNameTracker=true,localExtension=aStemToSave,localExtensionTracker=true,localName=aStem:aStemToSave,localNameTracker=true,localUuid=fae036ae-73c5-4e31-848b-960b1873b427,localUuidTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@13e9934[localDescription=desc1,localDescriptionTracker=true,localDisplayExtension=disp1,localDisplayExtensionTracker=true,localDisplayName=a stem:disp1,localDisplayNameTracker=true,localExtension=whateverStem,localExtensionTracker=true,localName=aStem:whateverStem,localNameTracker=true,localUuid=3a0c6d84-fe66-4988-ae5d-79bfa5b80372,localUuidTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@bc36ff[localDescription=descs,localDescriptionTracker=true,localDisplayExtension=disp2,localDisplayExtensionTracker=true,localDisplayName=a stem:disp2,localDisplayNameTracker=true,localExtension=whateverStem2,localExtensionTracker=true,localName=aStem:whateverStem2,localNameTracker=true,localUuid=713cdea4-628f-4e20-9574-ac7218271d93,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsFindStemsResults@1dc6a9d[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@742397,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@ccc621,localResultMetadataTracker=true,localStemResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@13f5a2f,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@39f16f,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@19d688,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@539a92,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@c8f0a4,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@2eb6fb,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@ef1df6,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@9801f4,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@1a86488},localStemResultsTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@13f5a2f[localDescription=,localDescriptionTracker=true,localDisplayExtension=stem a,localDisplayExtensionTracker=true,localDisplayName=internet2:stem a,localDisplayNameTracker=true,localExtension=a,localExtensionTracker=true,localName=i2:a,localNameTracker=true,localUuid=085e74db-78f4-4f96-a2c1-669444949691,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@39f16f[localDescription=,localDescriptionTracker=true,localDisplayExtension=stem b,localDisplayExtensionTracker=true,localDisplayName=internet2:stem b,localDisplayNameTracker=true,localExtension=b,localExtensionTracker=true,localName=i2:b,localNameTracker=true,localUuid=662fc6ff-717b-4dde-95c6-3fac46bf7f80,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@19d688[localDescription=,localDescriptionTracker=true,localDisplayExtension=aStem,localDisplayExtensionTracker=true,localDisplayName=aStem,localDisplayNameTracker=true,localExtension=a stem,localExtensionTracker=true,localName=a stem,localNameTracker=true,localUuid=a stem description,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@539a92[localDescription=a stem description,localDescriptionTracker=true,localDisplayExtension=a stem,localDisplayExtensionTracker=true,localDisplayName=a stem,localDisplayNameTracker=true,localExtension=aStem,localExtensionTracker=true,localName=aStem,localNameTracker=true,localUuid=d16f5fda-80f5-40ea-a845-5d67dd5fffac,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@c8f0a4[localDescription=the test stem,localDescriptionTracker=true,localDisplayExtension=test stem,localDisplayExtensionTracker=true,localDisplayName=a stem:test stem,localDisplayNameTracker=true,localExtension=testStem,localExtensionTracker=true,localName=aStem:testStem,localNameTracker=true,localUuid=163c8521-74fb-4975-ba95-df9ab284023c,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@2eb6fb[localDescription=test stem,localDescriptionTracker=true,localDisplayExtension=the test stem,localDisplayExtensionTracker=true,localDisplayName=a stem:the test stem,localDisplayNameTracker=true,localExtension=test,localExtensionTracker=true,localName=aStem:test,localNameTracker=true,localUuid=2067512d-b25e-4a45-8668-507157dda1f8,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@ef1df6[localDescription=desc1,localDescriptionTracker=true,localDisplayExtension=disp1,localDisplayExtensionTracker=true,localDisplayName=a stem:disp1,localDisplayNameTracker=true,localExtension=aStemToSave,localExtensionTracker=true,localName=aStem:aStemToSave,localNameTracker=true,localUuid=87a28251-f2cc-4589-b67b-bd14ee3ff290,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@9801f4[localDescription=desc1,localDescriptionTracker=true,localDisplayExtension=disp1,localDisplayExtensionTracker=true,localDisplayName=a stem:disp1,localDisplayNameTracker=true,localExtension=whateverStem,localExtensionTracker=true,localName=aStem:whateverStem,localNameTracker=true,localUuid=f9223f4e-37b1-4fbe-99c3-96a550c4fa8d,localUuidTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@1a86488[localDescription=descs,localDescriptionTracker=true,localDisplayExtension=disp2,localDisplayExtensionTracker=true,localDisplayName=a stem:disp2,localDisplayNameTracker=true,localExtension=whateverStem2,localExtensionTracker=true,localName=aStem:whateverStem2,localNameTracker=true,localUuid=09fbd59b-6a6d-41da-9a6c-394418b02f13,localUuidTracker=true]

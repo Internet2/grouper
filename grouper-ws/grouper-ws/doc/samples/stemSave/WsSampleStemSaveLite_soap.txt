@@ -24,10 +24,10 @@ Transfer-Encoding: chunked
       <ns1:clientVersion>v1_3_000</ns1:clientVersion>
       <ns1:stemLookupUuid></ns1:stemLookupUuid>
       <ns1:stemLookupName>aStem:test</ns1:stemLookupName>
-      <ns1:stemName>aStem:test</ns1:stemName>
       <ns1:stemUuid></ns1:stemUuid>
-      <ns1:description>test stem</ns1:description>
+      <ns1:stemName>aStem:test</ns1:stemName>
       <ns1:displayExtension>the test stem</ns1:displayExtension>
+      <ns1:description>test stem</ns1:description>
       <ns1:saveMode></ns1:saveMode>
       <ns1:actAsSubjectId>GrouperSystem</ns1:actAsSubjectId>
       <ns1:actAsSubjectSourceId></ns1:actAsSubjectSourceId>
@@ -50,11 +50,12 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 30 Mar 2008 08:53:18 GMT
+Date: Mon, 31 Mar 2008 06:49:18 GMT
 
-673
+71d
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -66,9 +67,11 @@ Date: Sun, 30 Mar 2008 08:53:18 GMT
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@1fdbab5[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@eccf6e[stem=&lt;null>,uuid=,stemName=aStem:test,ste...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@e5602[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: READ_WRITE_OR_USE_EXISTING, paramNames:
+          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@5dd7b[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@10fcfe5[stem=&lt;null>,uuid=,stemName=aStem:test,stem...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@808f4e[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: READ_WRITE_OR_USE_EXISTING, paramNames:
 , params: null</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
@@ -78,7 +81,7 @@ Date: Sun, 30 Mar 2008 08:53:18 GMT
           <ns:displayName>a stem:the test stem</ns:displayName>
           <ns:extension>test</ns:extension>
           <ns:name>aStem:test</ns:name>
-          <ns:uuid>02e32300-bdd8-4ab0-aa33-26b22f702f0c</ns:uuid>
+          <ns:uuid>2067512d-b25e-4a45-8668-507157dda1f8</ns:uuid>
         </ns:wsStem>
       </ns:return>
     </ns:stemSaveLiteResponse>
@@ -189,4 +192,4 @@ public class WsSampleStemSaveLite implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemSaveLiteResult@1b93526[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@155e3ab,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1d602b3,localResultMetadataTracker=true,localWsStem=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@14b4b3a,localWsStemTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemSaveLiteResult@1f4c4a3[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@18a80d4,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@101da9,localResultMetadataTracker=true,localWsStem=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@b6421,localWsStemTracker=true]

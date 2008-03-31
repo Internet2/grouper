@@ -7,6 +7,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult.WsStemSaveLiteResultCode;
@@ -183,18 +184,23 @@ public class WsStemSaveResult {
    * @param wsStemToSave
    */
   public void assignResultCodeException(Exception e, WsStemToSave wsStemToSave) {
-    if (e instanceof WsInvalidQueryException) {
-
-      if (e.getCause() instanceof StemNotFoundException) {
-        this.assignResultCode(WsStemSaveResultCode.STEM_NOT_FOUND);
-      } else {
-        this.assignResultCode(WsStemSaveResultCode.INVALID_QUERY);
-        this.getResultMetadata().setResultMessage(e.getMessage());
-      }
-
+    //get root exception (might be wrapped in wsInvalidQuery)
+    Throwable mainThrowable = (e instanceof WsInvalidQueryException 
+        && e.getCause() != null) ? e.getCause() : e;
+    
+    if (mainThrowable instanceof InsufficientPrivilegeException) {
+      this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
+      this.assignResultCode(WsStemSaveResultCode.INSUFFICIENT_PRIVILEGES);
+      
+    } else if (mainThrowable  instanceof StemNotFoundException) {
+      this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
+      this.assignResultCode(WsStemSaveResultCode.STEM_NOT_FOUND);
+    } else if (e  instanceof WsInvalidQueryException) {
+      this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
+      this.assignResultCode(WsStemSaveResultCode.INVALID_QUERY);
     } else {
-      this.assignResultCode(WsStemSaveResultCode.EXCEPTION);
       this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
+      this.assignResultCode(WsStemSaveResultCode.EXCEPTION);
     }
     LOG.error(wsStemToSave + ", " + e, e);
   }

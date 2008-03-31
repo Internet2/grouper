@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.7 2008-03-30 09:01:04 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.8 2008-03-31 07:22:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -31,6 +31,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembers;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembersLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDeleteLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupSave;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupSaveLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDelete;
@@ -46,6 +48,8 @@ import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsR
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupSaveRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupSaveRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleAddMemberRestLite2;
@@ -99,6 +103,7 @@ public class SampleCapture {
     captureStemDelete();
     captureStemSave();
     captureGroupDelete();
+    captureGroupSave();
   }
 
   /** certain data has to exist for samples to run */
@@ -110,10 +115,12 @@ public class SampleCapture {
       Subject subject2 = SubjectFinder.findById("10021368");
       grouperSession = GrouperSession.start(grouperSystemSubject);
       
-      Stem.saveStem(grouperSession, "aStem", "a stem description", "a stem", "aStem", null, null, false);
+      Stem.saveStem(grouperSession, "aStem", null,"aStem", "a stem",  "a stem description", null, false);
       
-      Group aGroup = Group.saveGroup(grouperSession, "a group description", "a group", "aStem:aGroup", null, null, false);
-      Group aGroup2 = Group.saveGroup(grouperSession, "a group description2", "a group2", "aStem:aGroup2", null, null, false);
+      Group aGroup = Group.saveGroup(grouperSession, "aStem:aGroup",  null,"aStem:aGroup", 
+          "a group","a group description",  null, false);
+      Group aGroup2 = Group.saveGroup(grouperSession, "aStem:aGroup2", null,"aStem:aGroup2", 
+          "a group2","a group description2",   null, false);
       
       //make sure assigned
       aGroup.addMember(grouperSystemSubject, false);
@@ -220,7 +227,7 @@ public class SampleCapture {
   }
 
   /**
-   * all has member captures
+   * all stem save captures
    */
   public static void captureStemSave() {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
@@ -233,6 +240,23 @@ public class SampleCapture {
         WsSampleStemSaveRestLite.class, "stemSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleStemSaveRestLite.class, "stemSave", "_withInput");
+    
+  }
+
+  /**
+   * all group save captures
+   */
+  public static void captureGroupSave() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGroupSave.class, "groupSave", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGroupSaveLite.class, "groupSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGroupSaveRest.class, "groupSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGroupSaveRestLite.class, "groupSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGroupSaveRestLite.class, "groupSave", "_withInput");
     
   }
 

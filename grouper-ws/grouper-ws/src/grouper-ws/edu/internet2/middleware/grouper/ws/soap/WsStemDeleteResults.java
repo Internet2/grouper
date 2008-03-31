@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults.WsGroupDeleteResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
 
 /**
@@ -173,8 +174,9 @@ public class WsStemDeleteResults implements WsResponseBean {
         this.assignResultCode(WsStemDeleteResultsCode.SUCCESS);
       }
     } else {
-      //none is ok
-      this.assignResultCode(WsStemDeleteResultsCode.SUCCESS);
+      //none is not ok
+      this.assignResultCode(WsStemDeleteResultsCode.INVALID_QUERY);
+      this.getResultMetadata().setResultMessage("Must pass in at least one stem to delete");
     }
     //make response descriptive
     if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {

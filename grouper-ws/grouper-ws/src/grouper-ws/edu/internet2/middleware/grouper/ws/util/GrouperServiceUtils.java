@@ -879,16 +879,21 @@ public final class GrouperServiceUtils {
    * @param response
    * @param success T or F
    * @param resultCode
+   * @param resultCode2
    */
   public static void addResponseHeaders(HttpServletResponse response, String success,
-      String resultCode) {
-    if (!response.containsHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE)) {
+      String resultCode, String resultCode2) {
+    if (!response.containsHeader(GrouperRestServlet.X_GROUPER_RESULT_CODE)) {
       //default to NONE if not set for some reason (NONE will give clue that something wrong, why isnt it set???)
-      response.addHeader(GrouperRestServlet.X_GROUPER_RESPONSE_CODE, StringUtils.defaultIfEmpty(resultCode, "NONE"));
+      response.addHeader(GrouperRestServlet.X_GROUPER_RESULT_CODE, StringUtils.defaultIfEmpty(resultCode, "NONE"));
     }
     if (!response.containsHeader(GrouperRestServlet.X_GROUPER_SUCCESS)) {
       //default to F if not set for some reason
       response.addHeader(GrouperRestServlet.X_GROUPER_SUCCESS, StringUtils.defaultIfEmpty(success, "F"));
+    }
+    if (!response.containsHeader(GrouperRestServlet.X_GROUPER_RESULT_CODE2)) {
+      //default to NONE if not set for some reason (NONE will give clue that something wrong, why isnt it set???)
+      response.addHeader(GrouperRestServlet.X_GROUPER_RESULT_CODE2, StringUtils.defaultIfEmpty(resultCode2, "NONE"));
     }
   }
 
@@ -901,7 +906,7 @@ public final class GrouperServiceUtils {
     HttpServletResponse httpServletResponse = GrouperServiceJ2ee
         .retrieveHttpServletResponse();
     addResponseHeaders(httpServletResponse, wsResultMeta.getSuccess(), wsResultMeta
-        .getResultCode());
+        .getResultCode(), wsResultMeta.getResultCode2());
   }
 
 }

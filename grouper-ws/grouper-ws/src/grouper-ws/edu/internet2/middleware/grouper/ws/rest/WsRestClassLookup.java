@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.6 2008-03-30 09:01:04 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.7 2008-03-31 07:22:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
@@ -54,6 +56,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDetail;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
@@ -115,6 +118,7 @@ public class WsRestClassLookup {
     addAliasClass(WsGroupDetail.class);
     addAliasClass(WsGroupLookup.class);
     addAliasClass(WsGroupSaveResult.class);
+    addAliasClass(WsGroupSaveLiteResult.class);
     addAliasClass(WsGroupSaveResults.class);
     addAliasClass(WsGroupToSave.class);
     addAliasClass(WsHasMemberResult.class);
@@ -178,6 +182,8 @@ public class WsRestClassLookup {
     addAliasClass(WsRestStemSaveLiteRequest.class);
     addAliasClass(WsRestStemSaveRequest.class);
 
+    addAliasClass(WsRestGroupSaveLiteRequest.class);
+    addAliasClass(WsRestGroupSaveRequest.class);
     
   }
   

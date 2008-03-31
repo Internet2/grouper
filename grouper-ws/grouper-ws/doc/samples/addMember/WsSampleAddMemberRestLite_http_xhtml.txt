@@ -32,8 +32,9 @@ Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Sun, 30 Mar 2008 08:50:55 GMT
+Date: Mon, 31 Mar 2008 06:42:33 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -45,14 +46,15 @@ Connection: close
   <body>
     <div title="WsAddMemberLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1792d2c[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@84b8f9[subject=&lt;null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@18c0dc2[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-, params: null</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@879541[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@157f53d[subject=&lt;nul...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1a5b607[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+, params: null</p>
+        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">47</p>
+        <p class="millis">32</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_3_000</p>
       </div>
@@ -60,16 +62,16 @@ Connection: close
         <p class="name">aStem:aGroup</p>
         <p class="displayName">a stem:a group</p>
         <p class="description">a group description</p>
-        <p class="uuid">d8be0f16-5716-44e4-8af1-2ab5b42ad282</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
+        <p class="uuid">c6c0bf03-9cb5-4965-9dcb-520020d5da51</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="name" />
         <p class="id">10021368</p>
-        <p class="success">T</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="sourceId">qsuob</p>
       </div>
     </div>
@@ -202,6 +204,6 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1792d2c[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@84b8f9[subject=<null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@18c0dc2[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@879541[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@157f53d[subject=<nul...
+, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1a5b607[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

@@ -69,18 +69,48 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
-     * auto generated Axis2 call back method for deleteMember method
-     * override this method for handling normal response from deleteMember operation
+     * auto generated Axis2 call back method for stemDelete method
+     * override this method for handling normal response from stemDelete operation
      */
-    public void receiveResultdeleteMember(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.DeleteMemberResponse result) {
+    public void receiveResultstemDelete(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemDeleteResponse result) {
     }
 
     /**
      * auto generated Axis2 Error handler
-     * override this method for handling error response from deleteMember operation
+     * override this method for handling error response from stemDelete operation
      */
-    public void receiveErrordeleteMember(java.lang.Exception e) {
+    public void receiveErrorstemDelete(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for getMembers method
+     * override this method for handling normal response from getMembers operation
+     */
+    public void receiveResultgetMembers(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembersResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from getMembers operation
+     */
+    public void receiveErrorgetMembers(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for groupDeleteLite method
+     * override this method for handling normal response from groupDeleteLite operation
+     */
+    public void receiveResultgroupDeleteLite(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDeleteLiteResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from groupDeleteLite operation
+     */
+    public void receiveErrorgroupDeleteLite(java.lang.Exception e) {
     }
 
     /**
@@ -99,6 +129,51 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
+     * auto generated Axis2 call back method for deleteMember method
+     * override this method for handling normal response from deleteMember operation
+     */
+    public void receiveResultdeleteMember(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.DeleteMemberResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from deleteMember operation
+     */
+    public void receiveErrordeleteMember(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for stemSaveLite method
+     * override this method for handling normal response from stemSaveLite operation
+     */
+    public void receiveResultstemSaveLite(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSaveLiteResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from stemSaveLite operation
+     */
+    public void receiveErrorstemSaveLite(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for addMemberLite method
+     * override this method for handling normal response from addMemberLite operation
+     */
+    public void receiveResultaddMemberLite(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberLiteResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from addMemberLite operation
+     */
+    public void receiveErroraddMemberLite(java.lang.Exception e) {
+    }
+
+    /**
      * auto generated Axis2 call back method for stemSave method
      * override this method for handling normal response from stemSave operation
      */
@@ -111,6 +186,21 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from stemSave operation
      */
     public void receiveErrorstemSave(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for findStemsLite method
+     * override this method for handling normal response from findStemsLite operation
+     */
+    public void receiveResultfindStemsLite(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsLiteResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from findStemsLite operation
+     */
+    public void receiveErrorfindStemsLite(java.lang.Exception e) {
     }
 
     /**
@@ -141,6 +231,36 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from deleteMemberLite operation
      */
     public void receiveErrordeleteMemberLite(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for hasMemberLite method
+     * override this method for handling normal response from hasMemberLite operation
+     */
+    public void receiveResulthasMemberLite(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberLiteResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from hasMemberLite operation
+     */
+    public void receiveErrorhasMemberLite(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for hasMember method
+     * override this method for handling normal response from hasMember operation
+     */
+    public void receiveResulthasMember(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from hasMember operation
+     */
+    public void receiveErrorhasMember(java.lang.Exception e) {
     }
 
     /**
@@ -189,231 +309,6 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
-     * auto generated Axis2 call back method for addMember method
-     * override this method for handling normal response from addMember operation
-     */
-    public void receiveResultaddMember(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from addMember operation
-     */
-    public void receiveErroraddMember(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for viewOrEditAttributes method
-     * override this method for handling normal response from viewOrEditAttributes operation
-     */
-    public void receiveResultviewOrEditAttributes(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditAttributesResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from viewOrEditAttributes operation
-     */
-    public void receiveErrorviewOrEditAttributes(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for getMembershipsLite method
-     * override this method for handling normal response from getMembershipsLite operation
-     */
-    public void receiveResultgetMembershipsLite(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembershipsLiteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from getMembershipsLite operation
-     */
-    public void receiveErrorgetMembershipsLite(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for stemDelete method
-     * override this method for handling normal response from stemDelete operation
-     */
-    public void receiveResultstemDelete(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemDeleteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from stemDelete operation
-     */
-    public void receiveErrorstemDelete(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for getMembers method
-     * override this method for handling normal response from getMembers operation
-     */
-    public void receiveResultgetMembers(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembersResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from getMembers operation
-     */
-    public void receiveErrorgetMembers(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for groupDeleteLite method
-     * override this method for handling normal response from groupDeleteLite operation
-     */
-    public void receiveResultgroupDeleteLite(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDeleteLiteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from groupDeleteLite operation
-     */
-    public void receiveErrorgroupDeleteLite(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for addMemberLite method
-     * override this method for handling normal response from addMemberLite operation
-     */
-    public void receiveResultaddMemberLite(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberLiteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from addMemberLite operation
-     */
-    public void receiveErroraddMemberLite(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for stemSaveLite method
-     * override this method for handling normal response from stemSaveLite operation
-     */
-    public void receiveResultstemSaveLite(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSaveLiteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from stemSaveLite operation
-     */
-    public void receiveErrorstemSaveLite(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for viewOrEditAttributesLite method
-     * override this method for handling normal response from viewOrEditAttributesLite operation
-     */
-    public void receiveResultviewOrEditAttributesLite(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditAttributesLiteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from viewOrEditAttributesLite operation
-     */
-    public void receiveErrorviewOrEditAttributesLite(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for findStemsLite method
-     * override this method for handling normal response from findStemsLite operation
-     */
-    public void receiveResultfindStemsLite(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsLiteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from findStemsLite operation
-     */
-    public void receiveErrorfindStemsLite(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for getMemberships method
-     * override this method for handling normal response from getMemberships operation
-     */
-    public void receiveResultgetMemberships(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembershipsResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from getMemberships operation
-     */
-    public void receiveErrorgetMemberships(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for hasMemberLite method
-     * override this method for handling normal response from hasMemberLite operation
-     */
-    public void receiveResulthasMemberLite(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberLiteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from hasMemberLite operation
-     */
-    public void receiveErrorhasMemberLite(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for hasMember method
-     * override this method for handling normal response from hasMember operation
-     */
-    public void receiveResulthasMember(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from hasMember operation
-     */
-    public void receiveErrorhasMember(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for viewOrEditPrivilegesLite method
-     * override this method for handling normal response from viewOrEditPrivilegesLite operation
-     */
-    public void receiveResultviewOrEditPrivilegesLite(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditPrivilegesLiteResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from viewOrEditPrivilegesLite operation
-     */
-    public void receiveErrorviewOrEditPrivilegesLite(java.lang.Exception e) {
-    }
-
-    /**
-     * auto generated Axis2 call back method for viewOrEditPrivileges method
-     * override this method for handling normal response from viewOrEditPrivileges operation
-     */
-    public void receiveResultviewOrEditPrivileges(
-        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.ViewOrEditPrivilegesResponse result) {
-    }
-
-    /**
-     * auto generated Axis2 Error handler
-     * override this method for handling error response from viewOrEditPrivileges operation
-     */
-    public void receiveErrorviewOrEditPrivileges(java.lang.Exception e) {
-    }
-
-    /**
      * auto generated Axis2 call back method for getGroups method
      * override this method for handling normal response from getGroups operation
      */
@@ -426,6 +321,21 @@ public abstract class GrouperServiceCallbackHandler {
      * override this method for handling error response from getGroups operation
      */
     public void receiveErrorgetGroups(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for addMember method
+     * override this method for handling normal response from addMember operation
+     */
+    public void receiveResultaddMember(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from addMember operation
+     */
+    public void receiveErroraddMember(java.lang.Exception e) {
     }
 
     /**

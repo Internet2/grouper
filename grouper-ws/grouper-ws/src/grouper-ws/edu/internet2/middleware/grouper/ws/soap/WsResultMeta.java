@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsResultMeta.java,v 1.2 2008-03-26 07:39:10 mchyzer Exp $
+ * @author mchyzer $Id: WsResultMeta.java,v 1.3 2008-03-31 07:22:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -15,6 +15,9 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsResultMeta {
 
+  /** params for result */
+  private WsParam[] params = null;
+  
   /** stash this just in case, but not a javabean */
   private WsResultCode wsResultCode;
 
@@ -40,6 +43,7 @@ public class WsResultMeta {
       this.success = wsResultMeta.success;
     }
     this.appendResultMessage(wsResultMeta.getResultMessage());
+    this.setResultCode2(wsResultMeta.getResultCode2());
   }
 
   /**
@@ -52,6 +56,14 @@ public class WsResultMeta {
    * </pre>
    */
   private String resultCode;
+
+  /**
+   * <pre>
+   * reserved for future purposes
+   *  
+   * </pre>
+   */
+  private String resultCode2;
 
   /**
    * error message if there is an error
@@ -89,6 +101,17 @@ public class WsResultMeta {
   }
 
   /**
+   * <pre>
+   * reserved for future purpose
+   * </pre>
+   * 
+   * @return the resultCode
+   */
+  public String getResultCode2() {
+    return this.resultCode2;
+  }
+
+  /**
    * error message if there is an error
    * 
    * @return the errorMessage
@@ -112,6 +135,13 @@ public class WsResultMeta {
    */
   public void setResultCode(String resultCode1) {
     this.resultCode = resultCode1;
+  }
+
+  /**
+   * @param resultCode1 the resultCode2 to set
+   */
+  public void setResultCode2(String resultCode1) {
+    this.resultCode2 = resultCode1;
   }
 
   /**
@@ -184,6 +214,22 @@ public class WsResultMeta {
    */
   public void assignHttpStatusCode(int statusCode1) {
     this.httpStatusCode = statusCode1;
+  }
+
+  
+  /**
+   * @return the params
+   */
+  public WsParam[] getParams() {
+    return this.params;
+  }
+
+  
+  /**
+   * @param params1 the params to set
+   */
+  public void setParams(WsParam[] params1) {
+    this.params = params1;
   }
 
 }

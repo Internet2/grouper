@@ -31,8 +31,9 @@ Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
 X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Sun, 30 Mar 2008 08:51:12 GMT
+Date: Mon, 31 Mar 2008 06:43:42 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -44,14 +45,15 @@ Connection: close
   <body>
     <div title="WsDeleteMemberLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@11ec7df[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1d40c4e[subject=&lt;nul...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@73e11a[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
-, params: null</p>
         <p class="resultCode">SUCCESS_WASNT_IMMEDIATE</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@c91722[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@ddf89[subject=&lt;null>...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@cec888[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
+, params: null</p>
+        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">31</p>
+        <p class="millis">32</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_3_000</p>
       </div>
@@ -59,16 +61,16 @@ Connection: close
         <p class="name">aStem:aGroup</p>
         <p class="displayName">a stem:a group</p>
         <p class="description">a group description</p>
-        <p class="uuid">d8be0f16-5716-44e4-8af1-2ab5b42ad282</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
+        <p class="uuid">c6c0bf03-9cb5-4965-9dcb-520020d5da51</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="name" />
         <p class="id">10021368</p>
-        <p class="success">T</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
         <p class="sourceId">qsuob</p>
       </div>
     </div>
@@ -200,6 +202,6 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@11ec7df[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1d40c4e[subject=<nul...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@73e11a[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
+Server version: v1_3_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@c91722[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@ddf89[subject=<null>...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@cec888[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
 , params: null

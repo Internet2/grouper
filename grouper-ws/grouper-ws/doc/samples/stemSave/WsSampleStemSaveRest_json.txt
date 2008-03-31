@@ -62,8 +62,9 @@ HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Sun, 30 Mar 2008 08:25:20 GMT
+Date: Mon, 31 Mar 2008 06:49:27 GMT
 Connection: close
 
 {
@@ -77,7 +78,7 @@ Connection: close
             "description":"desc1",
             "displayName":"a stem:disp1",
             "name":"aStem:whateverStem",
-            "uuid":"3a0c6d84-fe66-4988-ae5d-79bfa5b80372"
+            "uuid":"da1d058d-a56d-49ba-92af-e0f7d52f1377"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS",
@@ -94,7 +95,7 @@ Connection: close
             "description":"descs",
             "displayName":"a stem:disp2",
             "name":"aStem:whateverStem2",
-            "uuid":"713cdea4-628f-4e20-9574-ac7218271d93"
+            "uuid":"1fd3bd1c-7e95-447b-a08f-74ad435438b2"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS",
@@ -112,12 +113,14 @@ Connection: close
         "$":"SUCCESS"
       },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@e796ff[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@6a40d6[stem=<null>,uuid=<null>,stemName=aStem:wha...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@14a86b2[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1d12e87[stem=<null>,uuid=<null>,stemName=aStem:w...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
       "success":"T",
       "httpStatusCode":201
     },
     "responseMetadata":{
       "resultWarnings":"",
+      "millis":-1,
+      "millisStart":1206946167553,
       "serverVersion":"v1_3_000"
     }
   }
@@ -295,6 +298,6 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@e796ff[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@6a40d6[stem=<null>,uuid=<null>,stemName=aStem:wha...
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@14a86b2[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1d12e87[stem=<null>,uuid=<null>,stemName=aStem:w...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

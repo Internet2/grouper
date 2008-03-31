@@ -31,25 +31,26 @@ Cache-Control: no-cache
 Expires: Wed, 31 Dec 1969 19:00:00 EST
 X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Sun, 30 Mar 2008 08:53:09 GMT
+Date: Mon, 31 Mar 2008 06:49:01 GMT
 Connection: close
 
 <WsStemDeleteLiteResult>
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult$WsStemDeleteLiteResultCode">SUCCESS_STEM_NOT_FOUND</wsResultCode>
     <resultCode>SUCCESS_STEM_NOT_FOUND</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1db476d[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:aStemToDelete,stemFindResult=&lt;null&gt;]
+    <resultMessage>Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1bdd156[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:aStemToDelete,stemFindResult=&lt;null&gt;]
 
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@12e5050[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=&lt;null&gt;,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], txType: READ_WRITE_OR_USE_EXISTING, paramNames:
-, params: nullCant find stem: &apos;edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1db476d[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:aStemToDelete,stemFindResult=STEM_NOT_FOUND]&apos;.  </resultMessage>
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@fa8cf9[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=&lt;null&gt;,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], txType: READ_WRITE_OR_USE_EXISTING, paramNames:
+, params: nullCant find stem: &apos;edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1bdd156[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:aStemToDelete,stemFindResult=STEM_NOT_FOUND]&apos;.  </resultMessage>
     <success>T</success>
     <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1206867189805</millisStart>
+    <millisStart>1206946141444</millisStart>
     <serverVersion>v1_3_000</serverVersion>
   </responseMetadata>
   <wsStem>
@@ -183,7 +184,7 @@ public class WsSampleStemDeleteRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1db476d[stem=<null>,uuid=<null>,stemName=aStem:aStemToDelete,stemFindResult=<null>]
+Server version: v1_3_000, result code: SUCCESS_STEM_NOT_FOUND, result message: Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1bdd156[stem=<null>,uuid=<null>,stemName=aStem:aStemToDelete,stemFindResult=<null>]
 
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@12e5050[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames: 
-, params: nullCant find stem: 'edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1db476d[stem=<null>,uuid=<null>,stemName=aStem:aStemToDelete,stemFindResult=STEM_NOT_FOUND]'.  
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@fa8cf9[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames: 
+, params: nullCant find stem: 'edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1bdd156[stem=<null>,uuid=<null>,stemName=aStem:aStemToDelete,stemFindResult=STEM_NOT_FOUND]'.  

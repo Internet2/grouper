@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.SaveMode;
 import edu.internet2.middleware.grouper.StemAddException;
 import edu.internet2.middleware.grouper.StemNotFoundException;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
  * <pre>
@@ -29,22 +29,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class WsGroupToSave {
 
+  /** stem lookup (blank if insert) */
+  private WsGroupLookup wsGroupLookup;
+
+  /** stem to save */
+  private WsGroup wsGroup;
+
   /**
    * logger
    */
   @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
 
-  /**
-   * uuid of the group to find
-   */
-  private String uuid;
-
-  /** description of group */
-  private String description;
-
-  /** display extension is the friendly name (without path) */
-  private String displayExtension;
+  /** if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default) */
+  private String saveMode;
 
   /**
    * 
@@ -54,113 +52,11 @@ public class WsGroupToSave {
   }
 
   /**
-   * construct with fields
-   * @param uuid1 uuid
-   * @param description1 description
-   * @param displayExtension1 display extension
-   * @param saveMode1 save mode
-   * @param groupName1 group name
-   */
-  public WsGroupToSave(String uuid1, String description1, String displayExtension1,
-      String saveMode1, String groupName1) {
-    this.uuid = uuid1;
-    this.description = description1;
-    this.displayExtension = displayExtension1;
-    this.saveMode = saveMode1;
-    this.groupName = groupName1;
-  }
-
-  /**
-   * description of group
-   * 
-   * @return the description
-   */
-  public String getDescription() {
-    return this.description;
-  }
-
-  /**
-   * description of group
-   * 
-   * @param description1
-   *            the description to set
-   */
-  public void setDescription(String description1) {
-    this.description = description1;
-  }
-
-  /**
-   * display extension is the friendly name (without path)
-   * 
-   * @return the displayExtension
-   */
-  public String getDisplayExtension() {
-    return this.displayExtension;
-  }
-
-  /**
-   * display extension is the friendly name (without path)
-   * 
-   * @param displayExtension1
-   *            the displayExtension to set
-   */
-  public void setDisplayExtension(String displayExtension1) {
-    this.displayExtension = displayExtension1;
-  }
-
-  /**
-   * explicit to string
-   * @return the string
+   * make sure this is an explicit toString
    */
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
-  }
-
-  /** name of the group to find (includes stems, e.g. stem1:stem2:groupName */
-  private String groupName;
-
-  /**
-   * if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default) 
-   */
-  private String saveMode;
-
-  /**
-   * uuid of the group to find
-   * 
-   * @return the uuid
-   */
-  public String getUuid() {
-    return this.uuid;
-  }
-
-  /**
-   * uuid of the group to find
-   * 
-   * @param uuid1
-   *            the uuid to set
-   */
-  public void setUuid(String uuid1) {
-    this.uuid = uuid1;
-  }
-
-  /**
-   * name of the group to find (includes stems, e.g. stem1:stem2:groupName
-   * 
-   * @return the theName
-   */
-  public String getGroupName() {
-    return this.groupName;
-  }
-
-  /**
-   * name of the group to find (includes stems, e.g. stem1:stem2:groupName
-   * 
-   * @param theName
-   *            the theName to set
-   */
-  public void setGroupName(String theName) {
-    this.groupName = theName;
   }
 
   /**
@@ -173,32 +69,42 @@ public class WsGroupToSave {
         SaveMode.valueOfIgnoreCase(this.saveMode);
       }
     } catch (RuntimeException e) {
-      throw new RuntimeException("Problem with: " + this, e);
+      throw new WsInvalidQueryException("Problem with save mode: " + e.getMessage()
+          + ", " + this, e);
     }
   }
 
   /**
-   * save this group
+   * save this stem
    * 
    * @param grouperSession
    *            to save
-   * @return the group that was inserted or updated
-   * @throws StemNotFoundException if problem
-   * @throws GroupNotFoundException if problem
-   * @throws GroupAddException if problem
-   * @throws InsufficientPrivilegeException if problem
-   * @throws GroupModifyException if problem
-   * @throws StemAddException if problem
+   * @return the stem that was inserted or updated
+   * @throws StemNotFoundException 
+   * @throws GroupNotFoundException
+   * @throws GroupNotFoundException
+   * @throws StemAddException 
+   * @throws GroupAddException
+   * @throws InsufficientPrivilegeException
+   * @throws GroupModifyException
+   * @throws GroupAddException
    */
   public Group save(GrouperSession grouperSession) throws StemNotFoundException,
-      GroupNotFoundException, GroupAddException, InsufficientPrivilegeException,
-      GroupModifyException, StemAddException {
+      GroupNotFoundException, StemAddException, InsufficientPrivilegeException,
+      GroupModifyException, GroupAddException {
 
     SaveMode theSaveMode = SaveMode.valueOfIgnoreCase(this.saveMode);
 
-    Group group = Group.saveGroup(grouperSession, this.description,
-        this.displayExtension, this.groupName, this.uuid, theSaveMode,
-        false);
+    this.getWsGroupLookup().retrieveGroupIfNeeded(grouperSession);
+
+    Group groupLookedup = this.getWsGroupLookup().retrieveGroup();
+
+    String groupNameLookup = groupLookedup == null ? null : groupLookedup.getName();
+
+    Group group = Group.saveGroup(grouperSession, groupNameLookup, 
+        this.getWsGroup().getUuid(), 
+        this.getWsGroup().getName(), this.getWsGroup().getDisplayExtension(), 
+        this.getWsGroup().getDescription(), theSaveMode, false);
     return group;
   }
 
@@ -216,5 +122,33 @@ public class WsGroupToSave {
    */
   public void setSaveMode(String saveMode1) {
     this.saveMode = saveMode1;
+  }
+
+  /**
+   * @return the wsGroupLookup
+   */
+  public WsGroupLookup getWsGroupLookup() {
+    return this.wsGroupLookup;
+  }
+
+  /**
+   * @param wsGroupLookup1 the wsGroupLookup to set
+   */
+  public void setWsGroupLookup(WsGroupLookup wsGroupLookup1) {
+    this.wsGroupLookup = wsGroupLookup1;
+  }
+
+  /**
+   * @return the wsGroup
+   */
+  public WsGroup getWsGroup() {
+    return this.wsGroup;
+  }
+
+  /**
+   * @param wsGroup1 the wsGroup to set
+   */
+  public void setWsGroup(WsGroup wsGroup1) {
+    this.wsGroup = wsGroup1;
   }
 }

@@ -36,16 +36,17 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Sun, 30 Mar 2008 08:52:06 GMT
+Date: Mon, 31 Mar 2008 06:46:53 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult$WsGetGroupsLiteResultCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@a70e3a[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=10021368,subjectIdentifier=&lt;null&gt;,subjectSourceId=...
-memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1970646[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;]
+    <resultMessage>Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1eeee0[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=10021368,subjectIdentifier=&lt;null&gt;,subjectSourceId=...
+memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@d4cdd5[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;]
 , params: null</resultMessage>
     <success>T</success>
     <httpStatusCode>200</httpStatusCode>
@@ -53,7 +54,7 @@ memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middlew
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1206867126289</millisStart>
+    <millisStart>1206946013130</millisStart>
     <serverVersion>v1_3_000</serverVersion>
   </responseMetadata>
   <wsGroups>
@@ -63,7 +64,7 @@ memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middlew
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>f7a9e321-6a1d-4866-95ed-c301f88b54ae</uuid>
+      <uuid>f717c011-91c4-4684-8a4d-287be9ffe0bb</uuid>
       <detail>
         <hasComposite>F</hasComposite>
         <typeNames>
@@ -76,11 +77,11 @@ memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middlew
           <string>a group description2</string>
         </attributeValues>
         <createSubjectId>GrouperSystem</createSubjectId>
-        <createTime>2008/03/29 06:32:31.699</createTime>
+        <createTime>2008/03/31 01:32:53.461</createTime>
         <isCompositeFactor>F</isCompositeFactor>
         <modifySource></modifySource>
         <modifySubjectId>GrouperSystem</modifySubjectId>
-        <modifyTime>2008/03/29 06:32:32.355</modifyTime>
+        <modifyTime>2008/03/31 01:32:54.086</modifyTime>
       </detail>
     </WsGroup>
   </wsGroups>
@@ -244,6 +245,6 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@a70e3a[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId=...
-memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1970646[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1eeee0[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId=...
+memberFilter: All, includeGroupDetail: true, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@d4cdd5[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
 , params: null

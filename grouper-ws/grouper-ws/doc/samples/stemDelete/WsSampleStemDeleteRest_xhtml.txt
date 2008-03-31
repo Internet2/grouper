@@ -55,8 +55,9 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Sun, 30 Mar 2008 08:52:59 GMT
+Date: Mon, 31 Mar 2008 06:48:48 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -68,46 +69,49 @@ Connection: close
   <body>
     <div title="WsStemDeleteResults">
       <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1e8e471[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:whateverStem,stemFindResult=&lt;null>]
-[1]: edu.internet2.middleware.grouper.ws...
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@e8e8c1[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:whateverStem,stemFindResult=&lt;null>]
+[1]: edu.internet2.middleware.grouper.ws....
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</p>
-        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">422</p>
+        <p class="millis">2172</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_3_000</p>
       </div>
       <ul class="results">
         <li title="WsStemDeleteResult">
           <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
             <p class="resultMessage">Stem 'aStem:whateverStem' was deleted.</p>
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode2" />
           </div>
           <div class="wsStem" title="WsStem">
             <p class="name">aStem:whateverStem</p>
             <p class="displayName">a stem:disp1</p>
             <p class="description">desc1</p>
-            <p class="uuid">3a0c6d84-fe66-4988-ae5d-79bfa5b80372</p>
             <p class="extension">whateverStem</p>
+            <p class="uuid">f9223f4e-37b1-4fbe-99c3-96a550c4fa8d</p>
             <p class="displayExtension">disp1</p>
           </div>
         </li>
         <li title="WsStemDeleteResult">
           <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
             <p class="resultMessage">Stem 'aStem:whateverStem2' was deleted.</p>
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode2" />
           </div>
           <div class="wsStem" title="WsStem">
             <p class="name">aStem:whateverStem2</p>
             <p class="displayName">a stem:disp2</p>
             <p class="description">descs</p>
-            <p class="uuid">713cdea4-628f-4e20-9574-ac7218271d93</p>
             <p class="extension">whateverStem2</p>
+            <p class="uuid">09fbd59b-6a6d-41da-9a6c-394418b02f13</p>
             <p class="displayExtension">disp2</p>
           </div>
         </li>
@@ -269,7 +273,7 @@ public class WsSampleStemDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1e8e471[stem=<null>,uuid=<null>,stemName=aStem:whateverStem,stemFindResult=<null>]
-[1]: edu.internet2.middleware.grouper.ws...
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@e8e8c1[stem=<null>,uuid=<null>,stemName=aStem:whateverStem,stemFindResult=<null>]
+[1]: edu.internet2.middleware.grouper.ws....
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

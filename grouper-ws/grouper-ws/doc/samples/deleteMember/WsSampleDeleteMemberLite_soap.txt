@@ -43,25 +43,28 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: INVALID_QUERY
 X-Grouper-success: F
+X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:deleteMemberLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 30 Mar 2008 08:51:07 GMT
+Date: Mon, 31 Mar 2008 06:43:09 GMT
 
-764
+80e
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:deleteMemberLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>31</ns:millis>
+          <ns:millis>32</ns:millis>
           <ns:resultWarnings></ns:resultWarnings>
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>INVALID_QUERY</ns:resultCode>
-          <ns:resultMessage>Group name 'aStem:aGroup' and uuid '10021368' do not match for 'wsGroupLookup', edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@ab1ff2[group=&lt;null>,uuid=10021368,groupName=aStem:aGroup,groupFindResult=GROUP_UUID_DOESNT_MATCH_NAME]clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@ab1ff2[group=&lt;null>,uuid=10021368,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@be568b[subject=&lt;null...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@23ed31[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
+          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultMessage>Group name 'aStem:aGroup' and uuid '10021368' do not match for 'wsGroupLookup', edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@334ce9[group=&lt;null>,uuid=10021368,groupName=aStem:aGroup,groupFindResult=GROUP_UUID_DOESNT_MATCH_NAME]clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@334ce9[group=&lt;null>,uuid=10021368,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1fe626f[subject=&lt;nul...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1f074cb[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=&lt;null>,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
 , params: null</ns:resultMessage>
           <ns:success>F</ns:success>
         </ns:resultMetadata>
@@ -173,4 +176,4 @@ public class WsSampleDeleteMemberLite implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberLiteResult@2e6c66[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@cf68af,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@e1f305,localResultMetadataTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=<null>,localWsGroupTracker=true,localWsSubject=<null>,localWsSubjectTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsDeleteMemberLiteResult@bb1ead[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@13c66d8,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@83fde6,localResultMetadataTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=<null>,localWsGroupTracker=true,localWsSubject=<null>,localWsSubjectTracker=true]

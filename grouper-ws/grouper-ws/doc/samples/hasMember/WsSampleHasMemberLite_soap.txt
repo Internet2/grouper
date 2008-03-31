@@ -47,11 +47,12 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: INVALID_QUERY
 X-Grouper-success: F
+X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:hasMemberLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 30 Mar 2008 08:51:26 GMT
+Date: Mon, 31 Mar 2008 06:44:29 GMT
 
-529
+5d2
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -63,7 +64,9 @@ Date: Sun, 30 Mar 2008 08:51:26 GMT
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>INVALID_QUERY</ns:resultCode>
+          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultMessage>edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest: Cant find WsMemberFilter from string: 'GrouperSystem', expecting one of: All, Effective, Immediate, Composite, null</ns:resultMessage>
           <ns:success>F</ns:success>
         </ns:resultMetadata>
@@ -180,4 +183,4 @@ public class WsSampleHasMemberLite implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsHasMemberLiteResult@f6e005[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1415727,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@c0fc8e,localResultMetadataTracker=true,localResults={<null>},localResultsTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=<null>,localWsGroupTracker=true,localWsSubject=<null>,localWsSubjectTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsHasMemberLiteResult@1ea6a1c[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@152f43b,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1205d8d,localResultMetadataTracker=true,localResults={<null>},localResultsTracker=true,localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,localWsGroup=<null>,localWsGroupTracker=true,localWsSubject=<null>,localWsSubjectTracker=true]

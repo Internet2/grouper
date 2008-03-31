@@ -44,11 +44,12 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 30 Mar 2008 08:52:58 GMT
+Date: Mon, 31 Mar 2008 06:48:44 GMT
 
-766
+80e
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -60,11 +61,13 @@ Date: Sun, 30 Mar 2008 08:52:58 GMT
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS_STEM_NOT_FOUND</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1ddb0af[stem=&lt;null>,uuid=,stemName=aStem:stemNotExist,stemFindResult=&lt;null>]
+          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1e0937b[stem=&lt;null>,uuid=,stemName=aStem:stemNotExist,stemFindResult=&lt;null>]
 
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@17accc9[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=], txType: READ_WRITE_OR_USE_EXISTING, paramNames:
-, params: nullCant find stem: 'edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1ddb0af[stem=&lt;null>,uuid=,stemName=aStem:stemNotExist,stemFindResult=STEM_NOT_FOUND]'.  </ns:resultMessage>
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@f27a6e[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=], txType: READ_WRITE_OR_USE_EXISTING, paramNames:
+, params: nullCant find stem: 'edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1e0937b[stem=&lt;null>,uuid=,stemName=aStem:stemNotExist,stemFindResult=STEM_NOT_FOUND]'.  </ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:wsStem type="edu.internet2.middleware.grouper.ws.soap.WsStem">
@@ -178,4 +181,4 @@ public class WsSampleStemDeleteLite implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemDeleteLiteResult@10a519[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1c41e49,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@a083f2,localResultMetadataTracker=true,localWsStem=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@369fdc,localWsStemTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemDeleteLiteResult@b910c6[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1d6bff7,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1d50fd2,localResultMetadataTracker=true,localWsStem=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@101ac1c,localWsStemTracker=true]

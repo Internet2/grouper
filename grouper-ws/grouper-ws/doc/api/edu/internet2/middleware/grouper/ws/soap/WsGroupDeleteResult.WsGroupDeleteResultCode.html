@@ -125,16 +125,10 @@ result code of a request
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem with deleting</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#GROUP_NOT_FOUND">GROUP_NOT_FOUND</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the group was not found</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#GROUP_UUID_DOESNT_MATCH_NAME">GROUP_UUID_DOESNT_MATCH_NAME</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in gorup lookup, the uuid doesnt match name</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in group lookup, the uuid doesnt match name</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#INSUFFICIENT_PRIVILEGES">INSUFFICIENT_PRIVILEGES</A></B></CODE>
@@ -161,6 +155,12 @@ result code of a request
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;successful addition (lite status code 200)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS_GROUP_NOT_FOUND">SUCCESS_GROUP_NOT_FOUND</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the group was not found</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#TRANSACTION_ROLLED_BACK">TRANSACTION_ROLLED_BACK</A></B></CODE>
 
 <BR>
@@ -175,6 +175,14 @@ result code of a request
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteLiteResult.WsGroupDeleteLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteLiteResult.WsGroupDeleteLiteResultCode</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#convertToLiteCode()">convertToLiteCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is one result, convert to the results code</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -238,7 +246,7 @@ GROUP_UUID_DOESNT_MATCH_NAME</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A> <B>GROUP_UUID_DOESNT_MATCH_NAME</B></PRE>
 <DL>
-<DD>in gorup lookup, the uuid doesnt match name
+<DD>in group lookup, the uuid doesnt match name
 <P>
 <DL>
 </DL>
@@ -269,10 +277,10 @@ public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/
 </DL>
 <HR>
 
-<A NAME="GROUP_NOT_FOUND"><!-- --></A><H3>
-GROUP_NOT_FOUND</H3>
+<A NAME="SUCCESS_GROUP_NOT_FOUND"><!-- --></A><H3>
+SUCCESS_GROUP_NOT_FOUND</H3>
 <PRE>
-public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A> <B>GROUP_NOT_FOUND</B></PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteResult.WsGroupDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteResult.WsGroupDeleteResultCode</A> <B>SUCCESS_GROUP_NOT_FOUND</B></PRE>
 <DL>
 <DD>the group was not found
 <P>
@@ -389,6 +397,20 @@ public boolean <B>isSuccess</B>()</PRE>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>true if success</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToLiteCode()"><!-- --></A><H3>
+convertToLiteCode</H3>
+<PRE>
+public abstract <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDeleteLiteResult.WsGroupDeleteLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupDeleteLiteResult.WsGroupDeleteLiteResultCode</A> <B>convertToLiteCode</B>()</PRE>
+<DL>
+<DD>if there is one result, convert to the results code
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>result code</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

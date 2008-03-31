@@ -37,8 +37,9 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Sun, 30 Mar 2008 08:52:41 GMT
+Date: Mon, 31 Mar 2008 06:48:21 GMT
 Connection: close
 
 <WsFindGroupsResults>
@@ -49,7 +50,15 @@ Connection: close
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>f7a9e321-6a1d-4866-95ed-c301f88b54ae</uuid>
+      <uuid>f717c011-91c4-4684-8a4d-287be9ffe0bb</uuid>
+    </WsGroup>
+    <WsGroup>
+      <extension>aGroupToSave</extension>
+      <displayExtension>disp1</displayExtension>
+      <description>desc1</description>
+      <displayName>a stem:disp1</displayName>
+      <name>aStem:aGroupToSave</name>
+      <uuid>0bb7de04-bdd4-4371-810b-053db0052bf9</uuid>
     </WsGroup>
     <WsGroup>
       <extension>aGroup</extension>
@@ -57,14 +66,14 @@ Connection: close
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>d8be0f16-5716-44e4-8af1-2ab5b42ad282</uuid>
+      <uuid>c6c0bf03-9cb5-4965-9dcb-520020d5da51</uuid>
     </WsGroup>
   </groupResults>
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults$WsFindGroupsResultsCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@1b8ee96[grouperSession=&lt;null&gt;,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=&lt;null&gt;,groupUuid=&lt;null&gt;,groupAttributeValue=&lt;null&gt;,groupAttributeName=&lt;null&gt;,groupTypeName=&lt;null&gt;,queryFilter0=&lt;null&gt;,queryFilter1=&lt;null&gt;]
-, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@37d046[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], paramNames:
+    <resultMessage>Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@bf3596[grouperSession=&lt;null&gt;,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=&lt;null&gt;,groupUuid=&lt;null&gt;,groupAttributeValue=&lt;null&gt;,groupAttributeName=&lt;null&gt;,groupTypeName=&lt;null&gt;,queryFilter0=&lt;null&gt;,queryFilter1=&lt;null&gt;]
+, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@157385e[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], paramNames:
 , params: null</resultMessage>
     <success>T</success>
     <httpStatusCode>200</httpStatusCode>
@@ -72,7 +81,7 @@ Connection: close
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1206867161633</millisStart>
+    <millisStart>1206946101178</millisStart>
     <serverVersion>v1_3_000</serverVersion>
   </responseMetadata>
 </WsFindGroupsResults>
@@ -231,6 +240,6 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@1b8ee96[grouperSession=<null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=<null>,groupUuid=<null>,groupAttributeValue=<null>,groupAttributeName=<null>,groupTypeName=<null>,queryFilter0=<null>,queryFilter1=<null>]
-, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@37d046[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], paramNames: 
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@bf3596[grouperSession=<null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=<null>,groupUuid=<null>,groupAttributeValue=<null>,groupAttributeName=<null>,groupTypeName=<null>,queryFilter0=<null>,queryFilter1=<null>]
+, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@157385e[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], paramNames: 
 , params: null

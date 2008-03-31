@@ -132,9 +132,10 @@ Class GrouperServiceUtils</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#addResponseHeaders(javax.servlet.http.HttpServletResponse, java.lang.String, java.lang.String)">addResponseHeaders</A></B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServletResponse.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in javax.servlet.http">HttpServletResponse</A>&nbsp;response,
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#addResponseHeaders(javax.servlet.http.HttpServletResponse, java.lang.String, java.lang.String, java.lang.String)">addResponseHeaders</A></B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServletResponse.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in javax.servlet.http">HttpServletResponse</A>&nbsp;response,
                    <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;success,
-                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode)</CODE>
+                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode,
+                   <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode2)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add response headers for a success and response code</TD>
@@ -151,39 +152,10 @@ Class GrouperServiceUtils</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#arrayLengthAtLeastOne(edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.String, int)">arrayLengthAtLeastOne</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;groupLookups,
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#arrayLengthAtLeastOne(java.lang.Object[], java.lang.String, int, java.lang.String)">arrayLengthAtLeastOne</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A>[]&nbsp;objects,
                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;configNameOfMax,
-                      int&nbsp;defaultMax)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get array length, make sure at least 1</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#arrayLengthAtLeastOne(edu.internet2.middleware.grouper.ws.soap.WsStemLookup[], java.lang.String, int)">arrayLengthAtLeastOne</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A>[]&nbsp;stemLookups,
-                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;configNameOfMax,
-                      int&nbsp;defaultMax)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get array length, make sure at least 1</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#arrayLengthAtLeastOne(edu.internet2.middleware.grouper.ws.soap.WsStemToSave[], java.lang.String, int)">arrayLengthAtLeastOne</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemToSave.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemToSave</A>[]&nbsp;wsStemToSaves,
-                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;configNameOfMax,
-                      int&nbsp;defaultMax)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get array length, make sure at least 1</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;int</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#arrayLengthAtLeastOne(edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], java.lang.String, int)">arrayLengthAtLeastOne</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;subjectLookups,
-                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;configNameOfMax,
-                      int&nbsp;defaultMax)</CODE>
+                      int&nbsp;defaultMax,
+                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;label)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get array length, make sure at least 1</TD>
@@ -779,78 +751,22 @@ public static edu.internet2.middleware.grouper.GrouperSession <B>retrieveGrouper
 </DL>
 <HR>
 
-<A NAME="arrayLengthAtLeastOne(edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], java.lang.String, int)"><!-- --></A><H3>
+<A NAME="arrayLengthAtLeastOne(java.lang.Object[], java.lang.String, int, java.lang.String)"><!-- --></A><H3>
 arrayLengthAtLeastOne</H3>
 <PRE>
-public static int <B>arrayLengthAtLeastOne</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup</A>[]&nbsp;subjectLookups,
+public static int <B>arrayLengthAtLeastOne</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A>[]&nbsp;objects,
                                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;configNameOfMax,
-                                        int&nbsp;defaultMax)
+                                        int&nbsp;defaultMax,
+                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;label)
                                  throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
 <DL>
 <DD>get array length, make sure at least 1
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>subjectLookups</CODE> - to count<DD><CODE>configNameOfMax</CODE> - is the config name of grouper-ws.properties where the max number of subjects is<DD><CODE>defaultMax</CODE> - is the default if not in the config file
+<DT><B>Parameters:</B><DD><CODE>objects</CODE> - to count<DD><CODE>configNameOfMax</CODE> - is the config name of grouper-ws.properties where the max number of subjects is<DD><CODE>defaultMax</CODE> - is the default if not in the config file<DD><CODE>label</CODE> - for error
 <DT><B>Returns:</B><DD>the length
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if array is null or size 0 or more than max</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="arrayLengthAtLeastOne(edu.internet2.middleware.grouper.ws.soap.WsStemToSave[], java.lang.String, int)"><!-- --></A><H3>
-arrayLengthAtLeastOne</H3>
-<PRE>
-public static int <B>arrayLengthAtLeastOne</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemToSave.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemToSave</A>[]&nbsp;wsStemToSaves,
-                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;configNameOfMax,
-                                        int&nbsp;defaultMax)
-                                 throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
-<DL>
-<DD>get array length, make sure at least 1
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>wsStemToSaves</CODE> - to count<DD><CODE>configNameOfMax</CODE> - is the config name of grouper-ws.properties where the max number of subjects is<DD><CODE>defaultMax</CODE> - is the default if not in the config file
-<DT><B>Returns:</B><DD>the length
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if array is null or size 0 or more than max</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="arrayLengthAtLeastOne(edu.internet2.middleware.grouper.ws.soap.WsStemLookup[], java.lang.String, int)"><!-- --></A><H3>
-arrayLengthAtLeastOne</H3>
-<PRE>
-public static int <B>arrayLengthAtLeastOne</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A>[]&nbsp;stemLookups,
-                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;configNameOfMax,
-                                        int&nbsp;defaultMax)
-                                 throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
-<DL>
-<DD>get array length, make sure at least 1
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>stemLookups</CODE> - to count<DD><CODE>configNameOfMax</CODE> - is the config name of grouper-ws.properties where the max number of subjects is<DD><CODE>defaultMax</CODE> - is the default if not in the config file
-<DT><B>Returns:</B><DD>the length
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if array is null or size 0</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="arrayLengthAtLeastOne(edu.internet2.middleware.grouper.ws.soap.WsGroupLookup[], java.lang.String, int)"><!-- --></A><H3>
-arrayLengthAtLeastOne</H3>
-<PRE>
-public static int <B>arrayLengthAtLeastOne</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>[]&nbsp;groupLookups,
-                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;configNameOfMax,
-                                        int&nbsp;defaultMax)
-                                 throws <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></PRE>
-<DL>
-<DD>get array length, make sure at least 1
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>groupLookups</CODE> - to count<DD><CODE>configNameOfMax</CODE> - is the config name of grouper-ws.properties where the max number of subjects is<DD><CODE>defaultMax</CODE> - is the default if not in the config file
-<DT><B>Returns:</B><DD>the length
-<DT><B>Throws:</B>
-<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE> - if array is null or size 0</DL>
 </DD>
 </DL>
 <HR>
@@ -1015,17 +931,18 @@ public static boolean <B>processPrivilegesHelper</B>(<A HREF="http://java.sun.co
 </DL>
 <HR>
 
-<A NAME="addResponseHeaders(javax.servlet.http.HttpServletResponse, java.lang.String, java.lang.String)"><!-- --></A><H3>
+<A NAME="addResponseHeaders(javax.servlet.http.HttpServletResponse, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
 addResponseHeaders</H3>
 <PRE>
 public static void <B>addResponseHeaders</B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServletResponse.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in javax.servlet.http">HttpServletResponse</A>&nbsp;response,
                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;success,
-                                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode)</PRE>
+                                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode,
+                                      <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode2)</PRE>
 <DL>
 <DD>add response headers for a success and response code
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>response</CODE> - <DD><CODE>success</CODE> - T or F<DD><CODE>resultCode</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>response</CODE> - <DD><CODE>success</CODE> - T or F<DD><CODE>resultCode</CODE> - <DD><CODE>resultCode2</CODE> - </DL>
 </DD>
 </DL>
 <HR>

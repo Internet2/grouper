@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPut.java,v 1.5 2008-03-30 09:01:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPut.java,v 1.6 2008-03-31 07:22:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -9,10 +9,13 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -43,6 +46,25 @@ public enum GrouperWsRestPut {
       String groupName = GrouperServiceUtils.popUrlString(urlStrings);
       String operation = GrouperServiceUtils.popUrlString(urlStrings);
 
+      if (requestObject instanceof WsRestGroupSaveRequest) {
+        if (!StringUtils.isBlank(groupName)) {
+          throw new WsInvalidQueryException("Dont pass group name when saving batch groups: '" + groupName + "'");
+        }
+        if (!StringUtils.isBlank(groupName)) {
+          throw new WsInvalidQueryException("Dont pass sub resource when saving batch groups: '" + operation + "'");
+        }
+        return GrouperServiceRest.groupSave(clientVersion, (WsRestGroupSaveRequest)requestObject);
+      }
+
+      if (requestObject instanceof WsRestGroupSaveLiteRequest && !StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException("Dont pass sub resource when saving group: '" + operation + "'");
+      }
+      
+      if ((requestObject == null || requestObject instanceof WsRestGroupSaveLiteRequest) 
+          && StringUtils.isBlank(operation) ) {
+        return GrouperServiceRest.groupSaveLite(clientVersion, groupName, (WsRestGroupSaveLiteRequest)requestObject);
+      }
+      
       //validate and get the operation
       GrouperWsRestPutGroup grouperWsRestPutGroup = GrouperWsRestPutGroup
           .valueOfIgnoreCase(operation, true);
@@ -74,7 +96,17 @@ public enum GrouperWsRestPut {
       String operation = GrouperServiceUtils.popUrlString(urlStrings);
       
       if (requestObject instanceof WsRestStemSaveRequest) {
+        if (!StringUtils.isBlank(stemName)) {
+          throw new WsInvalidQueryException("Dont pass stem name when saving batch stems: '" + stemName + "'");
+        }
+        if (!StringUtils.isBlank(stemName)) {
+          throw new WsInvalidQueryException("Dont pass sub resource when saving batch stems: '" + operation + "'");
+        }
         return GrouperServiceRest.stemSave(clientVersion, (WsRestStemSaveRequest)requestObject);
+      }
+
+      if (requestObject instanceof WsRestStemSaveLiteRequest && !StringUtils.isBlank(operation)) {
+        throw new WsInvalidQueryException("Dont pass sub resource when saving stem: '" + operation + "'");
       }
       
       if ((requestObject == null || requestObject instanceof WsRestStemSaveLiteRequest) 

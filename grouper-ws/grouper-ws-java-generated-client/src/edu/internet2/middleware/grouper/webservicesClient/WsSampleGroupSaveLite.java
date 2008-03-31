@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSaveLite;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
@@ -11,6 +12,8 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -57,19 +60,24 @@ public class WsSampleGroupSaveLite implements WsSampleGenerated {
             //version, e.g. v1_3_000
             groupSaveLite.setClientVersion(GeneratedClientSettings.VERSION);
 
-            /*
-               groupSaveLite.setActAsSubjectId("GrouperSystem");
-               groupSaveLite.setActAsSubjectIdentifier("");
-               groupSaveLite.setDescription("test group");
-               groupSaveLite.setDisplayExtension("the test group");
-               groupSaveLite.setGroupName("aStem:test");
-               groupSaveLite.setGroupUuid("");
-               groupSaveLite.setSaveMode("");
-               WsGroupSaveResult wsGroupSaveResult = stub.groupSaveLite(groupSaveLite)
-                                                         .get_return();
-               System.out.println(ToStringBuilder.reflectionToString(
-                       wsGroupSaveResult));
-             */
+            groupSaveLite.setActAsSubjectId("GrouperSystem");
+            groupSaveLite.setActAsSubjectIdentifier("");
+            groupSaveLite.setActAsSubjectSourceId("");
+            groupSaveLite.setDescription("test group");
+            groupSaveLite.setDisplayExtension("the test group");
+            groupSaveLite.setGroupName("aStem:test");
+            groupSaveLite.setGroupUuid("");
+            groupSaveLite.setIncludeGroupDetail("F");
+            groupSaveLite.setSaveMode("");
+
+            groupSaveLite.setGroupLookupName("aGroup:test");
+            groupSaveLite.setGroupLookupUuid("");
+
+            WsGroupSaveLiteResult wsGroupSaveLiteResults = stub.groupSaveLite(groupSaveLite)
+                                                               .get_return();
+
+            System.out.println(ToStringBuilder.reflectionToString(
+                    wsGroupSaveLiteResults));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

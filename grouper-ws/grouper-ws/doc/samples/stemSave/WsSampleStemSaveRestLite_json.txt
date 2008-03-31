@@ -39,8 +39,9 @@ HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Sun, 30 Mar 2008 08:25:24 GMT
+Date: Mon, 31 Mar 2008 06:49:34 GMT
 Connection: close
 
 {
@@ -51,12 +52,14 @@ Connection: close
         "$":"SUCCESS"
       },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@106c17b[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@88884e[stem=<null>,uuid=<null>,stemName=aStem:aS...\n, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@287422[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@2d171a[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@47eba6[stem=<null>,uuid=<null>,stemName=aStem:aSt...\n, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1280e84[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames: \n, params: null",
       "success":"T",
       "httpStatusCode":201
     },
     "responseMetadata":{
       "resultWarnings":"",
+      "millis":-1,
+      "millisStart":1206946174803,
       "serverVersion":"v1_3_000"
     },
     "wsStem":{
@@ -65,7 +68,7 @@ Connection: close
       "description":"desc1",
       "displayName":"a stem:disp1",
       "name":"aStem:aStemToSave",
-      "uuid":"fae036ae-73c5-4e31-848b-960b1873b427"
+      "uuid":"87a28251-f2cc-4589-b67b-bd14ee3ff290"
     }
   }
 }
@@ -222,6 +225,6 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@106c17b[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@88884e[stem=<null>,uuid=<null>,stemName=aStem:aS...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@287422[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames: 
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@2d171a[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@47eba6[stem=<null>,uuid=<null>,stemName=aStem:aSt...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1280e84[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames: 
 , params: null

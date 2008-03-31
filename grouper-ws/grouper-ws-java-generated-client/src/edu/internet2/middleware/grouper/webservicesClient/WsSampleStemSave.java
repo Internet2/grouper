@@ -83,6 +83,7 @@ public class WsSampleStemSave implements WsSampleGenerated {
             wsStemToSave.setWsStemLookup(wsStemLookup);
 
             stemSave.setWsStemToSaves(new WsStemToSave[] { wsStemToSave });
+            stemSave.setTxType("");
 
             WsStemSaveResults wsStemSaveResults = stub.stemSave(stemSave)
                                                       .get_return();

@@ -46,11 +46,12 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupDeleteLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 30 Mar 2008 08:54:41 GMT
+Date: Mon, 31 Mar 2008 06:49:50 GMT
 
-7b8
+864
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -62,11 +63,13 @@ Date: Sun, 30 Mar 2008 08:54:41 GMT
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS_GROUP_NOT_FOUND</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@358032[group=&lt;null>,uuid=,groupName=aStem:test,groupFindResult=&lt;null>]
+          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@15f8bae[group=&lt;null>,uuid=,groupName=aStem:test,groupFindResult=&lt;null>]
 
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@735aee[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: true, paramNames:
-, params: nullCant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@358032[group=&lt;null>,uuid=,groupName=aStem:test,groupFindResult=GROUP_NOT_FOUND]'.  </ns:resultMessage>
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1cb89bc[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=,subjectSourceId=], txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: true, paramNames:
+, params: nullCant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@15f8bae[group=&lt;null>,uuid=,groupName=aStem:test,groupFindResult=GROUP_NOT_FOUND]'.  </ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:wsGroup type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
@@ -182,4 +185,4 @@ public class WsSampleGroupDeleteLite implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroupDeleteLiteResult@e1469c[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1115a61,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@44ac5e,localResultMetadataTracker=true,localWsGroup=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@904f75,localWsGroupTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroupDeleteLiteResult@1082d45[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@9ba134,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1747e0f,localResultMetadataTracker=true,localWsGroup=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@100200c,localWsGroupTracker=true]

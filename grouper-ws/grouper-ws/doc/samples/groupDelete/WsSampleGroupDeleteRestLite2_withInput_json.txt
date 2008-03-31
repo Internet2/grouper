@@ -37,8 +37,9 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Sun, 30 Mar 2008 08:54:55 GMT
+Date: Mon, 31 Mar 2008 06:50:05 GMT
 Connection: close
 
 {
@@ -49,14 +50,14 @@ Connection: close
         "$":"SUCCESS_GROUP_NOT_FOUND"
       },
       "resultCode":"SUCCESS_GROUP_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1c6988d[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=<null>]\n\n, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1496354[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1c6988d[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=GROUP_NOT_FOUND]'.  ",
+      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e97a73[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=<null>]\n\n, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1662a8a[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e97a73[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=GROUP_NOT_FOUND]'.  ",
       "success":"T",
       "httpStatusCode":200
     },
     "responseMetadata":{
       "resultWarnings":"",
       "millis":-1,
-      "millisStart":1206867295618,
+      "millisStart":1206946205928,
       "serverVersion":"v1_3_000"
     },
     "wsGroup":{
@@ -217,7 +218,7 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1c6988d[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=<null>]
+Server version: v1_3_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e97a73[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=<null>]
 
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1496354[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: true, paramNames: 
-, params: nullCant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1c6988d[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=GROUP_NOT_FOUND]'.  
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1662a8a[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: true, paramNames: 
+, params: nullCant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e97a73[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=GROUP_NOT_FOUND]'.  

@@ -40,8 +40,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="queryFilterType">FIND_BY_GROUP_NAME_APPROXIMATE</p>
       <p class="stemNameScope" />
       <p class="groupAttributeName" />
-      <p class="groupAttributeValue" />
       <p class="groupTypeName" />
+      <p class="groupAttributeValue" />
     </div>
   </body>
 </html>
@@ -59,8 +59,9 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Sun, 30 Mar 2008 08:52:36 GMT
+Date: Mon, 31 Mar 2008 06:48:11 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -72,14 +73,15 @@ Connection: close
   <body>
     <div title="WsFindGroupsResults">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@14e3d8f[grouperSession=&lt;null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=&lt;null>,groupUuid=&lt;null>,groupAttributeValue=&lt;null>,groupAttributeName=&lt;null>,groupTypeName=&lt;null>,queryFilter0=&lt;null>,queryFilter1=&lt;null>]
-, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1abb373[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], paramNames:
-, params: null</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@18ad24a[grouperSession=&lt;null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=&lt;null>,groupUuid=&lt;null>,groupAttributeValue=&lt;null>,groupAttributeName=&lt;null>,groupTypeName=&lt;null>,queryFilter0=&lt;null>,queryFilter1=&lt;null>]
+, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@f4055f[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], paramNames:
+, params: null</p>
+        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">266</p>
+        <p class="millis">1781</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_3_000</p>
       </div>
@@ -88,18 +90,27 @@ Connection: close
           <p class="name">aStem:aGroup2</p>
           <p class="displayName">a stem:a group2</p>
           <p class="description">a group description2</p>
-          <p class="uuid">f7a9e321-6a1d-4866-95ed-c301f88b54ae</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup2</p>
+          <p class="uuid">f717c011-91c4-4684-8a4d-287be9ffe0bb</p>
           <p class="displayExtension">a group2</p>
+        </li>
+        <li title="WsGroup">
+          <p class="name">aStem:aGroupToSave</p>
+          <p class="displayName">a stem:disp1</p>
+          <p class="description">desc1</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="extension">aGroupToSave</p>
+          <p class="uuid">0bb7de04-bdd4-4371-810b-053db0052bf9</p>
+          <p class="displayExtension">disp1</p>
         </li>
         <li title="WsGroup">
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
-          <p class="uuid">d8be0f16-5716-44e4-8af1-2ab5b42ad282</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
+          <p class="uuid">c6c0bf03-9cb5-4965-9dcb-520020d5da51</p>
           <p class="displayExtension">a group</p>
         </li>
       </ul>
@@ -261,6 +272,6 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@14e3d8f[grouperSession=<null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=<null>,groupUuid=<null>,groupAttributeValue=<null>,groupAttributeName=<null>,groupTypeName=<null>,queryFilter0=<null>,queryFilter1=<null>]
-, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1abb373[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], paramNames: 
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@18ad24a[grouperSession=<null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=<null>,groupUuid=<null>,groupAttributeValue=<null>,groupAttributeName=<null>,groupTypeName=<null>,queryFilter0=<null>,queryFilter1=<null>]
+, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@f4055f[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], paramNames: 
 , params: null

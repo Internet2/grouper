@@ -49,8 +49,9 @@ HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Sun, 30 Mar 2008 08:51:51 GMT
+Date: Mon, 31 Mar 2008 06:46:05 GMT
 Connection: close
 
 {
@@ -65,7 +66,7 @@ Connection: close
               "description":"a group description2",
               "displayName":"a stem:a group2",
               "name":"aStem:aGroup2",
-              "uuid":"f7a9e321-6a1d-4866-95ed-c301f88b54ae"
+              "uuid":"f717c011-91c4-4684-8a4d-287be9ffe0bb"
             }
             
           },
@@ -95,7 +96,7 @@ Connection: close
               "description":"a group description2",
               "displayName":"a stem:a group2",
               "name":"aStem:aGroup2",
-              "uuid":"f7a9e321-6a1d-4866-95ed-c301f88b54ae"
+              "uuid":"f717c011-91c4-4684-8a4d-287be9ffe0bb"
             }
             
           },
@@ -125,14 +126,14 @@ Connection: close
         "$":"SUCCESS"
       },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1f46f3b[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...\nmemberFilter: All, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@925e67[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_3_000, subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1124c5e[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...\nmemberFilter: All, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1164d11[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]\n, params: null",
       "success":"T",
       "httpStatusCode":201
     },
     "responseMetadata":{
       "resultWarnings":"",
       "millis":-1,
-      "millisStart":1206867111398,
+      "millisStart":1206945965333,
       "serverVersion":"v1_3_000"
     }
   }
@@ -298,6 +299,6 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1f46f3b[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...
-memberFilter: All, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@925e67[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1124c5e[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...
+memberFilter: All, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1164d11[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
 , params: null

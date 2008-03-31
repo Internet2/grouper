@@ -41,8 +41,9 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Sun, 30 Mar 2008 08:53:02 GMT
+Date: Mon, 31 Mar 2008 06:48:52 GMT
 Connection: close
 
 <WsStemDeleteResults>
@@ -54,7 +55,7 @@ Connection: close
       </wsStem>
       <resultMetadata>
         <resultCode>SUCCESS_STEM_NOT_FOUND</resultCode>
-        <resultMessage>Cant find stem: &apos;edu.internet2.middleware.grouper.ws.soap.WsStemLookup@c677d5[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:whateverStem,stemFindResult=STEM_NOT_FOUND]&apos;.  </resultMessage>
+        <resultMessage>Cant find stem: &apos;edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1b43dd2[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:whateverStem,stemFindResult=STEM_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
         <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
@@ -66,7 +67,7 @@ Connection: close
       </wsStem>
       <resultMetadata>
         <resultCode>SUCCESS_STEM_NOT_FOUND</resultCode>
-        <resultMessage>Cant find stem: &apos;edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1e581f9[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:whateverStem2,stemFindResult=STEM_NOT_FOUND]&apos;.  </resultMessage>
+        <resultMessage>Cant find stem: &apos;edu.internet2.middleware.grouper.ws.soap.WsStemLookup@46c5a4[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:whateverStem2,stemFindResult=STEM_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
         <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
@@ -75,8 +76,8 @@ Connection: close
   <resultMetadata>
     <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults$WsStemDeleteResultsCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@c677d5[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:whateverStem,stemFindResult=&lt;null&gt;]
-[1]: edu.internet2.middleware.grouper.ws....
+    <resultMessage>Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1b43dd2[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:whateverStem,stemFindResult=&lt;null&gt;]
+[1]: edu.internet2.middleware.grouper.ws...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
     <success>T</success>
@@ -85,7 +86,7 @@ Connection: close
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1206867182883</millisStart>
+    <millisStart>1206946132412</millisStart>
     <serverVersion>v1_3_000</serverVersion>
   </responseMetadata>
 </WsStemDeleteResults>
@@ -243,7 +244,7 @@ public class WsSampleStemDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@c677d5[stem=<null>,uuid=<null>,stemName=aStem:whateverStem,stemFindResult=<null>]
-[1]: edu.internet2.middleware.grouper.ws....
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1b43dd2[stem=<null>,uuid=<null>,stemName=aStem:whateverStem,stemFindResult=<null>]
+[1]: edu.internet2.middleware.grouper.ws...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

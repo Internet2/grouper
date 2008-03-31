@@ -154,6 +154,12 @@ result code of a request
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;successful addition (success: T)</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupSaveResult.WsGroupSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD#TRANSACTION_ROLLED_BACK">TRANSACTION_ROLLED_BACK</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;was a success but rolled back</TD>
+</TR>
 </TABLE>
 &nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
@@ -163,6 +169,14 @@ result code of a request
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupSaveLiteResult.WsGroupSaveLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupSaveLiteResult.WsGroupSaveLiteResultCode</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupSaveResult.WsGroupSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD#convertToLiteCode()">convertToLiteCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is one result, convert to the results code</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -291,6 +305,18 @@ public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/
 <DL>
 </DL>
 </DL>
+<HR>
+
+<A NAME="TRANSACTION_ROLLED_BACK"><!-- --></A><H3>
+TRANSACTION_ROLLED_BACK</H3>
+<PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupSaveResult.WsGroupSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupSaveResult.WsGroupSaveResultCode</A> <B>TRANSACTION_ROLLED_BACK</B></PRE>
+<DL>
+<DD>was a success but rolled back
+<P>
+<DL>
+</DL>
+</DL>
 
 <!-- ============ METHOD DETAIL ========== -->
 
@@ -353,6 +379,20 @@ public boolean <B>isSuccess</B>()</PRE>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>true if success</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToLiteCode()"><!-- --></A><H3>
+convertToLiteCode</H3>
+<PRE>
+public abstract <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupSaveLiteResult.WsGroupSaveLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGroupSaveLiteResult.WsGroupSaveLiteResultCode</A> <B>convertToLiteCode</B>()</PRE>
+<DL>
+<DD>if there is one result, convert to the results code
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>result code</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

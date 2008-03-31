@@ -137,16 +137,16 @@ result code of a request
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;invalid query, can only happen if lite query</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#STEM_NOT_FOUND">STEM_NOT_FOUND</A></B></CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the stem was not found</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS">SUCCESS</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;successful addition</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS_STEM_NOT_FOUND">SUCCESS_STEM_NOT_FOUND</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the stem was not found</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#TRANSACTION_ROLLED_BACK">TRANSACTION_ROLLED_BACK</A></B></CODE>
@@ -163,6 +163,14 @@ result code of a request
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteLiteResult.WsStemDeleteLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemDeleteLiteResult.WsStemDeleteLiteResultCode</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD#convertToLiteCode()">convertToLiteCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if there is one result, convert to the results code</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -257,10 +265,10 @@ public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/
 </DL>
 <HR>
 
-<A NAME="STEM_NOT_FOUND"><!-- --></A><H3>
-STEM_NOT_FOUND</H3>
+<A NAME="SUCCESS_STEM_NOT_FOUND"><!-- --></A><H3>
+SUCCESS_STEM_NOT_FOUND</H3>
 <PRE>
-public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemDeleteResult.WsStemDeleteResultCode</A> <B>STEM_NOT_FOUND</B></PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemDeleteResult.WsStemDeleteResultCode</A> <B>SUCCESS_STEM_NOT_FOUND</B></PRE>
 <DL>
 <DD>the stem was not found
 <P>
@@ -353,6 +361,20 @@ public boolean <B>isSuccess</B>()</PRE>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>true if success</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="convertToLiteCode()"><!-- --></A><H3>
+convertToLiteCode</H3>
+<PRE>
+public abstract <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteLiteResult.WsStemDeleteLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemDeleteLiteResult.WsStemDeleteLiteResultCode</A> <B>convertToLiteCode</B>()</PRE>
+<DL>
+<DD>if there is one result, convert to the results code
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>result code</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

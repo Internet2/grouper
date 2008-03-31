@@ -207,8 +207,9 @@ public class WsGroupDeleteResults implements WsResponseBean {
         this.assignResultCode(WsGroupDeleteResultsCode.SUCCESS);
       }
     } else {
-      //none is ok
-      this.assignResultCode(WsGroupDeleteResultsCode.SUCCESS);
+      //none is not ok
+      this.assignResultCode(WsGroupDeleteResultsCode.INVALID_QUERY);
+      this.getResultMetadata().setResultMessage("Must pass in at least one group to delete");
     }
     //make response descriptive
     if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {

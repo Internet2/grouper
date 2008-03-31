@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults.WsGroupDeleteResultsCode;
 
 /**
  * <pre>
@@ -219,8 +220,9 @@ public class WsHasMemberResults implements WsResponseBean {
         this.assignResultCode(WsHasMemberResultsCode.SUCCESS);
       }
     } else {
-      //none is ok
-      this.assignResultCode(WsHasMemberResultsCode.SUCCESS);
+      //none is not ok
+      this.assignResultCode(WsHasMemberResultsCode.INVALID_QUERY);
+      this.getResultMetadata().setResultMessage("Must pass in at least one subject to check for membership");
     }
     //make response descriptive
     if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {

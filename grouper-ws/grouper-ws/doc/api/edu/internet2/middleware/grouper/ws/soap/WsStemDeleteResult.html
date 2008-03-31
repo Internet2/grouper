@@ -50,7 +50,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteLiteResult.WsStemDeleteLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -192,8 +192,16 @@ Result of one stem being deleted.  The number of
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.html?root=I2MI&view=co&pathrev=HEAD#getWsStemLookup()">getWsStemLookup</A></B>()</CODE>
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemDeleteResult.WsStemDeleteResultCode</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.html?root=I2MI&view=co&pathrev=HEAD#resultCode()">resultCode</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convert string to result code</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.html?root=I2MI&view=co&pathrev=HEAD#setResultMetadata(edu.internet2.middleware.grouper.ws.soap.WsResultMeta)">setResultMetadata</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsResultMeta</A>&nbsp;resultMetadata1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -202,14 +210,6 @@ Result of one stem being deleted.  The number of
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.html?root=I2MI&view=co&pathrev=HEAD#setWsStem(edu.internet2.middleware.grouper.ws.soap.WsStem)">setWsStem</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStem</A>&nbsp;wsStem1)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.html?root=I2MI&view=co&pathrev=HEAD#setWsStemLookup(edu.internet2.middleware.grouper.ws.soap.WsStemLookup)">setWsStemLookup</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A>&nbsp;wsStemLookup1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -268,6 +268,20 @@ public <B>WsStemDeleteResult</B>(<A HREF="../../../../../../edu/internet2/middle
 </TR>
 </TABLE>
 
+<A NAME="resultCode()"><!-- --></A><H3>
+resultCode</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemDeleteResult.WsStemDeleteResultCode</A> <B>resultCode</B>()</PRE>
+<DL>
+<DD>convert string to result code
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the result code</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="assignResultCode(edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode)"><!-- --></A><H3>
 assignResultCode</H3>
 <PRE>
@@ -277,29 +291,6 @@ public void <B>assignResultCode</B>(<A HREF="../../../../../../edu/internet2/mid
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>stemDeleteResultCode</CODE> - </DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getWsStemLookup()"><!-- --></A><H3>
-getWsStemLookup</H3>
-<PRE>
-public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A> <B>getWsStemLookup</B>()</PRE>
-<DL>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>the wsStemLookup</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setWsStemLookup(edu.internet2.middleware.grouper.ws.soap.WsStemLookup)"><!-- --></A><H3>
-setWsStemLookup</H3>
-<PRE>
-public void <B>setWsStemLookup</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStemLookup</A>&nbsp;wsStemLookup1)</PRE>
-<DL>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>wsStemLookup1</CODE> - the wsStemLookup to set</DL>
 </DD>
 </DL>
 <HR>
@@ -351,6 +342,17 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsRes
 <DT><B>Returns:</B><DD>the resultMetadata</DL>
 </DD>
 </DL>
+<HR>
+
+<A NAME="setResultMetadata(edu.internet2.middleware.grouper.ws.soap.WsResultMeta)"><!-- --></A><H3>
+setResultMetadata</H3>
+<PRE>
+public void <B>setResultMetadata</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsResultMeta</A>&nbsp;resultMetadata1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>resultMetadata1</CODE> - the resultMetadata to set</DL>
+</DD>
+</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -381,7 +383,7 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsRes
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteLiteResult.WsStemDeleteLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.WsStemDeleteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;

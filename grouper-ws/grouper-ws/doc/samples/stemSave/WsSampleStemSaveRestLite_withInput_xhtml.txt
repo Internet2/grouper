@@ -30,8 +30,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="clientVersion" />
       <p class="stemLookupUuid" />
       <p class="stemLookupName" />
-      <p class="stemName">aStem:aStemToSave</p>
       <p class="stemUuid" />
+      <p class="stemName">aStem:aStemToSave</p>
       <p class="saveMode" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
@@ -57,8 +57,9 @@ HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Sun, 30 Mar 2008 08:54:35 GMT
+Date: Mon, 31 Mar 2008 06:49:42 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -70,14 +71,15 @@ Connection: close
   <body>
     <div title="WsStemSaveLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@26e232[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@cc70e8[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:aSt...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1d198c3[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames:
-, params: null</p>
         <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@1e9029c[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@aa6e7e[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:aS...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@10cc039[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames:
+, params: null</p>
+        <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">234</p>
+        <p class="millis">1094</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_3_000</p>
       </div>
@@ -85,8 +87,8 @@ Connection: close
         <p class="name">aStem:aStemToSave</p>
         <p class="displayName">a stem:disp1</p>
         <p class="description">desc1</p>
-        <p class="uuid">fae036ae-73c5-4e31-848b-960b1873b427</p>
         <p class="extension">aStemToSave</p>
+        <p class="uuid">87a28251-f2cc-4589-b67b-bd14ee3ff290</p>
         <p class="displayExtension">disp1</p>
       </div>
     </div>
@@ -245,6 +247,6 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@26e232[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@cc70e8[stem=<null>,uuid=<null>,stemName=aStem:aSt...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1d198c3[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames: 
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@1e9029c[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@aa6e7e[stem=<null>,uuid=<null>,stemName=aStem:aS...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@10cc039[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, paramNames: 
 , params: null

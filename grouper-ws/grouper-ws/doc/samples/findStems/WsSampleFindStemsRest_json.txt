@@ -42,8 +42,9 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Sun, 30 Mar 2008 08:52:47 GMT
+Date: Mon, 31 Mar 2008 06:48:29 GMT
 Connection: close
 
 {
@@ -51,12 +52,20 @@ Connection: close
     "stemResults":{
       "WsStem":[
         {
+          "extension":"a stem",
+          "displayExtension":"aStem",
+          "description":"",
+          "displayName":"aStem",
+          "name":"a stem",
+          "uuid":"a stem description"
+        },
+        {
           "extension":"aStem",
           "displayExtension":"a stem",
           "description":"a stem description",
           "displayName":"a stem",
           "name":"aStem",
-          "uuid":"70f3b97b-8c13-4e36-b2db-6f22470264e2"
+          "uuid":"d16f5fda-80f5-40ea-a845-5d67dd5fffac"
         },
         {
           "extension":"testStem",
@@ -64,7 +73,7 @@ Connection: close
           "description":"the test stem",
           "displayName":"a stem:test stem",
           "name":"aStem:testStem",
-          "uuid":"0b950645-d36d-49a3-afde-f71b8eb0c2bd"
+          "uuid":"163c8521-74fb-4975-ba95-df9ab284023c"
         },
         {
           "extension":"test",
@@ -72,15 +81,7 @@ Connection: close
           "description":"test stem",
           "displayName":"a stem:the test stem",
           "name":"aStem:test",
-          "uuid":"02e32300-bdd8-4ab0-aa33-26b22f702f0c"
-        },
-        {
-          "extension":"whateverStems",
-          "displayExtension":"disps",
-          "description":"descs",
-          "displayName":"a stem:disps",
-          "name":"aStem:whateverStems",
-          "uuid":"4d808bc7-a972-4135-8e63-495a293dd399"
+          "uuid":"2067512d-b25e-4a45-8668-507157dda1f8"
         },
         {
           "extension":"aStemToSave",
@@ -88,7 +89,7 @@ Connection: close
           "description":"desc1",
           "displayName":"a stem:disp1",
           "name":"aStem:aStemToSave",
-          "uuid":"fae036ae-73c5-4e31-848b-960b1873b427"
+          "uuid":"87a28251-f2cc-4589-b67b-bd14ee3ff290"
         },
         {
           "extension":"whateverStem",
@@ -96,7 +97,7 @@ Connection: close
           "description":"desc1",
           "displayName":"a stem:disp1",
           "name":"aStem:whateverStem",
-          "uuid":"3a0c6d84-fe66-4988-ae5d-79bfa5b80372"
+          "uuid":"f9223f4e-37b1-4fbe-99c3-96a550c4fa8d"
         },
         {
           "extension":"whateverStem2",
@@ -104,7 +105,7 @@ Connection: close
           "description":"descs",
           "displayName":"a stem:disp2",
           "name":"aStem:whateverStem2",
-          "uuid":"713cdea4-628f-4e20-9574-ac7218271d93"
+          "uuid":"09fbd59b-6a6d-41da-9a6c-394418b02f13"
         }
       ]
       
@@ -115,14 +116,14 @@ Connection: close
         "$":"SUCCESS"
       },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@1929190[grouperSession=<null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=<null>,parentStemNameScope=<null>,stemUuid=<null>,stemAttributeValue=<null>,stemAttributeName=<null>,stemQueryFilter0=<null>,stemQueryFilter1=<null>], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@192c34b[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@1b41220[grouperSession=<null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=<null>,parentStemNameScope=<null>,stemUuid=<null>,stemAttributeValue=<null>,stemAttributeName=<null>,stemQueryFilter0=<null>,stemQueryFilter1=<null>], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@11218ad[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]\n, params: null",
       "success":"T",
       "httpStatusCode":200
     },
     "responseMetadata":{
       "resultWarnings":"",
       "millis":-1,
-      "millisStart":1206867167758,
+      "millisStart":1206946109350,
       "serverVersion":"v1_3_000"
     }
   }
@@ -288,5 +289,5 @@ public class WsSampleFindStemsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@1929190[grouperSession=<null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=<null>,parentStemNameScope=<null>,stemUuid=<null>,stemAttributeValue=<null>,stemAttributeName=<null>,stemQueryFilter0=<null>,stemQueryFilter1=<null>], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@192c34b[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
+Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@1b41220[grouperSession=<null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=<null>,parentStemNameScope=<null>,stemUuid=<null>,stemAttributeValue=<null>,stemAttributeName=<null>,stemQueryFilter0=<null>,stemQueryFilter1=<null>], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@11218ad[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
 , params: null

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.5 2008-03-30 09:01:04 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.6 2008-03-31 07:22:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -40,7 +40,12 @@ public class GrouperRestServlet extends HttpServlet {
   /**
    * response header for the grouper response code
    */
-  public static final String X_GROUPER_RESPONSE_CODE = "X-Grouper-resultCode";
+  public static final String X_GROUPER_RESULT_CODE = "X-Grouper-resultCode";
+
+  /**
+   * response header for the grouper response code
+   */
+  public static final String X_GROUPER_RESULT_CODE2 = "X-Grouper-resultCode2";
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperRestServlet.class);

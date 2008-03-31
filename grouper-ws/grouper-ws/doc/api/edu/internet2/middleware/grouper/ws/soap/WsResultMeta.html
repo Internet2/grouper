@@ -185,6 +185,14 @@ result metadata (if success, result code, etc) for one result
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD#getParams()">getParams</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD#getResultCode()">getResultCode</A></B>()</CODE>
 
@@ -194,6 +202,15 @@ result metadata (if success, result code, etc) for one result
  SUCCESS: means everything ok
  SUBJECT_NOT_FOUND: cant find the subject
  SUBJECT_DUPLICATE: found multiple subjects</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD#getResultCode2()">getResultCode2</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ reserved for future purpose</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -230,7 +247,23 @@ result metadata (if success, result code, etc) for one result
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD#setParams(edu.internet2.middleware.grouper.ws.soap.WsParam[])">setParams</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A>[]&nbsp;params1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD#setResultCode(java.lang.String)">setResultCode</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD#setResultCode2(java.lang.String)">setResultCode2</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -352,6 +385,22 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?ro
 </DL>
 <HR>
 
+<A NAME="getResultCode2()"><!-- --></A><H3>
+getResultCode2</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>getResultCode2</B>()</PRE>
+<DL>
+<DD><pre>
+ reserved for future purpose
+ </pre>
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the resultCode</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="getResultMessage()"><!-- --></A><H3>
 getResultMessage</H3>
 <PRE>
@@ -387,6 +436,17 @@ public void <B>setResultCode</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/ap
 <DL>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>resultCode1</CODE> - the resultCode to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setResultCode2(java.lang.String)"><!-- --></A><H3>
+setResultCode2</H3>
+<PRE>
+public void <B>setResultCode2</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultCode1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>resultCode1</CODE> - the resultCode2 to set</DL>
 </DD>
 </DL>
 <HR>
@@ -485,6 +545,29 @@ public void <B>assignHttpStatusCode</B>(int&nbsp;statusCode1)</PRE>
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>statusCode1</CODE> - the status code e.g. 200, if 500, then not initted</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getParams()"><!-- --></A><H3>
+getParams</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A>[] <B>getParams</B>()</PRE>
+<DL>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the params</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setParams(edu.internet2.middleware.grouper.ws.soap.WsParam[])"><!-- --></A><H3>
+setParams</H3>
+<PRE>
+public void <B>setParams</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A>[]&nbsp;params1)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>params1</CODE> - the params to set</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

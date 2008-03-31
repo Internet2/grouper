@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.6 2008-03-30 09:01:04 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.7 2008-03-31 07:22:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -11,6 +11,8 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
@@ -39,6 +41,8 @@ import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult;
@@ -655,14 +659,14 @@ public class GrouperServiceRest {
         wsRestStemSaveLiteRequest.getClientVersion(), false, "clientVersion");
 
     stemLookupName = GrouperServiceUtils.pickOne(stemLookupName,
-        wsRestStemSaveLiteRequest.getStemName(), false, "stemLookupName");
+        wsRestStemSaveLiteRequest.getStemLookupName(), false, "stemLookupName");
 
     //get the results
     WsStemSaveLiteResult wsStemSaveLiteResult = new GrouperService().stemSaveLite(
         clientVersionString, wsRestStemSaveLiteRequest.getStemLookupUuid(),
-        stemLookupName, wsRestStemSaveLiteRequest.getStemName(),
-        wsRestStemSaveLiteRequest.getStemUuid(), wsRestStemSaveLiteRequest
-            .getDescription(), wsRestStemSaveLiteRequest.getDisplayExtension(),
+        stemLookupName, wsRestStemSaveLiteRequest.getStemUuid(), wsRestStemSaveLiteRequest.getStemName(),
+        wsRestStemSaveLiteRequest.getDisplayExtension(),wsRestStemSaveLiteRequest
+            .getDescription(), 
         wsRestStemSaveLiteRequest.getSaveMode(), wsRestStemSaveLiteRequest
             .getActAsSubjectId(), wsRestStemSaveLiteRequest.getActAsSubjectSourceId(),
         wsRestStemSaveLiteRequest.getActAsSubjectIdentifier(), wsRestStemSaveLiteRequest
@@ -783,9 +787,9 @@ public class GrouperServiceRest {
    * </pre>
    * @param clientVersion version of client, e.g. v1_3_000
    * @param groupName is the name of the group to delete including parent stems, e.g. a:b:c
-   * @param subjectId from url, e.g. /v1_3_000/groups/aGroup:aGroup/members/123412345
+   * @param subjectId from url, e.g. /v1_3_000/groups/aStem:aGroup/members/123412345
    * @param sourceId from url (optional) e.g.
-   * /v1_3_000/groups/aGroup:aGroup/members/sourceId/someSource/subjectId/123412345
+   * /v1_3_000/groups/aStem:aGroup/members/sourceId/someSource/subjectId/123412345
    * @param wsRestGroupDeleteLiteRequest is the request body converted to an object
    * @return the result
    */
@@ -816,5 +820,81 @@ public class GrouperServiceRest {
     //return result
     return wsGroupDeleteLiteResult;
 
+  }
+
+  /**
+   * <pre>
+   * based on a submitted object of type WsRestGroupSaveRequest, save groups.  e.g. url:
+   * /v1_3_000/groups
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestGroupSaveRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGroupSaveResults groupSave(GrouperWsVersion clientVersion,
+      WsRestGroupSaveRequest wsRestGroupSaveRequest) {
+  
+    //cant be null
+    GrouperUtil.assertion(wsRestGroupSaveRequest != null,
+        "Body of request must contain an instance of "
+            + WsRestGroupSaveRequest.class.getSimpleName() + " in xml, xhtml, json, etc");
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestGroupSaveRequest.getClientVersion(), false, "clientVersion");
+  
+    //get the results
+    WsGroupSaveResults wsGroupSaveResults = new GrouperService().groupSave(
+        clientVersionString, wsRestGroupSaveRequest.getWsGroupToSaves(),
+        wsRestGroupSaveRequest.getActAsSubjectLookup(), wsRestGroupSaveRequest.getTxType(),
+        wsRestGroupSaveRequest.getIncludeGroupDetail(),
+        wsRestGroupSaveRequest.getParams());
+  
+    //return result
+    return wsGroupSaveResults;
+  
+  }
+
+  /**
+   * <pre>
+   * based on a group name and submitted object type WsRestGroupSaveLiteRequest,
+   * save a group.  url e.g. /v1_3_000/groups/aStem:aGroup2
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param groupLookupName is the name of the group to lookup and save (old name if changing) including parent groups, e.g. a:b:c
+   * @param wsRestGroupSaveLiteRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGroupSaveLiteResult groupSaveLite(GrouperWsVersion clientVersion,
+      String groupLookupName, WsRestGroupSaveLiteRequest wsRestGroupSaveLiteRequest) {
+  
+    //cant be null
+    GrouperUtil.assertion(wsRestGroupSaveLiteRequest != null,
+        "Body of request must contain an instance of "
+            + WsRestGroupSaveLiteRequest.class.getSimpleName()
+            + " in xml, xhtml, json, etc");
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestGroupSaveLiteRequest.getClientVersion(), false, "clientVersion");
+  
+    groupLookupName = GrouperServiceUtils.pickOne(groupLookupName,
+        wsRestGroupSaveLiteRequest.getGroupLookupName(), false, "groupLookupName");
+  
+    //get the results
+    WsGroupSaveLiteResult wsGroupSaveLiteResult = new GrouperService().groupSaveLite(
+        clientVersionString, wsRestGroupSaveLiteRequest.getGroupLookupUuid(),
+        groupLookupName, wsRestGroupSaveLiteRequest.getGroupUuid(), wsRestGroupSaveLiteRequest.getGroupName(),
+        wsRestGroupSaveLiteRequest.getDisplayExtension(),wsRestGroupSaveLiteRequest
+            .getDescription(), 
+        wsRestGroupSaveLiteRequest.getSaveMode(), wsRestGroupSaveLiteRequest
+            .getActAsSubjectId(), wsRestGroupSaveLiteRequest.getActAsSubjectSourceId(),
+        wsRestGroupSaveLiteRequest.getActAsSubjectIdentifier(), 
+        wsRestGroupSaveLiteRequest.getIncludeGroupDetail(), wsRestGroupSaveLiteRequest
+            .getParamName0(), wsRestGroupSaveLiteRequest.getParamValue0(),
+        wsRestGroupSaveLiteRequest.getParamName1(), wsRestGroupSaveLiteRequest
+            .getParamValue0());
+  
+    //return result
+    return wsGroupSaveLiteResult;
+  
   }
 }

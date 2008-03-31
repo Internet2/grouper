@@ -16,7 +16,7 @@ Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-2d4
+2ed
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -37,6 +37,7 @@ Transfer-Encoding: chunked
       <ns1:actAsSubjectLookup>
         <ns1:subjectId>GrouperSystem</ns1:subjectId>
       </ns1:actAsSubjectLookup>
+      <ns1:txType></ns1:txType>
     </ns1:stemSave>
   </soapenv:Body>
 </soapenv:Envelope>
@@ -55,11 +56,12 @@ HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
+X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:stemSaveResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Sun, 30 Mar 2008 08:53:17 GMT
+Date: Mon, 31 Mar 2008 06:49:17 GMT
 
-795
+8e9
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -71,15 +73,19 @@ Date: Sun, 30 Mar 2008 08:53:17 GMT
           <ns:serverVersion>v1_3_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@42510[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1d4bce[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:test...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@57a1e[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], txType: NONE, paramNames:
+          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@880adc[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@181292e[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:te...
+, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1e2c9af[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], txType: NONE, paramNames:
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult">
           <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+            <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage></ns:resultMessage>
             <ns:success>T</ns:success>
           </ns:resultMetadata>
@@ -89,7 +95,7 @@ Date: Sun, 30 Mar 2008 08:53:17 GMT
             <ns:displayName>a stem:test stem</ns:displayName>
             <ns:extension>testStem</ns:extension>
             <ns:name>aStem:testStem</ns:name>
-            <ns:uuid>0b950645-d36d-49a3-afde-f71b8eb0c2bd</ns:uuid>
+            <ns:uuid>163c8521-74fb-4975-ba95-df9ab284023c</ns:uuid>
           </ns:wsStem>
         </ns:results>
       </ns:return>
@@ -194,6 +200,7 @@ public class WsSampleStemSave implements WsSampleGenerated {
             wsStemToSave.setWsStemLookup(wsStemLookup);
 
             stemSave.setWsStemToSaves(new WsStemToSave[] { wsStemToSave });
+            stemSave.setTxType("");
 
             WsStemSaveResults wsStemSaveResults = stub.stemSave(stemSave)
                                                       .get_return();
@@ -221,5 +228,5 @@ public class WsSampleStemSave implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemSaveResults@1f808e6[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@252a17,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1ee69d3,localResultMetadataTracker=true,localResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemSaveResult@2870b7},localResultsTracker=true]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemSaveResult@2870b7[localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@25b64d,localResultMetadataTracker=true,localWsStem=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@1e389b8,localWsStemTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemSaveResults@3bead5[localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@12ab74f,localResponseMetadataTracker=true,localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@168c1e1,localResultMetadataTracker=true,localResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemSaveResult@8c666a},localResultsTracker=true]
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStemSaveResult@8c666a[localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@46fef3,localResultMetadataTracker=true,localWsStem=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsStem@10c0ef2,localWsStemTracker=true]

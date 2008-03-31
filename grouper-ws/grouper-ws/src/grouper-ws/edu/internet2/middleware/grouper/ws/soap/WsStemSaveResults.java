@@ -183,8 +183,9 @@ public class WsStemSaveResults implements WsResponseBean {
         this.assignResultCode(WsStemSaveResultsCode.SUCCESS);
       }
     } else {
-      //none is ok
-      this.assignResultCode(WsStemSaveResultsCode.SUCCESS);
+      //none is not ok
+      this.assignResultCode(WsStemSaveResultsCode.INVALID_QUERY);
+      this.getResultMetadata().setResultMessage("Must pass in at least one stem to save");
     }
     //make response descriptive
     if (GrouperUtil.booleanValue(this.getResultMetadata().getSuccess(), false)) {

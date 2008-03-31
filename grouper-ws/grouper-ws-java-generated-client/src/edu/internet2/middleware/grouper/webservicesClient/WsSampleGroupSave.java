@@ -4,6 +4,8 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSave;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroup;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupToSave;
@@ -68,27 +70,33 @@ public class WsSampleGroupSave implements WsSampleGenerated {
             groupSave.setActAsSubjectLookup(actAsSubject);
 
             WsGroupToSave wsGroupToSave = WsGroupToSave.class.newInstance();
-
-            wsGroupToSave.setDescription("the test group");
-            wsGroupToSave.setDisplayExtension("test group");
-            wsGroupToSave.setGroupName("aStem:test");
+            WsGroup wsGroup = WsGroup.class.newInstance();
+            wsGroup.setDescription("the test group");
+            wsGroup.setDisplayExtension("test group");
+            wsGroup.setName("aStem:testGroup");
             wsGroupToSave.setSaveMode("");
-            wsGroupToSave.setUuid("");
-            groupSave.setWsGroupsToSave(new WsGroupToSave[] { wsGroupToSave });
+            wsGroup.setUuid("");
+            wsGroupToSave.setWsGroup(wsGroup);
+
+            WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
+            wsGroupLookup.setGroupName("aStem:testGroup");
+            wsGroupToSave.setWsGroupLookup(wsGroupLookup);
+
+            groupSave.setWsGroupToSaves(new WsGroupToSave[] { wsGroupToSave });
+            groupSave.setIncludeGroupDetail("T");
+            groupSave.setTxType("");
 
             WsGroupSaveResults wsGroupSaveResults = stub.groupSave(groupSave)
                                                         .get_return();
-
             System.out.println(ToStringBuilder.reflectionToString(
                     wsGroupSaveResults));
 
             WsGroupSaveResult[] wsGroupSaveResultArray = wsGroupSaveResults.getResults();
 
-            if (wsGroupSaveResultArray != null) {
-                for (WsGroupSaveResult wsGroupSaveResult : wsGroupSaveResultArray) {
-                    System.out.println(ToStringBuilder.reflectionToString(
-                            wsGroupSaveResult));
-                }
+            for (WsGroupSaveResult wsGroupSaveResult : GeneratedClientSettings.nonNull(
+                    wsGroupSaveResultArray)) {
+                System.out.println(ToStringBuilder.reflectionToString(
+                        wsGroupSaveResult));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

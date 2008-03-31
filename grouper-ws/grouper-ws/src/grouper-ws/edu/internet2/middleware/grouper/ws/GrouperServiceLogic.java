@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.7 2008-03-30 09:01:04 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.8 2008-03-31 07:22:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -17,7 +17,6 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -29,7 +28,6 @@ import edu.internet2.middleware.grouper.SaveMode;
 import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -63,6 +61,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
@@ -95,7 +94,6 @@ import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults.WsFindStemsRe
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult.WsGroupSaveResultCode;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults.WsGroupSaveResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup.StemFindResult;
@@ -1117,149 +1115,149 @@ public class GrouperServiceLogic {
     return wsGetMembersResults;
   }
 
-  /**
-   * get memberships from a group based on a filter (all, immediate only,
-   * effective only, composite)
-   * 
-   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-   * @param wsGroupLookup
-   * @param membershipFilter
-   *            must be one of All, Effective, Immediate, Composite
-   * @param includeSubjectDetail
-   *            T|F, for if the extended subject information should be
-   *            returned (anything more than just the id)
-   * @param actAsSubjectLookup
-   * @param fieldName is if the member should be added to a certain field membership
-   * of the group (certain list)
-   * @param subjectAttributeNames are the additional subject attributes (data) to return.
-   * If blank, whatever is configured in the grouper-ws.properties will be sent
-   * @param includeGroupDetail T or F as to if the group detail should be returned
-   * @param params optional: reserved for future use
-   * @return the results
-   */
-  @SuppressWarnings("unchecked")
-  public static WsGetMembershipsResults getMemberships(final GrouperWsVersion clientVersion,
-      WsGroupLookup wsGroupLookup, String membershipFilter,
-      WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
-      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params) {
-  
-    WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
-  
-    GrouperSession session = null;
-    String theSummary = null;
-    try {
-  
-      theSummary = "clientVersion: " + clientVersion + ", wsGroupLookup: "
-          + wsGroupLookup + ", membershipFilter: " + membershipFilter
-          + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
-          + actAsSubjectLookup + ", fieldName: " + fieldName
-          + ", subjectAttributeNames: "
-          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
-          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n";
-  
-      //start session based on logged in user or the actAs passed in
-      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-  
-      //convert the options to a map for easy access, and validate them
-      @SuppressWarnings("unused")
-      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-          params);
-  
-      Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
-  
-      //assign the group to the result to be descriptive
-      wsGetMembershipsResults.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
-  
-      WsMemberFilter wsMembershipFilter = GrouperServiceUtils
-          .convertMemberFilter(membershipFilter);
-  
-      String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
-          .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
-  
-      // lets get the members, cant be null
-      Set<Membership> memberships = wsMembershipFilter.getMemberships(group, fieldName);
-  
-      wsGetMembershipsResults.assignSubjectResult(memberships,
-          subjectAttributeNamesToRetrieve);
-  
-      //see if all success
-      wsGetMembershipsResults.tallyResults(theSummary);
-  
-    } catch (Exception e) {
-      wsGetMembershipsResults.assignResultCodeException(null, theSummary, e);
-    } finally {
-      GrouperSession.stopQuietly(session);
-    }
-  
-    return wsGetMembershipsResults;
-  
-  }
-
-  /**
-   * get memberships from a group based on a filter (all, immediate only,
-   * effective only, composite)
-   * 
-   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-   * @param groupName
-   *            to lookup the group (mutually exclusive with groupUuid)
-   * @param groupUuid
-   *            to lookup the group (mutually exclusive with groupName)
-   * @param membershipFilter
-   *            must be one of All, Effective, Immediate, Composite
-   * @param includeSubjectDetail
-   *            T|F, for if the extended subject information should be
-   *            returned (anything more than just the id)
-   * @param actAsSubjectId
-   *            optional: is the subject id of subject to act as (if
-   *            proxying). Only pass one of actAsSubjectId or
-   *            actAsSubjectIdentifer
-   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
-   * duplicates
-   * @param actAsSubjectIdentifier
-   *            optional: is the subject identifier of subject to act as (if
-   *            proxying). Only pass one of actAsSubjectId or
-   *            actAsSubjectIdentifer
-   * @param fieldName is if the member should be added to a certain field membership
-   * of the group (certain list)
-   * @param subjectAttributeNames are the additional subject attributes (data) to return.
-   * If blank, whatever is configured in the grouper-ws.properties will be sent.  Comma-separate
-   * if multiple
-   * @param includeGroupDetail T or F as to if the group detail should be returned
-   * @param paramName0
-   *            reserved for future use
-   * @param paramValue0
-   *            reserved for future use
-   * @param paramName1
-   *            reserved for future use
-   * @param paramValue1
-   *            reserved for future use
-   * @return the memberships, or none if none found
-   */
-  public static WsGetMembershipsResults getMembershipsLite(final GrouperWsVersion clientVersion,
-      String groupName, String groupUuid, String membershipFilter,
-      boolean includeSubjectDetail, String actAsSubjectId, String actAsSubjectSourceId,
-      String actAsSubjectIdentifier, Field fieldName, String subjectAttributeNames,
-      boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
-  
-    // setup the group lookup
-    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
-  
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
-        actAsSubjectSourceId, actAsSubjectIdentifier);
-  
-    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
-  
-    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
-  
-    // pass through to the more comprehensive method
-    WsGetMembershipsResults wsGetMembershipsResults = getMemberships(clientVersion,
-        wsGroupLookup, membershipFilter, actAsSubjectLookup, fieldName,
-        includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
-        params);
-  
-    return wsGetMembershipsResults;
-  }
+//  /**
+//   * get memberships from a group based on a filter (all, immediate only,
+//   * effective only, composite)
+//   * 
+//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+//   * @param wsGroupLookup
+//   * @param membershipFilter
+//   *            must be one of All, Effective, Immediate, Composite
+//   * @param includeSubjectDetail
+//   *            T|F, for if the extended subject information should be
+//   *            returned (anything more than just the id)
+//   * @param actAsSubjectLookup
+//   * @param fieldName is if the member should be added to a certain field membership
+//   * of the group (certain list)
+//   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+//   * If blank, whatever is configured in the grouper-ws.properties will be sent
+//   * @param includeGroupDetail T or F as to if the group detail should be returned
+//   * @param params optional: reserved for future use
+//   * @return the results
+//   */
+//  @SuppressWarnings("unchecked")
+//  public static WsGetMembershipsResults getMemberships(final GrouperWsVersion clientVersion,
+//      WsGroupLookup wsGroupLookup, String membershipFilter,
+//      WsSubjectLookup actAsSubjectLookup, Field fieldName, boolean includeSubjectDetail,
+//      String[] subjectAttributeNames, boolean includeGroupDetail, final WsParam[] params) {
+//  
+//    WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
+//  
+//    GrouperSession session = null;
+//    String theSummary = null;
+//    try {
+//  
+//      theSummary = "clientVersion: " + clientVersion + ", wsGroupLookup: "
+//          + wsGroupLookup + ", membershipFilter: " + membershipFilter
+//          + ", includeSubjectDetail: " + includeSubjectDetail + ", actAsSubject: "
+//          + actAsSubjectLookup + ", fieldName: " + fieldName
+//          + ", subjectAttributeNames: "
+//          + GrouperUtil.toStringForLog(subjectAttributeNames) + "\n, paramNames: "
+//          + "\n, params: " + GrouperUtil.toStringForLog(params, 100) + "\n";
+//  
+//      //start session based on logged in user or the actAs passed in
+//      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+//  
+//      //convert the options to a map for easy access, and validate them
+//      @SuppressWarnings("unused")
+//      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+//          params);
+//  
+//      Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
+//  
+//      //assign the group to the result to be descriptive
+//      wsGetMembershipsResults.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
+//  
+//      WsMemberFilter wsMembershipFilter = GrouperServiceUtils
+//          .convertMemberFilter(membershipFilter);
+//  
+//      String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
+//          .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
+//  
+//      // lets get the members, cant be null
+//      Set<Membership> memberships = wsMembershipFilter.getMemberships(group, fieldName);
+//  
+//      wsGetMembershipsResults.assignSubjectResult(memberships,
+//          subjectAttributeNamesToRetrieve);
+//  
+//      //see if all success
+//      wsGetMembershipsResults.tallyResults(theSummary);
+//  
+//    } catch (Exception e) {
+//      wsGetMembershipsResults.assignResultCodeException(null, theSummary, e);
+//    } finally {
+//      GrouperSession.stopQuietly(session);
+//    }
+//  
+//    return wsGetMembershipsResults;
+//  
+//  }
+//
+//  /**
+//   * get memberships from a group based on a filter (all, immediate only,
+//   * effective only, composite)
+//   * 
+//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+//   * @param groupName
+//   *            to lookup the group (mutually exclusive with groupUuid)
+//   * @param groupUuid
+//   *            to lookup the group (mutually exclusive with groupName)
+//   * @param membershipFilter
+//   *            must be one of All, Effective, Immediate, Composite
+//   * @param includeSubjectDetail
+//   *            T|F, for if the extended subject information should be
+//   *            returned (anything more than just the id)
+//   * @param actAsSubjectId
+//   *            optional: is the subject id of subject to act as (if
+//   *            proxying). Only pass one of actAsSubjectId or
+//   *            actAsSubjectIdentifer
+//   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+//   * duplicates
+//   * @param actAsSubjectIdentifier
+//   *            optional: is the subject identifier of subject to act as (if
+//   *            proxying). Only pass one of actAsSubjectId or
+//   *            actAsSubjectIdentifer
+//   * @param fieldName is if the member should be added to a certain field membership
+//   * of the group (certain list)
+//   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+//   * If blank, whatever is configured in the grouper-ws.properties will be sent.  Comma-separate
+//   * if multiple
+//   * @param includeGroupDetail T or F as to if the group detail should be returned
+//   * @param paramName0
+//   *            reserved for future use
+//   * @param paramValue0
+//   *            reserved for future use
+//   * @param paramName1
+//   *            reserved for future use
+//   * @param paramValue1
+//   *            reserved for future use
+//   * @return the memberships, or none if none found
+//   */
+//  public static WsGetMembershipsResults getMembershipsLite(final GrouperWsVersion clientVersion,
+//      String groupName, String groupUuid, String membershipFilter,
+//      boolean includeSubjectDetail, String actAsSubjectId, String actAsSubjectSourceId,
+//      String actAsSubjectIdentifier, Field fieldName, String subjectAttributeNames,
+//      boolean includeGroupDetail, String paramName0, String paramValue0,
+//      String paramName1, String paramValue1) {
+//  
+//    // setup the group lookup
+//    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+//  
+//    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+//        actAsSubjectSourceId, actAsSubjectIdentifier);
+//  
+//    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+//  
+//    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
+//  
+//    // pass through to the more comprehensive method
+//    WsGetMembershipsResults wsGetMembershipsResults = getMemberships(clientVersion,
+//        wsGroupLookup, membershipFilter, actAsSubjectLookup, fieldName,
+//        includeSubjectDetail, subjectAttributeArray, includeGroupDetail,
+//        params);
+//  
+//    return wsGetMembershipsResults;
+//  }
 
   /**
    * get members from a group based on a filter (all, immediate only,
@@ -1508,230 +1506,93 @@ public class GrouperServiceLogic {
    * 
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @see {@link Group#saveGroup(GrouperSession, String, String, String, String, boolean, boolean, boolean)}
-   * @param wsGroupsToSave
+   * @param wsGroupToSaves
    *            groups to save
    * @param actAsSubjectLookup
    * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
    * NONE (will finish as much as possible).  Generally the only values for this param that make sense
    * are NONE (or blank), and READ_WRITE_NEW.
-   * @param params optional: reserved for future use
    * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param params optional: reserved for future use
    * @return the results
    */
   @SuppressWarnings("unchecked")
   public static WsGroupSaveResults groupSave(final GrouperWsVersion clientVersion,
-      final WsGroupToSave[] wsGroupsToSave, final WsSubjectLookup actAsSubjectLookup,
-      GrouperTransactionType txType, final boolean includeGroupDetail, final WsParam[] params) {
+      final WsGroupToSave[] wsGroupToSaves, final WsSubjectLookup actAsSubjectLookup,
+      GrouperTransactionType txType, final boolean includeGroupDetail,  final WsParam[] params) {
+
+    final WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
   
     GrouperSession session = null;
-    int groupsSize = GrouperServiceUtils.arrayLengthAtLeastOne(wsGroupsToSave,
-        GrouperWsConfig.WS_GROUP_SAVE_MAX, 1000000, "groupsToSave");
-  
-    WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
-  
-    txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
-    final GrouperTransactionType TX_TYPE = txType;
-
-    //convert the options to a map for easy access, and validate them
-    @SuppressWarnings("unused")
-    Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-        params);
-  
-    // see if greater than the max (or default)
-    int maxSaveGroup = GrouperWsConfig.getPropertyInt(GrouperWsConfig.WS_GROUP_SAVE_MAX,
-        1000000);
-    if (groupsSize > maxSaveGroup) {
-      wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.INVALID_QUERY);
-      wsGroupSaveResults.getResultMetadata().appendResultMessage(
-          "Number of groups must be less than max: " + maxSaveGroup + " (sent in "
-              + groupsSize + ")");
-      return wsGroupSaveResults;
-    }
-  
-    // assume success
-    wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.SUCCESS);
-    Subject actAsSubject = null;
-    // TODO have common try/catch
+    String theSummary = null;
     try {
-      actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
   
-      if (actAsSubject == null) {
-        // TODO make this a result code
-        throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
-      }
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      final GrouperTransactionType TX_TYPE = txType;
+      
+      theSummary = "clientVersion: " + clientVersion + ", wsGroupToSaves: "
+          + GrouperUtil.toStringForLog(wsGroupToSaves, 200) + "\n, actAsSubject: "
+          + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
   
-      // use this to be the user connected, or the user act-as
-      try {
-        session = GrouperSession.start(actAsSubject);
-      } catch (SessionException se) {
-        // TODO make this a result code
-        throw new RuntimeException("Problem with session for subject: " + actAsSubject,
-            se);
-      }
+      final String THE_SUMMARY = theSummary;
   
-      int resultIndex = 0;
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
-      wsGroupSaveResults.setResults(new WsGroupSaveResult[groupsSize]);
-      for (WsGroupToSave wsGroupToSave : wsGroupsToSave) {
-        WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult();
-        wsGroupSaveResults.getResults()[resultIndex++] = wsGroupSaveResult;
-        Group group = null;
+      final GrouperSession SESSION = session;
   
-        try {
-//TODO fix this          wsGroupSaveResult.setWsGroup(new WsGroup())
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
   
-          try {
-            wsGroupToSave.validate();
-          } catch (Exception e) {
-            wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.INVALID_QUERY);
-            wsGroupSaveResult.getResultMetadata().setResultMessage(
-                ExceptionUtils.getFullStackTrace(e));
-            continue;
-          }
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
   
-          group = wsGroupToSave.save(session);
-
-          //TODO FIXME
-//          // these will probably match, but just in case
-//          if (StringUtils.isBlank(wsGroupSaveResult.getGroupName())) {
-//            wsGroupSaveResult.setGroupName(group.getName());
-//          }
-//          if (StringUtils.isBlank(wsGroupSaveResult.getGroupUuid())) {
-//            wsGroupSaveResult.setGroupUuid(group.getUuid());
-//          }
-          //TODO use the WsResultCode
-          wsGroupSaveResult.getResultMetadata().assignSuccess("T");
-          wsGroupSaveResult.getResultMetadata().assignResultCode("SUCCESS");
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              "Group '" + group.getName() + "' was saved.");
-        } catch (InsufficientPrivilegeException ipe) {
-          wsGroupSaveResult
-              .assignResultCode(WsGroupSaveResultCode.INSUFFICIENT_PRIVILEGES);
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              "Error: insufficient privileges to save group '"
-                  + wsGroupToSave.getGroupName() + "'");
-        } catch (StemNotFoundException snfe) {
-          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.STEM_NOT_FOUND);
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              "Error: stem not found to save group '" + wsGroupToSave.getGroupName()
-                  + "'");
-        } catch (GroupNotFoundException gnfe) {
-          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.GROUP_NOT_FOUND);
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              "Error: group not found to save group '" + wsGroupToSave.getGroupName()
-                  + "'");
-        } catch (Exception e) {
-          // lump the rest in there, group_add_exception, etc
-          wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.EXCEPTION);
-          wsGroupSaveResult.getResultMetadata().setResultMessage(
-              ExceptionUtils.getFullStackTrace(e));
-          LOG.error(wsGroupToSave + ", " + e, e);
-        }
-      }
+              //convert the options to a map for easy access, and validate them
+              @SuppressWarnings("unused")
+              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+                  params);
   
-    } catch (RuntimeException re) {
-      wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.EXCEPTION);
-      String theError = "Problem saving groups: wsGroupsToSave: "
-          + GrouperUtil.toStringForLog(wsGroupsToSave) + ", actAsSubject: "
-          + actAsSubject + ".  \n" + "";
-      wsGroupSaveResults.getResultMetadata().appendResultMessage(theError);
-      // this is sent back to the caller anyway, so just log, and not send
-      // back again
-      LOG.error(theError + ", wsGroupSaveResults: "
-          + GrouperUtil.toStringForLog(wsGroupSaveResults), re);
+              int wsGroupsLength = GrouperServiceUtils.arrayLengthAtLeastOne(
+                  wsGroupToSaves, GrouperWsConfig.WS_STEM_SAVE_MAX, 1000000, "groupsToSave");
+  
+              wsGroupSaveResults.setResults(new WsGroupSaveResult[wsGroupsLength]);
+  
+              int resultIndex = 0;
+  
+              //loop through all stems and do the save
+              for (WsGroupToSave wsGroupToSave : wsGroupToSaves) {
+                WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult(wsGroupToSave.getWsGroupLookup());
+                wsGroupSaveResults.getResults()[resultIndex++] = wsGroupSaveResult;
+  
+                try {
+                  //make sure everything is in order
+                  wsGroupToSave.validate();
+                  Group group = wsGroupToSave.save(SESSION);
+  
+                  wsGroupSaveResult.setWsGroup(new WsGroup(group, wsGroupToSave.getWsGroupLookup(), includeGroupDetail));
+                  wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS);
+  
+                } catch (Exception e) {
+                  wsGroupSaveResult.assignResultCodeException(e, wsGroupToSave);
+                }
+              }
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsGroupSaveResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+  
+              return null;
+            }
+          });
+    } catch (Exception e) {
+      wsGroupSaveResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      if (session != null) {
-        try {
-          session.stop();
-        } catch (Exception e) {
-          LOG.error(e.getMessage(), e);
-        }
-      }
+      GrouperSession.stopQuietly(session);
     }
   
-    if (wsGroupSaveResults.getResults() != null) {
-      // check all entries
-      int successes = 0;
-      int failures = 0;
-      for (WsGroupSaveResult wsGroupSaveResult : wsGroupSaveResults.getResults()) {
-        boolean success = "T".equalsIgnoreCase(wsGroupSaveResult == null ? null
-            : wsGroupSaveResult.getResultMetadata().getSuccess());
-        if (success) {
-          successes++;
-        } else {
-          failures++;
-        }
-      }
-      if (failures > 0) {
-        wsGroupSaveResults.getResultMetadata().appendResultMessage(
-            "There were " + successes + " successes and " + failures
-                + " failures of saving groups.   ");
-        wsGroupSaveResults
-            .assignResultCode(WsGroupSaveResultsCode.PROBLEM_DELETING_GROUPS);
-      } else {
-        wsGroupSaveResults.assignResultCode(WsGroupSaveResultsCode.SUCCESS);
-      }
-    }
-    if (!"T".equalsIgnoreCase(wsGroupSaveResults.getResultMetadata().getSuccess())) {
-  
-      LOG.error(wsGroupSaveResults.getResultMetadata().getResultMessage());
-    }
-    return wsGroupSaveResults;
-  }
-
-  /**
-   * save a group (insert or update).  Note you cannot rename an existing group.
-   * 
-   * @see {@link Group#saveGroup(GrouperSession, String, String, String, String, boolean, boolean, boolean)}
-   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-   * @param groupName
-   *            to delete the group (mutually exclusive with groupUuid)
-   * @param groupUuid
-   *            to delete the group (mutually exclusive with groupName)
-   * @param description
-   *            of the group, empty will be ignored
-   * @param displayExtension
-   *            display name of the group, empty will be ignored
-   * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
-   * @param actAsSubjectId
-   *            optional: is the subject id of subject to act as (if
-   *            proxying). Only pass one of actAsSubjectId or
-   *            actAsSubjectIdentifer
-   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
-   * duplicates
-   * @param actAsSubjectIdentifier
-   *            optional: is the subject identifier of subject to act as (if
-   *            proxying). Only pass one of actAsSubjectId or
-   *            actAsSubjectIdentifer
-   * @param includeGroupDetail T or F as to if the group detail should be returned
-   * @param paramName0
-   *            reserved for future use
-   * @param paramValue0
-   *            reserved for future use
-   * @param paramName1
-   *            reserved for future use
-   * @param paramValue1
-   *            reserved for future use
-   * @return the result of one member add
-   */
-  public static WsGroupSaveResults groupSaveLite(final GrouperWsVersion clientVersion, String groupName,
-      String groupUuid, String description, String displayExtension, String saveMode,
-      String actAsSubjectId, String actAsSubjectSourceId,
-      String actAsSubjectIdentifier, final boolean includeGroupDetail, String paramName0, String paramValue0,
-      String paramName1, String paramValue1) {
-  
-    // setup the group lookup
-    WsGroupToSave wsGroupToSave = new WsGroupToSave(groupUuid, description,
-        displayExtension, saveMode, groupName);
-    WsGroupToSave[] wsGroupsToSave = new WsGroupToSave[] { wsGroupToSave };
-  
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
-        actAsSubjectSourceId, actAsSubjectIdentifier);
-  
-    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
-  
-    WsGroupSaveResults wsGroupSaveResults = groupSave(clientVersion, wsGroupsToSave,
-        actAsSubjectLookup, null, includeGroupDetail, params);
+    //this should be the first and only return, or else it is exiting too early
     return wsGroupSaveResults;
   }
 
@@ -2157,9 +2018,6 @@ public class GrouperServiceLogic {
                   wsStemSaveResult.setWsStem(new WsStem(stem));
                   wsStemSaveResult.assignResultCode(WsStemSaveResultCode.SUCCESS);
   
-                } catch (InsufficientPrivilegeException ipe) {
-                  wsStemSaveResult
-                      .assignResultCode(WsStemSaveResultCode.INSUFFICIENT_PRIVILEGES);
                 } catch (Exception e) {
                   wsStemSaveResult.assignResultCodeException(e, wsStemToSave);
                 }
@@ -2215,8 +2073,8 @@ public class GrouperServiceLogic {
    * @return the result of one member add
    */
   public static WsStemSaveLiteResult stemSaveLite(final GrouperWsVersion clientVersion,
-      String stemLookupUuid, String stemLookupName, String stemName, String stemUuid,
-      String description, String displayExtension, SaveMode saveMode,
+      String stemLookupUuid, String stemLookupName, String stemUuid, String stemName, 
+      String displayExtension, String description, SaveMode saveMode,
       String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
       String paramName1, String paramValue1) {
@@ -2251,268 +2109,17 @@ public class GrouperServiceLogic {
   }
 
   /**
-   * view or edit attributes for groups.  pass in attribute names and values (and if delete), if they are null, then 
-   * just view.  
+   * save a group (insert or update).  Note you cannot rename an existing group.
    * 
+   * @param groupLookupUuid the uuid of the group to save (mutually exclusive with groupLookupName), null for insert
+   * @param groupLookupName the name of the stam to save (mutually exclusive with groupLookupUuid), null for insert
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-   * @param wsGroupLookups
-   *            groups to save
-   * @param wsAttributeEdits are the attributes to change or delete
-   * @param actAsSubjectLookup
-   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
-   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
-   * are NONE (or blank), and READ_WRITE_NEW.
-   * @param params optional: reserved for future use
-   * @return the results
-   */
-  @SuppressWarnings("unchecked")
-  public static WsViewOrEditAttributesResults viewOrEditAttributes(final GrouperWsVersion clientVersion,
-      final WsGroupLookup[] wsGroupLookups, final WsAttributeEdit[] wsAttributeEdits,
-      final WsSubjectLookup actAsSubjectLookup, final GrouperTransactionType txType,
-      final WsParam[] params) {
-  
-    GrouperSession session = null;
-    int groupsSize = wsGroupLookups == null ? 0 : wsGroupLookups.length;
-  
-    WsViewOrEditAttributesResults wsViewOrEditAttributesResults = new WsViewOrEditAttributesResults();
-  
-    //convert the options to a map for easy access, and validate them
-    @SuppressWarnings("unused")
-    Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-        params);
-  
-    // see if greater than the max (or default)
-    int maxAttributeGroup = GrouperWsConfig.getPropertyInt(
-        GrouperWsConfig.WS_GROUP_ATTRIBUTE_MAX, 1000000);
-    if (groupsSize > maxAttributeGroup) {
-      wsViewOrEditAttributesResults
-          .assignResultCode(WsViewOrEditAttributesResultsCode.INVALID_QUERY);
-      wsViewOrEditAttributesResults.getResultMetadata().appendResultMessage(
-          "Number of groups must be less than max: " + maxAttributeGroup + " (sent in "
-              + groupsSize + ")");
-      return wsViewOrEditAttributesResults;
-    }
-  
-    // TODO make sure size of params and values the same
-  
-    //lets validate the attribute edits
-    boolean readOnly = wsAttributeEdits == null || wsAttributeEdits.length == 0;
-    if (!readOnly) {
-      for (WsAttributeEdit wsAttributeEdit : wsAttributeEdits) {
-        String errorMessage = wsAttributeEdit.validate();
-        if (errorMessage != null) {
-          wsViewOrEditAttributesResults
-              .assignResultCode(WsViewOrEditAttributesResultsCode.INVALID_QUERY);
-          wsViewOrEditAttributesResults.getResultMetadata().appendResultMessage(
-              errorMessage + ", " + wsAttributeEdit);
-        }
-      }
-    }
-  
-    // assume success
-    wsViewOrEditAttributesResults
-        .assignResultCode(WsViewOrEditAttributesResultsCode.SUCCESS);
-    Subject actAsSubject = null;
-    // TODO have common try/catch
-    try {
-      actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
-  
-      if (actAsSubject == null) {
-        // TODO make this a result code
-        throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
-      }
-  
-      // use this to be the user connected, or the user act-as
-      try {
-        session = GrouperSession.start(actAsSubject);
-      } catch (SessionException se) {
-        // TODO make this a result code
-        throw new RuntimeException("Problem with session for subject: " + actAsSubject,
-            se);
-      }
-  
-      int resultIndex = 0;
-  
-      wsViewOrEditAttributesResults
-          .setResults(new WsViewOrEditAttributesResult[groupsSize]);
-      GROUP_LOOP: for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
-        WsViewOrEditAttributesResult wsViewOrEditAttributesResult = new WsViewOrEditAttributesResult();
-        wsViewOrEditAttributesResults.getResults()[resultIndex++] = wsViewOrEditAttributesResult;
-        Group group = null;
-  
-        try {
-          wsViewOrEditAttributesResult.setGroupName(wsGroupLookup.getGroupName());
-          wsViewOrEditAttributesResult.setGroupUuid(wsGroupLookup.getUuid());
-  
-          //get the group
-          wsGroupLookup.retrieveGroupIfNeeded(session);
-          group = wsGroupLookup.retrieveGroup();
-          if (group == null) {
-            wsViewOrEditAttributesResult
-                .assignResultCode(WsViewOrEditAttributesResultCode.GROUP_NOT_FOUND);
-            wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
-                "Cant find group: '" + wsGroupLookup + "'.  ");
-            continue;
-          }
-  
-          group = wsGroupLookup.retrieveGroup();
-  
-          // these will probably match, but just in case
-          if (StringUtils.isBlank(wsViewOrEditAttributesResult.getGroupName())) {
-            wsViewOrEditAttributesResult.setGroupName(group.getName());
-          }
-          if (StringUtils.isBlank(wsViewOrEditAttributesResult.getGroupUuid())) {
-            wsViewOrEditAttributesResult.setGroupUuid(group.getUuid());
-          }
-  
-          //lets read them
-          Map<String, String> attributeMap = GrouperUtil.nonNull(group.getAttributes());
-  
-          //see if we are updating
-          if (!readOnly) {
-            for (WsAttributeEdit wsAttributeEdit : wsAttributeEdits) {
-              String attributeName = wsAttributeEdit.getName();
-              try {
-                //lets see if delete
-                if (wsAttributeEdit.deleteBoolean()) {
-                  //if its not there, dont bother
-                  if (attributeMap.containsKey(attributeName)) {
-                    group.deleteAttribute(attributeName);
-                    //update map
-                    attributeMap.remove(attributeName);
-                  }
-                } else {
-                  String attributeValue = wsAttributeEdit.getValue();
-                  //make sure it is different
-                  if (!StringUtils
-                      .equals(attributeValue, attributeMap.get(attributeName))) {
-                    //it is update
-                    group.setAttribute(attributeName, wsAttributeEdit.getValue());
-                    attributeMap.put(attributeName, attributeValue);
-                  }
-                }
-              } catch (AttributeNotFoundException anfe) {
-                wsViewOrEditAttributesResult
-                    .assignResultCode(WsViewOrEditAttributesResultCode.ATTRIBUTE_NOT_FOUND);
-                wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
-                    "Cant find attribute: " + attributeName);
-                //go to next group
-                continue GROUP_LOOP;
-  
-              }
-            }
-          }
-          //now take the attributes and put them in the result
-          if (attributeMap.size() > 0) {
-            int attributeIndex = 0;
-            WsAttribute[] attributes = new WsAttribute[attributeMap.size()];
-            wsViewOrEditAttributesResult.setAttributes(attributes);
-            //lookup each from map and return
-            for (String key : attributeMap.keySet()) {
-              WsAttribute wsAttribute = new WsAttribute();
-              attributes[attributeIndex++] = wsAttribute;
-              wsAttribute.setName(key);
-              wsAttribute.setValue(attributeMap.get(key));
-            }
-          }
-          wsViewOrEditAttributesResult.getResultMetadata().assignSuccess("T");
-          wsViewOrEditAttributesResult.getResultMetadata().assignResultCode("SUCCESS");
-          if (readOnly) {
-            wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
-                "Group '" + group.getName() + "' was queried.");
-          } else {
-            wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
-                "Group '" + group.getName() + "' had attributes edited.");
-          }
-        } catch (InsufficientPrivilegeException ipe) {
-          wsViewOrEditAttributesResult
-              .assignResultCode(WsViewOrEditAttributesResultCode.INSUFFICIENT_PRIVILEGES);
-          wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
-              "Error: insufficient privileges to view/edit attributes '"
-                  + wsGroupLookup.getGroupName() + "'");
-        } catch (Exception e) {
-          // lump the rest in there, group_add_exception, etc
-          wsViewOrEditAttributesResult
-              .assignResultCode(WsViewOrEditAttributesResultCode.EXCEPTION);
-          wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
-              ExceptionUtils.getFullStackTrace(e));
-          LOG.error(wsGroupLookup + ", " + e, e);
-        }
-      }
-  
-    } catch (RuntimeException re) {
-      wsViewOrEditAttributesResults
-          .assignResultCode(WsViewOrEditAttributesResultsCode.EXCEPTION);
-      String theError = "Problem view/edit attributes for groups: wsGroupLookup: "
-          + GrouperUtil.toStringForLog(wsGroupLookups) + ", attributeEdits: "
-          + GrouperUtil.toStringForLog(wsAttributeEdits) + ", actAsSubject: "
-          + actAsSubject + ".  \n" + "";
-      wsViewOrEditAttributesResults.getResultMetadata().appendResultMessage(theError);
-      // this is sent back to the caller anyway, so just log, and not send
-      // back again
-      LOG.error(theError + ", wsViewOrEditAttributesResults: "
-          + GrouperUtil.toStringForLog(wsViewOrEditAttributesResults), re);
-    } finally {
-      if (session != null) {
-        try {
-          session.stop();
-        } catch (Exception e) {
-          LOG.error(e.getMessage(), e);
-        }
-      }
-    }
-  
-    if (wsViewOrEditAttributesResults.getResults() != null) {
-      // check all entries
-      int successes = 0;
-      int failures = 0;
-      for (WsViewOrEditAttributesResult wsGroupSaveResult : wsViewOrEditAttributesResults
-          .getResults()) {
-        boolean success = "T".equalsIgnoreCase(wsGroupSaveResult == null ? null
-            : wsGroupSaveResult.getResultMetadata().getSuccess());
-        if (success) {
-          successes++;
-        } else {
-          failures++;
-        }
-      }
-      if (failures > 0) {
-        wsViewOrEditAttributesResults.getResultMetadata().appendResultMessage(
-            "There were " + successes + " successes and " + failures
-                + " failures of viewing/editing group attribues.   ");
-        wsViewOrEditAttributesResults
-            .assignResultCode(WsViewOrEditAttributesResultsCode.PROBLEM_WITH_GROUPS);
-      } else {
-        wsViewOrEditAttributesResults
-            .assignResultCode(WsViewOrEditAttributesResultsCode.SUCCESS);
-      }
-    }
-    if (!"T".equalsIgnoreCase(wsViewOrEditAttributesResults.getResultMetadata()
-        .getSuccess())) {
-  
-      LOG.error(wsViewOrEditAttributesResults.getResultMetadata().getResultMessage());
-    }
-    return wsViewOrEditAttributesResults;
-  }
-
-  /**
-   * view or edit attributes for group.  pass in attribute names and values (and if delete), if they are null, then 
-   * just view.  
-   * 
-   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-   * @param groupName
-   *            to delete the group (mutually exclusive with groupUuid)
-   * @param groupUuid
-   *            to delete the group (mutually exclusive with groupName)
-   * @param attributeName0 name of first attribute (optional)
-   * @param attributeValue0 value of first attribute (optional)
-   * @param attributeDelete0 if first attribute should be deleted (T|F) (optional)
-   * @param attributeName1 name of second attribute (optional)
-   * @param attributeValue1 value of second attribute (optional)
-   * @param attributeDelete1 if second attribute should be deleted (T|F) (optional)
-   * @param attributeName2 name of third attribute (optional)
-   * @param attributeValue2 value of third attribute (optional)
-   * @param attributeDelete2 if third attribute should be deleted (T|F) (optional)
+   * @see {@link Group#saveGroup(GrouperSession, String, String, String, String, boolean, boolean, boolean)}
+   * @param groupName data of group to save
+   * @param groupUuid uuid data of group to save
+   * @param description of the group
+   * @param displayExtension of the group
+   * @param saveMode if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
    * @param actAsSubjectId
    *            optional: is the subject id of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
@@ -2523,6 +2130,7 @@ public class GrouperServiceLogic {
    *            optional: is the subject identifier of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
    *            actAsSubjectIdentifer
+   * @param includeGroupDetail T or F as to if the group detail should be returned
    * @param paramName0
    *            reserved for future use
    * @param paramValue0
@@ -2533,600 +2141,919 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member add
    */
-  public static WsViewOrEditAttributesResults viewOrEditAttributesLite(
-      final GrouperWsVersion clientVersion, String groupName, String groupUuid,
-      String attributeName0, String attributeValue0, String attributeDelete0,
-      String attributeName1, String attributeValue1, String attributeDelete1,
-      String attributeName2, String attributeValue2, String attributeDelete2,
-      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
-      String paramName0, String paramValue0, String paramName1, String paramValue1) {
+  public static WsGroupSaveLiteResult groupSaveLite(final GrouperWsVersion clientVersion,
+      String groupLookupUuid, String groupLookupName, String groupUuid, String groupName, 
+      String displayExtension, String description, SaveMode saveMode,
+      String actAsSubjectId, String actAsSubjectSourceId,
+      String actAsSubjectIdentifier, boolean includeGroupDetail, String paramName0, String paramValue0,
+      String paramName1, String paramValue1) {
   
     // setup the group lookup
-    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
-    WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
+    WsGroupToSave wsGroupToSave = new WsGroupToSave();
   
-    //setup attributes
-    List<WsAttributeEdit> attributeEditList = new ArrayList<WsAttributeEdit>();
-    if (!StringUtils.isBlank(attributeName0) || !StringUtils.isBlank(attributeValue0)
-        || !StringUtils.isBlank(attributeDelete0)) {
-      attributeEditList.add(new WsAttributeEdit(attributeName0, attributeValue0,
-          attributeDelete0));
-    }
-    if (!StringUtils.isBlank(attributeName1) || !StringUtils.isBlank(attributeValue1)
-        || !StringUtils.isBlank(attributeDelete1)) {
-      attributeEditList.add(new WsAttributeEdit(attributeName1, attributeValue1,
-          attributeDelete1));
-    }
-    if (!StringUtils.isBlank(attributeName2) || !StringUtils.isBlank(attributeValue2)
-        || !StringUtils.isBlank(attributeDelete2)) {
-      attributeEditList.add(new WsAttributeEdit(attributeName2, attributeValue2,
-          attributeDelete2));
-    }
-    //convert to array
-    WsAttributeEdit[] wsAttributeEdits = GrouperUtil.toArray(attributeEditList,
-        WsAttributeEdit.class);
+    WsGroup wsGroup = new WsGroup();
+    wsGroup.setDescription(description);
+    wsGroup.setDisplayExtension(displayExtension);
+    wsGroup.setName(groupName);
+    wsGroup.setUuid(groupUuid);
+  
+    wsGroupToSave.setWsGroup(wsGroup);
+  
+    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupLookupName, groupLookupUuid);
+    wsGroupToSave.setWsGroupLookup(wsGroupLookup);
+  
+    wsGroupToSave.setSaveMode(saveMode == null ? null : saveMode.name());
+  
+    WsGroupToSave[] wsGroupsToSave = new WsGroupToSave[] { wsGroupToSave };
+  
     WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
         actAsSubjectSourceId, actAsSubjectIdentifier);
   
     WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
   
-    WsViewOrEditAttributesResults wsViewOrEditAttributesResults = viewOrEditAttributes(
-        clientVersion, wsGroupLookups, wsAttributeEdits, actAsSubjectLookup, null,
-        params);
+    WsGroupSaveResults wsGroupSaveResults = groupSave(clientVersion, wsGroupsToSave,
+        actAsSubjectLookup, null, includeGroupDetail, params);
   
-    return wsViewOrEditAttributesResults;
+    return new WsGroupSaveLiteResult(wsGroupSaveResults);
   }
 
-  /**
-   * If all privilege params are empty, then it is viewonly. If any are set,
-   * then the privileges will be set (and returned)
-   * 
-   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-   * @param wsGroupLookup
-   *            for group which is related to the privileges
-   * @param subjectLookups
-   *            subjects to be added to the group
-   * @param privileges is the array of privileges.  Each "allowed" field in there is either
-   *            T for allowed, F for not allowed, blank for unchanged
-   * @param actAsSubjectLookup
-   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
-   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
-   * are NONE (or blank), and READ_WRITE_NEW.
-   * @param params optional: reserved for future use
-   * @return the results
-   */
-  @SuppressWarnings("unchecked")
-  public static WsViewOrEditPrivilegesResults viewOrEditPrivileges(final GrouperWsVersion clientVersion,
-      final WsPrivilege[] privileges, final WsSubjectLookup actAsSubjectLookup,
-      GrouperTransactionType txType, final WsParam[] params) {
-  
-    final WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults = new WsViewOrEditPrivilegesResults();
-  
-    GrouperSession session = null;
-    String theSummary = null;
-    //    try {
-  
-    txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
-    @SuppressWarnings("unused")
-    final GrouperTransactionType TX_TYPE = txType;
-    
-    theSummary = "clientVersion: " + clientVersion + ", privileges: "
-        + GrouperUtil.toStringForLog(privileges, 300) + ", actAsSubject: "
-        + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
-        + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
-  
-    @SuppressWarnings("unused")
-    final String THE_SUMMARY = theSummary;
-  
-    //start session based on logged in user or the actAs passed in
-    session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
-  
-    @SuppressWarnings("unused")
-    final GrouperSession SESSION = session;
-  
-    //      //start a transaction (or not if none)
-    //      GrouperTransaction.callbackGrouperTransaction(grouperTransactionType,
-    //          new GrouperTransactionHandler() {
-    //
-    //            public Object callback(GrouperTransaction grouperTransaction)
-    //                throws GrouperDAOException {
-    //
-    //              //convert the options to a map for easy access, and validate them
-    //              @SuppressWarnings("unused")
-    //              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-    //                  params);
-    //
-    //              int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
-    //                  subjectLookups, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
-    //
-    //              Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
-    //
-    //              boolean includeGroupDetail = GrouperServiceUtils.booleanValue(
-    //                  includeGroupDetail, false, "includeGroupDetail");
-    //
-    //              //assign the group to the result to be descriptive
-    //              wsViewOrEditPrivilegesResults.setWsGroupAssigned(new WsGroup(group,
-    //                  includeGroupDetail));
-    //
-    //              int resultIndex = 0;
-    //
-    //              boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanValue(
-    //                  replaceAllExisting, false, "replaceAllExisting");
-    //
-    //              Set<Subject> newSubjects = new HashSet<Subject>();
-    //              wsViewOrEditPrivilegesResults.setResults(new WsAddMemberResult[subjectLength]);
-    //
-    //              //get the field or null or invalid query exception
-    //              Field field = GrouperServiceUtils.retrieveField(fieldName);
-    //
-    //              //get existing members if replacing
-    //              Set<Member> members = null;
-    //              if (replaceAllExistingBoolean) {
-    //                try {
-    //                  // see who is there
-    //                  members = field == null ? group.getImmediateMembers() : group
-    //                      .getImmediateMembers(field);
-    //                } catch (SchemaException se) {
-    //                  throw new WsInvalidQueryException(
-    //                      "Problem with getting existing members: " + fieldName + ".  "
-    //                          + ExceptionUtils.getFullStackTrace(se));
-    //                }
-    //              }
-    //
-    //              for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
-    //                WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
-    //                wsViewOrEditPrivilegesResults.getResults()[resultIndex++] = wsAddMemberResult;
-    //                try {
-    //
-    //                  Subject subject = wsSubjectLookup.retrieveSubject();
-    //
-    //                  wsAddMemberResult.processSubject(wsSubjectLookup);
-    //
-    //                  if (subject == null) {
-    //                    continue;
-    //                  }
-    //
-    //                  // keep track
-    //                  if (replaceAllExistingBoolean) {
-    //                    newSubjects.add(subject);
-    //                  }
-    //
-    //                  try {
-    //                    if (field != null) {
-    //                      // dont fail if already a direct member
-    //                      group.addMember(subject, false);
-    //                    } else {
-    //                      group.addMember(subject, field, false);
-    //                    }
-    //                    wsAddMemberResult.assignResultCode(WsAddMemberResultCode.SUCCESS);
-    //
-    //                  } catch (InsufficientPrivilegeException ipe) {
-    //                    wsAddMemberResult
-    //                        .assignResultCode(WsAddMemberResultCode.INSUFFICIENT_PRIVILEGES);
-    //                  }
-    //                } catch (Exception e) {
-    //                  wsAddMemberResult.assignResultCodeException(e, wsSubjectLookup);
-    //                }
-    //              }
-    //
-    //              // after adding all these, see if we are removing:
-    //              if (replaceAllExistingBoolean) {
-    //
-    //                for (Member member : members) {
-    //                  Subject subject = null;
-    //                  try {
-    //                    subject = member.getSubject();
-    //
-    //                    if (!newSubjects.contains(subject)) {
-    //                      if (field == null) {
-    //                        group.deleteMember(subject);
-    //                      } else {
-    //                        group.deleteMember(subject, field);
-    //                      }
-    //                    }
-    //                  } catch (Exception e) {
-    //                    String theError = "Error deleting subject: " + subject
-    //                        + " from group: " + group + ", field: " + field + ", " + e
-    //                        + ".  ";
-    //                    wsViewOrEditPrivilegesResults.assignResultCodeException(
-    //                        WsAddMemberResultsCode.PROBLEM_DELETING_MEMBERS, theError, e);
-    //                  }
-    //                }
-    //              }
-    //              //see if any inner failures cause the whole tx to fail, and/or change the outer status
-    //              if (!wsViewOrEditPrivilegesResults.tallyResults(grouperTransactionType, THE_SUMMARY)) {
-    //                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
-    //              }
-    //                
-    //
-    //              return wsViewOrEditPrivilegesResults;
-    //
-    //            }
-    //
-    //          });
-    //    } catch (Exception e) {
-    //      wsViewOrEditPrivilegesResults.assignResultCodeException(null, theSummary, e);
-    //    } finally {
-    //      GrouperSession.stopQuietly(session);
-    //    }
-    //
-    //
-    //    //this should be the first and only return, or else it is exiting too early
-    //    return wsViewOrEditPrivilegesResults;
-    //
-    //
-    //    
-    //    
-    //    GrouperTransactionType grouperTransactionType = null;
-    //
-    //    //convert the options to a map for easy access, and validate them
-    //    @SuppressWarnings("unused")
-    //    Map<String, String> paramMap = null;
-    //    try {
-    //      paramMap = GrouperServiceUtils.convertParamsToMap(params);
-    //    } catch (Exception e) {
-    //      wsViewOrEditPrivilegesResults
-    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
-    //      wsViewOrEditPrivilegesResults.getResultMetadata().setResultMessage("Invalid params: " + e.getMessage());
-    //      return wsViewOrEditPrivilegesResults;
-    //    }
-    //
-    //    try {
-    //      grouperTransactionType = GrouperUtil.defaultIfNull(GrouperTransactionType
-    //          .valueOfIgnoreCase(txType), GrouperTransactionType.NONE);
-    //    } catch (Exception e) {
-    //      //a helpful exception will probably be in the getMessage()
-    //      wsViewOrEditPrivilegesResults
-    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
-    //      wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage("Invalid txType: '" + txType
-    //          + "', " + e.getMessage());
-    //      return wsViewOrEditPrivilegesResults;
-    //    }
-    //
-    //    int subjectLength = subjectLookups == null ? 0 : subjectLookups.length;
-    //    if (subjectLength == 0) {
-    //      wsViewOrEditPrivilegesResults
-    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
-    //      wsViewOrEditPrivilegesResults
-    //          .getResultMetadata().appendResultMessage("Subject length must be more than 1");
-    //      return wsViewOrEditPrivilegesResults;
-    //    }
-    //
-    //    // see if greater than the max (or default)
-    //    int maxSavePrivileges = GrouperWsConfig.getPropertyInt(
-    //        GrouperWsConfig.WS_VIEW_OR_EDIT_PRIVILEGES_SUBJECTS_MAX, 1000000);
-    //    if (subjectLength > maxSavePrivileges) {
-    //      wsViewOrEditPrivilegesResults
-    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
-    //      wsViewOrEditPrivilegesResults
-    //          .getResultMetadata().appendResultMessage("Subject length must be less than max: "
-    //              + maxSavePrivileges + " (sent in " + subjectLength + ")");
-    //      return wsViewOrEditPrivilegesResults;
-    //    }
-    //
-    //    // TODO make sure size of params and values the same
-    //
-    //    // assume success
-    //    wsViewOrEditPrivilegesResults
-    //        .assignResultCode(WsViewOrEditPrivilegesResultsCode.SUCCESS);
-    //    Subject actAsSubject = null;
-    //    try {
-    //      actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
-    //
-    //      if (actAsSubject == null) {
-    //        throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
-    //      }
-    //
-    //      // use this to be the user connected, or the user act-as
-    //      try {
-    //        session = GrouperSession.start(actAsSubject);
-    //      } catch (SessionException se) {
-    //        throw new RuntimeException("Problem with session for subject: " + actAsSubject,
-    //            se);
-    //      }
-    //      wsGroupLookup.retrieveGroupIfNeeded(session);
-    //      Group group = wsGroupLookup.retrieveGroup();
-    //
-    //      if (group == null) {
-    //        wsViewOrEditPrivilegesResults
-    //            .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
-    //        wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage("Cant find group: "
-    //            + wsGroupLookup + ".  ");
-    //        return wsViewOrEditPrivilegesResults;
-    //      }
-    //      List<Privilege> privilegesToAssign = new ArrayList<Privilege>();
-    //
-    //      List<Privilege> privilegesToRevoke = new ArrayList<Privilege>();
-    //
-    //      // process the privilege inputs, keep in lists, handle invalid
-    //      // queries
-    //      if (!GrouperServiceUtils.processPrivilegesHelper(adminAllowed, "adminAllowed",
-    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.ADMIN,
-    //          wsViewOrEditPrivilegesResults)) {
-    //        return wsViewOrEditPrivilegesResults;
-    //      }
-    //      if (!GrouperServiceUtils.processPrivilegesHelper(optinAllowed, "optinAllowed",
-    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.OPTIN,
-    //          wsViewOrEditPrivilegesResults)) {
-    //        return wsViewOrEditPrivilegesResults;
-    //      }
-    //      if (!GrouperServiceUtils.processPrivilegesHelper(optoutAllowed, "optoutAllowed",
-    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.OPTOUT,
-    //          wsViewOrEditPrivilegesResults)) {
-    //        return wsViewOrEditPrivilegesResults;
-    //      }
-    //      if (!GrouperServiceUtils.processPrivilegesHelper(readAllowed, "readAllowed",
-    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.READ,
-    //          wsViewOrEditPrivilegesResults)) {
-    //        return wsViewOrEditPrivilegesResults;
-    //      }
-    //      if (!GrouperServiceUtils.processPrivilegesHelper(updateAllowed, "updateAllowed",
-    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.UPDATE,
-    //          wsViewOrEditPrivilegesResults)) {
-    //        return wsViewOrEditPrivilegesResults;
-    //      }
-    //      if (!GrouperServiceUtils.processPrivilegesHelper(viewAllowed, "viewAllowed",
-    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.VIEW,
-    //          wsViewOrEditPrivilegesResults)) {
-    //        return wsViewOrEditPrivilegesResults;
-    //      }
-    //
-    //      int resultIndex = 0;
-    //
-    //      wsViewOrEditPrivilegesResults
-    //          .setResults(new WsViewOrEditPrivilegesResult[subjectLength]);
-    //
-    //      for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
-    //        WsPrivilege wsPrivilege = new WsPrivilege();
-    //        WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult = new WsViewOrEditPrivilegesResult();
-    //        wsViewOrEditPrivilegesResults.getResults()[resultIndex++] = wsViewOrEditPrivilegesResult;
-    //        wsViewOrEditPrivilegesResult.setWsPrivilege(wsPrivilege);
-    //        try {
-    //          wsPrivilege.setSubjectId(wsSubjectLookup.getSubjectId());
-    //          wsPrivilege.setSubjectIdentifier(wsSubjectLookup
-    //              .getSubjectIdentifier());
-    //
-    //          Subject subject = wsSubjectLookup.retrieveSubject();
-    //
-    //          // make sure the subject is there
-    //          if (subject == null) {
-    //            // see why not
-    //            SubjectFindResult subjectFindResult = wsSubjectLookup
-    //                .retrieveSubjectFindResult();
-    //            String error = "Subject: " + wsSubjectLookup + " had problems: "
-    //                + subjectFindResult;
-    //            wsViewOrEditPrivilegesResult.getResultMetadata().setResultMessage(error);
-    //            if (SubjectFindResult.SUBJECT_NOT_FOUND.equals(subjectFindResult)) {
-    //              wsViewOrEditPrivilegesResult
-    //                  .assignResultCode(WsViewOrEditPrivilegesResultCode.SUBJECT_NOT_FOUND);
-    //              continue;
-    //            }
-    //            if (SubjectFindResult.SUBJECT_DUPLICATE.equals(subjectFindResult)) {
-    //              wsViewOrEditPrivilegesResult
-    //                  .assignResultCode(WsViewOrEditPrivilegesResultCode.SUBJECT_DUPLICATE);
-    //              continue;
-    //            }
-    //            throw new NullPointerException(error);
-    //          }
-    //
-    //          // these will probably match, but just in case
-    //          if (StringUtils.isBlank(wsPrivilege.getSubjectId())) {
-    //            wsPrivilege.setSubjectId(subject.getId());
-    //          }
-    //
-    //          try {
-    //            // lets get all the privileges for the group and user
-    //            Set<AccessPrivilege> accessPrivileges = GrouperUtil.nonNull(group
-    //                .getPrivs(subject));
-    //
-    //            // TODO keep track of isRevokable? Also, can you remove
-    //            // a read priv? I tried and got exception
-    //
-    //            // see what we really need to do. At the end, the
-    //            // currentAccessPrivileges should be what it looks like
-    //            // afterward
-    //            // (add in assignments, remove revokes),
-    //            // the privilegestoAssign will be what to assign (take
-    //            // out what is already there)
-    //            Set<Privilege> currentPrivilegesSet = GrouperServiceUtils
-    //                .convertAccessPrivilegesToPrivileges(accessPrivileges);
-    //
-    //            List<Privilege> privilegesToAssignToThisSubject = new ArrayList<Privilege>(
-    //                privilegesToAssign);
-    //            List<Privilege> privilegesToRevokeFromThisSubject = new ArrayList<Privilege>(
-    //                privilegesToRevoke);
-    //
-    //            // dont assign ones already in there
-    //            privilegesToAssignToThisSubject.removeAll(currentPrivilegesSet);
-    //            // dont revoke ones not in there
-    //            privilegesToRevokeFromThisSubject.retainAll(currentPrivilegesSet);
-    //            // assign
-    //            for (Privilege privilegeToAssign : privilegesToAssignToThisSubject) {
-    //              group.grantPriv(subject, privilegeToAssign);
-    //            }
-    //            // revoke
-    //            for (Privilege privilegeToRevoke : privilegesToRevokeFromThisSubject) {
-    //              group.revokePriv(subject, privilegeToRevoke);
-    //            }
-    //            // reset the current privileges set to reflect the new
-    //            // state
-    //            currentPrivilegesSet.addAll(privilegesToAssignToThisSubject);
-    //            currentPrivilegesSet.removeAll(privilegesToRevokeFromThisSubject);
-    //
-    //            wsPrivilege.setAdminAllowed(GrouperServiceUtils
-    //                .booleanToStringOneChar(currentPrivilegesSet
-    //                    .contains(AccessPrivilege.ADMIN)));
-    //            wsPrivilege.setOptinAllowed(GrouperServiceUtils
-    //                .booleanToStringOneChar(currentPrivilegesSet
-    //                    .contains(AccessPrivilege.OPTIN)));
-    //            wsPrivilege.setOptoutAllowed(GrouperServiceUtils
-    //                .booleanToStringOneChar(currentPrivilegesSet
-    //                    .contains(AccessPrivilege.OPTOUT)));
-    //            wsPrivilege.setReadAllowed(GrouperServiceUtils
-    //                .booleanToStringOneChar(currentPrivilegesSet
-    //                    .contains(AccessPrivilege.READ)));
-    //            wsPrivilege.setViewAllowed(GrouperServiceUtils
-    //                .booleanToStringOneChar(currentPrivilegesSet
-    //                    .contains(AccessPrivilege.VIEW)));
-    //            wsPrivilege.setUpdateAllowed(GrouperServiceUtils
-    //                .booleanToStringOneChar(currentPrivilegesSet
-    //                    .contains(AccessPrivilege.UPDATE)));
-    //
-    //            wsViewOrEditPrivilegesResult
-    //                .assignResultCode(WsViewOrEditPrivilegesResultCode.SUCCESS);
-    //          } catch (InsufficientPrivilegeException ipe) {
-    //            wsViewOrEditPrivilegesResult
-    //                .assignResultCode(WsViewOrEditPrivilegesResultCode.INSUFFICIENT_PRIVILEGES);
-    //            wsViewOrEditPrivilegesResult.getResultMetadata().setResultMessage(ExceptionUtils
-    //                .getFullStackTrace(ipe));
-    //          }
-    //        } catch (Exception e) {
-    //          wsViewOrEditPrivilegesResult.getResultMetadata().setResultCode("EXCEPTION");
-    //          wsViewOrEditPrivilegesResult.getResultMetadata().setResultMessage(ExceptionUtils
-    //              .getFullStackTrace(e));
-    //          LOG.error(wsSubjectLookup + ", " + e, e);
-    //        }
-    //
-    //      }
-    //    } catch (RuntimeException re) {
-    //      wsViewOrEditPrivilegesResults
-    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.EXCEPTION);
-    //      String theError = "Problem with privileges for member and group: wsGroupLookup: "
-    //          + wsGroupLookup + ", subjectLookups: "
-    //          + GrouperUtil.toStringForLog(subjectLookups) + ", actAsSubject: "
-    //          + actAsSubject + ", admin: '" + adminAllowed + "', optin: '" + optinAllowed
-    //          + "', optout: '" + optoutAllowed + "', read: '" + readAllowed + "', update: '"
-    //          + updateAllowed + "', view: '" + viewAllowed + ".  ";
-    //      wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage(theError + "\n"
-    //          + ExceptionUtils.getFullStackTrace(re));
-    //      // this is sent back to the caller anyway, so just log, and not send
-    //      // back again
-    //      LOG.error(theError + ", wsViewOrEditPrivilegesResults: "
-    //          + GrouperUtil.toStringForLog(wsViewOrEditPrivilegesResults), re);
-    //    } finally {
-    //      if (session != null) {
-    //        try {
-    //          session.stop();
-    //        } catch (Exception e) {
-    //          LOG.error(e.getMessage(), e);
-    //        }
-    //      }
-    //    }
-    //
-    //    if (wsViewOrEditPrivilegesResults.getResults() != null) {
-    //      // check all entries
-    //      int successes = 0;
-    //      int failures = 0;
-    //      for (WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult : wsViewOrEditPrivilegesResults
-    //          .getResults()) {
-    //        boolean success = "T".equalsIgnoreCase(wsViewOrEditPrivilegesResult.getResultMetadata().getSuccess());
-    //        if (success) {
-    //          successes++;
-    //        } else {
-    //          failures++;
-    //        }
-    //      }
-    //      if (failures > 0) {
-    //        wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage("There were " + successes
-    //            + " successes and " + failures
-    //            + " failures of user group privileges operations.   ");
-    //        wsViewOrEditPrivilegesResults
-    //            .assignResultCode(WsViewOrEditPrivilegesResultsCode.PROBLEM_WITH_MEMBERS);
-    //      } else {
-    //        wsViewOrEditPrivilegesResults
-    //            .assignResultCode(WsViewOrEditPrivilegesResultsCode.SUCCESS);
-    //      }
-    //    }
-    //    if (!"T".equalsIgnoreCase(wsViewOrEditPrivilegesResults.getResultMetadata().getSuccess())) {
-    //
-    //      LOG.error(wsViewOrEditPrivilegesResults.getResultMetadata().getResultMessage());
-    //    }
-    return wsViewOrEditPrivilegesResults;
-  }
-
-  /**
-   * If all privilege params are empty, then it is viewonly. If any are set,
-   * then the privileges will be set (and returned)
-   * 
-   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
-   * @param groupName
-   *            to lookup the group (mutually exclusive with groupUuid)
-   * @param groupUuid
-   *            to lookup the group (mutually exclusive with groupName)
-   * @param subjectId
-   *            to assign (mutually exclusive with subjectIdentifier)
-   * @param subjectSourceId is source of subject to narrow the result and prevent
-   * duplicates
-   * @param subjectIdentifier
-   *            to assign (mutually exclusive with subjectId)
-   * @param adminAllowed
-   *            T for allowed, F for not allowed, blank for unchanged
-   * @param optinAllowed
-   *            T for allowed, F for not allowed, blank for unchanged
-   * @param optoutAllowed
-   *            T for allowed, F for not allowed, blank for unchanged
-   * @param readAllowed
-   *            T for allowed, F for not allowed, blank for unchanged
-   * @param viewAllowed
-   *            T for allowed, F for not allowed, blank for unchanged
-   * @param updateAllowed
-   *            T for allowed, F for not allowed, blank for unchanged
-   * @param actAsSubjectId
-   *            optional: is the subject id of subject to act as (if
-   *            proxying). Only pass one of actAsSubjectId or
-   *            actAsSubjectIdentifer
-   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
-   * duplicates
-   * @param actAsSubjectIdentifier
-   *            optional: is the subject identifier of subject to act as (if
-   *            proxying). Only pass one of actAsSubjectId or
-   *            actAsSubjectIdentifer
-   * @param paramName0
-   *            reserved for future use
-   * @param paramValue0
-   *            reserved for future use
-   * @param paramName1
-   *            reserved for future use
-   * @param paramValue1
-   *            reserved for future use
-   * @return the result of one member add
-   */
-  public static WsViewOrEditPrivilegesResults viewOrEditPrivilegesLite(
-      final GrouperWsVersion clientVersion, String groupName, String groupUuid, String subjectId,
-      String subjectSourceId, String subjectIdentifier, String adminAllowed,
-      String optinAllowed, String optoutAllowed, String readAllowed,
-      String updateAllowed, String viewAllowed, String actAsSubjectId,
-      String actAsSubjectSourceId, String actAsSubjectIdentifier, String paramName0,
-      String paramValue0, String paramName1, String paramValue1) {
-  
-    // setup the group lookup
-    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
-  
-    // setup the subject lookup
-    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup(subjectId, subjectSourceId,
-        subjectIdentifier);
-    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
-        actAsSubjectSourceId, actAsSubjectIdentifier);
-  
-    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
-  
-    WsPrivilege wsPrivilege = new WsPrivilege();
-    wsPrivilege.setSubjectLookup(wsSubjectLookup);
-    wsPrivilege.setWsGroupLookup(wsGroupLookup);
-    wsPrivilege.setAdminAllowed(adminAllowed);
-    wsPrivilege.setOptinAllowed(optinAllowed);
-    wsPrivilege.setOptoutAllowed(optoutAllowed);
-    wsPrivilege.setReadAllowed(readAllowed);
-    wsPrivilege.setUpdateAllowed(updateAllowed);
-    wsPrivilege.setViewAllowed(viewAllowed);
-  
-    WsPrivilege[] wsPrivileges = { wsPrivilege };
-  
-    WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults = viewOrEditPrivileges(
-        clientVersion, wsPrivileges, actAsSubjectLookup, null, params);
-  
-    return wsViewOrEditPrivilegesResults;
-  
-  }
+//  /**
+//   * view or edit attributes for groups.  pass in attribute names and values (and if delete), if they are null, then 
+//   * just view.  
+//   * 
+//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+//   * @param wsGroupLookups
+//   *            groups to save
+//   * @param wsAttributeEdits are the attributes to change or delete
+//   * @param actAsSubjectLookup
+//   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+//   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+//   * are NONE (or blank), and READ_WRITE_NEW.
+//   * @param params optional: reserved for future use
+//   * @return the results
+//   */
+//  @SuppressWarnings("unchecked")
+//  public static WsViewOrEditAttributesResults viewOrEditAttributes(final GrouperWsVersion clientVersion,
+//      final WsGroupLookup[] wsGroupLookups, final WsAttributeEdit[] wsAttributeEdits,
+//      final WsSubjectLookup actAsSubjectLookup, final GrouperTransactionType txType,
+//      final WsParam[] params) {
+//  
+//    GrouperSession session = null;
+//    int groupsSize = wsGroupLookups == null ? 0 : wsGroupLookups.length;
+//  
+//    WsViewOrEditAttributesResults wsViewOrEditAttributesResults = new WsViewOrEditAttributesResults();
+//  
+//    //convert the options to a map for easy access, and validate them
+//    @SuppressWarnings("unused")
+//    Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+//        params);
+//  
+//    // see if greater than the max (or default)
+//    int maxAttributeGroup = GrouperWsConfig.getPropertyInt(
+//        GrouperWsConfig.WS_GROUP_ATTRIBUTE_MAX, 1000000);
+//    if (groupsSize > maxAttributeGroup) {
+//      wsViewOrEditAttributesResults
+//          .assignResultCode(WsViewOrEditAttributesResultsCode.INVALID_QUERY);
+//      wsViewOrEditAttributesResults.getResultMetadata().appendResultMessage(
+//          "Number of groups must be less than max: " + maxAttributeGroup + " (sent in "
+//              + groupsSize + ")");
+//      return wsViewOrEditAttributesResults;
+//    }
+//  
+//    // TODO make sure size of params and values the same
+//  
+//    //lets validate the attribute edits
+//    boolean readOnly = wsAttributeEdits == null || wsAttributeEdits.length == 0;
+//    if (!readOnly) {
+//      for (WsAttributeEdit wsAttributeEdit : wsAttributeEdits) {
+//        String errorMessage = wsAttributeEdit.validate();
+//        if (errorMessage != null) {
+//          wsViewOrEditAttributesResults
+//              .assignResultCode(WsViewOrEditAttributesResultsCode.INVALID_QUERY);
+//          wsViewOrEditAttributesResults.getResultMetadata().appendResultMessage(
+//              errorMessage + ", " + wsAttributeEdit);
+//        }
+//      }
+//    }
+//  
+//    // assume success
+//    wsViewOrEditAttributesResults
+//        .assignResultCode(WsViewOrEditAttributesResultsCode.SUCCESS);
+//    Subject actAsSubject = null;
+//    // TODO have common try/catch
+//    try {
+//      actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
+//  
+//      if (actAsSubject == null) {
+//        // TODO make this a result code
+//        throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+//      }
+//  
+//      // use this to be the user connected, or the user act-as
+//      try {
+//        session = GrouperSession.start(actAsSubject);
+//      } catch (SessionException se) {
+//        // TODO make this a result code
+//        throw new RuntimeException("Problem with session for subject: " + actAsSubject,
+//            se);
+//      }
+//  
+//      int resultIndex = 0;
+//  
+//      wsViewOrEditAttributesResults
+//          .setResults(new WsViewOrEditAttributesResult[groupsSize]);
+//      GROUP_LOOP: for (WsGroupLookup wsGroupLookup : wsGroupLookups) {
+//        WsViewOrEditAttributesResult wsViewOrEditAttributesResult = new WsViewOrEditAttributesResult();
+//        wsViewOrEditAttributesResults.getResults()[resultIndex++] = wsViewOrEditAttributesResult;
+//        Group group = null;
+//  
+//        try {
+//          wsViewOrEditAttributesResult.setGroupName(wsGroupLookup.getGroupName());
+//          wsViewOrEditAttributesResult.setGroupUuid(wsGroupLookup.getUuid());
+//  
+//          //get the group
+//          wsGroupLookup.retrieveGroupIfNeeded(session);
+//          group = wsGroupLookup.retrieveGroup();
+//          if (group == null) {
+//            wsViewOrEditAttributesResult
+//                .assignResultCode(WsViewOrEditAttributesResultCode.GROUP_NOT_FOUND);
+//            wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
+//                "Cant find group: '" + wsGroupLookup + "'.  ");
+//            continue;
+//          }
+//  
+//          group = wsGroupLookup.retrieveGroup();
+//  
+//          // these will probably match, but just in case
+//          if (StringUtils.isBlank(wsViewOrEditAttributesResult.getGroupName())) {
+//            wsViewOrEditAttributesResult.setGroupName(group.getName());
+//          }
+//          if (StringUtils.isBlank(wsViewOrEditAttributesResult.getGroupUuid())) {
+//            wsViewOrEditAttributesResult.setGroupUuid(group.getUuid());
+//          }
+//  
+//          //lets read them
+//          Map<String, String> attributeMap = GrouperUtil.nonNull(group.getAttributes());
+//  
+//          //see if we are updating
+//          if (!readOnly) {
+//            for (WsAttributeEdit wsAttributeEdit : wsAttributeEdits) {
+//              String attributeName = wsAttributeEdit.getName();
+//              try {
+//                //lets see if delete
+//                if (wsAttributeEdit.deleteBoolean()) {
+//                  //if its not there, dont bother
+//                  if (attributeMap.containsKey(attributeName)) {
+//                    group.deleteAttribute(attributeName);
+//                    //update map
+//                    attributeMap.remove(attributeName);
+//                  }
+//                } else {
+//                  String attributeValue = wsAttributeEdit.getValue();
+//                  //make sure it is different
+//                  if (!StringUtils
+//                      .equals(attributeValue, attributeMap.get(attributeName))) {
+//                    //it is update
+//                    group.setAttribute(attributeName, wsAttributeEdit.getValue());
+//                    attributeMap.put(attributeName, attributeValue);
+//                  }
+//                }
+//              } catch (AttributeNotFoundException anfe) {
+//                wsViewOrEditAttributesResult
+//                    .assignResultCode(WsViewOrEditAttributesResultCode.ATTRIBUTE_NOT_FOUND);
+//                wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
+//                    "Cant find attribute: " + attributeName);
+//                //go to next group
+//                continue GROUP_LOOP;
+//  
+//              }
+//            }
+//          }
+//          //now take the attributes and put them in the result
+//          if (attributeMap.size() > 0) {
+//            int attributeIndex = 0;
+//            WsAttribute[] attributes = new WsAttribute[attributeMap.size()];
+//            wsViewOrEditAttributesResult.setAttributes(attributes);
+//            //lookup each from map and return
+//            for (String key : attributeMap.keySet()) {
+//              WsAttribute wsAttribute = new WsAttribute();
+//              attributes[attributeIndex++] = wsAttribute;
+//              wsAttribute.setName(key);
+//              wsAttribute.setValue(attributeMap.get(key));
+//            }
+//          }
+//          wsViewOrEditAttributesResult.getResultMetadata().assignSuccess("T");
+//          wsViewOrEditAttributesResult.getResultMetadata().assignResultCode("SUCCESS");
+//          if (readOnly) {
+//            wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
+//                "Group '" + group.getName() + "' was queried.");
+//          } else {
+//            wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
+//                "Group '" + group.getName() + "' had attributes edited.");
+//          }
+//        } catch (InsufficientPrivilegeException ipe) {
+//          wsViewOrEditAttributesResult
+//              .assignResultCode(WsViewOrEditAttributesResultCode.INSUFFICIENT_PRIVILEGES);
+//          wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
+//              "Error: insufficient privileges to view/edit attributes '"
+//                  + wsGroupLookup.getGroupName() + "'");
+//        } catch (Exception e) {
+//          // lump the rest in there, group_add_exception, etc
+//          wsViewOrEditAttributesResult
+//              .assignResultCode(WsViewOrEditAttributesResultCode.EXCEPTION);
+//          wsViewOrEditAttributesResult.getResultMetadata().setResultMessage(
+//              ExceptionUtils.getFullStackTrace(e));
+//          LOG.error(wsGroupLookup + ", " + e, e);
+//        }
+//      }
+//  
+//    } catch (RuntimeException re) {
+//      wsViewOrEditAttributesResults
+//          .assignResultCode(WsViewOrEditAttributesResultsCode.EXCEPTION);
+//      String theError = "Problem view/edit attributes for groups: wsGroupLookup: "
+//          + GrouperUtil.toStringForLog(wsGroupLookups) + ", attributeEdits: "
+//          + GrouperUtil.toStringForLog(wsAttributeEdits) + ", actAsSubject: "
+//          + actAsSubject + ".  \n" + "";
+//      wsViewOrEditAttributesResults.getResultMetadata().appendResultMessage(theError);
+//      // this is sent back to the caller anyway, so just log, and not send
+//      // back again
+//      LOG.error(theError + ", wsViewOrEditAttributesResults: "
+//          + GrouperUtil.toStringForLog(wsViewOrEditAttributesResults), re);
+//    } finally {
+//      if (session != null) {
+//        try {
+//          session.stop();
+//        } catch (Exception e) {
+//          LOG.error(e.getMessage(), e);
+//        }
+//      }
+//    }
+//  
+//    if (wsViewOrEditAttributesResults.getResults() != null) {
+//      // check all entries
+//      int successes = 0;
+//      int failures = 0;
+//      for (WsViewOrEditAttributesResult wsGroupSaveResult : wsViewOrEditAttributesResults
+//          .getResults()) {
+//        boolean success = "T".equalsIgnoreCase(wsGroupSaveResult == null ? null
+//            : wsGroupSaveResult.getResultMetadata().getSuccess());
+//        if (success) {
+//          successes++;
+//        } else {
+//          failures++;
+//        }
+//      }
+//      if (failures > 0) {
+//        wsViewOrEditAttributesResults.getResultMetadata().appendResultMessage(
+//            "There were " + successes + " successes and " + failures
+//                + " failures of viewing/editing group attribues.   ");
+//        wsViewOrEditAttributesResults
+//            .assignResultCode(WsViewOrEditAttributesResultsCode.PROBLEM_WITH_GROUPS);
+//      } else {
+//        wsViewOrEditAttributesResults
+//            .assignResultCode(WsViewOrEditAttributesResultsCode.SUCCESS);
+//      }
+//    }
+//    if (!"T".equalsIgnoreCase(wsViewOrEditAttributesResults.getResultMetadata()
+//        .getSuccess())) {
+//  
+//      LOG.error(wsViewOrEditAttributesResults.getResultMetadata().getResultMessage());
+//    }
+//    return wsViewOrEditAttributesResults;
+//  }
+//
+//  /**
+//   * view or edit attributes for group.  pass in attribute names and values (and if delete), if they are null, then 
+//   * just view.  
+//   * 
+//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+//   * @param groupName
+//   *            to delete the group (mutually exclusive with groupUuid)
+//   * @param groupUuid
+//   *            to delete the group (mutually exclusive with groupName)
+//   * @param attributeName0 name of first attribute (optional)
+//   * @param attributeValue0 value of first attribute (optional)
+//   * @param attributeDelete0 if first attribute should be deleted (T|F) (optional)
+//   * @param attributeName1 name of second attribute (optional)
+//   * @param attributeValue1 value of second attribute (optional)
+//   * @param attributeDelete1 if second attribute should be deleted (T|F) (optional)
+//   * @param attributeName2 name of third attribute (optional)
+//   * @param attributeValue2 value of third attribute (optional)
+//   * @param attributeDelete2 if third attribute should be deleted (T|F) (optional)
+//   * @param actAsSubjectId
+//   *            optional: is the subject id of subject to act as (if
+//   *            proxying). Only pass one of actAsSubjectId or
+//   *            actAsSubjectIdentifer
+//   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+//   * duplicates
+//   * @param actAsSubjectIdentifier
+//   *            optional: is the subject identifier of subject to act as (if
+//   *            proxying). Only pass one of actAsSubjectId or
+//   *            actAsSubjectIdentifer
+//   * @param paramName0
+//   *            reserved for future use
+//   * @param paramValue0
+//   *            reserved for future use
+//   * @param paramName1
+//   *            reserved for future use
+//   * @param paramValue1
+//   *            reserved for future use
+//   * @return the result of one member add
+//   */
+//  public static WsViewOrEditAttributesResults viewOrEditAttributesLite(
+//      final GrouperWsVersion clientVersion, String groupName, String groupUuid,
+//      String attributeName0, String attributeValue0, String attributeDelete0,
+//      String attributeName1, String attributeValue1, String attributeDelete1,
+//      String attributeName2, String attributeValue2, String attributeDelete2,
+//      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+//      String paramName0, String paramValue0, String paramName1, String paramValue1) {
+//  
+//    // setup the group lookup
+//    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+//    WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
+//  
+//    //setup attributes
+//    List<WsAttributeEdit> attributeEditList = new ArrayList<WsAttributeEdit>();
+//    if (!StringUtils.isBlank(attributeName0) || !StringUtils.isBlank(attributeValue0)
+//        || !StringUtils.isBlank(attributeDelete0)) {
+//      attributeEditList.add(new WsAttributeEdit(attributeName0, attributeValue0,
+//          attributeDelete0));
+//    }
+//    if (!StringUtils.isBlank(attributeName1) || !StringUtils.isBlank(attributeValue1)
+//        || !StringUtils.isBlank(attributeDelete1)) {
+//      attributeEditList.add(new WsAttributeEdit(attributeName1, attributeValue1,
+//          attributeDelete1));
+//    }
+//    if (!StringUtils.isBlank(attributeName2) || !StringUtils.isBlank(attributeValue2)
+//        || !StringUtils.isBlank(attributeDelete2)) {
+//      attributeEditList.add(new WsAttributeEdit(attributeName2, attributeValue2,
+//          attributeDelete2));
+//    }
+//    //convert to array
+//    WsAttributeEdit[] wsAttributeEdits = GrouperUtil.toArray(attributeEditList,
+//        WsAttributeEdit.class);
+//    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+//        actAsSubjectSourceId, actAsSubjectIdentifier);
+//  
+//    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+//  
+//    WsViewOrEditAttributesResults wsViewOrEditAttributesResults = viewOrEditAttributes(
+//        clientVersion, wsGroupLookups, wsAttributeEdits, actAsSubjectLookup, null,
+//        params);
+//  
+//    return wsViewOrEditAttributesResults;
+//  }
+//
+//  /**
+//   * If all privilege params are empty, then it is viewonly. If any are set,
+//   * then the privileges will be set (and returned)
+//   * 
+//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+//   * @param wsGroupLookup
+//   *            for group which is related to the privileges
+//   * @param subjectLookups
+//   *            subjects to be added to the group
+//   * @param privileges is the array of privileges.  Each "allowed" field in there is either
+//   *            T for allowed, F for not allowed, blank for unchanged
+//   * @param actAsSubjectLookup
+//   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+//   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+//   * are NONE (or blank), and READ_WRITE_NEW.
+//   * @param params optional: reserved for future use
+//   * @return the results
+//   */
+//  @SuppressWarnings("unchecked")
+//  public static WsViewOrEditPrivilegesResults viewOrEditPrivileges(final GrouperWsVersion clientVersion,
+//      final WsPrivilege[] privileges, final WsSubjectLookup actAsSubjectLookup,
+//      GrouperTransactionType txType, final WsParam[] params) {
+//  
+//    final WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults = new WsViewOrEditPrivilegesResults();
+//  
+//    GrouperSession session = null;
+//    String theSummary = null;
+//    //    try {
+//  
+//    txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+//    @SuppressWarnings("unused")
+//    final GrouperTransactionType TX_TYPE = txType;
+//    
+//    theSummary = "clientVersion: " + clientVersion + ", privileges: "
+//        + GrouperUtil.toStringForLog(privileges, 300) + ", actAsSubject: "
+//        + actAsSubjectLookup + ", txType: " + txType + ", paramNames: "
+//        + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+//  
+//    @SuppressWarnings("unused")
+//    final String THE_SUMMARY = theSummary;
+//  
+//    //start session based on logged in user or the actAs passed in
+//    session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+//  
+//    @SuppressWarnings("unused")
+//    final GrouperSession SESSION = session;
+//  
+//    //      //start a transaction (or not if none)
+//    //      GrouperTransaction.callbackGrouperTransaction(grouperTransactionType,
+//    //          new GrouperTransactionHandler() {
+//    //
+//    //            public Object callback(GrouperTransaction grouperTransaction)
+//    //                throws GrouperDAOException {
+//    //
+//    //              //convert the options to a map for easy access, and validate them
+//    //              @SuppressWarnings("unused")
+//    //              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+//    //                  params);
+//    //
+//    //              int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(
+//    //                  subjectLookups, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000);
+//    //
+//    //              Group group = wsGroupLookup.retrieveGroupIfNeeded(SESSION, "wsGroupLookup");
+//    //
+//    //              boolean includeGroupDetail = GrouperServiceUtils.booleanValue(
+//    //                  includeGroupDetail, false, "includeGroupDetail");
+//    //
+//    //              //assign the group to the result to be descriptive
+//    //              wsViewOrEditPrivilegesResults.setWsGroupAssigned(new WsGroup(group,
+//    //                  includeGroupDetail));
+//    //
+//    //              int resultIndex = 0;
+//    //
+//    //              boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanValue(
+//    //                  replaceAllExisting, false, "replaceAllExisting");
+//    //
+//    //              Set<Subject> newSubjects = new HashSet<Subject>();
+//    //              wsViewOrEditPrivilegesResults.setResults(new WsAddMemberResult[subjectLength]);
+//    //
+//    //              //get the field or null or invalid query exception
+//    //              Field field = GrouperServiceUtils.retrieveField(fieldName);
+//    //
+//    //              //get existing members if replacing
+//    //              Set<Member> members = null;
+//    //              if (replaceAllExistingBoolean) {
+//    //                try {
+//    //                  // see who is there
+//    //                  members = field == null ? group.getImmediateMembers() : group
+//    //                      .getImmediateMembers(field);
+//    //                } catch (SchemaException se) {
+//    //                  throw new WsInvalidQueryException(
+//    //                      "Problem with getting existing members: " + fieldName + ".  "
+//    //                          + ExceptionUtils.getFullStackTrace(se));
+//    //                }
+//    //              }
+//    //
+//    //              for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
+//    //                WsAddMemberResult wsAddMemberResult = new WsAddMemberResult();
+//    //                wsViewOrEditPrivilegesResults.getResults()[resultIndex++] = wsAddMemberResult;
+//    //                try {
+//    //
+//    //                  Subject subject = wsSubjectLookup.retrieveSubject();
+//    //
+//    //                  wsAddMemberResult.processSubject(wsSubjectLookup);
+//    //
+//    //                  if (subject == null) {
+//    //                    continue;
+//    //                  }
+//    //
+//    //                  // keep track
+//    //                  if (replaceAllExistingBoolean) {
+//    //                    newSubjects.add(subject);
+//    //                  }
+//    //
+//    //                  try {
+//    //                    if (field != null) {
+//    //                      // dont fail if already a direct member
+//    //                      group.addMember(subject, false);
+//    //                    } else {
+//    //                      group.addMember(subject, field, false);
+//    //                    }
+//    //                    wsAddMemberResult.assignResultCode(WsAddMemberResultCode.SUCCESS);
+//    //
+//    //                  } catch (InsufficientPrivilegeException ipe) {
+//    //                    wsAddMemberResult
+//    //                        .assignResultCode(WsAddMemberResultCode.INSUFFICIENT_PRIVILEGES);
+//    //                  }
+//    //                } catch (Exception e) {
+//    //                  wsAddMemberResult.assignResultCodeException(e, wsSubjectLookup);
+//    //                }
+//    //              }
+//    //
+//    //              // after adding all these, see if we are removing:
+//    //              if (replaceAllExistingBoolean) {
+//    //
+//    //                for (Member member : members) {
+//    //                  Subject subject = null;
+//    //                  try {
+//    //                    subject = member.getSubject();
+//    //
+//    //                    if (!newSubjects.contains(subject)) {
+//    //                      if (field == null) {
+//    //                        group.deleteMember(subject);
+//    //                      } else {
+//    //                        group.deleteMember(subject, field);
+//    //                      }
+//    //                    }
+//    //                  } catch (Exception e) {
+//    //                    String theError = "Error deleting subject: " + subject
+//    //                        + " from group: " + group + ", field: " + field + ", " + e
+//    //                        + ".  ";
+//    //                    wsViewOrEditPrivilegesResults.assignResultCodeException(
+//    //                        WsAddMemberResultsCode.PROBLEM_DELETING_MEMBERS, theError, e);
+//    //                  }
+//    //                }
+//    //              }
+//    //              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+//    //              if (!wsViewOrEditPrivilegesResults.tallyResults(grouperTransactionType, THE_SUMMARY)) {
+//    //                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+//    //              }
+//    //                
+//    //
+//    //              return wsViewOrEditPrivilegesResults;
+//    //
+//    //            }
+//    //
+//    //          });
+//    //    } catch (Exception e) {
+//    //      wsViewOrEditPrivilegesResults.assignResultCodeException(null, theSummary, e);
+//    //    } finally {
+//    //      GrouperSession.stopQuietly(session);
+//    //    }
+//    //
+//    //
+//    //    //this should be the first and only return, or else it is exiting too early
+//    //    return wsViewOrEditPrivilegesResults;
+//    //
+//    //
+//    //    
+//    //    
+//    //    GrouperTransactionType grouperTransactionType = null;
+//    //
+//    //    //convert the options to a map for easy access, and validate them
+//    //    @SuppressWarnings("unused")
+//    //    Map<String, String> paramMap = null;
+//    //    try {
+//    //      paramMap = GrouperServiceUtils.convertParamsToMap(params);
+//    //    } catch (Exception e) {
+//    //      wsViewOrEditPrivilegesResults
+//    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+//    //      wsViewOrEditPrivilegesResults.getResultMetadata().setResultMessage("Invalid params: " + e.getMessage());
+//    //      return wsViewOrEditPrivilegesResults;
+//    //    }
+//    //
+//    //    try {
+//    //      grouperTransactionType = GrouperUtil.defaultIfNull(GrouperTransactionType
+//    //          .valueOfIgnoreCase(txType), GrouperTransactionType.NONE);
+//    //    } catch (Exception e) {
+//    //      //a helpful exception will probably be in the getMessage()
+//    //      wsViewOrEditPrivilegesResults
+//    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+//    //      wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage("Invalid txType: '" + txType
+//    //          + "', " + e.getMessage());
+//    //      return wsViewOrEditPrivilegesResults;
+//    //    }
+//    //
+//    //    int subjectLength = subjectLookups == null ? 0 : subjectLookups.length;
+//    //    if (subjectLength == 0) {
+//    //      wsViewOrEditPrivilegesResults
+//    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+//    //      wsViewOrEditPrivilegesResults
+//    //          .getResultMetadata().appendResultMessage("Subject length must be more than 1");
+//    //      return wsViewOrEditPrivilegesResults;
+//    //    }
+//    //
+//    //    // see if greater than the max (or default)
+//    //    int maxSavePrivileges = GrouperWsConfig.getPropertyInt(
+//    //        GrouperWsConfig.WS_VIEW_OR_EDIT_PRIVILEGES_SUBJECTS_MAX, 1000000);
+//    //    if (subjectLength > maxSavePrivileges) {
+//    //      wsViewOrEditPrivilegesResults
+//    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+//    //      wsViewOrEditPrivilegesResults
+//    //          .getResultMetadata().appendResultMessage("Subject length must be less than max: "
+//    //              + maxSavePrivileges + " (sent in " + subjectLength + ")");
+//    //      return wsViewOrEditPrivilegesResults;
+//    //    }
+//    //
+//    //    // TODO make sure size of params and values the same
+//    //
+//    //    // assume success
+//    //    wsViewOrEditPrivilegesResults
+//    //        .assignResultCode(WsViewOrEditPrivilegesResultsCode.SUCCESS);
+//    //    Subject actAsSubject = null;
+//    //    try {
+//    //      actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
+//    //
+//    //      if (actAsSubject == null) {
+//    //        throw new RuntimeException("Cant find actAs user: " + actAsSubjectLookup);
+//    //      }
+//    //
+//    //      // use this to be the user connected, or the user act-as
+//    //      try {
+//    //        session = GrouperSession.start(actAsSubject);
+//    //      } catch (SessionException se) {
+//    //        throw new RuntimeException("Problem with session for subject: " + actAsSubject,
+//    //            se);
+//    //      }
+//    //      wsGroupLookup.retrieveGroupIfNeeded(session);
+//    //      Group group = wsGroupLookup.retrieveGroup();
+//    //
+//    //      if (group == null) {
+//    //        wsViewOrEditPrivilegesResults
+//    //            .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
+//    //        wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage("Cant find group: "
+//    //            + wsGroupLookup + ".  ");
+//    //        return wsViewOrEditPrivilegesResults;
+//    //      }
+//    //      List<Privilege> privilegesToAssign = new ArrayList<Privilege>();
+//    //
+//    //      List<Privilege> privilegesToRevoke = new ArrayList<Privilege>();
+//    //
+//    //      // process the privilege inputs, keep in lists, handle invalid
+//    //      // queries
+//    //      if (!GrouperServiceUtils.processPrivilegesHelper(adminAllowed, "adminAllowed",
+//    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.ADMIN,
+//    //          wsViewOrEditPrivilegesResults)) {
+//    //        return wsViewOrEditPrivilegesResults;
+//    //      }
+//    //      if (!GrouperServiceUtils.processPrivilegesHelper(optinAllowed, "optinAllowed",
+//    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.OPTIN,
+//    //          wsViewOrEditPrivilegesResults)) {
+//    //        return wsViewOrEditPrivilegesResults;
+//    //      }
+//    //      if (!GrouperServiceUtils.processPrivilegesHelper(optoutAllowed, "optoutAllowed",
+//    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.OPTOUT,
+//    //          wsViewOrEditPrivilegesResults)) {
+//    //        return wsViewOrEditPrivilegesResults;
+//    //      }
+//    //      if (!GrouperServiceUtils.processPrivilegesHelper(readAllowed, "readAllowed",
+//    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.READ,
+//    //          wsViewOrEditPrivilegesResults)) {
+//    //        return wsViewOrEditPrivilegesResults;
+//    //      }
+//    //      if (!GrouperServiceUtils.processPrivilegesHelper(updateAllowed, "updateAllowed",
+//    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.UPDATE,
+//    //          wsViewOrEditPrivilegesResults)) {
+//    //        return wsViewOrEditPrivilegesResults;
+//    //      }
+//    //      if (!GrouperServiceUtils.processPrivilegesHelper(viewAllowed, "viewAllowed",
+//    //          privilegesToAssign, privilegesToRevoke, AccessPrivilege.VIEW,
+//    //          wsViewOrEditPrivilegesResults)) {
+//    //        return wsViewOrEditPrivilegesResults;
+//    //      }
+//    //
+//    //      int resultIndex = 0;
+//    //
+//    //      wsViewOrEditPrivilegesResults
+//    //          .setResults(new WsViewOrEditPrivilegesResult[subjectLength]);
+//    //
+//    //      for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
+//    //        WsPrivilege wsPrivilege = new WsPrivilege();
+//    //        WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult = new WsViewOrEditPrivilegesResult();
+//    //        wsViewOrEditPrivilegesResults.getResults()[resultIndex++] = wsViewOrEditPrivilegesResult;
+//    //        wsViewOrEditPrivilegesResult.setWsPrivilege(wsPrivilege);
+//    //        try {
+//    //          wsPrivilege.setSubjectId(wsSubjectLookup.getSubjectId());
+//    //          wsPrivilege.setSubjectIdentifier(wsSubjectLookup
+//    //              .getSubjectIdentifier());
+//    //
+//    //          Subject subject = wsSubjectLookup.retrieveSubject();
+//    //
+//    //          // make sure the subject is there
+//    //          if (subject == null) {
+//    //            // see why not
+//    //            SubjectFindResult subjectFindResult = wsSubjectLookup
+//    //                .retrieveSubjectFindResult();
+//    //            String error = "Subject: " + wsSubjectLookup + " had problems: "
+//    //                + subjectFindResult;
+//    //            wsViewOrEditPrivilegesResult.getResultMetadata().setResultMessage(error);
+//    //            if (SubjectFindResult.SUBJECT_NOT_FOUND.equals(subjectFindResult)) {
+//    //              wsViewOrEditPrivilegesResult
+//    //                  .assignResultCode(WsViewOrEditPrivilegesResultCode.SUBJECT_NOT_FOUND);
+//    //              continue;
+//    //            }
+//    //            if (SubjectFindResult.SUBJECT_DUPLICATE.equals(subjectFindResult)) {
+//    //              wsViewOrEditPrivilegesResult
+//    //                  .assignResultCode(WsViewOrEditPrivilegesResultCode.SUBJECT_DUPLICATE);
+//    //              continue;
+//    //            }
+//    //            throw new NullPointerException(error);
+//    //          }
+//    //
+//    //          // these will probably match, but just in case
+//    //          if (StringUtils.isBlank(wsPrivilege.getSubjectId())) {
+//    //            wsPrivilege.setSubjectId(subject.getId());
+//    //          }
+//    //
+//    //          try {
+//    //            // lets get all the privileges for the group and user
+//    //            Set<AccessPrivilege> accessPrivileges = GrouperUtil.nonNull(group
+//    //                .getPrivs(subject));
+//    //
+//    //            // TODO keep track of isRevokable? Also, can you remove
+//    //            // a read priv? I tried and got exception
+//    //
+//    //            // see what we really need to do. At the end, the
+//    //            // currentAccessPrivileges should be what it looks like
+//    //            // afterward
+//    //            // (add in assignments, remove revokes),
+//    //            // the privilegestoAssign will be what to assign (take
+//    //            // out what is already there)
+//    //            Set<Privilege> currentPrivilegesSet = GrouperServiceUtils
+//    //                .convertAccessPrivilegesToPrivileges(accessPrivileges);
+//    //
+//    //            List<Privilege> privilegesToAssignToThisSubject = new ArrayList<Privilege>(
+//    //                privilegesToAssign);
+//    //            List<Privilege> privilegesToRevokeFromThisSubject = new ArrayList<Privilege>(
+//    //                privilegesToRevoke);
+//    //
+//    //            // dont assign ones already in there
+//    //            privilegesToAssignToThisSubject.removeAll(currentPrivilegesSet);
+//    //            // dont revoke ones not in there
+//    //            privilegesToRevokeFromThisSubject.retainAll(currentPrivilegesSet);
+//    //            // assign
+//    //            for (Privilege privilegeToAssign : privilegesToAssignToThisSubject) {
+//    //              group.grantPriv(subject, privilegeToAssign);
+//    //            }
+//    //            // revoke
+//    //            for (Privilege privilegeToRevoke : privilegesToRevokeFromThisSubject) {
+//    //              group.revokePriv(subject, privilegeToRevoke);
+//    //            }
+//    //            // reset the current privileges set to reflect the new
+//    //            // state
+//    //            currentPrivilegesSet.addAll(privilegesToAssignToThisSubject);
+//    //            currentPrivilegesSet.removeAll(privilegesToRevokeFromThisSubject);
+//    //
+//    //            wsPrivilege.setAdminAllowed(GrouperServiceUtils
+//    //                .booleanToStringOneChar(currentPrivilegesSet
+//    //                    .contains(AccessPrivilege.ADMIN)));
+//    //            wsPrivilege.setOptinAllowed(GrouperServiceUtils
+//    //                .booleanToStringOneChar(currentPrivilegesSet
+//    //                    .contains(AccessPrivilege.OPTIN)));
+//    //            wsPrivilege.setOptoutAllowed(GrouperServiceUtils
+//    //                .booleanToStringOneChar(currentPrivilegesSet
+//    //                    .contains(AccessPrivilege.OPTOUT)));
+//    //            wsPrivilege.setReadAllowed(GrouperServiceUtils
+//    //                .booleanToStringOneChar(currentPrivilegesSet
+//    //                    .contains(AccessPrivilege.READ)));
+//    //            wsPrivilege.setViewAllowed(GrouperServiceUtils
+//    //                .booleanToStringOneChar(currentPrivilegesSet
+//    //                    .contains(AccessPrivilege.VIEW)));
+//    //            wsPrivilege.setUpdateAllowed(GrouperServiceUtils
+//    //                .booleanToStringOneChar(currentPrivilegesSet
+//    //                    .contains(AccessPrivilege.UPDATE)));
+//    //
+//    //            wsViewOrEditPrivilegesResult
+//    //                .assignResultCode(WsViewOrEditPrivilegesResultCode.SUCCESS);
+//    //          } catch (InsufficientPrivilegeException ipe) {
+//    //            wsViewOrEditPrivilegesResult
+//    //                .assignResultCode(WsViewOrEditPrivilegesResultCode.INSUFFICIENT_PRIVILEGES);
+//    //            wsViewOrEditPrivilegesResult.getResultMetadata().setResultMessage(ExceptionUtils
+//    //                .getFullStackTrace(ipe));
+//    //          }
+//    //        } catch (Exception e) {
+//    //          wsViewOrEditPrivilegesResult.getResultMetadata().setResultCode("EXCEPTION");
+//    //          wsViewOrEditPrivilegesResult.getResultMetadata().setResultMessage(ExceptionUtils
+//    //              .getFullStackTrace(e));
+//    //          LOG.error(wsSubjectLookup + ", " + e, e);
+//    //        }
+//    //
+//    //      }
+//    //    } catch (RuntimeException re) {
+//    //      wsViewOrEditPrivilegesResults
+//    //          .assignResultCode(WsViewOrEditPrivilegesResultsCode.EXCEPTION);
+//    //      String theError = "Problem with privileges for member and group: wsGroupLookup: "
+//    //          + wsGroupLookup + ", subjectLookups: "
+//    //          + GrouperUtil.toStringForLog(subjectLookups) + ", actAsSubject: "
+//    //          + actAsSubject + ", admin: '" + adminAllowed + "', optin: '" + optinAllowed
+//    //          + "', optout: '" + optoutAllowed + "', read: '" + readAllowed + "', update: '"
+//    //          + updateAllowed + "', view: '" + viewAllowed + ".  ";
+//    //      wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage(theError + "\n"
+//    //          + ExceptionUtils.getFullStackTrace(re));
+//    //      // this is sent back to the caller anyway, so just log, and not send
+//    //      // back again
+//    //      LOG.error(theError + ", wsViewOrEditPrivilegesResults: "
+//    //          + GrouperUtil.toStringForLog(wsViewOrEditPrivilegesResults), re);
+//    //    } finally {
+//    //      if (session != null) {
+//    //        try {
+//    //          session.stop();
+//    //        } catch (Exception e) {
+//    //          LOG.error(e.getMessage(), e);
+//    //        }
+//    //      }
+//    //    }
+//    //
+//    //    if (wsViewOrEditPrivilegesResults.getResults() != null) {
+//    //      // check all entries
+//    //      int successes = 0;
+//    //      int failures = 0;
+//    //      for (WsViewOrEditPrivilegesResult wsViewOrEditPrivilegesResult : wsViewOrEditPrivilegesResults
+//    //          .getResults()) {
+//    //        boolean success = "T".equalsIgnoreCase(wsViewOrEditPrivilegesResult.getResultMetadata().getSuccess());
+//    //        if (success) {
+//    //          successes++;
+//    //        } else {
+//    //          failures++;
+//    //        }
+//    //      }
+//    //      if (failures > 0) {
+//    //        wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage("There were " + successes
+//    //            + " successes and " + failures
+//    //            + " failures of user group privileges operations.   ");
+//    //        wsViewOrEditPrivilegesResults
+//    //            .assignResultCode(WsViewOrEditPrivilegesResultsCode.PROBLEM_WITH_MEMBERS);
+//    //      } else {
+//    //        wsViewOrEditPrivilegesResults
+//    //            .assignResultCode(WsViewOrEditPrivilegesResultsCode.SUCCESS);
+//    //      }
+//    //    }
+//    //    if (!"T".equalsIgnoreCase(wsViewOrEditPrivilegesResults.getResultMetadata().getSuccess())) {
+//    //
+//    //      LOG.error(wsViewOrEditPrivilegesResults.getResultMetadata().getResultMessage());
+//    //    }
+//    return wsViewOrEditPrivilegesResults;
+//  }
+//
+//  /**
+//   * If all privilege params are empty, then it is viewonly. If any are set,
+//   * then the privileges will be set (and returned)
+//   * 
+//   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+//   * @param groupName
+//   *            to lookup the group (mutually exclusive with groupUuid)
+//   * @param groupUuid
+//   *            to lookup the group (mutually exclusive with groupName)
+//   * @param subjectId
+//   *            to assign (mutually exclusive with subjectIdentifier)
+//   * @param subjectSourceId is source of subject to narrow the result and prevent
+//   * duplicates
+//   * @param subjectIdentifier
+//   *            to assign (mutually exclusive with subjectId)
+//   * @param adminAllowed
+//   *            T for allowed, F for not allowed, blank for unchanged
+//   * @param optinAllowed
+//   *            T for allowed, F for not allowed, blank for unchanged
+//   * @param optoutAllowed
+//   *            T for allowed, F for not allowed, blank for unchanged
+//   * @param readAllowed
+//   *            T for allowed, F for not allowed, blank for unchanged
+//   * @param viewAllowed
+//   *            T for allowed, F for not allowed, blank for unchanged
+//   * @param updateAllowed
+//   *            T for allowed, F for not allowed, blank for unchanged
+//   * @param actAsSubjectId
+//   *            optional: is the subject id of subject to act as (if
+//   *            proxying). Only pass one of actAsSubjectId or
+//   *            actAsSubjectIdentifer
+//   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+//   * duplicates
+//   * @param actAsSubjectIdentifier
+//   *            optional: is the subject identifier of subject to act as (if
+//   *            proxying). Only pass one of actAsSubjectId or
+//   *            actAsSubjectIdentifer
+//   * @param paramName0
+//   *            reserved for future use
+//   * @param paramValue0
+//   *            reserved for future use
+//   * @param paramName1
+//   *            reserved for future use
+//   * @param paramValue1
+//   *            reserved for future use
+//   * @return the result of one member add
+//   */
+//  public static WsViewOrEditPrivilegesResults viewOrEditPrivilegesLite(
+//      final GrouperWsVersion clientVersion, String groupName, String groupUuid, String subjectId,
+//      String subjectSourceId, String subjectIdentifier, String adminAllowed,
+//      String optinAllowed, String optoutAllowed, String readAllowed,
+//      String updateAllowed, String viewAllowed, String actAsSubjectId,
+//      String actAsSubjectSourceId, String actAsSubjectIdentifier, String paramName0,
+//      String paramValue0, String paramName1, String paramValue1) {
+//  
+//    // setup the group lookup
+//    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+//  
+//    // setup the subject lookup
+//    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup(subjectId, subjectSourceId,
+//        subjectIdentifier);
+//    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+//        actAsSubjectSourceId, actAsSubjectIdentifier);
+//  
+//    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+//  
+//    WsPrivilege wsPrivilege = new WsPrivilege();
+//    wsPrivilege.setSubjectLookup(wsSubjectLookup);
+//    wsPrivilege.setWsGroupLookup(wsGroupLookup);
+//    wsPrivilege.setAdminAllowed(adminAllowed);
+//    wsPrivilege.setOptinAllowed(optinAllowed);
+//    wsPrivilege.setOptoutAllowed(optoutAllowed);
+//    wsPrivilege.setReadAllowed(readAllowed);
+//    wsPrivilege.setUpdateAllowed(updateAllowed);
+//    wsPrivilege.setViewAllowed(viewAllowed);
+//  
+//    WsPrivilege[] wsPrivileges = { wsPrivilege };
+//  
+//    WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults = viewOrEditPrivileges(
+//        clientVersion, wsPrivileges, actAsSubjectLookup, null, params);
+//  
+//    return wsViewOrEditPrivilegesResults;
+//  
+//  }
 
 }
