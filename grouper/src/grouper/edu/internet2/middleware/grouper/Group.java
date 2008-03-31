@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.179 2008-03-31 07:19:48 mchyzer Exp $
+ * @version $Id: Group.java,v 1.180 2008-03-31 18:49:40 shilen Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -266,6 +266,10 @@ public class Group extends GrouperAPI implements Owner {
   private               Member                    cachedMember  = null;
   /** */
   private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
+  /** known built-in attributes */
+  private static final  Set<String>               ALLOWED_ATTRS = GrouperUtil.toSet(
+    GrouperConfig.ATTR_DN, GrouperConfig.ATTR_D, GrouperConfig.ATTR_DE,
+    GrouperConfig.ATTR_E, GrouperConfig.ATTR_N);
 
   
   // PUBLIC CLASS METHODS //
@@ -1101,6 +1105,11 @@ public class Group extends GrouperAPI implements Owner {
         return emptyString;
       } 
       return val;
+    }
+
+    // if one of common attributes, allow
+    if (ALLOWED_ATTRS.contains(attr)) {
+      return emptyString;
     }
     
     // Group does not have attribute.  If attribute is not valid for Group,
