@@ -23,6 +23,10 @@ import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
+import org.apache.strutsel.taglib.utils.EvalHelper;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * <pre>
  * This tag: 
@@ -43,7 +47,24 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
  *
  */
 public class GrouperHideShowTarget extends BodyTagSupport {
-	
+  
+  /**
+   * Processes all attribute values which use the JSTL expression evaluation
+   * engine to determine their values.
+   * 
+   * @exception JspException
+   *                if a JSP exception has occurred
+   */
+  public void evaluateExpressions() throws JspException {
+    String string = null;
+  
+    if ((string = EvalHelper.evalString("hideShowHtmlId", 
+        this.hideShowHtmlId, this, this.pageContext)) != null) {
+      this.hideShowHtmlId = string;
+    }
+    
+  }
+
 	/**
 	 * 
 	 */
@@ -58,35 +79,51 @@ public class GrouperHideShowTarget extends BodyTagSupport {
 	/**
 	 * id of the html tag (actually it will appear an int so multiple can be used).
 	 * This must match the infodot tag (or any call to grouperHideShow javascript function)
-	 * @param hideShowHtmlId the hideShowHtmlId to set
+	 * @param hideShowHtmlId1 the hideShowHtmlId to set
 	 */
-	public void setHideShowHtmlId(String hideShowHtmlId) {
-		this.hideShowHtmlId = hideShowHtmlId;
+	public void setHideShowHtmlId(String hideShowHtmlId1) {
+		this.hideShowHtmlId = hideShowHtmlId1;
 	}
 	
 	/**
 	 * if the element should be shown on page draw (default is no)
 	 */
-	private boolean showInitially = false;
+	private String showInitially;
 
+  /**
+   * boolean value (and validate) for showInitially
+   * @return boolean value
+   */
+  public boolean showInitially() {
+    return GrouperUtil.booleanValue(this.showInitially, false);
+  }
+  
 	/**
 	 * if the element should be shown on page draw (default is no)
-	 * @param showInitially the showInitially to set
+	 * @param showInitially1 the showInitially to set
 	 */
-	public void setShowInitially(boolean showInitially) {
-		this.showInitially = showInitially;
+	public void setShowInitially(String showInitially1) {
+		this.showInitially = showInitially1;
 	}
 	
 	/**
 	 * if true do not generate the style attribute
 	 */
-	private boolean omitStyle = false;
+	private String omitStyle;
 
+	/**
+	 * boolean value (and validate) for omitStyle
+	 * @return boolean value
+	 */
+	public boolean omitStyle() {
+	  return GrouperUtil.booleanValue(this.omitStyle, false);
+	}
+	
 	/**
 	 * if true do not generate the style attribute
 	 * @param omitStyle1 the omitStyle to set
 	 */
-	public void setOmitStyle(boolean omitStyle1) {
+	public void setOmitStyle(String omitStyle1) {
 		this.omitStyle = omitStyle1;
 	}
 	
@@ -97,6 +134,8 @@ public class GrouperHideShowTarget extends BodyTagSupport {
 	@Override
 	public int doEndTag() throws JspException {
 		
+	  this.evaluateExpressions();
+	  
 		StringBuilder result = new StringBuilder();
 		
 		//id="firstHideShow0" style="display:none;"
@@ -126,7 +165,7 @@ public class GrouperHideShowTarget extends BodyTagSupport {
 		result.append(" id=\"").append(this.hideShowHtmlId + currentIdIndex).append("\" ");
 		
 		//put in style if we need it
-		if (!this.omitStyle && !this.showInitially) {
+		if (!this.omitStyle() && !this.showInitially()) {
 			result.append("style=\"display:none;visibility:hidden;\" ");
 		}
 				

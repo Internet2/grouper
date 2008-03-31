@@ -36,13 +36,13 @@ import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 
+import org.apache.strutsel.taglib.utils.EvalHelper;
 import org.apache.taglibs.standard.tag.common.fmt.BundleSupport;
 import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
 import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
-import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -94,10 +94,10 @@ public class GrouperMessageTag extends MessageTag {
 	 * init vars
 	 */
 	private void init() {
-		this.tooltipDisable = false;
+		this.tooltipDisable = null;
 		this.tooltipKeys = null;
 		this.tooltipValues = null;
-		this.useNewTermContext = false;
+		this.useNewTermContext = null;
 	}
 
 	/** 
@@ -106,19 +106,36 @@ public class GrouperMessageTag extends MessageTag {
 	 * will reset the context so that in this text it will use all terms and they can be used later 
 	 * in page as well. 
 	 */
-	private boolean useNewTermContext = false;
+	private String useNewTermContext = null;
+
+	/**
+   * see if use new term context (and validate the boolean, default to false if not set)
+   * @return if use new term context
+	 */
+	public boolean useNewTermContext() {
+	  return GrouperUtil.booleanValue(this.useNewTermContext, false);
+	}
 	
 	/** if we should not do tooltips for this tag */
-	public boolean tooltipDisable = false;
+	private String tooltipDisable = null;
+	
+	/**
+	 * see if disabled (and validate the boolean, default to false if not set)
+	 * @return if disabled
+	 */
+	public boolean tooltipDisable() {
+	  return GrouperUtil.booleanValue(this.tooltipDisable, false);
+	}
 	
 	/**
 	 * this is overridden to put the tooltips in the text
 	 */
 	@SuppressWarnings("unchecked")
+	@Override
 	public int doEndTag() throws JspException {
 
 		// see if we are using tooltips
-		if (this.tooltipDisable || !GrouperConfig.getPropertyBoolean(
+		if (this.tooltipDisable() || !GrouperConfig.getPropertyBoolean(
 				GrouperConfig.MESSAGES_USE_TOOLTIPS, true)) {
 			return super.doEndTag();
 		}
@@ -127,18 +144,18 @@ public class GrouperMessageTag extends MessageTag {
 		String keyInput = null;
 
 		// determine the message key by...
-		if (keySpecified) {
+		if (this.keySpecified) {
 			// ... reading 'key' attribute
-			keyInput = key;
+			keyInput = this.key;
 		} else {
 			// ... retrieving and trimming our body
-			if (bodyContent != null && bodyContent.getString() != null)
-				keyInput = bodyContent.getString().trim();
+			if (this.bodyContent != null && this.bodyContent.getString() != null)
+				keyInput = this.bodyContent.getString().trim();
 		}
 
 		if ((keyInput == null) || keyInput.equals("")) {
 			try {
-				pageContext.getOut().print("??????");
+				this.pageContext.getOut().print("??????");
 			} catch (IOException ioe) {
 				throw new JspTagException(ioe.getMessage());
 			}
@@ -146,23 +163,23 @@ public class GrouperMessageTag extends MessageTag {
 		}
 
 		String prefix = null;
-		if (locCtxt == null) {
+		if (this.locCtxt == null) {
 			Tag t = findAncestorWithClass(this, BundleSupport.class);
 			if (t != null) {
 				// use resource bundle from parent <bundle> tag
 				BundleSupport parent = (BundleSupport) t;
-				locCtxt = parent.getLocalizationContext();
+				this.locCtxt = parent.getLocalizationContext();
 				prefix = parent.getPrefix();
 			} else {
-				locCtxt = BundleSupport.getLocalizationContext(pageContext);
+				this.locCtxt = BundleSupport.getLocalizationContext(this.pageContext);
 			}
 		} else {
 			// localization context taken from 'bundle' attribute
-			if (locCtxt.getLocale() != null) {
+			if (this.locCtxt.getLocale() != null) {
 				GrouperUtil.callMethod(SetLocaleSupport.class,
 						"setResponseLocale", new Class[] { PageContext.class,
 								Locale.class }, new Object[] {
-								this.pageContext, locCtxt.getLocale() });
+								this.pageContext, this.locCtxt.getLocale() });
 				/*
 				 * SetLocaleSupport.setResponseLocale(pageContext,
 				 * locCtxt.getLocale());
@@ -171,8 +188,8 @@ public class GrouperMessageTag extends MessageTag {
 		}
 
 		String message = UNDEFINED_KEY + keyInput + UNDEFINED_KEY;
-		if (locCtxt != null) {
-			ResourceBundle bundle = locCtxt.getResourceBundle();
+		if (this.locCtxt != null) {
+			ResourceBundle bundle = this.locCtxt.getResourceBundle();
 			if (bundle != null) {
 				try {
 					// prepend 'prefix' attribute from parent bundle
@@ -185,8 +202,8 @@ public class GrouperMessageTag extends MessageTag {
 					if (!params.isEmpty()) {
 						Object[] messageArgs = params.toArray();
 						MessageFormat formatter = new MessageFormat("");
-						if (locCtxt.getLocale() != null) {
-							formatter.setLocale(locCtxt.getLocale());
+						if (this.locCtxt.getLocale() != null) {
+							formatter.setLocale(this.locCtxt.getLocale());
 						}
 						formatter.applyPattern(message);
 						message = formatter.format(messageArgs);
@@ -203,10 +220,10 @@ public class GrouperMessageTag extends MessageTag {
 		
 		if (var != null) {
 			int scope = (Integer) GrouperUtil.fieldValue(this, "scope");
-			pageContext.setAttribute(var, message, scope);
+			this.pageContext.setAttribute(var, message, scope);
 		} else {
 			try {
-				pageContext.getOut().print(message);
+				this.pageContext.getOut().print(message);
 			} catch (IOException ioe) {
 				throw new JspTagException(ioe.getMessage());
 			}
@@ -244,7 +261,7 @@ public class GrouperMessageTag extends MessageTag {
 		this.tooltipValues = (List<String>)this.pageContext
 		.getRequest().getAttribute("tooltipValues");
 		
-		if (this.tooltipKeys == null || this.useNewTermContext) {
+		if (this.tooltipKeys == null || this.useNewTermContext()) {
 			
 			//add the tooltips:
 			ResourceBundle resourceBundle = LowLevelGrouperCapableAction.getNavResourcesStatic(this.pageContext.getSession());
@@ -305,7 +322,7 @@ public class GrouperMessageTag extends MessageTag {
 				this.tooltipKeys = new ArrayList<String>(propertiesMap.keySet());
 				this.tooltipValues = new ArrayList<String>(propertiesMap.values());
 				
-				if (!useNewTermContext) {
+				if (!this.useNewTermContext()) {
 					this.pageContext.getRequest().setAttribute("tooltipKeys", this.tooltipKeys);
 					this.pageContext.getRequest().setAttribute("tooltipValues", this.tooltipValues);
 				}
@@ -352,7 +369,7 @@ public class GrouperMessageTag extends MessageTag {
 	}
 	/**
 	 * convert the properties configuration object to a map object (tree map)
-	 * @param propertiesConfiguration
+	 * @param inputMap 
 	 * @return the 
 	 */
 	static Map<String, String> sortMapBySubstringFirst(Map<String, String> inputMap) {
@@ -365,7 +382,7 @@ public class GrouperMessageTag extends MessageTag {
 			 * comparator that puts substrings last
 			 * @param o1
 			 * @param o2
-			 * @return
+			 * @return comparison
 			 */
 			public int compare(String o1, String o2) {
 				if (o1 == o2) {
@@ -397,17 +414,17 @@ public class GrouperMessageTag extends MessageTag {
 	/**
 	 * substitute tooltips
 	 * @param message
-	 * @return
+	 * @return the substituted strings
 	 */
 	@SuppressWarnings("unchecked")
 	public String substituteTooltips(String message) {
 		
 		//first step, get the map of substitutions
-		List<String> tooltipKeys = tooltipKeys();
-		List<String> tooltipValues = tooltipValues();
+		List<String> theTooltipKeys = tooltipKeys();
+		List<String> theTooltipValues = tooltipValues();
 		
 		//substitute, and remove if replaced
-		String result = GrouperUtil.replace(message, tooltipKeys, tooltipValues, false, true);
+		String result = GrouperUtil.replace(message, theTooltipKeys, theTooltipValues, false, true);
 		
 		//TODO cache this result if possible, check in properties file if contains vars
 		return result;
@@ -418,16 +435,16 @@ public class GrouperMessageTag extends MessageTag {
 	 * if we should not do tooltips for this tag
 	 * @return the tooltipDisable
 	 */
-	public boolean isTooltipDisable() {
-		return tooltipDisable;
+	public String getTooltipDisable() {
+		return this.tooltipDisable;
 	}
 
 	/**
 	 * if we should not do tooltips for this tag
-	 * @param tooltipDisable the tooltipDisable to set
+	 * @param tooltipDisable1 the tooltipDisable to set
 	 */
-	public void setTooltipDisable(boolean tooltipDisable) {
-		this.tooltipDisable = tooltipDisable;
+	public void setTooltipDisable(String tooltipDisable1) {
+		this.tooltipDisable = tooltipDisable1;
 	}
 
 	/**
@@ -435,10 +452,40 @@ public class GrouperMessageTag extends MessageTag {
 	 * then it might be used on page, but user cant see unless they open that infodot.  So this 
 	 * will reset the context so that in this text it will use all terms and they can be used later 
 	 * in page as well. 
-	 * @param useNewTermContext the useNewTermContext to set
+	 * @param useNewTermContext1 the useNewTermContext to set
 	 */
-	public void setUseNewTermContext(boolean useNewTermContext) {
-		this.useNewTermContext = useNewTermContext;
+	public void setUseNewTermContext(String useNewTermContext1) {
+		this.useNewTermContext = useNewTermContext1;
 	}
+
+  /**
+   * Processes all attribute values which use the JSTL expression evaluation
+   * engine to determine their values.
+   * 
+   * @exception JspException
+   *                if a JSP exception has occurred
+   */
+  private void evaluateExpressions() throws JspException {
+  	String string = null;
+  
+  	if ((string = EvalHelper.evalString("tooltipDisable", 
+  	    this.tooltipDisable, this, this.pageContext)) != null) {
+  	  setTooltipDisable(string);
+  	}
+    if ((string = EvalHelper.evalString("useNewTermContext", 
+        this.useNewTermContext, this, this.pageContext)) != null) {
+      setUseNewTermContext(string);
+    }
+    
+  }
+
+  /**
+   * @see org.apache.taglibs.standard.tag.el.fmt.MessageTag#doStartTag()
+   */
+  @Override
+  public int doStartTag() throws JspException {
+    this.evaluateExpressions();
+    return super.doStartTag();
+  }
 	
 }

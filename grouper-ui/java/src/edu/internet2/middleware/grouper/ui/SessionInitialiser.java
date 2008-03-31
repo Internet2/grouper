@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.12 2008-03-03 13:54:52 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.13 2008-03-31 20:04:34 mchyzer Exp $
  */
 
 public class SessionInitialiser {
@@ -134,13 +134,14 @@ public class SessionInitialiser {
 		session.setAttribute("nav",
 				new javax.servlet.jsp.jstl.fmt.LocalizationContext(
 						chainedBundle));
-		session.setAttribute("navMap", new MapBundleWrapper(chainedBundle));
+		session.setAttribute("navMap", new MapBundleWrapper(chainedBundle, false));
+    session.setAttribute("navNullMap", new MapBundleWrapper(chainedBundle, true));
 
 		session.setAttribute("media",
 				new javax.servlet.jsp.jstl.fmt.LocalizationContext(
 						chainedMediaBundle));
 		session.setAttribute("mediaMap", new MapBundleWrapper(
-				chainedMediaBundle));
+				chainedMediaBundle, false));
 		String pageSizes = chainedMediaBundle
 				.getString("pager.pagesize.selection");
 

@@ -26,28 +26,35 @@ import java.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MapBundleWrapper.java,v 1.3 2007-04-17 12:21:35 isgwb Exp $
+ * @version $Id: MapBundleWrapper.java,v 1.4 2008-03-31 20:04:34 mchyzer Exp $
  */
 
 public class MapBundleWrapper extends HashMap {
 
+  /** bundle */
 	private ResourceBundle bundle;
 
+	/** if we should not do the question mark thing if not found */
+	private boolean returnNullsIfNotFound = false;
+	
 	/**
-	 * @param bundle
+	 * @param bundle1
 	 *            to wrap
+	 * @param theReturnNullsIfNotFound if dont do question marks if not found
 	 */
-	public MapBundleWrapper(ResourceBundle bundle) {
-		if (bundle == null)
+	public MapBundleWrapper(ResourceBundle bundle1, boolean theReturnNullsIfNotFound) {
+		if (bundle1 == null)
 			throw new NullPointerException();
-		this.bundle = bundle;
+		this.bundle = bundle1;
+		this.returnNullsIfNotFound = theReturnNullsIfNotFound;
 	}
 
-	/*
+	/**
 	 * (non-Javadoc)
 	 * 
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
+	@Override
 	public Object get(Object key) {
 		boolean isSilent=false;
 		if (key instanceof String) {
@@ -59,12 +66,12 @@ public class MapBundleWrapper extends HashMap {
 				isSilent=true;
 				keyStr = keyStr.substring(1);
 			}
-			Object returnObj = bundle.getObject(keyStr);
+			Object returnObj = this.bundle.getObject(keyStr);
 			return returnObj;
 		} catch (MissingResourceException e) {
 			if(isSilent) return "";
 
 		}
-		return "???" + key + "???";
+		return this.returnNullsIfNotFound ? null : "???" + key + "???";
 	}
 }
