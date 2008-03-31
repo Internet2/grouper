@@ -28,6 +28,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
@@ -45,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.148 2008-03-30 09:00:55 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.149 2008-03-31 07:19:48 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -1491,20 +1493,19 @@ public class Stem extends GrouperAPI implements Owner {
   
   /**
    * <pre>
-   * create or update a stem.  Note this will not rename a stem
+   * create or update a stem.  Note this will not rename a stem at this time (might in future)
    * 
-   * This is a static method since setters to Group objects persist to the DB
+   * This is a static method since setters to Stem objects persist to the DB
    * 
    * Steps:
    * 
-   * 1. Find the stem
-   *  a. First look by uuid.  if no uuid, or uuid is not found, then its an insert.
-   *  b. If the uuid is not found, and retrieveViaNameIfNoUuid, then lookup the stem
-   *  by name.  If exists, update, else insert
+   * 1. Find the stem by stemNameToEdit (if not there then its an insert)
    * 2. Internally set all the fields of the stem (no need to reset if already the same)
    * 3. Store the stem (insert or update) if needed
    * 4. Return the stem object
    * 
+   * This occurs in a transaction, so if a part of it fails, it rolls back, and potentially
+   * rolls back outer transactions too
    * </pre>
    * @param grouperSession to act as
    * @param stemNameToEdit is the name of the stem to edit (or null if insert)
@@ -1513,107 +1514,151 @@ public class Stem extends GrouperAPI implements Owner {
    * (parent stems are not specified)
    * @param name this is required, and is the full name of the stem
    * including the names of parent stems.  e.g. stem1:stem2:stem3
-   * the parent stem must exist.  Can rename a stem extension, but not the parent stem name (move)
-   * @param uuid of the stem.  If a stem exists with this uuid, then it will
-   * be updated, if not, then it will be created if createIfNotExist is true
+   * the parent stem must exist unless createParentStemsIfNotExist.  
+   * Can rename a stem extension, but not the parent stem name (move)
+   * @param uuid of the stem.  uuid for an inserted stem
    * @param saveMode to constrain if insert only or update only, if null defaults to INSERT_OR_UPDATE
    * @param createParentStemsIfNotExist true if the stems should be created if they dont exist, false
    * for StemNotFoundException if not exist.  Note, the display extension on created stems
-   * will equal the extension
+   * will equal the extension.  This could be dangerous and should probably only be used for testing
    * @return the stem that was updated or created
    * @throws StemNotFoundException 
    * @throws InsufficientPrivilegeException 
    * @throws StemAddException 
    * @throws StemModifyException 
    */
-  public static Stem saveStem(GrouperSession grouperSession, String stemNameToEdit,
-      String description, String displayExtension, 
-      String name, String uuid, SaveMode saveMode, boolean createParentStemsIfNotExist) 
+  public static Stem saveStem(final GrouperSession grouperSession, final String stemNameToEdit,
+      final String uuid, final String name, final String displayExtension, final String description, 
+      SaveMode saveMode, final boolean createParentStemsIfNotExist) 
         throws StemNotFoundException,
       InsufficientPrivilegeException,
       StemAddException, StemModifyException {
   
-    String stemNameForError = GrouperUtil.defaultIfBlank(stemNameToEdit, name);
-  
     //default to insert or update
     saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
-    
-    int lastColonIndex = name.lastIndexOf(':');
-    boolean topLevelStem = lastColonIndex < 0;
-
-    //empty is root stem
-    String parentStemNameNew = GrouperUtil.parentStemNameFromName(name);
-    String extensionNew = GrouperUtil.extensionFromName(name);
-    
-    //lets find the stem
-    Stem parentStem = null;
-    
+    final SaveMode SAVE_MODE = saveMode;
     try {
-      parentStem = topLevelStem ? StemFinder.findRootStem(grouperSession) 
-          : StemFinder.findByName(grouperSession, parentStemNameNew);
-    } catch (StemNotFoundException snfe) {
-      
-      //see if we should fix this problem
-      if (createParentStemsIfNotExist) {
+      //do this in a transaction
+      Stem stem = (Stem)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+          try {
+            String stemNameForError = GrouperUtil.defaultIfBlank(stemNameToEdit, name);
+            
+            int lastColonIndex = name.lastIndexOf(':');
+            boolean topLevelStem = lastColonIndex < 0;
+    
+            //empty is root stem
+            String parentStemNameNew = GrouperUtil.parentStemNameFromName(name);
+            String extensionNew = GrouperUtil.extensionFromName(name);
+            
+            //lets find the stem
+            Stem parentStem = null;
+            
+            try {
+              parentStem = topLevelStem ? StemFinder.findRootStem(grouperSession) 
+                  : StemFinder.findByName(grouperSession, parentStemNameNew);
+            } catch (StemNotFoundException snfe) {
+              
+              //see if we should fix this problem
+              if (createParentStemsIfNotExist) {
+                
+                //at this point the stem should be there (and is equal to currentStem), 
+                //just to be sure, query again
+                parentStem = _createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew);
+              } else {
+                throw new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
+                    + "' (from update on stem name: '" + stemNameForError + "')");
+              }
+            }
+            
+            Stem theStem = null;
+            //see if update
+            boolean isUpdate = SAVE_MODE.isUpdate(stemNameToEdit);
+    
+            if (isUpdate) {
+              String parentStemNameLookup = GrouperUtil.parentStemNameFromName(stemNameToEdit);
+              if (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
+                throw new StemModifyException("Can't move a stem.  Existing parentStem: '"
+                    + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'");
+            }    
+            try {
+                theStem = StemFinder.findByName(grouperSession, stemNameToEdit);
+                
+                //while we are here, make sure uuid's match if passed in
+                if (!StringUtils.isBlank(uuid) && !StringUtils.equals(uuid, theStem.getUuid())) {
+                  throw new RuntimeException("UUID stem changes are not supported: new: " + uuid + ", old: " 
+                      + theStem.getUuid() + ", " + stemNameForError);
+                }
+                
+              } catch (StemNotFoundException snfe) {
+                //if update we have a problem
+                if (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
+                  isUpdate = false;
+                } else {
+                    throw snfe;
+                }
+              }
+            }
+            
+            //if inserting
+            if (!isUpdate) {
+              if (StringUtils.isBlank(uuid)) {
+                //if no uuid
+                theStem = parentStem.addChildStem(extensionNew, displayExtension);
+              } else {
+                //if uuid
+                theStem = parentStem.internal_addChildStem(extensionNew, displayExtension, uuid);
+              }
+            } else {
+              //check if different so it doesnt make unneeded queries
+              if (!StringUtils.equals(theStem.getExtension(), extensionNew)) {
+                theStem.setExtension(extensionNew);
+              }
+              if (!StringUtils.equals(theStem.getDisplayExtension(), displayExtension)) {
+                theStem.setDisplayExtension(displayExtension);
+              }
+            }
+            
+            //now compare and put all attributes (then store if needed)
+            if (!StringUtils.equals(theStem.getDescription(), description)) {
+              theStem.setDescription(description);
+            }
+            
+            return theStem;
+            //wrap checked exceptions inside unchecked, and rethrow outside
+          } catch (StemNotFoundException snfe) {
+            throw new RuntimeException(snfe);
+          } catch (InsufficientPrivilegeException ipe) {
+            throw new RuntimeException(ipe);
+          } catch (StemAddException sae) {
+            throw new RuntimeException(sae);
+          } catch (StemModifyException sme) {
+            throw new RuntimeException(sme);
+          }
+        }
         
-        //at this point the stem should be there (and is equal to currentStem), just to be sure, query again
-        parentStem = _createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew);
-      } else {
-        throw new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
-            + "' (from update on stem name: '" + stemNameForError + "')");
+      });
+      return stem;
+    } catch (RuntimeException re) {
+      
+      Throwable throwable = re.getCause();
+      if (throwable instanceof StemNotFoundException) {
+        throw (StemNotFoundException)throwable;
       }
-    }
-    
-    Stem stem = null;
-    //see if update
-    boolean isUpdate = saveMode.isUpdate(stemNameToEdit);
-
-    if (isUpdate) {
-      String parentStemNameLookup = GrouperUtil.parentStemNameFromName(stemNameToEdit);
-      if (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
-        throw new StemModifyException("Can't move a stem.  Existing parentStem: '"
-            + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'");
-    }    
-    try {
-        stem = StemFinder.findByName(grouperSession, stemNameToEdit);
-      } catch (StemNotFoundException snfe) {
-        if (saveMode.equals(SaveMode.INSERT_OR_UPDATE)) {
-      isUpdate = false;
-      } else {
-          throw snfe;
+      if (throwable instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)throwable;
       }
-    }
-    }
-    
-    //if inserting
-    if (!isUpdate) {
-      if (StringUtils.isBlank(uuid)) {
-        //if no uuid
-        stem = parentStem.addChildStem(extensionNew, displayExtension);
-      } else {
-        //if uuid
-        stem = parentStem.internal_addChildStem(extensionNew, displayExtension, uuid);
+      if (throwable instanceof StemAddException) {
+        throw (StemAddException)throwable;
       }
-    } else {
-      //check if different so it doesnt make unneeded queries
-      if (!StringUtils.equals(stem.getExtension(), extensionNew)) {
-        stem.setExtension(extensionNew);
+      if (throwable instanceof StemModifyException) {
+        throw (StemModifyException)throwable;
       }
-      if (!StringUtils.equals(stem.getDisplayExtension(), displayExtension)) {
-        stem.setDisplayExtension(displayExtension);
-      }
+      //must just be runtime
+      throw re;
     }
-    
-    //now compare and put all attributes (then store if needed)
-    if (!StringUtils.equals(stem.getDescription(), description)) {
-      stem.setDescription(description);
-    }
-    
-    if (!StringUtils.isBlank(uuid) && !StringUtils.equals(uuid, stem.getUuid())) {
-      //unfortunately the damage is done... so do this last...
-      throw new RuntimeException("UUID changes are not supported");
-    }
-    return stem;
     
   }
 

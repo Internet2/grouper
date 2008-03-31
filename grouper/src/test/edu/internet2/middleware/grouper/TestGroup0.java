@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.12 2008-03-24 20:15:36 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.13 2008-03-31 07:19:48 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -119,8 +119,8 @@ public class TestGroup0 extends GrouperTest {
 
       GrouperTest.deleteGroupIfExists(rootSession, groupNameNotExist);
 
-      Group.saveGroup(rootSession, groupDescription, displayExtension, groupNameNotExist,
-          null, SaveMode.UPDATE, false);
+      Group.saveGroup(rootSession, groupNameNotExist,null, groupNameNotExist, displayExtension, groupDescription, 
+          SaveMode.UPDATE, false);
       fail("this should fail, since stem doesnt exist");
     } catch (StemNotFoundException e) {
       //good, caught an exception
@@ -131,8 +131,9 @@ public class TestGroup0 extends GrouperTest {
     //this should insert
     String groupName = "i2:a:testing123";
     GrouperTest.deleteGroupIfExists(rootSession, groupName);
-    Group createdGroup = Group.saveGroup(rootSession, groupDescription, displayExtension,
-        groupName, null, SaveMode.INSERT, false);
+    Group createdGroup = Group.saveGroup(rootSession, null, null, groupName, displayExtension,
+        groupDescription, 
+        SaveMode.INSERT, false);
 
     //now retrieve
     Group foundGroup = GroupFinder.findByName(rootSession, groupName);
@@ -148,14 +149,16 @@ public class TestGroup0 extends GrouperTest {
 
     ///////////////////////////////////
     //this should update by uuid
-    createdGroup = Group.saveGroup(rootSession, groupDescription + "1", displayExtension,
-        groupName, createdGroup.getUuid(), SaveMode.INSERT_OR_UPDATE, false);
+    createdGroup = Group.saveGroup(rootSession, groupName,createdGroup.getUuid(), groupName, displayExtension,
+        groupDescription + "1", 
+        SaveMode.INSERT_OR_UPDATE, false);
     assertEquals("this should update by uuid", groupDescription + "1", createdGroup
         .getDescription());
 
     //this should update by name
-    createdGroup = Group.saveGroup(rootSession, groupDescription + "2", displayExtension,
-        groupName, null, SaveMode.UPDATE, false);
+    createdGroup = Group.saveGroup(rootSession, groupName, null, groupName,  displayExtension,
+        groupDescription + "2", 
+        SaveMode.UPDATE, false);
     assertEquals("this should update by name", groupDescription + "2", createdGroup
         .getDescription());
 
@@ -166,8 +169,9 @@ public class TestGroup0 extends GrouperTest {
     GrouperTest.deleteGroupIfExists(rootSession, groupNameCreateStems);
     GrouperTest.deleteAllStemsIfExists(rootSession, stemsNotExist);
     //lets also delete those stems
-    createdGroup = Group.saveGroup(rootSession, groupDescription, displayExtension,
-        groupNameCreateStems, null, SaveMode.INSERT_OR_UPDATE, true);
+    createdGroup = Group.saveGroup(rootSession, groupNameCreateStems, null,groupNameCreateStems, 
+        displayExtension, groupDescription, 
+        SaveMode.INSERT_OR_UPDATE, true);
 
     assertEquals(groupDescription, createdGroup.getDescription());
 
@@ -205,8 +209,8 @@ public class TestGroup0 extends GrouperTest {
               throws GrouperDAOException {
 
             try {
-              Group.saveGroup(rootSession, groupDescription, displayExtension, groupName,
-                  null, SaveMode.INSERT, false);
+              Group.saveGroup(rootSession, null, null, groupName,displayExtension, groupDescription, 
+                  SaveMode.INSERT, false);
             } catch (Exception e) {
               throw new RuntimeException(e);
             }
@@ -233,8 +237,8 @@ public class TestGroup0 extends GrouperTest {
               throws GrouperDAOException {
 
             try {
-              Group.saveGroup(rootSession, groupDescription + "1", displayExtension,
-                  groupName, null, SaveMode.INSERT, false);
+              Group.saveGroup(rootSession,null, null, groupName, displayExtension, groupDescription + "1", 
+                  SaveMode.INSERT, false);
             } catch (Exception e) {
               throw new RuntimeException(e);
             }
@@ -267,8 +271,9 @@ public class TestGroup0 extends GrouperTest {
                 throws GrouperDAOException {
 
               try {
-                Group.saveGroup(rootSession, groupDescription, displayExtension,
-                    groupName, null, SaveMode.INSERT, false);
+                Group.saveGroup(rootSession,  groupName, null, 
+                   groupName, displayExtension,groupDescription, 
+                   SaveMode.INSERT, false);
               } catch (Exception e) {
                 throw new RuntimeException(e);
               }
@@ -311,11 +316,12 @@ public class TestGroup0 extends GrouperTest {
                 throws GrouperDAOException {
 
               try {
-                Group.saveGroup(rootSession, groupDescription, displayExtension,
-                    groupName, null, SaveMode.INSERT, false);
+                Group.saveGroup(rootSession, null, null, groupName, displayExtension,
+                    groupDescription, 
+                    SaveMode.INSERT, false);
 
-                Group.saveGroup(rootSession, groupDescription, displayExtension,
-                    groupName2, null, SaveMode.INSERT, false);
+                Group.saveGroup(rootSession, null, null, groupName2, 
+                    displayExtension, groupDescription, SaveMode.INSERT, false);
 
                 throw new RuntimeException("Just to cause a rollback");
 
@@ -359,11 +365,11 @@ public class TestGroup0 extends GrouperTest {
           throws GrouperDAOException {
 
         try {
-          Group.saveGroup(rootSession, groupDescription, displayExtension, groupName,
-              null, SaveMode.INSERT, false);
+          Group.saveGroup(rootSession, null,null,groupName,displayExtension,  groupDescription, 
+              SaveMode.INSERT, false);
 
-          Group.saveGroup(rootSession, groupDescription, displayExtension, groupName2,
-              null, SaveMode.INSERT, false);
+          Group.saveGroup(rootSession, null,null, groupName2,displayExtension, groupDescription, 
+              SaveMode.INSERT, false);
 
           assertTrue("Should be active since not rolled back", grouperTransaction
               .isTransactionActive());
@@ -409,8 +415,8 @@ public class TestGroup0 extends GrouperTest {
           throws GrouperDAOException {
 
         try {
-          Group.saveGroup(rootSession, groupDescription, displayExtension, groupName,
-              null, SaveMode.INSERT, false);
+          Group.saveGroup(rootSession,null, null,groupName, displayExtension, groupDescription, 
+              SaveMode.INSERT, false);
 
           //automous transaction
           GrouperTransaction.callbackGrouperTransaction(
@@ -420,8 +426,9 @@ public class TestGroup0 extends GrouperTest {
                     throws GrouperDAOException {
 
                   try {
-                    Group.saveGroup(rootSession, groupDescription, displayExtension,
-                        groupName2, null, SaveMode.INSERT, false);
+                    Group.saveGroup(rootSession, null, null, groupName2, displayExtension,
+                        groupDescription, 
+                        SaveMode.INSERT, false);
                   } catch (Exception e) {
                     throw new RuntimeException(e);
                   }
@@ -479,12 +486,12 @@ public class TestGroup0 extends GrouperTest {
     try {
 
       //insert a group
-      Group.saveGroup(grouperSession, groupDescription, displayExtension, groupName,
-          null, SaveMode.INSERT, false);
+      Group.saveGroup(grouperSession, null,null,groupName, displayExtension, groupDescription, 
+          SaveMode.INSERT, false);
 
       //insert another group
-      Group.saveGroup(grouperSession, groupDescription, displayExtension, groupName2,
-          null, SaveMode.INSERT, false);
+      Group.saveGroup(grouperSession,  null,null, groupName2,displayExtension, groupDescription, 
+          SaveMode.INSERT, false);
     } catch (StemNotFoundException e) {
       throw new RuntimeException("Stem wasnt found", e);
     } catch (Exception e) {
