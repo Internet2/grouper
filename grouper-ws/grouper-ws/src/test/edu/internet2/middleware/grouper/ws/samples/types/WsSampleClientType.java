@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsSampleClientType.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * $Id: WsSampleClientType.java,v 1.2 2008-03-31 17:51:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples.types;
 
@@ -116,7 +116,8 @@ public enum WsSampleClientType {
      @Override
      public File sourceFile(Class<?> clientClass) {
        //src\test\edu\internet2\middleware\grouper\ws\samples\rest
-       File file = new File("src/test/" + clientClass.getName().replace('.', '/') + ".java");
+       File file = new File(GrouperWsConfig.getPropertyString("ws.testing.grouper-ws.dir") + 
+           "/src/test/" + clientClass.getName().replace('.', '/') + ".java");
        if (!file.exists()) {
          throw new RuntimeException("Source file doesnt exist: " + file.getAbsolutePath());
        }

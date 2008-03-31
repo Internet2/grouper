@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.8 2008-03-31 07:22:03 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.1 2008-03-31 17:51:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRestLite;
@@ -330,7 +331,6 @@ public class SampleCapture {
    * @param clientClass
    * @param samplesFolderName is the for
    * @param fileNameInfo to specify description of example, or none
-   * @param format
    */
   public static void captureSample(WsSampleClientType clientType,
         Class<? extends WsSample> clientClass, 
@@ -365,7 +365,9 @@ public class SampleCapture {
       String formatString = format == null ? "" : ("_" + ((Enum<?>)format).name());
       
       //assume parent dirs are there...
-      File resultFile = new File("doc/samples/" + samplesFolderName + "/"
+      File resultFile = new File(
+          GrouperWsConfig.getPropertyString("ws.testing.grouper-ws.dir") + 
+          "/doc/samples/" + samplesFolderName + "/"
           + clientClass.getSimpleName() + StringUtils.trimToEmpty(fileNameInfo)
           + formatString + ".txt");
       
