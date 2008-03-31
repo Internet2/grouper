@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: title.jsp,v 1.3 2008-03-31 20:04:34 mchyzer Exp $
+  @version $Id: title.jsp,v 1.4 2008-03-31 20:29:34 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -36,17 +36,17 @@
       <%-- c:out value="Map: ${navNullMap[titleInfodotName]}, titleName: ${titleInfodotName}, title: ${title}" / --%>
       
       <%-- if we are title.subtitle, and not there, then try just title --%>
-      <c:if
+      <%-- this isnt valid c:if
         test="${empty navNullMap[titleInfodotName] && !empty subtitle}"
       >
         <c:set var="titleInfodotName" scope="request" value="infodot.title.${title}" />
         <!-- trying title infodot with key: <c:out value="${titleInfodotName}" /> -->
-      </c:if>
+      </c:if --%>
       
       <%-- CH 20080325 only show if there is one --%> <c:if
         test="${!empty navNullMap[titleInfodotName]}"
       >
-        <grouper:infodot hideShowHtmlId="titleHideShow_${titleInfodotName}" />
+        &nbsp;<grouper:infodot hideShowHtmlId="titleHideShow_${titleInfodotName}" />
       </c:if></h1>
       <c:if test="${!empty navNullMap[titleInfodotName]}">
         <div class="helpText"
