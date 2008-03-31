@@ -20,7 +20,7 @@ import  edu.internet2.middleware.grouper.internal.util.U;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddGroupValidator.java,v 1.4 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: AddGroupValidator.java,v 1.5 2008-03-31 07:19:48 mchyzer Exp $
  * @since   1.2.0
  */
 class AddGroupValidator extends GrouperValidator {
@@ -45,8 +45,9 @@ class AddGroupValidator extends GrouperValidator {
     }
     else {
       try {
-        GrouperDAOFactory.getFactory().getGroup().findByName( U.constructName( parent.getName(), extn ) );
-        v.setErrorMessage("group already exists");
+        String groupName = U.constructName( parent.getName(), extn );
+        GrouperDAOFactory.getFactory().getGroup().findByName( groupName );
+        v.setErrorMessage("group already exists with name: '" + groupName + "'");
       }
       catch (GroupNotFoundException eGNF) {
         v.setIsValid(true); // group does not exist, which is what we want

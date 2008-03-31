@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem0.java,v 1.6 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: TestStem0.java,v 1.7 2008-03-31 07:19:48 mchyzer Exp $
  */
 public class TestStem0 extends GrouperTest {
 
@@ -84,9 +84,9 @@ public class TestStem0 extends GrouperTest {
       
       GrouperTest.deleteAllStemsIfExists(rootSession, stemNameNotExist);
       
-      Stem.saveStem(rootSession, stemNameNotExist, stemDescription, 
-          displayExtension, stemNameNotExist, 
-          null, SaveMode.UPDATE, false);
+      Stem.saveStem(rootSession, stemNameNotExist,null,  stemNameNotExist, 
+          displayExtension, stemDescription, 
+          SaveMode.UPDATE, false);
       fail("this should fail, since stem doesnt exist");
     } catch (StemNotFoundException e) {
       //good, caught an exception
@@ -99,9 +99,9 @@ public class TestStem0 extends GrouperTest {
     
     //////////////////////////////////
     //this should insert
-    Stem createdStem = Stem.saveStem(rootSession, null, stemDescription, 
-        displayExtension, stemName, 
-        null, SaveMode.INSERT, false);
+    Stem createdStem = Stem.saveStem(rootSession, null, null, 
+        stemName,displayExtension, stemDescription, 
+        SaveMode.INSERT, false);
     
     //now retrieve
     Stem foundStem = StemFinder.findByName(rootSession, stemName);
@@ -117,15 +117,15 @@ public class TestStem0 extends GrouperTest {
     
     ///////////////////////////////////
     //this should update by uuid
-    createdStem = Stem.saveStem(rootSession, stemName, stemDescription + "1", 
-        displayExtension, stemName, 
-        createdStem.getUuid(), SaveMode.INSERT_OR_UPDATE, false);
+    createdStem = Stem.saveStem(rootSession, stemName, createdStem.getUuid(),
+        stemName, displayExtension, stemDescription + "1", 
+         SaveMode.INSERT_OR_UPDATE, false);
     assertEquals("this should update by uuid", stemDescription + "1", createdStem.getDescription());
     
     //this should update by name
-    createdStem = Stem.saveStem(rootSession, stemName, stemDescription + "2", 
-        displayExtension, stemName, 
-        null, SaveMode.UPDATE, false);
+    createdStem = Stem.saveStem(rootSession, stemName, null, stemName, 
+        displayExtension, stemDescription + "2", 
+        SaveMode.UPDATE, false);
     assertEquals("this should update by name", stemDescription + "2", createdStem.getDescription());
     
     /////////////////////////////////////
@@ -133,9 +133,9 @@ public class TestStem0 extends GrouperTest {
     String stemsNotExist = "whatever123:heythere:another";
     //lets also delete those stems
     GrouperTest.deleteAllStemsIfExists(rootSession, stemsNotExist);
-    createdStem = Stem.saveStem(rootSession, stemsNotExist, stemDescription, 
-        displayExtension, stemsNotExist, 
-        null, SaveMode.INSERT_OR_UPDATE, true);
+    createdStem = Stem.saveStem(rootSession, stemsNotExist, null, 
+        stemsNotExist, displayExtension, stemDescription, 
+        SaveMode.INSERT_OR_UPDATE, true);
     
     assertEquals(stemDescription, createdStem.getDescription());
     //clean up

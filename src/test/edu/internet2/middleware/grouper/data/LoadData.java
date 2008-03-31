@@ -62,11 +62,11 @@ public class LoadData {
     GrouperSession session = GrouperSession.start(SubjectFinder.findById("GrouperSystem", 
         "application", InternalSourceAdapter.ID));
 
-    Stem dukeStem = Stem.saveStem(session, "duke", "", "Duke University", "duke", null, 
+    Stem dukeStem = Stem.saveStem(session, "duke", null, "duke", "Duke University", "", 
         null, false);
-    Stem sissStem = Stem.saveStem(session, dukeStem.getName() + ":siss", "", "siss", dukeStem.getName() + ":siss", null, 
+    Stem sissStem = Stem.saveStem(session, dukeStem.getName() + ":siss",null,  dukeStem.getName() + ":siss",  "siss","",
         null, false);
-    Stem coursesStem = Stem.saveStem(session, sissStem.getName() + ":courses", "", "courses", sissStem.getName() + ":courses", null, 
+    Stem coursesStem = Stem.saveStem(session, sissStem.getName() + ":courses",  null,sissStem.getName() + ":courses", "courses","",  
         null, false);
 
     int stemsCreated = 3;
@@ -76,20 +76,20 @@ public class LoadData {
     //for (int subjCount = 1; subjCount <= 100; subjCount++) {
     for (int subjCount = 1; subjCount <= 100; subjCount++) {
       String subjStemName = coursesStem.getName() + ":SUBJECT" + subjCount;
-      Stem subjStem = Stem.saveStem(session, subjStemName, "", "SUBJECT" + subjCount, 
-          subjStemName, null, null, false);
+      Stem subjStem = Stem.saveStem(session, subjStemName, null, subjStemName, "SUBJECT" + subjCount, "", 
+           null, false);
       stemsCreated++;
       //for (int catelogCount = 100; catelogCount <= 110; catelogCount++) {
       for (int catelogCount = 100; catelogCount <= 110; catelogCount++) {
         String catelogStemName = subjStem.getName() + ":" + catelogCount;
-        Stem catelogStem = Stem.saveStem(session, catelogStemName, "", ""+catelogCount, 
-             catelogStemName, null, null, false);
+        Stem catelogStem = Stem.saveStem(session, catelogStemName, null,catelogStemName,""+catelogCount, "", 
+               null, false);
          stemsCreated++;
          //for (int secCount = 10; secCount <= 28; secCount++) {
          for (int secCount = 10; secCount <= 28; secCount++) {
            String secStemName = catelogStem.getName() + ":" + secCount;
-          Stem secStem = Stem.saveStem(session, secStemName, "", "" + secCount, 
-               secStemName, null, null, false);
+          Stem secStem = Stem.saveStem(session, secStemName, null,secStemName, "" + secCount,  "", 
+               null, false);
            stemsCreated++;
            for (int classCount = 1000; classCount <= 1001; classCount++) {
              Stem classStem = null;
