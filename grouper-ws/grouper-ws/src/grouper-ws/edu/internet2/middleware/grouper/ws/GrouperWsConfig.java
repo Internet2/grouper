@@ -58,6 +58,23 @@ public final class GrouperWsConfig {
   }
 
   /**
+   * Get a Grouper configuration parameter.
+   * 
+   * <pre class="eg">
+   * String wheel = GrouperConfig.getProperty(&quot;groups.wheel.group&quot;);
+   * </pre>
+   * 
+   * @param property to lookup
+   * @param defaultValue is the value if the property isnt found
+   * @return Value of configuration parameter or the default value (will trim the value)
+   * @since 1.1.0
+   */
+  public static String getPropertyString(String property, String defaultValue) {
+    String value = retrievePropertiesConfiguration().getProperty(property);
+    return StringUtils.defaultIfEmpty(StringUtils.trimToEmpty(value), defaultValue);
+  }
+
+  /**
    * Get a Grouper configuration parameter an integer
    * 
    * @param property to lookup
@@ -251,4 +268,24 @@ public final class GrouperWsConfig {
    */
   public static final String WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE 
     = "ws.rest.default.response.content.type";
+  
+  /**
+   * to provide custom authentication (instead of the default httpServletRequest.getUserPrincipal()
+   * for non-Rampart authentication.  Class must implement the interface:
+   * edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication
+   * class must be fully qualified.  e.g. edu.school.whatever.MyAuthenticator
+   * blank means use default: edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication
+   * ws.security.non-rampart.authentication.class = 
+   */
+  public static final String WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS = 
+    "ws.security.non-rampart.authentication.class";
+
+  /**
+   * to provide rampart authentication, Class must implement the interface:
+   * edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication
+   * class must be fully qualified.  e.g. edu.school.whatever.MyAuthenticator
+   * blank means rampart will throw 404 status code
+   */
+  public static final String WS_SECURITY_RAMPART_AUTHENTICATION_CLASS = 
+    "ws.security.rampart.authentication.class";
 }

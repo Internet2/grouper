@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.ws;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,14 +14,20 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.axis2.context.MessageContext;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ws.security.WSConstants;
+import org.apache.ws.security.WSSecurityEngineResult;
+import org.apache.ws.security.WSUsernameTokenPrincipal;
+import org.apache.ws.security.handler.WSHandlerConstants;
+import org.apache.ws.security.handler.WSHandlerResult;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -30,6 +37,8 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.ExpirableCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
+import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
 import edu.internet2.middleware.grouper.ws.soap.GrouperService;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.subject.Subject;
@@ -55,7 +64,7 @@ public class GrouperServiceJ2ee implements Filter {
     Long requestStartMillis = threadLocalRequestStartMillis.get();
     return GrouperUtil.longValue(requestStartMillis, 0);
   }
-  
+
   /**
    * get a single parameter value for key.  If nultiple exist, throw error
    * @param paramMap is the map of params.  will get value from here if no request object
@@ -63,7 +72,8 @@ public class GrouperServiceJ2ee implements Filter {
    * @param key to lookup
    * @return the value
    */
-  public static String parameterValue(Map<String, String> paramMap, HttpServletRequest httpServletRequest, String key) {
+  public static String parameterValue(Map<String, String> paramMap,
+      HttpServletRequest httpServletRequest, String key) {
     //if no servlet (probably just testing), get from map
     if (httpServletRequest == null) {
       return paramMap.get(key);
@@ -74,12 +84,13 @@ public class GrouperServiceJ2ee implements Filter {
     }
     //there is probably something wrong if multiple values detected
     if (values.length > 1) {
-      throw new RuntimeException("Multiple request parameter values where detected for key: " + key
-          + ", when only one is expected: " + GrouperUtil.toStringForLog(values));
+      throw new RuntimeException(
+          "Multiple request parameter values where detected for key: " + key
+              + ", when only one is expected: " + GrouperUtil.toStringForLog(values));
     }
     return values[0];
   }
-  
+
   /**
    * retrieve the user principal (who is authenticated) from the (threadlocal)
    * request object
@@ -105,9 +116,55 @@ public class GrouperServiceJ2ee implements Filter {
    * 
    * @return the subject
    */
+  @SuppressWarnings({ "unchecked", "deprecation" })
   public static Subject retrieveSubjectLoggedIn() {
-    // use this to be the user connected, or the user act-as
-    String userIdLoggedIn = retrieveUserPrincipalNameFromRequest();
+    String authenticationClassName = GrouperWsConfig.getPropertyString(
+        GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS,
+        WsGrouperDefaultAuthentication.class.getName());
+    String userIdLoggedIn = null;
+    if (wssecServlet()) {
+
+      MessageContext msgCtx = MessageContext.getCurrentMessageContext();
+      Vector results = null;
+      if ((results = (Vector) msgCtx.getProperty(WSHandlerConstants.RECV_RESULTS)) == null) {
+        throw new RuntimeException("No Rampart security results!");
+      }
+      LOG.debug("Number of rampart results: " + results.size());
+      OUTER: for (int i = 0; i < results.size(); i++) {
+        WSHandlerResult rResult = (WSHandlerResult) results.get(i);
+        Vector wsSecEngineResults = rResult.getResults();
+
+        for (int j = 0; j < wsSecEngineResults.size(); j++) {
+          WSSecurityEngineResult wser = (WSSecurityEngineResult) wsSecEngineResults
+              .get(j);
+          if (wser.getAction() == WSConstants.UT && wser.getPrincipal() != null) {
+
+            //Extract the principal
+            WSUsernameTokenPrincipal principal = (WSUsernameTokenPrincipal) wser
+                .getPrincipal();
+
+            //Get user
+            userIdLoggedIn = principal.getName();
+            break OUTER;
+
+          }
+        }
+      }
+      GrouperUtil.assertion(StringUtils.isNotBlank(userIdLoggedIn),
+          "There is no Rampart user logged in, make sure the container requires authentication");
+    } else {
+      //this is for container auth (or custom auth, non-rampart)
+      //get an instance
+      Class<? extends WsCustomAuthentication> theClass = GrouperUtil
+          .forName(authenticationClassName);
+
+      //TODO remove typecast when new grouper
+      WsCustomAuthentication wsAuthentication = (WsCustomAuthentication) GrouperUtil
+          .newInstance(theClass);
+
+      userIdLoggedIn = wsAuthentication
+          .retrieveLoggedInSubjectId(retrieveHttpServletRequest());
+    }
 
     // cant be blank!
     if (StringUtils.isBlank(userIdLoggedIn)) {
@@ -116,24 +173,24 @@ public class GrouperServiceJ2ee implements Filter {
     }
 
     //null means dont look in a certain source
-    String source = null;
+    String sourceId = null;
 
     //see if we need to split with 4 colons in login name
     if (StringUtils.contains(userIdLoggedIn, GrouperWsConfig.WS_SEPARATOR)) {
       String[] sourceSubjectId = GrouperUtil.splitTrim(userIdLoggedIn,
           GrouperWsConfig.WS_SEPARATOR);
-      source = sourceSubjectId[0];
+      sourceId = sourceSubjectId[0];
       userIdLoggedIn = sourceSubjectId[1];
     } else {
       //see if there is a default source for all users to web service
-      source = StringUtils.trimToNull(GrouperWsConfig
+      sourceId = StringUtils.trimToNull(GrouperWsConfig
           .getPropertyString(GrouperWsConfig.WS_LOGGED_IN_SUBJECT_DEFAULT_SOURCE));
     }
 
     Subject caller = null;
     try {
       //see if across all sources
-      if (source == null) {
+      if (sourceId == null) {
         try {
           caller = SubjectFinder.findById(userIdLoggedIn);
         } catch (SubjectNotFoundException snfe) {
@@ -143,10 +200,11 @@ public class GrouperServiceJ2ee implements Filter {
       } else {
         //see if only in one source
         try {
-          caller = SubjectFinder.getSource(source).getSubject(userIdLoggedIn);
+          caller = SubjectFinder.getSource(sourceId).getSubject(userIdLoggedIn);
         } catch (SubjectNotFoundException snfe) {
           // if not found, then try any identifier
-          caller = SubjectFinder.getSource(source).getSubjectByIdentifier(userIdLoggedIn);
+          caller = SubjectFinder.getSource(sourceId).getSubjectByIdentifier(
+              userIdLoggedIn);
         }
 
       }
@@ -156,6 +214,7 @@ public class GrouperServiceJ2ee implements Filter {
       throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
     }
     return caller;
+
   }
 
   /** cache the actAs */
@@ -194,13 +253,12 @@ public class GrouperServiceJ2ee implements Filter {
 
     Subject actAsSubject = actAsLookup.retrieveSubject("actAsSubject");
 
-    //lets see if in cache
-    String loggedInSubjectString = new ReflectionToStringBuilder(loggedInSubject)
-        .toString();
-    String actAsSubjectString = new ReflectionToStringBuilder(actAsSubject).toString();
+    //lets see if in cache    
 
     //cache key to get or set if a user can act as another
-    MultiKey cacheKey = new MultiKey(loggedInSubjectString, actAsSubjectString);
+    MultiKey cacheKey = new MultiKey(loggedInSubject.getId(), loggedInSubject.getSource()
+        .getId(), actAsSubject.getId(), actAsSubject.getSource().getId());
+
     Boolean inCache = actAsCache().get(cacheKey);
 
     if (inCache != null && Boolean.TRUE.equals(inCache)) {
@@ -287,8 +345,7 @@ public class GrouperServiceJ2ee implements Filter {
 
       if (countNoExceptions == 0) {
         throw new RuntimeException("Problems seeing is web service user '"
-            + loggedInSubject + "' can actAs the other subject: '" + actAsSubjectString
-            + "'");
+            + loggedInSubject + "' can actAs the other subject: '" + actAsSubject + "'");
       }
       // if not an effective member
       throw new RuntimeException(
@@ -308,6 +365,11 @@ public class GrouperServiceJ2ee implements Filter {
    * 
    */
   private static final long serialVersionUID = 1L;
+
+  /**
+   * thread local for servlet
+   */
+  private static ThreadLocal<HttpServlet> threadLocalServlet = new ThreadLocal<HttpServlet>();
 
   /**
    * thread local for request
@@ -334,6 +396,34 @@ public class GrouperServiceJ2ee implements Filter {
   }
 
   /**
+   * public method to get the http servlet
+   * 
+   * @return the http servlet
+   */
+  public static HttpServlet retrieveHttpServlet() {
+    return threadLocalServlet.get();
+  }
+
+  /**
+   * is this a wssec servlet?  must have servlet init param
+   * @return true if wssec
+   */
+  public static boolean wssecServlet() {
+    String wssecValue = retrieveHttpServlet().getServletConfig()
+        .getInitParameter("wssec");
+    return GrouperUtil.booleanValue(wssecValue, false);
+  }
+
+  /**
+   * public method to get the http servlet
+   * 
+   * @param httpServlet is servlet to assign
+   */
+  public static void assignHttpServlet(HttpServlet httpServlet) {
+    threadLocalServlet.set(httpServlet);
+  }
+
+  /**
    * public method to get the http servlet request
    * 
    * @return the http servlet request
@@ -357,6 +447,8 @@ public class GrouperServiceJ2ee implements Filter {
     //empty strings work, but nulls make things off a bit
     request = new WsHttpServletRequest((HttpServletRequest) request);
 
+    //servlet will set this...
+    threadLocalServlet.remove();
     threadLocalRequest.set((HttpServletRequest) request);
     threadLocalResponse.set((HttpServletResponse) response);
     threadLocalRequestStartMillis.set(System.currentTimeMillis());
@@ -366,6 +458,7 @@ public class GrouperServiceJ2ee implements Filter {
       threadLocalRequest.remove();
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();
+      threadLocalServlet.remove();
     }
 
   }

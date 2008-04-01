@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
@@ -21,93 +21,89 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import java.lang.reflect.Array;
 
-
 /**
  *
  * @author mchyzer
  *
  */
 public class WsSampleAddMember implements WsSampleGenerated {
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        addMember(WsSampleGeneratedType.soap);
-    }
 
-    /**
-     * @param wsSampleGeneratedType can run as soap or xml/http
-     */
-    public static void addMember(WsSampleGeneratedType wsSampleGeneratedType) {
-        try {
-            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
-            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
-            Options options = stub._getServiceClient().getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(GeneratedClientSettings.USER);
-            auth.setPassword(GeneratedClientSettings.PASS);
-            auth.setPreemptiveAuthentication(true);
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    addMember(WsSampleGeneratedType.soap);
+  }
 
-            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
-            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
-                new Integer(3600000));
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void addMember(WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
 
-            AddMember addMember = AddMember.class.newInstance();
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
 
-            // set the act as id
-            WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
-            actAsSubject.setSubjectId("GrouperSystem");
-            addMember.setActAsSubjectLookup(actAsSubject);
+      AddMember addMember = AddMember.class.newInstance();
 
-            // just add, dont replace
-            addMember.setReplaceAllExisting("F");
+      // set the act as id
+      WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
+      actAsSubject.setSubjectId("GrouperSystem");
+      addMember.setActAsSubjectLookup(actAsSubject);
 
-            WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
-            wsGroupLookup.setGroupName("aStem:aGroup");
-            addMember.setWsGroupLookup(wsGroupLookup);
+      // just add, dont replace
+      addMember.setReplaceAllExisting("F");
 
-            //version, e.g. v1_3_000
-            addMember.setClientVersion(GeneratedClientSettings.VERSION);
+      WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
+      wsGroupLookup.setGroupName("aStem:aGroup");
+      addMember.setWsGroupLookup(wsGroupLookup);
 
-            // add two subjects to the group
-            WsSubjectLookup[] subjectLookups = (WsSubjectLookup[]) Array.newInstance(WsSubjectLookup.class,
-                    2);
-            subjectLookups[0] = WsSubjectLookup.class.newInstance();
-            subjectLookups[0].setSubjectId("10021368");
+      //version, e.g. v1_3_000
+      addMember.setClientVersion(GeneratedClientSettings.VERSION);
 
-            subjectLookups[1] = WsSubjectLookup.class.newInstance();
-            subjectLookups[1].setSubjectId("10039438");
+      // add two subjects to the group
+      WsSubjectLookup[] subjectLookups = (WsSubjectLookup[]) Array.newInstance(
+          WsSubjectLookup.class, 2);
+      subjectLookups[0] = WsSubjectLookup.class.newInstance();
+      subjectLookups[0].setSubjectId("10021368");
 
-            addMember.setSubjectLookups(subjectLookups);
+      subjectLookups[1] = WsSubjectLookup.class.newInstance();
+      subjectLookups[1].setSubjectId("10039438");
 
-            WsAddMemberResults wsAddMemberResults = stub.addMember(addMember)
-                                                        .get_return();
+      addMember.setSubjectLookups(subjectLookups);
 
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsAddMemberResults, ToStringStyle.MULTI_LINE_STYLE));
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsAddMemberResults.getResultMetadata(),
-                    ToStringStyle.MULTI_LINE_STYLE));
+      WsAddMemberResults wsAddMemberResults = stub.addMember(addMember).get_return();
 
-            if (wsAddMemberResults != null) {
-                for (WsAddMemberResult wsAddMemberResult : wsAddMemberResults.getResults()) {
-                    System.out.println(ToStringBuilder.reflectionToString(
-                            wsAddMemberResult, ToStringStyle.MULTI_LINE_STYLE));
-                    System.out.println(ToStringBuilder.reflectionToString(
-                            wsAddMemberResult.getResultMetadata(),
-                            ToStringStyle.MULTI_LINE_STYLE));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+      System.out.println(ToStringBuilder.reflectionToString(wsAddMemberResults,
+          ToStringStyle.MULTI_LINE_STYLE));
+      System.out.println(ToStringBuilder.reflectionToString(wsAddMemberResults
+          .getResultMetadata(), ToStringStyle.MULTI_LINE_STYLE));
+
+      if (wsAddMemberResults != null) {
+        for (WsAddMemberResult wsAddMemberResult : wsAddMemberResults.getResults()) {
+          System.out.println(ToStringBuilder.reflectionToString(wsAddMemberResult,
+              ToStringStyle.MULTI_LINE_STYLE));
+          System.out.println(ToStringBuilder.reflectionToString(wsAddMemberResult
+              .getResultMetadata(), ToStringStyle.MULTI_LINE_STYLE));
         }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    /**
-     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
-     */
-    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-        addMember(wsSampleGeneratedType);
-    }
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    addMember(wsSampleGeneratedType);
+  }
 }

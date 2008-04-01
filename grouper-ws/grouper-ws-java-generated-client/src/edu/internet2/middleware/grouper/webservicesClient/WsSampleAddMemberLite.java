@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
@@ -16,92 +16,86 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-
 /**
  *
  * @author mchyzer
  *
  */
 public class WsSampleAddMemberLite implements WsSampleGenerated {
-    /**
-     * @param wsSampleGeneratedType if SOAP or XML/HTTP
-     */
-    public static void addMemberLite(
-        WsSampleGeneratedType wsSampleGeneratedType) {
-        try {
-            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
-            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
-            Options options = stub._getServiceClient().getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(GeneratedClientSettings.USER);
-            auth.setPassword(GeneratedClientSettings.PASS);
-            auth.setPreemptiveAuthentication(true);
 
-            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
-            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
-                new Integer(3600000));
+  /**
+   * @param wsSampleGeneratedType if SOAP or XML/HTTP
+   */
+  public static void addMemberLite(WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
 
-            AddMemberLite addMemberLite = AddMemberLite.class.newInstance();
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
 
-            //version, e.g. v1_3_000
-            addMemberLite.setClientVersion(GeneratedClientSettings.VERSION);
+      AddMemberLite addMemberLite = AddMemberLite.class.newInstance();
 
-            addMemberLite.setGroupName("aStem:aGroup");
+      //version, e.g. v1_3_000
+      addMemberLite.setClientVersion(GeneratedClientSettings.VERSION);
 
-            addMemberLite.setGroupUuid("");
+      addMemberLite.setGroupName("aStem:aGroup");
 
-            addMemberLite.setSubjectId("10021368");
-            addMemberLite.setSubjectSourceId("");
-            addMemberLite.setSubjectIdentifier("");
+      addMemberLite.setGroupUuid("");
 
-            // set the act as id
-            addMemberLite.setActAsSubjectId("GrouperSystem");
+      addMemberLite.setSubjectId("10021368");
+      addMemberLite.setSubjectSourceId("");
+      addMemberLite.setSubjectIdentifier("");
 
-            addMemberLite.setActAsSubjectSourceId("");
-            addMemberLite.setActAsSubjectIdentifier("");
-            addMemberLite.setFieldName("");
-            addMemberLite.setIncludeGroupDetail("");
-            addMemberLite.setIncludeSubjectDetail("");
-            addMemberLite.setSubjectAttributeNames("");
-            addMemberLite.setParamName0("");
-            addMemberLite.setParamValue0("");
-            addMemberLite.setParamName1("");
-            addMemberLite.setParamValue1("");
+      // set the act as id
+      addMemberLite.setActAsSubjectId("GrouperSystem");
 
-            WsAddMemberLiteResult wsAddMemberLiteResult = stub.addMemberLite(addMemberLite)
-                                                              .get_return();
+      addMemberLite.setActAsSubjectSourceId("");
+      addMemberLite.setActAsSubjectIdentifier("");
+      addMemberLite.setFieldName("");
+      addMemberLite.setIncludeGroupDetail("");
+      addMemberLite.setIncludeSubjectDetail("");
+      addMemberLite.setSubjectAttributeNames("");
+      addMemberLite.setParamName0("");
+      addMemberLite.setParamValue0("");
+      addMemberLite.setParamName1("");
+      addMemberLite.setParamValue1("");
 
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsAddMemberLiteResult, ToStringStyle.MULTI_LINE_STYLE));
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsAddMemberLiteResult.getResultMetadata(),
-                    ToStringStyle.MULTI_LINE_STYLE));
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsAddMemberLiteResult.getSubjectAttributeNames(),
-                    ToStringStyle.MULTI_LINE_STYLE));
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsAddMemberLiteResult.getWsGroupAssigned(),
-                    ToStringStyle.MULTI_LINE_STYLE));
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsAddMemberLiteResult.getWsSubject(),
-                    ToStringStyle.MULTI_LINE_STYLE));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+      WsAddMemberLiteResult wsAddMemberLiteResult = stub.addMemberLite(addMemberLite)
+          .get_return();
+
+      System.out.println(ToStringBuilder.reflectionToString(wsAddMemberLiteResult,
+          ToStringStyle.MULTI_LINE_STYLE));
+      System.out.println(ToStringBuilder.reflectionToString(wsAddMemberLiteResult
+          .getResultMetadata(), ToStringStyle.MULTI_LINE_STYLE));
+      System.out.println(ToStringBuilder.reflectionToString(wsAddMemberLiteResult
+          .getSubjectAttributeNames(), ToStringStyle.MULTI_LINE_STYLE));
+      System.out.println(ToStringBuilder.reflectionToString(wsAddMemberLiteResult
+          .getWsGroupAssigned(), ToStringStyle.MULTI_LINE_STYLE));
+      System.out.println(ToStringBuilder.reflectionToString(wsAddMemberLiteResult
+          .getWsSubject(), ToStringStyle.MULTI_LINE_STYLE));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        addMemberLite(WsSampleGeneratedType.soap);
-    }
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    addMemberLite(WsSampleGeneratedType.soap);
+  }
 
-    /**
-     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
-     */
-    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-        addMemberLite(wsSampleGeneratedType);
-    }
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    addMemberLite(wsSampleGeneratedType);
+  }
 }

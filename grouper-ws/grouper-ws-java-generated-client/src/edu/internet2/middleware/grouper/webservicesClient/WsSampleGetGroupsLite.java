@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
@@ -16,77 +16,73 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
 /**
  * @author mchyzer
  *
  */
 public class WsSampleGetGroupsLite implements WsSampleGenerated {
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        getGroupsLite(WsSampleGeneratedType.soap);
-    }
 
-    /**
-     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
-     */
-    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-        getGroupsLite(wsSampleGeneratedType);
-    }
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    getGroupsLite(WsSampleGeneratedType.soap);
+  }
 
-    /**
-     * @param wsSampleGeneratedType can run as soap or xml/http
-     */
-    public static void getGroupsLite(
-        WsSampleGeneratedType wsSampleGeneratedType) {
-        try {
-            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
-            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
-            Options options = stub._getServiceClient().getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(GeneratedClientSettings.USER);
-            auth.setPassword(GeneratedClientSettings.PASS);
-            auth.setPreemptiveAuthentication(true);
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    getGroupsLite(wsSampleGeneratedType);
+  }
 
-            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
-            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
-                new Integer(3600000));
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void getGroupsLite(WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
 
-            GetGroupsLite getGroupsLite = GetGroupsLite.class.newInstance();
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
 
-            //version, e.g. v1_3_000
-            getGroupsLite.setClientVersion(GeneratedClientSettings.VERSION);
+      GetGroupsLite getGroupsLite = GetGroupsLite.class.newInstance();
 
-            getGroupsLite.setActAsSubjectId("GrouperSystem");
-            getGroupsLite.setActAsSubjectIdentifier("");
-            getGroupsLite.setActAsSubjectSourceId("");
+      //version, e.g. v1_3_000
+      getGroupsLite.setClientVersion(GeneratedClientSettings.VERSION);
 
-            // check all
-            getGroupsLite.setMemberFilter("All");
+      getGroupsLite.setActAsSubjectId("GrouperSystem");
+      getGroupsLite.setActAsSubjectIdentifier("");
+      getGroupsLite.setActAsSubjectSourceId("");
 
-            getGroupsLite.setSubjectId("GrouperSystem");
-            getGroupsLite.setSubjectIdentifier("");
-            getGroupsLite.setSubjectSourceId("");
+      // check all
+      getGroupsLite.setMemberFilter("All");
 
-            WsGetGroupsLiteResult wsGetGroupsLiteResult = stub.getGroupsLite(getGroupsLite)
-                                                              .get_return();
+      getGroupsLite.setSubjectId("GrouperSystem");
+      getGroupsLite.setSubjectIdentifier("");
+      getGroupsLite.setSubjectSourceId("");
 
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsGetGroupsLiteResult));
+      WsGetGroupsLiteResult wsGetGroupsLiteResult = stub.getGroupsLite(getGroupsLite)
+          .get_return();
 
-            WsGroup[] results = wsGetGroupsLiteResult.getWsGroups();
+      System.out.println(ToStringBuilder.reflectionToString(wsGetGroupsLiteResult));
 
-            if (results != null) {
-                for (WsGroup wsGroup : results) {
-                    System.out.println(ToStringBuilder.reflectionToString(
-                            wsGroup));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+      WsGroup[] results = wsGetGroupsLiteResult.getWsGroups();
+
+      if (results != null) {
+        for (WsGroup wsGroup : results) {
+          System.out.println(ToStringBuilder.reflectionToString(wsGroup));
         }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 }

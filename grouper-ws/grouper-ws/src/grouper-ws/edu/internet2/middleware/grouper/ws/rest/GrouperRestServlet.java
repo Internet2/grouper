@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.6 2008-03-31 07:22:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.7 2008-04-01 08:38:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
@@ -63,6 +64,7 @@ public class GrouperRestServlet extends HttpServlet {
   protected void service(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
+    GrouperServiceJ2ee.assignHttpServlet(this);
     List<String> urlStrings = null;
     StringBuilder warnings = new StringBuilder();
     WsResponseBean wsResponseBean = null;

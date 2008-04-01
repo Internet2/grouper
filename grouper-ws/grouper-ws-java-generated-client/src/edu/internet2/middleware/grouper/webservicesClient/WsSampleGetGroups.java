@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
@@ -18,88 +18,83 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
 /**
  * @author mchyzer
  *
  */
 public class WsSampleGetGroups implements WsSampleGenerated {
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        getGroups(WsSampleGeneratedType.soap);
-    }
 
-    /**
-     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
-     */
-    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-        getGroups(wsSampleGeneratedType);
-    }
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    getGroups(WsSampleGeneratedType.soap);
+  }
 
-    /**
-     * @param wsSampleGeneratedType can run as soap or xml/http
-     */
-    public static void getGroups(WsSampleGeneratedType wsSampleGeneratedType) {
-        try {
-            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
-            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
-            Options options = stub._getServiceClient().getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(GeneratedClientSettings.USER);
-            auth.setPassword(GeneratedClientSettings.PASS);
-            auth.setPreemptiveAuthentication(true);
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    getGroups(wsSampleGeneratedType);
+  }
 
-            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
-            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
-                new Integer(3600000));
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void getGroups(WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
 
-            GetGroups getGroups = GetGroups.class.newInstance();
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
 
-            //set the act as id
-            WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
-            actAsSubject.setSubjectId("GrouperSystem");
-            getGroups.setActAsSubjectLookup(actAsSubject);
+      GetGroups getGroups = GetGroups.class.newInstance();
 
-            //version, e.g. v1_3_000
-            getGroups.setClientVersion(GeneratedClientSettings.VERSION);
+      //set the act as id
+      WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
+      actAsSubject.setSubjectId("GrouperSystem");
+      getGroups.setActAsSubjectLookup(actAsSubject);
 
-            //check all
-            getGroups.setMemberFilter("All");
+      //version, e.g. v1_3_000
+      getGroups.setClientVersion(GeneratedClientSettings.VERSION);
 
-            WsSubjectLookup wsSubjectLookup = WsSubjectLookup.class.newInstance();
-            wsSubjectLookup.setSubjectId("GrouperSystem");
+      //check all
+      getGroups.setMemberFilter("All");
 
-            WsSubjectLookup wsSubjectLookup2 = WsSubjectLookup.class.newInstance();
-            wsSubjectLookup2.setSubjectId("10021368");
-            getGroups.setSubjectLookups(new WsSubjectLookup[] {
-                    wsSubjectLookup, wsSubjectLookup2
-                });
+      WsSubjectLookup wsSubjectLookup = WsSubjectLookup.class.newInstance();
+      wsSubjectLookup.setSubjectId("GrouperSystem");
 
-            WsGetGroupsResults wsGetGroupsResults = stub.getGroups(getGroups)
-                                                        .get_return();
+      WsSubjectLookup wsSubjectLookup2 = WsSubjectLookup.class.newInstance();
+      wsSubjectLookup2.setSubjectId("10021368");
+      getGroups.setSubjectLookups(new WsSubjectLookup[] { wsSubjectLookup,
+          wsSubjectLookup2 });
 
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsGetGroupsResults));
+      WsGetGroupsResults wsGetGroupsResults = stub.getGroups(getGroups).get_return();
 
-            WsGetGroupsResult[] results = wsGetGroupsResults.getResults();
+      System.out.println(ToStringBuilder.reflectionToString(wsGetGroupsResults));
 
-            if (results != null) {
-                for (WsGetGroupsResult result : results) {
-                    WsGroup[] wsGroups = result.getWsGroups();
+      WsGetGroupsResult[] results = wsGetGroupsResults.getResults();
 
-                    if (wsGroups != null) {
-                        for (WsGroup wsGroup : wsGroups) {
-                            System.out.println(ToStringBuilder.reflectionToString(
-                                    wsGroup));
-                        }
-                    }
-                }
+      if (results != null) {
+        for (WsGetGroupsResult result : results) {
+          WsGroup[] wsGroups = result.getWsGroups();
+
+          if (wsGroups != null) {
+            for (WsGroup wsGroup : wsGroups) {
+              System.out.println(ToStringBuilder.reflectionToString(wsGroup));
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+          }
         }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 }

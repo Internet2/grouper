@@ -146,13 +146,16 @@
 				<include name="edu/internet2/middleware/grouper/ws/**/*.class" />
 			</fileset>
 		</copy>
+	  <!-- normal axis -->
 		<jar destfile="${basedir}/webapp/WEB-INF/services/GrouperService.aar">
 			<fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
 			<fileset dir="webservices/GrouperService.aar" />
 		</jar>
-		<!-- copy the aar to the build dir -->
-		<!-- copy file="webapp/WEB-INF/services/GrouperService.aar" 
-			todir="../dist/grouper/WEB-INF/services" / -->
+	  <!-- for rampart -->
+    <jar destfile="${basedir}/webapp/WEB-INF/services/GrouperServiceWssec.aar">
+      <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
+      <fileset dir="webservices/GrouperServiceWssec.aar" />
+    </jar>
 
 	</target>
 
@@ -302,6 +305,7 @@
 		</copy>
 		<copy todir="${webapp.folder}/WEB-INF/lib">
 			<fileset dir="${basedir}/lib/axis" includes="*.jar" />
+      <fileset dir="${basedir}/lib/rampart" includes="*.jar" />
 			<fileset dir="${basedir}/lib/grouper" includes="*.jar" />
 			<fileset dir="${basedir}/lib/grouper-ws" includes="*.jar" />
 			<fileset dir="${dist.home}" includes="grouper-ws.jar" />

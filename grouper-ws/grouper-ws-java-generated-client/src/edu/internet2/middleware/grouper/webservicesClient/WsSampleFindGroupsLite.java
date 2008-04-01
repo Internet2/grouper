@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
@@ -16,81 +16,77 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
 /**
  *
  * @author mchyzer
  *
  */
 public class WsSampleFindGroupsLite implements WsSampleGenerated {
-    /**
-     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
-     */
-    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-        findGroupsLite(wsSampleGeneratedType);
-    }
 
-    /**
-     * @param wsSampleGeneratedType can run as soap or xml/http
-     */
-    public static void findGroupsLite(
-        WsSampleGeneratedType wsSampleGeneratedType) {
-        try {
-            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
-            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
-            Options options = stub._getServiceClient().getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(GeneratedClientSettings.USER);
-            auth.setPassword(GeneratedClientSettings.PASS);
-            auth.setPreemptiveAuthentication(true);
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    findGroupsLite(wsSampleGeneratedType);
+  }
 
-            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
-            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
-                new Integer(3600000));
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void findGroupsLite(WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
 
-            FindGroupsLite findGroupsLite = FindGroupsLite.class.newInstance();
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
 
-            findGroupsLite.setActAsSubjectId("");
-            findGroupsLite.setActAsSubjectIdentifier("");
-            findGroupsLite.setActAsSubjectSourceId("");
-            //version, e.g. v1_3_000
-            findGroupsLite.setClientVersion(GeneratedClientSettings.VERSION);
-            findGroupsLite.setGroupAttributeName("");
-            findGroupsLite.setGroupAttributeValue("");
-            findGroupsLite.setGroupName("");
-            findGroupsLite.setGroupTypeName("");
-            findGroupsLite.setGroupUuid("");
-            findGroupsLite.setStemName("aStem");
-            findGroupsLite.setStemNameScope("ALL_IN_SUBTREE");
-            findGroupsLite.setIncludeGroupDetail("T");
-            findGroupsLite.setQueryFilterType("FIND_BY_STEM_NAME");
+      FindGroupsLite findGroupsLite = FindGroupsLite.class.newInstance();
 
-            // set the act as id
-            // findGroupsLite.setActAsSubjectId("GrouperSystem");
-            WsFindGroupsResults wsGroupsResults = stub.findGroupsLite(findGroupsLite)
-                                                      .get_return();
+      findGroupsLite.setActAsSubjectId("");
+      findGroupsLite.setActAsSubjectIdentifier("");
+      findGroupsLite.setActAsSubjectSourceId("");
+      //version, e.g. v1_3_000
+      findGroupsLite.setClientVersion(GeneratedClientSettings.VERSION);
+      findGroupsLite.setGroupAttributeName("");
+      findGroupsLite.setGroupAttributeValue("");
+      findGroupsLite.setGroupName("");
+      findGroupsLite.setGroupTypeName("");
+      findGroupsLite.setGroupUuid("");
+      findGroupsLite.setStemName("aStem");
+      findGroupsLite.setStemNameScope("ALL_IN_SUBTREE");
+      findGroupsLite.setIncludeGroupDetail("T");
+      findGroupsLite.setQueryFilterType("FIND_BY_STEM_NAME");
 
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsGroupsResults));
+      // set the act as id
+      // findGroupsLite.setActAsSubjectId("GrouperSystem");
+      WsFindGroupsResults wsGroupsResults = stub.findGroupsLite(findGroupsLite)
+          .get_return();
 
-            WsGroup[] wsGroups = wsGroupsResults.getGroupResults();
+      System.out.println(ToStringBuilder.reflectionToString(wsGroupsResults));
 
-            if (wsGroups != null) {
-                for (WsGroup wsGroup : wsGroups) {
-                    System.out.println(ToStringBuilder.reflectionToString(
-                            wsGroup));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+      WsGroup[] wsGroups = wsGroupsResults.getGroupResults();
+
+      if (wsGroups != null) {
+        for (WsGroup wsGroup : wsGroups) {
+          System.out.println(ToStringBuilder.reflectionToString(wsGroup));
         }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        findGroupsLite(WsSampleGeneratedType.soap);
-    }
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    findGroupsLite(WsSampleGeneratedType.soap);
+  }
 }

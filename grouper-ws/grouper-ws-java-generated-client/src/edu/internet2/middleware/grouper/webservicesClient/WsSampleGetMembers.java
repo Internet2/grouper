@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
@@ -20,90 +20,85 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-
 /**
  *
  * @author mchyzer
  *
  */
 public class WsSampleGetMembers implements WsSampleGenerated {
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        getMembers(WsSampleGeneratedType.soap);
-    }
 
-    /**
-     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
-     */
-    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
-        getMembers(wsSampleGeneratedType);
-    }
+  /**
+   * @param args
+   */
+  public static void main(String[] args) {
+    getMembers(WsSampleGeneratedType.soap);
+  }
 
-    /**
-     * @param wsSampleGeneratedType can run as soap or xml/http
-     */
-    public static void getMembers(WsSampleGeneratedType wsSampleGeneratedType) {
-        try {
-            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
-            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
-            Options options = stub._getServiceClient().getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(GeneratedClientSettings.USER);
-            auth.setPassword(GeneratedClientSettings.PASS);
-            auth.setPreemptiveAuthentication(true);
+  /**
+   * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+   */
+  public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+    getMembers(wsSampleGeneratedType);
+  }
 
-            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
-            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
-            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
-                new Integer(3600000));
+  /**
+   * @param wsSampleGeneratedType can run as soap or xml/http
+   */
+  public static void getMembers(WsSampleGeneratedType wsSampleGeneratedType) {
+    try {
+      //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+      GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+      Options options = stub._getServiceClient().getOptions();
+      HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+      auth.setUsername(GeneratedClientSettings.USER);
+      auth.setPassword(GeneratedClientSettings.PASS);
+      auth.setPreemptiveAuthentication(true);
 
-            GetMembers getMembers = GetMembers.class.newInstance();
+      options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+      options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+      options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(3600000));
 
-            //version, e.g. v1_3_000
-            getMembers.setClientVersion(GeneratedClientSettings.VERSION);
+      GetMembers getMembers = GetMembers.class.newInstance();
 
-            // set the act as id
-            WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
-            actAsSubject.setSubjectId("GrouperSystem");
-            getMembers.setActAsSubjectLookup(actAsSubject);
+      //version, e.g. v1_3_000
+      getMembers.setClientVersion(GeneratedClientSettings.VERSION);
 
-            WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
-            wsGroupLookup.setGroupName("aStem:aGroup");
+      // set the act as id
+      WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
+      actAsSubject.setSubjectId("GrouperSystem");
+      getMembers.setActAsSubjectLookup(actAsSubject);
 
-            WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
-            getMembers.setWsGroupLookups(wsGroupLookups);
+      WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
+      wsGroupLookup.setGroupName("aStem:aGroup");
 
-            getMembers.setFieldName("");
-            getMembers.setMemberFilter("All");
-            getMembers.setIncludeGroupDetail("F");
-            getMembers.setIncludeSubjectDetail("T");
+      WsGroupLookup[] wsGroupLookups = new WsGroupLookup[] { wsGroupLookup };
+      getMembers.setWsGroupLookups(wsGroupLookups);
 
-            WsGetMembersResults wsGetMembersResults = stub.getMembers(getMembers)
-                                                          .get_return();
+      getMembers.setFieldName("");
+      getMembers.setMemberFilter("All");
+      getMembers.setIncludeGroupDetail("F");
+      getMembers.setIncludeSubjectDetail("T");
 
-            System.out.println(ToStringBuilder.reflectionToString(
-                    wsGetMembersResults));
+      WsGetMembersResults wsGetMembersResults = stub.getMembers(getMembers).get_return();
 
-            WsGetMembersResult[] wsGetMemberResults = wsGetMembersResults.getResults();
-            int i = 0;
+      System.out.println(ToStringBuilder.reflectionToString(wsGetMembersResults));
 
-            for (WsGetMembersResult wsGetMembersResult : GeneratedUtils.nonNull(
-                    wsGetMemberResults)) {
-                System.out.println("Result: " + i++ + ": code: " +
-                    wsGetMembersResult.getResultMetadata().getResultCode());
+      WsGetMembersResult[] wsGetMemberResults = wsGetMembersResults.getResults();
+      int i = 0;
 
-                WsSubject[] wsSubjectArray = wsGetMembersResult.getWsSubjects();
+      for (WsGetMembersResult wsGetMembersResult : GeneratedUtils
+          .nonNull(wsGetMemberResults)) {
+        System.out.println("Result: " + i++ + ": code: "
+            + wsGetMembersResult.getResultMetadata().getResultCode());
 
-                for (WsSubject wsSubject : GeneratedUtils.nonNull(
-                        wsSubjectArray)) {
-                    System.out.println(ToStringBuilder.reflectionToString(
-                            wsSubject));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        WsSubject[] wsSubjectArray = wsGetMembersResult.getWsSubjects();
+
+        for (WsSubject wsSubject : GeneratedUtils.nonNull(wsSubjectArray)) {
+          System.out.println(ToStringBuilder.reflectionToString(wsSubject));
         }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
 }

@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
@@ -53,6 +54,63 @@ import com.p6spy.engine.common.FastExternalUtils;
  */
 @SuppressWarnings("serial")
 public class GrouperUtil {
+
+  /**
+   * get a file name from a resource name
+   * 
+   * @param resourceName
+   *          is the classpath location
+   * 
+   * @return the file path on the system
+   */
+  public static File fileFromResourceName(String resourceName) {
+    
+    URL url = computeUrl(resourceName, true);
+
+    if (url == null) {
+      return null;
+    }
+
+    File configFile = new File(url.getFile());
+
+    return configFile;
+  }
+  
+
+  /**
+   * compute a url of a resource
+   * @param resourceName
+   * @param canBeNull if cant be null, throw runtime
+   * @return the URL
+   */
+  public static URL computeUrl(String resourceName, boolean canBeNull) {
+    //get the url of the navigation file
+    ClassLoader cl = classLoader();
+
+    URL url = null;
+
+    try {
+      url = cl.getResource(resourceName);
+    } catch (NullPointerException npe) {
+      String error = "computeUrl() Could not find resource file: " + resourceName;
+      throw new RuntimeException(error, npe);
+    }
+
+    if (!canBeNull && url == null) {
+      throw new RuntimeException("Cant find resource: " + resourceName);
+    }
+
+    return url;
+  }
+
+
+  /**
+   * fast class loader
+   * @return the class loader
+   */
+  public static ClassLoader classLoader() {
+    return GrouperUtil.class.getClassLoader();
+  }
 
   /**
    * make sure a array is non null.  If null, then return an empty array.
@@ -204,10 +262,11 @@ public class GrouperUtil {
   
   /**
    * Construct a class
+   * @param <T> template type
    * @param theClass
    * @return the instance
    */
-  public static Object newInstance(Class theClass) {
+  public static <T> T newInstance(Class<T> theClass) {
     try {
       return theClass.newInstance();
     } catch (Throwable e) {
