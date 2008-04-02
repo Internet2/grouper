@@ -16,7 +16,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<service name="GrouperServiceWssec" scope="application" targetNamespace="http://soap.ws.grouper.middleware.internet2.edu/">
+<service name="GrouperService" scope="application" targetNamespace="http://soap.ws.grouper.middleware.internet2.edu/">
     <description>
         Grouper Service with ws security
     </description>

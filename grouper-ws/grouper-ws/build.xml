@@ -21,6 +21,7 @@
 	<fail message="Couldnt detect build.properties property file entry: webapp.folder" unless="webapp.folder" />
 	<fail message="Couldnt detect build.properties property file entry: dist.cleanOnDist" unless="dist.cleanOnDist" />
 	<fail message="Couldnt detect build.properties property file entry: dist.packageAar" unless="dist.packageAar" />
+  <fail message="Couldnt detect build.properties property file entry: webapp.authentication.use.rampart" unless="webapp.authentication.use.rampart" />
 	<fail message="Couldnt detect build.properties property file entry: dist.generateWsdlOnDist" unless="dist.generateWsdlOnDist" />
 	<fail message="Couldnt detect build.properties property file entry: dist.generateClientOnDist" unless="dist.generateClientOnDist" />
 	<fail message="Couldnt detect build.properties property file entry: deploy.context.path" unless="deploy.context.path" />
@@ -156,7 +157,7 @@
       <fileset excludes="edu/internet2/middleware/grouper/ws/**/*Test.class" dir="${webservice.folder}/classes" />
       <fileset dir="webservices/GrouperServiceWssec.aar" />
     </jar>
-
+	  
 	</target>
 
 	<!-- 
@@ -316,6 +317,18 @@
 			<fileset dir="${basedir}/webapp" />
 		</copy>
 
+	  <!-- decide if  rampart or not -->
+    <if>
+      <istrue value="${webapp.authentication.use.rampart}" />
+      <then>
+        <move file="${webapp.folder}/WEB-INF/services/GrouperService.aar" 
+          tofile="${webapp.folder}/WEB-INF/services/GrouperService.aar.ondeck"  />
+      </then>
+      <else>
+        <move file="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar" 
+          tofile="${webapp.folder}/WEB-INF/services/GrouperServiceWssec.aar.ondeck"  />
+      </else>
+    </if>
 		<!-- make a war file -->
 		<property name="webapp.war" value="${webapp.folder}.war" />
 		<delete file="${webapp.war}" />

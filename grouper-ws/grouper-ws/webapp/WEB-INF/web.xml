@@ -19,10 +19,6 @@
   </filter-mapping>
   <filter-mapping>
     <filter-name>Grouper service filter</filter-name>
-    <url-pattern>/servicesWssec/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>Grouper service filter</filter-name>
     <url-pattern>/servicesRest/*</url-pattern>
   </filter-mapping>
 	<servlet>
@@ -30,18 +26,12 @@
 		<display-name>Apache-Axis Servlet</display-name>
 		<servlet-class>edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
-	</servlet>
-  <servlet>
-    <servlet-name>AxisServletWssec</servlet-name>
-    <display-name>Apache-Axis Servlet with rampart</display-name>
-    <servlet-class>edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
     <!-- hint that this is the wssec servlet -->
-    <init-param>
+    <!-- init-param>
       <param-name>wssec</param-name>
       <param-value>true</param-value>
-    </init-param> 
-  </servlet>
+    </init-param --> 
+	</servlet>
   <servlet>
     <servlet-name>RestServlet</servlet-name>
     <display-name>WS REST Servlet</display-name>
@@ -51,10 +41,6 @@
   <servlet-mapping>
     <servlet-name>AxisServlet</servlet-name>
     <url-pattern>/services/*</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>AxisServletWssec</servlet-name>
-    <url-pattern>/servicesWssec/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>RestServlet</servlet-name>
@@ -67,7 +53,6 @@
 			<url-pattern>/services/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
-			<!-- NOTE:  This role is not present in the default users file -->
 			<role-name>grouper_user</role-name>
 		</auth-constraint>
 	</security-constraint>

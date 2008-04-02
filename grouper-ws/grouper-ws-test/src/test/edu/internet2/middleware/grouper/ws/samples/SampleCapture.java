@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.1 2008-03-31 17:51:47 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.2 2008-04-02 08:11:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
@@ -94,17 +95,19 @@ public class SampleCapture {
     
     setupData();
     
-    captureAddMember();
-    captureDeleteMember();
+//    captureRampart();
+    
+//    captureAddMember();
+//    captureDeleteMember();
     captureHasMember();
-    captureGetGroups();
-    captureGetMembers();
-    captureFindGroups();
-    captureFindStems();
-    captureStemDelete();
-    captureStemSave();
-    captureGroupDelete();
-    captureGroupSave();
+//    captureGetGroups();
+//    captureGetMembers();
+//    captureFindGroups();
+//    captureFindStems();
+//    captureStemDelete();
+//    captureStemSave();
+//    captureGroupDelete();
+//    captureGroupSave();
   }
 
   /** certain data has to exist for samples to run */
@@ -244,6 +247,16 @@ public class SampleCapture {
     
   }
 
+  /**
+   * rampart captures
+   */
+  public static void captureRampart() {
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        RampartSampleGetGroupsLite.class, "rampart", (String)null);
+    
+  }
+  
+  
   /**
    * all group save captures
    */

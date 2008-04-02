@@ -46,7 +46,8 @@ public class RampartSampleGetGroupsLite implements WsSampleGenerated {
         ConfigurationContextFactory.
            createConfigurationContextFromFileSystem(GeneratedClientSettings.fileFromResourceName(
                "edu/internet2/middleware/grouper/webservicesClient/rampart").getAbsolutePath(), null);
-      GrouperServiceStub stub = new GrouperServiceStub(ctx, GeneratedClientSettings.URL_WSSEC);
+      GrouperServiceStub stub = new GrouperServiceStub(ctx, GeneratedClientSettings.URL);
+
       Options options = stub._getServiceClient().getOptions();
 
       options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
@@ -62,7 +63,7 @@ public class RampartSampleGetGroupsLite implements WsSampleGenerated {
 
       options.setUserName("GrouperSystem");
       
-      stub._getServiceClient().engageModule("addressing");
+      //stub._getServiceClient().engageModule("addressing");
       stub._getServiceClient().engageModule("rampart");
 
       
@@ -98,4 +99,5 @@ public class RampartSampleGetGroupsLite implements WsSampleGenerated {
       throw new RuntimeException(e);
     }
   }
+  
 }

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GeneratedClientSettings.java,v 1.3 2008-04-01 08:38:51 mchyzer Exp $
+ * @author mchyzer $Id: GeneratedClientSettings.java,v 1.4 2008-04-02 08:11:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.webservicesClient.util;
 
@@ -22,9 +22,6 @@ public class GeneratedClientSettings {
 
     /** url prefix */
     public static final String URL = "http://localhost:8093/grouper-ws/services/GrouperService";
-
-    /** url prefix */
-    public static final String URL_WSSEC = "http://localhost:8093/grouper-ws/servicesWssec/GrouperServiceWssec";
 
     /**
      * make sure a array is non null.  If null, then return an empty array.

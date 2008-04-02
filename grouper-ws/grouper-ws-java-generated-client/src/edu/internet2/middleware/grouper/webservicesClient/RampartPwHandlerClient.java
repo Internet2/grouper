@@ -8,6 +8,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.apache.ws.security.WSPasswordCallback;
 
+
 /**
  * example password handler for client
  */

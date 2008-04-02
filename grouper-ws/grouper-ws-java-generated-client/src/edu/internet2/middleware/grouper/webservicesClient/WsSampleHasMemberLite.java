@@ -54,13 +54,14 @@ public class WsSampleHasMemberLite implements WsSampleGenerated {
 
       HasMemberLite hasMemberLite = HasMemberLite.class.newInstance();
 
-      //version, e.g. v1_3_000
-      hasMemberLite.setClientVersion(GeneratedClientSettings.VERSION);
-
       // set the act as id
       hasMemberLite.setActAsSubjectId("GrouperSystem");
       hasMemberLite.setActAsSubjectIdentifier("");
+      hasMemberLite.setActAsSubjectSourceId("");
 
+      //version, e.g. v1_3_000
+      hasMemberLite.setClientVersion(GeneratedClientSettings.VERSION);
+      
       // check all
       hasMemberLite.setMemberFilter("All");
 
@@ -69,6 +70,7 @@ public class WsSampleHasMemberLite implements WsSampleGenerated {
 
       hasMemberLite.setSubjectId("GrouperSystem");
       hasMemberLite.setSubjectIdentifier("");
+      hasMemberLite.setSubjectSourceId("");
 
       WsHasMemberLiteResult wsHasMemberLiteResult = stub.hasMemberLite(hasMemberLite)
           .get_return();
