@@ -30,6 +30,10 @@ import org.apache.struts.upload.MultipartRequestWrapper;
 
 import java.util.*;
 import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 
 /**
@@ -166,7 +170,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.12 2007-10-30 10:53:06 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.13 2008-04-02 12:22:49 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -178,6 +182,25 @@ public abstract class GrouperCapableAction
 	public abstract ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
 		      HttpServletRequest request, HttpServletResponse response,
 			  HttpSession session, GrouperSession grouperSession) throws Exception;
+	
+	
+	/**
+	 * Transaction support implemented centrally here. the execute method calls this rather than grouperExecute
+	 * as used to be the case.
+	 */
+	public  ActionForward grouperTransactionExecute(final ActionMapping mapping, final ActionForm form,
+		      final HttpServletRequest request, final HttpServletResponse response,
+			  final HttpSession session, final GrouperSession grouperSession) throws Exception {
+	
+	return (ActionForward)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() { 
+		public Object callback(GrouperTransaction grouperTransaction) throws GrouperDAOException {
+			try{
+				return grouperExecute(mapping,form,request,response,session,grouperSession);
+			}catch(Exception e) {
+				throw new GrouperDAOException(e);
+			}
+		}});
+	}
 	
 	/**
 	 * Makes HttpSession and GrouperSession available to subclasses
@@ -220,7 +243,7 @@ public abstract class GrouperCapableAction
 			Date before = new Date();
 			ActionForward forward =  null;
 			
-			if(isEmpty(wheelGroupAction)) forward=grouperExecute(mapping,form,request,response,session,grouperSession);
+			if(isEmpty(wheelGroupAction)) forward=grouperTransactionExecute(mapping,form,request,response,session,grouperSession);
 			else forward = new ActionForward(getMediaResources(session).getString("admin.browse.path"),true);
 			Date after = new Date();
 			long diff = after.getTime()-before.getTime();
