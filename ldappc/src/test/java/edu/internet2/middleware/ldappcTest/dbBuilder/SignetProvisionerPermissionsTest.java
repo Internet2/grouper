@@ -18,29 +18,29 @@
 
 package edu.internet2.middleware.ldappcTest.dbBuilder;
 
-import junit.framework.TestCase;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
+import junit.framework.TestCase;
+import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcSignetProvisioner;
-import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
-import edu.internet2.middleware.subject.Subject;
-
-
+import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import  edu.internet2.middleware.signet.Signet;
-import  edu.internet2.middleware.signet.SignetRuntimeException;
-import  edu.internet2.middleware.signet.LimitValue;
-import  edu.internet2.middleware.signet.Limit;
-import  edu.internet2.middleware.signet.PrivilegedSubject;
-import  edu.internet2.middleware.signet.Privilege;
-import  edu.internet2.middleware.signet.Permission;
-import  edu.internet2.middleware.signet.tree.TreeNode;
-
-import java.util.Iterator;
-import java.util.Set;
+import edu.internet2.middleware.signet.Permission;
+import edu.internet2.middleware.signet.Privilege;
+import edu.internet2.middleware.signet.PrivilegedSubject;
+import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetRuntimeException;
+import edu.internet2.middleware.signet.tree.TreeNode;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing provisioning permissions.
@@ -78,10 +78,13 @@ public class SignetProvisionerPermissionsTest extends TestCase
     {
         DisplayTest.showRunClass(getClass().getName()); 
 
+        Map<String, Hashtable<String, String>> subjectRDNTables = new HashMap<String, Hashtable<String, String>>();
+        Map<String, Hashtable<String, String>> subjectIDTables = new HashMap<String, Hashtable<String, String>>();
+        // TODO Must populate these maps with hash tables for sources.
 
         String[] args = {"-subject", "GrouperSystem", "-permissions"};
         options = new InputOptions(args);
-        ldappcSignetProvisioner = new LdappcSignetProvisioner(options);
+        ldappcSignetProvisioner = new LdappcSignetProvisioner(options, subjectRDNTables, subjectIDTables);
     }
 
     /**

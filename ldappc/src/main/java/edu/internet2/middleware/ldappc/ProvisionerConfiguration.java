@@ -67,4 +67,22 @@ public interface ProvisionerConfiguration
      *         found
      */
     public LdapSearchFilter getSourceSubjectLdapFilter(String source);
+
+    /**
+     * This returns a {@link java.util.Map} of size estimate for a hash table
+     * containing the subjects in this source that will be provisioned.
+     * 
+     * @return size estimate for a hash table.
+     */
+    public Map<String, Integer> getSourceSubjectHashEstimates();
+
+    /**
+     * This returns the size estimate for a hash table containing the subjects
+     * in this source that will be provisioned.
+     * 
+     * @param source
+     *            Source name
+     * @return size estimate for a hash table.
+     */
+    public int getSourceSubjectHashEstimate(String source);
 }

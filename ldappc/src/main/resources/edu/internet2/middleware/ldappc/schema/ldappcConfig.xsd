@@ -147,6 +147,7 @@
                     <xs:element ref="memberships" />
                 </xs:choice>
             </xs:sequence>
+			<xs:attribute name="initial-cache-size" use="optional" type="xs:integer" />
         </xs:complexType>
     </xs:element>
 
@@ -339,6 +340,8 @@
                 type="source-id-type" />
             <xs:attribute name="subject-attribute" use="required"
                 type="subject-attribute-name-type" />
+   			<xs:attribute name="initial-cache-size" use="optional"
+   				type="xs:integer" />
         </xs:complexType>
     </xs:element>
 

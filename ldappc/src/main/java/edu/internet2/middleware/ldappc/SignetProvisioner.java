@@ -19,6 +19,7 @@
 package edu.internet2.middleware.ldappc;
 
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,15 +30,12 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.ldappc.ldap.EduPermission;
-
 import edu.internet2.middleware.ldappc.synchronize.EduPermissionSynchronizer;
-
 import edu.internet2.middleware.ldappc.synchronize.PermissionSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.StringPermissionSynchronizer;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
@@ -79,9 +77,11 @@ public class SignetProvisioner extends Provisioner
      *            options.
      * @param ldapCtx
      *            Ldap context
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
     public SignetProvisioner(SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options, LdapContext ldapCtx)
+            SignetProvisionerOptions options, LdapContext ldapCtx, Map<String, Hashtable<String, String>> subjectRDNTables, Map<String, Hashtable<String, String>> subjectIDTables)
     {
         this.configuration = configuration;
         this.options = options;

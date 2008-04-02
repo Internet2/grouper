@@ -20,6 +20,7 @@ package edu.internet2.middleware.ldappc;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +37,6 @@ import javax.naming.ldap.LdapContext;
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.ChildGroupFilter;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -49,6 +49,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.UnionFilter;
+import edu.internet2.middleware.grouper.queryFilter.GroupAttributeExactFilter;
+import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupSynchronizer;
@@ -62,7 +64,8 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * This class provisions Grouper data.
  */
-public class GrouperProvisioner extends Provisioner
+public class GrouperProvisioner
+        extends Provisioner
 {
     /**
      * Provisioning configuration
@@ -72,12 +75,15 @@ public class GrouperProvisioner extends Provisioner
     /**
      * Provisioning options
      */
-    private GrouperProvisionerOptions options;
+    private GrouperProvisionerOptions       options;
 
     /**
      * LDAP context for provisioning
      */
-    private LdapContext ldapCtx;
+    private LdapContext                     ldapCtx;
+
+    Map<String, Hashtable<String, String>>  subjectRDNTables;
+    Map<String, Hashtable<String, String>>  subjectIDTables;
 
     /**
      * Constructs a <code>GrouperProvisioner</code> with the given
@@ -91,13 +97,22 @@ public class GrouperProvisioner extends Provisioner
      *            provisioning options.
      * @param ldapCtx
      *            the Ldap context to use for provisioning
+     * @param subjectRDNTables
+     *            TODO
+     * @param subjectIDTables
+     *            TODO
      */
     public GrouperProvisioner(GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options, LdapContext ldapCtx)
+            GrouperProvisionerOptions options, LdapContext ldapCtx,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
     {
         this.configuration = configuration;
         this.options = options;
         this.ldapCtx = ldapCtx;
+        DebugLog.info("Group hash table estimate = " + configuration.getGroupHashEstimate());
+        this.subjectRDNTables = subjectRDNTables;
+        this.subjectIDTables = subjectIDTables;
     }
 
     /**
@@ -118,9 +133,7 @@ public class GrouperProvisioner extends Provisioner
      *             thrown if one or more exceptions occurs that will not stop
      *             processing but should be reported
      */
-    public void provision() throws QueryException, SchemaException,
-            NamingException, AttributeNotFoundException, SessionException,
-            MultiErrorException, LdappcException
+    public void provision() throws QueryException, SchemaException, NamingException, AttributeNotFoundException, SessionException, MultiErrorException, LdappcException
     {
         //
         // Create a Grouper session control
@@ -201,8 +214,7 @@ public class GrouperProvisioner extends Provisioner
      * @return {@link java.util.Set} of Groups, possibly empty, matching the
      *         defined subordinate stem and attribute value queries.
      */
-    protected Set buildQueryGroupList(GrouperSession session)
-            throws QueryException
+    protected Set buildQueryGroupList(GrouperSession session) throws QueryException
     {
         //
         // Find the root stem for building filters
@@ -219,7 +231,7 @@ public class GrouperProvisioner extends Provisioner
         //
         Map attrValueMap = configuration.getGroupAttrMatchingQueries();
         Iterator attrIterator = attrValueMap.keySet().iterator();
-        while(attrIterator.hasNext())
+        while (attrIterator.hasNext())
         {
             //
             // Get the attribute name and set of values
@@ -231,11 +243,11 @@ public class GrouperProvisioner extends Provisioner
             // Iterate over the values to build the query filters
             //
             Iterator valueIterator = values.iterator();
-            while(valueIterator.hasNext())
+            while (valueIterator.hasNext())
             {
                 String value = (String) valueIterator.next();
                 groupFilter = new UnionFilter(groupFilter,
-                        new GroupAttributeFilter(name, value, rootStem));
+                        new GroupAttributeExactFilter(name, value, rootStem));
             }
         }
 
@@ -244,7 +256,7 @@ public class GrouperProvisioner extends Provisioner
         //
         Set subStems = configuration.getGroupSubordinateStemQueries();
         Iterator stemIterator = subStems.iterator();
-        while(stemIterator.hasNext())
+        while (stemIterator.hasNext())
         {
 
             try
@@ -254,7 +266,7 @@ public class GrouperProvisioner extends Provisioner
                 groupFilter = new UnionFilter(groupFilter,
                         new ChildGroupFilter(stem));
             }
-            catch(StemNotFoundException snfe)
+            catch (StemNotFoundException snfe)
             {
                 ErrorLog.warn(getClass(), snfe.getMessage());
             }
@@ -282,8 +294,7 @@ public class GrouperProvisioner extends Provisioner
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected void provisionGroups(LdapContext ctx, Set groups)
-            throws NamingException, LdappcException
+    protected void provisionGroups(LdapContext ctx, Set groups) throws NamingException, LdappcException
     {
         //
         // Get the Name of the root ou
@@ -315,8 +326,7 @@ public class GrouperProvisioner extends Provisioner
      * @throws javax.naming.NamingException
      *             thrown if an error occured interacting with the directory.
      */
-    protected void provisionMemberships(LdapContext ctx, Set groups)
-            throws NamingException, MultiErrorException
+    protected void provisionMemberships(LdapContext ctx, Set groups) throws NamingException, MultiErrorException
     {
         //
         // Initialize a vector to hold all caught exceptions that should be
@@ -346,7 +356,7 @@ public class GrouperProvisioner extends Provisioner
         //
         HashMap unprocessedGroups = new HashMap();
         Iterator grpIterator = groups.iterator();
-        while(grpIterator.hasNext())
+        while (grpIterator.hasNext())
         {
             //
             // Get the group and build a HashSet for members
@@ -360,7 +370,7 @@ public class GrouperProvisioner extends Provisioner
             // requires more memory than storing just the Uuid)
             //
             Iterator members = group.getMembers().iterator();
-            while(members.hasNext())
+            while (members.hasNext())
             {
                 memberUuids.add(((Member) members.next()).getUuid());
             }
@@ -375,7 +385,7 @@ public class GrouperProvisioner extends Provisioner
         // Loop through the groups in order to process the members
         //
         Iterator groupIterator = groups.iterator();
-        while(groupIterator.hasNext())
+        while (groupIterator.hasNext())
         {
             //
             // Get the next group to be processed
@@ -388,7 +398,7 @@ public class GrouperProvisioner extends Provisioner
             // from the unprocessedGroups map.)
             //
             Iterator members = group.getMembers().iterator();
-            while(members.hasNext())
+            while (members.hasNext())
             {
                 //
                 // Get the next member and its source id
@@ -417,7 +427,7 @@ public class GrouperProvisioner extends Provisioner
                 {
                     subject = member.getSubject();
                 }
-                catch(SubjectNotFoundException snfe)
+                catch (SubjectNotFoundException snfe)
                 {
                     //
                     // If subject not found, log it and continue
@@ -435,7 +445,7 @@ public class GrouperProvisioner extends Provisioner
                 {
                     subjectDn = findSubjectDn(ldapCtx, configuration, subject);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     //
                     // If not found, simply log the error and continue
@@ -461,7 +471,7 @@ public class GrouperProvisioner extends Provisioner
                 Set memberGroups = new HashSet();
                 Iterator unprocGrpsIterator = unprocessedGroups.keySet()
                         .iterator();
-                while(unprocGrpsIterator.hasNext())
+                while (unprocGrpsIterator.hasNext())
                 {
                     Group unprocGrp = (Group) unprocGrpsIterator.next();
                     Set memberSet = (Set) unprocessedGroups.get(unprocGrp);
@@ -480,7 +490,7 @@ public class GrouperProvisioner extends Provisioner
                 {
                     synchronizer.synchronize(memberGroups);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     String errorData = getErrorData(member, subject, subjectDn);
                     logThrowableError(e, errorData);
@@ -503,7 +513,7 @@ public class GrouperProvisioner extends Provisioner
         {
             clearSubjectEntryMemberships(ctx, existingSubjectDns);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             logThrowableError(e);
             caughtExceptions.add(e);
@@ -569,7 +579,7 @@ public class GrouperProvisioner extends Provisioner
         // source
         //
         Iterator sources = sourceFilterMap.keySet().iterator();
-        while(sources.hasNext())
+        while (sources.hasNext())
         {
             //
             // Get the source id and associated filter
@@ -599,8 +609,7 @@ public class GrouperProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    private void addSubjectDnSet(Set subjectDns, LdapSearchFilter filter)
-            throws NamingException
+    private void addSubjectDnSet(Set subjectDns, LdapSearchFilter filter) throws NamingException
     {
         //
         // Build the search control
@@ -654,7 +663,7 @@ public class GrouperProvisioner extends Provisioner
         //
         // Process the search results
         //
-        while(searchResults.hasMore())
+        while (searchResults.hasMore())
         {
             //
             // Get the search result
@@ -684,8 +693,7 @@ public class GrouperProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    private void clearSubjectEntryMemberships(LdapContext ctx, Set subjectDnSet)
-            throws NamingException
+    private void clearSubjectEntryMemberships(LdapContext ctx, Set subjectDnSet) throws NamingException
     {
         //
         // Define an empty set that is used below
@@ -696,7 +704,7 @@ public class GrouperProvisioner extends Provisioner
         // Iterate over the subject DNs
         //
         Iterator subjectDns = subjectDnSet.iterator();
-        while(subjectDns.hasNext())
+        while (subjectDns.hasNext())
         {
             Name subjectDn = (Name) subjectDns.next();
             try
@@ -711,7 +719,7 @@ public class GrouperProvisioner extends Provisioner
                         ctx, subjectDn);
                 synchronizer.synchronize(emptySet);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logThrowableError(e);
             }
@@ -768,7 +776,7 @@ public class GrouperProvisioner extends Provisioner
         }
         return memberData;
     }
-    
+
     /**
      * Returns group data string
      * 

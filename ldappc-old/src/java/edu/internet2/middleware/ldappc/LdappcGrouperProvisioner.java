@@ -14,62 +14,77 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc;
+
+import java.util.Map;
+import java.util.Hashtable;
+
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 
-import javax.naming.NamingException;
-import javax.naming.NameNotFoundException;
-import javax.naming.ldap.LdapContext;
-
 /**
- * This class uses two types of data for determining what data is
- * to be provisioned for Groups to the LDAP database: one for determining the
- * general categories of data to be provisioned (eg. groups, memberships,
- * or permissions) and another to determine the specific details of
- * how the data is to be provisioned (e.g., according to some query criteria).
- * <p> 
+ * This class uses two types of data for determining what data is to be
+ * provisioned for Groups to the LDAP database: one for determining the general
+ * categories of data to be provisioned (eg. groups, memberships, or
+ * permissions) and another to determine the specific details of how the data is
+ * to be provisioned (e.g., according to some query criteria).
+ * <p>
  * The former class uses a class that implements the GrouperProvisionerOptions
  * interface, which will be the InputOptions class when accessing the API via
- * the Ldappc program.  For other programs, used instead of Ldappc, that
- * use the API, another implementation of the GrouperProvisionerOptions can
- * be substituted for the InputOptions class.
- * </p> 
- * <p> 
- * The latter class uses a class that implements the GrouperProvisionerConfiguration
- * interface, which will be the ConfigManager class when accessing the API via
- * the Ldappc program.  For other programs, used instead of Ldappc, that
- * use the API, another implementation of the GrouperProvisionerConfiguration 
- * interface can be substituted for the ConfigManager class.
- * </p> 
+ * the Ldappc program. For other programs, used instead of Ldappc, that use the
+ * API, another implementation of the GrouperProvisionerOptions can be
+ * substituted for the InputOptions class.
+ * </p>
+ * <p>
+ * The latter class uses a class that implements the
+ * GrouperProvisionerConfiguration interface, which will be the ConfigManager
+ * class when accessing the API via the Ldappc program. For other programs, used
+ * instead of Ldappc, that use the API, another implementation of the
+ * GrouperProvisionerConfiguration interface can be substituted for the
+ * ConfigManager class.
+ * </p>
  */
- class LdappcGrouperProvisioner
- {
+class LdappcGrouperProvisioner
+{
     /**
      * The directory context
      */
-     
-    private LdapContext ldapContext;
+
+    private LdapContext                            ldapContext;
 
     /**
-     * The command line input arguments that determine what data
-     * is to be provisioned.
+     * The command line input arguments that determine what data is to be
+     * provisioned.
      */
-    private GrouperProvisionerOptions options;
+    private GrouperProvisionerOptions              options;
 
     /**
      * The grouper provisioner configuration
      */
-    private GrouperProvisionerConfiguration configuration;
+    private GrouperProvisionerConfiguration        configuration;
+
+    private Map<String, Hashtable<String, String>> subjectRDNTables;
+    private Map<String, Hashtable<String, String>> subjectIDTables;
 
     /**
      * Constructor
-     * @param options input that determines what data is to be provisioned.
+     * 
+     * @param options
+     *            input that determines what data is to be provisioned.
+     * @param subjectRDNTables
+     *            TODO
+     * @param subjectIDTables
+     *            TODO
      */
-    public LdappcGrouperProvisioner(GrouperProvisionerOptions options)
+    public LdappcGrouperProvisioner(GrouperProvisionerOptions options,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
     {
         this.options = options;
 
@@ -79,60 +94,70 @@ import javax.naming.ldap.LdapContext;
         {
             ConfigManager.loadSingleton(options.getConfigManagerLocation());
         }
-        configuration = ConfigManager.getInstance(); 
+        configuration = ConfigManager.getInstance();
 
         // Build the LDAP context
         try
         {
             ldapContext = LdapUtil.getLdapContext();
         }
-        catch(NamingException ne)
+        catch (NamingException ne)
         {
             throw new LdappcRuntimeException(ne);
         }
+        
+        this.subjectRDNTables = subjectRDNTables;
+        this.subjectIDTables = subjectIDTables;
     }
 
     /**
-     * Perform provisioning of groups.
-     * Provisions groups based on the options and the configuration
-     *  
-     * @param options input that determines what data is to be provisioned.
-     * @param configuration input that determines details of how data is to be provisioned.
-     * @param ldapContext the LDAP context. 
+     * Perform provisioning of groups. Provisions groups based on the options
+     * and the configuration
+     * 
+     * @param options
+     *            input that determines what data is to be provisioned.
+     * @param configuration
+     *            input that determines details of how data is to be
+     *            provisioned.
+     * @param ldapContext
+     *            the LDAP context.
      */
     public void provisionGroups()
     {
         //
         // Build a grouper provisioner and set the values
         //
-        GrouperProvisioner grouperProvisioner = 
-                new GrouperProvisioner(configuration, options, ldapContext);
+        GrouperProvisioner grouperProvisioner = new GrouperProvisioner(
+                configuration, options, ldapContext, subjectRDNTables,
+                subjectIDTables);
         //
         // Provision groups.
         //
 
-        // One could handle this exception more explictly by catching 
+        // One could handle this exception more explictly by catching
         // QueryException and SchemaException.
         try
         {
             grouperProvisioner.provision();
         }
-        catch(NameNotFoundException nnfe)
+        catch (NameNotFoundException nnfe)
         {
-            ErrorLog.fatal(this.getClass(),"Grouper Provision Failed: " + nnfe.getMessage()
-                    + "  Exception data: " +  nnfe.toString());
+            ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: "
+                    + nnfe.getMessage() + "  Exception data: "
+                    + nnfe.toString());
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            ErrorLog.fatal(this.getClass(),"Grouper Provision Failed: " + e.getMessage());
+            ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: "
+                    + e.getMessage());
         }
-        finally 
+        finally
         {
-            try 
+            try
             {
                 if (null != ldapContext) ldapContext.close();
-            } 
-            catch (Exception e2) 
+            }
+            catch (Exception e2)
             {
                 // okay if can not close, may already have been closed.
             }

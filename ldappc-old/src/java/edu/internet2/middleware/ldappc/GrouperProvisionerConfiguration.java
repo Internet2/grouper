@@ -48,6 +48,11 @@ public interface GrouperProvisionerConfiguration extends
      * Grouper group name attribute
      */
     public static final String GROUPER_NAME_ATTRIBUTE = "name";
+    
+    /**
+     * @return Size of hash table estimate for holding cached subject data.
+     */
+    public int getGroupHashEstimate();
 
     /**
      * This method returns a possibly empty {@link java.util.Map} of the Group

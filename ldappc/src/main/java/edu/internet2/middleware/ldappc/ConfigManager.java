@@ -48,38 +48,39 @@ import org.xml.sax.SAXParseException;
 /**
  * Class for accessing values from the Auth2Ldap configuration file.
  */
-public class ConfigManager implements SignetProvisionerConfiguration,
+public class ConfigManager
+        implements SignetProvisionerConfiguration,
         GrouperProvisionerConfiguration
 {
     /**
      * Default configuration file resource name
      */
-    public static final String CONFIG_FILE_RESOURCE = "ldappc.xml";
+    public static final String   CONFIG_FILE_RESOURCE                 = "ldappc.xml";
 
     /**
      * Configuration Schema file resource name
      */
-    public static final String SCHEMA_FILE_RESOURCE = "edu/internet2/middleware/ldappc/schema/ldappcConfig.xsd";
+    public static final String   SCHEMA_FILE_RESOURCE                 = "edu/internet2/middleware/ldappc/schema/ldappcConfig.xsd";
 
     /**
      * JAXP schema language property name
      */
-    public static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+    public static final String   JAXP_SCHEMA_LANGUAGE                 = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
 
     /**
      * JAXP schema source property name
      */
-    public static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
+    public static final String   JAXP_SCHEMA_SOURCE                   = "http://java.sun.com/xml/jaxp/properties/schemaSource";
 
     /**
      * JAXP schema language value for W3C XML Schema
      */
-    public static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
+    public static final String   W3C_XML_SCHEMA                       = "http://www.w3.org/2001/XMLSchema";
 
     /**
      * Flag indicating to get data from ldappc.properties instead of ldappc.xml
      */
-    private static final String GET_FROM_PROPERTIES_FILE = "GetFromPropertiesFile";
+    private static final String  GET_FROM_PROPERTIES_FILE             = "GetFromPropertiesFile";
 
     /**
      * Singleton instance of ConfigManager
@@ -90,22 +91,22 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      * List of SAXParseException objects created while parsing the configuration
      * file
      */
-    private Vector saxParseErrors = new Vector();
+    private Vector               saxParseErrors                       = new Vector();
 
     /**
      * Hashtable of LDAP context parameters
      */
-    private Hashtable ldapContextParameters = new Hashtable();
+    private Hashtable            ldapContextParameters                = new Hashtable();
 
     /**
      * Set of the Group stems for creating subordinate stem queries
      */
-    private Set groupSubordinateStemQueries = new HashSet();
+    private Set                  groupSubordinateStemQueries          = new HashSet();
 
     /**
      * Group attribute name/value pairs for creating matching queries
      */
-    private Map groupAttrMatchingQueries = new Hashtable();
+    private Map                  groupAttrMatchingQueries             = new Hashtable();
 
     /**
      * Group DN Structure. Must have value of
@@ -113,22 +114,22 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      * or
      * {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUP_DN_BUSHY}.
      */
-    private String groupDnStructure;
+    private String               groupDnStructure;
 
     /**
      * Group DN root OU
      */
-    private String groupDnRoot;
+    private String               groupDnRoot;
 
     /**
      * Group DN object class
      */
-    private String groupDnObjectClass;
+    private String               groupDnObjectClass;
 
     /**
      * Group RDN attribute name
      */
-    private String groupDnRdnAttribute;
+    private String               groupDnRdnAttribute;
 
     /**
      * Grouper attribute whose value is the Group DN RDN value. Must have a
@@ -137,120 +138,130 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      * or
      * {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUPER_NAME_ATTRIBUTE}.
      */
-    private String groupDnGrouperAttribute;
+    private String               groupDnGrouperAttribute;
 
     /**
      * Object class a Group entry must have to support the Group attribute to
      * LDAP attribute mapping
      */
-    private String groupAttributeMappingObjectClass;
+    private String               groupAttributeMappingObjectClass;
 
     /**
      * Group attribute name to LDAP attribute name mapping
      */
-    private Map groupAttributeMapping = new Hashtable();
+    private Map                  groupAttributeMapping                = new Hashtable();
 
     /**
      * Associated empty values for the ldap attributes defined in the group
      * attribute mapping key = ldap attribute in upper case, value = empty value
      * (Must be a HashMap to allow null values)
      */
-    private Map groupAttributeMappingLdapEmptyValues = new HashMap();
+    private Map                  groupAttributeMappingLdapEmptyValues = new HashMap();
+
+    /**
+     * Estimate of size of groups to populate.
+     */
+    private int                  groupHashEstimate                    = 0;
 
     /**
      * Source to Subject naming attribute mapping for Source Subject Identfiers
      */
-    private Map sourceSubjectNamingAttributes = new Hashtable();
+    private Map                  sourceSubjectNamingAttributes        = new Hashtable();
 
     /**
      * Source to Subject LDAP search filter mapping for Source Subject
      * Identfiers
      */
-    private Map sourceSubjectLdapFilters = new Hashtable();
+    private Map                  sourceSubjectLdapFilters             = new Hashtable();
+
+    /**
+     * Estimate of size of groups to populate.
+     */
+    private Map                  subjectHashEstimates                 = new Hashtable();
 
     /**
      * Boolean indicating whether Member LDAP entries contain an attribute
      * holding a listing the Groups to which they belong
      */
-    private boolean memberGroupsListed = false;
+    private boolean              memberGroupsListed                   = false;
 
     /**
      * Member LDAP entry object class that contains the attribute to hold the
      * list of Groups
      */
-    private String memberGroupsListObjectClass;
+    private String               memberGroupsListObjectClass;
 
     /**
      * Member LDAP entry attribute containing the list of Groups to which it
      * belongs
      */
-    private String memberGroupsListAttribute;
+    private String               memberGroupsListAttribute;
 
     /**
      * Value placed in member groups listattribute when no groups are stored
      * there
      */
-    private String memberGroupsListEmptyValue;
+    private String               memberGroupsListEmptyValue;
 
     /**
      * Grouper Group naming attribute used to construct the list of Groups to
      * which a Member belongs
      */
-    private String memberGroupsNamingAttribute;
+    private String               memberGroupsNamingAttribute;
 
     /**
      * Boolean indicating whether Group LDAP entries contain an attribute
      * holding a listing the Members LDAP entry DN which belong to it.
      */
-    private boolean groupMembersDnListed = false;
+    private boolean              groupMembersDnListed                 = false;
 
     /**
      * Group LDAP entry object class containing the attribute to list members
      * LDAP entry DN
      */
-    private String groupMembersDnListObjectClass;
+    private String               groupMembersDnListObjectClass;
 
     /**
      * Group LDAP entry attribute containing the list of Members LDAP entry DNs
      * which belong to it.
      */
-    private String groupMembersDnListAttribute;
+    private String               groupMembersDnListAttribute;
 
     /**
      * Value placed in group members dn list attribute when no DNs are stored
      * there
      */
-    private String groupMembersDnListEmptyValue;
+    private String               groupMembersDnListEmptyValue;
 
     /**
      * Boolean indicating whether Group LDAP entries contain an attribute
      * holding a listing the Members names which belong to it.
      */
-    private boolean groupMembersNameListed = false;
+    private boolean              groupMembersNameListed               = false;
 
     /**
      * Group LDAP entry object class containing the attribute to list members
      * names
      */
-    private String groupMembersNameListObjectClass;
+    private String               groupMembersNameListObjectClass;
 
     /**
      * Group LDAP entry attribute containing the list of Members names which
      * belong to it.
      */
-    private String groupMembersNameListAttribute;
+    private String               groupMembersNameListAttribute;
 
     /**
      * Value placed in group members name list attribute when no DNs are stored
      * there
      */
-    private String groupMembersNameListEmptyValue;
+    private String               groupMembersNameListEmptyValue;
 
     /**
      * Source to Subject attribute mapping used to construct a Member's name in
      * the list of Member names belonging to the Group
      */
-    private Map groupMembersNameListNamingAttributes = new Hashtable();
+    private Map                  groupMembersNameListNamingAttributes = new Hashtable();
 
     /**
      * Storage method for permissions listings. Valid values are
@@ -258,46 +269,46 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      * or
      * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}.
      */
-    private String permissionsListingStoredAs;
+    private String               permissionsListingStoredAs;
 
     /**
      * Subject LDAP object class containing the attribute for holding the
      * permissions listing when stored as
      */
-    private String permissionsListingStringObjectClass;
+    private String               permissionsListingStringObjectClass;
 
     /**
      * Subject LDAP entry attribute for holding the permissions listing when
      * stored as
      * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}.
      */
-    private String permissionsListingStringAttribute;
+    private String               permissionsListingStringAttribute;
 
     /**
      * Prefix for creating the permissions listing when stored as
      */
-    private String permissionsListingStringPrefix;
+    private String               permissionsListingStringPrefix;
 
     /**
      * Value placed in permission listing string attribute when no permissions
      * are stored there
      */
-    private String permissionsListingStringEmptyValue;
+    private String               permissionsListingStringEmptyValue;
 
     /**
      * Set of the subsystem IDs for the Permission subsystem queries
      */
-    private Set permissionsSubsystemQueries = new HashSet();
+    private Set                  permissionsSubsystemQueries          = new HashSet();
 
     /**
      * Set of the function IDs for the Permission function queries
      */
-    private Set permissionsFunctionQueries = new HashSet();
+    private Set                  permissionsFunctionQueries           = new HashSet();
 
     /**
      * Boolean indicating if the ldappc element was found while parsing
      */
-    private boolean rootElementFound = false;
+    private boolean              rootElementFound                     = false;
 
     /**
      * Constructs an instance of ConfigManager using the configuration file
@@ -312,7 +323,8 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      *             uri.
      * 
      */
-    private ConfigManager(String uri) throws LdappcConfigurationException
+    private ConfigManager(String uri)
+            throws LdappcConfigurationException
     {
         //
         // Initialize the ConfigManager instance
@@ -333,8 +345,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      * 
      * @see #load(String)
      */
-    public static ConfigManager getInstance()
-            throws LdappcConfigurationException
+    public static ConfigManager getInstance() throws LdappcConfigurationException
     {
         loadSingleton(getSystemResourceURL(CONFIG_FILE_RESOURCE, true)
                 .toString());
@@ -355,8 +366,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      * @throws LdappcConfigurationException
      *             thrown if an error occurs loading the singleton from the uri.
      */
-    public static boolean loadSingleton(String uri)
-            throws LdappcConfigurationException
+    public static boolean loadSingleton(String uri) throws LdappcConfigurationException
     {
         boolean loadUri = (instance == null);
         if (loadUri)
@@ -381,8 +391,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      *             given uri.
      * 
      */
-    public static ConfigManager load(String uri)
-            throws LdappcConfigurationException
+    public static ConfigManager load(String uri) throws LdappcConfigurationException
     {
         return new ConfigManager(uri);
     }
@@ -445,6 +454,12 @@ public class ConfigManager implements SignetProvisionerConfiguration,
         digester.addCallParam(elementPath, 0, "source");
         digester.addCallParam(elementPath, 1, "subject-attribute");
 
+        // Save the Subject hash table estimate
+        elementPath = "ldappc/source-subject-identifiers/source-subject-identifier";
+        digester.addCallMethod(elementPath, "addSubjectHashEstimate", 2);
+        digester.addCallParam(elementPath, 0, "source");
+        digester.addCallParam(elementPath, 1, "initial-cache-size");
+
         // Save the Source Subject Identifier LDAP filters
         elementPath = "ldappc/source-subject-identifiers/source-subject-identifier";
         digester.addCallMethod(elementPath, "addSourceSubjectLdapFilter", 4);
@@ -454,6 +469,11 @@ public class ConfigManager implements SignetProvisionerConfiguration,
         digester.addCallParam(elementPath, 1, "base");
         digester.addCallParam(elementPath, 2, "scope");
         digester.addCallParam(elementPath, 3, "filter");
+
+        // Save the Group hash table estimate
+        elementPath = "ldappc/grouper";
+        digester.addCallMethod(elementPath, "setGroupHashEstimate", 1);
+        digester.addCallParam(elementPath, 0, "initial-cache-size");
 
         // Save the Group DN structure parameters
         elementPath = "ldappc/grouper/groups";
@@ -587,7 +607,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
             //
             digester.parse(uri);
         }
-        catch(SAXException se)
+        catch (SAXException se)
         {
             // 
             // Fatal if file can't be parsed
@@ -595,7 +615,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
             ErrorLog.fatal(ConfigManager.class, se.getMessage());
             throw new LdappcConfigurationException(se);
         }
-        catch(IOException ioe)
+        catch (IOException ioe)
         {
             // 
             // Fatal if a file can't be read
@@ -717,8 +737,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      * @throws LdappcConfigurationException
      *             thrown as defined above.
      */
-    public static URL getSystemResourceURL(String resource, boolean isRequired)
-            throws LdappcConfigurationException
+    public static URL getSystemResourceURL(String resource, boolean isRequired) throws LdappcConfigurationException
     {
         URL url = ClassLoader.getSystemResource(resource);
         if (isRequired && url == null)
@@ -776,7 +795,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
             digester = new Digester(parser);
             digester.setErrorHandler(new SaxErrorHandler());
         }
-        catch(Exception se)
+        catch (Exception se)
         {
             //
             // If this code is reached, it wasn't possible to create a parser
@@ -848,7 +867,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
             Field constant = LdapContext.class.getField(name.toUpperCase());
             name = (String) constant.get(LdapContext.class);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             //
             // Add a debug log entry and do nothing else
@@ -1246,6 +1265,35 @@ public class ConfigManager implements SignetProvisionerConfiguration,
     }
 
     /**
+     * Sets the estimated size for a hash table listing groups to populate.
+     * 
+     * @param source
+     *            Source name.
+     * @param size
+     *            Estimated cache size for this source.
+     */
+    public void addSubjectHashEstimate(String source, int size)
+    {
+        subjectHashEstimates.put(source, size);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Map<String, Integer> getSourceSubjectHashEstimates()
+    {
+        return subjectHashEstimates;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getSourceSubjectHashEstimate(String source)
+    {
+        return (Integer) subjectHashEstimates.get(source);
+    }
+
+    /**
      * This returns the Subject LDAP filter for the given Source for the Source
      * Subject identifiers.
      * 
@@ -1263,6 +1311,25 @@ public class ConfigManager implements SignetProvisionerConfiguration,
             value = (LdapSearchFilter) sourceSubjectLdapFilters.get(source);
         }
         return value;
+    }
+
+    /**
+     * Sets the estimated size for a hash table listing groups to populate.
+     * 
+     * @param size
+     *            Estimated cache size.
+     */
+    public void setGroupHashEstimate(int size)
+    {
+        groupHashEstimate = size;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getGroupHashEstimate()
+    {
+        return groupHashEstimate;
     }
 
     /**
@@ -1294,7 +1361,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
             scopeValue = ((Integer) constant.get(SearchControls.class))
                     .intValue();
         }
-        catch(Throwable t)
+        catch (Throwable t)
         {
             //
             // This should never happen
@@ -2039,6 +2106,15 @@ public class ConfigManager implements SignetProvisionerConfiguration,
         }
 
         /**
+         * Calls {@link ConfigManager#setGroupHashEstimate(String)}.
+         */
+        public void setGroupHashEstimate(String sizeString)
+        {
+            ConfigManager.this.setGroupHashEstimate(Integer
+                    .parseInt(sizeString));
+        }
+
+        /**
          * Calls {@link ConfigManager#addGroupAttributeMapping(String, String)}.
          */
         public void addGroupAttributeMapping(String groupAttribute,
@@ -2075,11 +2151,23 @@ public class ConfigManager implements SignetProvisionerConfiguration,
          * {@link ConfigManager#addSourceSubjectLdapFilter(String, String, String, String)}.
          */
         public void addSourceSubjectLdapFilter(String source, String base,
-                String scope, String filter)
-                throws LdappcConfigurationException
+                String scope, String filter) throws LdappcConfigurationException
         {
             ConfigManager.this.addSourceSubjectLdapFilter(source, base, scope,
                     filter);
+        }
+
+        /**
+         * Calls {@link ConfigManager#setSubjectHashEstimate(String)}.
+         */
+        public void addSubjectHashEstimate(String source, String sizeString)
+        {
+            int size = 0;
+            if (sizeString != null && sizeString.length() > 0)
+            {
+                size = Integer.parseInt(sizeString);
+            }
+            ConfigManager.this.addSubjectHashEstimate(source, size);
         }
 
         /**
@@ -2271,7 +2359,8 @@ public class ConfigManager implements SignetProvisionerConfiguration,
      * fatal error. If an error is encountered and parsing can continue, this
      * will notify the ConfigManager to fail after parsing is complete.
      */
-    private class SaxErrorHandler implements ErrorHandler
+    private class SaxErrorHandler
+            implements ErrorHandler
     {
         /**
          * Receive notification of a warning.
@@ -2314,8 +2403,7 @@ public class ConfigManager implements SignetProvisionerConfiguration,
          * @throws LdappcConfigurationException
          *             if fatal SAXParseException is encountered
          */
-        public void fatalError(SAXParseException e) throws SAXException,
-                LdappcConfigurationException
+        public void fatalError(SAXParseException e) throws SAXException, LdappcConfigurationException
         {
             ErrorLog.fatal(ConfigManager.class, formatMsg(e));
             ConfigManager.this.addSaxParseError(e);
