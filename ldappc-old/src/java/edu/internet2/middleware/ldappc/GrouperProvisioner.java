@@ -312,7 +312,7 @@ public class GrouperProvisioner
         // Synchronize the root
         //
         GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ctx,
-                rootDn, configuration, options);
+                rootDn, configuration, options, subjectRDNTables, subjectIDTables);
         synchronizer.synchronize(groups);
     }
 
@@ -548,7 +548,7 @@ public class GrouperProvisioner
         // configuration or options
         //
         return new StringMembershipSynchronizer(ctx, subjectDn, configuration,
-                options);
+                options, subjectRDNTables, subjectIDTables);
     }
 
     /**

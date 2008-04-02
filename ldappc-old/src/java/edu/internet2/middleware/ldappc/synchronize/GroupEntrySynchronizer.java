@@ -20,6 +20,7 @@ package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -43,11 +44,11 @@ import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.ldappc.LdappcConfigurationException;
-import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.GrouperProvisioner;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
+import edu.internet2.middleware.ldappc.LdappcConfigurationException;
+import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.MultiErrorException;
 import edu.internet2.middleware.ldappc.Provisioner;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
@@ -138,16 +139,20 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
     public GroupEntrySynchronizer(LdapContext ctx, Name root,
             GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options) throws NamingException,
-            LdappcConfigurationException
+            GrouperProvisionerOptions options,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
+            throws NamingException, LdappcConfigurationException
     {
         //
         // Call super constructor
         //
-        super(ctx, root, configuration, options);
+        super(ctx, root, configuration, options, subjectRDNTables, subjectIDTables);
 
         //
         // Init various objects

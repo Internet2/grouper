@@ -19,6 +19,9 @@
 package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map;
+
 import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.grouper.Group;
@@ -71,10 +74,16 @@ public abstract class GrouperSynchronizer extends Synchronizer
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
-    public GrouperSynchronizer(LdapContext context, GrouperProvisionerConfiguration configuration, GrouperProvisionerOptions options )
+    public GrouperSynchronizer(LdapContext context,
+            GrouperProvisionerConfiguration configuration,
+            GrouperProvisionerOptions options,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
     {
-        super(context);
+        super(context, subjectRDNTables, subjectIDTables);
         setConfiguration(configuration);
         setOptions(options);
     }

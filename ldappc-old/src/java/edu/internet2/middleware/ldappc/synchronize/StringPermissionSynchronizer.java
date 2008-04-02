@@ -18,17 +18,16 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
-
 import javax.naming.NamingException;
-
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
@@ -36,7 +35,6 @@ import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.SignetProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.SignetProvisionerOptions;
-
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Permission;
@@ -74,16 +72,20 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
     public StringPermissionSynchronizer(LdapContext ctx, Name subject,
             SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options) throws NamingException,
-            LdappcConfigurationException
+            SignetProvisionerOptions options,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
+            throws NamingException, LdappcConfigurationException
     {
         //
         // Call super constructor
         //
-        super(ctx, subject, configuration, options);
+        super(ctx, subject, configuration, options, subjectRDNTables, subjectIDTables);
 
         //
         // Try to get the permissions listing string attribute name as it is

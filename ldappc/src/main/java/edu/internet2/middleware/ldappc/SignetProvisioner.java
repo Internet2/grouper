@@ -64,6 +64,9 @@ public class SignetProvisioner extends Provisioner
      * Ldap Context
      */
     private LdapContext ldapCtx;
+    
+    private Map<String, Hashtable<String, String>> subjectRDNTables;
+    private Map<String, Hashtable<String, String>> subjectIDTables;
 
     /**
      * Constructs a <code>SignetProvisioner</code> with the given
@@ -86,6 +89,8 @@ public class SignetProvisioner extends Provisioner
         this.configuration = configuration;
         this.options = options;
         this.ldapCtx = ldapCtx;
+        this.subjectRDNTables = subjectRDNTables;
+        this.subjectIDTables = subjectIDTables;
     }
 
     /**
@@ -277,12 +282,12 @@ public class SignetProvisioner extends Provisioner
                 .equals(configuration.getPermissionsListingStoredAs()))
         {
             synchronizer = new EduPermissionSynchronizer(ctx, subjectDn,
-                    configuration, options);
+                    configuration, options, subjectRDNTables, subjectIDTables);
         }
         else
         {
             synchronizer = new StringPermissionSynchronizer(ctx, subjectDn,
-                    configuration, options);
+                    configuration, options, subjectRDNTables, subjectIDTables);
         }
         return synchronizer;
     }

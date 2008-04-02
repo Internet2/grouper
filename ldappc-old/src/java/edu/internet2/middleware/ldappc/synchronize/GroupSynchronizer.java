@@ -18,7 +18,9 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -28,9 +30,9 @@ import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.ldappc.GrouperProvisioner;
-import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
+import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.MultiErrorException;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
@@ -60,12 +62,16 @@ public abstract class GroupSynchronizer extends GrouperSynchronizer
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
     public GroupSynchronizer(LdapContext ctx, Name root,
             GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options)
+            GrouperProvisionerOptions options,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
     {
-        super(ctx, configuration, options);
+        super(ctx, configuration, options, subjectRDNTables, subjectIDTables);
         setRoot(root);
     }
 

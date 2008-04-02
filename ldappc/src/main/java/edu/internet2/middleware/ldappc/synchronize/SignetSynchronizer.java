@@ -19,6 +19,8 @@
 package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map;
 
 import javax.naming.ldap.LdapContext;
 
@@ -74,12 +76,16 @@ public abstract class SignetSynchronizer extends Synchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
     public SignetSynchronizer(LdapContext ctx,
             SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options)
+            SignetProvisionerOptions options,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
     {
-        super(ctx);
+        super(ctx, subjectRDNTables, subjectIDTables);
         setConfiguration(configuration);
         setOptions(options);
     }

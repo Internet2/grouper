@@ -20,6 +20,7 @@ package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -76,12 +77,16 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
     public EduPermissionSynchronizer(LdapContext ctx, Name subject,
             SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options)
+            SignetProvisionerOptions options,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
     {
-        super(ctx, subject, configuration, options);
+        super(ctx, subject, configuration, options, subjectRDNTables, subjectIDTables);
     }
 
     /**

@@ -18,7 +18,9 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.naming.Name;
@@ -44,15 +46,24 @@ public abstract class Synchronizer
      */
     private LdapContext context;
 
+    private Map<String, Hashtable<String, String>> subjectRDNTables;
+    private Map<String, Hashtable<String, String>> subjectIDTables;
+
     /**
      * Constructs a <code>Synchronizer</code>
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
-    public Synchronizer(LdapContext ctx)
+    public Synchronizer(LdapContext ctx,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
     {
         setContext(ctx);
+        setSubjectIDTables(subjectIDTables);
+        setSubjectRDNTables(subjectRDNTables);
     }
 
     /**
@@ -75,6 +86,42 @@ public abstract class Synchronizer
     }
 
     /**
+     * @return the subjectRDNTables
+     */
+    public Map<String, Hashtable<String, String>> getSubjectRDNTables()
+    {
+        return subjectRDNTables;
+    }
+
+    /**
+     * @param subjectRDNTables
+     *            the subjectRDNTables to set
+     */
+    public void setSubjectRDNTables(
+            Map<String, Hashtable<String, String>> subjectRDNTables)
+    {
+        this.subjectRDNTables = subjectRDNTables;
+    }
+
+    /**
+     * @return the subjectIDTables
+     */
+    public Map<String, Hashtable<String, String>> getSubjectIDTables()
+    {
+        return subjectIDTables;
+    }
+
+    /**
+     * @param subjectIDTables
+     *            the subjectIDTables to set
+     */
+    public void setSubjectIDTables(
+            Map<String, Hashtable<String, String>> subjectIDTables)
+    {
+        this.subjectIDTables = subjectIDTables;
+    }
+
+    /**
      * This determines if the identified attribute is required. If
      * <code>objectClass</code> is provided (i.e, not null), then the
      * attribute is required if <code>attributeName</code> identifies a
@@ -84,6 +131,7 @@ public abstract class Synchronizer
      * attribute for any of the current object classes defined for
      * <code>dn</code>.
      * 
+
      * @param ctx
      *            Ldap Context
      * @param dn

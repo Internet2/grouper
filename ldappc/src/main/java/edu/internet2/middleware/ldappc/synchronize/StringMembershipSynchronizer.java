@@ -18,9 +18,11 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.Hashtable;
+import java.util.Map;
+
 import javax.naming.Name;
 import javax.naming.NamingException;
-
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
@@ -28,12 +30,10 @@ import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.ldappc.LdappcConfigurationException;
-import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
-
-
+import edu.internet2.middleware.ldappc.LdappcConfigurationException;
+import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 
 
@@ -69,16 +69,20 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
+     * @param subjectRDNTables TODO
+     * @param subjectIDTables TODO
      */
     public StringMembershipSynchronizer(LdapContext ctx, Name subject,
             GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options) throws NamingException,
-            LdappcConfigurationException
+            GrouperProvisionerOptions options,
+            Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
+            throws NamingException, LdappcConfigurationException
     {
         //
         // Call super constructor
         //
-        super(ctx, subject, configuration, options);
+        super(ctx, subject, configuration, options, subjectRDNTables, subjectIDTables);
 
         //
         // Try to get the membership listing string attribute name as it is
