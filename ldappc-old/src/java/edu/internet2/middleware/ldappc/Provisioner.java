@@ -18,6 +18,9 @@
 
 package edu.internet2.middleware.ldappc;
 
+import java.util.Hashtable;
+import java.util.Map;
+
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -42,6 +45,16 @@ public abstract class Provisioner
      * Delimiter used in messages
      */
     final protected String MSG_DELIMITER = " :: ";
+
+    protected Map<String, Hashtable<String, String>> subjectRDNTables;
+    protected Map<String, Hashtable<String, String>> subjectIDTables;
+
+    public Provisioner(Map<String, Hashtable<String, String>> subjectRDNTables,
+            Map<String, Hashtable<String, String>> subjectIDTables)
+    {
+        this.subjectRDNTables = subjectRDNTables;
+        this.subjectIDTables = subjectIDTables;
+    }
 
     /**
      * Returns subject data string without attributes

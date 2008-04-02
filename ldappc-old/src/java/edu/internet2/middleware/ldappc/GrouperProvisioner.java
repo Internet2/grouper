@@ -82,9 +82,6 @@ public class GrouperProvisioner
      */
     private LdapContext                     ldapCtx;
 
-    Map<String, Hashtable<String, String>>  subjectRDNTables;
-    Map<String, Hashtable<String, String>>  subjectIDTables;
-
     /**
      * Constructs a <code>GrouperProvisioner</code> with the given
      * provisioning configuration, options and Ldap context.
@@ -107,12 +104,10 @@ public class GrouperProvisioner
             Map<String, Hashtable<String, String>> subjectRDNTables,
             Map<String, Hashtable<String, String>> subjectIDTables)
     {
+        super(subjectRDNTables, subjectIDTables);
         this.configuration = configuration;
         this.options = options;
         this.ldapCtx = ldapCtx;
-        DebugLog.info("Group hash table estimate = " + configuration.getGroupHashEstimate());
-        this.subjectRDNTables = subjectRDNTables;
-        this.subjectIDTables = subjectIDTables;
     }
 
     /**
@@ -591,7 +586,7 @@ public class GrouperProvisioner
             //
             // Add the subjectDns for this source
             //
-            addSubjectDnSet(subjectDns, filter);
+            addSubjectDnSet(subjectDns, filter, source);
         }
 
         return subjectDns;
@@ -606,10 +601,11 @@ public class GrouperProvisioner
      *            Set of subject DNs
      * @param filter
      *            Ldap search filter defined for a source
+     * @param source TODO
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    private void addSubjectDnSet(Set subjectDns, LdapSearchFilter filter) throws NamingException
+    private void addSubjectDnSet(Set subjectDns, LdapSearchFilter filter, String source) throws NamingException
     {
         //
         // Build the search control

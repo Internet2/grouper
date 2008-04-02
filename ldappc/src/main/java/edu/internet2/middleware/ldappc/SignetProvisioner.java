@@ -64,9 +64,6 @@ public class SignetProvisioner extends Provisioner
      * Ldap Context
      */
     private LdapContext ldapCtx;
-    
-    private Map<String, Hashtable<String, String>> subjectRDNTables;
-    private Map<String, Hashtable<String, String>> subjectIDTables;
 
     /**
      * Constructs a <code>SignetProvisioner</code> with the given
@@ -86,11 +83,10 @@ public class SignetProvisioner extends Provisioner
     public SignetProvisioner(SignetProvisionerConfiguration configuration,
             SignetProvisionerOptions options, LdapContext ldapCtx, Map<String, Hashtable<String, String>> subjectRDNTables, Map<String, Hashtable<String, String>> subjectIDTables)
     {
+        super(subjectRDNTables, subjectIDTables);
         this.configuration = configuration;
         this.options = options;
         this.ldapCtx = ldapCtx;
-        this.subjectRDNTables = subjectRDNTables;
-        this.subjectIDTables = subjectIDTables;
     }
 
     /**
