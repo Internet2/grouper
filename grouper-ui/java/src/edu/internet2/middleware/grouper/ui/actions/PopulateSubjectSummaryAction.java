@@ -71,6 +71,12 @@ import edu.internet2.middleware.subject.Subject;
       we are viewing the summary for</font></td>
   </tr>
   <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">sourceId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies the source of the Subject 
+      we are viewing the summary for</font></td>
+  </tr>
+  <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">contextSubject</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">OUT</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Added to links so that other 
@@ -259,7 +265,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.17 2007-10-18 08:40:06 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.18 2008-04-02 15:38:58 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -306,7 +312,8 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		subjectForm.set("contextSubject","true");
 		String subjectId = (String)subjectForm.get("subjectId");
 		String subjectType = (String)subjectForm.get("subjectType");
-		Subject subject = SubjectFinder.findById(subjectId,subjectType);
+		String subjectSource = (String)subjectForm.get("sourceId");
+		Subject subject = SubjectFinder.findById(subjectId,subjectType,subjectSource);
 		Map subjectMap = GrouperHelper.subject2Map(subject);
 		
 		request.setAttribute("subject",subjectMap);

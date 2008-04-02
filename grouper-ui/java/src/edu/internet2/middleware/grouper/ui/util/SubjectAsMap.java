@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.10 2008-03-03 13:54:52 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.11 2008-04-02 15:38:58 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
@@ -69,7 +69,6 @@ public class SubjectAsMap extends ObjectAsMap {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
-		Class stemClass = subject.getClass();
 		Object obj = getByIntrospection(key);
 		if(obj!=null) return obj;
 		obj = super.get(key);
@@ -91,7 +90,7 @@ public class SubjectAsMap extends ObjectAsMap {
 					}
 				} else if ("subjectType".equals(key))
 					obj = subject.getType().getName();
-				else if ("source".equals(key))
+				else if ("sourceId".equals(key))
 					obj = subject.getSource().getId();
 				if (obj == null) {
 					//No value so check wrapped Subject for value
@@ -121,7 +120,7 @@ public class SubjectAsMap extends ObjectAsMap {
 	
 	protected Set getExtraKeys() {
 		Set keys  = new HashSet();
-		keys.add("source");
+		keys.add("sourceId");
 		keys.add("subjectType");
 		keys.add("subjectId");
 		return keys;

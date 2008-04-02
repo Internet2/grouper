@@ -79,6 +79,7 @@
       <form-property name="subjectType" type="java.lang.String"/>
       <form-property name="subjectDescription" type="java.lang.String"/>
        <form-property name="subjectsource" type="java.lang.String"/>
+	   <form-property name="sourceId" type="java.lang.String"/>
        <form-property name="accessPriv" type="java.lang.String"/>
        <form-property name="namingPriv" type="java.lang.String"/>
 	   <form-property name="listField" type="java.lang.String"/>
@@ -210,6 +211,13 @@
       <forward name="Editor" path="EditorDef" redirect="false"/>
     </action>  
   
+  <!--<action  path="/exportXml"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.ExportXmlAction"
+            unknown="false" validate="false">
+			<forward name="ExportXmlForm" path="/WEB-INF/jsp/ExportXml.jsp" redirect="false"/>
+    </action>-->
+	
   <action  path="/help"
             scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateHelpAction"
