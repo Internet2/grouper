@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.42 2008-03-25 14:59:51 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.43 2008-04-02 08:46:27 isgwb Exp $
  */
 
 
@@ -1414,7 +1414,7 @@ public class GrouperHelper {
 		
 		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		for (int i = 0; i < privs.length; i++) {
-			allSet.addAll(getGroupsOrStemsWhereMemberHasPriv(member,privs[i].toLowerCase()));
+			allSet.addAll(getGroupsWhereMemberHasPriv(member,privs[i].toLowerCase()));
 		}
 
 		int end = start + pageSize;
@@ -1427,9 +1427,10 @@ public class GrouperHelper {
 		
 		Iterator it = allSet.iterator();
 		Group group = null;
+		Object obj;
 		while(it.hasNext()){
-			group = (Group) it.next();
-			groupSet.add(group);
+				obj = it.next();
+				if(obj instanceof Group)	groupSet.add(group);
 		}
 		return groupSet;
 	}
@@ -1448,7 +1449,7 @@ public class GrouperHelper {
 		if (groups != null)
 			return null;
 
-		groups = getGroupsForPrivileges(s, privs, 0, 100000, null);
+		groups = getStemsForPrivileges(s, privs, 0, 100000, null);
 		//Cache.instance().put(s,sb.toString(),groups);
 		return groups;
 
@@ -2046,6 +2047,37 @@ public class GrouperHelper {
 		if(privilege.equals("view")) return member.hasView();
 		if(privilege.equals("optin")) return member.hasOptin();
 		if(privilege.equals("optout")) return member.hasOptout();
+		if(privilege.equals("create")) return member.hasCreate();
+		if(privilege.equals("stem")) return member.hasStem();
+		return new HashSet();
+	}
+	
+	/**
+	 * Given a privilege return all the groups where member has that privilege
+	 * @param member
+	 * @param privilege
+	 * @return Set of groups where specified member has the specified privilege
+	 */
+	public static Set getGroupsWhereMemberHasPriv(Member member,String privilege) {
+		privilege=privilege.toLowerCase();
+		if(privilege.equals("admin")) return member.hasAdmin();
+		if(privilege.equals("update")) return member.hasUpdate();
+		if(privilege.equals("read")) return member.hasRead();
+		if(privilege.equals("view")) return member.hasView();
+		if(privilege.equals("optin")) return member.hasOptin();
+		if(privilege.equals("optout")) return member.hasOptout();
+		return new HashSet();
+	}
+	
+	/**
+	 * Given a privilege return all the stems where member has that privilege
+	 * @param member
+	 * @param privilege
+	 * @return Set of groups where specified member has the specified privilege
+	 */
+	public static Set getStemsWhereMemberHasPriv(Member member,String privilege) {
+		privilege=privilege.toLowerCase();
+
 		if(privilege.equals("create")) return member.hasCreate();
 		if(privilege.equals("stem")) return member.hasStem();
 		return new HashSet();
