@@ -138,7 +138,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.12 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.13 2008-04-02 07:44:06 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -230,14 +230,9 @@ public class SaveGroupAction extends GrouperCapableAction {
 				group = parent.addChildGroup(extension,displayExtension );
 			}catch(GroupAddException e) {
 				String name = parent.getName() + GrouperHelper.HIER_DELIM + extension;
-				try {
-					group = GroupFinder.findByName(grouperSession,name);
-				}catch(GroupNotFoundException ge) {
-					request.setAttribute("message", new Message(
+				request.setAttribute("message", new Message(
 							"groups.message.error.add-problem",new String[] {e.getMessage()}, true));
-					
-						return mapping.findForward(FORWARD_CreateAgain);
-				}
+				return mapping.findForward(FORWARD_CreateAgain);
 			}
 			doTypes(group,request);
 			groupForm.set("groupId", group.getUuid());

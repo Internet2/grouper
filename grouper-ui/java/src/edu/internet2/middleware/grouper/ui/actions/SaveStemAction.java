@@ -133,7 +133,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveStemAction.java,v 1.7 2007-04-24 15:35:29 isgwb Exp $
+ * @version $Id: SaveStemAction.java,v 1.8 2008-04-02 07:44:06 isgwb Exp $
  */
 
 public class SaveStemAction extends GrouperCapableAction {
@@ -207,15 +207,10 @@ public class SaveStemAction extends GrouperCapableAction {
 				stem = parentStem.addChildStem((String) stemForm.get("stemName"),(String) stemForm.get("stemDisplayName"));
 				stem.grantPriv(grouperSession.getSubject(),Privilege.getInstance("create"));
 			}catch(StemAddException e) {
-				String name = parentStem.getName() + GrouperHelper.HIER_DELIM + (String) stemForm.get("stemName");
-				try {
-					stem = StemFinder.findByName(grouperSession,name);
-				}catch(StemNotFoundException se) {
 					request.setAttribute("message", new Message(
 							"stems.message.error.add-problem",new String[] {e.getMessage()}, true));
-					
 						return mapping.findForward(FORWARD_CreateAgain);
-				}
+				
 			}
 			
 			
