@@ -71,7 +71,20 @@ public class ExternalSort
         String filename = args[0];
         int batchSize = Integer.parseInt(args[1]);
 
-        sort(filename, batchSize);
+        try
+        {
+            sort(filename, batchSize);
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     /**
@@ -80,7 +93,7 @@ public class ExternalSort
      * @param filename
      *            The file to be sorted.
      */
-    public static void sort(String filename)
+    public static void sort(String filename) throws FileNotFoundException, IOException
     {
         sort(filename, DEFAULT_BATCH_SIZE);
     }
@@ -94,71 +107,63 @@ public class ExternalSort
      *            the batch size, that is, the number of lines to batch and sort
      *            in memory.
      */
-    public static void sort(String filename, int batchSize)
+    public static void sort(String filename, int batchSize) throws FileNotFoundException, IOException
     {
-        try
+        FileReader intialFileInput = new FileReader(filename);
+        BufferedReader initFileReader = new BufferedReader(intialFileInput);
+        ArrayList<String> batch = new ArrayList<String>();
+
+        int numFiles = 0;
+        boolean atEOF = false;
+        while (!atEOF)
         {
-            FileReader intialFileInput = new FileReader(filename);
-            BufferedReader initFileReader = new BufferedReader(intialFileInput);
-            ArrayList<String> batch = new ArrayList<String>();
-
-            int numFiles = 0;
-            boolean atEOF = false;
-            while (!atEOF)
+            //
+            // Get a batch of lines.
+            //
+            int numLines = 0;
+            for (; numLines < batchSize; numLines++)
             {
-                //
-                // Get a batch of lines.
-                //
-                int numLines = 0;
-                for (; numLines < batchSize; numLines++)
+                String line = initFileReader.readLine();
+                if (line != null)
+                    batch.add(line);
+                else
                 {
-                    String line = initFileReader.readLine();
-                    if (line != null)
-                        batch.add(line);
-                    else
-                    {
-                        atEOF = true;
-                        break;
-                    }
-                }
-
-                //
-                // If any lines were read into this batch, sort them and write
-                // them to a batch file. Close the file and clear the batch.
-                //
-                if (numLines > 0)
-                {
-                    Collections.sort(batch);
-
-                    FileWriter fw = new FileWriter(filename + BATCH_EXTENSION
-                            + numFiles);
-                    BufferedWriter bw = new BufferedWriter(fw);
-                    for (int i = 0; i < batch.size(); i++)
-                        bw.append(batch.get(i) + "\n");
-                    bw.close();
-
-                    numFiles++;
-                    batch.clear();
+                    atEOF = true;
+                    break;
                 }
             }
 
             //
-            // Close the original file.
+            // If any lines were read into this batch, sort them and write
+            // them to a batch file. Close the file and clear the batch.
             //
-            initFileReader.close();
-            intialFileInput.close();
+            if (numLines > 0)
+            {
+                Collections.sort(batch);
 
-            //
-            // If any batch files were written, merge the batches, overwriting
-            // the original file. Delete the batch files.
-            //
-            if (numFiles > 0) mergeFiles(filename, numFiles);
+                FileWriter fw = new FileWriter(filename + BATCH_EXTENSION
+                        + numFiles);
+                BufferedWriter bw = new BufferedWriter(fw);
+                for (int i = 0; i < batch.size(); i++)
+                    bw.append(batch.get(i) + "\n");
+                bw.close();
+
+                numFiles++;
+                batch.clear();
+            }
         }
-        catch (Exception ex)
-        {
-            ex.printStackTrace();
-            System.exit(-1);
-        }
+
+        //
+        // Close the original file.
+        //
+        initFileReader.close();
+        intialFileInput.close();
+
+        //
+        // If any batch files were written, merge the batches, overwriting
+        // the original file. Delete the batch files.
+        //
+        if (numFiles > 0) mergeFiles(filename, numFiles);
     }
 
     /**
@@ -170,87 +175,78 @@ public class ExternalSort
      * @param numFiles
      *            the number of batch files to merge
      */
-    private static void mergeFiles(String filename, int numFiles)
+    private static void mergeFiles(String filename, int numFiles) throws FileNotFoundException, IOException
     {
-        try
+        //
+        // Create arrays of various batch file classes, and also of current
+        // lines to be merged.
+        //
+        File[] mergeFiles = new File[numFiles];
+        FileReader[] mergeFileReaders = new FileReader[numFiles];
+        BufferedReader[] mergeBufferedReaders = new BufferedReader[numFiles];
+        String[] currentLines = new String[numFiles];
+
+        //
+        // Create the buffered writer for the output file.
+        //
+        FileWriter fw = new FileWriter(filename);
+        BufferedWriter bw = new BufferedWriter(fw);
+
+        //
+        // Initialize the readers and current lines for each batch.
+        //
+        for (int i = 0; i < numFiles; i++)
+        {
+            mergeFiles[i] = new File(filename + BATCH_EXTENSION + i);
+            mergeFileReaders[i] = new FileReader(mergeFiles[i]);
+            mergeBufferedReaders[i] = new BufferedReader(mergeFileReaders[i]);
+
+            currentLines[i] = mergeBufferedReaders[i].readLine();
+        }
+
+        //
+        // Merge the files together using standard file merge algorithm.
+        //
+        boolean filesExhausted = false;
+        while (!filesExhausted)
         {
             //
-            // Create arrays of various batch file classes, and also of current
-            // lines to be merged.
+            // Find index of batch file whose current line is the minimum.
             //
-            File[] mergeFiles = new File[numFiles];
-            FileReader[] mergeFileReaders = new FileReader[numFiles];
-            BufferedReader[] mergeBufferedReaders = new BufferedReader[numFiles];
-            String[] currentLines = new String[numFiles];
+            int minIndex = findMinimumLine(currentLines);
 
-            //
-            // Create the buffered writer for the output file.
-            //
-            FileWriter fw = new FileWriter(filename);
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            //
-            // Initialize the readers and current lines for each batch.
-            //
-            for (int i = 0; i < numFiles; i++)
-            {
-                mergeFiles[i] = new File(filename + BATCH_EXTENSION + i);
-                mergeFileReaders[i] = new FileReader(mergeFiles[i]);
-                mergeBufferedReaders[i] = new BufferedReader(
-                        mergeFileReaders[i]);
-
-                currentLines[i] = mergeBufferedReaders[i].readLine();
-            }
-
-            //
-            // Merge the files together using standard file merge algorithm.
-            //
-            boolean filesExhausted = false;
-            while (!filesExhausted)
+            if (minIndex < 0)
+                //
+                // If there is no minimum line then all files have been
+                // exhausted. Our work here is done.
+                //
+                filesExhausted = true;
+            else
             {
                 //
-                // Find index of batch file whose current line is the minimum.
+                // Write minimum line to the sorted file and get another
+                // line from the file that had the minimum.
                 //
-                int minIndex = findMinimumLine(currentLines);
-
-                if (minIndex < 0)
-                    //
-                    // If there is no minimum line then all files have been
-                    // exhausted. Our work here is done.
-                    //
-                    filesExhausted = true;
-                else
-                {
-                    //
-                    // Write minimum line to the sorted file and get another
-                    // line from the file that had the minimum.
-                    //
-                    bw.append(currentLines[minIndex] + "\n");
-                    currentLines[minIndex] = mergeBufferedReaders[minIndex]
-                            .readLine();
-                }
-            }
-
-            //
-            // Close the sorted file.
-            //
-            bw.close();
-            fw.close();
-
-            //
-            // Close and delete the batch files.
-            //
-            for (int i = 0; i < numFiles; i++)
-            {
-                mergeBufferedReaders[i].close();
-                mergeFileReaders[i].close();
-                mergeFiles[i].delete();
+                bw.append(currentLines[minIndex] + "\n");
+                currentLines[minIndex] = mergeBufferedReaders[minIndex]
+                        .readLine();
             }
         }
-        catch (Exception ex)
+
+        //
+        // Close the sorted file.
+        //
+        bw.close();
+        fw.close();
+
+        //
+        // Close and delete the batch files.
+        //
+        for (int i = 0; i < numFiles; i++)
         {
-            ex.printStackTrace();
-            System.exit(-1);
+            mergeBufferedReaders[i].close();
+            mergeFileReaders[i].close();
+            mergeFiles[i].delete();
         }
     }
 
