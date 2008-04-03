@@ -3,7 +3,7 @@
 		  membership / privileges for the active group to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.8 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.9 2008-04-03 22:02:56 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -34,7 +34,7 @@
 			<c:set var="disabled"><c:out value="${!groupPrivResolver.canManageField[listField]}"/></c:set>
 		</c:otherwise>
 	</c:choose>
-	<html:multibox property="privileges" value="MEMBER" disabled="${disabled}"/> <c:out value="${label}"/>
+	<html:multibox property="privileges" value="MEMBER" disabled="${disabled}"/> <c:out value="${label}" escapeXml="false"/>
 	<br/>
 	</c:if>
 	<c:if test="${authUserPriv.ADMIN}">

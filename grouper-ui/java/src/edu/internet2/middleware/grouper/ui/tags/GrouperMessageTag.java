@@ -31,11 +31,15 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.strutsel.taglib.utils.EvalHelper;
 import org.apache.taglibs.standard.tag.common.fmt.BundleSupport;
 import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
@@ -43,6 +47,7 @@ import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
+import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -55,6 +60,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author Chris Hyzer
  */
 public class GrouperMessageTag extends MessageTag {
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperMessageTag.class);
 
 	/** in the nav.properties, terms must start with this prefix.  multiple terms can exist for one tooltip */
 	private static final String TERM_PREFIX = "term.";
@@ -69,6 +77,17 @@ public class GrouperMessageTag extends MessageTag {
 	 */
 	public static final String TOOLTIP_PREFIX = "tooltip.";
 
+	/**
+	 * target a tooltip on a certain message
+	 */
+	public static final String TOOLTIP_TARGETTED_PREFIX = "tooltipTargetted.";
+	
+  /**
+   * target a tooltip on a certain message, and make the value of the tooltip
+   * a reference to another tooltip
+   */
+  public static final String TOOLTIP_TARGETTED_REF_PREFIX = "tooltipTargettedRef.";
+  
 	/**
 	 * 
 	 */
@@ -187,7 +206,10 @@ public class GrouperMessageTag extends MessageTag {
 			}
 		}
 
-		String message = UNDEFINED_KEY + keyInput + UNDEFINED_KEY;
+    // Perform parametric replacement if required
+    List params = (List) GrouperUtil.fieldValue(this, "params");
+
+    String message = UNDEFINED_KEY + keyInput + UNDEFINED_KEY;
 		if (this.locCtxt != null) {
 			ResourceBundle bundle = this.locCtxt.getResourceBundle();
 			if (bundle != null) {
@@ -196,9 +218,6 @@ public class GrouperMessageTag extends MessageTag {
 					if (prefix != null)
 						keyInput = prefix + keyInput;
 					message = bundle.getString(keyInput);
-					// Perform parametric replacement if required
-					List params = (List) GrouperUtil
-							.fieldValue(this, "params");
 					if (!params.isEmpty()) {
 						Object[] messageArgs = params.toArray();
 						MessageFormat formatter = new MessageFormat("");
@@ -214,10 +233,44 @@ public class GrouperMessageTag extends MessageTag {
 			}
 		}
 		String var = (String) GrouperUtil.fieldValue(this, "var");
-
-		//CH 20080129 at this point we need to make the tooltip subsitutions
-		message = substituteTooltips(message);
 		
+	  String targettedTooltipKey = TOOLTIP_TARGETTED_PREFIX + keyInput;
+    String targettedTooltipRefKey = TOOLTIP_TARGETTED_REF_PREFIX + keyInput;
+	  
+    MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)((HttpServletRequest)this
+        .pageContext.getRequest()).getSession().getAttribute("navNullMap");
+    
+    String targettedTooltipRefValue = (String)mapBundleWrapper.get(targettedTooltipRefKey);
+
+    String targettedTooltipValue = (String)mapBundleWrapper.get(targettedTooltipKey);
+    
+    //if there is a ref, but it doesnt exist, that is a problem
+    if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
+      LOG.error("Missing tooltip targetted ref in nav.properties: " + targettedTooltipRefKey);
+    }
+
+    if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
+      LOG.error("Duplicate tooltip target and ref in nav.properties: " + targettedTooltipKey 
+          + ", " + targettedTooltipRefKey);
+    }
+    
+    //first priority is a targetted ref, next priority is a target.  not sure why both would be there
+    targettedTooltipValue = StringUtils.isBlank(targettedTooltipRefValue) ? 
+        targettedTooltipValue : (String)mapBundleWrapper.get(targettedTooltipRefValue);
+    
+        
+    if (StringUtils.isNotBlank(targettedTooltipValue)) {
+      
+      //replace the whole message with tooltip
+      message = convertTooltipTextToHtml(targettedTooltipValue, message);
+      
+    } else {
+      
+      //CH 20080129 at this point we need to make the tooltip subsitutions
+      message = substituteTooltips(message);
+      
+    }
+	  
 		if (var != null) {
 			int scope = (Integer) GrouperUtil.fieldValue(this, "scope");
 			this.pageContext.setAttribute(var, message, scope);
@@ -307,12 +360,8 @@ public class GrouperMessageTag extends MessageTag {
 					String tooltip = propertiesConfigurationMap.get(tooltipKey);
 					
 					//tooltipKeys.add(term);
+					tooltip = convertTooltipTextToHtml(tooltip, term);
 
-					//substitute single quotes for javascript
-					tooltip = tooltip.replace("'", "\\'");
-					//put it in the tooltip code
-					tooltip = "<span class=\"tooltip\" onmouseover=\"grouperTooltip('" 
-						+ tooltip + "');\">" + term + "</span>";
 					//tooltipValues.add(tooltip);
 					propertiesMap.put(term, tooltip);
 				}
@@ -330,6 +379,21 @@ public class GrouperMessageTag extends MessageTag {
 			
 		}
 		return this.tooltipKeys;
+	}
+	
+	/**
+	 * convert tooltip text to html
+	 * @param tooltipText 
+	 * @param term
+	 * @return the html tooltip text
+	 */
+	private static String convertTooltipTextToHtml(String tooltipText, String term) {
+    //substitute single quotes for javascript
+	  tooltipText = tooltipText.replace("'", "\\'");
+    //put it in the tooltip code
+	  tooltipText = "<span class=\"tooltip\" onmouseover=\"grouperTooltip('" 
+      + tooltipText + "');\">" + term + "</span>";
+	  return tooltipText;
 	}
 	
 	/**
