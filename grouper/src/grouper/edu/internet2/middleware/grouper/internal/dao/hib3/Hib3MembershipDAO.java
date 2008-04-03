@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.8 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.9 2008-04-03 18:09:43 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -762,7 +762,20 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   protected static void reset(Session hs) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3MembershipDAO").executeUpdate();;
+    List<Hib3MembershipDAO> hib3MembershipDAOs = 
+      hs.createQuery("from Hib3MembershipDAO as ms order by createTime desc")
+      .list()
+      ;
+
+    // Deleting each membership from the time created in descending order. 
+    // This is necessary to prevent deleting parent memberships before child 
+    // memberships which causes integrity constraint violations on some databases. 
+    for (Hib3MembershipDAO hib3MembershipDAO : hib3MembershipDAOs) {
+      hs.createQuery("delete from Hib3MembershipDAO ms where ms.uuid=:uuid")
+      .setString("uuid", hib3MembershipDAO.getUuid())
+      .executeUpdate();
+    }
+
   } 
   
 //PRIVATE CLASS METHODS //

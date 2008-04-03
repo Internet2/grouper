@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.173 2008-02-17 08:44:42 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.174 2008-04-03 18:09:43 shilen Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -169,6 +169,7 @@
         <include name="**/*.java"/>      <!-- source -->
         <include name="**/*.hbm.xml"/>      <!-- hibernate mappings -->
         <include name="**/*.properties"/>   <!-- xml default export|import properties -->
+        <include name="**/Hib3ForeignKeys.xml"/>   <!-- foreign keys -->
       </fileset>
     </copy>
     <!-- build extensions -->
@@ -583,6 +584,24 @@
     <record name="${schemaexport.log}" action="stop"/>
   </target>
   <!-- target: schemaexport -->
+
+  <!-- target: addforeignkeys -->
+  <target name="addforeignkeys" 
+          depends="init, compile"
+          description="Adds the foreign keys to the database"
+  >
+    <record name="${schemaexport.log}" action="start"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.RegistryAddForeignKeys"
+          failonerror="true"
+    />
+    <record name="${schemaexport.log}" action="stop"/>
+  </target>
+  <!-- target: addforeignkeys -->
 
   <!-- target: serialver -->
   <target name="serialver" 

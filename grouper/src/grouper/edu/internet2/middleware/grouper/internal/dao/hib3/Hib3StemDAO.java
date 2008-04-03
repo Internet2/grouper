@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
@@ -48,7 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.5 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.6 2008-04-03 18:09:43 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -870,10 +871,29 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  HibernateException
   {
     // To appease Oracle the root stem is named ":" internally.
-    hs.createQuery("delete from Hib3StemDAO as ns where ns.name not like :stem")
+    List<Hib3StemDAO> hib3StemDAOs = 
+      hs.createQuery("from Hib3StemDAO as ns where ns.name not like :stem order by name desc")
       .setParameter("stem", Stem.DELIM)
-      .executeUpdate()
+      .list()
       ;
+
+    // Deleting each stem from the time created in descending order. This is necessary to prevent
+    // deleting parent stems before child stems which causes integrity constraint violations  on some
+    // databases.
+    for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
+      hs.createQuery("delete from Hib3StemDAO ns where ns.uuid=:uuid")
+      .setString("uuid", hib3StemDAO.getUuid())
+      .executeUpdate();
+    }
+
+    // Reset "modify" columns.  Setting the modifierUuid property to null is important to avoid foreign key issues.
+    hs.createQuery("update Hib3StemDAO as ns set ns.modifierUuid = :id, ns.modifyTime = :time, ns.modifySource = :source")
+      .setParameter("id", null, Hibernate.STRING)
+      .setParameter("time", new Long(0), Hibernate.LONG)
+      .setParameter("source", null, Hibernate.STRING)
+      .executeUpdate();
+      ;
+
   }
 
 } 

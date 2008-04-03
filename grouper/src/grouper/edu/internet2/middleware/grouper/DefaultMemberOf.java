@@ -34,7 +34,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.7 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.8 2008-04-03 18:09:43 shilen Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -495,10 +495,9 @@ public class DefaultMemberOf extends BaseMemberOf {
 
     this.addEffectiveSaves(results);
 
+    this.addSave(_ms); // Save the immediate
     this.addSaves( this.getEffectiveSaves() );
     this._identifyGroupsAndStemsToMarkAsModified();
-
-    this.addSave(_ms); // Save the immediate
   } // private void _evaluateAddImmediateMembership(s, f, _m)
 
   // @since   1.2.0
