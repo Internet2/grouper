@@ -75,11 +75,6 @@ public class ExternalSort
         {
             sort(filename, batchSize);
         }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-            System.exit(1);
-        }
         catch (IOException e)
         {
             e.printStackTrace();
@@ -93,7 +88,7 @@ public class ExternalSort
      * @param filename
      *            The file to be sorted.
      */
-    public static void sort(String filename) throws FileNotFoundException, IOException
+    public static void sort(String filename) throws IOException
     {
         sort(filename, DEFAULT_BATCH_SIZE);
     }
@@ -107,7 +102,7 @@ public class ExternalSort
      *            the batch size, that is, the number of lines to batch and sort
      *            in memory.
      */
-    public static void sort(String filename, int batchSize) throws FileNotFoundException, IOException
+    public static void sort(String filename, int batchSize) throws IOException
     {
         FileReader intialFileInput = new FileReader(filename);
         BufferedReader initFileReader = new BufferedReader(intialFileInput);
@@ -175,7 +170,7 @@ public class ExternalSort
      * @param numFiles
      *            the number of batch files to merge
      */
-    private static void mergeFiles(String filename, int numFiles) throws FileNotFoundException, IOException
+    private static void mergeFiles(String filename, int numFiles) throws IOException
     {
         //
         // Create arrays of various batch file classes, and also of current
