@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.43 2008-04-02 08:46:27 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.44 2008-04-03 13:30:21 isgwb Exp $
  */
 
 
@@ -563,8 +563,8 @@ public class GrouperHelper {
 	 * @return Subject wrapped as a Map
 	 */
 	public static Map subject2Map(GrouperSession s, String subjectId,
-			String subjectType,Map addAttr) throws SubjectNotFoundException{
-		Map subjectMap = subject2Map(s,subjectId,subjectType);
+			String subjectType,String sourceId,Map addAttr) throws SubjectNotFoundException{
+		Map subjectMap = subject2Map(s,subjectId,subjectType,sourceId);
 		if(addAttr !=null) subjectMap.putAll(addAttr);
 		return subjectMap;
 	}
@@ -578,11 +578,11 @@ public class GrouperHelper {
 	 * @return Subject wrapped as a Map
 	 */
 	public static Map subject2Map(GrouperSession s, String subjectId,
-			String subjectType) throws SubjectNotFoundException{
+			String subjectType,String sourceId) throws SubjectNotFoundException{
 		if (!"group".equals(subjectType)) {
 			Subject subject = null;
 			try {
-				subject = SubjectFinder.findById(subjectId, subjectType);
+				subject = SubjectFinder.findById(subjectId, subjectType,sourceId);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

@@ -203,7 +203,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.6 2006-07-19 10:41:52 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.7 2008-04-03 13:30:21 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 
@@ -278,6 +278,7 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 			String subjectTypeId;
 			Subject subject = null;
 			String subjectId;
+			String sourceId;
 			Group subjectGroup;
 			Map subjectMap = null;
 			for (int i = 0; i < members.length; i++) {
@@ -285,6 +286,8 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 				//Type specified for each subjectId since there could be 
 				//a mixture
 				subjectTypeId = request.getParameter("subjectType:"
+						+ members[i]);
+				sourceId = request.getParameter("sourceId:"
 						+ members[i]);
 				if ("group".equals(subjectTypeId)) {
 					subjectGroup = GroupFinder.findByUuid(grouperSession,
@@ -294,7 +297,7 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 				} else {
 					
 					subjectMap = GrouperHelper.subject2Map(grouperSession,
-							subjectId, subjectTypeId);
+							subjectId, subjectTypeId,sourceId);
 				}
 				subjectRes.add(subjectMap);
 			}

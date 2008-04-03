@@ -60,6 +60,7 @@
       <form-property name="asMemberOf" type="java.lang.String"/>
       <form-property name="contextGroup" type="java.lang.String"/>
       <form-property name="contextSubject" type="java.lang.String"/>
+       <form-property name="contextSourceId" type="java.lang.String"/>
 	  <form-property name="contextSubjectId" type="java.lang.String"/>
 	  <form-property name="contextSubjectType" type="java.lang.String"/>
 	  <form-property name="callerPageId" type="java.lang.String"/>
@@ -108,6 +109,7 @@
                type="org.apache.struts.action.DynaActionForm">
 	   <form-property name="subjectId" type="java.lang.String"/>
 	   <form-property name="subjectType" type="java.lang.String"/>
+	    <form-property name="sourceId" type="java.lang.String"/>
 	   <form-property name="privilege" type="java.lang.String"/>
        <form-property name="privileges" type="java.lang.String[]"/>
        <form-property name="asMemberOf" type="java.lang.String"/>
@@ -119,6 +121,7 @@
 	   <form-property name="contextSubject" type="java.lang.String"/>
 	   <form-property name="contextSubjectId" type="java.lang.String"/>
 	   <form-property name="contextSubjectType" type="java.lang.String"/>
+	   <form-property name="contextSourceId" type="java.lang.String"/>
 	   <form-property name="callerPageId" type="java.lang.String"/>
 	   <form-property name="selectedSource" type="java.lang.String"/>
     </form-bean>
@@ -167,6 +170,7 @@
       <form-property name="memberId" type="java.lang.String"/>
 	  <form-property name="subjectId" type="java.lang.String"/>
 	  <form-property name="subjectType" type="java.lang.String"/>
+	   <form-property name="sourceId" type="java.lang.String"/>
       <form-property name="privileges" type="java.lang.String[]"/>
 	  <form-property name="privilege" type="java.lang.String"/>
       <form-property name="groups" type="java.lang.String[]"/>

@@ -138,7 +138,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.13 2008-04-02 07:44:06 isgwb Exp $
+ * @version $Id: SaveGroupAction.java,v 1.14 2008-04-03 13:30:22 isgwb Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -251,6 +251,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 				group.grantPriv(grouperAll,Privilege.getInstance(privileges[i]));
 			}
 		}
+		if(0==0) throw new RuntimeException("Forced error for ransaction testing");
 		Map.Entry entry = null;
 		Iterator it = assignedPrivs.entrySet().iterator();
 		while(it.hasNext()) {

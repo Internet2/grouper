@@ -3,7 +3,7 @@
 		  render individual group members
 --%><%--
   @author Gary Brown.
-  @version $Id: defaultMembershipView.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: defaultMembershipView.jsp,v 1.5 2008-04-03 13:30:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -12,6 +12,7 @@
 <c:set target="${linkParams}" property="groupId" value="${viewObject.group.id}"/>
 <c:set target="${linkParams}" property="subjectId" value="${viewObject.subject.id}"/>
 <c:set target="${linkParams}" property="subjectType" value="${viewObject.subject.subjectType}"/>
+<c:set target="${linkParams}" property="sourceId" value="${viewObject.subject.sourceId}"/>
 
 <c:if test="${!empty listField}">
 	<c:set target="${linkParams}" property="listField" value="${listField}"/>

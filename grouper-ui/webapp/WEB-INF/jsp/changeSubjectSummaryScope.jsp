@@ -4,7 +4,7 @@
 		has selected Access privilege, and stems where subject has selected Naming privilege
 --%><%--
   @author Gary Brown.
-  @version $Id: changeSubjectSummaryScope.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: changeSubjectSummaryScope.jsp,v 1.5 2008-04-03 13:30:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -12,6 +12,7 @@
 <html:form method="post" action="/populateSubjectSummary">
 <html:hidden property="subjectId"/>
 <html:hidden property="subjectType"/>
+<html:hidden property="sourceId"/>
 <html:hidden property="returnTo"/>
 <html:hidden property="returnToLinkKey"/>
 <fieldset>

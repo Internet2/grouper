@@ -3,7 +3,7 @@
 		  which can be selected for privilege assignment.
 --%><%--
   @author Gary Brown.
-  @version $Id: assignFoundMemberView.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: assignFoundMemberView.jsp,v 1.4 2008-04-03 13:30:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -12,6 +12,8 @@
 		 		<grouper:param value="${viewObject.description}"/>
 		</grouper:message></c:set>
 	<input type="hidden" name="subjectType:<c:out value="${viewObject.id}"/>" value="<c:out value="${viewObject.subjectType}"/>" />
+	<input type="hidden" name="sourceId:<c:out value="${viewObject.id}"/>" value="<c:out value="${viewObject.sourceId}"/>" />
+	<label for="members<c:out value="${itemPos}"/>" class="noCSSOnly">
 	<label for="members<c:out value="${itemPos}"/>" class="noCSSOnly">
 	   	<grouper:message bundle="${nav}" key="browse.select.subject"/> <c:out value="${viewObject.desc}"/>
 		</label>

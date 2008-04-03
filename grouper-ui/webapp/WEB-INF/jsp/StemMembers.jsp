@@ -15,6 +15,7 @@ bulk update capability?). Also link to find new members --%>
 <c:forEach var="subject" items="${groupMembers}">
 <c:set target="${groupMembership}" property="subjectId" value="${subject.id}"/>
 <c:set target="${groupMembership}" property="subjectType" value="${subject.subjectType}"/>
+<c:set target="${groupMembership}" property="sourceId" value="${subject.sourceId}"/>
 <c:set var="subject" value="${subject}" scope="request"/>
 <%-- @annotation@ User clicks link to edit individual member --%>
 				  

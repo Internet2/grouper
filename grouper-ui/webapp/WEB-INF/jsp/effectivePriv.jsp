@@ -2,13 +2,14 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePriv.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: effectivePriv.jsp,v 1.6 2008-04-03 13:30:21 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:set target="${params}" property="subjectId" value="${subject.id}"/>
 <c:set target="${params}" property="subjectType" value="${subject.subjectType}"/>
+<c:set target="${params}" property="sourceId" value="${subject.sourceId}"/>
 	<c:set var="privMap" value="${groupOrStemPrivEntry.value}"/>
 	<c:set var="group" value="${privMap.group}"/>
 	<c:if test="${groupOrStemPrivEntry.key!='subject'}"> 
@@ -17,6 +18,7 @@
 	<c:when test="${groupOrStemPrivEntry.key=='GrouperSystem'}">
 					<c:set target="${params}" property="subjectId" value="GrouperSystem"/>
 				<c:set target="${params}" property="subjectType" value="application"/>
+				<c:set target="${params}" property="sourceId" value="g:isa"/>
 				<c:set target="${params}" property="asMemberOf" value="${browseParent.id}"/>
 				<c:set var="memberPage" value="/populateGroupMember.do"/>
 			<grouper:message bundle="${nav}" key="subject.privileges.from-groupersystem"/>
@@ -55,6 +57,7 @@
 			 
 				<c:set target="${params}" property="subjectId" value="${group.id}"/>
 				<c:set target="${params}" property="subjectType" value="group"/>
+					<c:set target="${params}" property="sourceId" value="g:gsa"/>
 				<c:set target="${params}" property="asMemberOf" value="${browseParent.id}"/>
 				<c:set var="memberPage" value="/populateGroupMember.do"/>
 				<c:if test="${!browseParent.isGroup}">
@@ -69,6 +72,7 @@
 		<c:otherwise>
 				<c:set target="${params}" property="subjectId" value="GrouperAll"/>
 				<c:set target="${params}" property="subjectType" value="application"/>
+					<c:set target="${params}" property="sourceId" value="g:isa"/>
 				<c:set target="${params}" property="asMemberOf" value="${browseParent.id}"/>
 				<c:set var="memberPage" value="/populateGroupMember.do"/>
 			<grouper:message bundle="${nav}" key="subject.privileges.from-grouperall"/>

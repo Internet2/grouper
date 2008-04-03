@@ -201,7 +201,7 @@ import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.7 2008-01-09 13:26:18 isgwb Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.8 2008-04-03 13:30:22 isgwb Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 
@@ -287,11 +287,12 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		
 		String subjectId = (String) groupOrStemMemberForm.get("subjectId");
 		String subjectType = (String) groupOrStemMemberForm.get("subjectType");
+		String sourceId = (String) groupOrStemMemberForm.get("sourceId");
 		
 		//Retrieve subject whose privileges we are displaying and make
 		//available to view
 		Map subjectMap = GrouperHelper.subject2Map(grouperSession, subjectId,
-				subjectType);
+				subjectType,sourceId);
 		
 		//Retrieve privileges current user, and selected subject have over
 		//current group/stem

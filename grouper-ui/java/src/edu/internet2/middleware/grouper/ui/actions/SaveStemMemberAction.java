@@ -118,7 +118,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SaveStemMemberAction.java,v 1.4 2006-04-03 12:47:18 isgwb Exp $
+ * @version $Id: SaveStemMemberAction.java,v 1.5 2008-04-03 13:30:22 isgwb Exp $
  */
 public class SaveStemMemberAction extends GrouperCapableAction {
 
@@ -139,13 +139,14 @@ public class SaveStemMemberAction extends GrouperCapableAction {
 		String[] privileges = (String[]) groupOrStemMemberForm.get("privileges");
 		String subjectId = (String) groupOrStemMemberForm.get("subjectId");
 		String subjectType = (String) groupOrStemMemberForm.get("subjectType");
+		String sourceId = (String) groupOrStemMemberForm.get("sourceId");
 		boolean forStems = true;
 
 
 		Stem curStem = StemFinder.findByUuid(grouperSession,
 				asMemberOf);
 		Map subjectMap = GrouperHelper.subject2Map(grouperSession, subjectId,
-				subjectType);
+				subjectType,sourceId);
 		Member member = MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId, subjectType));
 		
 		//Get new privileges as a Map

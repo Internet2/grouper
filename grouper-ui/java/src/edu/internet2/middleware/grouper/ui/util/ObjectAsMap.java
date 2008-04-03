@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ObjectAsMap.java,v 1.7 2008-03-03 13:54:52 isgwb Exp $
+ * @version $Id: ObjectAsMap.java,v 1.8 2008-04-03 13:30:21 isgwb Exp $
  */
 public class ObjectAsMap extends HashMap {
 	protected String objType = null;
@@ -137,7 +137,7 @@ public static ObjectAsMap getInstance(String type, Subject subject, GrouperSessi
 		try {
 			Class impl = Class.forName(claz);
 			Constructor c = impl.getConstructor(GrouperSession.class,Subject.class,groupOrStem.getClass(),privilege.getClass());
-			ObjectAsMap result = (ObjectAsMap) c.newInstance(subject, grouperSession,groupOrStem,privilege);
+			ObjectAsMap result = (ObjectAsMap) c.newInstance( grouperSession,subject,groupOrStem,privilege);
 		
 			return result;
 		} catch (Exception e) {

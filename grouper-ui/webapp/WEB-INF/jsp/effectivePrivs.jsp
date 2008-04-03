@@ -2,7 +2,7 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePrivs.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: effectivePrivs.jsp,v 1.5 2008-04-03 13:30:21 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -10,6 +10,7 @@
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:set target="${membershipMap}" property="subjectId" value="${subject.id}"/>
 <c:set target="${membershipMap}" property="subjectType" value="${subject.subjectType}"/>
+<c:set target="${membershipMap}" property="sourceId" value="${subject.sourceId}"/>
 <c:set target="${membershipMap}" property="callerPageId" value="${thisPageId}"/>
 
 <c:set var="linkSeparator">  

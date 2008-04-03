@@ -4,7 +4,7 @@
 			active group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMember.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: GroupMember.jsp,v 1.6 2008-04-03 13:30:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:if test="${!empty failedRevocations}">
@@ -43,6 +43,7 @@
 		<c:set target="${contextParams}" property="subjectId" value="${GroupOrStemMemberFormBean.map.contextSubjectId}"/>
 		<c:set target="${contextParams}" property="contextSubject" value="${GroupOrStemMemberFormBean.map.contextSubject}"/>
 		<c:set target="${contextParams}" property="subjectType" value="${GroupOrStemMemberFormBean.map.contextSubjectType}"/>
+		<c:set target="${contextParams}" property="sourceId" value="${GroupOrStemMemberFormBean.map.contextSourceId}"/>
 		<c:set target="${contextParams}" property="groupId" value="${GroupOrStemMemberFormBean.map.contextGroup}"/>
 				<c:if test="${GroupOrStemMemberFormBean.map.contextSubject!='true'}">
 					<html:link page="/populateChains.do" name="contextParams">

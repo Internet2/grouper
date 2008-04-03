@@ -7,8 +7,10 @@
 <c:set target="${membershipMap}" property="contextSubject" value="${GroupFormBean.map.contextSubject}"/>
 <c:set target="${membershipMap}" property="contextSubjectId" value="${currentSubject.id}"/>
 <c:set target="${membershipMap}" property="contextSubjectType" value="${currentSubject.subjectType}"/>
+<c:set target="${membershipMap}" property="contextSourceId" value="${currentSubject.sourceId}"/>
 <c:set target="${membershipMap}" property="subjectId" value="${currentSubject.id}"/>
 <c:set target="${membershipMap}" property="subjectType" value="${currentSubject.subjectType}"/>
+<c:set target="${membershipMap}" property="sourceId" value="${currentSubject.sourceId}"/>
 <c:set target="${membershipMap}" property="asMemberOf" value="${viewObject[0].id}"/>
 <c:set target="${membershipMap}" property="callerPageId" value="${thisPageId}"/>
 <div class="chainPath">
@@ -41,6 +43,7 @@
 <c:forEach items="${viewObject}" var="group" varStatus="status">
 <c:set target="${membershipMap}" property="subjectId" value="${group.id}"/>
 <c:set target="${membershipMap}" property="subjectType" value="group"/>
+<c:set target="${membershipMap}" property="sourceId" value="g:gsa"/>
 <c:choose>
 	<c:when test="${chainSize > 0 && status.count lt (chainSize+1)}">
 		<c:set target="${membershipMap}" property="asMemberOf" value="${viewObject[status.count].id}"/>
@@ -53,6 +56,7 @@
 <c:set target="${group}" property="contextGroup" value="${currentGroup.id}"/>
 <c:set target="${group}" property="contextSubjectId" value="${currentSubject.id}"/>
 <c:set target="${group}" property="contextSubjectType" value="${currentSubject.subjectType}"/>
+<c:set target="${group}" property="contextSourceId" value="${currentSubject.sourceId}"/>
 <c:set target="${group}" property="callerPageId" value="${thisPageId}"/>
 
   

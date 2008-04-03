@@ -102,6 +102,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">Identifies the type of the Subject 
       where we started out</font></td>
   </tr>
+    <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">contextSourceId</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Identifies the source of the Subject 
+      where we started out</font></td>
+  </tr>
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">contextSubject</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
@@ -158,7 +164,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupMemberAction.java,v 1.8 2008-01-09 13:26:18 isgwb Exp $
+ * @version $Id: SaveGroupMemberAction.java,v 1.9 2008-04-03 13:30:22 isgwb Exp $
  */
 public class SaveGroupMemberAction extends GrouperCapableAction {
 
@@ -183,6 +189,7 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		String privilege = (String) groupOrStemMemberForm.get("privilege");
 		String subjectId = (String) groupOrStemMemberForm.get("subjectId");
 		String subjectType = (String) groupOrStemMemberForm.get("subjectType");
+		String sourceId = (String) groupOrStemMemberForm.get("sourceId");
 		String listField = (String) groupOrStemMemberForm.get("listField");
 		String membershipField = "members";
 		
@@ -193,8 +200,8 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		Group curGroup = GroupFinder.findByUuid(grouperSession,
 				asMemberOf);
 		Map subjectMap = GrouperHelper.subject2Map(grouperSession, subjectId,
-				subjectType);
-		Member member = MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(subjectId,subjectType));
+				subjectType,sourceId);
+		Member member = MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(subjectId,subjectType,sourceId));
 		List failedRevocations=new ArrayList();
 		//Get privileges as they existed and determine new ones as Map
 		Map privs = GrouperHelper.getImmediateHas(grouperSession, GroupOrStem.findByGroup(grouperSession,curGroup), member,mField);

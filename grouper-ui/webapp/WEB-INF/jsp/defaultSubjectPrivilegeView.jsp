@@ -3,7 +3,7 @@
 		  render individual privilegees
 --%><%--
   @author Gary Brown.
-  @version $Id: defaultSubjectPrivilegeView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: defaultSubjectPrivilegeView.jsp,v 1.3 2008-04-03 13:30:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -12,6 +12,8 @@
 	<c:set target="${linkParams}" property="groupId" value="${viewObject.groupOrStem.id}"/>
 	<c:set target="${linkParams}" property="subjectId" value="${viewObject.subject.id}"/>
 	<c:set target="${linkParams}" property="subjectType" value="${viewObject.subject.subjectType}"/>
+	<c:set target="${linkParams}" property="sourceId" value="${viewObject.subject.sourceId}"/>
+	
 	
 	<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.subject.summary">
 		<grouper:param value="${viewObject.subject.desc}"/>

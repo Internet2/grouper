@@ -3,7 +3,7 @@
 		  render naming privileges from subject perspecive
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectNamingPrivView.jsp,v 1.4 2008-03-25 16:30:18 mchyzer Exp $
+  @version $Id: subjectNamingPrivView.jsp,v 1.5 2008-04-03 13:30:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -14,9 +14,11 @@
 <c:set target="${pagerParams}" property="asMemberOf" value="${viewObject.asMemberOf}"/>
 <c:set target="${pagerParams}" property="subjectId" value="${viewObject.id}"/>
 <c:set target="${pagerParams}" property="subjectType" value="${viewObject.subjectType}"/>
+<c:set target="${pagerParams}" property="sourceId" value="${viewObject.sourceId}"/>
 <c:set target="${pagerParams}" property="contextSubject" value="true"/>
 <c:set target="${pagerParams}" property="contextSubjectId" value="${viewObject.id}"/>
 <c:set target="${pagerParams}" property="contextSubjectType" value="${viewObject.subjectType}"/> 
+<c:set target="${pagerParams}" property="contextSourceId" value="${viewObject.sourceId}"/> 
 
  <%--  Use params to make link title descriptive for accessibility --%>		
 <c:set var="linkTitle"><grouper:message bundle="${nav}" key="stems.access.chain.title">
@@ -36,6 +38,7 @@
 <c:set target="${group}" property="contextSubject" value="true"/>
 <c:set target="${group}" property="contextSubjectId" value="${currentSubject.id}"/>
 <c:set target="${group}" property="contextSubjectType" value="${currentSubject.subjectType}"/>
+<c:set target="${group}" property="contextSourceId" value="${currentSubject.sourceId}"/>
 <span class="stemSummaryLink">
  <tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="group"/>

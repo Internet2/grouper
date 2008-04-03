@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.10 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: groupLinks.jsp,v 1.11 2008-04-03 13:30:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -76,6 +76,7 @@
 	<jsp:useBean id="subjSum" class="java.util.HashMap"/>
 	<c:set target="${subjSum}" property="subjectId" value="${group.id}"/>
 	<c:set target="${subjSum}" property="subjectType" value="group"/>
+	<c:set target="${subjSum}" property="sourceId" value="g:gsa"/>
 	<c:set target="${subjSum}" property="changeMode" value="true"/>
 			<html:link page="/populateSubjectSummary.do" name="subjSum">
 				<grouper:message bundle="${nav}" key="groups.action.summary.goto-this-subject"/>
