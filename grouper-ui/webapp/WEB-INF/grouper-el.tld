@@ -104,6 +104,29 @@
     </attribute>
   </tag>
     <tag>
+    <name>subtitle</name>
+    <!--  description>
+        This will generate an infodot image which when clicked will hide/show some instructions
+    </description -->
+    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperSubtitleTag</tagclass>
+    <bodycontent>empty</bodycontent>
+    <attribute>
+        <name>key</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param1</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param2</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+    <tag>
     <name>hideShowTarget</name>
     <!--  description>
         This will generate an infodot image which when clicked will hide/show some instructions

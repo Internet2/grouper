@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: title.jsp,v 1.4 2008-03-31 20:29:34 mchyzer Exp $
+  @version $Id: title.jsp,v 1.5 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -19,7 +19,7 @@
         <c:when test="${!empty subtitle}">
           <%-- this is the nav.properties id for the infodot body for this title/subtitle combo --%>
           <c:set var="titleInfodotName" scope="request" value="infodot.title.${title}.${subtitle}" />
-          <!-- trying title infodot with key: <c:out value="${titleInfodotName}" /> -->
+          <!-- trying title infodot with nav.properties key: <c:out value="${titleInfodotName}" /> -->
         		&nbsp;-&nbsp;<grouper:message bundle="${nav}" key="${subtitle}">
             <c:forEach var="arg" items="${subtitleArgs}">
               <grouper:param value="${arg}" />
@@ -30,17 +30,16 @@
           <%-- only the title is set --%>
           <%-- this is the nav.properties id for the infodot body for this title/subtitle combo --%>
           <c:set var="titleInfodotName" scope="request" value="infodot.title.${title}" />
-          <!-- trying title infodot with key: <c:out value="${titleInfodotName}" /> -->
+          <!-- trying title infodot with nav.properties key: <c:out value="${titleInfodotName}" /> -->
         </c:otherwise>
       </c:choose> </span>
       <%-- c:out value="Map: ${navNullMap[titleInfodotName]}, titleName: ${titleInfodotName}, title: ${title}" / --%>
-      
       <%-- if we are title.subtitle, and not there, then try just title --%>
-      <%-- this isnt valid c:if
+      <%-- this isnt valid since it is usually misleading... c:if
         test="${empty navNullMap[titleInfodotName] && !empty subtitle}"
       >
         <c:set var="titleInfodotName" scope="request" value="infodot.title.${title}" />
-        <!-- trying title infodot with key: <c:out value="${titleInfodotName}" /> -->
+        <!-- trying title infodot with nav.properties key: <c:out value="${titleInfodotName}" /> -->
       </c:if --%>
       
       <%-- CH 20080325 only show if there is one --%> <c:if

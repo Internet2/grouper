@@ -264,6 +264,28 @@ div.memberLink {
 	color:#ff0000;
 }
 
+table.actionheaderTable {
+  text-decoration: none;
+  color: #056496;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  text-transform : uppercase;
+  font-weight: bold;
+  background-color: #DDD;
+  padding: 0px;
+  margin: 0px;
+}
+table.actionheaderTable td {
+  padding: 3px;
+}
+
+td.actionheader {
+  padding: 3px;  
+  
+}
+  
+
+
 .helpText {
   border-color: #dedfde;
   border-style: dashed;

@@ -3,7 +3,7 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.9 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: GroupSummary.jsp,v 1.10 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -77,9 +77,7 @@
 			</c:if>
 			</div>
 			<c:if test="${!isFlat}">
-			<h2 class="actionheader">
-				<grouper:message bundle="${nav}" key="groups.heading.select-other"/>
-			</h2>
+        <grouper:subtitle key="groups.heading.select-other" />
 			<tiles:insert definition="browseStemsLocationDef" />
 		</c:if>
 	</c:otherwise>

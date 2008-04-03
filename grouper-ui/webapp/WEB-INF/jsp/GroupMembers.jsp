@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.13 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: GroupMembers.jsp,v 1.14 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -11,9 +11,7 @@
 
 <tiles:insert definition="changeMembershipScopeDef"/>
 
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.heading.list-members"/>
-</h2>
+<grouper:subtitle key="groups.heading.list-members" />
 
 <c:choose>
 	<c:when test="${!removableMembers}">

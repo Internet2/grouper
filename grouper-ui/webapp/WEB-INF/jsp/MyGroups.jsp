@@ -2,7 +2,7 @@
 		  Main page for the 'default' browse mode - My memberships
 --%><%--
   @author Gary Brown.
-  @version $Id: MyGroups.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: MyGroups.jsp,v 1.4 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
@@ -10,9 +10,7 @@
 <div class="pageBlurb">
 	<grouper:message bundle="${nav}" key="groups.current-memberships"/>
 </div>
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.heading.browse"/>
-</h2>
+    <grouper:subtitle key="groups.heading.browse" />
 
 <tiles:insert definition="browseStemsDef"/>
 

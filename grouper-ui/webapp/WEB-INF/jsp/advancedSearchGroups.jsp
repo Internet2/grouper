@@ -2,7 +2,7 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.9 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.10 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -15,9 +15,8 @@
 	  			<tiles:put name="view" value="groupSearchForPrivileges"/>
   			</tiles:insert></div>
 </c:if>
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="find.heading.groups-advanced-search"/>
-</h2><p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a></p>
+<grouper:subtitle key="find.heading.groups-advanced-search" />
+<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a></p>
 <c:choose>
 	<c:when test="${!empty findForNode}">
 		<c:set var="submitAction" value="/searchNewMembers"/>

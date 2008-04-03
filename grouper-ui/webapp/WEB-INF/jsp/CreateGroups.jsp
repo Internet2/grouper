@@ -2,7 +2,7 @@
 		  Main page for the 'Create' browse mode
 --%><%--
   @author Gary Brown.
-  @version $Id: CreateGroups.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: CreateGroups.jsp,v 1.4 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
@@ -10,9 +10,7 @@
 <div class="pageBlurb">
 	<grouper:message bundle="${nav}" key="groups.create.can"/>
 </div>
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="stems.heading.browse"/>
-</h2>
+  <grouper:subtitle key="stems.heading.browse" />
 <tiles:insert definition="browseStemsDef"/>
 <tiles:insert definition="flattenDef"/>
 

@@ -112,7 +112,7 @@ public class GrouperInfodotTag extends BodyTagSupport {
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
-
+    
     return Tag.EVAL_PAGE;
   }
 

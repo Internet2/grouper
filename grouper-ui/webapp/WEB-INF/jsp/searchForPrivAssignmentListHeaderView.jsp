@@ -4,15 +4,10 @@
 		  when searching for subjects in 'Find' mode
 --%><%--
   @author Gary Brown.
-  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.6 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="find.heading.select-privs">
-		<grouper:param value="${subtitleArgs[0]}"/>
-	</grouper:message>
-</h2>
+    <grouper:subtitle key="find.heading.select-privs" param1="${subtitleArgs[0]}"/>
 <div class="assignMembersForm">
     <form class="AssignMembersForm" action="doAssignNewMembers.do" method="post">
 	<input type="hidden" name="callerPageId" value="<c:out value="${SearchFormBean.map.callerPageId}"/>"/>
@@ -65,9 +60,7 @@
 
 		</div>
 		</fieldset>
-	<h2 class="actionheader">
-		<grouper:message bundle="${nav}" key="find.heading.select-results"/>
-	</h2>
+    <grouper:subtitle key="find.heading.select-results" />
 	<tiles:importAttribute ignore="true"/>
 			<tiles:insert definition="dynamicTileDef" flush="false">
 	  			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>

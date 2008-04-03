@@ -2,16 +2,15 @@
 		Tile which displays the advanced search form for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchStems.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: advancedSearchStems.jsp,v 1.5 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
 <div class="advancedSearchStems">
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="find.heading.stems-advanced-search"/>
-</h2><p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a></p>
+<grouper:subtitle key="find.heading.stems-advanced-search" />
+<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a></p>
 
 		<c:set var="submitAction" value="/searchStems"/>
 

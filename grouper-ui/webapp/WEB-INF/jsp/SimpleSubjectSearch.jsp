@@ -2,15 +2,13 @@
 		Tile which displays the simple subject search form  - allows any configured source to be selected
 --%><%--
   @author Gary Brown.
-  @version $Id: SimpleSubjectSearch.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: SimpleSubjectSearch.jsp,v 1.5 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
 <div class="searchSubjects">
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="find.heading.search"/>
-</h2>
+<grouper:subtitle key="find.heading.search" />
 <c:if test="${mediaMap['allow.self-subject-summary'] == 'true'}">
 <div class="subjectAsSelfLink"><html:link page="/populateSubjectSummary.do" name="AuthSubject">
 					<grouper:message bundle="${nav}" key="subject.view.yourself"/>

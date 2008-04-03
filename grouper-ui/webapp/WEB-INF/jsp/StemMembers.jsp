@@ -9,10 +9,7 @@ bulk update capability?). Also link to find new members --%>
 </c:forEach>
 <c:out value="${group.displayExtension}"/>
 </div>
-
-<h2 class="actionheader">
-<grouper:message bundle="${nav}" key="stems.heading.list-members"/>
-</h2>
+<grouper:subtitle key="stems.heading.list-members" />
 
 <ul>
 <c:forEach var="subject" items="${groupMembers}">

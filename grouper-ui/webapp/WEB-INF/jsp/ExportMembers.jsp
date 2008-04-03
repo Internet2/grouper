@@ -2,16 +2,13 @@
 			Displays exported membership data. Only used if export format does not specify a content-type 
 --%><%--
   @author Gary Brown.
-  @version $Id: ExportMembers.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: ExportMembers.jsp,v 1.3 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
 <tiles:insert definition="showStemsLocationDef"/>
 
-
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.heading.export-members"/>
-</h2>
+<grouper:subtitle key="groups.heading.export-members" />
 
 <form>
 <textarea rows="30" cols="100" wrap="off"><c:out value="${data}"/></textarea>

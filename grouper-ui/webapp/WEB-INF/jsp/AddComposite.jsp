@@ -3,11 +3,8 @@
 
 <tiles:insert definition="showStemsLocationDef"/>
 
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.composite.add">
+<grouper:subtitle key="groups.composite.add" />
 
-	</grouper:message>
-</h2>
 <p class="helpLink"><a href="<c:out value="${pageUrl}"/>#groupMathHelp"/><grouper:message bundle="${nav}" key="groups.help.link.group-math" /></a></p>
 <c:if test="${savedSubjectsSize<2}">
 <grouper:message bundle="${nav}" key="groups.composite.add.insufficient-saved"/>

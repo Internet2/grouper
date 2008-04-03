@@ -2,7 +2,7 @@
 			Browse tree / search screen for finding members 
 --%><%--
   @author Gary Brown.
-  @version $Id: FindNewMembers.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: FindNewMembers.jsp,v 1.4 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -10,9 +10,7 @@
 
 <c:choose>
 	<c:when test="${!isAdvancedSearch}">
-	<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="find.heading.browse"/>
-</h2>
+  <grouper:subtitle key="find.heading.browse" />
 <c:if test="${!empty savedSubjectsSize && savedSubjectsSize>0}">
 	<div class="linkButton">
 		<html:link page="/assignSavedSubjects.do" paramId="groupId" paramName="findForNode"  >

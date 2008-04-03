@@ -3,16 +3,13 @@
 		 on the privileges of the current user for the current stem
 --%><%--
   @author Gary Brown.
-  @version $Id: stemLinks.jsp,v 1.6 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: stemLinks.jsp,v 1.7 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endStemLinks" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.stem-links"/></a>
 <c:if test="${browsePrivs.STEM || browsePrivs.CREATE}">
-
-<h2 class="actionheader">
-<grouper:message bundle="${nav}" key="stems.heading.manage"/>
-</h2>
+<grouper:subtitle key="stems.heading.manage" />
 <br/>
 <div class="linkButton">
 <c:if test="${browsePrivs.STEM && !empty currentLocation.id}">

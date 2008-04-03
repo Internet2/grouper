@@ -6,13 +6,11 @@
 		If configured, an dthe user has appropriate privileges, it is possible to import/export members from/to flat files
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.7 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.8 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.heading.change-members-list-scope"/>
-</h2>
+<grouper:subtitle key="groups.heading.change-members-list-scope" />
 <div class="changeScope">
 <html:form  action="/populateGroupMembers" enctype="multipart/form-data">
 <html:hidden property="groupId"/>
@@ -50,9 +48,7 @@
 		<input name="submit.changeScope" type="submit" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
 	</span>
 	<c:if test="${MembershipExporter.active}">
-	<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.heading.export-members"/>
-	</h2>
+  <grouper:subtitle key="groups.heading.export-members" />
 	
 		<c:choose>
 			<c:when test="${MembershipExporter.numberOfAvailableFormats ==1}">
@@ -71,9 +67,7 @@
 	
 <html:hidden property="groupId"/>
 	<c:if test="${MembershipImportManager.active}">
-	<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.heading.import-members"/>
-	</h2>
+  <grouper:subtitle key="groups.heading.import-members" />
 	<html:file property="importData" title="${navMap['groups.import.select-file-title']}"/>
 		<c:choose>
 			<c:when test="${MembershipImportmanager.numberOfAvailableFormats ==1}">

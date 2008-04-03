@@ -2,7 +2,7 @@
 		  Main page for the 'All' browse mode 
 --%><%--
   @author Gary Brown.
-  @version $Id: AllGroups.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: AllGroups.jsp,v 1.3 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <%-- h1 onmouseover="grouperTooltip('whatever, dude');">hey there</h1>  --%>
@@ -39,9 +39,7 @@ onmouseover="grouperTooltip('Term tooltip')">term</span> in there</a --%>
 <div class="pageBlurb">
 	<grouper:message bundle="${nav}" key="groups.all.can"/>
 </div>
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.heading.browse"/>
-</h2>
+<grouper:subtitle key="groups.heading.browse" />
 
 <tiles:insert definition="browseStemsDef"/>
 

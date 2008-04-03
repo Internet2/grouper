@@ -5,12 +5,9 @@ assign privileges for the Subject --%>
 
 <tiles:insert definition="showStemsLocationDef"/>
 
-<h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="groups.heading.show-chain">
-		<grouper:param value="${subject.desc}"/>
-		<grouper:param value="${browseParent.desc}"/>
-	</grouper:message>
-</h2>
+<grouper:subtitle key="groups.heading.show-chain" param1="${subject.desc}" 
+param2="${browseParent.desc}" />
+
 <c:choose>
 	<c:when test="${!empty composite}">
 		<tiles:insert definition="dynamicTileDef">

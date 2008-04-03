@@ -2,15 +2,13 @@
 		Tile which displays the simple search form for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearchStems.jsp,v 1.8 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: simpleSearchStems.jsp,v 1.9 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
 <div class="searchGroups">
-	<h2 class="actionheader">
-		<grouper:message bundle="${nav}" key="stems.heading.search"/>
-	</h2>
+<grouper:subtitle key="stems.heading.search" />
 	<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message bundle="${nav}" key="find.action.select.stems-advanced-search"/></a></p>
 	
     <html:form action="/searchStems" styleId="SearchFormBean" method="post">
