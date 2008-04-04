@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.11 2008-03-20 16:40:22 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.12 2008-04-04 14:31:26 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -195,8 +195,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
             qry.setCacheRegion(KLASS + ".FindAllAttributesByGroup");
             qry.setString("uuid", uuid);
             Hib3AttributeDAO a;
-            //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
-            Iterator              it = qry.iterate();
+            Iterator              it = qry.list().iterator();
             while (it.hasNext()) {
               a = (Hib3AttributeDAO) it.next();
               attrs.put( a.getAttrName(), a.getValue() );
