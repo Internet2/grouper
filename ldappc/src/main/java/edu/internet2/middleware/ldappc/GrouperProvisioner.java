@@ -20,7 +20,6 @@ package edu.internet2.middleware.ldappc;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +57,7 @@ import edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.StringMembershipSynchronizer;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -94,17 +94,13 @@ public class GrouperProvisioner
      *            provisioning options.
      * @param ldapCtx
      *            the Ldap context to use for provisioning
-     * @param subjectRDNTables
-     *            TODO
-     * @param subjectIDTables
-     *            TODO
+     * @param subjectCache TODO
      */
     public GrouperProvisioner(GrouperProvisionerConfiguration configuration,
             GrouperProvisionerOptions options, LdapContext ldapCtx,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+            SubjectCache subjectCache)
     {
-        super(subjectRDNTables, subjectIDTables);
+        super(subjectCache);
         this.configuration = configuration;
         this.options = options;
         this.ldapCtx = ldapCtx;
@@ -307,7 +303,7 @@ public class GrouperProvisioner
         // Synchronize the root
         //
         GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ctx,
-                rootDn, configuration, options, subjectRDNTables, subjectIDTables);
+                rootDn, configuration, options, subjectCache);
         synchronizer.synchronize(groups);
     }
 
@@ -543,7 +539,7 @@ public class GrouperProvisioner
         // configuration or options
         //
         return new StringMembershipSynchronizer(ctx, subjectDn, configuration,
-                options, subjectRDNTables, subjectIDTables);
+                options, subjectCache);
     }
 
     /**

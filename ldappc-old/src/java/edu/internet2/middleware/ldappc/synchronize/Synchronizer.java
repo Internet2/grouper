@@ -35,6 +35,7 @@ import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 /**
  * This defines the common functionality needed by all synchronizers.
@@ -44,26 +45,22 @@ public abstract class Synchronizer
     /**
      * Ldap context
      */
-    private LdapContext context;
+    private LdapContext  context;
 
-    private Map<String, Hashtable<String, String>> subjectRDNTables;
-    private Map<String, Hashtable<String, String>> subjectIDTables;
+    private SubjectCache subjectCache;
 
     /**
      * Constructs a <code>Synchronizer</code>
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
-     * @param subjectRDNTables TODO
-     * @param subjectIDTables TODO
+     * @param subjectCache
+     *            TODO
      */
-    public Synchronizer(LdapContext ctx,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+    public Synchronizer(LdapContext ctx, SubjectCache subjectCache)
     {
         setContext(ctx);
-        setSubjectIDTables(subjectIDTables);
-        setSubjectRDNTables(subjectRDNTables);
+        setSubjectCache(subjectCache);
     }
 
     /**
@@ -86,39 +83,20 @@ public abstract class Synchronizer
     }
 
     /**
-     * @return the subjectRDNTables
-     */
-    public Map<String, Hashtable<String, String>> getSubjectRDNTables()
-    {
-        return subjectRDNTables;
-    }
-
-    /**
-     * @param subjectRDNTables
-     *            the subjectRDNTables to set
-     */
-    public void setSubjectRDNTables(
-            Map<String, Hashtable<String, String>> subjectRDNTables)
-    {
-        this.subjectRDNTables = subjectRDNTables;
-    }
-
-    /**
      * @return the subjectIDTables
      */
-    public Map<String, Hashtable<String, String>> getSubjectIDTables()
+    public SubjectCache getSubjectCache()
     {
-        return subjectIDTables;
+        return subjectCache;
     }
 
     /**
      * @param subjectIDTables
      *            the subjectIDTables to set
      */
-    public void setSubjectIDTables(
-            Map<String, Hashtable<String, String>> subjectIDTables)
+    public void setSubjectCache(SubjectCache subjectCache)
     {
-        this.subjectIDTables = subjectIDTables;
+        this.subjectCache = subjectCache;
     }
 
     /**
@@ -131,7 +109,7 @@ public abstract class Synchronizer
      * attribute for any of the current object classes defined for
      * <code>dn</code>.
      * 
-
+     * 
      * @param ctx
      *            Ldap Context
      * @param dn
@@ -149,8 +127,7 @@ public abstract class Synchronizer
      *             thrown if the schema can not be accessed
      */
     protected boolean isAttributeRequired(LdapContext ctx, Name dn,
-            String objectClass, String attributeName) throws NamingException,
-            OperationNotSupportedException
+            String objectClass, String attributeName) throws NamingException, OperationNotSupportedException
     {
         //
         // Build the list of object classes examine based on whether or not
@@ -175,7 +152,7 @@ public abstract class Synchronizer
             // Add the object class list to objectClasses
             //
             NamingEnumeration values = attribute.getAll();
-            while(values.hasMore())
+            while (values.hasMore())
             {
                 objectClasses.add(values.next());
             }
@@ -192,7 +169,7 @@ public abstract class Synchronizer
         }
 
         Iterator objClassIter = objectClasses.iterator();
-        while(objClassIter.hasNext())
+        while (objClassIter.hasNext())
         {
             filter += "(NAME=" + objClassIter.next() + ")";
         }
@@ -257,8 +234,7 @@ public abstract class Synchronizer
      *             thrown if a Naming error occurs
      */
     protected boolean isAttributeRequired(LdapContext ctx, Name dn,
-            String objectClass, String attributeName, boolean isRequired)
-            throws NamingException
+            String objectClass, String attributeName, boolean isRequired) throws NamingException
     {
         //
         // Init the return value to be the default value
@@ -272,7 +248,7 @@ public abstract class Synchronizer
         {
             required = isAttributeRequired(ctx, dn, objectClass, attributeName);
         }
-        catch(OperationNotSupportedException onse)
+        catch (OperationNotSupportedException onse)
         {
             //
             // Log the exception

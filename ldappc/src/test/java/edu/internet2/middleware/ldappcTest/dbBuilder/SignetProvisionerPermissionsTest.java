@@ -18,10 +18,7 @@
 
 package edu.internet2.middleware.ldappcTest.dbBuilder;
 
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -30,6 +27,7 @@ import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcSignetProvisioner;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
@@ -78,13 +76,12 @@ public class SignetProvisionerPermissionsTest extends TestCase
     {
         DisplayTest.showRunClass(getClass().getName()); 
 
-        Map<String, Hashtable<String, String>> subjectRDNTables = new HashMap<String, Hashtable<String, String>>();
-        Map<String, Hashtable<String, String>> subjectIDTables = new HashMap<String, Hashtable<String, String>>();
-        // TODO Must populate these maps with hash tables for sources.
+        SubjectCache subjectCache = new SubjectCache();
+        // TODO Must populate subject cache with hash tables for sources.
 
         String[] args = {"-subject", "GrouperSystem", "-permissions"};
         options = new InputOptions(args);
-        ldappcSignetProvisioner = new LdappcSignetProvisioner(options, subjectRDNTables, subjectIDTables);
+        ldappcSignetProvisioner = new LdappcSignetProvisioner(options, subjectCache);
     }
 
     /**

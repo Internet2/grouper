@@ -33,6 +33,7 @@ import javax.naming.ldap.LdapContext;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -44,16 +45,13 @@ public abstract class Provisioner
     /**
      * Delimiter used in messages
      */
-    final protected String MSG_DELIMITER = " :: ";
+    final private String          MSG_DELIMITER = " :: ";
 
-    protected Map<String, Hashtable<String, String>> subjectRDNTables;
-    protected Map<String, Hashtable<String, String>> subjectIDTables;
+    protected static SubjectCache subjectCache;
 
-    public Provisioner(Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+    public Provisioner(SubjectCache subjectCache)
     {
-        this.subjectRDNTables = subjectRDNTables;
-        this.subjectIDTables = subjectIDTables;
+        Provisioner.subjectCache = subjectCache;
     }
 
     /**
@@ -116,43 +114,7 @@ public abstract class Provisioner
             throws NamingException, MultipleEntriesFoundException,
             EntryNotFoundException
     {
-        //
-        // Get the subject's source and source id
-        //
-        Source source = subject.getSource();
-        if (source == null)
-        {
-            throw new EntryNotFoundException("Subject [ "
-                    + getSubjectData(subject) + " ] has a null source");
-        }
-
-        String sourceId = source.getId();
-
-        //
-        // Get the source name attribute
-        //
-        String sourceNameAttr = configuration
-                .getSourceSubjectNamingAttribute(sourceId);
-        if (sourceNameAttr == null)
-        {
-            throw new EntryNotFoundException("Subject [ "
-                    + getSubjectData(subject) + " ] source [ " + sourceId
-                    + " ] does not identify a source subject naming attribute");
-        }
-
-        //
-        // Get the subject's name attribute value
-        //
-        String sourceName = subject.getAttributeValue(sourceNameAttr);
-        if (sourceName == null)
-        {
-            throw new EntryNotFoundException("Subject [ "
-                    + getSubjectData(subject, true)
-                    + " ] has no value for attribute [ " + sourceNameAttr
-                    + " ]");
-        }
-
-        return findSubjectDn(ctx, configuration, sourceId, sourceName);
+        return subjectCache.findSubjectDn(ctx, configuration, subject);
     }
 
     /**
@@ -183,94 +145,7 @@ public abstract class Provisioner
             String subjectIdentifier) throws NamingException,
             MultipleEntriesFoundException, EntryNotFoundException
     {
-        //
-        // Initialize error message suffix
-        //
-        String errorSuffix = "[ subject id = " + subjectIdentifier
-                + " ][ source = " + sourceId + " ]";
-
-        //
-        // Get the LDAP search filter for the source
-        //
-        LdapSearchFilter filter = configuration
-                .getSourceSubjectLdapFilter(sourceId);
-        if (filter == null)
-        {
-            throw new EntryNotFoundException(
-                    "Ldap search filter not found using " + errorSuffix);
-        }
-
-        //
-        // Update the error suffix
-        //
-        errorSuffix += "[ filter = " + filter + " ]";
-
-        //
-        // Build all of pieces needed to search
-        //
-        NameParser parser = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME);
-        Name baseName = parser.parse(filter.getBase());
-
-        String filterExpr = filter.getFilter();
-
-        Object[] filterArgs = new Object[] { subjectIdentifier };
-
-        SearchControls searchControls = new SearchControls();
-        searchControls.setSearchScope(filter.getScope());
-
-        //
-        // As only 1 is wanted, if two are found the subjectName value
-        // wasn't unique
-        //
-        searchControls.setCountLimit(2);
-
-        //
-        // Perform the search
-        //
-        NamingEnumeration namingEnum = ldapCtx.search(baseName, filterExpr,
-                filterArgs, searchControls);
-
-        //
-        // If no entries where found, throw an exception
-        //
-        if (!namingEnum.hasMore())
-        {
-            throw new EntryNotFoundException("Subject not found using "
-                    + errorSuffix);
-        }
-
-        //
-        // Get the first result.
-        //
-        SearchResult searchResult = (SearchResult) namingEnum.next();
-
-        //
-        // After getting the first result, if there are more throw an exception
-        // as the search result was not unique
-        //
-        if (namingEnum.hasMore())
-        {
-            throw new MultipleEntriesFoundException(
-                    "Multiple entries found using " + errorSuffix);
-        }
-
-        //
-        // If name is NOT relative, throw an exception
-        //
-        if (!searchResult.isRelative())
-        {
-            throw new EntryNotFoundException(
-                    "Unable to resolve the reference found using "
-                            + errorSuffix);
-        }
-
-        //
-        // Build the subject's DN
-        //
-        Name subjectDn = parser.parse(searchResult.getName());
-        subjectDn = subjectDn.addAll(0,baseName);
-
-        return subjectDn;
+        return subjectCache.findSubjectDn(ldapCtx, configuration, sourceId, subjectIdentifier);
     }
 
     /**

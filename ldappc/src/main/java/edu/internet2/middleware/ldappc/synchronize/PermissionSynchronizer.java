@@ -18,9 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -30,6 +28,7 @@ import javax.naming.ldap.LdapContext;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.SignetProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.SignetProvisionerOptions;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Privilege;
@@ -68,16 +67,14 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
-     * @param subjectRDNTables TODO
-     * @param subjectIDTables TODO
+     * @param subjectCache TODO
      */
     public PermissionSynchronizer(LdapContext ctx, Name subject,
             SignetProvisionerConfiguration configuration,
             SignetProvisionerOptions options,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+            SubjectCache subjectCache)
     {
-        super(ctx,configuration,options, subjectRDNTables, subjectIDTables);
+        super(ctx,configuration,options, subjectCache);
         setSubject(subject);
 
         //

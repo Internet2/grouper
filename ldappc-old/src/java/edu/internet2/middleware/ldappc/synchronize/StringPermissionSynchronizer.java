@@ -18,9 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -36,6 +34,7 @@ import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.SignetProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.SignetProvisionerOptions;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Privilege;
@@ -72,20 +71,18 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
-     * @param subjectRDNTables TODO
-     * @param subjectIDTables TODO
+     * @param subjectCache TODO
      */
     public StringPermissionSynchronizer(LdapContext ctx, Name subject,
             SignetProvisionerConfiguration configuration,
             SignetProvisionerOptions options,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+            SubjectCache subjectCache)
             throws NamingException, LdappcConfigurationException
     {
         //
         // Call super constructor
         //
-        super(ctx, subject, configuration, options, subjectRDNTables, subjectIDTables);
+        super(ctx, subject, configuration, options, subjectCache);
 
         //
         // Try to get the permissions listing string attribute name as it is

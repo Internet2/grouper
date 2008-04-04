@@ -18,9 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -33,6 +31,7 @@ import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.MultiErrorException;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 /**
  * This defines the common functionality required by all membership
@@ -56,16 +55,14 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
-     * @param subjectRDNTables TODO
-     * @param subjectIDTables TODO
+     * @param subjectCache TODO
      */
     public MembershipSynchronizer(LdapContext ctx, Name subject,
             GrouperProvisionerConfiguration configuration,
             GrouperProvisionerOptions options,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+            SubjectCache subjectCache)
     {
-        super(ctx,configuration,options, subjectRDNTables, subjectIDTables);
+        super(ctx,configuration,options, subjectCache);
         setSubject(subject);
     }
 

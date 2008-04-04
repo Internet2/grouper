@@ -18,9 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -35,6 +33,7 @@ import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.MultiErrorException;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 /**
  * This defines the common functionality required by all group synchronizers.
@@ -62,16 +61,14 @@ public abstract class GroupSynchronizer extends GrouperSynchronizer
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
-     * @param subjectRDNTables TODO
-     * @param subjectIDTables TODO
+     * @param subjectCache TODO
      */
     public GroupSynchronizer(LdapContext ctx, Name root,
             GrouperProvisionerConfiguration configuration,
             GrouperProvisionerOptions options,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+            SubjectCache subjectCache)
     {
-        super(ctx, configuration, options, subjectRDNTables, subjectIDTables);
+        super(ctx, configuration, options, subjectCache);
         setRoot(root);
     }
 

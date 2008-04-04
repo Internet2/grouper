@@ -18,8 +18,6 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Hashtable;
-import java.util.Map;
 
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -35,6 +33,7 @@ import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 
 /**
@@ -69,20 +68,18 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
-     * @param subjectRDNTables TODO
-     * @param subjectIDTables TODO
+     * @param subjectCache TODO
      */
     public StringMembershipSynchronizer(LdapContext ctx, Name subject,
             GrouperProvisionerConfiguration configuration,
             GrouperProvisionerOptions options,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+            SubjectCache subjectCache)
             throws NamingException, LdappcConfigurationException
     {
         //
         // Call super constructor
         //
-        super(ctx, subject, configuration, options, subjectRDNTables, subjectIDTables);
+        super(ctx, subject, configuration, options, subjectCache);
 
         //
         // Try to get the membership listing string attribute name as it is

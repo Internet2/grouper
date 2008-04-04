@@ -19,7 +19,6 @@
 package edu.internet2.middleware.ldappc;
 
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +39,7 @@ import edu.internet2.middleware.ldappc.synchronize.PermissionSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.StringPermissionSynchronizer;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
@@ -77,13 +77,13 @@ public class SignetProvisioner extends Provisioner
      *            options.
      * @param ldapCtx
      *            Ldap context
-     * @param subjectRDNTables TODO
-     * @param subjectIDTables TODO
+     * @param subjectCache TODO
      */
     public SignetProvisioner(SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options, LdapContext ldapCtx, Map<String, Hashtable<String, String>> subjectRDNTables, Map<String, Hashtable<String, String>> subjectIDTables)
+            SignetProvisionerOptions options, LdapContext ldapCtx,
+            SubjectCache subjectCache)
     {
-        super(subjectRDNTables, subjectIDTables);
+        super(subjectCache);
         this.configuration = configuration;
         this.options = options;
         this.ldapCtx = ldapCtx;
@@ -278,12 +278,12 @@ public class SignetProvisioner extends Provisioner
                 .equals(configuration.getPermissionsListingStoredAs()))
         {
             synchronizer = new EduPermissionSynchronizer(ctx, subjectDn,
-                    configuration, options, subjectRDNTables, subjectIDTables);
+                    configuration, options, subjectCache);
         }
         else
         {
             synchronizer = new StringPermissionSynchronizer(ctx, subjectDn,
-                    configuration, options, subjectRDNTables, subjectIDTables);
+                    configuration, options, subjectCache);
         }
         return synchronizer;
     }

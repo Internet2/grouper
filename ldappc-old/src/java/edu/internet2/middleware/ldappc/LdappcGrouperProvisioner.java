@@ -18,8 +18,6 @@
 
 package edu.internet2.middleware.ldappc;
 
-import java.util.Map;
-import java.util.Hashtable;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -27,6 +25,7 @@ import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 /**
  * This class uses two types of data for determining what data is to be
@@ -56,35 +55,30 @@ class LdappcGrouperProvisioner
      * The directory context
      */
 
-    private LdapContext                            ldapContext;
+    private LdapContext                     ldapContext;
 
     /**
      * The command line input arguments that determine what data is to be
      * provisioned.
      */
-    private GrouperProvisionerOptions              options;
+    private GrouperProvisionerOptions       options;
 
     /**
      * The grouper provisioner configuration
      */
-    private GrouperProvisionerConfiguration        configuration;
+    private GrouperProvisionerConfiguration configuration;
 
-    private Map<String, Hashtable<String, String>> subjectRDNTables;
-    private Map<String, Hashtable<String, String>> subjectIDTables;
+    private SubjectCache                    subjectCache;
 
     /**
      * Constructor
      * 
      * @param options
      *            input that determines what data is to be provisioned.
-     * @param subjectRDNTables
-     *            TODO
-     * @param subjectIDTables
-     *            TODO
+     * @param subjectCache TODO
      */
     public LdappcGrouperProvisioner(GrouperProvisionerOptions options,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+            SubjectCache subjectCache)
     {
         this.options = options;
 
@@ -106,8 +100,7 @@ class LdappcGrouperProvisioner
             throw new LdappcRuntimeException(ne);
         }
         
-        this.subjectRDNTables = subjectRDNTables;
-        this.subjectIDTables = subjectIDTables;
+        this.subjectCache = subjectCache;
     }
 
     /**
@@ -128,8 +121,7 @@ class LdappcGrouperProvisioner
         // Build a grouper provisioner and set the values
         //
         GrouperProvisioner grouperProvisioner = new GrouperProvisioner(
-                configuration, options, ldapContext, subjectRDNTables,
-                subjectIDTables);
+                configuration, options, ldapContext, subjectCache);
         //
         // Provision groups.
         //

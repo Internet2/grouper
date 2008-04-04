@@ -20,13 +20,15 @@ package edu.internet2.middleware.ldappc;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.TimerTask;
 
+import javax.naming.Name;
+
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 /**
  * Controls provisioning for the Ldappc application. It determines if Grouper
@@ -37,27 +39,18 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
 public class LdappcProvisionControl
         extends TimerTask
 {
-    private ProvisionerConfiguration       configuration;
+    private ProvisionerConfiguration     configuration;
 
     /**
      * The command line input arguments that determine what data is to be
      * provisioned.
      */
-    private InputOptions                   options;
+    private InputOptions                 options;
 
     /**
-     * Table mapping UUID to subject ID.
+     * Subject cache to eliminate extra LDAP lookups.
      */
-    Map<String, Hashtable<String, String>> subjectRDNTables = new HashMap<String, Hashtable<String, String>>();
-    int                                    subjectRDNLookups;
-    int                                    subjectRDNTableHits;
-
-    /**
-     * Table mapping Subject ID to UUID.
-     */
-    Map<String, Hashtable<String, String>> subjectIDTables = new HashMap<String, Hashtable<String, String>>();
-    int                                    subjectIDLookups;
-    int                                    subjectIDTableHits;
+    private SubjectCache subjectCache = new SubjectCache();
 
     /**
      * Constuctor
@@ -92,31 +85,8 @@ public class LdappcProvisionControl
     {
         DebugLog.info(this.getClass(), "***** Starting Provisioning *****");
         Date now = (new GregorianCalendar()).getTime();
-
-        // Initialize the hash tables mapping between RDN and subject ID.
-        // Use the estimate in the config file if present
-        Map<String, Integer> estimates = configuration
-                .getSourceSubjectHashEstimates();
-        for (String source : estimates.keySet())
-        {
-            int estimate = 0;
-            if (estimates.get(source) != null)
-            {
-                estimate = estimates.get(source);
-            }
-            if (estimate == 0)
-            {
-                subjectRDNTables.put(source, new Hashtable<String, String>());
-                subjectIDTables.put(source, new Hashtable<String, String>());
-            }
-            else
-            {
-                subjectRDNTables.put(source, new Hashtable<String, String>(
-                        estimate));
-                subjectIDTables.put(source, new Hashtable<String, String>(
-                        estimate));
-            }
-        }
+        
+        subjectCache.init(configuration);
 
         //
         // Provision Grouper information if requested
@@ -124,7 +94,7 @@ public class LdappcProvisionControl
         if (options.getDoGroups() || options.getDoMemberships())
         {
             LdappcGrouperProvisioner a2lgp = new LdappcGrouperProvisioner(
-                    options, subjectRDNTables, subjectIDTables);
+                    options, subjectCache);
             a2lgp.provisionGroups();
         }
         //
@@ -132,7 +102,7 @@ public class LdappcProvisionControl
         //
         if (options.getDoPermissions())
         {
-            LdappcSignetProvisioner a2lsp = new LdappcSignetProvisioner(options, subjectRDNTables, subjectIDTables);
+            LdappcSignetProvisioner a2lsp = new LdappcSignetProvisioner(options, subjectCache);
             a2lsp.provisionPermissions();
         }
 

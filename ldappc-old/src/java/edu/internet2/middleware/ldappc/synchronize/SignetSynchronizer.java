@@ -19,13 +19,12 @@
 package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.Date;
-import java.util.Hashtable;
-import java.util.Map;
 
 import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.ldappc.SignetProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.SignetProvisionerOptions;
+import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.signet.Permission;
 
 /**
@@ -76,16 +75,14 @@ public abstract class SignetSynchronizer extends Synchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
-     * @param subjectRDNTables TODO
-     * @param subjectIDTables TODO
+     * @param subjectCache TODO
      */
     public SignetSynchronizer(LdapContext ctx,
             SignetProvisionerConfiguration configuration,
             SignetProvisionerOptions options,
-            Map<String, Hashtable<String, String>> subjectRDNTables,
-            Map<String, Hashtable<String, String>> subjectIDTables)
+            SubjectCache subjectCache)
     {
-        super(ctx, subjectRDNTables, subjectIDTables);
+        super(ctx, subjectCache);
         setConfiguration(configuration);
         setOptions(options);
     }
