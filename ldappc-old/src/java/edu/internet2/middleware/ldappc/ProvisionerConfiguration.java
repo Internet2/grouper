@@ -54,7 +54,7 @@ public interface ProvisionerConfiguration
      * 
      * @return Map of Source Subject LDAP filter name/value pairs.
      */
-    public Map getSourceSubjectLdapFilters();
+    public Map<String, LdapSearchFilter> getSourceSubjectLdapFilters();
 
     /**
      * This returns the Subject LDAP filter for the given Source for the Source

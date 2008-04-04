@@ -172,7 +172,7 @@ public class ConfigManager
      * Source to Subject LDAP search filter mapping for Source Subject
      * Identfiers
      */
-    private Map                  sourceSubjectLdapFilters             = new Hashtable();
+    private Map<String, LdapSearchFilter> sourceSubjectLdapFilters             = new Hashtable<String, LdapSearchFilter>();
 
     /**
      * Estimate of size of groups to populate.
@@ -1255,13 +1255,13 @@ public class ConfigManager
      * 
      * @return Map of Source Subject LDAP filter name/value pairs.
      */
-    public Map getSourceSubjectLdapFilters()
+    public Map<String, LdapSearchFilter> getSourceSubjectLdapFilters()
     {
         //
         // Return a copy to prevent the original from being
         // unexpectedly changed
         //
-        return new Hashtable(this.sourceSubjectLdapFilters);
+        return new Hashtable<String, LdapSearchFilter>(this.sourceSubjectLdapFilters);
     }
 
     /**
@@ -1308,7 +1308,7 @@ public class ConfigManager
         LdapSearchFilter value = null;
         if (sourceSubjectLdapFilters.containsKey(source))
         {
-            value = (LdapSearchFilter) sourceSubjectLdapFilters.get(source);
+            value = sourceSubjectLdapFilters.get(source);
         }
         return value;
     }

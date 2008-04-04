@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.1 2008-04-04 21:08:08 khuxtable Exp $
+ * $Id: SubjectCache.java,v 1.2 2008-04-04 21:19:14 khuxtable Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -40,8 +41,9 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class SubjectCache
 {
-    private Map<String, Hashtable<String, Name>> subjectDNTables;
-    private Map<String, Hashtable<Name, String>> subjectIDTables;
+    private static final int                     DEFAULT_HASH_ESTIMATE = 11;
+    private Map<String, Hashtable<String, Name>> subjectDNTables       = new HashMap<String, Hashtable<String, Name>>();
+    private Map<String, Hashtable<Name, String>> subjectIDTables       = new HashMap<String, Hashtable<Name, String>>();
     int                                          subjectDNLookups;
     int                                          subjectDNTableHits;
     int                                          subjectIDLookups;
@@ -54,28 +56,38 @@ public class SubjectCache
 
     public void init(ProvisionerConfiguration configuration)
     {
+        //
         // Initialize the hash tables mapping between RDN and subject ID.
         // Use the estimate in the config file if present
+        //
         Map<String, Integer> estimates = configuration
                 .getSourceSubjectHashEstimates();
-        for (String source : estimates.keySet())
+        for (String source : configuration.getSourceSubjectLdapFilters().keySet())
         {
-            int estimate = 0;
+            int estimate = DEFAULT_HASH_ESTIMATE;
             if (estimates.get(source) != null)
             {
                 estimate = estimates.get(source);
             }
-            if (estimate == 0)
-            {
-                subjectDNTables.put(source, new Hashtable<String, Name>());
-                subjectIDTables.put(source, new Hashtable<Name, String>());
-            }
-            else
+
+            if (subjectDNTables.get(source) == null)
             {
                 subjectDNTables.put(source, new Hashtable<String, Name>(
                         estimate));
+            }
+            else
+            {
+                subjectDNTables.get(source).clear();
+            }
+
+            if (subjectIDTables.get(source) == null)
+            {
                 subjectIDTables.put(source, new Hashtable<Name, String>(
                         estimate));
+            }
+            else
+            {
+                subjectIDTables.get(source).clear();
             }
         }
     }
