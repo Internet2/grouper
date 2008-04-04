@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.11 2008-03-03 13:54:52 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.12 2008-04-04 13:53:13 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -112,7 +112,12 @@ public class LoginCheckFilter implements Filter {
 				debugPrefs = LowLevelGrouperCapableAction.readDebugPrefs(request);
 			}catch(Exception e){}
 		}
+		
 		if (debugPrefs != null) {
+			Boolean debugActive = (Boolean)debugPrefs.get("isActive");
+			if(debugActive!=null) {
+				UIThreadLocal.setDebug(debugActive);
+			}
 			Boolean doShowResourcesInSitu = (Boolean) debugPrefs
 					.get("doShowResourcesInSitu");
 			if (Boolean.TRUE.equals(doShowResourcesInSitu)) {

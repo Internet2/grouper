@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ChainedResourceBundle.java,v 1.5 2008-03-03 09:05:55 isgwb Exp $
+ * @version $Id: ChainedResourceBundle.java,v 1.6 2008-04-04 13:53:13 isgwb Exp $
  */
 
 public class ChainedResourceBundle extends ResourceBundle implements
@@ -39,7 +39,6 @@ public class ChainedResourceBundle extends ResourceBundle implements
 
 	private String mapName = null;
 	
-	private boolean debug = false;
 	
 	private HashMap cache = new HashMap();
 
@@ -82,10 +81,10 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	 * @see java.util.ResourceBundle#handleGetObject(java.lang.String)
 	 */
 	protected Object handleGetObject(String key) {
-		if(debug) UIThreadLocal.put(name, key);
+		if(debug()) UIThreadLocal.put(name, key);
 		Object obj = null;
 		Boolean doShowResourcesInSitu = false;
-		if(debug) doShowResourcesInSitu=(Boolean) UIThreadLocal
+		if(debug()) doShowResourcesInSitu=(Boolean) UIThreadLocal
 		.get("doShowResourcesInSitu");
 		if (doShowResourcesInSitu != null
 				&& doShowResourcesInSitu.booleanValue()
@@ -100,7 +99,7 @@ public class ChainedResourceBundle extends ResourceBundle implements
 		}
 		obj = cache.get(key);
 		if(obj != null) {
-			if(debug)UIThreadLocal.put(mapName, key, obj);
+			if(debug())UIThreadLocal.put(mapName, key, obj);
 			return obj;
 		}
 		for (int i = 0; i < chain.size(); i++) {
@@ -108,7 +107,7 @@ public class ChainedResourceBundle extends ResourceBundle implements
 			try {
 				obj = bundle.getString(key);
 				if (obj != null) {
-					if(debug)UIThreadLocal.put(mapName, key, obj);
+					if(debug())UIThreadLocal.put(mapName, key, obj);
 					break;
 				}
 			} catch (Exception e) {
@@ -144,5 +143,9 @@ public class ChainedResourceBundle extends ResourceBundle implements
 		Vector v = new Vector(keys);
 		return v.elements();
 
+	}
+	
+	private boolean debug() {
+		return UIThreadLocal.isDebug();
 	}
 }

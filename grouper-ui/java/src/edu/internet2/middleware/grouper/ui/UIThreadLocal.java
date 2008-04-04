@@ -25,7 +25,7 @@ import java.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: UIThreadLocal.java,v 1.5 2007-10-15 10:04:47 isgwb Exp $
+ * @version $Id: UIThreadLocal.java,v 1.6 2008-04-04 13:53:13 isgwb Exp $
  */
 public class UIThreadLocal {
 	private static ThreadLocal threadLocal = new ThreadLocal();
@@ -37,9 +37,11 @@ public class UIThreadLocal {
 	 */
 	private static Map init() {
 		Object obj = threadLocal.get();
-		if (obj == null)
+		if (obj == null) {
 			obj = new HashMap();
-		threadLocal.set(obj);
+			threadLocal.set(obj);
+			((HashMap)obj).put("debugActive", false);
+		}
 		return (Map) obj;
 	}
 
@@ -51,6 +53,7 @@ public class UIThreadLocal {
 	public static void clear() {
 		Map map = init();
 		map.clear();
+		UIThreadLocal.setDebug(false);
 	}
 
 	/**
@@ -141,5 +144,19 @@ public class UIThreadLocal {
 		}
 		return current;
 	}
-
+	
+	/**
+	 * Set debug mode
+	 * @param debug
+	 */
+	public static void setDebug(boolean debug) {
+		UIThreadLocal.put("debugActive", debug);
+	}
+	
+	/**
+	 * @return true if debug mode is on
+	 */
+	public static boolean isDebug() {
+		return (Boolean)UIThreadLocal.get("debugActive");
+	}
 }
