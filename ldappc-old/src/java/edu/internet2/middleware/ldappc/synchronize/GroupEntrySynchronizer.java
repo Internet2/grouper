@@ -253,7 +253,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         // Build attribute modifiers for the grouper to ldap attribute mapping
         //
         Map<String, String> attributeMap = configuration.getGroupAttributeMapping();
-        for (String grouperAttr : attributeMap.keySet()) {
+        for (String grouperAttr : attributeMap.keySet())
+        {
             //
             // Get the next key (i.e., grouper attribute name) and the
             // corresponding value (i.e., ldap attribute name)
@@ -418,7 +419,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Build a vector to hold all of the modifiers
         //
-        Vector modifiers = new Vector();
+        Vector<AttributeModifier> modifiers = new Vector<AttributeModifier>();
 
         modifiers.add(objectClassMods);
 
@@ -436,19 +437,17 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         while(ldapAttrEnum.hasMore())
         {
             Attribute attribute = (Attribute) ldapAttrEnum.next();
-            modifiers.add(attribute.get());
+            modifiers.add((AttributeModifier) attribute.get());
         }
 
         //
         // Get all of the modifications
         //
         Vector modifications = new Vector();
-        Iterator modifiersIterator = modifiers.iterator();
-        while(modifiersIterator.hasNext())
+        for (AttributeModifier modifier : modifiers)
         {
-            ModificationItem[] items = ((AttributeModifier) modifiersIterator
-                    .next()).getModifications();
-            for(int i = 0; i < items.length; i++)
+            ModificationItem[] items = modifier.getModifications();
+            for (int i = 0; i < items.length; i++)
             {
                 modifications.add(items[i]);
             }
@@ -485,7 +484,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Build the list of attributes needed from the entry
         //
-        Vector wantedAttr = new Vector();
+        Vector<String> wantedAttr = new Vector<String>();
 
         wantedAttr.add(rdnMods.getAttributeName());
 
@@ -599,13 +598,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Get membership process it
         //
-        Iterator members = group.getMembers().iterator();
-        while(members.hasNext())
+        for (Member member : (Set<Member>) group.getMembers())
         {
-            //
-            // Get the member subject
-            //
-            Member member = (Member) members.next();
             Subject subject = null;
             try
             {
@@ -705,14 +699,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Populate mapped attributes from the group
         //
-        Iterator groupAttributes = mappedGrouperAttributes.keySet().iterator();
-        while(groupAttributes.hasNext())
+        for (String groupAttribute : mappedGrouperAttributes.keySet())
         {
-            //
-            // Get the group attribute name
-            //
-            String groupAttribute = (String) groupAttributes.next();
-
             //
             // If the group has this attribute populated, store it
             //
@@ -824,7 +812,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         // Build list of all attribute modifiers possibly holding data for the
         // entry
         //
-        Vector modifiers = new Vector();
+        Vector<AttributeModifier> modifiers = new Vector<AttributeModifier>();
 
         modifiers.add(objectClassMods);
 
@@ -844,7 +832,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         while(ldapAttrEnum.hasMore())
         {
             Attribute attribute = (Attribute) ldapAttrEnum.next();
-            modifiers.add(attribute.get());
+            modifiers.add((AttributeModifier) attribute.get());
         }
 
         //
@@ -852,10 +840,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         BasicAttributes attributes = new BasicAttributes(true);
 
-        Iterator iterator = modifiers.iterator();
-        while(iterator.hasNext())
+        for (AttributeModifier modifier : modifiers)
         {
-            AttributeModifier modifier = (AttributeModifier) iterator.next();
             Attribute attribute = modifier.getAdditions();
             if (attribute.size() > 0)
             {
@@ -1296,10 +1282,9 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             memberNameMods.clear();
         }
 
-        Iterator modifiers = mappedGrouperAttributes.values().iterator();
-        while(modifiers.hasNext())
+        for (AttributeModifier modifier : mappedGrouperAttributes.values())
         {
-            ((AttributeModifier) modifiers.next()).clear();
+            modifier.clear();
         }
     }
 
@@ -1324,10 +1309,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Delete any group entries that are no longer valid
         //
-        Iterator iterator = deleteGroups.iterator();
-        while(iterator.hasNext())
+        for (Name dn : deleteGroups)
         {
-            Name dn = (Name) iterator.next();
             try
             {
                 //
@@ -1346,14 +1329,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Delete any ou entries that are no longer valid
         //
-        iterator = deleteOus.iterator();
-        while(iterator.hasNext())
+        for (Name dn : deleteOus)
         {
-            //
-            // Get the next dn
-            //
-            Name dn = (Name) iterator.next();
-
             //
             // Try to find it. If not found, just continue
             //
