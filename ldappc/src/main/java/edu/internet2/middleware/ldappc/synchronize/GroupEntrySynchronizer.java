@@ -434,7 +434,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         }
 
         NamingEnumeration ldapAttrEnum = mappedLdapAttributes.getAll();
-        while(ldapAttrEnum.hasMore())
+        while (ldapAttrEnum.hasMore())
         {
             Attribute attribute = (Attribute) ldapAttrEnum.next();
             modifiers.add((AttributeModifier) attribute.get());
@@ -443,7 +443,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Get all of the modifications
         //
-        Vector modifications = new Vector();
+        Vector<ModificationItem> modifications = new Vector<ModificationItem>();
         for (AttributeModifier modifier : modifiers)
         {
             ModificationItem[] items = modifier.getModifications();
@@ -458,7 +458,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         ModificationItem[] modificationItems = new ModificationItem[modifications
                 .size()];
-        for(int i = 0; i < modificationItems.length; i++)
+        for (int i = 0; i < modificationItems.length; i++)
         {
             modificationItems[i] = (ModificationItem) modifications.get(i);
         }
