@@ -1303,7 +1303,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Init vars
         //
-        Vector namingExceptions = new Vector();
+        Vector<NamingException> namingExceptions = new Vector<NamingException>();
         LdapContext context = getContext();
 
         //
