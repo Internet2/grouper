@@ -66,22 +66,22 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
     /**
      * Set of ou DNs to be deleted
      */
-    private Set deleteOus;
+    private Set<Name> deleteOus;
 
     /**
      * Set of ou DNs already processed
      */
-    private Set processedOus;
+    private Set<Name> processedOus;
 
     /**
      * Set of group DNs to be deleted
      */
-    private Set deleteGroups;
+    private Set<Name> deleteGroups;
 
     /**
      * Set of group DNs already processed
      */
-    private Set processedGroups;
+    private Set<Name> processedGroups;
 
     /**
      * Holds the objectClass attribute modifications
@@ -112,7 +112,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * attribute values in mappedLdapAttributes. This allows multiple grouper
      * attributes to contribute values to the ldap attribute.
      */
-    private HashMap mappedGrouperAttributes = new HashMap();
+    private HashMap<String, AttributeModifier> mappedGrouperAttributes = new HashMap<String, AttributeModifier>();
 
     /**
      * The attribute names are the mapped ldap attributes, and the attribute
@@ -155,10 +155,10 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Init various objects
         //
-        deleteOus = new HashSet();
-        processedOus = new HashSet();
-        deleteGroups = new HashSet();
-        processedGroups = new HashSet();
+        deleteOus = new HashSet<Name>();
+        processedOus = new HashSet<Name>();
+        deleteGroups = new HashSet<Name>();
+        processedGroups = new HashSet<Name>();
 
         //
         // If provisioning with "flat" structure, verify that a group naming
@@ -252,15 +252,11 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Build attribute modifiers for the grouper to ldap attribute mapping
         //
-        Map attributeMap = configuration.getGroupAttributeMapping();
-        Iterator keys = attributeMap.keySet().iterator();
-        while(keys.hasNext())
-        {
+        Map<String, String> attributeMap = configuration.getGroupAttributeMapping();
+        for (String grouperAttr : attributeMap.keySet()) {
             //
             // Get the next key (i.e., grouper attribute name) and the
             // corresponding value (i.e., ldap attribute name)
-            //
-            String grouperAttr = (String) keys.next();
             String ldapAttr = (String) attributeMap.get(grouperAttr);
 
             //
@@ -1019,7 +1015,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                     // will be deleted. If the group is processed correctly,
                     // these will need to be moved to processedOus
                     //
-                    deleteOus.add(stemDn.clone());
+                    deleteOus.add((Name) stemDn.clone());
                 }
             }
         }
