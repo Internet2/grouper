@@ -45,107 +45,13 @@ public abstract class Provisioner
     /**
      * Delimiter used in messages
      */
-    final private String          MSG_DELIMITER = " :: ";
+    final private String   MSG_DELIMITER = " :: ";
 
-    protected static SubjectCache subjectCache;
+    protected SubjectCache subjectCache;
 
     public Provisioner(SubjectCache subjectCache)
     {
-        Provisioner.subjectCache = subjectCache;
-    }
-
-    /**
-     * Returns subject data string without attributes
-     * 
-     * @param subject
-     *            Subject
-     * @return subject data string
-     */
-    public static String getSubjectData(Subject subject)
-    {
-        return getSubjectData(subject, false);
-    }
-
-    /**
-     * Returns subject data string
-     * 
-     * @param subject
-     *            Subject
-     * @param attributes
-     *            include attribute values
-     * @return subject data string
-     */
-    public static String getSubjectData(Subject subject, boolean attributes)
-    {
-        String subjData = "null";
-        if (subject != null)
-        {
-            subjData = "[ NAME = " + subject.getName() + " ][ ID = "
-                    + subject.getId() + " ]";
-            if (attributes)
-            {
-                subjData += "[ ATTRIBUTES = " + subject.getAttributes() + " ]";
-            }
-        }
-        return subjData;
-    }
-
-    /**
-     * This returns the DN of the subject. This uses the query filter defined
-     * for the <code>sourceId</code> in the configuration to search for the
-     * <code>subject</code>.
-     * 
-     * @param ctx
-     *            Ldap context
-     * @param configuration
-     *            Provisioner configuration
-     * @param subject
-     *            Subject
-     * @return Subject's DN
-     * @throws javax.naming.NamingException
-     *             thrown if a Naming exception occurs
-     * @throws EntryNotFoundException
-     *             thrown if the entry could not be located
-     * @throws MultipleEntriesFoundException
-     *             thrown if the search found more than one entry
-     */
-    public static Name findSubjectDn(LdapContext ctx,
-            ProvisionerConfiguration configuration, Subject subject)
-            throws NamingException, MultipleEntriesFoundException,
-            EntryNotFoundException
-    {
-        return subjectCache.findSubjectDn(ctx, configuration, subject);
-    }
-
-    /**
-     * This returns the DN of the identified subject. This uses the query filter
-     * defined for the <code>sourceId</code> in the configuration to search
-     * for the subject identified by <code>subjectIdentifier</code>. It will
-     * return <code>null</code> if the subject is not found or multiple
-     * entries match the search.
-     * 
-     * @param ldapCtx
-     *            Ldap context
-     * @param configuration
-     *            Provisioner configuration
-     * @param sourceId
-     *            Source Id of the subject
-     * @param subjectIdentifier
-     *            Identifier string of the subject
-     * @return Subject's DN
-     * @throws javax.naming.NamingException
-     *             thrown if a Naming exception occurs
-     * @throws EntryNotFoundException
-     *             thrown if the entry could not be located
-     * @throws MultipleEntriesFoundException
-     *             thrown if the search found more than one entry
-     */
-    public static Name findSubjectDn(LdapContext ldapCtx,
-            ProvisionerConfiguration configuration, String sourceId,
-            String subjectIdentifier) throws NamingException,
-            MultipleEntriesFoundException, EntryNotFoundException
-    {
-        return subjectCache.findSubjectDn(ldapCtx, configuration, sourceId, subjectIdentifier);
+        this.subjectCache = subjectCache;
     }
 
     /**

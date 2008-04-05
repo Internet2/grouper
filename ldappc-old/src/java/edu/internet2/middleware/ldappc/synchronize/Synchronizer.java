@@ -47,7 +47,7 @@ public abstract class Synchronizer
      */
     private LdapContext  context;
 
-    private SubjectCache subjectCache;
+    protected SubjectCache subjectCache;
 
     /**
      * Constructs a <code>Synchronizer</code>

@@ -434,7 +434,7 @@ public class GrouperProvisioner
                 Name subjectDn = null;
                 try
                 {
-                    subjectDn = findSubjectDn(ldapCtx, configuration, subject);
+                    subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
                 }
                 catch (Exception e)
                 {
@@ -740,7 +740,7 @@ public class GrouperProvisioner
         }
         if (subject != null)
         {
-            errorData += "[ SUBJECT " + getSubjectData(subject) + " ]";
+            errorData += "[ SUBJECT " + subjectCache.getSubjectData(subject) + " ]";
         }
         if (subjectDn != null)
         {

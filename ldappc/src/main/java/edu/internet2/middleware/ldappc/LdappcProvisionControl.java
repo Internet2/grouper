@@ -111,6 +111,8 @@ public class LdappcProvisionControl
         
         DebugLog.info("Subject ID Lookups: " + subjectIDLookups);
         DebugLog.info("Subject Table Hits: " + subjectIDTableHits);
+        double ratio = ((double) subjectIDTableHits) / subjectIDLookups * 100.0;
+        DebugLog.info("Subject hit ratio:  " + ratio + "%");
 
         //
         // Cancel if a fatal error has occurred.

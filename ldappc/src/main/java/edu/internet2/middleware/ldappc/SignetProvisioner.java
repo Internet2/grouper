@@ -181,7 +181,7 @@ public class SignetProvisioner extends Provisioner
             Name subjectDn = null;
             try
             {
-                subjectDn = findSubjectDn(ldapCtx, configuration, subject);
+                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
             }
             catch(Exception e)
             {
@@ -312,7 +312,7 @@ public class SignetProvisioner extends Provisioner
         }
         if (subject != null)
         {
-            errorData += "[ SUBJECT " + getSubjectData(subject) + " ]";
+            errorData += "[ SUBJECT " + subjectCache.getSubjectData(subject) + " ]";
         }
         if (subjectDn != null)
         {
