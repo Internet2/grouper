@@ -105,6 +105,12 @@ public class LdappcProvisionControl
             LdappcSignetProvisioner a2lsp = new LdappcSignetProvisioner(options, subjectCache);
             a2lsp.provisionPermissions();
         }
+        
+        int subjectIDLookups = subjectCache.getSubjectIDLookups();
+        int subjectIDTableHits = subjectCache.getSubjectIDTableHits();
+        
+        DebugLog.info("Subject ID Lookups: " + subjectIDLookups);
+        DebugLog.info("Subject Table Hits: " + subjectIDTableHits);
 
         //
         // Cancel if a fatal error has occurred.

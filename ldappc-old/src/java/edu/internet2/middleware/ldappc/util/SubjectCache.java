@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.2 2008-04-04 21:19:14 khuxtable Exp $
+ * $Id: SubjectCache.java,v 1.3 2008-04-05 04:30:45 khuxtable Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class SubjectCache
 {
-    private static final int                     DEFAULT_HASH_ESTIMATE = 11;
+    private static final int                     DEFAULT_HASH_ESTIMATE = 25000;
     private Map<String, Hashtable<String, Name>> subjectDNTables       = new HashMap<String, Hashtable<String, Name>>();
     private Map<String, Hashtable<Name, String>> subjectIDTables       = new HashMap<String, Hashtable<Name, String>>();
     int                                          subjectDNLookups;
@@ -49,9 +49,36 @@ public class SubjectCache
     int                                          subjectIDLookups;
     int                                          subjectIDTableHits;
 
-    public SubjectCache()
+    /**
+     * @return the subjectDNLookups
+     */
+    public int getSubjectDNLookups()
     {
+        return subjectDNLookups;
+    }
 
+    /**
+     * @return the subjectDNTableHits
+     */
+    public int getSubjectDNTableHits()
+    {
+        return subjectDNTableHits;
+    }
+
+    /**
+     * @return the subjectIDLookups
+     */
+    public int getSubjectIDLookups()
+    {
+        return subjectIDLookups;
+    }
+
+    /**
+     * @return the subjectIDTableHits
+     */
+    public int getSubjectIDTableHits()
+    {
+        return subjectIDTableHits;
     }
 
     public void init(ProvisionerConfiguration configuration)
@@ -244,9 +271,11 @@ public class SubjectCache
         NameParser parser = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME);
         Name baseName = parser.parse(filter.getBase());
 
+        subjectIDLookups++;
         Name subjectDn = subjectDNTables.get(sourceId).get(subjectIdentifier);
         if (subjectDn != null)
         {
+            subjectIDTableHits++;
             return subjectDn;
         }
 
