@@ -111,7 +111,9 @@ public class LdappcProvisionControl
         
         DebugLog.info("Subject ID Lookups: " + subjectIDLookups);
         DebugLog.info("Subject Table Hits: " + subjectIDTableHits);
-        double ratio = ((double) subjectIDTableHits) / subjectIDLookups * 100.0;
+        // Compute hit ratio percent, rounded to nearest tenth percent.
+        double ratio = Math.round(((double) subjectIDTableHits)
+                / subjectIDLookups * 1000.0) / 10.0;
         DebugLog.info("Subject hit ratio:  " + ratio + "%");
 
         //
