@@ -329,7 +329,7 @@ public class GrouperProvisioner
         //
         // Set to hold Uuids of processed members
         //
-        Set<String> processedMembers = new HashSet();
+        Set<String> processedMembers = new HashSet<String>();
 
         //
         // Map the groups to their set of member's Uuids. This is used to
