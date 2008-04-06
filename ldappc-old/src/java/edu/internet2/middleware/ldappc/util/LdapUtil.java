@@ -406,7 +406,17 @@ public class LdapUtil
                     + environment.get(key));
         }
         */
-        return new InitialLdapContext(environment, controls);
+        
+        //
+        // Clone the environment and add connection pooling.
+        //
+        Hashtable env = (Hashtable) environment.clone();
+        env.put("com.sun.jndi.ldap.connect.pool", "true");
+        
+        //
+        // Create an LDAP context and return it.
+        //
+        return new InitialLdapContext(env, controls);
     }
 
     /**
