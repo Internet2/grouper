@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GrouperSessionDAO.hbm.xml,v 1.3 2008-03-17 20:38:42 shilen Exp $ -->
+<!-- $Id: Hib3GrouperSessionDAO.hbm.xml,v 1.4 2008-04-06 17:22:26 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3GrouperSessionDAO" table="grouper_sessions">
@@ -50,6 +50,7 @@
       <column name="member_id"
               not-null="true"
               length="128"
+              index="session_member_idx"
       />
     </property>
     <!-- memberUuid -->

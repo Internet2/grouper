@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeDAO.hbm.xml,v 1.4 2008-03-19 19:20:00 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeDAO.hbm.xml,v 1.5 2008-04-06 17:22:26 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3AttributeDAO" table="grouper_attributes">
@@ -67,7 +67,7 @@
       <column name="field_name"
               not-null="true"
               length="32"
-              index="attribute_field_idx"
+              index="attribute_field_value_idx"
               unique-key="attribute_uniq_idx"
       />
     </property>
@@ -81,7 +81,7 @@
     >
       <column name="value"
               not-null="true"
-              index="attribute_value_idx"
+              index="attribute_value_idx, attribute_field_value_idx"
               length="1024"
       />
     </property>
