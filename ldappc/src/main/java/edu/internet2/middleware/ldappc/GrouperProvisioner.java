@@ -150,7 +150,7 @@ public class GrouperProvisioner
             //
             // Find the set of Groups to be provisioned
             //
-            Set groups = buildGroupSet(sessionControl.getSession());
+            Set<Group> groups = buildGroupSet(sessionControl.getSession());
 
             //
             // If provisioning Groups, do so
@@ -191,7 +191,7 @@ public class GrouperProvisioner
      * @throws edu.internet2.middleware.grouper.QueryException
      *             thrown if a Grouper Query error occurs
      */
-    protected Set buildGroupSet(GrouperSession session) throws QueryException
+    protected Set<Group> buildGroupSet(GrouperSession session) throws QueryException
     {
         return buildQueryGroupList(session);
     }
@@ -205,7 +205,7 @@ public class GrouperProvisioner
      * @return {@link java.util.Set} of Groups, possibly empty, matching the
      *         defined subordinate stem and attribute value queries.
      */
-    protected Set buildQueryGroupList(GrouperSession session) throws QueryException
+    protected Set<Group> buildQueryGroupList(GrouperSession session) throws QueryException
     {
         //
         // Find the root stem for building filters
@@ -313,7 +313,7 @@ public class GrouperProvisioner
         // Initialize a vector to hold all caught exceptions that should be
         // reported, but not immediately thrown
         //
-        Vector caughtExceptions = new Vector();
+        Vector<Exception> caughtExceptions = new Vector<Exception>();
 
         /*
          * The structure used below is a compromise between memory usage and
@@ -324,12 +324,12 @@ public class GrouperProvisioner
         //
         // Build the set of all subjects with memberships
         //
-        Set existingSubjectDns = buildSourceSubjectDnSet();
+        Set<Name> existingSubjectDns = buildSourceSubjectDnSet();
 
         //
         // Set to hold Uuids of processed members
         //
-        Set processedMembers = new HashSet();
+        Set<String> processedMembers = new HashSet();
 
         //
         // Map the groups to their set of member's Uuids. This is used to
@@ -434,7 +434,7 @@ public class GrouperProvisioner
                 // set rather than a map if member.isMember() was used here.
                 // This would reduce memory but increase processing time)
                 //
-                Set memberGroups = new HashSet();
+                Set<Group> memberGroups = new HashSet<Group>();
                 for (Map.Entry<Group, Set<String>> entry : unprocessedGroups.entrySet())
                 {
                     Group unprocGrp = entry.getKey();
@@ -526,12 +526,12 @@ public class GrouperProvisioner
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    protected Set buildSourceSubjectDnSet() throws NamingException
+    protected Set<Name> buildSourceSubjectDnSet() throws NamingException
     {
         //
         // Init the map to return
         //
-        HashSet subjectDns = new HashSet();
+        Set<Name> subjectDns = new HashSet<Name>();
 
         //
         // Get the source to subject ldap filter mapping from the configuration
@@ -572,7 +572,7 @@ public class GrouperProvisioner
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    private void addSubjectDnSet(Set subjectDns, LdapSearchFilter filter, String source) throws NamingException
+    private void addSubjectDnSet(Set<Name> subjectDns, LdapSearchFilter filter, String source) throws NamingException
     {
         //
         // Build the search control
@@ -661,7 +661,7 @@ public class GrouperProvisioner
         //
         // Define an empty set that is used below
         //
-        Set emptySet = new HashSet();
+        Set<Group> emptySet = new HashSet<Group>();
 
         //
         // Iterate over the subject DNs
