@@ -300,3 +300,23 @@ javascript, then it will take effect, otherwise grouperInfodot.css will make the
   display: none;
   visibility:hidden;
 }
+
+.groupIcon, .subjectIcon {
+  position: relative;
+  top: 3px;
+  margin-right: 2px; 
+}
+
+/* show the icons as bullets, not the actual bullets
+ * - when browsing children of folders and groups,  
+ * - when showing subject search results 
+ */
+div.browseChildren ul, div.subjectSearchResults ul {
+  list-style-type: none;
+  margin: 0px;
+  padding: 5px 0px 0px 10px;
+}
+
+{
+  
+}

@@ -54,7 +54,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p>
  * A handler for &lt;message&gt; that accepts attributes as Strings and
  * evaluates them as expressions at runtime. Substitutes keywords into
- * underlined tooltips
+ * underlined tooltips.  The default bundle is "${nav}"
  * </p>
  * 
  * @author Chris Hyzer
@@ -117,6 +117,7 @@ public class GrouperMessageTag extends MessageTag {
 		this.tooltipKeys = null;
 		this.tooltipValues = null;
 		this.useNewTermContext = null;
+		this.escapeSingleQuotes = null;
 	}
 
 	/** 
@@ -137,6 +138,9 @@ public class GrouperMessageTag extends MessageTag {
 	
 	/** if we should not do tooltips for this tag */
 	private String tooltipDisable = null;
+	
+	/** if we should escape single quotes with \' for javascript */
+	private String escapeSingleQuotes = null;
 	
 	/**
 	 * see if disabled (and validate the boolean, default to false if not set)
@@ -270,7 +274,12 @@ public class GrouperMessageTag extends MessageTag {
       message = substituteTooltips(message);
       
     }
-	  
+    
+    //maybe this is a javascript message and should be escaped (e.g. tooltip)
+    if (GrouperUtil.booleanValue(this.escapeSingleQuotes, false)) {
+      message = StringUtils.replace(message, "'", "\\'");
+    }
+    
 		if (var != null) {
 			int scope = (Integer) GrouperUtil.fieldValue(this, "scope");
 			this.pageContext.setAttribute(var, message, scope);
@@ -540,6 +549,10 @@ public class GrouperMessageTag extends MessageTag {
         this.useNewTermContext, this, this.pageContext)) != null) {
       setUseNewTermContext(string);
     }
+    if ((string = EvalHelper.evalString("escapeSingleQuotes", 
+        this.escapeSingleQuotes, this, this.pageContext)) != null) {
+      setEscapeSingleQuotes(string);
+    }
     
   }
 
@@ -548,8 +561,22 @@ public class GrouperMessageTag extends MessageTag {
    */
   @Override
   public int doStartTag() throws JspException {
+    //set default bundle to "${nav}"
+    String bundle = (String)GrouperUtil.fieldValue(this, "bundle_");
+    if (StringUtils.isBlank(bundle)) {
+      this.setBundle("${nav}");
+    }
     this.evaluateExpressions();
     return super.doStartTag();
+  }
+
+  
+  /**
+   * if we should escape single quotes with \' for javascript
+   * @param escapeSingleQuotes1 the escapeSingleQuotes to set
+   */
+  public void setEscapeSingleQuotes(String escapeSingleQuotes1) {
+    this.escapeSingleQuotes = escapeSingleQuotes1;
   }
 	
 }

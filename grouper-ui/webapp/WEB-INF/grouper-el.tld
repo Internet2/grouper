@@ -75,8 +75,13 @@
         <required>false</required>
         <rtexprvalue>true</rtexprvalue>
     </attribute>
+    <attribute>
+        <name>escapeSingleQuotes</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
   </tag>
-    <tag>
+  <tag>
     <name>param</name>
     <!--  description>
         Supplies an argument for parametric replacement to a containing
@@ -109,6 +114,29 @@
         This will generate an infodot image which when clicked will hide/show some instructions
     </description -->
     <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperSubtitleTag</tagclass>
+    <bodycontent>empty</bodycontent>
+    <attribute>
+        <name>key</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param1</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param2</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+    <tag>
+    <name>tooltip</name>
+    <!--  description>
+        This will generate an onmouseover which is a tooltip in an html element (e.g. image)
+    </description -->
+    <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperTooltipTag</tagclass>
     <bodycontent>empty</bodycontent>
     <attribute>
         <name>key</name>

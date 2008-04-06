@@ -3,9 +3,10 @@
 		  []placed around the group name
 --%><%--
   @author Gary Brown.
-  @version $Id: groupAsSubjectSearchResultView.jsp,v 1.4 2007-03-27 12:10:29 isgwb Exp $
+  @version $Id: groupAsSubjectSearchResultView.jsp,v 1.5 2008-04-06 03:45:43 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
 <c:if test="${empty groupSearchResultField}"><c:set scope="request" var="groupSearchResultField" value="${mediaMap['search.group.result-field']}"/></c:if>
-[<span class="<c:out value="${viewObject.subjectType}"/>Subject"><c:out value="${viewObject[groupSearchResultField]}" /></span>]
+
+<img src="grouper/images/group.gif" <grouper:tooltip key="group.icon.tooltip"/> class="groupIcon" />&nbsp;<span class="<c:out value="${viewObject.subjectType}"/>Subject"><c:out value="${viewObject[groupSearchResultField]}" /></span>

@@ -3,7 +3,7 @@
 		  to display a child group
 --%><%--
   @author Gary Brown.
-  @version $Id: browseChildGroup.jsp,v 1.6 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: browseChildGroup.jsp,v 1.7 2008-04-06 03:45:43 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -11,10 +11,10 @@
 		 		<grouper:param value="${viewObject.displayExtension}"/>
 </grouper:message></c:set>
 
-[<html:link page="/populateGroupSummary.do" 
+<img src="grouper/images/group.gif" <grouper:tooltip key="group.icon.tooltip"/> class="groupIcon" />&nbsp;<html:link page="/populateGroupSummary.do" 
 			paramId="groupId" 
 			paramName="viewObject" 
 			paramProperty="id"
 			title="${linkTitle}">
 				<span class="groupSubject"><c:choose><c:when test="${isFlat}"><c:out value="${viewObject[mediaMap['group.display.flat']]}"/></c:when><c:otherwise><c:out value="${viewObject[mediaMap['group.display']]}"/></c:otherwise></c:choose></span>
- </html:link>]
+ </html:link>
