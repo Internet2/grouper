@@ -220,23 +220,15 @@ public class GrouperProvisioner
         //
         // Build the attribute value query filters
         //
-        Map attrValueMap = configuration.getGroupAttrMatchingQueries();
-        Iterator attrIterator = attrValueMap.keySet().iterator();
-        while (attrIterator.hasNext())
+        Map<String, Set<String>> attrValueMap = configuration.getGroupAttrMatchingQueries();
+        for (Map.Entry<String, Set<String>> entry : attrValueMap.entrySet())
         {
             //
             // Get the attribute name and set of values
             //
-            String name = (String) attrIterator.next();
-            Set values = (Set) attrValueMap.get(name);
-
-            //
-            // Iterate over the values to build the query filters
-            //
-            Iterator valueIterator = values.iterator();
-            while (valueIterator.hasNext())
+            String name = entry.getKey();
+            for (String value : entry.getValue())
             {
-                String value = (String) valueIterator.next();
                 groupFilter = new UnionFilter(groupFilter,
                         new GroupAttributeExactFilter(name, value, rootStem));
             }
@@ -245,15 +237,13 @@ public class GrouperProvisioner
         //
         // Build the sub-stem query filters
         //
-        Set subStems = configuration.getGroupSubordinateStemQueries();
-        Iterator stemIterator = subStems.iterator();
-        while (stemIterator.hasNext())
+        Set<String> subStems = configuration.getGroupSubordinateStemQueries();
+        for (String stemName : subStems)
         {
-
             try
             {
                 Stem stem = StemFinder.findByName(session,
-                        (String) stemIterator.next());
+                        stemName);
                 groupFilter = new UnionFilter(groupFilter,
                         new ChildGroupFilter(stem));
             }
@@ -317,7 +307,7 @@ public class GrouperProvisioner
      * @throws javax.naming.NamingException
      *             thrown if an error occured interacting with the directory.
      */
-    protected void provisionMemberships(LdapContext ctx, Set groups) throws NamingException, MultiErrorException
+    protected void provisionMemberships(LdapContext ctx, Set<Group> groups) throws NamingException, MultiErrorException
     {
         //
         // Initialize a vector to hold all caught exceptions that should be
@@ -345,25 +335,22 @@ public class GrouperProvisioner
         // Map the groups to their set of member's Uuids. This is used to
         // determine membership in a group.
         //
-        HashMap unprocessedGroups = new HashMap();
-        Iterator grpIterator = groups.iterator();
-        while (grpIterator.hasNext())
+        Map<Group, Set<String>> unprocessedGroups = new HashMap<Group, Set<String>>();
+        for (Group group : groups)
         {
             //
-            // Get the group and build a HashSet for members
+            // Build a HashSet for group members
             //
-            Group group = (Group) grpIterator.next();
-            HashSet memberUuids = new HashSet();
+            HashSet<String> memberUuids = new HashSet<String>();
 
             //
             // Populate the memberUuids (note: this is one of the memory verses
             // time tradeoffs. The entire member set could be stored, but that
             // requires more memory than storing just the Uuid)
             //
-            Iterator members = group.getMembers().iterator();
-            while (members.hasNext())
+            for (Member member : (Set<Member>) group.getMembers())
             {
-                memberUuids.add(((Member) members.next()).getUuid());
+                memberUuids.add(member.getUuid());
             }
 
             //
@@ -375,27 +362,15 @@ public class GrouperProvisioner
         //
         // Loop through the groups in order to process the members
         //
-        Iterator groupIterator = groups.iterator();
-        while (groupIterator.hasNext())
+        for (Group group : groups)
         {
-            //
-            // Get the next group to be processed
-            //
-            Group group = (Group) groupIterator.next();
-
             //
             // Process all of the members for this group
             // (NOTE: If member set had been stored above, it could be gotten
             // from the unprocessedGroups map.)
             //
-            Iterator members = group.getMembers().iterator();
-            while (members.hasNext())
+            for (Member member : (Set<Member>) group.getMembers())
             {
-                //
-                // Get the next member and its source id
-                //
-                Member member = (Member) members.next();
-
                 //
                 // If the member has already been processed simply continue
                 //
@@ -460,12 +435,10 @@ public class GrouperProvisioner
                 // This would reduce memory but increase processing time)
                 //
                 Set memberGroups = new HashSet();
-                Iterator unprocGrpsIterator = unprocessedGroups.keySet()
-                        .iterator();
-                while (unprocGrpsIterator.hasNext())
+                for (Map.Entry<Group, Set<String>> entry : unprocessedGroups.entrySet())
                 {
-                    Group unprocGrp = (Group) unprocGrpsIterator.next();
-                    Set memberSet = (Set) unprocessedGroups.get(unprocGrp);
+                    Group unprocGrp = entry.getKey();
+                    Set memberSet = entry.getValue();
                     if (memberSet.contains(member.getUuid()))
                     {
                         memberGroups.add(unprocGrp);
@@ -563,21 +536,19 @@ public class GrouperProvisioner
         //
         // Get the source to subject ldap filter mapping from the configuration
         //
-        Map sourceFilterMap = configuration.getSourceSubjectLdapFilters();
+        Map<String, LdapSearchFilter> sourceFilterMap = configuration.getSourceSubjectLdapFilters();
 
         //
         // Iterate over the sourceFilterMap to build list of subjects for each
         // source
         //
-        Iterator sources = sourceFilterMap.keySet().iterator();
-        while (sources.hasNext())
+        for (Map.Entry<String, LdapSearchFilter> entry : sourceFilterMap.entrySet())
         {
             //
             // Get the source id and associated filter
             //
-            String source = (String) sources.next();
-            LdapSearchFilter filter = (LdapSearchFilter) sourceFilterMap
-                    .get(source);
+            String source = entry.getKey();
+            LdapSearchFilter filter = entry.getValue();
 
             //
             // Add the subjectDns for this source
@@ -685,7 +656,7 @@ public class GrouperProvisioner
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    private void clearSubjectEntryMemberships(LdapContext ctx, Set subjectDnSet) throws NamingException
+    private void clearSubjectEntryMemberships(LdapContext ctx, Set<Name> subjectDnSet) throws NamingException
     {
         //
         // Define an empty set that is used below
@@ -695,10 +666,8 @@ public class GrouperProvisioner
         //
         // Iterate over the subject DNs
         //
-        Iterator subjectDns = subjectDnSet.iterator();
-        while (subjectDns.hasNext())
+        for (Name subjectDn : subjectDnSet)
         {
-            Name subjectDn = (Name) subjectDns.next();
             try
             {
                 //
