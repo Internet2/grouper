@@ -316,7 +316,11 @@ div.browseChildren ul, div.subjectSearchResults ul {
   margin: 0px;
   padding: 5px 0px 0px 10px;
 }
+ul.savedGroups, ul.savedSubjects {
+  list-style-type: none;  
+}
 
-{
-  
+/* underline some links */
+a.underline {
+  text-decoration: underline;  
 }
