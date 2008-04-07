@@ -253,14 +253,12 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
 
             for(int i = 0; i < objectClassModItems.length; i++)
             {
-                mods[modIndex] = objectClassModItems[i];
-                modIndex++;
+                mods[modIndex++] = objectClassModItems[i];
             }
 
             for(int i = 0; i < membershipModItems.length; i++)
             {
-                mods[modIndex] = membershipModItems[i];
-                modIndex++;
+                mods[modIndex++] = membershipModItems[i];
             }
 
             //
