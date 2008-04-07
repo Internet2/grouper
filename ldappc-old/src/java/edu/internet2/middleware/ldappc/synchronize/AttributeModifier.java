@@ -18,6 +18,10 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -66,7 +70,7 @@ public class AttributeModifier
     /**
      * Default "no value" value
      */
-    static final String DEFAULT_NO_VALUE = null;
+    static final String  DEFAULT_NO_VALUE    = null;
 
     /**
      * Default case sensitivity
@@ -74,35 +78,40 @@ public class AttributeModifier
     static final boolean DEFAULT_SENSITIVITY = false;
 
     /**
-     * Holds additional values to be added to the attribute
+     * Name of the attribute
      */
-    private Attribute adds;
+    private String       attributeName;
 
     /**
-     * Holds values to be deleted from the attribute
+     * Holds additional values to be added to the attribute.
      */
-    private Attribute deletes;
+    private Values       adds;
 
     /**
-     * Holds values to be retained in the attribute
+     * Holds values to be deleted from the attribute.
      */
-    private Attribute retained;
+    private Values       deletes;
+
+    /**
+     * Holds values to be retained in the attribute.
+     */
+    private Values       retained;
 
     /**
      * Total number of deletes started with
      */
-    private int deletesCnt = 0;
+    private int          deletesCnt          = 0;
 
     /**
      * "no value" value. This is used when the attribute is required, but there
      * are no values to be included.
      */
-    private String noValue;
+    private String       noValue;
 
     /**
      * Indicates if string comparisions are case sensitive
      */
-    private boolean caseSensitive = DEFAULT_SENSITIVITY;
+    private boolean      caseSensitive       = DEFAULT_SENSITIVITY;
 
     /**
      * Constructs an <code>AttributeModifier</code> for the attribute name.
@@ -164,11 +173,13 @@ public class AttributeModifier
     public AttributeModifier(String attributeName, String noValue,
             boolean caseSensitive)
     {
+        setAttributeName(attributeName);
         setNoValue(noValue);
         setCaseSensitive(caseSensitive);
-        adds = new BasicAttribute(attributeName);
-        deletes = new BasicAttribute(attributeName);
-        retained = new BasicAttribute(attributeName);
+
+        adds = new Values();
+        deletes = new Values();
+        retained = new Values();
     }
 
     /**
@@ -178,7 +189,16 @@ public class AttributeModifier
      */
     public String getAttributeName()
     {
-        return adds.getID();
+        return attributeName;
+    }
+
+    /**
+     * @param attributeName
+     *            the attribute name to set
+     */
+    public void setAttributeName(String attributeName)
+    {
+        this.attributeName = attributeName;
     }
 
     /**
@@ -266,7 +286,7 @@ public class AttributeModifier
         if (attribute != null)
         {
             NamingEnumeration enumeration = attribute.getAll();
-            while(enumeration.hasMore())
+            while (enumeration.hasMore())
             {
                 //
                 // Get the next value
@@ -283,7 +303,7 @@ public class AttributeModifier
                             + " has an invalid value of type ["
                             + value.getClass().getName() + "].");
                 }
-                deletes.add(value);
+                deletes.add((String) value);
             }
         }
 
@@ -306,29 +326,15 @@ public class AttributeModifier
     {
         //
         // If the value is removed from deletes, add it to retained.
-        // Else act on whether or not it is already a retained value
+        // Else add it to the adds if not already retained or added.
         //
-        if (removeValue(deletes, attrValue))
+        if (deletes.remove(attrValue))
         {
             retained.add(attrValue);
         }
-        else
+        else if (!retained.contains(attrValue) && !adds.contains(attrValue))
         {
-            //
-            // If the value isn't a retained value, add it to the adds if not
-            // already there
-            //
-            if (!holdsValue(retained, attrValue))
-            {
-                //
-                // If not already there, add it. This ensures in when case
-                // sensitivity is ignored the value is not added twice
-                //
-                if (!holdsValue(adds, attrValue))
-                {
-                    adds.add(attrValue);
-                }
-            }
+            adds.add(attrValue);
         }
     }
 
@@ -342,12 +348,7 @@ public class AttributeModifier
      */
     public Attribute getAdditions()
     {
-        Attribute attribute = (Attribute) adds.clone();
-        if (getNoValue() != null && attribute.size() == 0)
-        {
-            attribute.add(getNoValue());
-        }
-        return attribute;
+        return makeAttribute(adds);
     }
 
     /**
@@ -394,14 +395,14 @@ public class AttributeModifier
                 // Replace the current value(s) with the additions
                 //
                 modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                        (Attribute) adds.clone());
+                        makeAttribute(adds));
             }
             else if (getNoValue() != null)
             {
                 //
                 // If deletes only holds the "no value" then nothing to do
                 //
-                if (deletes.size() == 1 && holdsValue(deletes, getNoValue()))
+                if (deletes.size() == 1 && deletes.contains(getNoValue()))
                 {
                     modItem = null;
                 }
@@ -468,8 +469,7 @@ public class AttributeModifier
                 if (deletes.size() > 0)
                 {
                     mods[modsIndex] = new ModificationItem(
-                            DirContext.REMOVE_ATTRIBUTE, (Attribute) deletes
-                                    .clone());
+                            DirContext.REMOVE_ATTRIBUTE, makeAttribute(deletes));
                     modsIndex++;
                 }
 
@@ -477,7 +477,7 @@ public class AttributeModifier
                 if (adds.size() > 0)
                 {
                     mods[modsIndex] = new ModificationItem(
-                            DirContext.ADD_ATTRIBUTE, (Attribute) adds.clone());
+                            DirContext.ADD_ATTRIBUTE, makeAttribute(adds));
                     modsIndex++;
                 }
             }
@@ -487,121 +487,24 @@ public class AttributeModifier
     }
 
     /**
-     * This method indicates if the attribute holds the given value
+     * Convert an attribute value Map into a BasicAttribute for use with LDAP.
      * 
-     * @param attribute
-     *            Attribute
-     * @param value
-     *            String value
-     * @return <code>true</code> if the attribute holds the value, and
-     *         <code>false</code> otherwise
-     * @throws NamingException
-     *             thrown if a Naming exception occurs
+     * @param attributeSet
+     *            the attribute ValueSet to convert.
+     * @return a BasicAttribute containing the values in the ValueSet.
      */
-    private boolean holdsValue(Attribute attribute, String value)
-            throws NamingException
+    private Attribute makeAttribute(Values attributeSet)
     {
-        return (Integer.MIN_VALUE != findIndex(attribute, value));
-    }
-
-    /**
-     * This method removes the value from the attribute.
-     * 
-     * @param attribute
-     *            Attribute
-     * @param value
-     *            String value
-     * @return <code>true</code> if the value was removed, and
-     *         <code>false</code> otherwise
-     * @throws NamingException
-     *             thrown if a Naming exception occurs
-     */
-    private boolean removeValue(Attribute attribute, String value)
-            throws NamingException
-    {
-        int matchIndex = findIndex(attribute, value);
-        boolean matchFound = (matchIndex != Integer.MIN_VALUE);
-
-        if (matchFound)
+        Attribute attribute = new BasicAttribute(attributeName);
+        for (String value : attributeSet)
         {
-            attribute.remove(matchIndex);
+            attribute.add(value);
         }
-
-        return matchFound;
-    }
-
-    /**
-     * This method finds the index of the value within the attribute
-     * 
-     * @param attribute
-     *            Attribute
-     * @param value
-     *            String value
-     * @return index of the value if attribute holds the value (0 <= index <
-     *         attribute.size()), and Integer.MIN_VALUE otherwise.
-     * @throws NamingException
-     *             thrown if a Naming exception occurs
-     */
-    private int findIndex(Attribute attribute, String value)
-            throws NamingException
-    {
-        int index = Integer.MIN_VALUE;
-
-        for(int i = 0; i < attribute.size(); i++)
+        if (getNoValue() != null && attribute.size() == 0)
         {
-            if (isEqual((String) attribute.get(i), value))
-            {
-                index = i;
-                break;
-            }
+            attribute.add(getNoValue());
         }
-
-        return index;
-    }
-
-    /**
-     * This method determines whether or not two strings are equal in the
-     * context of this AttributeModifier's case sensitivity. If the
-     * AttributeModifier is case sensitive, then the String.equals(String) is
-     * used for comparison. Otherwise, String.equalsIgnoreCase(String) is used.
-     * 
-     * @param leftStr
-     *            String value
-     * @param rightStr
-     *            String value
-     * @return <code>true</code> if the two strings are equal, and
-     *         <code>false</code> otherwise
-     * @throws NamingException
-     *             thrown if a naming error occurs.
-     */
-    protected boolean isEqual(String leftStr, String rightStr)
-            throws NamingException
-    {
-        //
-        // Assume the strings are not equal
-        //
-        boolean equal = false;
-
-        //
-        // Determine equality
-        //
-        if (leftStr == null)
-        {
-            equal = (rightStr == null);
-        }
-        else
-        {
-            if (isCaseSensitive())
-            {
-                equal = leftStr.equals(rightStr);
-            }
-            else
-            {
-                equal = leftStr.equalsIgnoreCase(rightStr);
-            }
-        }
-
-        return equal;
+        return attribute;
     }
 
     /**
@@ -615,15 +518,142 @@ public class AttributeModifier
         //
         // Add all of the deletes values to retained
         //
-        NamingEnumeration namingEnum = deletes.getAll();
-        while(namingEnum.hasMore())
-        {
-            retained.add(namingEnum.next());
-        }
+        retained.addAll(deletes);
 
         //
         // Clear deletes of all values
         //
         deletes.clear();
+    }
+
+    /**
+     * Implements optional case ignoring set by backing it with a Map, mapping
+     * the possibly lowercased values to the actual values.
+     */
+    public class Values
+            implements Iterable<String>
+    {
+        private static final long   serialVersionUID = 1L;
+
+        /**
+         * A backing map for the values, mapping the comparison value to the
+         * actual value. If caseSensitive is <tt>true</tt> this is an identity
+         * mapping, otherwise it maps the lowercased value to the value itself.
+         */
+        private Map<String, String> map              = new HashMap<String, String>();
+
+        /**
+         * Adds the specified element to the values if it is not already
+         * present.
+         * 
+         * @param value
+         *            element to be added to the values.
+         * @return <tt>true</tt> if this set did not already contain the
+         *         specified element.
+         */
+        public boolean add(String value)
+        {
+            boolean addedValue = false;
+            String comparisonString = makeComparisonString(value);
+            if (!map.containsKey(comparisonString))
+            {
+                map.put(comparisonString, value);
+                addedValue = true;
+            }
+            return addedValue;
+        }
+
+        /**
+         * Adds all of the elements in the specified iterable to the values if
+         * they're not already present.
+         * 
+         * @param iterable
+         *            iterable whose elements are to be added to the values.
+         * @return <tt>true</tt> if the values changed as a result of the
+         *         call.
+         */
+        public boolean addAll(Iterable<String> iterable)
+        {
+            boolean hasChanged = false;
+            for (String value : iterable)
+            {
+                if (!contains(value))
+                {
+                    add(value);
+                    hasChanged = true;
+                }
+            }
+            return hasChanged;
+        }
+
+        /**
+         * Removes all of the elements from the values.
+         */
+        public void clear()
+        {
+            map.clear();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public Iterator<String> iterator()
+        {
+            return map.values().iterator();
+        }
+
+        /**
+         * Returns true if the values contain the specified element.
+         * 
+         * @param object
+         *            element whose presence in the values is to be tested.
+         * @return true if the values contains the specified element.
+         */
+        public boolean contains(Object object)
+        {
+            if (!(object instanceof String))
+            {
+                return false;
+            }
+
+            return map.containsKey(makeComparisonString((String) object));
+        }
+
+        /**
+         * Removes the specified element from the values if it is present.
+         * 
+         * @param value
+         *            element to be removed from the values, if present.
+         * @return true if the value was present in the values.
+         */
+        public boolean remove(String value)
+        {
+            return map.remove(makeComparisonString((String) value)) != null;
+        }
+
+        /**
+         * Returns the number of elements in the values.
+         * 
+         * @return the number of elements in the values.
+         */
+        public int size()
+        {
+            return map.size();
+        }
+
+        /**
+         * If <tt>caseSensitive</tt> is <tt>true</tt>, return value,
+         * otherwise return lowercased value.
+         * 
+         * Note that caseSensitive is a class variable in the enclosing class.
+         * 
+         * @param value
+         *            string to convert.
+         * @return value, possibly lowercased.
+         */
+        private String makeComparisonString(String value)
+        {
+            return caseSensitive ? value : value.toLowerCase();
+        }
     }
 }
