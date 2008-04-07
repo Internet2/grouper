@@ -265,7 +265,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.18 2008-04-02 15:38:58 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.19 2008-04-07 08:46:58 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 
@@ -436,6 +436,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		if(!isEmpty(listField))pager.setParam("listField", listField);
 		pager.setParam("subjectId", subjectId);
 		pager.setParam("subjectType", subjectType);
+		pager.setParam("sourceId", subjectSource);
 		pager.setParam("returnTo", subjectForm.get("returnTo"));
 		pager.setParam("returnToLinkKey", subjectForm.get("returnToLinkKey"));
 		pager.setTarget(mapping.getPath());
@@ -446,6 +447,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		Map saveParams = new HashMap();
 		saveParams.put("subjectId",subject.getId());
 		saveParams.put("subjectType",subject.getType().getName());
+		saveParams.put("sourceId",subject.getSource().getId());
 		saveParams.put("callerPageId",request.getAttribute("thisPageId"));
 		request.setAttribute("saveParams",saveParams);
 		
