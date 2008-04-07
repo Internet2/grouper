@@ -110,7 +110,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * attribute values in mappedLdapAttributes. This allows multiple grouper
      * attributes to contribute values to the ldap attribute.
      */
-    private HashMap<String, AttributeModifier> mappedGrouperAttributes = new HashMap<String, AttributeModifier>();
+    private HashMap<String, AttributeModifier> mappedGrouperAttributes;
 
     /**
      * The attribute names are the mapped ldap attributes, and the attribute
@@ -124,7 +124,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * names in grouper attribute to ldap attribute mapping may not all be in
      * the same case.
      */
-    private BasicAttributes mappedLdapAttributes = new BasicAttributes(true);
+    private BasicAttributes mappedLdapAttributes;
 
     /**
      * Constructs a <code>GroupEntrySynchronizer</code>
@@ -157,6 +157,9 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         processedOus = new HashSet<Name>();
         deleteGroups = new HashSet<Name>();
         processedGroups = new HashSet<Name>();
+        
+        mappedGrouperAttributes = new HashMap<String, AttributeModifier>();
+        mappedLdapAttributes = new BasicAttributes(true);
 
         //
         // If provisioning with "flat" structure, verify that a group naming
