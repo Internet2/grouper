@@ -196,7 +196,7 @@
 	- xercesImpl (grouper-ui, removed since older)
 	- xml-apis (grouper-ui, removed since older)
 	-->
-	<target name="generate-axis-bundle-jar">
+	<!-- target name="generate-axis-bundle-jar">
 		<mkdir dir="build/axisLibTemp" />
 		<delete dir="build/axisLibTemp" />
 		<mkdir dir="build/axisLibTemp" />
@@ -205,7 +205,7 @@
 		</unzip>
 		<delete file="lib/axis/axisBundle.jar" />
 		<jar destfile="lib/axis/axisBundle.jar" basedir="build/axisLibTemp" />
-	</target>
+	</target -->
 
 	<target name="clean">
 		<mkdir dir="${build.dir}" />
@@ -357,13 +357,11 @@
 		<echo>     Clean the webapp folder, and classfiles, and build</echo>
 		<echo>3) generate-aar</echo>
 		<echo>     Make the axis archive, which is the classfiles and services.xml that axis needs.  You need to do this if you ever change anything that changes the wsdl.  You can do this automatically in dist by setting a property in the build.properties</echo>
-		<echo>4) generate-axis-bundle-jar</echo>
-		<echo>     Take all the bundlable axis jars (in lib/axis-bundle), unjar, and jar back up into one jar </echo>
-		<echo>5) javadoc</echo>
+		<echo>4) javadoc</echo>
 		<echo>     Generate javadoc to the doc/api dir</echo>
-		<echo>6) help</echo>
+		<echo>5) help</echo>
 		<echo>     This message</echo>
-		<echo>7) grouper</echo>
+		<echo>6) grouper</echo>
 		<echo>     Build the grouper jar from build.properties</echo>
 		<echo>
 		</echo>
