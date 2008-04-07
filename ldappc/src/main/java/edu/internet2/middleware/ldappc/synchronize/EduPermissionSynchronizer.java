@@ -77,7 +77,8 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public EduPermissionSynchronizer(LdapContext ctx, Name subject,
             SignetProvisionerConfiguration configuration,

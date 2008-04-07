@@ -67,7 +67,8 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public PermissionSynchronizer(LdapContext ctx, Name subject,
             SignetProvisionerConfiguration configuration,
