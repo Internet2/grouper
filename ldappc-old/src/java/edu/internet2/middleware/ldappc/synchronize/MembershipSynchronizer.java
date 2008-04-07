@@ -128,7 +128,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    public void synchronize(Set groups) throws NamingException,
+    public void synchronize(Set<Group> groups) throws NamingException,
             LdappcException
     {
         //
@@ -140,19 +140,13 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
         // Create a vector to catch exceptions that don't need to stop
         // procesing
         //
-        Vector caughtExceptions = new Vector();
+        Vector<Exception> caughtExceptions = new Vector<Exception>();
 
         //
         // Get the set of privileges and iterate over them
         //
-        Iterator grpIterator = groups.iterator();
-        while(grpIterator.hasNext())
+        for (Group group : groups)
         {
-            //
-            // Get the group
-            //
-            Group group = (Group) grpIterator.next();
-
             //
             // Process the group
             //
