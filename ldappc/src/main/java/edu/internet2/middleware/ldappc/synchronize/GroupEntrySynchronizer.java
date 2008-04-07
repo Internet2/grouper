@@ -20,7 +20,6 @@ package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -49,7 +48,6 @@ import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.MultiErrorException;
-import edu.internet2.middleware.ldappc.Provisioner;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
@@ -139,7 +137,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public GroupEntrySynchronizer(LdapContext ctx, Name root,
             GrouperProvisionerConfiguration configuration,
@@ -331,6 +330,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
     protected void performInclude(Group group, int status)
             throws NamingException, LdappcException
     {
+        //DebugLog.info("Starting include of group " + group.getName());
+
         //
         // Initialize for the perform include
         //
@@ -466,7 +467,11 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Modify the entry
         //
-        getContext().modifyAttributes(groupDn, modificationItems);
+        if (modificationItems.length > 0)
+        {
+            getContext().modifyAttributes(groupDn, modificationItems);
+            //DebugLog.info("Modified " + group.getName());
+        }
     }
 
     /**
@@ -853,6 +858,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         // Build the subject context
         //
         getContext().createSubcontext(groupDn, attributes);
+        //DebugLog.info("Added " + group.getName());
     }
 
     /**
