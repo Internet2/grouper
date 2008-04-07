@@ -137,18 +137,18 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
         try
         {
             groupNameString = group.getAttribute(groupNamingAttribute);
+
+            //
+            // Store the group name string in the attribute modifier.
+            // (status doesn't improve things here so ignore it)
+            //
+            membershipMods.store(groupNameString);
         }
         catch(AttributeNotFoundException anfe)
         {
             throw new LdappcException("Attribute [" + groupNamingAttribute
                     + "] not found for " + group.getName(), anfe);
         }
-
-        //
-        // Store the group name string in the attribute modifier.
-        // (status doesn't improve things here so ignore it)
-        //
-        membershipMods.store(groupNameString);
     }
 
     /**
