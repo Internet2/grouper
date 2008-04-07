@@ -30,6 +30,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -213,7 +214,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.12 2007-11-06 16:47:01 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.13 2008-04-07 07:54:15 mchyzer Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -312,6 +313,22 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				currentNodeId = curNodeStem.getUuid();
 			}
 		}
+		//see if group is there:
+    if(!isEmpty(currentNodeId)&& !"ROOT".equals(currentNodeId)){
+      try {
+        //we have a node
+        curGroupOrStem = GroupOrStem.findByID(grouperSession,currentNodeId);
+      } catch (RuntimeException re) {
+        //if not found (e.g. if current gorup deleted), then go back to root
+        if (re.getCause() instanceof GroupNotFoundException) {
+          currentNodeId="ROOT";
+        } else {
+          //not group not found, something wrong
+          throw re;
+        }
+      }
+      
+    }
 		if(isEmpty(currentNodeId)|| "ROOT".equals(currentNodeId)){
 				parent = new HashMap();
 				curGroupOrStemMap = new HashMap();
@@ -319,8 +336,6 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				defaultStem=GrouperHelper.NS_ROOT;
 				curNodeStem=null;
 		}else{
-			//we have a node
-			curGroupOrStem = GroupOrStem.findByID(grouperSession,currentNodeId);
 			if(curGroupOrStem.isGroup() && findForNode ==null) {
 				curGroupOrStem = GroupOrStem.findByStem(grouperSession,curGroupOrStem.getGroup().getParentStem());
 			}else if(curGroupOrStem.isGroup()) {

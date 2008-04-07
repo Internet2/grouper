@@ -2,7 +2,7 @@
 			Displays a group when part of a chain
 --%><%--
   @author Gary Brown.
-  @version $Id: groupChainPathView.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: groupChainPathView.jsp,v 1.5 2008-04-07 07:54:15 mchyzer Exp $
 --%><%@page import="org.apache.struts.tiles.ComponentContext"%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 
@@ -16,7 +16,7 @@
 <html:link page="/populateGroupSummary.do" name="viewObject" title="${linkTitle}">
   <tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="viewObject"/>
-	  <tiles:put name="view" value="default"/>
+	  <tiles:put name="view" value="groupChain"/>
   </tiles:insert>
 </html:link>
 </span>

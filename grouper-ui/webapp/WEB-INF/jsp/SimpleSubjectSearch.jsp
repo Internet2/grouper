@@ -2,7 +2,7 @@
 		Tile which displays the simple subject search form  - allows any configured source to be selected
 --%><%--
   @author Gary Brown.
-  @version $Id: SimpleSubjectSearch.jsp,v 1.5 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: SimpleSubjectSearch.jsp,v 1.6 2008-04-07 07:54:15 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -14,7 +14,7 @@
 					<grouper:message bundle="${nav}" key="subject.view.yourself"/>
 		</html:link></div>
 </c:if>
-<!--<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a></p>
+<!--<p><a class="underline" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a></p>
 -->
  <html:form styleId="SearchFormBean" action="/doSearchSubjects" method="post">
  		<html:hidden property="searchInNameOrExtension"/>

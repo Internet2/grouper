@@ -14,7 +14,7 @@
 	</c:if>
 	</html:form>
 	<html:form action="/removeSavedGroups.do" method="post">
-	<ul>
+	<ul class="savedGroups">
 	<c:forEach var="group" items="${savedSubjects}">
 		<li><input name="subjectIds" type="checkbox" value="<c:out value="${group.id}"/>"/>
 		<tiles:insert definition="dynamicTileDef" flush="false">

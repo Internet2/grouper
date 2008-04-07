@@ -24,7 +24,7 @@ import java.util.Map;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupOrStem.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: GroupOrStem.java,v 1.5 2008-04-07 07:54:15 mchyzer Exp $
  */
 
 import edu.internet2.middleware.grouper.Group;
@@ -87,7 +87,8 @@ public class GroupOrStem {
 				Stem stem = StemFinder.findByUuid(s,id);
 				groupOrStem.stem = stem;
 			}catch(Exception se) {
-				throw new RuntimeException("Unable to instatiate a group or stem with ID=" + id);
+			  //pass the cause so that we can catch and see if groupNotFound
+				throw new RuntimeException("Unable to instantiate a group or stem with ID=" + id, se);
 			}
 		}
 		return groupOrStem;

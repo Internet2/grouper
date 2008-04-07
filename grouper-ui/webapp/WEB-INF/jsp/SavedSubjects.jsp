@@ -9,7 +9,7 @@
 <c:if test="${savedSubjectsSize>0}">
 	
 	<html:form action="/removeSavedSubjects.do" method="post">
-	<ul>
+	<ul class="savedSubjects">
 	<c:forEach var="subject" items="${savedSubjects}">
 		<li><input name="subjectIds" type="checkbox" value="<c:out value="${subject.id}"/>"/>
 		<tiles:insert definition="dynamicTileDef" flush="false">
