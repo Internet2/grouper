@@ -64,42 +64,42 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
     /**
      * Set of ou DNs to be deleted
      */
-    private Set<Name> deleteOus;
+    private Set<Name>                          deleteOus;
 
     /**
      * Set of ou DNs already processed
      */
-    private Set<Name> processedOus;
+    private Set<Name>                          processedOus;
 
     /**
      * Set of group DNs to be deleted
      */
-    private Set<Name> deleteGroups;
+    private Set<Name>                          deleteGroups;
 
     /**
      * Set of group DNs already processed
      */
-    private Set<Name> processedGroups;
+    private Set<Name>                          processedGroups;
 
     /**
      * Holds the objectClass attribute modifications
      */
-    private AttributeModifier objectClassMods;
+    private AttributeModifier                  objectClassMods;
 
     /**
      * Holds the member DN listing attribute modifications
      */
-    private AttributeModifier memberDnMods;
+    private AttributeModifier                  memberDnMods;
 
     /**
      * Holds the member name listing attribute modifications
      */
-    private AttributeModifier memberNameMods;
+    private AttributeModifier                  memberNameMods;
 
     /**
      * Holds the RDN attribute modifications
      */
-    private AttributeModifier rdnMods;
+    private AttributeModifier                  rdnMods;
 
     /**
      * The keys are the mapped grouper attributes and the values are the
@@ -124,7 +124,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * names in grouper attribute to ldap attribute mapping may not all be in
      * the same case.
      */
-    private BasicAttributes mappedLdapAttributes;
+    private BasicAttributes                    mappedLdapAttributes;
 
     /**
      * Constructs a <code>GroupEntrySynchronizer</code>
@@ -157,7 +157,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         processedOus = new HashSet<Name>();
         deleteGroups = new HashSet<Name>();
         processedGroups = new HashSet<Name>();
-        
+
         mappedGrouperAttributes = new HashMap<String, AttributeModifier>();
         mappedLdapAttributes = new BasicAttributes(true);
 
@@ -253,7 +253,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Build attribute modifiers for the grouper to ldap attribute mapping
         //
-        Map<String, String> attributeMap = configuration.getGroupAttributeMapping();
+        Map<String, String> attributeMap = configuration
+                .getGroupAttributeMapping();
         for (String grouperAttr : attributeMap.keySet())
         {
             //
@@ -329,10 +330,9 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected void performInclude(Group group, int status)
-            throws NamingException, LdappcException
+    protected void performInclude(Group group, int status) throws NamingException, LdappcException
     {
-        //DebugLog.info("Starting include of group " + group.getName());
+        // DebugLog.info("Starting include of group " + group.getName());
 
         //
         // Initialize for the perform include
@@ -406,8 +406,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * @throws NamingException
      *             thrown if a Naming exception occurs
      */
-    protected void updateGroupEntry(Name groupDn, Group group)
-            throws NamingException
+    protected void updateGroupEntry(Name groupDn, Group group) throws NamingException
     {
         //
         // Store the values from the current entry
@@ -472,7 +471,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         if (modificationItems.length > 0)
         {
             getContext().modifyAttributes(groupDn, modificationItems);
-            //DebugLog.info("Modified " + group.getName());
+            // DebugLog.info("Modified " + group.getName());
         }
     }
 
@@ -807,8 +806,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * @param group
      *            Group holding the data for the new entry
      */
-    protected void addGroupEntry(Name groupDn, Group group)
-            throws NamingException
+    protected void addGroupEntry(Name groupDn, Group group) throws NamingException
     {
         //
         // Get the group data
@@ -860,7 +858,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         // Build the subject context
         //
         getContext().createSubcontext(groupDn, attributes);
-        //DebugLog.info("Added " + group.getName());
+        // DebugLog.info("Added " + group.getName());
     }
 
     /**
@@ -877,8 +875,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * @throws LdappcException
      *             thrown if the RDN attribute is not defined for the group.
      */
-    protected Name buildGroupDn(Group group) throws NamingException,
-            LdappcException
+    protected Name buildGroupDn(Group group) throws NamingException, LdappcException
     {
         //
         // Initialize return value
