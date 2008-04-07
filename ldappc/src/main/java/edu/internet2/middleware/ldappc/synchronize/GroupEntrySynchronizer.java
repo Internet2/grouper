@@ -142,8 +142,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      */
     public GroupEntrySynchronizer(LdapContext ctx, Name root,
             GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options,
-            SubjectCache subjectCache)
+            GrouperProvisionerOptions options, SubjectCache subjectCache)
             throws NamingException, LdappcConfigurationException
     {
         //
@@ -504,7 +503,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         }
 
         NamingEnumeration mappedLdapAttrNames = mappedLdapAttributes.getIDs();
-        while(mappedLdapAttrNames.hasMore())
+        while (mappedLdapAttrNames.hasMore())
         {
             wantedAttr.add((String) mappedLdapAttrNames.next());
         }
@@ -543,7 +542,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         NamingEnumeration mappedLdapAttributeEnum = mappedLdapAttributes
                 .getAll();
-        while(mappedLdapAttributeEnum.hasMore())
+        while (mappedLdapAttributeEnum.hasMore())
         {
             Attribute ldapAttribute = (Attribute) mappedLdapAttributeEnum
                     .next();
@@ -610,7 +609,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             {
                 subject = member.getSubject();
             }
-            catch(SubjectNotFoundException snfe)
+            catch (SubjectNotFoundException snfe)
             {
                 //
                 // If the subject was not found, log it and continue
@@ -631,7 +630,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                             getConfiguration(), subject);
                     memberDnMods.store(subjectDn.toString());
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     ErrorLog.warn(getClass(), getErrorData(subject) + " "
                             + e.getMessage());
@@ -688,7 +687,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                                         + source.getId() + "]");
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     //
                     // All of the exceptions thrown in this try are "warning"
@@ -737,7 +736,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                                             + "\" will not be stored as it is either an empty string or null.");
                 }
             }
-            catch(AttributeNotFoundException anfe)
+            catch (AttributeNotFoundException anfe)
             {
                 ErrorLog.warn(getClass(), getErrorData(group) + " "
                         + anfe.getMessage());
@@ -834,7 +833,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         }
 
         NamingEnumeration ldapAttrEnum = mappedLdapAttributes.getAll();
-        while(ldapAttrEnum.hasMore())
+        while (ldapAttrEnum.hasMore())
         {
             Attribute attribute = (Attribute) ldapAttrEnum.next();
             modifiers.add((AttributeModifier) attribute.get());
@@ -970,7 +969,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         Stem stem = group.getParentStem();
         StringTokenizer stemTokens = new StringTokenizer(stem.getName(),
                 STEM_DELIMITER);
-        while(stemTokens.hasMoreTokens())
+        while (stemTokens.hasMoreTokens())
         {
             //
             // Get next stem token for the rdn value making sure it is Ldap name
@@ -1027,7 +1026,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      */
     protected void updateProcessedOus(Name groupDn)
     {
-        for(int i = getRoot().size() + 1; i < groupDn.size(); i++)
+        for (int i = getRoot().size() + 1; i < groupDn.size(); i++)
         {
             Name stemDn = groupDn.getPrefix(i);
             deleteOus.remove(stemDn);
@@ -1105,7 +1104,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         // Delete anything found here and it's children.
         //
         NameParser parser = getContext().getNameParser(LdapUtil.EMPTY_NAME);
-        while(searchEnum.hasMore())
+        while (searchEnum.hasMore())
         {
             SearchResult searchResult = (SearchResult) searchEnum.next();
             if (searchResult.isRelative())
@@ -1134,7 +1133,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 {
                     getContext().lookup(entryDn);
                 }
-                catch(NamingException ne)
+                catch (NamingException ne)
                 {
                     //
                     // Assume it couldn't be found, so just continue
@@ -1149,7 +1148,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 {
                     LdapUtil.delete(getContext(), entryDn);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     ErrorLog.error(getClass(), "Unable to delete " + entryDn);
                 }
@@ -1228,7 +1227,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         // Populate dns with DNs of existing objects. The root dn is excluded.
         //
         NameParser parser = getContext().getNameParser(LdapUtil.EMPTY_NAME);
-        while(searchEnum.hasMore())
+        while (searchEnum.hasMore())
         {
             SearchResult searchResult = (SearchResult) searchEnum.next();
             if (searchResult.isRelative())
@@ -1324,7 +1323,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 //
                 LdapUtil.delete(context, dn);
             }
-            catch(NamingException ne)
+            catch (NamingException ne)
             {
                 ErrorLog.error(getClass(), "Failed to delete " + dn + " for "
                         + getRoot() + " :: " + ne.getMessage());
@@ -1344,7 +1343,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             {
                 getContext().lookup(dn);
             }
-            catch(NamingException ne)
+            catch (NamingException ne)
             {
                 //
                 // Assume it couldn't be found, so just continue
@@ -1359,7 +1358,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             {
                 LdapUtil.delete(context, dn);
             }
-            catch(NamingException ne)
+            catch (NamingException ne)
             {
                 ErrorLog.error(getClass(), "Failed to delete " + dn + " for "
                         + getRoot() + " :: " + ne.getMessage());
