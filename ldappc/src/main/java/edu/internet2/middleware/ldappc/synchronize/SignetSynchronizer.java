@@ -75,7 +75,8 @@ public abstract class SignetSynchronizer extends Synchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public SignetSynchronizer(LdapContext ctx,
             SignetProvisionerConfiguration configuration,

@@ -55,7 +55,7 @@ public abstract class Synchronizer
      * @param ctx
      *            Ldap context to be used for synchronizing
      * @param subjectCache
-     *            TODO
+     *            Subject cache to speed subject retrieval
      */
     public Synchronizer(LdapContext ctx, SubjectCache subjectCache)
     {

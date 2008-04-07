@@ -94,7 +94,8 @@ public class GrouperProvisioner
      *            provisioning options.
      * @param ldapCtx
      *            the Ldap context to use for provisioning
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public GrouperProvisioner(GrouperProvisionerConfiguration configuration,
             GrouperProvisionerOptions options, LdapContext ldapCtx,
@@ -318,7 +319,7 @@ public class GrouperProvisioner
         /*
          * The structure used below is a compromise between memory usage and
          * duration when dealing with large databases. It may need to be altered
-         * base on an individual situation.
+         * based on an individual situation.
          */
 
         //
@@ -568,7 +569,8 @@ public class GrouperProvisioner
      *            Set of subject DNs
      * @param filter
      *            Ldap search filter defined for a source
-     * @param source TODO
+     * @param source
+     *            source ID for the subject
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */

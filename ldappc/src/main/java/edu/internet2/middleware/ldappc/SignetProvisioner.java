@@ -77,7 +77,8 @@ public class SignetProvisioner extends Provisioner
      *            options.
      * @param ldapCtx
      *            Ldap context
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public SignetProvisioner(SignetProvisionerConfiguration configuration,
             SignetProvisionerOptions options, LdapContext ldapCtx,

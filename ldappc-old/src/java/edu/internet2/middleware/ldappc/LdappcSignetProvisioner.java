@@ -75,7 +75,8 @@ public class LdappcSignetProvisioner
      * 
      * @param options
      *            input that determines what data is to be provisioned.
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public LdappcSignetProvisioner(SignetProvisionerOptions options,
             SubjectCache subjectCache)

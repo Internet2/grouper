@@ -68,7 +68,8 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      *            Signet provisioning configuration
      * @param options
      *            Signet provisioning options
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public StringMembershipSynchronizer(LdapContext ctx, Name subject,
             GrouperProvisionerConfiguration configuration,

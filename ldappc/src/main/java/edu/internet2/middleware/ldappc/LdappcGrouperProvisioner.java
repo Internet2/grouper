@@ -75,7 +75,8 @@ class LdappcGrouperProvisioner
      * 
      * @param options
      *            input that determines what data is to be provisioned.
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public LdappcGrouperProvisioner(GrouperProvisionerOptions options,
             SubjectCache subjectCache)

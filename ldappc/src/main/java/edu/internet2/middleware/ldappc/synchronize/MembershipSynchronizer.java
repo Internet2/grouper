@@ -55,7 +55,8 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public MembershipSynchronizer(LdapContext ctx, Name subject,
             GrouperProvisionerConfiguration configuration,

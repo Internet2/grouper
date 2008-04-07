@@ -73,7 +73,8 @@ public abstract class GrouperSynchronizer extends Synchronizer
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
-     * @param subjectCache TODO
+     * @param subjectCache
+     *            Subject cache to speed subject retrieval
      */
     public GrouperSynchronizer(LdapContext context,
             GrouperProvisionerConfiguration configuration,
