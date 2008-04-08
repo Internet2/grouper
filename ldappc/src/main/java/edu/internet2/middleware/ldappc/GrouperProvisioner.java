@@ -18,13 +18,20 @@
 
 package edu.internet2.middleware.ldappc;
 
-import java.util.HashMap;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
+import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
@@ -32,6 +39,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.LdapName;
 
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.ChildGroupFilter;
@@ -55,6 +63,7 @@ import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.StringMembershipSynchronizer;
+import edu.internet2.middleware.ldappc.util.ExternalSort;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
@@ -64,9 +73,13 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * This class provisions Grouper data.
  */
-public class GrouperProvisioner
-        extends Provisioner
+public class GrouperProvisioner extends Provisioner
 {
+    /**
+     * Name of the temporary file used to store membership data.
+     */
+    private static final String             MEMBERSHIPS_FILE_NAME = "memberships.txt";
+
     /**
      * Provisioning configuration
      */
@@ -158,7 +171,7 @@ public class GrouperProvisioner
             //
             if (options.getDoGroups())
             {
-                provisionGroups(ldapCtx, groups);
+                provisionGroups(groups);
             }
 
             //
@@ -166,7 +179,7 @@ public class GrouperProvisioner
             //
             if (options.getDoMemberships())
             {
-                provisionMemberships(ldapCtx, groups);
+                provisionMemberships(groups);
             }
         }
         finally
@@ -264,11 +277,9 @@ public class GrouperProvisioner
 
     /**
      * Provision the set of Groups.
-     * 
-     * @param ctx
-     *            Ldap context to provision the groups
      * @param groups
      *            Set of Groups to be provisioned
+     * 
      * @throws javax.naming.NamingException
      *             thrown if an error occured interacting with the directory.
      * @throws LdappcConfigurationException
@@ -276,7 +287,7 @@ public class GrouperProvisioner
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected void provisionGroups(LdapContext ctx, Set groups) throws NamingException, LdappcException
+    protected void provisionGroups(Set groups) throws NamingException, LdappcException
     {
         //
         // Get the Name of the root ou
@@ -288,27 +299,25 @@ public class GrouperProvisioner
                     "Group root DN is not defined.");
         }
 
-        Name rootDn = ctx.getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
+        Name rootDn = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
 
         //
         // Synchronize the root
         //
-        GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ctx,
+        GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ldapCtx,
                 rootDn, configuration, options, subjectCache);
         synchronizer.synchronize(groups);
     }
 
     /**
      * Provision the memberships from a set of Groups.
-     * 
-     * @param ctx
-     *            Ldap context to provision the groups
      * @param groups
      *            Set of Groups to be provisioned
+     * 
      * @throws javax.naming.NamingException
      *             thrown if an error occured interacting with the directory.
      */
-    protected void provisionMemberships(LdapContext ctx, Set<Group> groups) throws NamingException, MultiErrorException
+    protected void provisionMemberships(Set<Group> groups) throws NamingException, MultiErrorException
     {
         //
         // Initialize a vector to hold all caught exceptions that should be
@@ -316,15 +325,10 @@ public class GrouperProvisioner
         //
         Vector<Exception> caughtExceptions = new Vector<Exception>();
 
-        /*
-         * The structure used below is a compromise between memory usage and
-         * duration when dealing with large databases. It may need to be altered
-         * based on an individual situation.
-         */
-
         //
         // Build the set of all subjects with memberships
         //
+        // DebugLog.info("Collecting existing subjects with memberships");
         Set<Name> existingSubjectDns = buildSourceSubjectDnSet();
 
         //
@@ -333,59 +337,41 @@ public class GrouperProvisioner
         Set<String> processedMembers = new HashSet<String>();
 
         //
-        // Map the groups to their set of member's Uuids. This is used to
-        // determine membership in a group.
+        // Write the subject DN and group name string to a membership file for
+        // each membership being provisioned. This file will then be sorted by
+        // subject DN and re-read to provision the memberships for each subject.
+        // This technique uses little memory and is fast.
         //
-        Map<Group, Set<String>> unprocessedGroups = new HashMap<Group, Set<String>>();
-        for (Group group : groups)
+
+        //
+        // File for writing memberships to when provisioning memberships. Each
+        // line of the file contains the subject DN, a tab, and the group name
+        // string to be provisioned. This can then be sorted and read, batched
+        // by subject DN, to efficiently update the memberships for each
+        // subject.
+        //
+        File membershipsFile = new File(MEMBERSHIPS_FILE_NAME);
+
+        // DebugLog.info("Collecting grouper memberships");
+        BufferedWriter membershipsWriter = openMembershipWriter(membershipsFile);
+        String groupNamingAttribute = configuration
+                .getMemberGroupsNamingAttribute();
+        if (groupNamingAttribute == null)
         {
-            //
-            // Build a HashSet for group members
-            //
-            HashSet<String> memberUuids = new HashSet<String>();
-
-            //
-            // Populate the memberUuids (note: this is one of the memory verses
-            // time tradeoffs. The entire member set could be stored, but that
-            // requires more memory than storing just the Uuid)
-            //
-            for (Member member : (Set<Member>) group.getMembers())
-            {
-                memberUuids.add(member.getUuid());
-            }
-
-            //
-            // Add group and memberUuids to unprocessed groups
-            //
-            unprocessedGroups.put(group, memberUuids);
+            throw new LdappcConfigurationException(
+                    "The name of the group naming attribute is null.");
         }
 
         //
-        // Loop through the groups in order to process the members
+        // Iterate over the groups.
         //
         for (Group group : groups)
         {
             //
-            // Process all of the members for this group
-            // (NOTE: If member set had been stored above, it could be gotten
-            // from the unprocessedGroups map.)
+            // Iterate over the members in the group.
             //
             for (Member member : (Set<Member>) group.getMembers())
             {
-                //
-                // If the member has already been processed simply continue
-                //
-                if (processedMembers.contains(member.getUuid()))
-                {
-                    continue;
-                }
-
-                //
-                // As the member hasn't been processed before, add the member to
-                // the processed members set.
-                //
-                processedMembers.add(member.getUuid());
-
                 //
                 // Get the member's subject
                 //
@@ -410,7 +396,8 @@ public class GrouperProvisioner
                 Name subjectDn = null;
                 try
                 {
-                    subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
+                    subjectDn = subjectCache.findSubjectDn(ldapCtx,
+                            configuration, subject);
                 }
                 catch (Exception e)
                 {
@@ -422,53 +409,141 @@ public class GrouperProvisioner
                     continue;
                 }
 
-                //
-                // Remove the subject DN from set of existing subjects
-                //
-                existingSubjectDns.remove(subjectDn);
-
-                //
-                // Determine the subset of groups which this member belongs
-                // Given the looping structure, only need to check the
-                // unprocessed groups.
-                // (NOTE: The unprocessedGroups map could be changed to just a
-                // set rather than a map if member.isMember() was used here.
-                // This would reduce memory but increase processing time)
-                //
-                Set<Group> memberGroups = new HashSet<Group>();
-                for (Map.Entry<Group, Set<String>> entry : unprocessedGroups.entrySet())
-                {
-                    Group unprocGrp = entry.getKey();
-                    Set memberSet = entry.getValue();
-                    if (memberSet.contains(member.getUuid()))
-                    {
-                        memberGroups.add(unprocGrp);
-                    }
-                }
-
-                //
-                // Get the membership synchronizer and try to synchronize
-                //
-                MembershipSynchronizer synchronizer = getMembershipSynchronizer(
-                        ctx, subjectDn);
                 try
                 {
-                    synchronizer.synchronize(memberGroups);
+                    //
+                    // Write the subject DN and the group name attribute to the
+                    // memberships file.
+                    //
+                    String groupNameString = group
+                            .getAttribute(groupNamingAttribute);
+                    if (groupNameString != null)
+                    {
+                        membershipsWriter.write(subjectDn + "\t" + groupNameString
+                                + "\n");
+                    }
+                    else
+                    {
+                        String errorData = getErrorData(member, subject, subjectDn);
+                        Throwable e = new LdappcRuntimeException(
+                                "Group "
+                                        + group.getName()
+                                        + " has no "
+                                        + groupNamingAttribute
+                                        + " attribute and cannot be provisioned as a membership");
+                        logThrowableWarning(e, errorData);
+                    }
                 }
                 catch (Exception e)
                 {
-                    String errorData = getErrorData(member, subject, subjectDn);
-                    logThrowableError(e, errorData);
-                    caughtExceptions.add(new LdappcException(errorData, e));
-                    continue;
+                    String errorData = getErrorData(member, subject, null);
+                    logThrowableWarning(e, errorData);
+                }
+            }
+        }
+
+        //
+        // Close the memberships file.
+        //
+        try
+        {
+            membershipsWriter.close();
+        }
+        catch (IOException e)
+        {
+            throw new LdappcRuntimeException("Unable to close membershps file", e);
+        }
+
+        //
+        // Sort the memberships file.
+        //
+        try
+        {
+            ExternalSort.sort(membershipsFile.getAbsolutePath(), 200000);
+        }
+        catch (IOException e)
+        {
+            throw new LdappcRuntimeException("Unable to sort membershps file", e);
+        }
+
+        //
+        // Re-open the sorted memberships file for reading.
+        //
+        BufferedReader membershipsReader = openMembershipReader(membershipsFile);
+
+        //
+        // Read the memberships from the file, batching by subject DN.
+        // Synchronize the memberships for each subject.
+        //
+        // DebugLog.info("Beginning memberships updates");
+        Set<String> memberships = new HashSet<String>();
+        try
+        {
+            String currentSubjectDn = null;
+            for (String s = null; (s = membershipsReader.readLine()) != null;)
+            {
+                String[] parts = s.split("\t");
+                String subjectDn = parts[0];
+                String groupNameString = parts[1];
+
+                if (subjectDn.equals(currentSubjectDn))
+                {
+                    //
+                    // Add group to memberships.
+                    //
+                    memberships.add(groupNameString);
+                }
+                else if (currentSubjectDn == null)
+                {
+                    //
+                    // Remove the subject DN from set of existing subjects
+                    //
+                    existingSubjectDns.remove(subjectDn);
+
+                    //
+                    // Set the current subject DN and add the group to
+                    // memberships.
+                    //
+                    currentSubjectDn = subjectDn;
+                    memberships.add(groupNameString);
+                }
+                else
+                {
+                    //
+                    // Synchronize the members.
+                    //
+                    if (synchronizeMembers(currentSubjectDn, memberships, caughtExceptions))
+                    {
+                        continue;
+                    }
+
+                    //
+                    // Get ready for the next subjectDn.
+                    //
+                    memberships.clear();
+                    memberships.add(groupNameString);
+                    currentSubjectDn = subjectDn;
                 }
             }
 
             //
-            // Now that all members have been processed, remove the group from
-            // the unprocessed group set
+            // Synchronize the members for the final subject, if any.
             //
-            unprocessedGroups.remove(group);
+            if (currentSubjectDn != null)
+            {
+                synchronizeMembers(currentSubjectDn, memberships, caughtExceptions);
+            }
+
+            //
+            // Close and delete the memberships file.
+            //
+            membershipsReader.close();
+            membershipsFile.delete();
+        }
+        catch (IOException e)
+        {
+            throw new LdappcRuntimeException(
+                    "IOException reading membership file", e);
         }
 
         //
@@ -476,7 +551,8 @@ public class GrouperProvisioner
         //
         try
         {
-            clearSubjectEntryMemberships(ctx, existingSubjectDns);
+            // DebugLog.info("Clearing old memberships from subjects who no longer have memberships");
+            clearSubjectEntryMemberships(existingSubjectDns);
         }
         catch (Exception e)
         {
@@ -495,6 +571,96 @@ public class GrouperProvisioner
     }
 
     /**
+     * Synchronize the memberships for the subject DN with the set of members
+     * from Grouper.
+     * 
+     * @param subjectDn
+     *            subject DN to provision
+     * @param memberships
+     *            Set of membership strings to provision
+     * @param caughtExceptions
+     *            Vector of exceptions that have been caught and logged. They
+     *            will be thrown at the end of provisionMemberships.
+     * @return <tt>true</tt> if any additional exceptions were caught.
+     * @throws NamingException
+     *             thrown if an error occured interacting with the directory.
+     * @throws InvalidNameException
+     *             thrown if an error occured interacting with the directory.
+     */
+    private boolean synchronizeMembers(String subjectDn,
+            Set<String> memberships, Vector<Exception> caughtExceptions) throws NamingException, InvalidNameException
+    {
+        //
+        // Get the membership synchronizer and try to synchronize
+        //
+        MembershipSynchronizer synchronizer = getMembershipSynchronizer(ldapCtx,
+                subjectDn);
+        try
+        {
+            synchronizer.synchronize(memberships);
+        }
+        catch (Exception e)
+        {
+            String errorData = getErrorData(null, null, new LdapName(subjectDn));
+            logThrowableError(e, errorData);
+            caughtExceptions.add(new LdappcException(errorData, e));
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Open the membership file for writing.
+     * 
+     * @param membershipsFile
+     *            File to write memberships to.
+     * @return BufferedWriter for the file.
+     * @throws LdappcRuntimeException
+     *             thrown if the file cannot be opened.
+     */
+    private BufferedWriter openMembershipWriter(File membershipsFile) throws LdappcRuntimeException
+    {
+        BufferedWriter membershipsWriter = null;
+        try
+        {
+            membershipsWriter = new BufferedWriter(new FileWriter(membershipsFile));
+        }
+        catch (Exception e)
+        {
+            membershipsWriter = null;
+            throw new LdappcRuntimeException("Unable to open membership file: "
+                    + membershipsFile, e);
+        }
+        return membershipsWriter;
+    }
+
+    /**
+     * Open the membership file for reading.
+     * 
+     * @param membershipsFile
+     *            File to read memberships from.
+     * @return BufferedReader for the file.
+     * @throws LdappcRuntimeException
+     *             thrown if the file cannot be opened.
+     */
+    private BufferedReader openMembershipReader(File membershipsFile) throws LdappcRuntimeException
+    {
+        BufferedReader membershipsReader = null;
+        try
+        {
+            membershipsReader = new BufferedReader(new FileReader(
+                    membershipsFile));
+        }
+        catch (FileNotFoundException e)
+        {
+            throw new LdappcRuntimeException("Unable to open membership file",
+                    e);
+        }
+        return membershipsReader;
+    }
+
+    /**
      * Returns a Membership Synchronizer based on the configuration and options.
      * 
      * @param ctx
@@ -506,7 +672,7 @@ public class GrouperProvisioner
      *             thrown if a Naming error occurs
      */
     private MembershipSynchronizer getMembershipSynchronizer(LdapContext ctx,
-            Name subjectDn) throws NamingException
+            String subjectDn) throws NamingException
     {
         //
         // Only one type now but this allows for building others based on
@@ -651,19 +817,17 @@ public class GrouperProvisioner
     /**
      * Clears the membership listings from subject entries.
      * 
-     * @param ctx
-     *            Ldap context
      * @param subjectDnSet
      *            Set of subject DNs whose memberships are to be cleared
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    private void clearSubjectEntryMemberships(LdapContext ctx, Set<Name> subjectDnSet) throws NamingException
+    private void clearSubjectEntryMemberships(Set<Name> subjectDnSet) throws NamingException
     {
         //
         // Define an empty set that is used below
         //
-        Set<Group> emptySet = new HashSet<Group>();
+        Set<String> emptySet = new HashSet<String>();
 
         //
         // Iterate over the subject DNs
@@ -679,7 +843,7 @@ public class GrouperProvisioner
                 // handled correctly).
                 //
                 MembershipSynchronizer synchronizer = getMembershipSynchronizer(
-                        ctx, subjectDn);
+                        ldapCtx, subjectDn.toString());
                 synchronizer.synchronize(emptySet);
             }
             catch (Exception e)

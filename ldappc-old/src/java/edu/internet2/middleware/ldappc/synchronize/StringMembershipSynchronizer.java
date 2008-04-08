@@ -19,14 +19,12 @@
 package edu.internet2.middleware.ldappc.synchronize;
 
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
@@ -71,7 +69,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      */
-    public StringMembershipSynchronizer(LdapContext ctx, Name subject,
+    public StringMembershipSynchronizer(LdapContext ctx, String subject,
             GrouperProvisionerConfiguration configuration,
             GrouperProvisionerOptions options,
             SubjectCache subjectCache)
@@ -116,7 +114,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      * been provisioned to the entry, it will remain within the subject's LDAP
      * entry.
      * 
-     * @param group
+     * @param groupNameString
      *            Group to be included
      * @param status
      *            Either {@link #STATUS_NEW}, {@link #STATUS_MODIFIED},
@@ -128,28 +126,10 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      * @see edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer#performInclude(Group,
      *      int)
      */
-    protected void performInclude(Group group, int status)
+    protected void performInclude(String groupNameString, int status)
             throws NamingException, LdappcException
     {
-        //
-        // Try to get the value of the group naming attribute
-        //
-        String groupNameString = null;
-        try
-        {
-            groupNameString = group.getAttribute(groupNamingAttribute);
-
-            //
-            // Store the group name string in the attribute modifier.
-            // (status doesn't improve things here so ignore it)
-            //
             membershipMods.store(groupNameString);
-        }
-        catch(AttributeNotFoundException anfe)
-        {
-            throw new LdappcException("Attribute [" + groupNamingAttribute
-                    + "] not found for " + group.getName(), anfe);
-        }
     }
 
     /**
@@ -164,6 +144,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      */
     protected void initialize() throws NamingException, LdappcException
     {
+        // DebugLog.info("Updating subject " + getSubject());
         //
         // Clear any existing values
         //
@@ -266,6 +247,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
             // Perform the modifications
             //
             getContext().modifyAttributes(getSubject(), mods);
+            // DebugLog.info("Updated subject " + getSubject());
         }
     }
 }

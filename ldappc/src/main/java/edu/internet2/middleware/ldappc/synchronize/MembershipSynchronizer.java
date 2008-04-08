@@ -42,7 +42,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
     /**
      * DN of the subject whose permissions are being synchronized
      */
-    private Name subject;
+    private String subject;
 
     /**
      * Constructs a <code>MembershipSynchronizer</code>
@@ -58,7 +58,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      */
-    public MembershipSynchronizer(LdapContext ctx, Name subject,
+    public MembershipSynchronizer(LdapContext ctx, String subject,
             GrouperProvisionerConfiguration configuration,
             GrouperProvisionerOptions options,
             SubjectCache subjectCache)
@@ -72,7 +72,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * 
      * @return DN of the subject
      */
-    public Name getSubject()
+    public String getSubject()
     {
         return subject;
     }
@@ -83,7 +83,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @param subject
      *            DN of the subject
      */
-    protected void setSubject(Name subject)
+    protected void setSubject(String subject)
     {
         this.subject = subject;
     }
@@ -92,7 +92,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * This identifies the group as one that must be included in the subject's
      * entry. The group is processed based on its status.
      * 
-     * @param group
+     * @param groupNameString
      *            Group to be included
      * @param status
      *            Either {@link #STATUS_NEW}, {@link #STATUS_MODIFIED},
@@ -102,7 +102,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected abstract void performInclude(Group group, int status)
+    protected abstract void performInclude(String groupNameString, int status)
             throws NamingException, LdappcException;
 
     /**
@@ -119,8 +119,8 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
     /**
      * Synchronizes the groups with those in the directory.
      * 
-     * @param groups
-     *            Set of Groups
+     * @param groupNames
+     *            Set of group names
      * @throws javax.naming.NamingException
      *             thrown if a Naming error occurs
      * @throws MultiErrorException
@@ -129,7 +129,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    public void synchronize(Set<Group> groups) throws NamingException,
+    public void synchronize(Set<String> groupNames) throws NamingException,
             LdappcException
     {
         //
@@ -144,16 +144,16 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
         Vector<Exception> caughtExceptions = new Vector<Exception>();
 
         //
-        // Get the set of privileges and iterate over them
+        // Iterate over the set of membership group names.
         //
-        for (Group group : groups)
+        for (String groupNameString : groupNames)
         {
             //
             // Process the group
             //
             try
             {
-                performInclude(group, determineStatus(group));
+                performInclude(groupNameString, STATUS_UNKNOWN);
             }
             catch(Exception e)
             {
