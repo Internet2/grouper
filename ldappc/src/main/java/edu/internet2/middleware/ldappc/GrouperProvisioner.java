@@ -109,8 +109,7 @@ public class GrouperProvisioner extends Provisioner
      *            Subject cache to speed subject retrieval
      */
     public GrouperProvisioner(GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options, LdapContext ldapCtx,
-            SubjectCache subjectCache)
+            GrouperProvisionerOptions options, LdapContext ldapCtx, SubjectCache subjectCache)
     {
         super(subjectCache);
         this.configuration = configuration;
@@ -187,8 +186,7 @@ public class GrouperProvisioner extends Provisioner
             //
             if (!sessionControl.stopSession())
             {
-                ErrorLog.error(this.getClass(),
-                        "Failed to stop Grouper session");
+                ErrorLog.error(this.getClass(), "Failed to stop Grouper session");
             }
         }
     }
@@ -241,8 +239,8 @@ public class GrouperProvisioner extends Provisioner
             String name = entry.getKey();
             for (String value : entry.getValue())
             {
-                groupFilter = new UnionFilter(groupFilter,
-                        new GroupAttributeExactFilter(name, value, rootStem));
+                groupFilter = new UnionFilter(groupFilter, new GroupAttributeExactFilter(name,
+                        value, rootStem));
             }
         }
 
@@ -254,10 +252,8 @@ public class GrouperProvisioner extends Provisioner
         {
             try
             {
-                Stem stem = StemFinder.findByName(session,
-                        stemName);
-                groupFilter = new UnionFilter(groupFilter,
-                        new ChildGroupFilter(stem));
+                Stem stem = StemFinder.findByName(session, stemName);
+                groupFilter = new UnionFilter(groupFilter, new ChildGroupFilter(stem));
             }
             catch (StemNotFoundException snfe)
             {
@@ -275,6 +271,7 @@ public class GrouperProvisioner extends Provisioner
 
     /**
      * Provision the set of Groups.
+     * 
      * @param groups
      *            Set of Groups to be provisioned
      * 
@@ -293,8 +290,7 @@ public class GrouperProvisioner extends Provisioner
         String rootDnStr = configuration.getGroupDnRoot();
         if (rootDnStr == null)
         {
-            throw new LdappcConfigurationException(
-                    "Group root DN is not defined.");
+            throw new LdappcConfigurationException("Group root DN is not defined.");
         }
 
         Name rootDn = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
@@ -302,13 +298,14 @@ public class GrouperProvisioner extends Provisioner
         //
         // Synchronize the root
         //
-        GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ldapCtx,
-                rootDn, configuration, options, subjectCache);
+        GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ldapCtx, rootDn, configuration,
+                options, subjectCache);
         synchronizer.synchronize(groups);
     }
 
     /**
      * Provision the memberships from a set of Groups.
+     * 
      * @param groups
      *            Set of Groups to be provisioned
      * 
@@ -352,8 +349,7 @@ public class GrouperProvisioner extends Provisioner
 
         // DebugLog.info("Collecting grouper memberships");
         BufferedWriter membershipsWriter = openMembershipWriter(membershipsFile);
-        String groupNamingAttribute = configuration
-                .getMemberGroupsNamingAttribute();
+        String groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
         if (groupNamingAttribute == null)
         {
             throw new LdappcConfigurationException(
@@ -394,8 +390,7 @@ public class GrouperProvisioner extends Provisioner
                 Name subjectDn = null;
                 try
                 {
-                    subjectDn = subjectCache.findSubjectDn(ldapCtx,
-                            configuration, subject);
+                    subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
                 }
                 catch (Exception e)
                 {
@@ -413,22 +408,17 @@ public class GrouperProvisioner extends Provisioner
                     // Write the subject DN and the group name attribute to the
                     // memberships file.
                     //
-                    String groupNameString = group
-                            .getAttribute(groupNamingAttribute);
+                    String groupNameString = group.getAttribute(groupNamingAttribute);
                     if (groupNameString != null)
                     {
-                        membershipsWriter.write(subjectDn + "\t" + groupNameString
-                                + "\n");
+                        membershipsWriter.write(subjectDn + "\t" + groupNameString + "\n");
                     }
                     else
                     {
                         String errorData = getErrorData(member, subject, subjectDn);
-                        Throwable e = new LdappcRuntimeException(
-                                "Group "
-                                        + group.getName()
-                                        + " has no "
-                                        + groupNamingAttribute
-                                        + " attribute and cannot be provisioned as a membership");
+                        Throwable e = new LdappcRuntimeException("Group " + group.getName()
+                                + " has no " + groupNamingAttribute
+                                + " attribute and cannot be provisioned as a membership");
                         logThrowableWarning(e, errorData);
                     }
                 }
@@ -540,8 +530,7 @@ public class GrouperProvisioner extends Provisioner
         }
         catch (IOException e)
         {
-            throw new LdappcRuntimeException(
-                    "IOException reading membership file", e);
+            throw new LdappcRuntimeException("IOException reading membership file", e);
         }
 
         //
@@ -549,7 +538,8 @@ public class GrouperProvisioner extends Provisioner
         //
         try
         {
-            // DebugLog.info("Clearing old memberships from subjects who no longer have memberships");
+            // DebugLog.info("Clearing old memberships from subjects who no
+            // longer have memberships");
             clearSubjectEntryMemberships(existingSubjectDns);
         }
         catch (Exception e)
@@ -563,8 +553,7 @@ public class GrouperProvisioner extends Provisioner
         //
         if (caughtExceptions.size() > 0)
         {
-            throw new MultiErrorException((Exception[]) caughtExceptions
-                    .toArray(new Exception[0]));
+            throw new MultiErrorException((Exception[]) caughtExceptions.toArray(new Exception[0]));
         }
     }
 
@@ -585,14 +574,13 @@ public class GrouperProvisioner extends Provisioner
      * @throws InvalidNameException
      *             thrown if an error occured interacting with the directory.
      */
-    private boolean synchronizeMembers(String subjectDn,
-            Set<String> memberships, Vector<Exception> caughtExceptions) throws NamingException, InvalidNameException
+    private boolean synchronizeMembers(String subjectDn, Set<String> memberships,
+            Vector<Exception> caughtExceptions) throws NamingException, InvalidNameException
     {
         //
         // Get the membership synchronizer and try to synchronize
         //
-        MembershipSynchronizer synchronizer = getMembershipSynchronizer(ldapCtx,
-                subjectDn);
+        MembershipSynchronizer synchronizer = getMembershipSynchronizer(ldapCtx, subjectDn);
         try
         {
             synchronizer.synchronize(memberships);
@@ -627,8 +615,8 @@ public class GrouperProvisioner extends Provisioner
         catch (Exception e)
         {
             membershipsWriter = null;
-            throw new LdappcRuntimeException("Unable to open membership file: "
-                    + membershipsFile, e);
+            throw new LdappcRuntimeException("Unable to open membership file: " + membershipsFile,
+                    e);
         }
         return membershipsWriter;
     }
@@ -647,13 +635,11 @@ public class GrouperProvisioner extends Provisioner
         BufferedReader membershipsReader = null;
         try
         {
-            membershipsReader = new BufferedReader(new FileReader(
-                    membershipsFile));
+            membershipsReader = new BufferedReader(new FileReader(membershipsFile));
         }
         catch (FileNotFoundException e)
         {
-            throw new LdappcRuntimeException("Unable to open membership file",
-                    e);
+            throw new LdappcRuntimeException("Unable to open membership file", e);
         }
         return membershipsReader;
     }
@@ -669,15 +655,14 @@ public class GrouperProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    private MembershipSynchronizer getMembershipSynchronizer(LdapContext ctx,
-            String subjectDn) throws NamingException
+    private MembershipSynchronizer getMembershipSynchronizer(LdapContext ctx, String subjectDn) throws NamingException
     {
         //
         // Only one type now but this allows for building others based on
         // configuration or options
         //
-        return new StringMembershipSynchronizer(ctx, subjectDn, configuration,
-                options, subjectCache);
+        return new StringMembershipSynchronizer(ctx, subjectDn, configuration, options,
+                subjectCache);
     }
 
     /**
@@ -753,8 +738,7 @@ public class GrouperProvisioner extends Provisioner
         String listAttribute = configuration.getMemberGroupsListAttribute();
         if (listAttribute == null)
         {
-            throw new LdappcConfigurationException(
-                    "Member groups list attribute is null");
+            throw new LdappcConfigurationException("Member groups list attribute is null");
         }
 
         String listObjectClass = configuration.getMemberGroupsListObjectClass();
@@ -763,8 +747,7 @@ public class GrouperProvisioner extends Provisioner
         // Update the ldap query filter by replacing "{0}" from the ldap search
         // filter with "*"
         //
-        String ldapFilter = LdapUtil.convertParameterToAsterisk(filter
-                .getFilter(), 0);
+        String ldapFilter = LdapUtil.convertParameterToAsterisk(filter.getFilter(), 0);
 
         //
         // Build the actual filter expression for performing the search
@@ -772,8 +755,8 @@ public class GrouperProvisioner extends Provisioner
         String filterExpr = ldapFilter + "(" + listAttribute + "=*)";
         if (listObjectClass != null)
         {
-            filterExpr = filterExpr + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE
-                    + "=" + listObjectClass + ")";
+            filterExpr = filterExpr + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + listObjectClass
+                    + ")";
         }
         filterExpr = "(&" + filterExpr + ")";
 
@@ -786,8 +769,7 @@ public class GrouperProvisioner extends Provisioner
         //
         // perform the search
         //
-        NamingEnumeration searchResults = ldapCtx.search(baseDn, filterExpr,
-                searchControls);
+        NamingEnumeration searchResults = ldapCtx.search(baseDn, filterExpr, searchControls);
 
         //
         // Process the search results
@@ -840,8 +822,8 @@ public class GrouperProvisioner extends Provisioner
                 // (Doing it this way ensures that required attributes are
                 // handled correctly).
                 //
-                MembershipSynchronizer synchronizer = getMembershipSynchronizer(
-                        ldapCtx, subjectDn.toString());
+                MembershipSynchronizer synchronizer = getMembershipSynchronizer(ldapCtx, subjectDn
+                        .toString());
                 synchronizer.synchronize(emptySet);
             }
             catch (Exception e)
@@ -914,9 +896,8 @@ public class GrouperProvisioner extends Provisioner
         String grpData = "null";
         if (group != null)
         {
-            grpData = "[ DISPLAY NAME = " + group.getDisplayName()
-                    + " ][NAME = " + group.getName() + "][UID = "
-                    + group.getUuid() + "]";
+            grpData = "[ DISPLAY NAME = " + group.getDisplayName() + " ][NAME = " + group.getName()
+                    + "][UID = " + group.getUuid() + "]";
         }
         return grpData;
     }
