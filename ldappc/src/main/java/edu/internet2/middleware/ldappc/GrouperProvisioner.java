@@ -580,7 +580,7 @@ public class GrouperProvisioner extends Provisioner
         //
         // Get the membership synchronizer and try to synchronize
         //
-        MembershipSynchronizer synchronizer = getMembershipSynchronizer(ldapCtx, subjectDn);
+        MembershipSynchronizer synchronizer = getMembershipSynchronizer(subjectDn);
         try
         {
             synchronizer.synchronize(memberships);
@@ -647,21 +647,20 @@ public class GrouperProvisioner extends Provisioner
     /**
      * Returns a Membership Synchronizer based on the configuration and options.
      * 
-     * @param ctx
-     *            Ldap Context
      * @param subjectDn
      *            Subject DN
+     * 
      * @return Membership synchronizer
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    private MembershipSynchronizer getMembershipSynchronizer(LdapContext ctx, String subjectDn) throws NamingException
+    private MembershipSynchronizer getMembershipSynchronizer(String subjectDn) throws NamingException
     {
         //
         // Only one type now but this allows for building others based on
         // configuration or options
         //
-        return new StringMembershipSynchronizer(ctx, subjectDn, configuration, options,
+        return new StringMembershipSynchronizer(ldapCtx, subjectDn, configuration, options,
                 subjectCache);
     }
 
@@ -822,7 +821,7 @@ public class GrouperProvisioner extends Provisioner
                 // (Doing it this way ensures that required attributes are
                 // handled correctly).
                 //
-                MembershipSynchronizer synchronizer = getMembershipSynchronizer(ldapCtx, subjectDn
+                MembershipSynchronizer synchronizer = getMembershipSynchronizer(subjectDn
                         .toString());
                 synchronizer.synchronize(emptySet);
             }
