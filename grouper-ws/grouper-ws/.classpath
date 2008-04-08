@@ -20,7 +20,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery-0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-math-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/grouper.jar" sourcepath="/Grouper"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate2-2.1.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hsqldb-1.7.2.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/i2mi-common-0.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jta-1.0.1B.jar"/>
