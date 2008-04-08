@@ -1,6 +1,0 @@
-<!--
-	$Header: /home/hagleyj/i2mi/signet/web/META-INF/context.xml,v 1.1 2006-06-13 21:25:40 ddonn Exp $
-    Context configuration file for Signet Web App
--->
-
-<Context reloadable="true" antiResourceLocking="true" />
