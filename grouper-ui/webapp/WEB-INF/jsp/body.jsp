@@ -36,12 +36,12 @@ change definition for this --%>
 			</div><!--/Left-->
 			<c:if test="${!empty authUser}">
 				<!--SideBar-->
-				<div id="Sidebar">
+				<div id="Sidebar" class="printerFriendlyNot">
 					<tiles:insert attribute="menu" />
 				</div><!--/SideBar-->
 			</c:if>
 			<!--Header-->
-			 <div id="Header">
+			 <div id="Header" class="printerFriendlyNot">
 				<tiles:insert attribute="header" />
 			 </div><!--/Header-->
     		<!--Footer-->

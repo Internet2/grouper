@@ -2,14 +2,16 @@
 		Tile which displays the simple search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearchGroups.jsp,v 1.9 2008-04-07 07:54:15 mchyzer Exp $
+  @version $Id: simpleSearchGroups.jsp,v 1.10 2008-04-08 07:51:52 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
 <div class="searchGroups">
-<grouper:subtitle key="groups.heading.search" />
-	<p><a class="underline" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a></p>
+<grouper:subtitle key="groups.heading.search">
+  <a class="underline subtitleLink" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message 
+  bundle="${nav}" key="find.action.select.groups-advanced-search"/></a>
+</grouper:subtitle>	
 	<html:form styleId="SearchFormBean" action="/searchGroups${browseMode}" method="post">
 		<html:hidden property="searchInNameOrExtension"/>
 		<html:hidden property="searchInDisplayNameOrExtension"/>

@@ -38,10 +38,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.MenuFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.util.DOMHelper;
-import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
  * Controller for menu that reads files configured through the media.resources key menu.resource.files.
@@ -62,12 +62,17 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareMenuAction.java,v 1.4 2007-10-30 10:53:06 isgwb Exp $
+ * @version $Id: PrepareMenuAction.java,v 1.5 2008-04-08 07:51:52 mchyzer Exp $
  */
 public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 
 
-	public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction#grouperExecute(org.apache.struts.action.ActionMapping, org.apache.struts.action.ActionForm, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, javax.servlet.http.HttpSession, edu.internet2.middleware.grouper.GrouperSession)
+   */
+	@Override
+  public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
@@ -85,12 +90,12 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 			}
 			useCache=true;
 		}
-		List menu = new ArrayList();
-		Map menuItems = new HashMap();
+		List<Map<String, String>> menu = new ArrayList<Map<String, String>>();
+		Map<String, Map<String, String>> menuItems = new HashMap<String, Map<String, String>>();
 		String[] inputResources = menuFiles.split(" ");
 		Document menuDom = null;
 		Element itemElement = null;
-		Map itemMap = null;
+		Map<String, String> itemMap = null;
 		Iterator menuIterator = null;
 		Collection menuItemElements = null;
 		Attr attribute = null;
@@ -100,7 +105,7 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 			menuIterator= menuItemElements.iterator();
 			while(menuIterator.hasNext()) {
 				itemElement = (Element)menuIterator.next();
-				itemMap = new HashMap();
+				itemMap = new HashMap<String, String>();
 				NamedNodeMap attributes = itemElement.getAttributes();
 				for(int j=0;j<attributes.getLength();j++) {
 					attribute = (Attr)attributes.item(j);
@@ -112,19 +117,30 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 			}
 		}
 		String[] order = menuOrder.split(" ");
-		Object orderedItem = null;
+		Map<String, String> orderedItem = null;
 		for(int i=0;i<order.length;i++) {
 			orderedItem = menuItems.get(order[i]);
-			if(orderedItem!=null && isValidMenuItem((Map)orderedItem,grouperSession,request)) {
+			if(orderedItem!=null && isValidMenuItem(orderedItem,grouperSession,request)) {
 				menu.add(orderedItem);
 			}
 		}
 		request.setAttribute("menuItems",menu);
-		if(useCache) session.setAttribute("cachedMenu",menu);
+		if(useCache) {
+		  session.setAttribute("cachedMenu",menu);
+		}
+		//store in session whether cached or not
+    session.setAttribute("menuMetaBean",new MenuMetaBean(menu));
 		return null;
 	}
 	
-	protected boolean isValidMenuItem(Map item,GrouperSession grouperSession,HttpServletRequest request) {
+	/**
+	 * 
+	 * @param item
+	 * @param grouperSession
+	 * @param request
+	 * @return if
+	 */
+	protected boolean isValidMenuItem(Map<String, String> item,GrouperSession grouperSession,HttpServletRequest request) {
 		Set menuFilters = SessionInitialiser.getMenuFilters(request.getSession());
 		if(menuFilters.isEmpty()) return true;
 		Iterator it = menuFilters.iterator();

@@ -83,10 +83,10 @@
   </tag>
   <tag>
     <name>param</name>
-    <!--  description>
+    <info>
         Supplies an argument for parametric replacement to a containing
         &lt;message&gt; tag
-    </description -->
+    </info>
     <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperParamTag</tagclass>
     <bodycontent>JSP</bodycontent>
     <attribute>
@@ -97,9 +97,9 @@
   </tag>
     <tag>
     <name>infodot</name>
-    <!--  description>
+    <info>
         This will generate an infodot image which when clicked will hide/show some instructions
-    </description -->
+    </info>
     <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperInfodotTag</tagclass>
     <bodycontent>empty</bodycontent>
     <attribute>
@@ -114,7 +114,6 @@
         This will generate an infodot image which when clicked will hide/show some instructions
     </description -->
     <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperSubtitleTag</tagclass>
-    <bodycontent>empty</bodycontent>
     <attribute>
         <name>key</name>
         <required>true</required>

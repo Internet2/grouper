@@ -3,18 +3,29 @@
 		or stem. The stem names are not links
 --%><%--
   @author Gary Brown.
-  @version $Id: showStemsLocation.jsp,v 1.6 2008-04-07 07:54:15 mchyzer Exp $
+  @version $Id: showStemsLocation.jsp,v 1.7 2008-04-08 07:51:52 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endLocation" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.current-location"/><br/></a>
 <div class="browseStemsLocation"><strong><grouper:message bundle="${nav}" key="find.browse.here"/></strong>
-<%-- CH 20080324 change spacing: --%>  <br />&nbsp;&nbsp;&nbsp;
+<%-- CH 20080324 change spacing: --%>  <br /><div class="currentLocationList">
 	<c:forEach var="stem" items="${browsePath}">
-		<img <grouper:tooltip key="stem.icon.tooltip"/> src="grouper/images/folder.gif" class="groupIcon" /><span class="browseStemsLocationPart"><c:out value="${stem.displayExtension}"/><c:out value="${stemSeparator}"/></span>
+		<img <grouper:tooltip key="stem.icon.tooltip"/> 
+    src="grouper/images/folder.gif" class="groupIcon" alt="Folder" 
+    /><span class="browseStemsLocationPart"><c:out 
+    value="${stem.displayExtension}"/><c:out value="${stemSeparator}"/></span>
 	</c:forEach>
 	<%-- this is the last entry in the "current location" at top of most screens --%>
-	<c:if test="${browseParent.isGroup}"><img src="grouper/images/group.gif" <grouper:tooltip key="group.icon.tooltip"/> class="groupIcon" /><span class="browseStemsLocationHere"></c:if><c:out value="${browseParent.displayExtension}"/><c:if test="${browseParent.isGroup}"></span></c:if>
+	<c:choose>
+    <c:when test="${browseParent.isGroup}"><img src="grouper/images/group.gif" 
+  <grouper:tooltip key="group.icon.tooltip"/> class="groupIcon" alt="Group"
+  /><span class="browseStemsLocationHere"></c:when>
+    <c:otherwise><img src="grouper/images/folder.gif" alt="Folder"
+  <grouper:tooltip key="group.icon.tooltip"/> class="groupIcon" 
+  /></c:otherwise></c:choose><c:out value="${browseParent.displayExtension}"/><c:if 
+  test="${browseParent.isGroup}"></span></c:if>
+    </div>
 </div>
 <a name="endLocation" id="endLocation"></a>
 </grouper:recordTile>

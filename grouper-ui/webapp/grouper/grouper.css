@@ -314,7 +314,7 @@ javascript, then it will take effect, otherwise grouperInfodot.css will make the
 div.browseChildren ul, div.subjectSearchResults ul {
   list-style-type: none;
   margin: 0px;
-  padding: 5px 0px 0px 10px;
+  padding: 5px 0px 0px 20px;
 }
 ul.savedGroups, ul.savedSubjects {
   list-style-type: none;  
@@ -323,4 +323,40 @@ ul.savedGroups, ul.savedSubjects {
 /* underline some links */
 a.underline {
   text-decoration: underline;  
+}
+div.currentLocationList {
+  margin-left: 10px;
+}
+a.subtitleLink {
+  /* dont wrap this in subtitle */
+  white-space: nowrap;
+  text-transform: none;
+}
+/** subheads in menu on left */
+div.menuSubheader {
+  padding: 5px 0px 5px 0px;  
+  color: #949494;
+  padding-left: 10px;
+  font-size: 10px;
+}
+div.actionbox, div.menuSubheader {
+  font-weight: bold;
+}
+div.actionbox {
+  padding-left: 20px;  
+  font-size: 11px;
+}
+div.selectedTab {
+  background-color:#015782;
+  color:white;  
+}
+/** dont pad this from signet.  This is the blue bar across top with welcome message */
+#Navbar {
+  padding: 0px 0px 0px 0px;
+}
+/** dont space over from left */
+#Sidebar {
+  padding: 10px 0px 0px 0px;
+  left: 0px;
+  background-color: #dfeff4;
 }

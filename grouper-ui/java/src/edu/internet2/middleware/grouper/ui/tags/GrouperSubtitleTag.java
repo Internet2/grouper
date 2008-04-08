@@ -117,6 +117,10 @@ public class GrouperSubtitleTag extends BodyTagSupport {
   public int doEndTag() throws JspException {
 
     this.evaluateExpressions();
+
+    // ... retrieving and trimming our body
+    String body = this.bodyContent == null ? null : this.bodyContent.getString();
+    body = StringUtils.trim(body);
     
     List<String> paramsList = new ArrayList<String>();
     if (StringUtils.isNotBlank(this.param1)) {
@@ -132,8 +136,20 @@ public class GrouperSubtitleTag extends BodyTagSupport {
     try {
       JspWriter out = this.pageContext.getOut();
       
+      String leftSize = "100%";
+      String middleSize = "10%";
+      //if there is a body, put to the right
+      if (!StringUtils.isBlank(body)) {
+        
+        //shrink down right
+        leftSize = "90%";
+        
+      }
+      
+
       out.print("<table border=\"0\" class=\"actionheaderTable\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>" +
-      		"<td width=\"95%\" class=\"actionheader\">");
+      		"<td width=\"" + leftSize + "\" class=\"actionheader\">");
+      
       out.flush();
       GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
       grouperMessageTag.setPageContext(this.pageContext);
@@ -153,7 +169,18 @@ public class GrouperSubtitleTag extends BodyTagSupport {
       }
       grouperMessageTag.doEndTag();
       out.flush();
-      out.print("</td>\n<td align=\"right\" width=\"5%\">");
+      out.print("</td>\n");
+      
+      //if there is a body, put to the right
+      if (!StringUtils.isBlank(body)) {
+        out.print("<td align=\"right\" width=\"" + middleSize + "\">");
+        out.print(body);
+        out.print("</td>\n");
+        
+      }
+
+      //set width to 0 since image will push it out anyway
+      out.print("<td align=\"right\" width=\"22px\">");
       out.flush();
       
       //see if there is an infodot for this subtitle
@@ -172,6 +199,9 @@ public class GrouperSubtitleTag extends BodyTagSupport {
         grouperInfodotTag.doStartTag();
         grouperInfodotTag.doEndTag();
         out.flush();
+      } else {
+        //give it something so not empty, might eventually need a transparent gif
+        out.print("&nbsp;");
       }
       out.print("</td></tr></table>\n");
       out.print("<!-- subtitle infodot from nav.properties key: ");

@@ -1,14 +1,14 @@
 <%-- @annotation@
-		  	Standard tile which displays help text for group math
+        Standard tile which displays help text for group math
 --%><%--
   @author Gary Brown.
-  @version $Id: groupMathHelp.jsp,v 1.1 2006-07-20 10:33:13 isgwb Exp $
+  @version $Id: groupMathHelp.jsp,v 1.2 2008-04-08 07:51:52 mchyzer Exp $
 --%>
 
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <h2 id="groupMathHelp">Group math</h2>
-<p>Grouper allows the membership of a group to be defined as the <em>union</em>, 
-  <em>intersection</em> or <em>complement</em> of two other groups. This special 
+<p>Grouper allows the membership of a group to be defined as the <em>union</em> (or), 
+  <em>intersection</em> (and) or <em>complement</em> (not) of two other groups. This special 
   type of member is known as a <em>Composite</em> member. A composite member has 
   two <em>Factor</em> groups. </p>
 <p>Take two <em>ordinary</em> groups:</p>

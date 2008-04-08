@@ -4,7 +4,7 @@
 		  the user to navigate the hierarchy
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsLocation.jsp,v 1.6 2008-04-07 07:54:15 mchyzer Exp $
+  @version $Id: browseStemsLocation.jsp,v 1.7 2008-04-08 07:51:52 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -13,15 +13,16 @@
 	<c:when test="${! isFlat}">
 <a href="<c:out value="${pageUrl}"/>#skipCurrentLocation" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.current-location"/><br/></a>
 <strong><grouper:message bundle="${nav}" key="find.browse.here"/></strong>
-<%-- CH 20080324 change spacing: --%>  <br />&nbsp;&nbsp;&nbsp;
+<%-- CH 20080324 change spacing: --%>  <br /><div class="currentLocationList">
 
 <%
 	int browsePathSize = ((List)request.getAttribute("browsePath")).size();
 	pageContext.setAttribute("browsePathSize",new Integer(browsePathSize));
 %>	
 	<c:forEach var="stem" items="${browsePath}">
-	<span class="browseStemsLocationPart">
-				<html:link 
+  <img <grouper:tooltip key="stem.icon.tooltip"/> 
+    src="grouper/images/folder.gif" class="groupIcon" alt="Folder" 
+    /><span class="browseStemsLocationPart"><html:link 
 					page="/browseStems${browseMode}.do" 
 					paramId="currentNode" 
 					paramName="stem" 
@@ -32,12 +33,23 @@
 
 		</span>
 	</c:forEach>
-		<c:if test="${browseParent.isGroup}"><span class="browseStemsLocationHere">[</c:if><c:out value="${browseParent.displayExtension}"/><c:if test="${browseParent.isGroup}">]</span></c:if>
+		<c:choose>
+      <c:when test="${browseParent.isGroup}"><span 
+    class="browseStemsLocationHere"><img <grouper:tooltip key="group.icon.tooltip"/> 
+    src="grouper/images/group.gif" class="groupIcon" alt="Group" 
+    /></c:when>
+    <c:otherwise>
+    <img <grouper:tooltip key="folder.icon.tooltip"/> 
+    src="grouper/images/folder.gif" class="groupIcon" alt="Folder" 
+    /></c:otherwise></c:choose><c:out 
+    value="${browseParent.displayExtension}"/><c:if 
+    test="${browseParent.isGroup}">]</span></c:if>
 <a id="skipCurrentLocation" name="skipCurrentLocation"></a>
 </c:when>
 <c:otherwise>
 
 </c:otherwise>
 </c:choose>
+  </div>
 </div>
 </grouper:recordTile>
