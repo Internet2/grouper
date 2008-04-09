@@ -4,12 +4,14 @@
 		  
 --%><%--
   @author Gary Brown.
-  @version $Id: include.jsp,v 1.2 2006-07-17 10:04:36 isgwb Exp $
+  @version $Id: include.jsp,v 1.3 2008-04-09 14:59:42 isgwb Exp $
 --%><%@ taglib uri="http://java.sun.com/jstl/core" prefix="c"%><c:set var="_trash">
 
 <%@page import="java.util.*"%>
 <%@page import="edu.internet2.middleware.grouper.ui.util.*"%>
 <%@page import="edu.internet2.middleware.grouper.ui.*"%>
+<%@page import="org.apache.commons.logging.Log"%>
+<%@page import="org.apache.commons.logging.LogFactory"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
