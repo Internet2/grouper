@@ -74,7 +74,7 @@
 
 	<target name="install" depends="compile">
 		<!-- copy usdu.jar to ext/lib -->
-		<jar destfile="${GROUPER_EXT_LIB}/${app.name}.jar" basedir="${build}">
+		<jar destfile="${GROUPER_EXT_LIB}/${app.name}-${version}.jar" basedir="${build}">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Main-Class"
@@ -95,9 +95,11 @@
 				        value="${GROUPER_CLASSPATH}" />
 				<filter token="USDU_MEM_START" value="${memory.start}" />
 				<filter token="USDU_MEM_MAX" value="${memory.max}" />
+				<filter token="USDU_VERSION" value="${version}" />
 			</filterset>
 		</copy>
 		<chmod file="${GROUPER_EXT_BIN}/usdu.sh" perm="ugo+rx" />
+		<chmod file="${GROUPER_EXT_BIN}/usdu.shellscript" perm="ugo+rx" />
 		<chmod file="${GROUPER_EXT_BIN}/usdu.bat" perm="ugo+rx" />
 		<!-- copy commons-launcher files to ext/bin -->
 		<copy todir="${GROUPER_EXT_BIN}">
@@ -114,7 +116,7 @@
 	<target name="package"
 	        depends="clean"
 	        description="Create a source package">
-		<tar destfile="${basedir}/usdu-${version}.tgz" compression="gzip">
+		<tar destfile="${basedir}/${app.name}-${version}.tgz" compression="gzip">
 			<tarfileset dir="${basedir}" prefix="${app.name}-${version}">
 				<exclude name="*.tgz" />
 				<exclude name="build/**" />

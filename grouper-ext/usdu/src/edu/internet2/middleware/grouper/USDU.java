@@ -178,7 +178,7 @@ public class USDU {
     for (Member member : unresolvables) {
       for (Object g : member.getImmediateGroups()) {
         Group group = (Group) g;
-        System.out.print(member.getUuid() + " " + member + " " + ((Group) group).getName());
+        System.out.print(member.getUuid() + " " + member + " '" + ((Group) group).getName() + "'");
         if (delete) {
           System.out.print(" delete");
           deleteUnresolvableMember(member, group);
@@ -209,7 +209,7 @@ public class USDU {
    * Find members whose subjects can not be found by their source.
    * 
    * @param s
-   *            GrouperSession
+   *          GrouperSession
    * @param source
    * @return
    */
