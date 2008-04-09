@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.ResourceBundle;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -35,8 +33,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.jstl.fmt.LocalizationContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -60,11 +56,12 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.12 2008-04-04 13:53:13 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.13 2008-04-09 14:16:57 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
-	protected Log log = LogFactory.getLog("timings");
+	protected Log tLOG = LogFactory.getLog("timings");
+	protected Log LOG = LogFactory.getLog(LoginCheckFilter.class);
 
 	private String failureUrl = "/";
 
@@ -103,34 +100,7 @@ public class LoginCheckFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
 		HttpSession session = request.getSession();
-		UIThreadLocal.clear();
-		UIThreadLocal.put("navResource", new LinkedHashSet());
-		UIThreadLocal.put("dynamicTiles", new ArrayList());
-		Map debugPrefs = (Map) session.getAttribute("debugPrefs");
-		if(debugPrefs==null && LowLevelGrouperCapableAction.getCookie("grouperDebugPrefs",request)!=null) {
-			try {
-				debugPrefs = LowLevelGrouperCapableAction.readDebugPrefs(request);
-			}catch(Exception e){}
-		}
-		
-		if (debugPrefs != null) {
-			Boolean debugActive = (Boolean)debugPrefs.get("isActive");
-			if(debugActive!=null) {
-				UIThreadLocal.setDebug(debugActive);
-			}
-			Boolean doShowResourcesInSitu = (Boolean) debugPrefs
-					.get("doShowResourcesInSitu");
-			if (Boolean.TRUE.equals(doShowResourcesInSitu)) {
-				UIThreadLocal.put("doShowResourcesInSitu", Boolean.TRUE);
-			} else {
-				UIThreadLocal.put("doShowResourcesInSitu", Boolean.FALSE);
-			}
-		}
-		StringBuffer requestUrl = (StringBuffer) request.getAttribute("_pageUrl");
-		if(requestUrl==null || requestUrl.length()==0) { 
-			requestUrl=request.getRequestURL();
-			request.setAttribute("_pageUrl",requestUrl);
-		}
+
 			
 		Cookie[] cookies = request.getCookies();
 		boolean loggedOut = false;
@@ -177,7 +147,7 @@ public class LoginCheckFilter implements Filter {
 			SessionInitialiser.initThread(session);
 			chain.doFilter(req, res);
 			Date after = new Date();
-			if (log != null) {
+			if (tLOG != null) {
 				String timingsClass = (String) request
 						.getAttribute("timingsClass");
 				Long ms = (Long) request.getAttribute("timingsMS");
@@ -185,7 +155,7 @@ public class LoginCheckFilter implements Filter {
 					long diff = after.getTime() - before.getTime();
 					long mss = ms.longValue();
 					long renderMs = diff - mss;
-					log.debug(request.getServletPath() + "," + timingsClass
+					tLOG.debug(request.getServletPath() + "," + timingsClass
 							+ "," + diff + "," + mss + "," + renderMs);
 				}
 			}
@@ -200,16 +170,21 @@ public class LoginCheckFilter implements Filter {
 		}
 
 		edu.internet2.middleware.subject.Subject subj = null;
-
+		UnrecoverableErrorException unrecov = null;
 		try {
 			subj = SubjectFinder.findByIdentifier(remoteUser);
 		} catch (SubjectNotFoundException e) {
-			throw new IOException(remoteUser + " is not recognised");
+			LOG.error(remoteUser + " is not recognised",e);
+			unrecov = new UnrecoverableErrorException("error.login.not-recognised",e);		
 		} catch (SubjectNotUniqueException e) {
-			throw new IOException(remoteUser + " is not unique");
+			LOG.error(remoteUser + " is not unique",e);
+			unrecov = new UnrecoverableErrorException("error.login.not-unique",e);
 		} catch (Exception e) {
-			//CH 20080124: Make sure exception information is not swallowed
-			throw new RuntimeException("Problem looking up remote user: " + remoteUser, e);
+			LOG.error("Problem looking up remote user: " + remoteUser,e);
+			unrecov = new UnrecoverableErrorException("error.login.serious-error",e);
+		}
+		if(unrecov!=null) {
+			throw unrecov;
 		}
 		session.setAttribute("authUser", remoteUser);
 		//edu.internet2.middleware.subject.Subject subj =
@@ -225,6 +200,7 @@ public class LoginCheckFilter implements Filter {
 				"edu.intenet2.middleware.grouper.ui.GrouperSession", s);
 		//request.setAttribute("message",new
 		// Message("auth.message.login-welcome",remoteUser));
+		ErrorFilter.initNDC(request);
 		try {
 			SessionInitialiser.init(request);
 		} catch (Exception e) {
@@ -237,7 +213,10 @@ public class LoginCheckFilter implements Filter {
 		
 		chain.doFilter(req, res);
 
+
 	}
+	
+	
 
 	private void initSession(ServletRequest request,
 			HttpServletResponse response) throws Exception {
