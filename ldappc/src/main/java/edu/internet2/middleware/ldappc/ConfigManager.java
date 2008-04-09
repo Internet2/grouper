@@ -49,64 +49,63 @@ import org.xml.sax.SAXParseException;
  * Class for accessing values from the Auth2Ldap configuration file.
  */
 public class ConfigManager
-        implements SignetProvisionerConfiguration,
-        GrouperProvisionerConfiguration
+        implements SignetProvisionerConfiguration, GrouperProvisionerConfiguration
 {
     /**
      * Default configuration file resource name
      */
-    public static final String   CONFIG_FILE_RESOURCE                 = "ldappc.xml";
+    public static final String            CONFIG_FILE_RESOURCE                 = "ldappc.xml";
 
     /**
      * Configuration Schema file resource name
      */
-    public static final String   SCHEMA_FILE_RESOURCE                 = "edu/internet2/middleware/ldappc/schema/ldappcConfig.xsd";
+    public static final String            SCHEMA_FILE_RESOURCE                 = "edu/internet2/middleware/ldappc/schema/ldappcConfig.xsd";
 
     /**
      * JAXP schema language property name
      */
-    public static final String   JAXP_SCHEMA_LANGUAGE                 = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+    public static final String            JAXP_SCHEMA_LANGUAGE                 = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
 
     /**
      * JAXP schema source property name
      */
-    public static final String   JAXP_SCHEMA_SOURCE                   = "http://java.sun.com/xml/jaxp/properties/schemaSource";
+    public static final String            JAXP_SCHEMA_SOURCE                   = "http://java.sun.com/xml/jaxp/properties/schemaSource";
 
     /**
      * JAXP schema language value for W3C XML Schema
      */
-    public static final String   W3C_XML_SCHEMA                       = "http://www.w3.org/2001/XMLSchema";
+    public static final String            W3C_XML_SCHEMA                       = "http://www.w3.org/2001/XMLSchema";
 
     /**
      * Flag indicating to get data from ldappc.properties instead of ldappc.xml
      */
-    private static final String  GET_FROM_PROPERTIES_FILE             = "GetFromPropertiesFile";
-
+    private static final String           GET_FROM_PROPERTIES_FILE             = "GetFromPropertiesFile";
+    
     /**
      * Singleton instance of ConfigManager
      */
-    private static ConfigManager instance;
+    private static ConfigManager          instance;
 
     /**
      * List of SAXParseException objects created while parsing the configuration
      * file
      */
-    private Vector               saxParseErrors                       = new Vector();
+    private Vector                        saxParseErrors                       = new Vector();
 
     /**
      * Hashtable of LDAP context parameters
      */
-    private Hashtable            ldapContextParameters                = new Hashtable();
+    private Hashtable                     ldapContextParameters                = new Hashtable();
 
     /**
      * Set of the Group stems for creating subordinate stem queries
      */
-    private Set                  groupSubordinateStemQueries          = new HashSet();
+    private Set                           groupSubordinateStemQueries          = new HashSet();
 
     /**
      * Group attribute name/value pairs for creating matching queries
      */
-    private Map                  groupAttrMatchingQueries             = new Hashtable();
+    private Map                           groupAttrMatchingQueries             = new Hashtable();
 
     /**
      * Group DN Structure. Must have value of
@@ -114,22 +113,22 @@ public class ConfigManager
      * or
      * {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUP_DN_BUSHY}.
      */
-    private String               groupDnStructure;
+    private String                        groupDnStructure;
 
     /**
      * Group DN root OU
      */
-    private String               groupDnRoot;
+    private String                        groupDnRoot;
 
     /**
      * Group DN object class
      */
-    private String               groupDnObjectClass;
+    private String                        groupDnObjectClass;
 
     /**
      * Group RDN attribute name
      */
-    private String               groupDnRdnAttribute;
+    private String                        groupDnRdnAttribute;
 
     /**
      * Grouper attribute whose value is the Group DN RDN value. Must have a
@@ -138,35 +137,35 @@ public class ConfigManager
      * or
      * {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUPER_NAME_ATTRIBUTE}.
      */
-    private String               groupDnGrouperAttribute;
+    private String                        groupDnGrouperAttribute;
 
     /**
      * Object class a Group entry must have to support the Group attribute to
      * LDAP attribute mapping
      */
-    private String               groupAttributeMappingObjectClass;
+    private String                        groupAttributeMappingObjectClass;
 
     /**
      * Group attribute name to LDAP attribute name mapping
      */
-    private Map                  groupAttributeMapping                = new Hashtable();
+    private Map                           groupAttributeMapping                = new Hashtable();
 
     /**
      * Associated empty values for the ldap attributes defined in the group
      * attribute mapping key = ldap attribute in upper case, value = empty value
      * (Must be a HashMap to allow null values)
      */
-    private Map                  groupAttributeMappingLdapEmptyValues = new HashMap();
+    private Map                           groupAttributeMappingLdapEmptyValues = new HashMap();
 
     /**
      * Estimate of size of groups to populate.
      */
-    private int                  groupHashEstimate                    = 0;
+    private int                           groupHashEstimate                    = 0;
 
     /**
      * Source to Subject naming attribute mapping for Source Subject Identfiers
      */
-    private Map                  sourceSubjectNamingAttributes        = new Hashtable();
+    private Map                           sourceSubjectNamingAttributes        = new Hashtable();
 
     /**
      * Source to Subject LDAP search filter mapping for Source Subject
@@ -177,91 +176,98 @@ public class ConfigManager
     /**
      * Estimate of size of groups to populate.
      */
-    private Map                  subjectHashEstimates                 = new Hashtable();
+    private Map                           subjectHashEstimates                 = new Hashtable();
 
     /**
      * Boolean indicating whether Member LDAP entries contain an attribute
      * holding a listing the Groups to which they belong
      */
-    private boolean              memberGroupsListed                   = false;
+    private boolean                       memberGroupsListed                   = false;
 
     /**
      * Member LDAP entry object class that contains the attribute to hold the
      * list of Groups
      */
-    private String               memberGroupsListObjectClass;
+    private String                        memberGroupsListObjectClass;
 
     /**
      * Member LDAP entry attribute containing the list of Groups to which it
      * belongs
      */
-    private String               memberGroupsListAttribute;
+    private String                        memberGroupsListAttribute;
 
     /**
      * Value placed in member groups listattribute when no groups are stored
      * there
      */
-    private String               memberGroupsListEmptyValue;
+    private String                        memberGroupsListEmptyValue;
+    
+    /**
+     * Value to be prepended to the filename for the membership updates
+     * temporary file. This will generally be a directory followed by a slash
+     * (/), but may vary depending on the operating system.
+     */
+    private String                        memberGroupsListTemporaryDirectory;
 
     /**
      * Grouper Group naming attribute used to construct the list of Groups to
      * which a Member belongs
      */
-    private String               memberGroupsNamingAttribute;
+    private String                        memberGroupsNamingAttribute;
 
     /**
      * Boolean indicating whether Group LDAP entries contain an attribute
      * holding a listing the Members LDAP entry DN which belong to it.
      */
-    private boolean              groupMembersDnListed                 = false;
+    private boolean                       groupMembersDnListed                 = false;
 
     /**
      * Group LDAP entry object class containing the attribute to list members
      * LDAP entry DN
      */
-    private String               groupMembersDnListObjectClass;
+    private String                        groupMembersDnListObjectClass;
 
     /**
      * Group LDAP entry attribute containing the list of Members LDAP entry DNs
      * which belong to it.
      */
-    private String               groupMembersDnListAttribute;
+    private String                        groupMembersDnListAttribute;
 
     /**
      * Value placed in group members dn list attribute when no DNs are stored
      * there
      */
-    private String               groupMembersDnListEmptyValue;
+    private String                        groupMembersDnListEmptyValue;
 
     /**
      * Boolean indicating whether Group LDAP entries contain an attribute
      * holding a listing the Members names which belong to it.
      */
-    private boolean              groupMembersNameListed               = false;
+    private boolean                       groupMembersNameListed               = false;
 
     /**
      * Group LDAP entry object class containing the attribute to list members
      * names
      */
-    private String               groupMembersNameListObjectClass;
+    private String                        groupMembersNameListObjectClass;
 
     /**
      * Group LDAP entry attribute containing the list of Members names which
      * belong to it.
      */
-    private String               groupMembersNameListAttribute;
+    private String                        groupMembersNameListAttribute;
 
     /**
      * Value placed in group members name list attribute when no DNs are stored
      * there
      */
-    private String               groupMembersNameListEmptyValue;
+    private String                        groupMembersNameListEmptyValue;
 
     /**
      * Source to Subject attribute mapping used to construct a Member's name in
      * the list of Member names belonging to the Group
      */
-    private Map                  groupMembersNameListNamingAttributes = new Hashtable();
+    private Map                           groupMembersNameListNamingAttributes = new Hashtable();
 
     /**
      * Storage method for permissions listings. Valid values are
@@ -269,46 +275,46 @@ public class ConfigManager
      * or
      * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}.
      */
-    private String               permissionsListingStoredAs;
+    private String                        permissionsListingStoredAs;
 
     /**
      * Subject LDAP object class containing the attribute for holding the
      * permissions listing when stored as
      */
-    private String               permissionsListingStringObjectClass;
+    private String                        permissionsListingStringObjectClass;
 
     /**
      * Subject LDAP entry attribute for holding the permissions listing when
      * stored as
      * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}.
      */
-    private String               permissionsListingStringAttribute;
+    private String                        permissionsListingStringAttribute;
 
     /**
      * Prefix for creating the permissions listing when stored as
      */
-    private String               permissionsListingStringPrefix;
+    private String                        permissionsListingStringPrefix;
 
     /**
      * Value placed in permission listing string attribute when no permissions
      * are stored there
      */
-    private String               permissionsListingStringEmptyValue;
+    private String                        permissionsListingStringEmptyValue;
 
     /**
      * Set of the subsystem IDs for the Permission subsystem queries
      */
-    private Set                  permissionsSubsystemQueries          = new HashSet();
+    private Set                           permissionsSubsystemQueries          = new HashSet();
 
     /**
      * Set of the function IDs for the Permission function queries
      */
-    private Set                  permissionsFunctionQueries           = new HashSet();
+    private Set                           permissionsFunctionQueries           = new HashSet();
 
     /**
      * Boolean indicating if the ldappc element was found while parsing
      */
-    private boolean              rootElementFound                     = false;
+    private boolean                       rootElementFound                     = false;
 
     /**
      * Constructs an instance of ConfigManager using the configuration file
@@ -347,8 +353,7 @@ public class ConfigManager
      */
     public static ConfigManager getInstance() throws LdappcConfigurationException
     {
-        loadSingleton(getSystemResourceURL(CONFIG_FILE_RESOURCE, true)
-                .toString());
+        loadSingleton(getSystemResourceURL(CONFIG_FILE_RESOURCE, true).toString());
         return instance;
     }
 
@@ -449,8 +454,7 @@ public class ConfigManager
 
         // Save the Source Subject Identifier naming attribute
         elementPath = "ldappc/source-subject-identifiers/source-subject-identifier";
-        digester.addCallMethod(elementPath, "addSourceSubjectNamingAttribute",
-                2);
+        digester.addCallMethod(elementPath, "addSourceSubjectNamingAttribute", 2);
         digester.addCallParam(elementPath, 0, "source");
         digester.addCallParam(elementPath, 1, "subject-attribute");
 
@@ -496,63 +500,56 @@ public class ConfigManager
         elementPath = "ldappc/grouper/memberships/member-groups-list";
         digester.addCallMethod(elementPath, "listMemberGroups");
 
-        digester
-                .addCallMethod(elementPath, "setMemberGroupsListObjectClass", 1);
+        digester.addCallMethod(elementPath, "setMemberGroupsListObjectClass", 1);
         digester.addCallParam(elementPath, 0, "list-object-class");
 
         digester.addCallMethod(elementPath, "setMemberGroupsListAttribute", 1);
         digester.addCallParam(elementPath, 0, "list-attribute");
 
-        digester
-                .addCallMethod(elementPath, "setMemberGroupsNamingAttribute", 1);
+        digester.addCallMethod(elementPath, "setMemberGroupsNamingAttribute", 1);
         digester.addCallParam(elementPath, 0, "naming-attribute");
 
         digester.addCallMethod(elementPath, "setMemberGroupsListEmptyValue", 1);
         digester.addCallParam(elementPath, 0, "list-empty-value");
 
+        digester.addCallMethod(elementPath, "setMemberGroupsListTemporaryDirectory", 1);
+        digester.addCallParam(elementPath, 0, "temporary-directory");
+
         // Save the Group Member DN Listing parameters
         elementPath = "ldappc/grouper/groups/group-members-dn-list";
         digester.addCallMethod(elementPath, "listGroupMembersDn");
 
-        digester.addCallMethod(elementPath, "setGroupMembersDnListObjectClass",
-                1);
+        digester.addCallMethod(elementPath, "setGroupMembersDnListObjectClass", 1);
         digester.addCallParam(elementPath, 0, "list-object-class");
 
-        digester
-                .addCallMethod(elementPath, "setGroupMembersDnListAttribute", 1);
+        digester.addCallMethod(elementPath, "setGroupMembersDnListAttribute", 1);
         digester.addCallParam(elementPath, 0, "list-attribute");
 
-        digester.addCallMethod(elementPath, "setGroupMembersDnListEmptyValue",
-                1);
+        digester.addCallMethod(elementPath, "setGroupMembersDnListEmptyValue", 1);
         digester.addCallParam(elementPath, 0, "list-empty-value");
 
         // Save the Group Member Name Listing parameters
         elementPath = "ldappc/grouper/groups/group-members-name-list";
         digester.addCallMethod(elementPath, "listGroupMembersName");
 
-        digester.addCallMethod(elementPath,
-                "setGroupMembersNameListObjectClass", 1);
+        digester.addCallMethod(elementPath, "setGroupMembersNameListObjectClass", 1);
         digester.addCallParam(elementPath, 0, "list-object-class");
 
-        digester.addCallMethod(elementPath, "setGroupMembersNameListAttribute",
-                1);
+        digester.addCallMethod(elementPath, "setGroupMembersNameListAttribute", 1);
         digester.addCallParam(elementPath, 0, "list-attribute");
 
-        digester.addCallMethod(elementPath,
-                "setGroupMembersNameListEmptyValue", 1);
+        digester.addCallMethod(elementPath, "setGroupMembersNameListEmptyValue", 1);
         digester.addCallParam(elementPath, 0, "list-empty-value");
 
         // Save the Group Members Name List naming attributes
         elementPath = "ldappc/grouper/groups/group-members-name-list/source-subject-name-mapping/source-subject-name-map";
-        digester.addCallMethod(elementPath,
-                "addGroupMembersNameListNamingAttribute", 2);
+        digester.addCallMethod(elementPath, "addGroupMembersNameListNamingAttribute", 2);
         digester.addCallParam(elementPath, 0, "source");
         digester.addCallParam(elementPath, 1, "subject-attribute");
 
         // Save the Group Attribute Mapping parameters
         elementPath = "ldappc/grouper/groups/group-attribute-mapping";
-        digester.addCallMethod(elementPath,
-                "setGroupAttributeMappingObjectClass", 1);
+        digester.addCallMethod(elementPath, "setGroupAttributeMappingObjectClass", 1);
         digester.addCallParam(elementPath, 0, "ldap-object-class");
 
         elementPath = "ldappc/grouper/groups/group-attribute-mapping/group-attribute-map";
@@ -561,8 +558,7 @@ public class ConfigManager
         digester.addCallParam(elementPath, 1, "ldap-attribute");
 
         elementPath = "ldappc/grouper/groups/group-attribute-mapping/group-attribute-map";
-        digester.addCallMethod(elementPath,
-                "addGroupAttributeMappingLdapEmptyValue", 2);
+        digester.addCallMethod(elementPath, "addGroupAttributeMappingLdapEmptyValue", 2);
         digester.addCallParam(elementPath, 0, "ldap-attribute");
         digester.addCallParam(elementPath, 1, "ldap-attribute-empty-value");
 
@@ -571,20 +567,16 @@ public class ConfigManager
         digester.addCallMethod(elementPath, "setPermissionsListingStoredAs", 1);
         digester.addCallParam(elementPath, 0, "stored-as");
 
-        digester.addCallMethod(elementPath,
-                "setPermissionsListingStringObjectClass", 1);
+        digester.addCallMethod(elementPath, "setPermissionsListingStringObjectClass", 1);
         digester.addCallParam(elementPath, 0, "string-object-class");
 
-        digester.addCallMethod(elementPath,
-                "setPermissionsListingStringAttribute", 1);
+        digester.addCallMethod(elementPath, "setPermissionsListingStringAttribute", 1);
         digester.addCallParam(elementPath, 0, "string-attribute");
 
-        digester.addCallMethod(elementPath,
-                "setPermissionsListingStringPrefix", 1);
+        digester.addCallMethod(elementPath, "setPermissionsListingStringPrefix", 1);
         digester.addCallParam(elementPath, 0, "string-prefix");
 
-        digester.addCallMethod(elementPath,
-                "setPermissionsListingStringEmptyValue", 1);
+        digester.addCallMethod(elementPath, "setPermissionsListingStringEmptyValue", 1);
         digester.addCallParam(elementPath, 0, "string-list-empty-value");
 
         // Save the Permissions Subsystem Queries
@@ -669,8 +661,7 @@ public class ConfigManager
     {
         if (saxParseErrors.size() == 1)
         {
-            throw new LdappcConfigurationException(
-                    (SAXParseException) saxParseErrors.elementAt(0));
+            throw new LdappcConfigurationException((SAXParseException) saxParseErrors.elementAt(0));
         }
         else if (saxParseErrors.size() > 1)
         {
@@ -693,8 +684,7 @@ public class ConfigManager
         // Validate the grouper-attribute attribute is defined when the
         // groups Dn structure is "flat"
         //
-        if (GrouperProvisionerConfiguration.GROUP_DN_FLAT
-                .equals(getGroupDnStructure()))
+        if (GrouperProvisionerConfiguration.GROUP_DN_FLAT.equals(getGroupDnStructure()))
         {
             if (getGroupDnGrouperAttribute() == null)
             {
@@ -745,8 +735,8 @@ public class ConfigManager
             //
             // Fatal error; Throw Auth2LdapRuntimeException
             //
-            throw new LdappcConfigurationException(
-                    "Unable to locate required system resource: " + resource);
+            throw new LdappcConfigurationException("Unable to locate required system resource: "
+                    + resource);
         }
         return url;
     }
@@ -785,8 +775,8 @@ public class ConfigManager
             //
             SAXParser parser = factory.newSAXParser();
             parser.setProperty(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
-            parser.setProperty(JAXP_SCHEMA_SOURCE, getSystemResourceURL(
-                    SCHEMA_FILE_RESOURCE, true).toString());
+            parser.setProperty(JAXP_SCHEMA_SOURCE, getSystemResourceURL(SCHEMA_FILE_RESOURCE, true)
+                    .toString());
 
             //
             // A validating parser has been created so build the digester
@@ -802,11 +792,8 @@ public class ConfigManager
             // that would validate the configuration file using the schema.
             // Nothing to do but log the exception and continue on.
             //
-            ErrorLog
-                    .warn(ConfigManager.class,
-                            "Schema validation not supported: "
-                                    + se.getClass().getName() + " : "
-                                    + se.getMessage());
+            ErrorLog.warn(ConfigManager.class, "Schema validation not supported: "
+                    + se.getClass().getName() + " : " + se.getMessage());
         }
 
         //
@@ -872,11 +859,8 @@ public class ConfigManager
             //
             // Add a debug log entry and do nothing else
             //
-            DebugLog
-                    .info(
-                            ConfigManager.class,
-                            name
-                                    + " is not a valid javax.naming.ldap.LdapContext constant.");
+            DebugLog.info(ConfigManager.class, name
+                    + " is not a valid javax.naming.ldap.LdapContext constant.");
         }
 
         //
@@ -1148,8 +1132,7 @@ public class ConfigManager
      * @param ldapAttribute
      *            LDAP attribute name
      */
-    private void addGroupAttributeMapping(String groupAttribute,
-            String ldapAttribute)
+    private void addGroupAttributeMapping(String groupAttribute, String ldapAttribute)
     {
         groupAttributeMapping.put(groupAttribute, ldapAttribute);
     }
@@ -1164,11 +1147,9 @@ public class ConfigManager
      *            String value or <code>null</code> if no empty value is
      *            desired
      */
-    private void addGroupAttributeMappingLdapEmptyValue(String ldapAttribute,
-            String value)
+    private void addGroupAttributeMappingLdapEmptyValue(String ldapAttribute, String value)
     {
-        groupAttributeMappingLdapEmptyValues.put(
-                convertToUpperCase(ldapAttribute), value);
+        groupAttributeMappingLdapEmptyValues.put(convertToUpperCase(ldapAttribute), value);
     }
 
     /**
@@ -1183,8 +1164,7 @@ public class ConfigManager
      */
     public String getGroupAttributeMappingLdapEmptyValue(String ldapAttribute)
     {
-        return (String) groupAttributeMappingLdapEmptyValues
-                .get(convertToUpperCase(ldapAttribute));
+        return (String) groupAttributeMappingLdapEmptyValues.get(convertToUpperCase(ldapAttribute));
     }
 
     /**
@@ -1346,8 +1326,7 @@ public class ConfigManager
      * @throws LdappcConfigurationException
      *             thrown if an invalid scope value is encountered.
      */
-    private void addSourceSubjectLdapFilter(String source, String base,
-            String scope, String filter) throws LdappcConfigurationException
+    private void addSourceSubjectLdapFilter(String source, String base, String scope, String filter) throws LdappcConfigurationException
     {
         //
         // If scope matches (ignoring case) the name of a
@@ -1358,8 +1337,7 @@ public class ConfigManager
         try
         {
             Field constant = SearchControls.class.getField(scope.toUpperCase());
-            scopeValue = ((Integer) constant.get(SearchControls.class))
-                    .intValue();
+            scopeValue = ((Integer) constant.get(SearchControls.class)).intValue();
         }
         catch (Throwable t)
         {
@@ -1372,8 +1350,7 @@ public class ConfigManager
         //
         // Create the LdapSearchFilter object
         //
-        LdapSearchFilter ldapFilter = new LdapSearchFilter(base, scopeValue,
-                filter);
+        LdapSearchFilter ldapFilter = new LdapSearchFilter(base, scopeValue, filter);
 
         //
         // Add it to the collection
@@ -1510,6 +1487,35 @@ public class ConfigManager
     private void setMemberGroupsListEmptyValue(String value)
     {
         this.memberGroupsListEmptyValue = value;
+    }
+
+    /**
+     * This gets the value to prepend to the filename for the membership updates
+     * temporary file. This will generally be a directory followed by a slash
+     * (/), but may vary depending on the operating system.
+     * 
+     * The default value is null, which should be treated as an empty string,
+     * causing the files to be placed in the current directory.
+     * 
+     * @return the temporary directory prefix string.
+     */
+    public String getMemberGroupsListTemporaryDirectory()
+    {
+        return memberGroupsListTemporaryDirectory;
+    }
+
+    /**
+     * Sets the value to be prepended to the filename for the membership updates
+     * temporary file. This will generally be a directory followed by a slash
+     * (/), but may vary depending on the operating system.
+     * 
+     * @param value
+     *            String value or <code>null</code> if no value is to be
+     *            stored
+     */
+    private void setMemberGroupsListTemporaryDirectory(String value)
+    {
+        this.memberGroupsListTemporaryDirectory = value;
     }
 
     /**
@@ -1737,8 +1743,7 @@ public class ConfigManager
         String subjectAttribute = null;
         if (groupMembersNameListNamingAttributes.containsKey(source))
         {
-            subjectAttribute = (String) groupMembersNameListNamingAttributes
-                    .get(source);
+            subjectAttribute = (String) groupMembersNameListNamingAttributes.get(source);
         }
         return subjectAttribute;
     }
@@ -1768,8 +1773,7 @@ public class ConfigManager
      * @param subjectAttribute
      *            Subject attribute name
      */
-    private void addGroupMembersNameListNamingAttribute(String source,
-            String subjectAttribute)
+    private void addGroupMembersNameListNamingAttribute(String source, String subjectAttribute)
     {
         groupMembersNameListNamingAttributes.put(source, subjectAttribute);
     }
@@ -2110,51 +2114,43 @@ public class ConfigManager
          */
         public void setGroupHashEstimate(String sizeString)
         {
-            ConfigManager.this.setGroupHashEstimate(Integer
-                    .parseInt(sizeString));
+            ConfigManager.this.setGroupHashEstimate(Integer.parseInt(sizeString));
         }
 
         /**
          * Calls {@link ConfigManager#addGroupAttributeMapping(String, String)}.
          */
-        public void addGroupAttributeMapping(String groupAttribute,
-                String ldapAttribute)
+        public void addGroupAttributeMapping(String groupAttribute, String ldapAttribute)
         {
-            ConfigManager.this.addGroupAttributeMapping(groupAttribute,
-                    ldapAttribute);
+            ConfigManager.this.addGroupAttributeMapping(groupAttribute, ldapAttribute);
         }
 
         /**
          * Calls
          * {@link ConfigManager#addGroupAttributeMappingLdapEmptyValue(String,String)}.
          */
-        public void addGroupAttributeMappingLdapEmptyValue(
-                String ldapAttribute, String value)
+        public void addGroupAttributeMappingLdapEmptyValue(String ldapAttribute, String value)
         {
-            ConfigManager.this.addGroupAttributeMappingLdapEmptyValue(
-                    ldapAttribute, value);
+            ConfigManager.this.addGroupAttributeMappingLdapEmptyValue(ldapAttribute, value);
         }
 
         /**
          * Calls
          * {@link ConfigManager#addSourceSubjectNamingAttribute(String, String)}.
          */
-        public void addSourceSubjectNamingAttribute(String source,
-                String attribute)
+        public void addSourceSubjectNamingAttribute(String source, String attribute)
         {
-            ConfigManager.this.addSourceSubjectNamingAttribute(source,
-                    attribute);
+            ConfigManager.this.addSourceSubjectNamingAttribute(source, attribute);
         }
 
         /**
          * Calls
          * {@link ConfigManager#addSourceSubjectLdapFilter(String, String, String, String)}.
          */
-        public void addSourceSubjectLdapFilter(String source, String base,
-                String scope, String filter) throws LdappcConfigurationException
+        public void addSourceSubjectLdapFilter(String source, String base, String scope,
+                String filter) throws LdappcConfigurationException
         {
-            ConfigManager.this.addSourceSubjectLdapFilter(source, base, scope,
-                    filter);
+            ConfigManager.this.addSourceSubjectLdapFilter(source, base, scope, filter);
         }
 
         /**
@@ -2210,6 +2206,15 @@ public class ConfigManager
         public void setMemberGroupsListEmptyValue(String value)
         {
             ConfigManager.this.setMemberGroupsListEmptyValue(value);
+        }
+
+        /**
+         * Calls
+         * {@link ConfigManager#setMemberGroupsListTemporaryDirectory(String))}.
+         */
+        public void setMemberGroupsListTemporaryDirectory(String value)
+        {
+            ConfigManager.this.setMemberGroupsListTemporaryDirectory(value);
         }
 
         /**
@@ -2287,11 +2292,9 @@ public class ConfigManager
          * Calls
          * {@link ConfigManager#addGroupMembersNameListNamingAttribute(String, String)}.
          */
-        public void addGroupMembersNameListNamingAttribute(String source,
-                String subjectAttribute)
+        public void addGroupMembersNameListNamingAttribute(String source, String subjectAttribute)
         {
-            ConfigManager.this.addGroupMembersNameListNamingAttribute(source,
-                    subjectAttribute);
+            ConfigManager.this.addGroupMembersNameListNamingAttribute(source, subjectAttribute);
         }
 
         /**
@@ -2308,8 +2311,7 @@ public class ConfigManager
          */
         public void setPermissionsListingStringObjectClass(String objectClass)
         {
-            ConfigManager.this
-                    .setPermissionsListingStringObjectClass(objectClass);
+            ConfigManager.this.setPermissionsListingStringObjectClass(objectClass);
         }
 
         /**
@@ -2359,8 +2361,7 @@ public class ConfigManager
      * fatal error. If an error is encountered and parsing can continue, this
      * will notify the ConfigManager to fail after parsing is complete.
      */
-    private class SaxErrorHandler
-            implements ErrorHandler
+    private class SaxErrorHandler implements ErrorHandler
     {
         /**
          * Receive notification of a warning.
@@ -2419,8 +2420,8 @@ public class ConfigManager
          */
         protected String formatMsg(SAXParseException e)
         {
-            return "[ " + e.getLineNumber() + " : " + e.getColumnNumber()
-                    + " ] :: " + e.getMessage();
+            return "[ " + e.getLineNumber() + " : " + e.getColumnNumber() + " ] :: "
+                    + e.getMessage();
         }
     }
 }
