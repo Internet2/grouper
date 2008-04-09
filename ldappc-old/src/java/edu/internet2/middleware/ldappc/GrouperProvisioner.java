@@ -41,6 +41,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.LdapName;
 
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.ChildGroupFilter;
@@ -58,7 +59,6 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.grouper.queryFilter.GroupAttributeExactFilter;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupStringMembershipSynchronizer;
@@ -77,6 +77,12 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GrouperProvisioner extends Provisioner
 {
+    /**
+     * Number of records of membership updates to sort in memory. This value
+     * (200,000) is a good compromise between speed and memory.
+     */
+    private static final int                SORT_BATCH_SIZE       = 200000;
+
     /**
      * Name of the temporary file used to store membership data.
      */
@@ -400,10 +406,22 @@ public class GrouperProvisioner extends Provisioner
                 Name subjectDn = null;
                 try
                 {
-                    // TODO Must use alternate mechanism to get subject if
-                    // search attr is not the subject ID.
-                    subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, member
-                            .getSubjectSourceId(), member.getSubjectId());
+                    // Must use alternate mechanism to get subject if
+                    // search attr is not the subject ID. Alternate method is
+                    // rather slower.
+                    if (!"id".equals(configuration.getSourceSubjectNamingAttribute(member
+                            .getSubjectSourceId())))
+                    {
+                        Subject subject = null;
+                        subject = member.getSubject();
+                        subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
+                    }
+                    else
+                    {
+                        subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, member
+                                .getSubjectSourceId(), member.getSubjectId());
+                    }
+                    existingSubjectDns.remove(subjectDn);
                 }
                 catch (Exception e)
                 {
@@ -461,14 +479,49 @@ public class GrouperProvisioner extends Provisioner
         //
         try
         {
-            ExternalSort.sort(updatesFile.getAbsolutePath(), 200000);
+            ExternalSort.sort(updatesFile.getAbsolutePath(), SORT_BATCH_SIZE);
         }
         catch (IOException e)
         {
             throw new LdappcRuntimeException("Unable to sort membershps file", e);
         }
-        System.exit(0);
 
+        //
+        // Read the updates and make the changes to the LDAP objects.
+        //
+        performActualMembershipUpdates(updatesFile);
+
+        //
+        // Clear the memberships from any subject not processed above.
+        //
+        try
+        {
+            // DebugLog.info("Clearing old memberships");
+            clearSubjectEntryMemberships(existingSubjectDns);
+        }
+        catch (Exception e)
+        {
+            logThrowableError(e);
+            caughtExceptions.add(e);
+        }
+
+        //
+        // Throw any caught exceptions
+        //
+        if (caughtExceptions.size() > 0)
+        {
+            throw new MultiErrorException((Exception[]) caughtExceptions.toArray(new Exception[0]));
+        }
+    }
+
+    /**
+     * Read the updates from the file and perform the updates in LDAP.
+     * 
+     * @param updatesFile
+     *            File containing the updates.
+     */
+    private void performActualMembershipUpdates(File updatesFile)
+    {
         //
         // Re-open the sorted memberships file for reading.
         //
@@ -514,7 +567,6 @@ public class GrouperProvisioner extends Provisioner
                     reps.add(groupNameString);
                 }
                 else
-                // "3"
                 {
                     dels.add(groupNameString);
                 }
@@ -541,30 +593,22 @@ public class GrouperProvisioner extends Provisioner
         {
             throw new LdappcRuntimeException("IOException reading membership file", e);
         }
-
-        //
-        // Clear the memberships from any subject not processed above.
-        //
-        try
-        {
-            // DebugLog.info("Clearing old memberships from subjects who no longer have memberships");
-            clearSubjectEntryMemberships(existingSubjectDns);
-        }
-        catch (Exception e)
-        {
-            logThrowableError(e);
-            caughtExceptions.add(e);
-        }
-
-        //
-        // Throw any caught exceptions
-        //
-        if (caughtExceptions.size() > 0)
-        {
-            throw new MultiErrorException((Exception[]) caughtExceptions.toArray(new Exception[0]));
-        }
     }
 
+    /**
+     * Update memberships for an individual subject in LDAP, given memberships
+     * to add, delete, or replace. The replacements will not be present if there
+     * are any adds or deletes.
+     * 
+     * @param objectDN
+     *            Subject object to update.
+     * @param adds
+     *            Set of memberships to add.
+     * @param dels
+     *            Set of memberships to delete.
+     * @param reps
+     *            Set of memberships to replace existing memberships with.xd
+     */
     private void updateSubject(String objectDN, Set<String> adds, Set<String> dels, Set<String> reps)
     {
         if (adds.size() == 0 && dels.size() == 0 && reps.size() == 0) return;
