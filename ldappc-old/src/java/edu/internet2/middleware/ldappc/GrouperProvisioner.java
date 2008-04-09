@@ -30,15 +30,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.LdapName;
 
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.ChildGroupFilter;
@@ -56,8 +58,10 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.grouper.queryFilter.GroupAttributeExactFilter;
+import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
+import edu.internet2.middleware.ldappc.synchronize.GroupStringMembershipSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.StringMembershipSynchronizer;
@@ -345,10 +349,10 @@ public class GrouperProvisioner extends Provisioner
         // by subject DN, to efficiently update the memberships for each
         // subject.
         //
-        File membershipsFile = new File(MEMBERSHIPS_FILE_NAME);
+        File updatesFile = new File(MEMBERSHIPS_FILE_NAME);
 
         // DebugLog.info("Collecting grouper memberships");
-        BufferedWriter membershipsWriter = openMembershipWriter(membershipsFile);
+        BufferedWriter updatesWriter = openMembershipWriter(updatesFile);
         String groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
         if (groupNamingAttribute == null)
         {
@@ -361,72 +365,82 @@ public class GrouperProvisioner extends Provisioner
         //
         for (Group group : groups)
         {
+            String groupNameString = null;
+            try
+            {
+                groupNameString = group.getAttribute(groupNamingAttribute);
+            }
+            catch (AttributeNotFoundException e1)
+            {
+                Throwable e = new LdappcRuntimeException("Group " + group.getName() + " has no "
+                        + groupNamingAttribute
+                        + " attribute and cannot be provisioned as a membership", e1);
+                logThrowableWarning(e, "");
+                continue;
+            }
+            if (groupNameString == null)
+            {
+                String errorData = getErrorData(null, null, null);
+                Throwable e = new LdappcRuntimeException("Group " + group.getName() + " has no "
+                        + groupNamingAttribute
+                        + " attribute and cannot be provisioned as a membership");
+                logThrowableWarning(e, errorData);
+                continue;
+            }
+
             //
             // Iterate over the members in the group.
             //
+            Set<String> grouperMemberships = new HashSet<String>();
             for (Member member : (Set<Member>) group.getMembers())
             {
-                //
-                // Get the member's subject
-                //
-                Subject subject = null;
-                try
-                {
-                    subject = member.getSubject();
-                }
-                catch (SubjectNotFoundException snfe)
-                {
-                    //
-                    // If subject not found, log it and continue
-                    // 
-                    String errorData = getErrorData(member, null, null);
-                    logThrowableWarning(snfe, errorData);
-                    continue;
-                }
-
                 //
                 // Look for subject in the directory
                 //
                 Name subjectDn = null;
                 try
                 {
-                    subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
+                    // TODO Must use alternate mechanism to get subject if
+                    // search attr is not the subject ID.
+                    subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, member
+                            .getSubjectSourceId(), member.getSubjectId());
                 }
                 catch (Exception e)
                 {
                     //
                     // If not found, simply log the error and continue
                     //
+                    Subject subject = null;
+                    try
+                    {
+                        subject = member.getSubject();
+                    }
+                    catch (SubjectNotFoundException e1)
+                    {
+                    }
                     String errorData = getErrorData(member, subject, null);
                     logThrowableWarning(e, errorData);
                     continue;
                 }
 
-                try
-                {
-                    //
-                    // Write the subject DN and the group name attribute to the
-                    // memberships file.
-                    //
-                    String groupNameString = group.getAttribute(groupNamingAttribute);
-                    if (groupNameString != null)
-                    {
-                        membershipsWriter.write(subjectDn + "\t" + groupNameString + "\n");
-                    }
-                    else
-                    {
-                        String errorData = getErrorData(member, subject, subjectDn);
-                        Throwable e = new LdappcRuntimeException("Group " + group.getName()
-                                + " has no " + groupNamingAttribute
-                                + " attribute and cannot be provisioned as a membership");
-                        logThrowableWarning(e, errorData);
-                    }
-                }
-                catch (Exception e)
-                {
-                    String errorData = getErrorData(member, subject, null);
-                    logThrowableWarning(e, errorData);
-                }
+                grouperMemberships.add(subjectDn.toString());
+            }
+
+            //
+            // Get the membership synchronizer and try to synchronize
+            //
+            GroupStringMembershipSynchronizer synchronizer = new GroupStringMembershipSynchronizer(
+                    ldapCtx, groupNameString, updatesWriter, configuration, options, subjectCache);
+            try
+            {
+                synchronizer.synchronize(grouperMemberships);
+            }
+            catch (Exception e)
+            {
+                logThrowableError(e, "Unable to synchronize memberships for " + group.getName());
+                caughtExceptions.add(new LdappcException("Unable to synchronize memberships for "
+                        + group.getName(), e));
+                continue;
             }
         }
 
@@ -435,7 +449,7 @@ public class GrouperProvisioner extends Provisioner
         //
         try
         {
-            membershipsWriter.close();
+            updatesWriter.close();
         }
         catch (IOException e)
         {
@@ -447,86 +461,81 @@ public class GrouperProvisioner extends Provisioner
         //
         try
         {
-            ExternalSort.sort(membershipsFile.getAbsolutePath(), 200000);
+            ExternalSort.sort(updatesFile.getAbsolutePath(), 200000);
         }
         catch (IOException e)
         {
             throw new LdappcRuntimeException("Unable to sort membershps file", e);
         }
+        System.exit(0);
 
         //
         // Re-open the sorted memberships file for reading.
         //
-        BufferedReader membershipsReader = openMembershipReader(membershipsFile);
+        BufferedReader updatesReader = openMembershipReader(updatesFile);
 
         //
         // Read the memberships from the file, batching by subject DN.
         // Synchronize the memberships for each subject.
         //
         // DebugLog.info("Beginning memberships updates");
-        Set<String> memberships = new HashSet<String>();
         try
         {
+            Set<String> adds = new HashSet<String>();
+            Set<String> dels = new HashSet<String>();
+            Set<String> reps = new HashSet<String>();
+
             String currentSubjectDn = null;
-            for (String s = null; (s = membershipsReader.readLine()) != null;)
+            for (String s = null; (s = updatesReader.readLine()) != null;)
             {
                 String[] parts = s.split("\t");
                 String subjectDn = parts[0];
-                String groupNameString = parts[1];
+                String modOp = parts[1];
+                String groupNameString = parts[2];
 
-                if (subjectDn.equals(currentSubjectDn))
+                if (!subjectDn.equals(currentSubjectDn))
                 {
-                    //
-                    // Add group to memberships.
-                    //
-                    memberships.add(groupNameString);
-                }
-                else if (currentSubjectDn == null)
-                {
-                    //
-                    // Remove the subject DN from set of existing subjects
-                    //
-                    existingSubjectDns.remove(subjectDn);
-
-                    //
-                    // Set the current subject DN and add the group to
-                    // memberships.
-                    //
+                    if (currentSubjectDn != null)
+                    {
+                        updateSubject(currentSubjectDn, adds, dels, reps);
+                    }
+                    adds.clear();
+                    dels.clear();
+                    reps.clear();
                     currentSubjectDn = subjectDn;
-                    memberships.add(groupNameString);
+                }
+
+                if ("1".equals(modOp))
+                {
+                    adds.add(groupNameString);
+                }
+                else if ("2".equals(modOp))
+                {
+                    reps.add(groupNameString);
                 }
                 else
+                // "3"
                 {
-                    //
-                    // Synchronize the members.
-                    //
-                    if (synchronizeMembers(currentSubjectDn, memberships, caughtExceptions))
-                    {
-                        continue;
-                    }
-
-                    //
-                    // Get ready for the next subjectDn.
-                    //
-                    memberships.clear();
-                    memberships.add(groupNameString);
-                    currentSubjectDn = subjectDn;
+                    dels.add(groupNameString);
                 }
             }
-
-            //
-            // Synchronize the members for the final subject, if any.
-            //
             if (currentSubjectDn != null)
             {
-                synchronizeMembers(currentSubjectDn, memberships, caughtExceptions);
+                updateSubject(currentSubjectDn, adds, dels, reps);
             }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
 
+        try
+        {
             //
             // Close and delete the memberships file.
             //
-            membershipsReader.close();
-            membershipsFile.delete();
+            updatesReader.close();
+            updatesFile.delete();
         }
         catch (IOException e)
         {
@@ -538,8 +547,7 @@ public class GrouperProvisioner extends Provisioner
         //
         try
         {
-            // DebugLog.info("Clearing old memberships from subjects who no
-            // longer have memberships");
+            // DebugLog.info("Clearing old memberships from subjects who no longer have memberships");
             clearSubjectEntryMemberships(existingSubjectDns);
         }
         catch (Exception e)
@@ -557,43 +565,54 @@ public class GrouperProvisioner extends Provisioner
         }
     }
 
-    /**
-     * Synchronize the memberships for the subject DN with the set of members
-     * from Grouper.
-     * 
-     * @param subjectDn
-     *            subject DN to provision
-     * @param memberships
-     *            Set of membership strings to provision
-     * @param caughtExceptions
-     *            Vector of exceptions that have been caught and logged. They
-     *            will be thrown at the end of provisionMemberships.
-     * @return <tt>true</tt> if any additional exceptions were caught.
-     * @throws NamingException
-     *             thrown if an error occured interacting with the directory.
-     * @throws InvalidNameException
-     *             thrown if an error occured interacting with the directory.
-     */
-    private boolean synchronizeMembers(String subjectDn, Set<String> memberships,
-            Vector<Exception> caughtExceptions) throws NamingException, InvalidNameException
+    private void updateSubject(String objectDN, Set<String> adds, Set<String> dels, Set<String> reps)
     {
-        //
-        // Get the membership synchronizer and try to synchronize
-        //
-        MembershipSynchronizer synchronizer = getMembershipSynchronizer(subjectDn);
-        try
+        if (adds.size() == 0 && dels.size() == 0 && reps.size() == 0) return;
+
+        int size = (adds.size() > 0 ? 1 : 0) + (dels.size() > 0 ? 1 : 0)
+                + (reps.size() > 0 ? 1 : 0);
+
+        ModificationItem[] modItems = new ModificationItem[size];
+        int modIndex = 0;
+
+        String listAttribute = configuration.getMemberGroupsListAttribute();
+
+        if (adds.size() > 0)
         {
-            synchronizer.synchronize(memberships);
+            Attribute attrs = new BasicAttribute(listAttribute);
+            for (String groupName : adds)
+            {
+                attrs.add(groupName);
+            }
+            modItems[modIndex++] = new ModificationItem(DirContext.ADD_ATTRIBUTE, attrs);
         }
-        catch (Exception e)
+        if (dels.size() > 0)
         {
-            String errorData = getErrorData(null, null, new LdapName(subjectDn));
-            logThrowableError(e, errorData);
-            caughtExceptions.add(new LdappcException(errorData, e));
-            return true;
+            Attribute attrs = new BasicAttribute(listAttribute);
+            for (String groupName : dels)
+            {
+                attrs.add(groupName);
+            }
+            modItems[modIndex++] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attrs);
+        }
+        if (reps.size() > 0)
+        {
+            Attribute attrs = new BasicAttribute(listAttribute);
+            for (String groupName : reps)
+            {
+                attrs.add(groupName);
+            }
+            modItems[modIndex++] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attrs);
         }
 
-        return false;
+        try
+        {
+            ldapCtx.modifyAttributes(objectDN, modItems);
+        }
+        catch (NamingException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     /**
