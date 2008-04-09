@@ -20,6 +20,7 @@ package edu.internet2.middleware.ldappc.synchronize;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -28,8 +29,6 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
@@ -139,7 +138,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
      */
     protected void populate() throws NamingException
     {
-        Attribute memberships = new BasicAttribute("dummyName");
+        Set<String> memberships = new HashSet<String>();
 
         String listAttrName = getConfiguration().getMemberGroupsListAttribute();
         if (listAttrName == null)
