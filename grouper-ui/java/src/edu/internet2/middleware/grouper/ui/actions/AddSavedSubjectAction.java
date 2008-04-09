@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,18 +22,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.spi.ErrorHandler;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 
+import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.GrouperSession;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
+import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Top level Strut's action which adds a Subject to the 'saved' list. 
@@ -90,27 +98,49 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AddSavedSubjectAction.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: AddSavedSubjectAction.java,v 1.4 2008-04-09 14:24:17 isgwb Exp $
  */
 public class AddSavedSubjectAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(AddSavedSubjectAction.class);
 	
 	public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		DynaActionForm subjectForm = (DynaActionForm) form;
 		String subjectId = subjectForm.getString("subjectId");
 		String subjectType = subjectForm.getString("subjectType");
-		if(subjectId !=null && subjectType!=null) {
-			Subject subj = SubjectFinder.findById(subjectId,subjectType);
-			addSavedSubject(session,subj);
+		String sourceId = subjectForm.getString("sourceId");
+		if(subjectId !=null && subjectType!=null && sourceId !=null) {
+			LOG.info("Saved entity to workspace ("+subjectId + "," +subjectType+"," + sourceId+")");
+			try {
+				Subject subj = SubjectFinder.findById(subjectId,subjectType,sourceId);
+				addSavedSubject(session,subj);
+			}catch (Exception e) {
+				String contextError=null;
+				if(!"group".equals(subjectType)) {
+					 contextError = getNavResources(request).getString("error.saved-subjects.exception");
+				}else{
+					contextError = getNavResources(request).getString("error.saved-groups.exception");	
+				}
+				session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));
+				return redirectToCaller(subjectForm);
+			
+			}
 			if(!"group".equals(subjectType)) {
 				session.setAttribute("sessionMessage",new Message("saved-subjects.added"));
 			}else{
 				session.setAttribute("sessionMessage",new Message("saved-subjects.groups.added"));	
+			}
+		}else{
+			String msg = neh.missingParameters(subjectId,"subjectId",subjectType,"subjectType",sourceId,"sourceId");
+			LOG.error(msg);
+			if(!"group".equals(subjectType)) {
+				session.setAttribute("sessionMessage",new Message("error.saved-subjects.missing-parameter",true));
+			}else{
+				session.setAttribute("sessionMessage",new Message("error.saved-subjects.groups.missing-parameter",true));	
 			}
 		}
 		
