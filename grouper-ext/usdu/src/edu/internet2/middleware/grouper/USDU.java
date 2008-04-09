@@ -31,6 +31,9 @@ public class USDU {
 
   private static final Log LOG = LogFactory.getLog(USDU.class);
 
+  // store the identifier for the GrouperSourceAdapter, probably "g:gsa"
+  private static String grouperSourceAdapterId = null;
+
   /**
    * Run {@link USDU}.
    * 
@@ -124,7 +127,7 @@ public class USDU {
       return;
     }
 
-    if (isMemberResolvable(member)) {
+    if (isMemberResolvable(s, member)) {
       System.out.println("member " + member + " is resolvable");
       return;
     }
@@ -206,10 +209,36 @@ public class USDU {
   }
 
   /**
+   * Return the identifier of the
+   * <code>GrouperSourceAdapter/code>, probably but not
+   * definitely 'g:gsa'.
+   * 
+   * @return
+   *  the GrouperSourceAdapter identifier
+   */
+  public static String getGrouperSourceAdapterId() {
+
+    if (grouperSourceAdapterId == null) {
+
+      for (Object source : SubjectFinder.getSources()) {
+        if (((Source) source) instanceof GrouperSourceAdapter) {
+          grouperSourceAdapterId = ((Source) source).getId();
+        }
+      }
+
+      if (grouperSourceAdapterId == null) {
+        throw new RuntimeException("Cannot find GrouperSourceAdapter");
+      }
+    }
+
+    return grouperSourceAdapterId;
+  }
+
+  /**
    * Find members whose subjects can not be found by their source.
    * 
    * @param s
-   *          GrouperSession
+   *            GrouperSession
    * @param source
    * @return
    */
@@ -219,7 +248,7 @@ public class USDU {
 
     for (Object m : MemberFinder.findAll(s, source)) {
       Member member = (Member) m;
-      if (!isMemberResolvable(member) && !member.getImmediateMemberships().isEmpty()) {
+      if (!isMemberResolvable(s, member) && !member.getImmediateMemberships().isEmpty()) {
         members.add(member);
       }
     }
@@ -233,7 +262,23 @@ public class USDU {
    * @param member
    * @return Boolean true if member's subject is found in source
    */
-  public static boolean isMemberResolvable(Member member) {
+  public static boolean isMemberResolvable(GrouperSession s, Member member) {
+
+    /*
+     * Speedup ala Gary Brown: Calling member.getSubject() causes a
+     * GrouperSubject to be initialised which calls group.getAttributes() which
+     * might be expensive for groups with a large number of attributes. If this
+     * is the GrouperSourceAdapter (g:gsa) source call GroupFinder.findByUuid
+     * instead.
+     */
+    if (member.getSubjectSourceId().equals(getGrouperSourceAdapterId())) {
+      try {
+        GroupFinder.findByUuid(s, member.getSubjectId());
+        return true;
+      } catch (GroupNotFoundException e) {
+        return false;
+      }
+    }
 
     try {
       member.getSubject();
