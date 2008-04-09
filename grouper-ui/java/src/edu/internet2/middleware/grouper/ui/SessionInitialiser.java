@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import java.util.*;
 import javax.servlet.http.*;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 
 import edu.internet2.middleware.grouper.*;
@@ -33,11 +35,11 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.13 2008-03-31 20:04:34 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.14 2008-04-09 14:19:37 isgwb Exp $
  */
 
 public class SessionInitialiser {
-
+	protected static Log LOG = LogFactory.getLog(SessionInitialiser.class);
 	/**
 	 * Sets locale and calls any module specific initialisation
 	 * 
@@ -127,6 +129,7 @@ public class SessionInitialiser {
 			chainedBundle = new ChainedResourceBundle(moduleBundle,
 					"navResource");
 			chainedBundle.addBundle(grouperBundle);
+			session.setAttribute("navExceptionHelper",new NavExceptionHelper(chainedBundle));
 			chainedMediaBundle = new ChainedResourceBundle(moduleMediaBundle,
 					"mediaResource");
 			chainedMediaBundle.addBundle(grouperMediaBundle);
@@ -173,15 +176,18 @@ public class SessionInitialiser {
 		}
 		initThread(session);
 		if(getAuthUser(session)!=null) session.setAttribute("sessionInited", Boolean.TRUE);
-		session.setAttribute("fieldList",GrouperHelper.getFieldsAsMap(chainedBundle));
+		try{
+			session.setAttribute("fieldList",GrouperHelper.getFieldsAsMap(chainedBundle));
+		}catch(Exception e) {
+			LOG.error("Error retrieving Fields: " + e.getMessage());
+		}
 		session.setAttribute("MembershipExporter",new MembershipExporter(chainedMediaBundle));
 		session.setAttribute("MembershipImportManager",new MembershipImportManager(chainedMediaBundle,chainedBundle));
 		Document doc = null;
 		try {
 			doc = DOMHelper.getDomFromResourceOnClassPath("resources/grouper/ui-permissions.xml");
 		}catch(Exception e){
-		  //TODO CH 20080129 is this really an error?  should we log something instead perhaps to a warn level?
-			e.printStackTrace();
+		  LOG.info("resources/grouper/ui-permissions.xml not found. Default permissions apply.");
 		}
 		if(doc==null) {
 			doc=DOMHelper.newDocument();
@@ -203,10 +209,12 @@ public class SessionInitialiser {
 					filter=(MenuFilter)claz.newInstance();
 					menuFilters.add(filter);
 				}catch(Exception e){
-					e.printStackTrace();
+					LOG.error("Unable to add menu filter [" + parts[i] + "]. " + e.getMessage());
 				}
 			}
-		}catch(Exception e){}
+		}catch(MissingResourceException mre){
+			LOG.info("No menu.filters set in media.properties");
+		}
 		
 	}
 
