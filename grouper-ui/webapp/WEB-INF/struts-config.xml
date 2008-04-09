@@ -206,6 +206,8 @@
     <forward name="Groups" path="/populateMyGroups.do" redirect="false"/>
 	<forward name="Index" path="/populateIndex.do" redirect="true"/>
 	<forward name="Login" path="/login.do" redirect="true"/>
+	<forward name="ErrorPage" path="ErrorPageDef" redirect="false"/>
+	<forward name="FilterError" path="/filterError.do" redirect="false"/>
   </global-forwards>
   <action-mappings>
   <action  path="/editJSP"
@@ -597,6 +599,16 @@
       <forward name="error" path="ErrorDef" redirect="false"/>
 	
     </action>
+    
+    <action path="/filterError" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateFilterErrorAction"
+            unknown="false" validate="false">                                            
+      <forward name="error" path="ErrorNoAuthPageDef" redirect="false"/>
+      <forward name="authError" path="ErrorPageDef" redirect="false"/>
+	
+    </action>
+    
+    
 	
 	
 
