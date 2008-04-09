@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -263,6 +264,22 @@ public class AttributeModifier
     }
 
     /**
+     * Initializes this with an empty value set.
+     */
+    public void init()
+    {
+        //
+        // Clear any existing values
+        //
+        clear();
+
+        //
+        // Reset deletesCnt based on new deletes
+        //
+        deletesCnt = deletes.size();
+    }
+
+    /**
      * Initializes this with the values from the given attribute. This clears
      * any pre-existing values, and populates it with the given list of values.
      * 
@@ -305,6 +322,34 @@ public class AttributeModifier
                 }
                 deletes.add((String) value);
             }
+        }
+
+        //
+        // Reset deletesCnt based on new deletes
+        //
+        deletesCnt = deletes.size();
+    }
+
+    /**
+     * Initializes this with the values from the given collection. This clears
+     * any pre-existing values, and populates it with the given list of values.
+     * 
+     * @param collection
+     *            Initial values
+     */
+    public void init(Collection<String> collection)
+    {
+        //
+        // Clear any existing values
+        //
+        clear();
+
+        //
+        // Populate deletes with current values
+        //
+        if (collection != null)
+        {
+            deletes.addAll(collection);
         }
 
         //
