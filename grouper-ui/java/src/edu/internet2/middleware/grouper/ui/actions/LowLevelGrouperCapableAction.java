@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.ui.GrouperComparator;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -71,7 +72,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.15 2008-02-06 06:26:07 mchyzer Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.16 2008-04-09 14:27:36 isgwb Exp $
  */
 
 /**
@@ -135,7 +136,7 @@ public abstract class LowLevelGrouperCapableAction
 	/**
 	 * Convenience method to retrieve nav ResourceBundle
 	 */
-	public ResourceBundle getNavResources(HttpServletRequest request) {
+	public static ResourceBundle getNavResources(HttpServletRequest request) {
 		HttpSession session = request.getSession();
 		return getNavResources(session);
 	}
@@ -143,7 +144,7 @@ public abstract class LowLevelGrouperCapableAction
 	/**
 	 * Convenience method to retrieve nav ResourceBundle
 	 */
-	public ResourceBundle getNavResources(HttpSession session) {
+	public static ResourceBundle getNavResources(HttpSession session) {
 		return getNavResourcesStatic(session);
 	}
 	
@@ -551,6 +552,15 @@ public abstract class LowLevelGrouperCapableAction
 		}
 		if(toSort.size()<=max) Collections.sort(toSort,gc);
 		return toSort;
+	}
+	
+	public static NavExceptionHelper getExceptionHelper(HttpSession session) {
+		NavExceptionHelper neh = (NavExceptionHelper)session.getAttribute("navExceptionHelper");
+		if(neh==null) {
+			neh=new NavExceptionHelper(getNavResources(session));
+			session.setAttribute("navExceptionHelper", neh);
+		}
+		return neh;
 	}
 }
 
