@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ package edu.internet2.middleware.grouper.ui.actions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -34,7 +37,10 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
+import edu.internet2.middleware.grouper.ui.CallerPageException;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 /**
  * Superclass for all Actions which need to do Grouper stuff. Other handy methods 
@@ -170,11 +176,13 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.13 2008-04-02 12:22:49 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.14 2008-04-09 14:26:16 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
 	extends LowLevelGrouperCapableAction {
+	protected static Log LOG = LogFactory.getLog(GrouperCapableAction.class);
+	
 	public static final String HIER_DELIM = GrouperHelper.HIER_DELIM; 
 	/**
 	 * Action specific - must be implemented by all subclasses
@@ -191,15 +199,16 @@ public abstract class GrouperCapableAction
 	public  ActionForward grouperTransactionExecute(final ActionMapping mapping, final ActionForm form,
 		      final HttpServletRequest request, final HttpServletResponse response,
 			  final HttpSession session, final GrouperSession grouperSession) throws Exception {
-	
-	return (ActionForward)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() { 
-		public Object callback(GrouperTransaction grouperTransaction) throws GrouperDAOException {
-			try{
-				return grouperExecute(mapping,form,request,response,session,grouperSession);
-			}catch(Exception e) {
-				throw new GrouperDAOException(e);
-			}
-		}});
+		
+			return (ActionForward)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() { 
+				public Object callback(GrouperTransaction grouperTransaction) throws GrouperDAOException {
+					try{
+						return grouperExecute(mapping,form,request,response,session,grouperSession);
+					}catch(Exception e) {
+						throw new GrouperDAOException(e);
+					}
+				}});
+		
 	}
 	
 	/**
@@ -242,9 +251,23 @@ public abstract class GrouperCapableAction
 			}
 			Date before = new Date();
 			ActionForward forward =  null;
-			
-			if(isEmpty(wheelGroupAction)) forward=grouperTransactionExecute(mapping,form,request,response,session,grouperSession);
-			else forward = new ActionForward(getMediaResources(session).getString("admin.browse.path"),true);
+			try {
+				if(isEmpty(wheelGroupAction)) {
+					
+						forward=grouperTransactionExecute(mapping,form,request,response,session,grouperSession);
+					
+				}else forward = new ActionForward(getMediaResources(session).getString("admin.browse.path"),true);
+			}catch(GrouperDAOException e) {
+				Throwable cause=e.getCause();
+				if(!(cause instanceof UnrecoverableErrorException)) {
+					LOG.error(NavExceptionHelper.toLog(cause));
+					cause=new UnrecoverableErrorException(cause);
+				}
+				NavExceptionHelper neh=getExceptionHelper(session);
+				String msg = neh.getMessage((UnrecoverableErrorException)cause);
+				request.setAttribute("seriousError",msg);
+				forward=mapping.findForward("ErrorPage");
+			}
 			Date after = new Date();
 			long diff = after.getTime()-before.getTime();
 			String url = request.getServletPath();
@@ -438,9 +461,12 @@ public abstract class GrouperCapableAction
 	 * @return Map containing details of previous pages visited
 	 * @throws IllegalStateException
 	 */
-	public static Map[] getCallerPageData(HttpServletRequest request ,String id) throws IllegalStateException {
+	public static Map[] getCallerPageData(HttpServletRequest request ,String id)  {
 		Map callerPageHistory = (Map)request.getSession().getAttribute("callerPageHistory");
-		if(callerPageHistory==null || !callerPageHistory.containsKey(id)) throw new IllegalStateException("No caller page data for ID=" + id);
+		if(callerPageHistory==null || !callerPageHistory.containsKey(id)) {
+			CallerPageException e= new CallerPageException("No caller page data for ID=" + id);
+			throw (CallerPageException)NavExceptionHelper.fillInStacktrace(e);
+		}
 		return (Map[]) callerPageHistory.get(id);
 	}
 	
