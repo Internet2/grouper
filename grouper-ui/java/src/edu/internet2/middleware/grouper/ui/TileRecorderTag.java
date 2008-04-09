@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,17 +28,22 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Used in conjunction with ELTileRecorderTag to print a comment in current page
  * output which shows which template was rendered. If a dynamic template it
  * indicates the object type, view, selected key and template name
  * 
  * @author Gary Brown.
- * @version $Id: TileRecorderTag.java,v 1.6 2007-12-13 09:33:25 isgwb Exp $
+ * @version $Id: TileRecorderTag.java,v 1.7 2008-04-09 14:21:08 isgwb Exp $
  */
 
 public class TileRecorderTag extends TagSupport implements TryCatchFinally{
+	protected Log LOG = LogFactory.getLog(TileRecorderTag.class);
 	public void doCatch(Throwable ex) throws Throwable {
+		LOG.error(ex);
 		try {
 			Map navMap = (Map)pageContext.findAttribute("navMap");
 			Object errMsg=navMap.get("jsp.error");
@@ -51,6 +56,7 @@ public class TileRecorderTag extends TagSupport implements TryCatchFinally{
 			thisTemplate.put("jspErr", ex);
 			
 		} catch (Exception e) {
+			LOG.error("Error handling doCatch.",e);
 		}
 		
 	}
@@ -157,6 +163,7 @@ public class TileRecorderTag extends TagSupport implements TryCatchFinally{
 		HttpServletRequest request = (HttpServletRequest)pageContext.getRequest();
 		Throwable t = (Throwable)request.getAttribute("uiException");
 		if(t!=null) {
+			LOG.error(t);
 			request.removeAttribute("uiException");
 			Map thisTemplate = (Map) parent.get(0);
 			thisTemplate.put("jspErr", t);
