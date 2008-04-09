@@ -356,6 +356,8 @@
                 type="grouper-attribute-name-type" />
             <xs:attribute name="list-empty-value"
                 type="empty-attribute-value-type" />
+            <xs:attribute name="list-temporary-directory"
+                type="xs:string" />
         </xs:complexType>
     </xs:element>
 
