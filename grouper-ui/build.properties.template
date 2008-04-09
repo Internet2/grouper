@@ -9,6 +9,10 @@
 #If you want a unique ticket to be displayed on the error page,set error.ticket=true
 #error.ticket=true
 
+#Sets value in media.properties. Note that Grouper cannot guarantee that
+#ending the session will log the user out of your authentication system!!!
+logout.link.show=true
+
 #Switches to UI specific log4j.properties
 #use.local.log4j=true
 

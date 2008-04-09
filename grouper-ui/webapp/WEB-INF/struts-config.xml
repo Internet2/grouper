@@ -205,6 +205,7 @@
     <forward name="MyGroups" path="/populateMyGroups.do" redirect="false"/>
     <forward name="Groups" path="/populateMyGroups.do" redirect="false"/>
 	<forward name="Index" path="/populateIndex.do" redirect="true"/>
+	
 	<forward name="Login" path="/login.do" redirect="true"/>
 	<forward name="ErrorPage" path="ErrorPageDef" redirect="false"/>
 	<forward name="FilterError" path="/filterError.do" redirect="false"/>
@@ -401,7 +402,7 @@
     <action path="/logout" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.LogoutAction"
             unknown="false" validate="false">
-      
+      <forward name="Index" path="/populateIndex.do" redirect="false"/>
     </action>
     
     <action  name="SearchFormBean" path="/populateAssignNewMembers"

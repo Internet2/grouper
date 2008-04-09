@@ -17,10 +17,16 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -96,11 +102,13 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 </table>
 
  * @author Gary Brown.
- * @version $Id: LogoutAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: LogoutAction.java,v 1.3 2008-04-09 17:58:19 isgwb Exp $
  */
 
 public class LogoutAction extends GrouperCapableAction {
-
+	protected static Log LOG = LogFactory.getLog(LogoutAction.class);
+	private static boolean mediaLogged=false;
+	
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_Index = "Index";
@@ -115,11 +123,47 @@ public class LogoutAction extends GrouperCapableAction {
 		String user = SessionInitialiser.getAuthUser(session);
 		if (user == null)
 			user = "";
-
-		request.setAttribute("message", new Message(
+		if("BASIC".equals(request.getAuthType())) {
+			request.setAttribute("message", new Message(
+					"auth.message.logout-basic", user,true));
+		}else{
+			request.setAttribute("message", new Message(
 				"auth.message.logout-success", user));
+		}
+		ResourceBundle media = getMediaResources(request);
+		String cookiesToDelete = "none";
+		try {
+			cookiesToDelete = media.getString("logout.cookies-to-delete");
+			if(!mediaLogged) LOG.info("logout.cookies-to-delete=" + cookiesToDelete);
+		}catch(MissingResourceException mre) {
+			if(!mediaLogged) LOG.info("logout.cookies-to-delete not present in media.properties");
+		}
+		mediaLogged=true;
+		String[] cookieNames = cookiesToDelete.split("( |,)");
+		if(cookieNames.length==1 && cookieNames[0].equals("none")) {
+			//do nothing
+		}else {
+			Cookie[] cookies = request.getCookies();
+			if(cookies!=null) {
+				for(Cookie c : cookies) {
+					for(String name : cookieNames) {
+						try {
+							if((cookieNames.length==1 && "all".equals(name)) || c.getName().equals(name) || c.getName().matches(name)) {
+								c.setMaxAge(0);
+								response.addCookie(c);
+								break;
+							}
+						}catch(Exception e) {
+							LOG.error("Error matching " + c.getName() + " with " + name,e);
+						}
+					}
+				}
+			}
+		}
+		LOG.info("User logged out");
 		session.invalidate();
-		
+		SessionInitialiser.init(request);
+		String m = request.getAuthType();
 		Cookie cookie = new Cookie("_grouper_loggedOut", "true");
 		response.addCookie(cookie);
 		request.setAttribute("loggedOut", Boolean.TRUE);

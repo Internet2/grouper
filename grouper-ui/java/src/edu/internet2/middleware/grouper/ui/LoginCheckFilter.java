@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.13 2008-04-09 14:16:57 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.14 2008-04-09 17:58:19 isgwb Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -116,7 +116,7 @@ public class LoginCheckFilter implements Filter {
 						response.addCookie(cookies[i]);
 						response.setHeader("GrouperRelogin", "true");
 					} else {
-						loggedOut = true;
+						//loggedOut = true;
 					}
 				}
 			}
