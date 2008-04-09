@@ -354,7 +354,7 @@
 	  </description>
  </definition>
 	 
-  <definition name="initDef" path="/WEB-INF/jsp/initPreLoginSession.jsp">
+  <definition name="initDef" path="/WEB-INF/jsp/empty.jsp">
 	  <description>
 		  Ensures that session is initialised with
 		  ResourceBundles. May be called even  when
@@ -718,5 +718,18 @@
 		Page which controls slideshow of test results
 	  </description>
    </definition>
-
+   
+   <definition extends="BaseDef" name="ErrorPageDef">
+	 <description>
+		 Catch all error page
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/ErrorPage.jsp"/>
+  </definition>
+   <definition extends="BaseDef" name="ErrorNoAuthPageDef">
+	 <description>
+		 Catch all error page when not authenticated
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/ErrorPage.jsp"/>
+     <put name="left" type="page" value="/WEB-INF/jsp/empty.jsp"/>
+  </definition>
 </tiles-definitions> 
