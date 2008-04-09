@@ -262,7 +262,7 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
         //
         // Populate the objectClass modifier if needed
         //
-        objectClassMods.init(null);
+        objectClassMods.init();
         String stringObjectClass = getConfiguration()
                 .getPermissionsListingStringObjectClass();
         if (stringObjectClass != null)

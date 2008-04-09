@@ -183,7 +183,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
         //
         // Populate the objectClass modifier if needed
         //
-        objectClassMods.init(null);
+        objectClassMods.init();
         String stringObjectClass = getConfiguration()
                 .getMemberGroupsListObjectClass();
         if (stringObjectClass != null)
