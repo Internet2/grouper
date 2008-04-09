@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2006 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2006 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -39,8 +41,13 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.MemberNotFoundException;
+import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -265,10 +272,11 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.19 2008-04-07 08:46:58 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.20 2008-04-09 14:43:31 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
-
+	
+	protected static final Log LOG = LogFactory.getLog(PopulateSubjectSummaryAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_SubjectSummary = "SubjectSummary";
@@ -282,14 +290,16 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		DynaActionForm subjectForm = (DynaActionForm) form;
 		if("true".equals(request.getParameter("changeMode"))) PopulateSearchSubjectsAction.initMode(session);
 		session.setAttribute("subtitle", "subject.action.show-summary");
 		if(isEmpty(subjectForm.get("callerPageId"))) {
 			if(isEmpty(subjectForm.get("subjectId"))) {
+				LOG.info("Restoring lastSubjectSummaryForm");
 				restoreDynaFormBean(session,subjectForm,"lastSubjectSummaryForm");
 			}else{
+				LOG.info("Saving lastSubjectSummaryForm");
 				saveDynaFormBean(session,subjectForm,"lastSubjectSummaryForm");
 				saveAsCallerPage(request,subjectForm);
 			}
@@ -304,18 +314,42 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}
 		Field mField = null;
 		try {
-		mField=FieldFinder.find(membershipField);
-		}catch(Throwable t) {
-			t.printStackTrace();
+			mField=FieldFinder.find(membershipField);
+		}catch(SchemaException e) {
+			LOG.error("Could not find Field: " + membershipField,e);
+			if("members".equals(membershipField)) {
+				LOG.fatal("Built in field: members, missing");
+				throw new UnrecoverableErrorException(e);
+			}else{
+				mField=FieldFinder.find("members");
+				request.setAttribute("message",new Message("error.subject-summary.missing-field",listField,true));
+			}
 		}
 		
 		subjectForm.set("contextSubject","true");
 		String subjectId = (String)subjectForm.get("subjectId");
 		String subjectType = (String)subjectForm.get("subjectType");
 		String subjectSource = (String)subjectForm.get("sourceId");
-		Subject subject = SubjectFinder.findById(subjectId,subjectType,subjectSource);
+		if(isEmpty(subjectId) || isEmpty(subjectType) || isEmpty(subjectSource)) {
+			String msg = neh.missingParameters(subjectId,"subjectId",subjectType,"subjectType",subjectSource,"sourceId");
+			LOG.error(msg);
+			if(doRedirectToCaller(subjectForm)) {
+				session.setAttribute("sessionMessage",new Message("error.subject-summary.missing-parameter",true));
+				return redirectToCaller(subjectForm);
+			}
+			throw new UnrecoverableErrorException("error.subject-summary.missing-parameter");
+		}
+		Subject subject = null;
+		try{ 
+			subject=SubjectFinder.findById(subjectId,subjectType,subjectSource);
+		}catch (Exception e) {
+			LOG.error(e);
+			String contextError="error.subject-summary.subject.exception";
+			session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));
+			if(doRedirectToCaller(subjectForm)) return redirectToCaller(subjectForm);
+			throw new UnrecoverableErrorException(contextError,e);
+		}
 		Map subjectMap = GrouperHelper.subject2Map(subject);
-		
 		request.setAttribute("subject",subjectMap);
 		
 		String order=null;
@@ -363,7 +397,18 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		session.setAttribute("subjectSummaryNamingPriv",namingPriv);
 		subjectForm.set("namingPriv",namingPriv);
 		//Retrieve the membership according to scope selected by user
-		Member member = MemberFinder.findBySubject(grouperSession,subject);
+		Member member = null;
+		try {
+			member=MemberFinder.findBySubject(grouperSession,subject);
+		}catch(MemberNotFoundException e) {
+			LOG.error(e);
+			if(doRedirectToCaller(subjectForm)) {
+				session.setAttribute("sessionMessage",new Message("error.subject-summary.member.exception",true));
+				return redirectToCaller(subjectForm);
+			}
+			throw new UnrecoverableErrorException("error.subject-summary.member.exception",e);
+		
+		}
 		Set subjectScopes = null;
 		List subjectScopeMaps = null;
 		Map listViews = new HashMap();
