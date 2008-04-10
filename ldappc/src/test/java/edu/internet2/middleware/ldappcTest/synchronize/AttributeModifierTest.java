@@ -219,7 +219,7 @@ public class AttributeModifierTest extends TestCase
             //
             am.setNoValue(noValue);
             attr.clear();
-            am.init(null);
+            am.init();
             ModificationItem[] mods = am.getModifications();
             assertEquals("To many modification items", 1, mods.length);
             assertEquals("Wrong modification operation", mods[0]
@@ -272,7 +272,7 @@ public class AttributeModifierTest extends TestCase
             // Test that no modifications are returned
             //
             am.setNoValue(null);
-            am.init(null);
+            am.init();
             ModificationItem[] mods = am.getModifications();
             assertEquals("Wrong number of modification items", 0, mods.length);
         }
@@ -325,7 +325,7 @@ public class AttributeModifierTest extends TestCase
             // Test storing values in both upper and lower case to ensure
             // duplicates not added
             //
-            am.init(null);
+            am.init();
             attr.clear();
             for(int i = 0; i < lowerCaseSet.length; i++)
             {
@@ -492,7 +492,7 @@ public class AttributeModifierTest extends TestCase
             //
             // Test storing values
             //
-            am.init(null);
+            am.init();
             attr.clear();
             for(int i = 0; i < lowerCaseSet.length; i++)
             {

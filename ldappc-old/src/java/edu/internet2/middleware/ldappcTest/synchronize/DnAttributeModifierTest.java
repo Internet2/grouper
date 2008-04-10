@@ -137,7 +137,7 @@ public class DnAttributeModifierTest extends TestCase
             // Test storing values in both upper and lower case to ensure
             // duplicates not added
             //
-            am.init(null);
+            am.init();
             attr.clear();
             for(int i = 0; i < dnSet.length; i++)
             {
