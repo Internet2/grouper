@@ -156,7 +156,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
 
             // set search result attributes
             String[] searchAttributes = new String[1];
-            searchAttributes[0] = "cn";
+            searchAttributes[0] = "objectClass";
 
             // set search controls
             SearchControls searchControls = new SearchControls();
