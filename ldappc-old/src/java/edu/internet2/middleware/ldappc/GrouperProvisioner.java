@@ -60,7 +60,6 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.grouper.queryFilter.GroupAttributeExactFilter;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupStringMembershipSynchronizer;
@@ -331,12 +330,9 @@ public class GrouperProvisioner extends Provisioner
         // Build the set of all subjects with memberships
         //
         // DebugLog.info("Collecting existing subjects with memberships");
-        Set<Name> existingSubjectDns = buildSourceSubjectDnSet();
-
-        //
-        // Set to hold Uuids of processed members
-        //
-        Set<String> processedMembers = new HashSet<String>();
+        Set<Name> existingSubjectDns = new HashSet<Name>();
+        Set<String> existingObjectDns = new HashSet<String>();
+        buildSourceSubjectDnSet(existingSubjectDns, existingObjectDns);
 
         //
         // File for writing memberships to when provisioning memberships. Each
@@ -361,26 +357,13 @@ public class GrouperProvisioner extends Provisioner
         //
         for (Group group : groups)
         {
-            String groupNameString = null;
-            try
-            {
-                groupNameString = group.getAttribute(groupNamingAttribute);
-            }
-            catch (AttributeNotFoundException e1)
-            {
-                Throwable e = new LdappcRuntimeException("Group " + group.getName() + " has no "
-                        + groupNamingAttribute
-                        + " attribute and cannot be provisioned as a membership", e1);
-                logThrowableWarning(e, "");
-                continue;
-            }
+            //
+            // Get the value corresponding to the group to be provisioned as a
+            // membership. Skip if not available for this group.
+            //
+            String groupNameString = getGroupNameString(group, groupNamingAttribute);
             if (groupNameString == null)
             {
-                String errorData = getErrorData(null, null, null);
-                Throwable e = new LdappcRuntimeException("Group " + group.getName() + " has no "
-                        + groupNamingAttribute
-                        + " attribute and cannot be provisioned as a membership");
-                logThrowableWarning(e, errorData);
                 continue;
             }
 
@@ -393,15 +376,21 @@ public class GrouperProvisioner extends Provisioner
                 //
                 // Look for subject in the directory
                 //
-                Name subjectDn = getSubjectDn(member, existingSubjectDns);
+                Name subjectDn = getSubjectDn(member);
                 if (subjectDn != null)
                 {
+                    //
+                    // Add subject DN to members and remove it from the list of
+                    // existing subjects.
+                    //
                     grouperMemberships.add(subjectDn.toString());
+                    existingSubjectDns.remove(subjectDn);
                 }
             }
 
             //
-            // Get the membership synchronizer and try to synchronize
+            // Get the membership synchronizer and synchronize by writing
+            // updates to the updates file.
             //
             GroupStringMembershipSynchronizer synchronizer = new GroupStringMembershipSynchronizer(
                     ldapCtx, groupNameString, updatesWriter, configuration, options, subjectCache);
@@ -445,7 +434,7 @@ public class GrouperProvisioner extends Provisioner
         //
         // Read the updates and make the changes to the LDAP objects.
         //
-        performActualMembershipUpdates(updatesFile);
+        performActualMembershipUpdates(updatesFile, existingObjectDns);
 
         //
         // Clear the memberships from any subject not processed above.
@@ -471,16 +460,51 @@ public class GrouperProvisioner extends Provisioner
     }
 
     /**
+     * Get the membership value to be provisioned into an LDAP membership for a
+     * group.
+     * 
+     * @param group
+     *            Group for which to get membership string.
+     * @param groupNamingAttribute
+     *            attribute name to be provisioned as a membership.
+     * @return value of the membership attribute.
+     */
+    private String getGroupNameString(Group group, String groupNamingAttribute)
+    {
+        String groupNameString = null;
+
+        try
+        {
+            groupNameString = group.getAttribute(groupNamingAttribute);
+            if (groupNameString == null)
+            {
+                String errorData = getErrorData(null, null, null);
+                Throwable e = new LdappcRuntimeException("Group " + group.getName() + " has no "
+                        + groupNamingAttribute
+                        + " attribute and cannot be provisioned as a membership");
+                logThrowableWarning(e, errorData);
+            }
+        }
+        catch (AttributeNotFoundException e1)
+        {
+            Throwable e = new LdappcRuntimeException(
+                    "Group " + group.getName() + " has no " + groupNamingAttribute
+                            + " attribute and cannot be provisioned as a membership", e1);
+            logThrowableWarning(e, "");
+        }
+
+        return groupNameString;
+    }
+
+    /**
      * Get the subjectDn for a member. Remove the subject from the existing
      * subjectDns set.
      * 
      * @param member
      *            Member for which to retrieve subject DN
-     * @param existingSubjectDns
-     *            Set of DN values that have memberships
      * @return the subject DN for the Member.
      */
-    private Name getSubjectDn(Member member, Set<Name> existingSubjectDns)
+    private Name getSubjectDn(Member member)
     {
         Name subjectDn = null;
 
@@ -500,8 +524,6 @@ public class GrouperProvisioner extends Provisioner
                 Subject subject = member.getSubject();
                 subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
             }
-
-            existingSubjectDns.remove(subjectDn);
         }
         catch (Exception e)
         {
@@ -564,8 +586,10 @@ public class GrouperProvisioner extends Provisioner
      * 
      * @param updatesFile
      *            File containing the updates.
+     * @param existingObjectDns
+     *            Set containing subject DNs that have the list object class.
      */
-    private void performActualMembershipUpdates(File updatesFile)
+    private void performActualMembershipUpdates(File updatesFile, Set<String> existingObjectDns)
     {
         //
         // Re-open the sorted memberships file for reading.
@@ -595,7 +619,8 @@ public class GrouperProvisioner extends Provisioner
                 {
                     if (currentSubjectDn != null)
                     {
-                        updateSubject(currentSubjectDn, adds, dels, reps);
+                        updateSubject(currentSubjectDn, existingObjectDns.contains(subjectDn),
+                                adds, dels, reps);
                     }
                     adds.clear();
                     dels.clear();
@@ -618,7 +643,8 @@ public class GrouperProvisioner extends Provisioner
             }
             if (currentSubjectDn != null)
             {
-                updateSubject(currentSubjectDn, adds, dels, reps);
+                updateSubject(currentSubjectDn, !existingObjectDns.contains(currentSubjectDn),
+                        adds, dels, reps);
             }
         }
         catch (IOException e)
@@ -647,6 +673,8 @@ public class GrouperProvisioner extends Provisioner
      * 
      * @param objectDN
      *            Subject object to update.
+     * @param addMemberObjectClass
+     *            <code>true</code> if subject needs list object class added.
      * @param adds
      *            Set of memberships to add.
      * @param dels
@@ -654,18 +682,26 @@ public class GrouperProvisioner extends Provisioner
      * @param reps
      *            Set of memberships to replace existing memberships with.xd
      */
-    private void updateSubject(String objectDN, Set<String> adds, Set<String> dels, Set<String> reps)
+    private void updateSubject(String objectDN, boolean addMemberObjectClass, Set<String> adds,
+            Set<String> dels, Set<String> reps)
     {
         if (adds.size() == 0 && dels.size() == 0 && reps.size() == 0) return;
 
-        int size = (adds.size() > 0 ? 1 : 0) + (dels.size() > 0 ? 1 : 0)
-                + (reps.size() > 0 ? 1 : 0);
+        int size = (addMemberObjectClass ? 1 : 0) + (adds.size() > 0 ? 1 : 0)
+                + (dels.size() > 0 ? 1 : 0) + (reps.size() > 0 ? 1 : 0);
 
         ModificationItem[] modItems = new ModificationItem[size];
         int modIndex = 0;
 
         String listAttribute = configuration.getMemberGroupsListAttribute();
+        String listObjectClass = configuration.getMemberGroupsListObjectClass();
 
+        if (addMemberObjectClass)
+        {
+            Attribute attrs = new BasicAttribute(LdapUtil.OBJECT_CLASS_ATTRIBUTE);
+            attrs.add(listObjectClass);
+            modItems[modIndex++] = new ModificationItem(DirContext.ADD_ATTRIBUTE, attrs);
+        }
         if (adds.size() > 0)
         {
             Attribute attrs = new BasicAttribute(listAttribute);
@@ -779,17 +815,15 @@ public class GrouperProvisioner extends Provisioner
      * identified by the filter and that has the member group listing attribute
      * populated is included in the subject DN set.
      * 
-     * @return Set of subject DNs
+     * @param subjectDns
+     *            Set of subject DNs to populate
+     * @param subjectObjectDns
+     *            Set of DNs containing list object class to populate
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    protected Set<Name> buildSourceSubjectDnSet() throws NamingException
+    protected void buildSourceSubjectDnSet(Set<Name> subjectDns, Set<String> subjectObjectDns) throws NamingException
     {
-        //
-        // Init the map to return
-        //
-        Set<Name> subjectDns = new HashSet<Name>();
-
         //
         // Get the source to subject ldap filter mapping from the configuration
         //
@@ -810,10 +844,8 @@ public class GrouperProvisioner extends Provisioner
             //
             // Add the subjectDns for this source
             //
-            addSubjectDnSet(subjectDns, filter, source);
+            addSubjectDnSet(subjectDns, subjectObjectDns, filter, source);
         }
-
-        return subjectDns;
     }
 
     /**
@@ -823,6 +855,8 @@ public class GrouperProvisioner extends Provisioner
      * 
      * @param subjectDns
      *            Set of subject DNs
+     * @param subjectObjectDns
+     *            Set of DNs with list object class
      * @param filter
      *            Ldap search filter defined for a source
      * @param source
@@ -830,7 +864,8 @@ public class GrouperProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    private void addSubjectDnSet(Set<Name> subjectDns, LdapSearchFilter filter, String source) throws NamingException
+    private void addSubjectDnSet(Set<Name> subjectDns, Set<String> subjectObjectDns,
+            LdapSearchFilter filter, String source) throws NamingException
     {
         //
         // Build the search control
@@ -859,11 +894,16 @@ public class GrouperProvisioner extends Provisioner
         //
         // Build the actual filter expression for performing the search
         //
-        String filterExpr = ldapFilter + "(" + listAttribute + "=*)";
-        if (listObjectClass != null)
+        String filterExpr = ldapFilter;
+        if (listObjectClass == null)
         {
-            filterExpr = filterExpr + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + listObjectClass
-                    + ")";
+            filterExpr = filterExpr + "(" + listAttribute + "=*)";
+        }
+        else
+        {
+            String subExpr = "(" + listAttribute + "=*)";
+            subExpr = subExpr + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + listObjectClass + ")";
+            filterExpr = filterExpr + "(|" + subExpr + ")";
         }
         filterExpr = "(&" + filterExpr + ")";
 
@@ -894,10 +934,24 @@ public class GrouperProvisioner extends Provisioner
             Name subjectDn = parser.parse(searchResult.getName());
             subjectDn = subjectDn.addAll(0, baseDn);
 
-            //
-            // Save the subject dn
-            //
-            subjectDns.add(subjectDn);
+            boolean hasObjectClass = true;
+            if (listObjectClass != null)
+            {
+                hasObjectClass = searchResult.getAttributes().get(LdapUtil.OBJECT_CLASS_ATTRIBUTE)
+                        .contains(listObjectClass);
+            }
+
+            if (searchResult.getAttributes().get(listAttribute) != null)
+            {
+                //
+                // Save the subject dn
+                //
+                subjectDns.add(subjectDn);
+            }
+            if (hasObjectClass)
+            {
+                subjectObjectDns.add(subjectDn.toString());
+            }
         }
     }
 
