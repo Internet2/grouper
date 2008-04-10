@@ -62,6 +62,11 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 public class GroupEntrySynchronizer extends GroupSynchronizer
 {
     /**
+     * Default size of group hash tables if not specified in configuration.
+     */
+    private static final int                   DEFAULT_HASH_SIZE = 100000;
+
+    /**
      * Set of ou DNs to be deleted
      */
     private Set<Name>                          deleteOus;
@@ -149,14 +154,20 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         // Call super constructor
         //
         super(ctx, root, configuration, options, subjectCache);
+        
+        int estimate = configuration.getGroupHashEstimate();
+        if (estimate == 0)
+        {
+            estimate = DEFAULT_HASH_SIZE;
+        }
 
         //
         // Init various objects
         //
-        deleteOus = new HashSet<Name>();
-        processedOus = new HashSet<Name>();
-        deleteGroups = new HashSet<Name>();
-        processedGroups = new HashSet<Name>();
+        deleteOus = new HashSet<Name>(DEFAULT_HASH_SIZE);
+        processedOus = new HashSet<Name>(DEFAULT_HASH_SIZE);
+        deleteGroups = new HashSet<Name>(DEFAULT_HASH_SIZE);
+        processedGroups = new HashSet<Name>(DEFAULT_HASH_SIZE);
 
         mappedGrouperAttributes = new HashMap<String, AttributeModifier>();
         mappedLdapAttributes = new BasicAttributes(true);
