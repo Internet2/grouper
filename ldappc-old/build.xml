@@ -230,6 +230,7 @@
         <property name="basedir.src" location="${basedir}/src"/>
         <property name="basedir.doc" location="${basedir}/doc"/>
         <property name="basedir.conf" location="${basedir}/conf"/>
+        <property name="basedir.scripts" location="${basedir}/scripts"/>
         <property name="basedir.src.java" location="${basedir.src}/java"/>
         <property name="basedir.src.schemadir" location="${basedir.src.java}/edu/internet2/middleware/${app}/schema"/>
         <property name="basedir.doc.javadoc" location="${basedir.doc}/javadoc"/>
@@ -261,6 +262,7 @@
         <property name="buildapp.lib" location="${buildapp}/lib"/>
         <property name="buildapp.logs" location="${buildapp}/logs"/>
         <property name="buildapp.conf" location="${buildapp}/conf"/>
+        <property name="buildapp.scripts" location="${buildapp}/scripts"/>
 
         <property name="distdirName" value="distributions"/>
         <property name="distdir" location="${basedir}/${distdirName}"/>
@@ -400,6 +402,24 @@
 
     </target>
 
+	<!--
+	-->
+	
+	<target name="createJar" depends="compile" description="Compile project and create a jar">
+        <property name="ldappcJarName" value="${app}-${impl.version}-${DSTAMP}-${TSTAMP}.jar"/>
+        <jar basedir="${buildapp.classes}" destfile="${buildapp.lib}/${ldappcJarName}">
+            <manifest>
+                <attribute name="Built-By"                value="${Tom Barton, et.al.}"/>
+                <attribute name="Implementation-Vendor"   value="${impl.vendor}" />
+                <attribute name="Implementation-Title"    value="${app}" />
+                <attribute name="Implementation-Version"  value="${impl.version}" />
+                <attribute name="Implementation-URL"      value="${impl.url}" />
+                <attribute name="Main-Class"              value="edu.internet2.middleware.ldappc.Ldappc" />
+            </manifest>
+        </jar>
+		
+	</target>
+
     <!-- 
         ******************************************
         ********** BUILD COPY SECTION. ***********
@@ -420,8 +440,11 @@
         <property name="sourcesXmlDir" value="${applicationConfigDir}" />
         <property name="sourcesXml" value="${sourcesXmlDir}/sources.xml"/>
         <antcall target="copyconfig"/>
+        <antcall target="copyscripts"/>
         <antcall target="copyxsd"/>
         <antcall target="copysourcetestdata"/>
+    	<antcall target="copylib"/>
+    	<antcall target="createJar"/>
         
     </target>
 
@@ -429,13 +452,7 @@
         ********** Copy all library files to the build lib directory. ********** copylib
     -->
 
-    <!-- Do not need this step unless we have to select libraries from the main lib
-         directory, such as if there are two competing versions of a jar file.
-         If this is needed, the we also need to use the buildapp.lib directory
-         instead of the basedir.lib directory for the build classpath later on.
-     -->
-    <!-- 
-    <target name="copylib" depends="setCopyFiles">
+    <target name="copylib" depends="makeDirectories">
         <echo message="Copying all needed files from ${basedir.lib} to ${buildapp.lib}"/>
         <copy todir="${buildapp.lib}">
             <fileset dir="${basedir.lib}">
@@ -444,7 +461,6 @@
             </fileset>
         </copy>
     </target>
-     -->
 
     <!-- 
         ********** Copy the configuration directory to the build directory. ********** copyconfig
@@ -464,6 +480,19 @@
              ${sourcesXml} location. The sources.xml file needs to be in the
              same directory as the other configuration files. -->
         <copy overwrite="true" file="${sourcesXml}" todir="${buildapp.conf}"/>
+    </target>
+
+	<!--
+		********** Copy the scripts directory to the build directory ********** copyscripts
+	-->
+
+    <target name="copyscripts">
+        <echo message="Copying all files from ${basedir.scripts} to ${buildapp.scripts}"/>
+        <copy todir="${buildapp.scripts}">
+            <fileset dir="${basedir.scripts}">
+                <include name="**"/>
+             </fileset>
+        </copy>
     </target>
 
     <!-- 
@@ -1272,6 +1301,13 @@
         <echo message="Copying all files from ${basedir.doc} to ${distdir.archiveDir}/doc"/>
         <copy todir="${distdir.archiveDir}/doc">
             <fileset dir="${basedir.doc}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+
+        <echo message="Copying all files from ${basedir.scripts} to ${distdir.archiveDir}/scripts"/>
+        <copy todir="${distdir.archiveDir}/scripts">
+            <fileset dir="${basedir.scripts}">
                 <include name="**/*"/>
             </fileset>
         </copy>
