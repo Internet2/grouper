@@ -41,7 +41,8 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
-import javax.naming.ldap.LdapName;
+
+import org.doomdark.uuid.UUIDGenerator;
 
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.ChildGroupFilter;
@@ -81,12 +82,7 @@ public class GrouperProvisioner extends Provisioner
      * Number of records of membership updates to sort in memory. This value
      * (200,000) is a good compromise between speed and memory.
      */
-    private static final int                SORT_BATCH_SIZE       = 200000;
-
-    /**
-     * Name of the temporary file used to store membership data.
-     */
-    private static final String             MEMBERSHIPS_FILE_NAME = "memberships.txt";
+    private static final int                SORT_BATCH_SIZE = 200000;
 
     /**
      * Provisioning configuration
@@ -342,23 +338,17 @@ public class GrouperProvisioner extends Provisioner
         Set<String> processedMembers = new HashSet<String>();
 
         //
-        // Write the subject DN and group name string to a membership file for
-        // each membership being provisioned. This file will then be sorted by
-        // subject DN and re-read to provision the memberships for each subject.
-        // This technique uses little memory and is fast.
-        //
-
-        //
         // File for writing memberships to when provisioning memberships. Each
-        // line of the file contains the subject DN, a tab, and the group name
-        // string to be provisioned. This can then be sorted and read, batched
-        // by subject DN, to efficiently update the memberships for each
-        // subject.
+        // line of the file contains tab-delimited data consisting of the
+        // subject DN, the modify operator, and the group name string to be
+        // provisioned. This can then be sorted and read, batched by subject DN,
+        // to efficiently update the memberships for each subject.
         //
-        File updatesFile = new File(MEMBERSHIPS_FILE_NAME);
+        File updatesFile = getUpdatesFile();
 
         // DebugLog.info("Collecting grouper memberships");
         BufferedWriter updatesWriter = openMembershipWriter(updatesFile);
+        System.exit(0);
         String groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
         if (groupNamingAttribute == null)
         {
@@ -512,6 +502,41 @@ public class GrouperProvisioner extends Provisioner
         {
             throw new MultiErrorException((Exception[]) caughtExceptions.toArray(new Exception[0]));
         }
+    }
+
+    /**
+     * Generate the updates file name and return a File.
+     * 
+     * @return File for membership updates.
+     */
+    private File getUpdatesFile()
+    {
+        //
+        // Generate random filename.
+        //
+        String filename = UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
+
+        //
+        // Get the directory for the temporary file. Make sure it exists and is
+        // a directory. Update the filename accordingly.
+        //
+        String tempDir = configuration.getMemberGroupsListTemporaryDirectory();
+        if (tempDir != null)
+        {
+            File tempFile = new File(tempDir);
+            if (!tempFile.exists())
+            {
+                tempFile.mkdirs();
+            }
+            else if (!tempFile.isDirectory())
+            {
+                throw new LdappcConfigurationException("Temporary directory " + tempDir
+                        + " is not a directory");
+            }
+            filename = tempDir + "/" + filename;
+        }
+        File updatesFile = new File(filename);
+        return updatesFile;
     }
 
     /**
