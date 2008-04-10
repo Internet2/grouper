@@ -142,6 +142,10 @@
             *
             *   root-dn - Defines the DN of the entry to be used as the root
             *      for storing the provisioned groups (e.g., "ou=groups,dc=example,dc=edu").  
+	        *
+	        *  initial-caches-size - Optional attribute specifying the initial
+	        *      size of the group cache. Setting this larger than the likely
+	        *      number of groups to be provisioned should improve performance.
             *
             *  ldap-object-class - Defines the object class used to create
             *     each provisioned group's LDAP entry. Please note that if this
@@ -177,7 +181,7 @@
             * optional, either one or both must be defined within <groups>.
         -->
         <groups structure="" root-dn="" ldap-object-class=""
-            ldap-rdn-attribute="" grouper-attribute=""><!-- 0 or 1 allowed -->
+            ldap-rdn-attribute="" grouper-attribute="" initial-cache-size=""><!-- 0 or 1 allowed -->
 
             <!-- 
                 * The <group-members-dn-list> is an optional element defining
@@ -350,9 +354,13 @@
                 * 
                 *    naming-attribute - Defines the group naming attribute to use
                 *       when creating the list of groups for a member (e.g., "name" ).
+                *
+                *    temporary-directory - Optional attribute defining a directory in
+			    *       which the membership update files will be written. Defaults to
+			    *       the current directory.
             -->
             <member-groups-list list-object-class="" list-attribute=""
-                naming-attribute="" list-empty-value="" /><!-- exactly 1 required -->
+                naming-attribute="" list-empty-value="" temporary-directory="" /><!-- exactly 1 required -->
 
         </memberships>
 
@@ -511,17 +519,25 @@
             * given naming attribute value. It requires two attributes that define
             * the Subject Source and the Subject naming attribute.
             *
+            *   initial-cache-size - Optional attribute specifying the initial cache
+            *      size to use for caching subject DNs by subject ID. Specifying a
+            *      larger number than the number of subjects should give better
+            *      performance.
+            *
             *   source - The name of the Subject Source (e.g., "g:gsa")
             *
             *   subject-attribute - The name of the Subject naming attribute to
-            *      be used (e.g., "account")
+            *      be used (e.g., "account"). If a value other than "id" (the subject
+            *      ID) is specified, the performance will suffer as an extra lookup
+            *      will need to be performed. It is recommended that the subject ID
+            *      be in the subject's directory object and that it be indexed.
             * 
             * <source-subject-identifier> contains the following element.
             * 
             *     <ldap-search> - This required element identifies the LDAP search
             *        criteria for finding a Subject's entry.
         -->
-        <source-subject-identifier source="" subject-attribute="">
+        <source-subject-identifier source="" subject-attribute="" initial-cache-size="">
             <!-- 1 or more required -->
 
             <!-- 
