@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.3 2008-04-05 04:30:45 khuxtable Exp $
+ * $Id: SubjectCache.java,v 1.4 2008-04-10 17:14:20 khuxtable Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -42,53 +42,43 @@ import edu.internet2.middleware.subject.Subject;
 public class SubjectCache
 {
     private static final int                     DEFAULT_HASH_ESTIMATE = 25000;
-    private Map<String, Hashtable<String, Name>> subjectDNTables       = new HashMap<String, Hashtable<String, Name>>();
-    private Map<String, Hashtable<Name, String>> subjectIDTables       = new HashMap<String, Hashtable<Name, String>>();
-    int                                          subjectDNLookups;
-    int                                          subjectDNTableHits;
-    int                                          subjectIDLookups;
-    int                                          subjectIDTableHits;
+    private Map<String, Hashtable<String, Name>> subjectIdToDnTables   = new HashMap<String, Hashtable<String, Name>>();
+    int                                          subjectIdLookups;
+    int                                          subjectIdTableHits;
 
     /**
-     * @return the subjectDNLookups
-     */
-    public int getSubjectDNLookups()
-    {
-        return subjectDNLookups;
-    }
-
-    /**
-     * @return the subjectDNTableHits
-     */
-    public int getSubjectDNTableHits()
-    {
-        return subjectDNTableHits;
-    }
-
-    /**
+     * Return the count of subject ID lookups.
+     * 
      * @return the subjectIDLookups
      */
-    public int getSubjectIDLookups()
+    public int getSubjectIdLookups()
     {
-        return subjectIDLookups;
+        return subjectIdLookups;
     }
 
     /**
+     * Return the count of subject ID table hits.
+     * 
      * @return the subjectIDTableHits
      */
-    public int getSubjectIDTableHits()
+    public int getSubjectIdTableHits()
     {
-        return subjectIDTableHits;
+        return subjectIdTableHits;
     }
 
+    /**
+     * Initialize the subject cache data structures.
+     * 
+     * @param configuration
+     *            Configuration data from file.
+     */
     public void init(ProvisionerConfiguration configuration)
     {
         //
         // Initialize the hash tables mapping between RDN and subject ID.
         // Use the estimate in the config file if present
         //
-        Map<String, Integer> estimates = configuration
-                .getSourceSubjectHashEstimates();
+        Map<String, Integer> estimates = configuration.getSourceSubjectHashEstimates();
         for (String source : configuration.getSourceSubjectLdapFilters().keySet())
         {
             int estimate = DEFAULT_HASH_ESTIMATE;
@@ -97,24 +87,13 @@ public class SubjectCache
                 estimate = estimates.get(source);
             }
 
-            if (subjectDNTables.get(source) == null)
+            if (subjectIdToDnTables.get(source) == null)
             {
-                subjectDNTables.put(source, new Hashtable<String, Name>(
-                        estimate));
+                subjectIdToDnTables.put(source, new Hashtable<String, Name>(estimate));
             }
             else
             {
-                subjectDNTables.get(source).clear();
-            }
-
-            if (subjectIDTables.get(source) == null)
-            {
-                subjectIDTables.put(source, new Hashtable<Name, String>(
-                        estimate));
-            }
-            else
-            {
-                subjectIDTables.get(source).clear();
+                subjectIdToDnTables.get(source).clear();
             }
         }
     }
@@ -145,8 +124,7 @@ public class SubjectCache
         String subjData = "null";
         if (subject != null)
         {
-            subjData = "[ NAME = " + subject.getName() + " ][ ID = "
-                    + subject.getId() + " ]";
+            subjData = "[ NAME = " + subject.getName() + " ][ ID = " + subject.getId() + " ]";
             if (attributes)
             {
                 subjData += "[ ATTRIBUTES = " + subject.getAttributes() + " ]";
@@ -174,8 +152,8 @@ public class SubjectCache
      * @throws MultipleEntriesFoundException
      *             thrown if the search found more than one entry
      */
-    public Name findSubjectDn(LdapContext ctx,
-            ProvisionerConfiguration configuration, Subject subject) throws NamingException, MultipleEntriesFoundException, EntryNotFoundException
+    public Name findSubjectDn(LdapContext ctx, ProvisionerConfiguration configuration,
+            Subject subject) throws NamingException, MultipleEntriesFoundException, EntryNotFoundException
     {
         //
         // Get the subject's source and source id
@@ -183,8 +161,8 @@ public class SubjectCache
         Source source = subject.getSource();
         if (source == null)
         {
-            throw new EntryNotFoundException("Subject [ "
-                    + getSubjectData(subject) + " ] has a null source");
+            throw new EntryNotFoundException("Subject [ " + getSubjectData(subject)
+                    + " ] has a null source");
         }
 
         String sourceId = source.getId();
@@ -192,12 +170,11 @@ public class SubjectCache
         //
         // Get the source name attribute
         //
-        String sourceNameAttr = configuration
-                .getSourceSubjectNamingAttribute(sourceId);
+        String sourceNameAttr = configuration.getSourceSubjectNamingAttribute(sourceId);
         if (sourceNameAttr == null)
         {
-            throw new EntryNotFoundException("Subject [ "
-                    + getSubjectData(subject) + " ] source [ " + sourceId
+            throw new EntryNotFoundException("Subject [ " + getSubjectData(subject)
+                    + " ] source [ " + sourceId
                     + " ] does not identify a source subject naming attribute");
         }
 
@@ -207,10 +184,8 @@ public class SubjectCache
         String sourceName = subject.getAttributeValue(sourceNameAttr);
         if (sourceName == null)
         {
-            throw new EntryNotFoundException("Subject [ "
-                    + getSubjectData(subject, true)
-                    + " ] has no value for attribute [ " + sourceNameAttr
-                    + " ]");
+            throw new EntryNotFoundException("Subject [ " + getSubjectData(subject, true)
+                    + " ] has no value for attribute [ " + sourceNameAttr + " ]");
         }
 
         return findSubjectDn(ctx, configuration, sourceId, sourceName);
@@ -239,25 +214,22 @@ public class SubjectCache
      * @throws MultipleEntriesFoundException
      *             thrown if the search found more than one entry
      */
-    public Name findSubjectDn(LdapContext ldapCtx,
-            ProvisionerConfiguration configuration, String sourceId,
-            String subjectIdentifier) throws NamingException, MultipleEntriesFoundException, EntryNotFoundException
+    public Name findSubjectDn(LdapContext ldapCtx, ProvisionerConfiguration configuration,
+            String sourceId, String subjectIdentifier) throws NamingException, MultipleEntriesFoundException, EntryNotFoundException
     {
         //
         // Initialize error message suffix
         //
-        String errorSuffix = "[ subject id = " + subjectIdentifier
-                + " ][ source = " + sourceId + " ]";
+        String errorSuffix = "[ subject id = " + subjectIdentifier + " ][ source = " + sourceId
+                + " ]";
 
         //
         // Get the LDAP search filter for the source
         //
-        LdapSearchFilter filter = configuration
-                .getSourceSubjectLdapFilter(sourceId);
+        LdapSearchFilter filter = configuration.getSourceSubjectLdapFilter(sourceId);
         if (filter == null)
         {
-            throw new EntryNotFoundException(
-                    "Ldap search filter not found using " + errorSuffix);
+            throw new EntryNotFoundException("Ldap search filter not found using " + errorSuffix);
         }
 
         //
@@ -271,11 +243,11 @@ public class SubjectCache
         NameParser parser = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME);
         Name baseName = parser.parse(filter.getBase());
 
-        subjectIDLookups++;
-        Name subjectDn = subjectDNTables.get(sourceId).get(subjectIdentifier);
+        subjectIdLookups++;
+        Name subjectDn = subjectIdToDnTables.get(sourceId).get(subjectIdentifier);
         if (subjectDn != null)
         {
-            subjectIDTableHits++;
+            subjectIdTableHits++;
             return subjectDn;
         }
 
@@ -295,16 +267,15 @@ public class SubjectCache
         //
         // Perform the search
         //
-        NamingEnumeration namingEnum = ldapCtx.search(baseName, filterExpr,
-                filterArgs, searchControls);
+        NamingEnumeration namingEnum = ldapCtx.search(baseName, filterExpr, filterArgs,
+                searchControls);
 
         //
         // If no entries where found, throw an exception
         //
         if (!namingEnum.hasMore())
         {
-            throw new EntryNotFoundException("Subject not found using "
-                    + errorSuffix);
+            throw new EntryNotFoundException("Subject not found using " + errorSuffix);
         }
 
         //
@@ -318,8 +289,7 @@ public class SubjectCache
         //
         if (namingEnum.hasMore())
         {
-            throw new MultipleEntriesFoundException(
-                    "Multiple entries found using " + errorSuffix);
+            throw new MultipleEntriesFoundException("Multiple entries found using " + errorSuffix);
         }
 
         //
@@ -327,9 +297,8 @@ public class SubjectCache
         //
         if (!searchResult.isRelative())
         {
-            throw new EntryNotFoundException(
-                    "Unable to resolve the reference found using "
-                            + errorSuffix);
+            throw new EntryNotFoundException("Unable to resolve the reference found using "
+                    + errorSuffix);
         }
 
         //
@@ -338,8 +307,7 @@ public class SubjectCache
         subjectDn = parser.parse(searchResult.getName());
         subjectDn = subjectDn.addAll(0, baseName);
 
-        subjectDNTables.get(sourceId).put(subjectIdentifier, subjectDn);
-        subjectIDTables.get(sourceId).put(subjectDn, subjectIdentifier);
+        subjectIdToDnTables.get(sourceId).put(subjectIdentifier, subjectDn);
 
         return subjectDn;
     }

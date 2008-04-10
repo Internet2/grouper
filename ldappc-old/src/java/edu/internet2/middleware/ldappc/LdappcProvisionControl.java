@@ -106,8 +106,8 @@ public class LdappcProvisionControl
             a2lsp.provisionPermissions();
         }
         
-        int subjectIDLookups = subjectCache.getSubjectIDLookups();
-        int subjectIDTableHits = subjectCache.getSubjectIDTableHits();
+        int subjectIDLookups = subjectCache.getSubjectIdLookups();
+        int subjectIDTableHits = subjectCache.getSubjectIdTableHits();
         
         DebugLog.info("Subject ID Lookups: " + subjectIDLookups);
         DebugLog.info("Subject Table Hits: " + subjectIDTableHits);
