@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.grouper.queryFilter.GroupAttributeExactFilter;
+import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupStringMembershipSynchronizer;
@@ -392,44 +393,11 @@ public class GrouperProvisioner extends Provisioner
                 //
                 // Look for subject in the directory
                 //
-                Name subjectDn = null;
-                try
+                Name subjectDn = getSubjectDn(member, existingSubjectDns);
+                if (subjectDn != null)
                 {
-                    // Must use alternate mechanism to get subject if search
-                    // attr is not the subject ID. Alternate method hits the
-                    // subject API and is rather slower.
-                    if (!"id".equals(configuration.getSourceSubjectNamingAttribute(member
-                            .getSubjectSourceId())))
-                    {
-                        Subject subject = member.getSubject();
-                        subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
-                    }
-                    else
-                    {
-                        subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, member
-                                .getSubjectSourceId(), member.getSubjectId());
-                    }
-                    existingSubjectDns.remove(subjectDn);
+                    grouperMemberships.add(subjectDn.toString());
                 }
-                catch (Exception e)
-                {
-                    //
-                    // If not found, simply log the error and continue
-                    //
-                    Subject subject = null;
-                    try
-                    {
-                        subject = member.getSubject();
-                    }
-                    catch (SubjectNotFoundException e1)
-                    {
-                    }
-                    String errorData = getErrorData(member, subject, null);
-                    logThrowableWarning(e, errorData);
-                    continue;
-                }
-
-                grouperMemberships.add(subjectDn.toString());
             }
 
             //
@@ -500,6 +468,60 @@ public class GrouperProvisioner extends Provisioner
         {
             throw new MultiErrorException((Exception[]) caughtExceptions.toArray(new Exception[0]));
         }
+    }
+
+    /**
+     * Get the subjectDn for a member. Remove the subject from the existing
+     * subjectDns set.
+     * 
+     * @param member
+     *            Member for which to retrieve subject DN
+     * @param existingSubjectDns
+     *            Set of DN values that have memberships
+     * @return the subject DN for the Member.
+     */
+    private Name getSubjectDn(Member member, Set<Name> existingSubjectDns)
+    {
+        Name subjectDn = null;
+
+        try
+        {
+            // Must use alternate mechanism to get subject if search
+            // attr is not the subject ID. Alternate method hits the
+            // subject API and is rather slower.
+            if ("id".equals(configuration.getSourceSubjectNamingAttribute(member
+                    .getSubjectSourceId())))
+            {
+                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, member
+                        .getSubjectSourceId(), member.getSubjectId());
+            }
+            else
+            {
+                Subject subject = member.getSubject();
+                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
+            }
+
+            existingSubjectDns.remove(subjectDn);
+        }
+        catch (Exception e)
+        {
+            //
+            // If not found, simply log the error and return null.
+            //
+            Subject subject = null;
+            try
+            {
+                subject = member.getSubject();
+            }
+            catch (SubjectNotFoundException e1)
+            {
+                // Ignore exception.
+            }
+            String errorData = getErrorData(member, subject, null);
+            logThrowableWarning(e, errorData);
+        }
+
+        return subjectDn;
     }
 
     /**
