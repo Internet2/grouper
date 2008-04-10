@@ -472,11 +472,6 @@ public class ConfigManager
         digester.addCallParam(elementPath, 2, "scope");
         digester.addCallParam(elementPath, 3, "filter");
 
-        // Save the Group hash table estimate
-        elementPath = "ldappc/grouper";
-        digester.addCallMethod(elementPath, "setGroupHashEstimate", 1);
-        digester.addCallParam(elementPath, 0, "initial-cache-size");
-
         // Save the Group DN structure parameters
         elementPath = "ldappc/grouper/groups";
         digester.addCallMethod(elementPath, "setGroupDnStructure", 1);
@@ -493,6 +488,9 @@ public class ConfigManager
 
         digester.addCallMethod(elementPath, "setGroupDnGrouperAttribute", 1);
         digester.addCallParam(elementPath, 0, "grouper-attribute");
+
+        digester.addCallMethod(elementPath, "setGroupHashEstimate", 1);
+        digester.addCallParam(elementPath, 0, "initial-cache-size");
 
         // Save the Member Group Listing parameters
         elementPath = "ldappc/grouper/memberships/member-groups-list";

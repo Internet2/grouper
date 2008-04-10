@@ -147,7 +147,6 @@
                     <xs:element ref="memberships" />
                 </xs:choice>
             </xs:sequence>
-			<xs:attribute name="initial-cache-size" use="optional" type="xs:integer" />
         </xs:complexType>
     </xs:element>
 
@@ -210,6 +209,7 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>
+			<xs:attribute name="initial-cache-size" use="optional" type="xs:integer" />
         </xs:complexType>
     </xs:element>
 
