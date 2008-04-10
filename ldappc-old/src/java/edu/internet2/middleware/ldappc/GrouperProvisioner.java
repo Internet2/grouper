@@ -395,14 +395,13 @@ public class GrouperProvisioner extends Provisioner
                 Name subjectDn = null;
                 try
                 {
-                    // Must use alternate mechanism to get subject if
-                    // search attr is not the subject ID. Alternate method is
-                    // rather slower.
+                    // Must use alternate mechanism to get subject if search
+                    // attr is not the subject ID. Alternate method hits the
+                    // subject API and is rather slower.
                     if (!"id".equals(configuration.getSourceSubjectNamingAttribute(member
                             .getSubjectSourceId())))
                     {
-                        Subject subject = null;
-                        subject = member.getSubject();
+                        Subject subject = member.getSubject();
                         subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
                     }
                     else
