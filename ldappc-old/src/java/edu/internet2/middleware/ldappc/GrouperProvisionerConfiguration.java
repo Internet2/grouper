@@ -150,6 +150,16 @@ public interface GrouperProvisionerConfiguration extends
     public String getMemberGroupsListEmptyValue();
 
     /**
+     * Directory for the membership updates temporary file.
+     * 
+     * The default value is null, causing the files to be placed in the current
+     * directory.
+     * 
+     * @return the temporary directory.
+     */
+    public String getMemberGroupsListTemporaryDirectory();
+
+    /**
      * This gets the Grouper Group naming attribute to be used when creating the
      * list of Groups to which Member belongs.
      * 

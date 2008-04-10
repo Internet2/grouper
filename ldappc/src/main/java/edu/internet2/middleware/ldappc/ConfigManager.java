@@ -203,9 +203,7 @@ public class ConfigManager
     private String                        memberGroupsListEmptyValue;
     
     /**
-     * Value to be prepended to the filename for the membership updates
-     * temporary file. This will generally be a directory followed by a slash
-     * (/), but may vary depending on the operating system.
+     * Directory for the membership updates file.
      */
     private String                        memberGroupsListTemporaryDirectory;
 
@@ -1490,14 +1488,12 @@ public class ConfigManager
     }
 
     /**
-     * This gets the value to prepend to the filename for the membership updates
-     * temporary file. This will generally be a directory followed by a slash
-     * (/), but may vary depending on the operating system.
+     * Directory for the membership updates temporary file.
      * 
-     * The default value is null, which should be treated as an empty string,
-     * causing the files to be placed in the current directory.
+     * The default value is null, causing the files to be placed in the current
+     * directory.
      * 
-     * @return the temporary directory prefix string.
+     * @return the temporary directory.
      */
     public String getMemberGroupsListTemporaryDirectory()
     {
@@ -1505,9 +1501,7 @@ public class ConfigManager
     }
 
     /**
-     * Sets the value to be prepended to the filename for the membership updates
-     * temporary file. This will generally be a directory followed by a slash
-     * (/), but may vary depending on the operating system.
+     * Sets the directory for the membership updates temporary file.
      * 
      * @param value
      *            String value or <code>null</code> if no value is to be
