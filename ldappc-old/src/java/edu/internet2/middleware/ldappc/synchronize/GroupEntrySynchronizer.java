@@ -49,6 +49,7 @@ import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.MultiErrorException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
+import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
@@ -160,14 +161,15 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         {
             estimate = DEFAULT_HASH_SIZE;
         }
+        DebugLog.info("Group initial cache size = " + estimate);
 
         //
         // Init various objects
         //
-        deleteOus = new HashSet<Name>(DEFAULT_HASH_SIZE);
-        processedOus = new HashSet<Name>(DEFAULT_HASH_SIZE);
-        deleteGroups = new HashSet<Name>(DEFAULT_HASH_SIZE);
-        processedGroups = new HashSet<Name>(DEFAULT_HASH_SIZE);
+        deleteOus = new HashSet<Name>(estimate);
+        processedOus = new HashSet<Name>(estimate);
+        deleteGroups = new HashSet<Name>(estimate);
+        processedGroups = new HashSet<Name>(estimate);
 
         mappedGrouperAttributes = new HashMap<String, AttributeModifier>();
         mappedLdapAttributes = new BasicAttributes(true);
