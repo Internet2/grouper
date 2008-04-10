@@ -25,7 +25,7 @@
         <tstamp/>
         <property name="impl.url" value="http://middleware.internet2.edu/to-be-determined/ldappc/"/>
         <property name="impl.vendor"            value="Internet2"/>
-        <property name="impl.version"           value="1.0"/>
+        <property name="impl.version"           value="1.1"/>
         <echo message="Ldappc Build File Version: ${impl.version} on ${DSTAMP} at ${TSTAMP}" />
 
     </target>
@@ -39,14 +39,15 @@
         <echo message="The following is a list of commonly used targets.  Select one of them."/>
         <echo message="help: provides access to the help menus."/>
         <echo message="install: Use only once to clean the build file, build, and run test cases."/>
-        <echo message="test: Run the test cases "/>
+        <echo message="test: Run the test cases."/>
+        <echo message="docs: Generate the Javadocs in the doc/javadoc directory."/>
         <echo message="x: execute Ldappc using the testLdappc.properties file."/>
         <echo message="cbxJunit: Compile, build, and execute the test cases."/>
         <echo message=""/>
 
          <input
              message="Enter the name of desired target.  "
-             validargs="help,install,test,cbx,cbxJunit"
+             validargs="help,install,test,docs,cbx,cbxJunit"
              addproperty="selectedTarget"/>
         <antcall target="${selectedTarget}"/>
     </target>
