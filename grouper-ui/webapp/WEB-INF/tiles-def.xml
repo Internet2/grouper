@@ -457,13 +457,21 @@
 	  </description>
  </definition>
  
-  <definition name="showStemsLocationDef" path="/WEB-INF/jsp/showStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
+  <definition name="showStemsLocationDef" path="/WEB-INF/jsp/browseStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
+	  <description>
+		Tile which displays a  list of parent stems to show the location of the current group
+		or stem. The stem names ARE links. This has changed in 1.3.0
+	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
+ </definition>
+ 
+ <!--<definition name="showStemsLocationDef" path="/WEB-INF/jsp/showStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
 	  <description>
 		Tile which displays a  list of parent stems to show the location of the current group
 		or stem. The stem names are not links
 	  </description>
 	  <put name="maintainModule" type="String" value="y"/>
- </definition>
+ </definition>-->
  
    <definition name="browseStemsLocationDef" path="/WEB-INF/jsp/browseStemsLocation.jsp" controllerUrl="/prepareBrowsePath.do">
 	  <description>
