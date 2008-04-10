@@ -1154,7 +1154,8 @@
         ********** Copy files to the distribution directory. ********** createDistribution
     -->
 
-    <target name="createDistribution" depends="setMasterToTest,deleteIfOkToDeleteDist,docs">
+    <target name="createDistribution" depends="setMasterToTest,deleteIfOkToDeleteDist,docs"
+    		description="Create a distribution directory, including an ldappc.jar file">
 
 
         <!-- Create the ldappc.jar file from the build/ldappc/classes dirctory -->
@@ -1332,3 +1333,4 @@
     </target>
 
 </project>
+
