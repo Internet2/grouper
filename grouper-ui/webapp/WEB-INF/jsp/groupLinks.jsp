@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.11 2008-04-03 13:30:21 isgwb Exp $
+  @version $Id: groupLinks.jsp,v 1.12 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -14,8 +14,16 @@
 <c:if test="${groupPrivs.ADMIN}">
 		<tiles:insert definition="selectGroupPrivilegeDef"/>
 	</c:if>
-	<c:out value="${saveButton}" escapeXml="false"/>
-	
+	   <c:if test="${groupPrivResolver.canEditGroup}">
+    
+      <html:link page="/deleteGroup.do" styleClass="redLink" name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
+        <grouper:message bundle="${nav}" key="groups.action.delete"/>
+      </html:link>
+    
+  </c:if>
+  
+  <c:out value="${saveButton}" escapeXml="false"/>
+
 	<c:if test="${groupPrivResolver.canEditGroup}">
 			<html:link page="/populateEditGroup.do" name="group">
 				<grouper:message bundle="${nav}" key="groups.action.edit"/>
@@ -40,6 +48,7 @@
 			</html:link>
 		
 		</c:if>
+
 		<c:if test="${!isCompositeGroup && groupPrivResolver.canManageMembers}">
 		
 			<html:link page="/populateFindNewMembers.do"  name="group">
@@ -52,13 +61,6 @@
 				<grouper:message bundle="${nav}" key="groups.action.as-factor"/>
 			</html:link>
 		</c:if>
-		<c:if test="${groupPrivResolver.canEditGroup}">
-		
-			<html:link page="/deleteGroup.do"  name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
-				<grouper:message bundle="${nav}" key="groups.action.delete"/>
-			</html:link>
-		
-	</c:if>
 	<c:if test="${groupPrivs.OPTIN && !groupPrivs.MEMBER}">
 		
 			<html:link page="/joinGroup.do"  name="group">

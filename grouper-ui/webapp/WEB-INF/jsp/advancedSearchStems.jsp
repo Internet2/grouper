@@ -2,7 +2,7 @@
 		Tile which displays the advanced search form for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchStems.jsp,v 1.5 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: advancedSearchStems.jsp,v 1.6 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -29,7 +29,7 @@
     	
 
 		<tiles:insert definition="searchStemResultFieldChoiceDef"/>
-		<html:submit property="submit.search" value="${navMap['stems.action.search']}"/>
+		<html:submit styleClass="blueButton" property="submit.search" value="${navMap['stems.action.search']}"/>
 
 	</fieldset>
 	</html:form>

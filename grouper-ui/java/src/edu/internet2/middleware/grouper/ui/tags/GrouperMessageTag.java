@@ -118,6 +118,8 @@ public class GrouperMessageTag extends MessageTag {
 		this.tooltipValues = null;
 		this.useNewTermContext = null;
 		this.escapeSingleQuotes = null;
+		this.tooltipRef = null;
+		this.ignoreTooltipStyle = null;
 	}
 
 	/** 
@@ -128,6 +130,17 @@ public class GrouperMessageTag extends MessageTag {
 	 */
 	private String useNewTermContext = null;
 
+	/**
+	 * if tooltip style should be ignored
+	 */
+	private String ignoreTooltipStyle = null;
+	
+	/**
+	 * for a tooltip on this message (similar to a targetted tooltip), this is name
+	 * from nav.properties
+	 */
+	private String tooltipRef = null;
+	
 	/**
    * see if use new term context (and validate the boolean, default to false if not set)
    * @return if use new term context
@@ -246,7 +259,8 @@ public class GrouperMessageTag extends MessageTag {
     
     String targettedTooltipRefValue = (String)mapBundleWrapper.get(targettedTooltipRefKey);
 
-    String targettedTooltipValue = (String)mapBundleWrapper.get(targettedTooltipKey);
+    String targettedTooltipValue = StringUtils.isNotBlank(this.tooltipRef) ?
+        (String)mapBundleWrapper.get(this.tooltipRef) :(String)mapBundleWrapper.get(targettedTooltipKey);
     
     //if there is a ref, but it doesnt exist, that is a problem
     if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
@@ -254,8 +268,14 @@ public class GrouperMessageTag extends MessageTag {
     }
 
     if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
-      LOG.error("Duplicate tooltip target and ref in nav.properties: " + targettedTooltipKey 
+      LOG.warn("Duplicate tooltip target and ref in nav.properties: " + targettedTooltipKey 
           + ", " + targettedTooltipRefKey);
+    }
+    if ((StringUtils.isNotBlank(targettedTooltipRefValue) 
+        || StringUtils.isNotBlank((String)mapBundleWrapper.get(targettedTooltipKey)))
+        && StringUtils.isNotBlank(this.tooltipRef)) {
+      LOG.warn("targettedTooltip and tooltipRef set at once! '" + targettedTooltipKey 
+          + "', '" + targettedTooltipRefKey + "', '" + this.tooltipRef + "'");
     }
     
     //first priority is a targetted ref, next priority is a target.  not sure why both would be there
@@ -263,15 +283,17 @@ public class GrouperMessageTag extends MessageTag {
         targettedTooltipValue : (String)mapBundleWrapper.get(targettedTooltipRefValue);
     
         
+    boolean isIgnoreTooltipStyle = GrouperUtil.booleanValue(this.ignoreTooltipStyle, false);
+    
     if (StringUtils.isNotBlank(targettedTooltipValue)) {
       
       //replace the whole message with tooltip
-      message = convertTooltipTextToHtml(targettedTooltipValue, message);
+      message = convertTooltipTextToHtml(targettedTooltipValue, message, isIgnoreTooltipStyle);
       
     } else {
       
       //CH 20080129 at this point we need to make the tooltip subsitutions
-      message = substituteTooltips(message);
+      message = substituteTooltips(message, isIgnoreTooltipStyle);
       
     }
     
@@ -369,7 +391,7 @@ public class GrouperMessageTag extends MessageTag {
 					String tooltip = propertiesConfigurationMap.get(tooltipKey);
 					
 					//tooltipKeys.add(term);
-					tooltip = convertTooltipTextToHtml(tooltip, term);
+					tooltip = convertTooltipTextToHtml(tooltip, term, false);
 
 					//tooltipValues.add(tooltip);
 					propertiesMap.put(term, tooltip);
@@ -394,13 +416,17 @@ public class GrouperMessageTag extends MessageTag {
 	 * convert tooltip text to html
 	 * @param tooltipText 
 	 * @param term
+	 * @param isIgnoreTooltipStyle if tooltip style should be ignored
 	 * @return the html tooltip text
 	 */
-	private static String convertTooltipTextToHtml(String tooltipText, String term) {
+	private static String convertTooltipTextToHtml(String tooltipText, String term, 
+	    boolean isIgnoreTooltipStyle) {
     //substitute single quotes for javascript
 	  tooltipText = tooltipText.replace("'", "\\'");
     //put it in the tooltip code
-	  tooltipText = "<span class=\"tooltip\" onmouseover=\"grouperTooltip('" 
+	  //the class="tooltip" is substituted later, so if this is changed, change in other places as well
+	  tooltipText = "<span " + (isIgnoreTooltipStyle ? "" : "class=\"tooltip\" ") 
+	    + "onmouseover=\"grouperTooltip('" 
       + tooltipText + "');\">" + term + "</span>";
 	  return tooltipText;
 	}
@@ -487,10 +513,11 @@ public class GrouperMessageTag extends MessageTag {
 	/**
 	 * substitute tooltips
 	 * @param message
+	 * @param isIgnoreTooltipStyle true if should ignore tooltip style
 	 * @return the substituted strings
 	 */
 	@SuppressWarnings("unchecked")
-	public String substituteTooltips(String message) {
+	public String substituteTooltips(String message, boolean isIgnoreTooltipStyle) {
 		
 		//first step, get the map of substitutions
 		List<String> theTooltipKeys = tooltipKeys();
@@ -498,6 +525,11 @@ public class GrouperMessageTag extends MessageTag {
 		
 		//substitute, and remove if replaced
 		String result = GrouperUtil.replace(message, theTooltipKeys, theTooltipValues, false, true);
+		
+		//maybe take out styles
+		if (isIgnoreTooltipStyle) {
+		  result = StringUtils.replace(result, "class=\"tooltip\" ", "");
+		}
 		
 		//TODO cache this result if possible, check in properties file if contains vars
 		return result;
@@ -553,6 +585,14 @@ public class GrouperMessageTag extends MessageTag {
         this.escapeSingleQuotes, this, this.pageContext)) != null) {
       setEscapeSingleQuotes(string);
     }
+    if ((string = EvalHelper.evalString("tooltipRef", 
+        this.tooltipRef, this, this.pageContext)) != null) {
+      setTooltipRef(string);
+    }
+    if ((string = EvalHelper.evalString("ignoreTooltipStyle", 
+        this.ignoreTooltipStyle, this, this.pageContext)) != null) {
+      setIgnoreTooltipStyle(string);
+    }
     
   }
 
@@ -577,6 +617,24 @@ public class GrouperMessageTag extends MessageTag {
    */
   public void setEscapeSingleQuotes(String escapeSingleQuotes1) {
     this.escapeSingleQuotes = escapeSingleQuotes1;
+  }
+
+  
+  /**
+   * for a tooltip on this message (similar to a targetted tooltip), this is name
+   * from nav.properties
+   * @param tooltipRef1 the tooltipRef to set
+   */
+  public void setTooltipRef(String tooltipRef1) {
+    this.tooltipRef = tooltipRef1;
+  }
+
+  
+  /**
+   * @param ignoreTooltipStyle1 the ignoreTooltipStyle to set
+   */
+  public void setIgnoreTooltipStyle(String ignoreTooltipStyle1) {
+    this.ignoreTooltipStyle = ignoreTooltipStyle1;
   }
 	
 }

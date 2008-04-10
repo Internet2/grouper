@@ -2,7 +2,7 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.10 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.11 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -43,7 +43,7 @@
 		</c:if>
 		<div class="formRow"><tiles:insert definition="searchFromDef"/></div><br/>
 		<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
-		<html:submit property="submit.search" value="${navMap['groups.action.search']}"/>
+		<html:submit styleClass="blueButton" property="submit.search" value="${navMap['groups.action.search']}"/>
 	</fieldset>
 	</html:form>
 </div>

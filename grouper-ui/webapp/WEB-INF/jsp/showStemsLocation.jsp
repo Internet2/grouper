@@ -3,7 +3,7 @@
 		or stem. The stem names are not links
 --%><%--
   @author Gary Brown.
-  @version $Id: showStemsLocation.jsp,v 1.7 2008-04-08 07:51:52 mchyzer Exp $
+  @version $Id: showStemsLocation.jsp,v 1.8 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -12,7 +12,7 @@
 <%-- CH 20080324 change spacing: --%>  <br /><div class="currentLocationList">
 	<c:forEach var="stem" items="${browsePath}">
 		<img <grouper:tooltip key="stem.icon.tooltip"/> 
-    src="grouper/images/folder.gif" class="groupIcon" alt="Folder" 
+    src="grouper/images/folderOpen.gif" class="groupIcon" alt="Folder" 
     /><span class="browseStemsLocationPart"><c:out 
     value="${stem.displayExtension}"/><c:out value="${stemSeparator}"/></span>
 	</c:forEach>
@@ -20,9 +20,8 @@
 	<c:choose>
     <c:when test="${browseParent.isGroup}"><img src="grouper/images/group.gif" 
   <grouper:tooltip key="group.icon.tooltip"/> class="groupIcon" alt="Group"
-  /><span class="browseStemsLocationHere"></c:when>
-    <c:otherwise><img src="grouper/images/folder.gif" alt="Folder"
-  <grouper:tooltip key="group.icon.tooltip"/> class="groupIcon" 
+  /><span class="browseStemsLocationHere"></c:when><c:otherwise><img src="grouper/images/folderOpen.gif" alt="Folder"
+  <grouper:tooltip key="folder.icon.tooltip"/> class="groupIcon" 
   /></c:otherwise></c:choose><c:out value="${browseParent.displayExtension}"/><c:if 
   test="${browseParent.isGroup}"></span></c:if>
     </div>

@@ -104,7 +104,7 @@ public class GrouperInfodotTag extends BodyTagSupport {
         + "src=\"grouper/images/infodot.gif\" border=\"0\" alt=\""
         + altText
         + "\" \n"
-        + "height=\"16\" class=\"infodotImage\" width=\"16\" /></a>";
+        + "class=\"infodotImage\" /></a>";
 
     //just print out the image tag
     try {

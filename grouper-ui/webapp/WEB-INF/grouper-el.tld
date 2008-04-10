@@ -45,6 +45,12 @@
     <info>
         Maps key to localized message and performs parametric replacement
     </info>
+    
+    <attribute>
+        <name>ignoreTooltipStyle</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
     <attribute>
         <name>key</name>
         <required>false</required>
@@ -67,6 +73,11 @@
     </attribute>
     <attribute>
         <name>scope</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>tooltipRef</name>
         <required>false</required>
         <rtexprvalue>true</rtexprvalue>
     </attribute>

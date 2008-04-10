@@ -3,14 +3,14 @@
 		  child stems as links
 --%><%--
   @author Gary Brown.
-  @version $Id: browseChildStem.jsp,v 1.6 2008-04-08 07:51:52 mchyzer Exp $
+  @version $Id: browseChildStem.jsp,v 1.7 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <%-- TODO change tooltip to real tooltip, and from nav.properties --%>
 <img <grouper:tooltip key="stem.icon.tooltip"/>  alt="Folder"
 src="grouper/images/folder.gif" class="groupIcon" 
-/>&nbsp;<html:link page="/browseStems${browseMode}.do" 
+/><html:link page="/browseStems${browseMode}.do" 
 		   paramId="currentNode" 
 		   paramName="viewObject" 
 		   paramProperty="stemId"

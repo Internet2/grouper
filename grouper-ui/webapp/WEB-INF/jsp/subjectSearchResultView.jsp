@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: subjectSearchResultView.jsp,v 1.2 2008-04-07 07:54:15 mchyzer Exp $
+  @version $Id: subjectSearchResultView.jsp,v 1.3 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true" />
@@ -15,6 +15,6 @@
 <%-- note, dont do a tooltip here since there is a title attribute --%>
 <img 
 src="grouper/images/subject.gif"
-class="subjectIcon" />&nbsp;<
+class="subjectIcon" /><
   c:if test="${empty inLink}"><span class="<c:out value="${viewObject.subjectType}"/>Subject"></c:if><
   c:out value="${viewObject[mediaMap[attrKey]]}" /><c:if test="${empty inLink}"></span></c:if>

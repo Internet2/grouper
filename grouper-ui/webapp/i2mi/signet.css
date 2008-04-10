@@ -42,6 +42,7 @@ h1 {
 	}
 
 fieldset {
+  /*
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; 
 	font-size: 11px; 
 	font-weight: normal;
@@ -51,6 +52,9 @@ fieldset {
 	padding: 10px 10px 10px 10px;
 	display:block;
 	clear:both;
+	*/
+	padding: 0px;
+	margin: 0px;
 }
 
 legend {
@@ -307,7 +311,8 @@ body>#Header {width: 98%;}
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	height: 60px;
+	width: 140px;
+	text-align: center;
 	voice-family: "\"}\"";
 	voice-family:inherit;
 	}

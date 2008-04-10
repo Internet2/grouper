@@ -4,10 +4,11 @@
 		  active stem
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStems.jsp,v 1.2 2005-11-22 10:41:41 isgwb Exp $
+  @version $Id: browseStems.jsp,v 1.3 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
+<div class="sectionBody">
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:choose>
 	<c:when test="${!empty initialStems}">
@@ -30,3 +31,4 @@
 	</c:otherwise>
 	</c:choose>
 </grouper:recordTile>
+</div>

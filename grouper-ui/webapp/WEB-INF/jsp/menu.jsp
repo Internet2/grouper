@@ -2,7 +2,7 @@
 		 Standard tile used in baseDef which renders the menu. Use css to change position 
 --%><%--
   @author Gary Brown.
-  @version $Id: menu.jsp,v 1.4 2008-04-08 07:51:52 mchyzer Exp $
+  @version $Id: menu.jsp,v 1.5 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -17,8 +17,9 @@
   <div class="menuSubheader"><grouper:message key="menu.subtitle.enrollment"/></div>
   <c:forEach var="menuItem" items="${menuMetaBean.enrollmentMenuPart}">
   <div class="actionbox <c:out value="${tabStyle[menuItem.functionalArea]}" />">
-    <html:link page="${menuItem.action}" title="${navMap[menuItem.titlekey]}">
-      <fmt:message bundle="${nav}" key="${menuItem.linkKey}"/>
+    <html:link page="${menuItem.action}">
+      <grouper:message key="${menuItem.linkKey}" tooltipRef="${menuItem.titleKey}" 
+      ignoreTooltipStyle="true"/>
     </html:link>
   </div>
  </c:forEach>
@@ -26,10 +27,12 @@
 <c:if test="${menuMetaBean.hasResponsibilities}">
   <div class="menuSubheader"><grouper:message key="menu.subtitle.responsibilities"/></div>
   <c:forEach var="menuItem" items="${menuMetaBean.responsibilitiesMenuPart}">
-  <div class="actionbox">
-    <html:link styleClass="${tabStyle[menuItem.functionalArea]}" page="${menuItem.action}" title="${navMap[menuItem.titlekey]}">
-      <fmt:message bundle="${nav}" key="${menuItem.linkKey}"/>
+  <div class="actionbox <c:out value="${tabStyle[menuItem.functionalArea]}" />">
+    <html:link page="${menuItem.action}">
+      <grouper:message key="${menuItem.linkKey}" tooltipRef="${menuItem.titleKey}" 
+      ignoreTooltipStyle="true"/>
     </html:link>
+    
   </div>
  </c:forEach>
 </c:if>
@@ -37,10 +40,11 @@
 <%-- everybody has tools --%>
 <div class="menuSubheader"><grouper:message key="menu.subtitle.tools"/></div>
 <c:forEach var="menuItem" items="${menuMetaBean.toolsMenuPart}">
-	<div class="actionbox">
-		<html:link styleClass="${tabStyle[menuItem.functionalArea]}" page="${menuItem.action}" title="${navMap[menuItem.titlekey]}">
-			<fmt:message bundle="${nav}" key="${menuItem.linkKey}"/>
-		</html:link>
-	</div>
+  <div class="actionbox <c:out value="${tabStyle[menuItem.functionalArea]}" />">
+    <html:link page="${menuItem.action}">
+      <grouper:message key="${menuItem.linkKey}" tooltipRef="${menuItem.titleKey}" 
+      ignoreTooltipStyle="true"/>
+    </html:link>
+  </div>
  </c:forEach>       
 </grouper:recordTile>

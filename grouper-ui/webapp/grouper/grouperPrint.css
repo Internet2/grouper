@@ -15,3 +15,8 @@
 #Navbar {
   position: inherit;
 }
+
+/* dont print background colors */
+.sectionBody {
+  background-color: white;  
+}

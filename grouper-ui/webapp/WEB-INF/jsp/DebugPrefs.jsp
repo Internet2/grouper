@@ -2,7 +2,7 @@
 		  Form for saving debug preferences.
 --%><%--
   @author Gary Brown.
-  @version $Id: DebugPrefs.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: DebugPrefs.jsp,v 1.4 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="preferences">
@@ -50,7 +50,7 @@
     </td>
 </tr>
 </table>
- <html:submit property="submit.save" value="${navMap['debug.prefs.action.save']}"/>
+ <html:submit styleClass="blueButton" property="submit.save" value="${navMap['debug.prefs.action.save']}"/>
 
 </html:form>
 </div>

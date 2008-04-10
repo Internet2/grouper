@@ -19,7 +19,7 @@
 <input type="radio" value="es" name="lang"/> Espanol<br/>
 -->
 
-<html:submit property="submit.login" value="${navMap['login']}"/></html:form>
+<html:submit styleClass="blueButton" property="submit.login" value="${navMap['login']}"/></html:form>
 <p/>
 <h3>Two views are available in this prototype</h3>
 <a href="populateIndex.do">Default Internet2 Middleware Initiative interface</a><p/>

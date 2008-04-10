@@ -2,17 +2,17 @@
 		Tile which displays the simple search form for people and groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearch.jsp,v 1.7 2008-04-08 07:51:52 mchyzer Exp $
+  @version $Id: simpleSearch.jsp,v 1.8 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
-<div class="searchGroups">
+<div class="section searchGroups">
 <grouper:subtitle key="find.heading.search">
   <a class="underline subtitleLink" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"
     ><grouper:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a>
 </grouper:subtitle>
-
+<div class="sectionBody">
  <html:form styleId="SearchFormBean" action="/searchNewMembers" method="post">
  		<html:hidden property="searchInNameOrExtension"/>
 		<html:hidden property="searchInDisplayNameOrExtension"/>
@@ -31,7 +31,7 @@
 	</div>
 	<div class="formRight">
 	<input name="searchTerm" type="text" id="searchTerm"/>
-	</div>
+    </div>
 </div>
 
 <tiles:insert definition="subjectSearchFragmentDef">
@@ -44,10 +44,11 @@
 
 
 
-<div class="formRow"><html:submit property="submit.group.member" value="${navMap['find.action.search']}"/></div>
+<div class="formRow"><html:submit styleClass="blueButton" property="submit.group.member" value="${navMap['find.action.search']}"/></div>
 <input type="hidden" name="newSearch" value="Y"/>
 </fieldset>
 </html:form>
+</div>
 </div>
 <a name="endSearch" id="endSearch"></a>
 </grouper:recordTile>

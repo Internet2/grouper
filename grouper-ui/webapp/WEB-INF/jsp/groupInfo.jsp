@@ -1,77 +1,61 @@
 <%-- @annotation@
 		Tile which displays a summary of group attributes  - currently inserted
 		in GroupSummaryDef
---%><%--
+--%>
+<%--
   @author Gary Brown.
-  @version $Id: groupInfo.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: groupInfo.jsp,v 1.6 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<div class="groupInfo"> 
-<div class="formRow">
-	<div class="formLeft">
-		<c:out value="${fieldList.extension.displayName}"/>
-	</div>
-	<div class="formRight">
-		<c:out value="${group.extension}"/>
-	</div>
-</div>
-<div class="formRow">
-	<div class="formLeft">
-		<c:out value="${fieldList.name.displayName}"/>
-	</div>
-	<div class="formRight">
-		<c:out value="${group.name}"/>
-	</div>
-</div>
-<div class="formRow">
-	<div class="formLeft">
-		<c:out value="${fieldList.displayExtension.displayName}"/>
-	</div>
-	<div class="formRight">
-		<c:out value="${group.displayExtension}"/>
-	</div>
-</div>
-<div class="formRow">
-	<div class="formLeft">
-		<c:out value="${fieldList.displayName.displayName}"/>
-	</div>
-	<div class="formRight">
-		<c:out value="${group.displayName}"/>
-	</div>
-</div>	
-<c:if test="${!empty group.description}">
-<div class="formRow">
-	<div class="formLeft">
-		<grouper:message bundle="${nav}" key="groups.summary.description"/>
-	</div>
-	<div class="formRight">
-		<c:out value="${group.description}"/>
-	</div>
-</div>
-</c:if>
-<div class="formRow">
-	<div class="formLeft">
-		<grouper:message bundle="${nav}" key="groups.summary.id"/>
-	</div>
-	<div class="formRight">
-		<c:out value="${group.id}"/>
-	</div>
-</div>
-<c:if test="${!empty group.types}">
-<div class="formRow">
-	<div class="formLeft"><grouper:message bundle="${nav}" key="groups.summary.types"/></div>
-</div>
-<div class="formRight">
-<div class="groupTypes">
+<grouper:recordTile key="Not dynamic"
+  tile="${requestScope['javax.servlet.include.servlet_path']}"
+>
+  <table class="formTable formTableSpaced" cellspacing="2">
+    <tr class="formTableRow">
+      <td class="formTableLeft"><grouper:message key="field.displayName.displayExtension" /> </td>
+      <td class="formTableRight"><c:out value="${group.displayExtension}" /></td>
+    </tr>
+    <tr class="formTableRow">
+      <td class="formTableLeft"><grouper:message key="field.displayName.displayName" /> 
+      </td>
+      <td class="formTableRight"><c:out value="${group.displayName}" /></td>
+    </tr>
+    <%-- c:if test="${!empty group.description}" --%>
+      <tr class="formTableRow">
+        <td class="formTableLeft"><grouper:message key="field.displayName.description" /> </td>
+        <td class="formTableRight"><c:out value="${group.description}" /></td>
+      </tr>
+    <%-- /c:if --%>
+    <tr class="formTableRow">
+      <td class="formTableLeft"><grouper:message key="field.displayName.extension" /> 
+      </td>
 
-<tiles:insert definition="dynamicTileDef">
-	<tiles:put name="viewObject" beanName="group" beanProperty="types"/>
-	<tiles:put name="view" value="groupSummaryGroupTypes"/>
-	<tiles:put name="itemView" value="groupSummary"/>
-	<tiles:put name="listless" value="TRUE"/>
-</tiles:insert>
-</div>
-</div>
-</c:if>
-	</grouper:recordTile>
+      <td class="formTableRight"><c:out value="${group.extension}" /></td>
+    </tr>
+    <tr class="formTableRow">
+      <td class="formTableLeft"><grouper:message key="field.displayName.name" /> </td>
+      <td class="formTableRight"><c:out value="${group.name}" /></td>
+    </tr>
+    <tr class="formTableRow">
+      <td class="formTableLeft"><grouper:message 
+        key="groups.summary.id"
+      /></td>
+      <td class="formTableRight"><c:out value="${group.id}" /></td>
+    </tr>
+    <c:if test="${!empty group.types}">
+      <tr class="formTableRow">
+        <td class="formTableLeft"><grouper:message bundle="${nav}"
+          key="groups.summary.types"
+        /></td>
+        <td class="formTableRight">
+        <div class="groupTypes"><tiles:insert definition="dynamicTileDef">
+          <tiles:put name="viewObject" beanName="group" beanProperty="types" />
+          <tiles:put name="view" value="groupSummaryGroupTypes" />
+          <tiles:put name="itemView" value="groupSummary" />
+          <tiles:put name="listless" value="TRUE" />
+        </tiles:insert></div>
+        </td>
+      </tr>
+    </c:if>
+  </table>
+</grouper:recordTile>

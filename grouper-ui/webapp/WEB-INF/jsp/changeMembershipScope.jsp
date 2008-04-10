@@ -6,7 +6,7 @@
 		If configured, an dthe user has appropriate privileges, it is possible to import/export members from/to flat files
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.8 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.9 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -45,7 +45,7 @@
 	</html:select>
 	</c:if>
 	<span class="membershipListScope">
-		<input name="submit.changeScope" type="submit" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
+		<input name="submit.changeScope" type="submit" class="blueButton" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
 	</span>
 	<c:if test="${MembershipExporter.active}">
   <grouper:subtitle key="groups.heading.export-members" />
@@ -62,7 +62,7 @@
 			</select>
 			</c:otherwise>
 		</c:choose>
-		<input type="submit" name="submit.export" value="<c:out value="${navMap['groups.export.submit']}"/>"/>
+		<input type="submit" class="blueButton" name="submit.export" value="<c:out value="${navMap['groups.export.submit']}"/>"/>
 	</c:if>
 	
 <html:hidden property="groupId"/>
@@ -82,7 +82,7 @@
 			</select>
 			</c:otherwise>
 		</c:choose>
-		<input type="submit" name="submit.import" value="<c:out value="${navMap['groups.import.submit']}"/>"/>
+		<input type="submit" class="blueButton" name="submit.import" value="<c:out value="${navMap['groups.import.submit']}"/>"/>
 		
 	</c:if>
 	</fieldset>

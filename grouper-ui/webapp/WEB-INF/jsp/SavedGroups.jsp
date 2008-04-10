@@ -10,7 +10,7 @@
 	<html:form action="/populateListSavedGroups.do" method="post">
 	<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
 	<c:if test="${!empty groupSearchResultField && !empty mediaMap['search.group.result-field']}">
-		<html:submit property="x" value="${navMap['saved-subjects.groups.change-field']}"/>
+		<html:submit styleClass="blueButton" property="x" value="${navMap['saved-subjects.groups.change-field']}"/>
 	</c:if>
 	</html:form>
 	<html:form action="/removeSavedGroups.do" method="post">
@@ -24,7 +24,7 @@
 		</li>
 	</c:forEach>
 	</ul>
-		<html:submit property="x" value="${navMap['saved-subjects.groups.remove-selected']}"/> 
+		<html:submit styleClass="blueButton" property="x" value="${navMap['saved-subjects.groups.remove-selected']}"/> 
 	</html:form>
 </c:if>
 </div>

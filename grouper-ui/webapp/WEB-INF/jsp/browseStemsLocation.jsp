@@ -4,7 +4,7 @@
 		  the user to navigate the hierarchy
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsLocation.jsp,v 1.7 2008-04-08 07:51:52 mchyzer Exp $
+  @version $Id: browseStemsLocation.jsp,v 1.8 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -21,7 +21,7 @@
 %>	
 	<c:forEach var="stem" items="${browsePath}">
   <img <grouper:tooltip key="stem.icon.tooltip"/> 
-    src="grouper/images/folder.gif" class="groupIcon" alt="Folder" 
+    src="grouper/images/folderOpen.gif" class="groupIcon" alt="Folder" 
     /><span class="browseStemsLocationPart"><html:link 
 					page="/browseStems${browseMode}.do" 
 					paramId="currentNode" 
@@ -37,13 +37,12 @@
       <c:when test="${browseParent.isGroup}"><span 
     class="browseStemsLocationHere"><img <grouper:tooltip key="group.icon.tooltip"/> 
     src="grouper/images/group.gif" class="groupIcon" alt="Group" 
-    /></c:when>
-    <c:otherwise>
-    <img <grouper:tooltip key="folder.icon.tooltip"/> 
-    src="grouper/images/folder.gif" class="groupIcon" alt="Folder" 
+    /></c:when><c:otherwise>
+    <img <grouper:tooltip key="stem.icon.tooltip"/> 
+    src="grouper/images/folderOpen.gif" class="groupIcon" alt="Folder" 
     /></c:otherwise></c:choose><c:out 
     value="${browseParent.displayExtension}"/><c:if 
-    test="${browseParent.isGroup}">]</span></c:if>
+    test="${browseParent.isGroup}"></span></c:if>
 <a id="skipCurrentLocation" name="skipCurrentLocation"></a>
 </c:when>
 <c:otherwise>

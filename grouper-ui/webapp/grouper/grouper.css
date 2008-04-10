@@ -9,6 +9,11 @@ body {
   font-weight: bold;
 }
 
+h1 {
+  margin-left: 0px;
+  margin-bottom: 10px;
+}
+
 #subtitle {
 	font-size:11px;
 	color:333;
@@ -70,69 +75,37 @@ body {
 	clear:both;
 }
 
-
-.linkButton a   
-{
-    padding-top: 1px;
-    padding-right-value: 5px;
-    padding-bottom: 1px;
-    padding-left-value: 5px;
-    padding-left-ltr-source: physical;
-    padding-left-rtl-source: physical;
-    padding-right-ltr-source: physical;
-    padding-right-rtl-source: physical;
-	padding-left:3px;
-	padding-right:3px;
-    border-top-width: medium;
-    border-right-width: medium;
-    border-bottom-width: medium;
-    border-left-width: medium;
-    border-top-style: outset;
-    border-right-style: outset;
-    border-bottom-style: outset;
-    border-left-style: outset;
-    border-top-color: rgb(121, 132, 165);
-    border-right-color: rgb(121, 132, 165);
-    border-bottom-color: rgb(121, 132, 165);
-    border-left-color: rgb(121, 132, 165);
-	line-height:220%;
+.linkButton {
+  margin-top: 5px;
+  margin-bottom: 5px;  
 }
 
-.linkButton a:link:hover, .linkButton a:visited:hover   
-{
-    color: rgb(240, 12, 34);
-    text-decoration: none;
-    background-color: transparent;
+.linkButton a {
+
+  font-weight: bold;
+  margin: 2px 4px 2px 0px;
+
+  padding: 1px 5px 1px 5px;
+  border:1px solid black;
+  border-top-color:#666;
+  border-left-color:#666;
+  background-color: #015782;
+  color: #FFFFFF;
+  /* need to compress the font like submit buttons */
+  letter-spacing: -1px;
 	line-height:220%;
+
+  
 }
 
-.linkButton a:link, .linkButton a:visited   
-{
-    color: rgb(255, 255, 255);
-    background-color: rgb(51, 71, 121);
-    text-decoration: none;
-	line-height:220%;
+.linkButton a:hover { 
+  text-decoration: none;
+} 
+
+.linkButton a.redLink {
+  background-color: #990000;
 }
 
-.linkButton a:hover  
-{
-    color: rgb(255, 255, 255);
-    background-color: rgb(176, 28, 46);
-    text-decoration: none;
-    border-top-width: medium;
-    border-right-width: medium;
-    border-bottom-width: medium;
-    border-left-width: medium;
-    border-top-style: outset;
-    border-right-style: outset;
-    border-bottom-style: outset;
-    border-left-style: outset;
-    border-top-color: rgb(204, 110, 121);
-    border-right-color: rgb(204, 110, 121);
-    border-bottom-color: rgb(204, 110, 121);
-    border-left-color: rgb(204, 110, 121);
-	line-height:220%;
-}
 .pageBlurb {
 	width:50%;
 	margin-bottom:12px;
@@ -166,11 +139,54 @@ body {
 	clear:both;
 }
 
+.formTable {
+  /* makes the negative border */
+  /* background-color: white; */
+  
+}
+
+.formTable tr {
+  /* makes the negative border */
+  background-color: #e8e8e8;
+  
+}
+
+
+.formTableSpaced {
+  
+  margin-top: 20px;
+  margin-bottom: 20px;  
+}
+
+.formTable .formTableRow, .formTable .formTableRow td {
+  vertical-align: middle;
+}
+
+.formTable .formTableLeft {
+  text-align: right;  
+  font-weight: bold;
+  width: 238px;
+  color: #015782;
+}
+
+.formTable .formTableRight {
+  width: 390px;
+}
+
+.formSubtable .formTableLeft, .formSubtable .formTableRight {
+  color: black;
+  width: auto;  
+  font-weight: normal;
+}
+
 fieldset.nested {
 	display: block;
 	clear: both;
 }
 
+fieldset {
+  border: none;
+}
 
 .multiOptionItem {
 	width:120px;
@@ -260,32 +276,63 @@ div.memberLink {
 	display:inline;
 }
 
+/* Make sure that form tags do not affect display -
+  most browsers include a line return after a form tag. */
+form {
+  display: inline;
+  margin: 0px;
+}
+
 .jspError{
 	color:#ff0000;
 }
 
-table.actionheaderTable {
+.section {
+  background-color: #f2f2f2;  
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.sectionBody {
+  padding-top: 5px;
+  padding-left: 3px;
+  padding-bottom: 8px;
+}
+
+.actionheaderContainer td {
   text-decoration: none;
   color: #056496;
   font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-  font-size: 11px;
-  text-transform : uppercase;
+  font-size: 10px;
+  text-transform : none;
   font-weight: bold;
-  background-color: #DDD;
-  padding: 0px;
+  background-color: #dfeff4;
   margin: 0px;
-}
-table.actionheaderTable td {
   padding: 3px;
 }
 
-td.actionheader {
-  padding: 3px;  
-  
+/** not, if there is an infodot, it takes vertical space, so remove padding on top */
+.actionheaderContainerInfodot td {
+  padding-top: 0px;
+    
 }
-  
 
-
+.actionheader {
+  text-decoration: none;
+  color: #056496;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  text-transform : none;
+  font-weight: bold;
+  background-color: #DDD;
+  margin: 0px;
+  padding: 0px;
+}
+.actionheaderContainer td .actionheader {
+  background-color: #dfeff4;
+ 
+}
 .helpText {
   border-color: #dedfde;
   border-style: dashed;
@@ -299,6 +346,13 @@ javascript, then it will take effect, otherwise grouperInfodot.css will make the
 .infodotImage {
   display: none;
   visibility:hidden;
+  position: relative;
+  top: 3px;
+  
+}
+/* the alignment for infodot in h1 doesnt have to be adjusted */
+h1 .infodotImage {
+  top: 0px;
 }
 
 .groupIcon, .subjectIcon {
@@ -331,10 +385,28 @@ a.subtitleLink {
   /* dont wrap this in subtitle */
   white-space: nowrap;
   text-transform: none;
+  margin-left: 10px;
 }
+
+div.breadcrumb {
+  text-transform: uppercase;
+  color: #007994;
+  margin-bottom: 10px; 
+  
+}
+
+#ContentSpace {
+  
+  margin-left:200px;
+  margin-right:30px;
+  margin-top: 110px;
+  /** give some whitepace at bottom */
+  padding-bottom: 30px;
+}
+
 /** subheads in menu on left */
 div.menuSubheader {
-  padding: 5px 0px 5px 0px;  
+  padding: 15px 0px 5px 0px;  
   color: #949494;
   padding-left: 10px;
   font-size: 10px;
@@ -346,17 +418,78 @@ div.actionbox {
   padding-left: 20px;  
   font-size: 11px;
 }
-div.selectedTab {
+div.selectedTab, div.selectedTab a {
   background-color:#015782;
   color:white;  
 }
+
+
 /** dont pad this from signet.  This is the blue bar across top with welcome message */
 #Navbar {
   padding: 0px 0px 0px 0px;
 }
 /** dont space over from left */
 #Sidebar {
-  padding: 10px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
   left: 0px;
   background-color: #dfeff4;
 }
+
+#internet2 {
+  text-align: center;
+  width: 180px;
+  font-size: 9px;
+  position: absolute;
+  top: 500px;
+  left:0px;
+}
+
+body {
+  background-image: url(images/grouperbg.gif);
+}
+
+.blueButton, .redButton {
+    font-family: Tahoma, Arial, Helvetica, sans-serif;
+    text-decoration: none;
+    color: #FFFFFF;
+    font-weight: bold;
+    white-space: nowrap;
+    font-size: 11px;
+    cursor: pointer;
+}
+.blueButton, .redButton {
+    border:1px solid black;
+    border-top-color:#666;
+    border-left-color:#666;
+}
+.blueButton {
+  background-color: #015782;
+}
+.redButton {
+  background-color: #990000;
+}
+
+div.grouperMessage {
+  font-weight: bold;
+  font-size:11px;
+  color: #990000;
+  border: 2px solid #cc6666;
+  padding-top: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 5px;
+  margin-top: 3px;
+  margin-right: 3px;
+  margin-bottom: 8px;
+  /* background-color: #ffcccc; */
+  /* doesnt show up on dark backgrounds, so mandate that is white,
+     you can override with inherit if you like */
+  background-color: #ffffff;
+  width: 650px;
+}
+
+div.Message {
+  color: #000099;
+}
+
+

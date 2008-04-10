@@ -2,7 +2,7 @@
 		  ynamic tile used  to provide footer, including form buttons, for removing all, or selected members
 --%><%--
   @author Gary Brown.
-  @version $Id: removableMemberLinksFooterView.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: removableMemberLinksFooterView.jsp,v 1.4 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -21,8 +21,8 @@
 </div>
 
 <c:if test="${removableMembers}">
-		<br/><input type="submit" name="submit.remove.selected" value="<c:out value="${navMap['members.remove.selected']}"/>"  onclick="return confirm('<c:out value="${navMap['groups.remove.warn']}"/>')"/>
-		<input type="submit" name="submit.remove.all" value="<c:out value="${navMap['members.remove.all']}"/>" onclick="return confirm('<c:out value="${navMap['groups.remove.all.warn']}"/>')"/> 
+		<br/><input type="submit" class="blueButton" name="submit.remove.selected" value="<c:out value="${navMap['members.remove.selected']}"/>"  onclick="return confirm('<c:out value="${navMap['groups.remove.warn']}"/>')"/>
+		<input type="submit" class="blueButton" name="submit.remove.all" value="<c:out value="${navMap['members.remove.all']}"/>" onclick="return confirm('<c:out value="${navMap['groups.remove.all.warn']}"/>')"/> 
 	</c:if>
 	</fieldset>
 	</form>

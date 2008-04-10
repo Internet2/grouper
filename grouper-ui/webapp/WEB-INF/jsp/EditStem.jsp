@@ -2,7 +2,7 @@
 			Form for creating newstems or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditStem.jsp,v 1.7 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: EditStem.jsp,v 1.8 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -39,11 +39,11 @@
 	
 </fieldset>
 <div class="formRow">
- 		<html:submit property="submit.save" value="${navMap['stems.action.save']}"/> 
+ 		<html:submit styleClass="blueButton" property="submit.save" value="${navMap['stems.action.save']}"/> 
 		<c:if test="${isNewStem}">
-    		<html:submit property="submit.save_work_in_new" value="${navMap['stems.action.save-work-in-new-stem']}"/>
+    		<html:submit styleClass="blueButton" property="submit.save_work_in_new" value="${navMap['stems.action.save-work-in-new-stem']}"/>
 		</c:if>
-		<html:submit property="submit.save_assign" value="${navMap['stems.action.save-assign']}"/>
+		<html:submit styleClass="blueButton" property="submit.save_assign" value="${navMap['stems.action.save-assign']}"/>
 	</div>
 </html:form>
 

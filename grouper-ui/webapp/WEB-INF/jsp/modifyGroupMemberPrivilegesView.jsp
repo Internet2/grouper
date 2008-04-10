@@ -3,7 +3,7 @@
 		  membership / privileges for the active group to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.9 2008-04-03 22:02:56 mchyzer Exp $
+  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.10 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -48,7 +48,7 @@
 		</c:forEach>
 	</c:if>
 	<c:if test="${groupPrivResolver.canManagePrivileges || groupPrivResolver.canManageMembers}">
-		<html:submit property="submit.group.member" value="${navMap['priv.assign']}"/> 
+		<html:submit styleClass="blueButton" property="submit.group.member" value="${navMap['priv.assign']}"/> 
 	</c:if>
 </fieldset>
 </html:form>

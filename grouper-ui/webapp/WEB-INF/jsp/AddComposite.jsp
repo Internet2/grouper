@@ -40,7 +40,7 @@
 </div>
 </fieldset>
 <c:if test="${savedSubjectsSize>1}">
-<html:submit property="submit.saveAndAssign" value="${navMap['groups.composite.add']}"/>
+<html:submit styleClass="blueButton" property="submit.saveAndAssign" value="${navMap['groups.composite.add']}"/>
 </c:if>
 </html:form>
 <div class="linkButton"><tiles:insert definition="callerPageButtonDef"/></div>

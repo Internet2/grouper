@@ -136,19 +136,18 @@ public class GrouperSubtitleTag extends BodyTagSupport {
     try {
       JspWriter out = this.pageContext.getOut();
       
-      String leftSize = "100%";
-      String middleSize = "10%";
-      //if there is a body, put to the right
-      if (!StringUtils.isBlank(body)) {
-        
-        //shrink down right
-        leftSize = "90%";
-        
-      }
+      //see if there is an infodot for this subtitle
+      String infodotKey = "infodot.subtitle." + this.key;
+      MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)((HttpServletRequest)this
+          .pageContext.getRequest()).getSession().getAttribute("navNullMap");
       
+      boolean hasInfodot = !StringUtils.isEmpty((String)mapBundleWrapper.get(infodotKey));
 
-      out.print("<table border=\"0\" class=\"actionheaderTable\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>" +
-      		"<td width=\"" + leftSize + "\" class=\"actionheader\">");
+      //note, div didnt work since it didnt fully enclose the inner span
+      out.print("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"actionheaderContainer" 
+          + (hasInfodot ? " actionheaderContainerInfodot" : "") //add a different style for if there is an infodot 
+          + "\" width=\"100%\"><tr><td>" +
+      		"<span class=\"actionheader\">");
       
       out.flush();
       GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
@@ -169,29 +168,12 @@ public class GrouperSubtitleTag extends BodyTagSupport {
       }
       grouperMessageTag.doEndTag();
       out.flush();
-      out.print("</td>\n");
+      out.print("</span>");
       
-      //if there is a body, put to the right
-      if (!StringUtils.isBlank(body)) {
-        out.print("<td align=\"right\" width=\"" + middleSize + "\">");
-        out.print(body);
-        out.print("</td>\n");
-        
-      }
-
-      //set width to 0 since image will push it out anyway
-      out.print("<td align=\"right\" width=\"22px\">");
-      out.flush();
-      
-      //see if there is an infodot for this subtitle
-      String infodotKey = "infodot.subtitle." + this.key;
-      MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)((HttpServletRequest)this
-          .pageContext.getRequest()).getSession().getAttribute("navNullMap");
-      
-      boolean hasInfodot = !StringUtils.isEmpty((String)mapBundleWrapper.get(infodotKey));
       String htmlHideShowId = GrouperUiUtils.uniqueId();
       if (hasInfodot) {
-        
+        out.print("&nbsp;&nbsp;");
+        out.flush();
         //write an infodot tag
         GrouperInfodotTag grouperInfodotTag = new GrouperInfodotTag();
         grouperInfodotTag.setPageContext(this.pageContext);
@@ -199,10 +181,14 @@ public class GrouperSubtitleTag extends BodyTagSupport {
         grouperInfodotTag.doStartTag();
         grouperInfodotTag.doEndTag();
         out.flush();
-      } else {
-        //give it something so not empty, might eventually need a transparent gif
-        out.print("&nbsp;");
       }
+
+      //if there is a body, put to the right
+      if (!StringUtils.isBlank(body)) {
+        out.print("&nbsp;&nbsp;");
+        out.print(body);
+      }
+
       out.print("</td></tr></table>\n");
       out.print("<!-- subtitle infodot from nav.properties key: ");
       out.print(infodotKey);

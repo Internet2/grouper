@@ -4,11 +4,15 @@
 		 'message'
 --%><%--
   @author Gary Brown.
-  @version $Id: message.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: message.jsp,v 1.4 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<div id="<c:out value="${message.containerId}"/>">
+<div class="grouperMessage <c:out value="${message.containerId}"/>"  >
+
+<%-- print out prefix --%>
+<grouper:message key="message.${message.containerId}" />
+
 <!--message-->
 <grouper:message bundle="${nav}" key="${message.text}">
 <c:forEach var="arg" items="${message.args}">

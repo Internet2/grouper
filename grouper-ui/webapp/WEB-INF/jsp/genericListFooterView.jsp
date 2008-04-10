@@ -4,7 +4,7 @@
 		  current page size
 --%><%--
   @author Gary Brown.
-  @version $Id: genericListFooterView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: genericListFooterView.jsp,v 1.3 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -18,5 +18,4 @@
 	</c:if>
 	
 	</div>
-	<br/>
 </c:if>

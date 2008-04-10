@@ -43,8 +43,8 @@ Can save and
 </c:if>
 </div>
 <div class="formRow">
- <html:submit property="submit.save" value="${navMap['groups.action.attr-save']}"/>
- <html:submit property="submit.save_add" value="${navMap['groups.action.attr-save-add']}"/>
+ <html:submit styleClass="blueButton" property="submit.save" value="${navMap['groups.action.attr-save']}"/>
+ <html:submit styleClass="blueButton" property="submit.save_add" value="${navMap['groups.action.attr-save-add']}"/>
  </div>
  </div>
 </html:form>

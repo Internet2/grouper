@@ -4,7 +4,7 @@
 		  includes a form dor chaning the page size
 --%><%--
   @author Gary Brown.
-  @version $Id: genericListHeaderView.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: genericListHeaderView.jsp,v 1.4 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -20,7 +20,7 @@
 			<html:select property="pageSize" styleId="pageSize">
 				<html:options name="pageSizeSelections"/>
 			</html:select>
-			<input type="submit" value="<grouper:message bundle="${nav}" key="find.browse.change-pagesize"/>"/>
+			<input type="submit" class="blueButton" value="<grouper:message bundle="${nav}" key="find.browse.change-pagesize"/>"/>
 		</html:form>
 		</c:if>
 		<div class="genericListHeader"><grouper:message bundle="${nav}" key="find.browse.show-results">

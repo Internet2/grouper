@@ -19,7 +19,7 @@
 		</li>
 	</c:forEach>
 	</ul>
-		<html:submit property="x" value="${navMap['saved-subjects.remove-selected']}"/> 
+		<html:submit styleClass="blueButton" property="x" value="${navMap['saved-subjects.remove-selected']}"/> 
 	</html:form>
 </c:if>
 </div>

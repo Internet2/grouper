@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearchStems.jsp,v 1.9 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: simpleSearchStems.jsp,v 1.10 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -19,7 +19,7 @@
     	<label for="searchTerm" class="noCSSOnly"><grouper:message bundle="${nav}" key="find.search-term"/></label><html:text property="searchTerm" size="25" styleId="searchTerm"/><br/>
 		<tiles:insert definition="searchFromDef"/><br/>
 		<tiles:insert definition="searchStemResultFieldChoiceDef"/>
-    	<html:submit property="submit.search" value="${navMap['stems.action.search']}"/>
+    	<html:submit styleClass="blueButton" property="submit.search" value="${navMap['stems.action.search']}"/>
 	</fieldset>
 	</html:form>
 </div> 

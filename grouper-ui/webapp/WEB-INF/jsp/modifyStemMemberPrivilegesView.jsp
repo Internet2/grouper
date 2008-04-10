@@ -3,7 +3,7 @@
 		  privileges for the active stem to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyStemMemberPrivilegesView.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: modifyStemMemberPrivilegesView.jsp,v 1.5 2008-04-10 19:50:25 mchyzer Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -24,7 +24,7 @@
 				<label for="priv<c:out value="${priv}"/>"><grouper:message bundle="${nav}" key="priv.${priv}"/></label><br/>
 		</c:forEach>
 	</c:if>
-	<html:submit property="submit.group.member" value="${navMap['priv.assign']}"/> 
+	<html:submit styleClass="blueButton" property="submit.group.member" value="${navMap['priv.assign']}"/> 
 </html:form>
 <tiles:insert definition="effectivePrivsDef"/>
 </grouper:recordTile>

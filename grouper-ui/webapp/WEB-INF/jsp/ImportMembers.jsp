@@ -2,7 +2,7 @@
 			Imports data from uploaded file and displays output
 --%><%--
   @author Gary Brown.
-  @version $Id: ImportMembers.jsp,v 1.4 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: ImportMembers.jsp,v 1.5 2008-04-10 19:50:25 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%><c:choose>
 	<c:when test="${canWriteField}"><%importMembers(request,response);%>
 		<c:if test="${mediaMap['membership-import.allow-textarea']=='true'}">
@@ -34,7 +34,7 @@
 		<p><grouper:message bundle="${nav}" key="groups.import.textarea-title"/></p>
 		<html:textarea rows="20" cols="50" property="importString" title="${navMap['groups.import.textarea-title']}"/>
 		<br/>
-		<input type="submit" name="submit.import" value="<c:out value="${navMap['groups.import.submit']}"/>"/>
+		<input type="submit" class="blueButton" name="submit.import" value="<c:out value="${navMap['groups.import.submit']}"/>"/>
 		
 	</c:if>
 	</fieldset>
