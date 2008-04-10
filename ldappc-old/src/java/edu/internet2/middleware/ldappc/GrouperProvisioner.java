@@ -348,7 +348,6 @@ public class GrouperProvisioner extends Provisioner
 
         // DebugLog.info("Collecting grouper memberships");
         BufferedWriter updatesWriter = openMembershipWriter(updatesFile);
-        System.exit(0);
         String groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
         if (groupNamingAttribute == null)
         {
