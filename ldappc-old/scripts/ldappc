@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Run ldappc on UN*X-style systems.
+# Set APP_HOME to the base directory for your ldappc distribution
+# and you're ready to go.
+
+APP_HOME=.
+#APP_HOME=$HOME/ldappc
+
+# Include main configuration files
+# Append libs
+CP=${APP_HOME}/conf
+for f in ${APP_HOME}/lib/*.jar; do CP=${CP}:${f}; done
+
+exec java -classpath ${CP} -Xmx256m edu.internet2.middleware.ldappc.Ldappc $*
