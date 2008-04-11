@@ -132,7 +132,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.16 2007-09-27 15:41:31 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.17 2008-04-11 15:21:42 mchyzer Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -242,9 +242,10 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			tmpList = GrouperHelper.groups2Maps(getGrouperSession(),tmpList.subList(start,end));
 			return new LinkedHashSet(tmpList);
 		}
-		List l=GrouperHelper.groups2Maps(s,LowLevelGrouperCapableAction.sort( GrouperHelper.getGroupsForPrivileges(
+		Set groupsForPrivileges = GrouperHelper.getGroupsForPrivileges(
 				s, flatPrivs, start, pageSize,
-				totalCount),request,context));
+				totalCount);
+    List l=GrouperHelper.groups2Maps(s,LowLevelGrouperCapableAction.sort( groupsForPrivileges,request,context));
 		return new LinkedHashSet(l);
 	}
 	

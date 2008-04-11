@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.44 2008-04-03 13:30:21 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.45 2008-04-11 15:21:42 mchyzer Exp $
  */
 
 
@@ -1430,7 +1430,9 @@ public class GrouperHelper {
 		Object obj;
 		while(it.hasNext()){
 				obj = it.next();
-				if(obj instanceof Group)	groupSet.add(group);
+				if(obj instanceof Group) {
+				  groupSet.add(obj);
+				}
 		}
 		return groupSet;
 	}
