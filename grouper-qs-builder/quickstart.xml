@@ -131,8 +131,8 @@
     </groupTypesMetaData>
 
     <subjectSourceMetaData>
-      <source id='qsuob'
-        name='QSUOB JDBC Source Adapter'
+      <source id='example'
+        name='Example JDBC Source Adapter'
         class='edu.internet2.middleware.subject.provider.JDBCSourceAdapter'
       >
         <subjectType name='person'/>
@@ -385,10 +385,10 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='jabl' type='person' source='qsuob' immediate='true'             />
-            <subject id='jabr' type='person' source='qsuob' immediate='true'             />
-            <subject id='jaco' type='person' source='qsuob' immediate='true'             />
-            <subject id='haed' type='person' source='qsuob' immediate='true'             />
+            <subject id='jabl' type='person' source='example' immediate='true'             />
+            <subject id='jabr' type='person' source='example' immediate='true'             />
+            <subject id='jaco' type='person' source='example' immediate='true'             />
+            <subject id='haed' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -439,9 +439,9 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='bato' type='person' source='qsuob' immediate='true'             />
-            <subject id='bado' type='person' source='qsuob' immediate='true'             />
-            <subject id='babe' type='person' source='qsuob' immediate='true'             />
+            <subject id='bato' type='person' source='example' immediate='true'             />
+            <subject id='bado' type='person' source='example' immediate='true'             />
+            <subject id='babe' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -492,8 +492,8 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='jobe' type='person' source='qsuob' immediate='true'             />
-            <subject id='joto' type='person' source='qsuob' immediate='true'             />
+            <subject id='jobe' type='person' source='example' immediate='true'             />
+            <subject id='joto' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -576,9 +576,9 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='elto' type='person' source='qsuob' immediate='true'             />
-            <subject id='haed' type='person' source='qsuob' immediate='true'             />
-            <subject id='joco' type='person' source='qsuob' immediate='true'             />
+            <subject id='elto' type='person' source='example' immediate='true'             />
+            <subject id='haed' type='person' source='example' immediate='true'             />
+            <subject id='joco' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -628,9 +628,9 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='jabl' type='person' source='qsuob' immediate='true'             />
-            <subject id='jabr' type='person' source='qsuob' immediate='true'             />
-            <subject id='bama' type='person' source='qsuob' immediate='true'             />
+            <subject id='jabl' type='person' source='example' immediate='true'             />
+            <subject id='jabr' type='person' source='example' immediate='true'             />
+            <subject id='bama' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -680,9 +680,9 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='keco' type='person' source='qsuob' immediate='true'             />
-            <subject id='bama' type='person' source='qsuob' immediate='true'             />
-            <subject id='joco' type='person' source='qsuob' immediate='true'             />
+            <subject id='keco' type='person' source='example' immediate='true'             />
+            <subject id='bama' type='person' source='example' immediate='true'             />
+            <subject id='joco' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -735,7 +735,7 @@
           </internalAttributes>
 
           <list field='members' groupType='base'>
-          <subject id='jabl' type='person' source='qsuob' immediate='true'           />
+          <subject id='jabl' type='person' source='example' immediate='true'           />
           </list> <!-- 'members' -->
 
 
@@ -847,7 +847,7 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='kewi' type='person' source='qsuob' immediate='true'             />
+            <subject id='kewi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -898,8 +898,8 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='kewi' type='person' source='qsuob' immediate='true'             />
-            <subject id='keta' type='person' source='qsuob' immediate='true'             />
+            <subject id='kewi' type='person' source='example' immediate='true'             />
+            <subject id='keta' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -951,18 +951,18 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='pebl' type='person' source='qsuob' immediate='true'             />
-            <subject id='pedo' type='person' source='qsuob' immediate='true'             />
-            <subject id='pebe' type='person' source='qsuob' immediate='true'             />
-            <subject id='peto' type='person' source='qsuob' immediate='true'             />
-            <subject id='peco' type='person' source='qsuob' immediate='true'             />
-            <subject id='peta' type='person' source='qsuob' immediate='true'             />
-            <subject id='peed' type='person' source='qsuob' immediate='true'             />
-            <subject id='pewi' type='person' source='qsuob' immediate='true'             />
-            <subject id='pema' type='person' source='qsuob' immediate='true'             />
-            <subject id='pebr' type='person' source='qsuob' immediate='true'             />
-            <subject id='pebu' type='person' source='qsuob' immediate='true'             />
-            <subject id='pepo' type='person' source='qsuob' immediate='true'             />
+            <subject id='pebl' type='person' source='example' immediate='true'             />
+            <subject id='pedo' type='person' source='example' immediate='true'             />
+            <subject id='pebe' type='person' source='example' immediate='true'             />
+            <subject id='peto' type='person' source='example' immediate='true'             />
+            <subject id='peco' type='person' source='example' immediate='true'             />
+            <subject id='peta' type='person' source='example' immediate='true'             />
+            <subject id='peed' type='person' source='example' immediate='true'             />
+            <subject id='pewi' type='person' source='example' immediate='true'             />
+            <subject id='pema' type='person' source='example' immediate='true'             />
+            <subject id='pebr' type='person' source='example' immediate='true'             />
+            <subject id='pebu' type='person' source='example' immediate='true'             />
+            <subject id='pepo' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1048,18 +1048,18 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='modo' type='person' source='qsuob' immediate='true'             />
-            <subject id='mota' type='person' source='qsuob' immediate='true'             />
-            <subject id='mobl' type='person' source='qsuob' immediate='true'             />
-            <subject id='moco' type='person' source='qsuob' immediate='true'             />
-            <subject id='moto' type='person' source='qsuob' immediate='true'             />
-            <subject id='mowi' type='person' source='qsuob' immediate='true'             />
-            <subject id='mobr' type='person' source='qsuob' immediate='true'             />
-            <subject id='mobu' type='person' source='qsuob' immediate='true'             />
-            <subject id='moma' type='person' source='qsuob' immediate='true'             />
-            <subject id='mopo' type='person' source='qsuob' immediate='true'             />
-            <subject id='moed' type='person' source='qsuob' immediate='true'             />
-            <subject id='mobe' type='person' source='qsuob' immediate='true'             />
+            <subject id='modo' type='person' source='example' immediate='true'             />
+            <subject id='mota' type='person' source='example' immediate='true'             />
+            <subject id='mobl' type='person' source='example' immediate='true'             />
+            <subject id='moco' type='person' source='example' immediate='true'             />
+            <subject id='moto' type='person' source='example' immediate='true'             />
+            <subject id='mowi' type='person' source='example' immediate='true'             />
+            <subject id='mobr' type='person' source='example' immediate='true'             />
+            <subject id='mobu' type='person' source='example' immediate='true'             />
+            <subject id='moma' type='person' source='example' immediate='true'             />
+            <subject id='mopo' type='person' source='example' immediate='true'             />
+            <subject id='moed' type='person' source='example' immediate='true'             />
+            <subject id='mobe' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1111,10 +1111,10 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='mawi' type='person' source='qsuob' immediate='true'             />
-            <subject id='kewi' type='person' source='qsuob' immediate='true'             />
-            <subject id='mata' type='person' source='qsuob' immediate='true'             />
-            <subject id='keta' type='person' source='qsuob' immediate='true'             />
+            <subject id='mawi' type='person' source='example' immediate='true'             />
+            <subject id='kewi' type='person' source='example' immediate='true'             />
+            <subject id='mata' type='person' source='example' immediate='true'             />
+            <subject id='keta' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1166,8 +1166,8 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='mawi' type='person' source='qsuob' immediate='true'             />
-            <subject id='kewi' type='person' source='qsuob' immediate='true'             />
+            <subject id='mawi' type='person' source='example' immediate='true'             />
+            <subject id='kewi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1252,7 +1252,7 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='stwi' type='person' source='qsuob' immediate='true'             />
+            <subject id='stwi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1303,8 +1303,8 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='stta' type='person' source='qsuob' immediate='true'             />
-            <subject id='stwi' type='person' source='qsuob' immediate='true'             />
+            <subject id='stta' type='person' source='example' immediate='true'             />
+            <subject id='stwi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1356,18 +1356,18 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='jama' type='person' source='qsuob' immediate='true'             />
-            <subject id='jaed' type='person' source='qsuob' immediate='true'             />
-            <subject id='jawi' type='person' source='qsuob' immediate='true'             />
-            <subject id='jabu' type='person' source='qsuob' immediate='true'             />
-            <subject id='jabl' type='person' source='qsuob' immediate='true'             />
-            <subject id='jata' type='person' source='qsuob' immediate='true'             />
-            <subject id='jato' type='person' source='qsuob' immediate='true'             />
-            <subject id='jabr' type='person' source='qsuob' immediate='true'             />
-            <subject id='jabe' type='person' source='qsuob' immediate='true'             />
-            <subject id='japo' type='person' source='qsuob' immediate='true'             />
-            <subject id='jado' type='person' source='qsuob' immediate='true'             />
-            <subject id='jaco' type='person' source='qsuob' immediate='true'             />
+            <subject id='jama' type='person' source='example' immediate='true'             />
+            <subject id='jaed' type='person' source='example' immediate='true'             />
+            <subject id='jawi' type='person' source='example' immediate='true'             />
+            <subject id='jabu' type='person' source='example' immediate='true'             />
+            <subject id='jabl' type='person' source='example' immediate='true'             />
+            <subject id='jata' type='person' source='example' immediate='true'             />
+            <subject id='jato' type='person' source='example' immediate='true'             />
+            <subject id='jabr' type='person' source='example' immediate='true'             />
+            <subject id='jabe' type='person' source='example' immediate='true'             />
+            <subject id='japo' type='person' source='example' immediate='true'             />
+            <subject id='jado' type='person' source='example' immediate='true'             />
+            <subject id='jaco' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1453,18 +1453,18 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='bato' type='person' source='qsuob' immediate='true'             />
-            <subject id='baco' type='person' source='qsuob' immediate='true'             />
-            <subject id='bawi' type='person' source='qsuob' immediate='true'             />
-            <subject id='babu' type='person' source='qsuob' immediate='true'             />
-            <subject id='bado' type='person' source='qsuob' immediate='true'             />
-            <subject id='baed' type='person' source='qsuob' immediate='true'             />
-            <subject id='bama' type='person' source='qsuob' immediate='true'             />
-            <subject id='bapo' type='person' source='qsuob' immediate='true'             />
-            <subject id='bata' type='person' source='qsuob' immediate='true'             />
-            <subject id='babe' type='person' source='qsuob' immediate='true'             />
-            <subject id='babl' type='person' source='qsuob' immediate='true'             />
-            <subject id='babr' type='person' source='qsuob' immediate='true'             />
+            <subject id='bato' type='person' source='example' immediate='true'             />
+            <subject id='baco' type='person' source='example' immediate='true'             />
+            <subject id='bawi' type='person' source='example' immediate='true'             />
+            <subject id='babu' type='person' source='example' immediate='true'             />
+            <subject id='bado' type='person' source='example' immediate='true'             />
+            <subject id='baed' type='person' source='example' immediate='true'             />
+            <subject id='bama' type='person' source='example' immediate='true'             />
+            <subject id='bapo' type='person' source='example' immediate='true'             />
+            <subject id='bata' type='person' source='example' immediate='true'             />
+            <subject id='babe' type='person' source='example' immediate='true'             />
+            <subject id='babl' type='person' source='example' immediate='true'             />
+            <subject id='babr' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1516,8 +1516,8 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='fita' type='person' source='qsuob' immediate='true'             />
-            <subject id='fiwi' type='person' source='qsuob' immediate='true'             />
+            <subject id='fita' type='person' source='example' immediate='true'             />
+            <subject id='fiwi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1569,7 +1569,7 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='fiwi' type='person' source='qsuob' immediate='true'             />
+            <subject id='fiwi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1710,18 +1710,18 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='hato' type='person' source='qsuob' immediate='true'             />
-            <subject id='hado' type='person' source='qsuob' immediate='true'             />
-            <subject id='habe' type='person' source='qsuob' immediate='true'             />
-            <subject id='habl' type='person' source='qsuob' immediate='true'             />
-            <subject id='hata' type='person' source='qsuob' immediate='true'             />
-            <subject id='hapo' type='person' source='qsuob' immediate='true'             />
-            <subject id='haco' type='person' source='qsuob' immediate='true'             />
-            <subject id='habr' type='person' source='qsuob' immediate='true'             />
-            <subject id='hama' type='person' source='qsuob' immediate='true'             />
-            <subject id='hawi' type='person' source='qsuob' immediate='true'             />
-            <subject id='haed' type='person' source='qsuob' immediate='true'             />
-            <subject id='habu' type='person' source='qsuob' immediate='true'             />
+            <subject id='hato' type='person' source='example' immediate='true'             />
+            <subject id='hado' type='person' source='example' immediate='true'             />
+            <subject id='habe' type='person' source='example' immediate='true'             />
+            <subject id='habl' type='person' source='example' immediate='true'             />
+            <subject id='hata' type='person' source='example' immediate='true'             />
+            <subject id='hapo' type='person' source='example' immediate='true'             />
+            <subject id='haco' type='person' source='example' immediate='true'             />
+            <subject id='habr' type='person' source='example' immediate='true'             />
+            <subject id='hama' type='person' source='example' immediate='true'             />
+            <subject id='hawi' type='person' source='example' immediate='true'             />
+            <subject id='haed' type='person' source='example' immediate='true'             />
+            <subject id='habu' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1773,8 +1773,8 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='fiwi' type='person' source='qsuob' immediate='true'             />
-            <subject id='fico' type='person' source='qsuob' immediate='true'             />
+            <subject id='fiwi' type='person' source='example' immediate='true'             />
+            <subject id='fico' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1822,8 +1822,8 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='iawi' type='person' source='qsuob' immediate='true'             />
-            <subject id='iata' type='person' source='qsuob' immediate='true'             />
+            <subject id='iawi' type='person' source='example' immediate='true'             />
+            <subject id='iata' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1875,7 +1875,7 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='iawi' type='person' source='qsuob' immediate='true'             />
+            <subject id='iawi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -1981,7 +1981,7 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='iawi' type='person' source='qsuob' immediate='true'             />
+            <subject id='iawi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -2078,18 +2078,18 @@
 
             </groupTypes>
             <list field='members' groupType='base'>
-            <subject id='elpo' type='person' source='qsuob' immediate='true'             />
-            <subject id='elma' type='person' source='qsuob' immediate='true'             />
-            <subject id='eldo' type='person' source='qsuob' immediate='true'             />
-            <subject id='eled' type='person' source='qsuob' immediate='true'             />
-            <subject id='elbe' type='person' source='qsuob' immediate='true'             />
-            <subject id='elto' type='person' source='qsuob' immediate='true'             />
-            <subject id='elco' type='person' source='qsuob' immediate='true'             />
-            <subject id='elbu' type='person' source='qsuob' immediate='true'             />
-            <subject id='elwi' type='person' source='qsuob' immediate='true'             />
-            <subject id='elbr' type='person' source='qsuob' immediate='true'             />
-            <subject id='elta' type='person' source='qsuob' immediate='true'             />
-            <subject id='elbl' type='person' source='qsuob' immediate='true'             />
+            <subject id='elpo' type='person' source='example' immediate='true'             />
+            <subject id='elma' type='person' source='example' immediate='true'             />
+            <subject id='eldo' type='person' source='example' immediate='true'             />
+            <subject id='eled' type='person' source='example' immediate='true'             />
+            <subject id='elbe' type='person' source='example' immediate='true'             />
+            <subject id='elto' type='person' source='example' immediate='true'             />
+            <subject id='elco' type='person' source='example' immediate='true'             />
+            <subject id='elbu' type='person' source='example' immediate='true'             />
+            <subject id='elwi' type='person' source='example' immediate='true'             />
+            <subject id='elbr' type='person' source='example' immediate='true'             />
+            <subject id='elta' type='person' source='example' immediate='true'             />
+            <subject id='elbl' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
             <list field='academic-staff' groupType='teaching'>
@@ -2160,8 +2160,8 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='jowi' type='person' source='qsuob' immediate='true'             />
-            <subject id='jota' type='person' source='qsuob' immediate='true'             />
+            <subject id='jowi' type='person' source='example' immediate='true'             />
+            <subject id='jota' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -2213,7 +2213,7 @@
             </internalAttributes>
 
             <list field='members' groupType='base'>
-            <subject id='jowi' type='person' source='qsuob' immediate='true'             />
+            <subject id='jowi' type='person' source='example' immediate='true'             />
             </list> <!-- 'members' -->
 
 
@@ -2299,7 +2299,7 @@
           </internalAttributes>
 
           <list field='members' groupType='base'>
-          <subject id='jodo' type='person' source='qsuob' immediate='true'           />
+          <subject id='jodo' type='person' source='example' immediate='true'           />
           </list> <!-- 'members' -->
 
 
@@ -2350,7 +2350,7 @@
           </internalAttributes>
 
           <list field='members' groupType='base'>
-          <subject id='fibu' type='person' source='qsuob' immediate='true'           />
+          <subject id='fibu' type='person' source='example' immediate='true'           />
           </list> <!-- 'members' -->
 
 
@@ -2401,7 +2401,7 @@
           </internalAttributes>
 
           <list field='members' groupType='base'>
-          <subject id='fibu' type='person' source='qsuob' immediate='true'           />
+          <subject id='fibu' type='person' source='example' immediate='true'           />
           </list> <!-- 'members' -->
 
 
@@ -2455,7 +2455,7 @@
         </internalAttributes>
 
         <list field='members' groupType='base'>
-        <subject id='kebe' type='person' source='qsuob' immediate='true'         />
+        <subject id='kebe' type='person' source='example' immediate='true'         />
         </list> <!-- 'members' -->
 
 
@@ -2697,7 +2697,7 @@
         </internalAttributes>
 
         <list field='members' groupType='base'>
-        <subject id='fiwi' type='person' source='qsuob' immediate='true'         />
+        <subject id='fiwi' type='person' source='example' immediate='true'         />
         </list> <!-- 'members' -->
 
 

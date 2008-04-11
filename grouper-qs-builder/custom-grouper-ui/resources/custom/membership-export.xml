@@ -12,7 +12,7 @@
 			<field name="displayName"/>
 			<field value="group"/>
 		</source>
-		<source id="qsuob">
+		<source id="example">
 			<field name="id"/>
 			<field name="name"/>
 			<field value="person"/>
@@ -29,7 +29,7 @@
 			<field name="displayName"/>
 			<field value="group"/>
 		</source>
-		<source id="qsuob">
+		<source id="example">
 			<field name="id"/>
 			<field name="name"/>
 			<field value="person"/>
@@ -46,7 +46,7 @@
 			<field name="displayName"/>
 			<field value="group"/>
 		</source>
-		<source id="qsuob">
+		<source id="example">
 			<field name="id"/>
 			<field name="name"/>
 			<field value="person"/>
