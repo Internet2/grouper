@@ -3,6 +3,8 @@
 # Run ldappc on UN*X-style systems.
 # Set APP_HOME to the base directory for your ldappc distribution
 # and you're ready to go.
+#
+# $Id: ldappc,v 1.2 2008-04-11 06:51:47 khuxtable Exp $
 
 APP_HOME=.
 #APP_HOME=$HOME/ldappc
