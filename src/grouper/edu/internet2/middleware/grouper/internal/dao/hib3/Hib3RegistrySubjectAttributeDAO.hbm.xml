@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3RegistrySubjectAttributeDAO.hbm.xml,v 1.2 2008-02-24 07:43:15 mchyzer Exp $ -->
+<!-- $Id: Hib3RegistrySubjectAttributeDAO.hbm.xml,v 1.3 2008-04-11 15:29:23 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
   <class name="Hib3RegistrySubjectAttributeDAO" table="SubjectAttribute">
@@ -37,7 +37,6 @@
       >
         <column name="subjectId"
                 not-null="true"
-                index="subjectattribute_id_idx"
         />
       </key-property>
       <key-property name="name"
@@ -46,7 +45,6 @@
         <column name="name"
                 length="255" 
                 not-null="true"
-                index="subjectattribute_key_idx"
         />
       </key-property>
       <key-property name="value"
@@ -55,6 +53,7 @@
         <column name="value"
                 length="255" 
                 not-null="true"
+                index="subjectattribute_value_idx"
         />
       </key-property>
     </composite-id>
