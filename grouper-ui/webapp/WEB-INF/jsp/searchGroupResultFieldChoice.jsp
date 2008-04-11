@@ -2,7 +2,7 @@
 		  Tile which lets user select which field to display in search results
 --%><%--
   @author Gary Brown.
-  @version $Id: searchGroupResultFieldChoice.jsp,v 1.5 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: searchGroupResultFieldChoice.jsp,v 1.6 2008-04-11 05:53:47 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -25,7 +25,28 @@
     	<c:set var="checked" value=""/>
     	<c:if test="${field==groupSearchResultField}"><c:set var="checked" value="checked='checked'"/></c:if>
       <input type="radio" name="groupSearchResultField" value="<c:out value="${field}"/>" 
-        <c:out value="${checked}" escapeXml="false"/>/> <c:out value="${fieldList[field].displayName}"/>
+        <c:out value="${checked}" escapeXml="false"/>/> 
+        <%-- hack this up so we can get some tooltips --%>
+        <c:choose>
+          <c:when test="${fieldList[field].displayName == navMap['field.displayName.displayName']}">
+            <grouper:message key="field.displayName.displayName" />
+          </c:when>
+          <c:when test="${fieldList[field].displayName == navMap['field.displayName.displayExtension']}">
+            <grouper:message key="field.displayName.displayExtension" />
+          </c:when>
+          <c:when test="${fieldList[field].displayName == navMap['field.displayName.name']}">
+            <grouper:message key="field.displayName.name" />
+          </c:when>
+          <c:when test="${fieldList[field].displayName == navMap['field.displayName.extension']}">
+            <grouper:message key="field.displayName.extension" />
+          </c:when>
+          <c:when test="${fieldList[field].displayName == navMap['field.displayName.description']}">
+            <grouper:message key="field.displayName.description" />
+          </c:when>
+        
+          <c:otherwise><c:out value="${fieldList[field].displayName}"/></c:otherwise>
+        </c:choose>
+        
     </c:forTokens>
   </td>
 </tr>

@@ -62,6 +62,14 @@ public class GrouperHideShowTarget extends BodyTagSupport {
         this.hideShowHtmlId, this, this.pageContext)) != null) {
       this.hideShowHtmlId = string;
     }
+    if ((string = EvalHelper.evalString("omitStyle", 
+        this.omitStyle, this, this.pageContext)) != null) {
+      this.omitStyle = string;
+    }
+    if ((string = EvalHelper.evalString("showInitially", 
+        this.showInitially, this, this.pageContext)) != null) {
+      this.showInitially = string;
+    }
     
   }
 

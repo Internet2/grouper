@@ -3,11 +3,14 @@
 		  except 'Find' mode 
 --%><%--
   @author Gary Brown.
-  @version $Id: SearchGroupResults.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: SearchGroupResults.jsp,v 1.6 2008-04-11 05:53:47 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
+  <div class="section groupSearchSubject">
+  <div class="sectionBody">
 <c:if test="${!empty subjectOfInterest}">
-	<div class="groupSearchSubject"><grouper:message bundle="${nav}" key="subject.action.search-groups.info"/> 
+  
+  <grouper:message bundle="${nav}" key="subject.action.search-groups.info"/> 
 	<tiles:insert definition="dynamicTileDef" flush="false">
 	  			<tiles:put name="viewObject" beanName="subjectOfInterest"/>
 	  			<tiles:put name="view" value="groupSearchForPrivileges"/>
@@ -18,7 +21,8 @@
 <c:forEach var="outTerm" items="${queryOutTerms}">
 	<c:choose>
 		<c:when test="${termMode == 'query'}">
-			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> <span class="termQuery"><c:out value="${outTerm}" escapeXml="false"/></span></c:set>
+			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> 
+      <span class="termQuery"><c:out value="${outTerm}" escapeXml="false"/></span></c:set>
 			<c:set var="termMode" value="field"/>
 		</c:when>
 		<c:when test="${termMode == 'field'}">
@@ -80,4 +84,5 @@
 	</c:otherwise>
 	</c:choose>
 </c:if>
+</div>
 </div>

@@ -2,15 +2,16 @@
 		  Display paged results for Subject search
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSearchResults.jsp,v 1.4 2008-04-06 03:45:43 mchyzer Exp $
+  @version $Id: SubjectSearchResults.jsp,v 1.5 2008-04-11 05:53:47 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%><tiles:importAttribute />
+<%-- adding this in so that we have css handle on list --%>
+<div class="subjectSearchResults section">
+<div class="sectionBody">
 <div class="searchedFor"><grouper:message bundle="${nav}" key="find.subjects.searched-for">
 	<grouper:param value="${pager.params.searchTerm}"/>
 </grouper:message></div>
 
-<%-- adding this in so that we have css handle on list --%>
-<div class="subjectSearchResults">
 <c:if test="${empty groupSearchResultField}"><c:set scope="request" var="groupSearchResultField" value="${mediaMap['search.group.result-field']}"/></c:if>
 
 	<tiles:insert definition="dynamicTileDef">
@@ -25,5 +26,5 @@
 		<tiles:put name="noResultsMsg" value="${navMap['find.subjects.no-results']}"/>
 	</tiles:insert>
 <tiles:insert definition="subjectLinksDef"/>
-
+</div>
 </div>

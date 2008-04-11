@@ -4,7 +4,7 @@
 		  includes a form dor chaning the page size
 --%><%--
   @author Gary Brown.
-  @version $Id: genericListHeaderView.jsp,v 1.4 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: genericListHeaderView.jsp,v 1.5 2008-04-11 05:53:47 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -29,10 +29,11 @@
 			<grouper:param value="${pager.count}"/>
 		</grouper:message>
 		</div>
-		<c:if test="${!empty listInstruction}">
-			<div class="listInstructions"><grouper:message bundle="${nav}" key="${listInstruction}"/></div>
-		</c:if>
-		
+    <div class="genericListHeader">
+  		<c:if test="${!empty listInstruction}">
+  			<div class="listInstructions"><grouper:message bundle="${nav}" key="${listInstruction}"/></div>
+  		</c:if>
+    </div>		
 	</c:when>
 	<c:otherwise><!--no items-->
 		<c:out value="${noResultsMsg}"/>	

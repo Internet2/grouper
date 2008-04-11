@@ -365,7 +365,7 @@ h1 .infodotImage {
  * - when browsing children of folders and groups,  
  * - when showing subject search results 
  */
-div.browseChildren ul, div.subjectSearchResults ul {
+div.browseChildren ul, div.subjectSearchResults ul, div.groupSearchSubject ul {
   list-style-type: none;
   margin: 0px;
   padding: 5px 0px 0px 20px;
@@ -492,4 +492,9 @@ div.Message {
   color: #000099;
 }
 
-
+div.genericListHeader {
+  color: #666666;
+  padding-left: 20px;
+  font-size: 10px;
+  
+}

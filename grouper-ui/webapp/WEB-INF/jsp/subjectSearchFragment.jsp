@@ -3,19 +3,24 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: subjectSearchFragment.jsp,v 1.6 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: subjectSearchFragment.jsp,v 1.7 2008-04-11 05:53:47 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
 <grouper:recordTile key="Not dynamic"
   tile="${requestScope['javax.servlet.include.servlet_path']}"
 >
-
+  <%-- if something in advanced is entered, then show advanced panel --%>
+  <c:set var="advancedMode" value="false" />
+  <c:if test="${ ! empty subjectSource && subjectSource != 'all' }">
+    <c:set var="advancedMode" value="true" />
+   
+  </c:if>
   <c:if test="${'all' == subjectSource}">
     <c:set var="checked"> checked="checked"</c:set>
   </c:if>
   <tr class="formTableRow" 
-    <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="false"/> >
+    <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="${advancedMode}"/> >
     <td class="formTableLeft"><grouper:message bundle="${nav}"
       key="find.search-source"
     /></td>
@@ -36,7 +41,7 @@
         <c:set var="checked"> checked="checked"</c:set>
       </c:if>
       <tr class="formTableRow"
-      <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="false"/> >
+      <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="${advancedMode}"/> >
         <td class="formTableLeft">&nbsp;</td>
         <td class="formTableRight"><input type="radio"
           value="<c:out value="${source.id}"/>" <c:out value="${checked}"/>
@@ -55,7 +60,7 @@
         <c:set var="insertFragmentKey" value="subject.search.form-fragment.${source.id}" />
         <c:set var="insertFragment" value="${mediaMap[insertFragmentKey]}" /> <%
  if (!pageContext.getAttribute("insertFragment").toString().matches("^\\?\\?.*")) {
- %> <tr <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="false"/> ><td class="formTableLeft">&nbsp;</td><td><table class="formSubtable"><tiles:insert definition="${insertFragment}" /></table></td></tr> <%
+ %> <tr <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="${advancedMode}"/> ><td class="formTableLeft">&nbsp;</td><td><table class="formSubtable"><tiles:insert definition="${insertFragment}" /></table></td></tr> <%
  }
  %> <c:remove var="checked" />
     </c:forEach>

@@ -3,7 +3,7 @@
 		or stem. The stem names are not links
 --%><%--
   @author Gary Brown.
-  @version $Id: showStemsLocation.jsp,v 1.8 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: showStemsLocation.jsp,v 1.9 2008-04-11 05:53:47 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -17,13 +17,13 @@
     value="${stem.displayExtension}"/><c:out value="${stemSeparator}"/></span>
 	</c:forEach>
 	<%-- this is the last entry in the "current location" at top of most screens --%>
+  <span class="browseStemsLocationHere">
 	<c:choose>
     <c:when test="${browseParent.isGroup}"><img src="grouper/images/group.gif" 
   <grouper:tooltip key="group.icon.tooltip"/> class="groupIcon" alt="Group"
-  /><span class="browseStemsLocationHere"></c:when><c:otherwise><img src="grouper/images/folderOpen.gif" alt="Folder"
+  /></c:when><c:otherwise><img src="grouper/images/folderOpen.gif" alt="Folder"
   <grouper:tooltip key="folder.icon.tooltip"/> class="groupIcon" 
-  /></c:otherwise></c:choose><c:out value="${browseParent.displayExtension}"/><c:if 
-  test="${browseParent.isGroup}"></span></c:if>
+  /></c:otherwise></c:choose><c:out value="${browseParent.displayExtension}"/></span>
     </div>
 </div>
 <a name="endLocation" id="endLocation"></a>

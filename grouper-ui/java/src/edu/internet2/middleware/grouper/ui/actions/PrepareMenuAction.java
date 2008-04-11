@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -62,7 +63,7 @@ import edu.internet2.middleware.grouper.ui.util.DOMHelper;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareMenuAction.java,v 1.5 2008-04-08 07:51:52 mchyzer Exp $
+ * @version $Id: PrepareMenuAction.java,v 1.6 2008-04-11 05:53:47 mchyzer Exp $
  */
 public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 
@@ -91,7 +92,7 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 			useCache=true;
 		}
 		List<Map<String, String>> menu = new ArrayList<Map<String, String>>();
-		Map<String, Map<String, String>> menuItems = new HashMap<String, Map<String, String>>();
+		Map<String, Map<String, String>> menuItems = new LinkedHashMap<String, Map<String, String>>();
 		String[] inputResources = menuFiles.split(" ");
 		Document menuDom = null;
 		Element itemElement = null;

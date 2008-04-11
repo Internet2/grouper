@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: title.jsp,v 1.6 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: title.jsp,v 1.7 2008-04-11 05:53:47 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -27,6 +27,20 @@
         </c:set>
         <%-- this is the nav.properties id for the infodot body for this title/subtitle combo --%>
         <c:set var="titleInfodotName" scope="request" value="infodot.title.${title}.${subtitle}" />
+        
+        <%-- also try just the subtitle, which is probably a better choice --%>
+        <c:choose>
+          <c:when test="${empty navNullMap[titleInfodotName]}">
+            <%-- try more general one --%>
+            <!-- trying specific title infodot (another general one below) with nav.properties key: <c:out value="${titleInfodotName}" /> -->
+            <c:set var="titleInfodotName" scope="request" value="infodot.title.${subtitle}" />
+            
+          </c:when>
+          <c:otherwise>
+             <!-- could also use more general title infodot with nav.properties key: <c:out value="infodot.title.${subtitle}" /> -->
+          </c:otherwise>
+        </c:choose>
+        
       </c:when>
       <c:when test="${!empty title}">
         <%-- blank it out so it isnt carried over from another set --%>
@@ -37,6 +51,7 @@
         </c:set>
         <%-- this is the nav.properties id for the infodot body for this title/subtitle combo --%>
         <c:set var="titleInfodotName" scope="request" value="infodot.title.${title}" />
+        
       </c:when>
       <c:when test="${!empty subtitle}">
         <c:set var="title1" scope="request" value="" />

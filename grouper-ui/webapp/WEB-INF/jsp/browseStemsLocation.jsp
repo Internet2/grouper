@@ -4,7 +4,7 @@
 		  the user to navigate the hierarchy
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsLocation.jsp,v 1.8 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: browseStemsLocation.jsp,v 1.9 2008-04-11 05:53:47 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -33,16 +33,15 @@
 
 		</span>
 	</c:forEach>
+  <span class="browseStemsLocationHere">
 		<c:choose>
-      <c:when test="${browseParent.isGroup}"><span 
-    class="browseStemsLocationHere"><img <grouper:tooltip key="group.icon.tooltip"/> 
+      <c:when test="${browseParent.isGroup}"><img <grouper:tooltip key="group.icon.tooltip"/> 
     src="grouper/images/group.gif" class="groupIcon" alt="Group" 
     /></c:when><c:otherwise>
     <img <grouper:tooltip key="stem.icon.tooltip"/> 
     src="grouper/images/folderOpen.gif" class="groupIcon" alt="Folder" 
     /></c:otherwise></c:choose><c:out 
-    value="${browseParent.displayExtension}"/><c:if 
-    test="${browseParent.isGroup}"></span></c:if>
+    value="${browseParent.displayExtension}"/></span>
 <a id="skipCurrentLocation" name="skipCurrentLocation"></a>
 </c:when>
 <c:otherwise>
