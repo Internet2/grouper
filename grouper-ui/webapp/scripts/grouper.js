@@ -174,6 +174,52 @@ function hideShow(isHidden, idPrefix, alertIfNone) {
   }
 }
 
+//these only exist (or not) in firefox
+var isFirefox = document.getElementById && !document.all;
+
+// Prevent google from yellowing controls.
+function defeatGoogle(){
+  if (isFirefox){
+    // If google tries to change the colors of the textfields, set them back
+    // to nothing. Firefox has different method calls for adding listeners;
+    // the code explicit to firefox follows.
+    function setListeners(){
+      inputList = document.getElementsByTagName("INPUT");
+      for(i=0;i<inputList.length;i++){
+        inputList[i].addEventListener("propertychange", restoreStyles, false);
+        inputList[i].style.backgroundColor = "";
+      }
+      selectList = document.getElementsByTagName("SELECT");
+      for(i=0;i<selectList.length;i++){
+        selectList[i].addEventListener("propertychange", restoreStyles, false);
+        selectList[i].style.backgroundColor = "";
+      }
+    }
+    // In firefox, the event listener has to be added after the method declaration.
+    window.addEventListener("load", setListeners, false);
+   } else {
+    // If google tries to change the colors of the textfields, set them back
+    // to nothing. IE has different method calls for adding listeners;
+    // the code explicit to IE follows.
+    function setListeners(){
+      inputList = document.getElementsByTagName("INPUT");
+      for(i=0;i<inputList.length;i++){
+        inputList[i].attachEvent("onpropertychange",restoreStyles);
+        inputList[i].style.backgroundColor = "";
+      }
+      selectList = document.getElementsByTagName("SELECT");
+      for(i=0;i<selectList.length;i++){
+        selectList[i].attachEvent("onpropertychange",restoreStyles);
+        selectList[i].style.backgroundColor = "";
+      }
+    }
+    // In IE, the event listener can be added before or after the method declaration.
+    window.attachEvent("onload",setListeners);
+   }
+ }
+
+
+
 /* This notice must be untouched at all times.
 
 wz_tooltip.js	 v. 4.12

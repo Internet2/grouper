@@ -2,12 +2,12 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.11 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.12 2008-04-11 14:49:36 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
-<div class="advancedSearchGroups">
+<div class="advancedSearchGroups section">
 <c:if test="${!empty subjectOfInterest}">
 	<div class="groupSearchSubject"><grouper:message bundle="${nav}" key="subject.action.search-groups.info"/> 
 	<tiles:insert definition="dynamicTileDef" flush="false">
@@ -15,8 +15,14 @@
 	  			<tiles:put name="view" value="groupSearchForPrivileges"/>
   			</tiles:insert></div>
 </c:if>
-<grouper:subtitle key="find.heading.groups-advanced-search" />
-<p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a></p>
+<grouper:subtitle key="find.heading.groups-advanced-search">
+<a class="underline subtitleLink"
+  href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><grouper:message 
+bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
+</grouper:subtitle>
+
+  <div class="sectionBody">
+
 <c:choose>
 	<c:when test="${!empty findForNode}">
 		<c:set var="submitAction" value="/searchNewMembers"/>
@@ -43,9 +49,11 @@
 		</c:if>
 		<div class="formRow"><tiles:insert definition="searchFromDef"/></div><br/>
 		<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
+    <br /><br />
 		<html:submit styleClass="blueButton" property="submit.search" value="${navMap['groups.action.search']}"/>
 	</fieldset>
 	</html:form>
+  </div>
 </div>
 <a name="endSearch" id="endSearch"></a>
 </grouper:recordTile>

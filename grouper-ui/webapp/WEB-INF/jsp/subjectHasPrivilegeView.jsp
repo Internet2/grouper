@@ -2,10 +2,11 @@
 		  Dynamic tile used to display has privilege links + actual privileges
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectHasPrivilegeView.jsp,v 1.5 2008-03-25 16:30:18 mchyzer Exp $
+  @version $Id: subjectHasPrivilegeView.jsp,v 1.6 2008-04-11 14:49:36 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
+<jsp:useBean id="params" class="java.util.HashMap" />
 		<span class="hasPriv">
 		<c:choose>
 			<c:when test="${params.subjectId=='GrouperSystem'}">

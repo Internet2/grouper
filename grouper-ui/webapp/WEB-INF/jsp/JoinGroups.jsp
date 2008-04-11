@@ -2,17 +2,29 @@
 		  Main page for the 'Join' browse mode
 --%><%--
   @author Gary Brown.
-  @version $Id: JoinGroups.jsp,v 1.5 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: JoinGroups.jsp,v 1.6 2008-04-11 14:49:36 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
 	<c:when test="${!isAdvancedSearch}">
 <div class="pageBlurb">
-	<grouper:message bundle="${nav}" key="groups.join.can"/>
+	<grouper:message bundle="${nav}" key="groups.join.can" />
+  
 </div>
-<grouper:subtitle key="groups.heading.browse" />
-<tiles:insert definition="browseStemsDef"/>
-<tiles:insert definition="flattenDef"/>
+
+<%-- capture output since it does logic we need --%>
+<c:set var="browseStemsHtml">
+  <tiles:insert definition="browseStemsDef" flush="false" />
+</c:set>
+
+<div class="section">
+    <grouper:subtitle key="groups.heading.browse">
+      <tiles:insert definition="flattenDef" flush="false"/>
+    </grouper:subtitle>
+<div class="sectionBody">
+  <c:out value="${browseStemsHtml}"  escapeXml="false"/>
+</div>
+</div>
 
 <tiles:insert definition="simpleSearchGroupsDef"/>
 </c:when>

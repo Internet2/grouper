@@ -2,7 +2,7 @@
 			Main page for the 'Manage' browse mode
 --%><%--
   @author Gary Brown.
-  @version $Id: ManageGroups.jsp,v 1.4 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: ManageGroups.jsp,v 1.5 2008-04-11 14:49:36 mchyzer Exp $
 --%>
 
 <%@include file="/WEB-INF/jsp/include.jsp"%>
@@ -11,9 +11,20 @@
 <div class="pageBlurb">
 	<grouper:message bundle="${nav}" key="groups.manage.can"/>
 </div>
-<grouper:subtitle key="groups.heading.browse" />
-<tiles:insert definition="browseStemsDef"/>
-<tiles:insert definition="flattenDef"/>
+
+<%-- capture output since it does logic we need --%>
+<c:set var="browseStemsHtml">
+  <tiles:insert definition="browseStemsDef" flush="false" />
+</c:set>
+
+<div class="section">
+    <grouper:subtitle key="groups.heading.browse">
+      <tiles:insert definition="flattenDef" flush="false"/>
+    </grouper:subtitle>
+<div class="sectionBody">
+  <c:out value="${browseStemsHtml}"  escapeXml="false"/>
+</div>
+</div>
 
 <tiles:insert definition="simpleSearchGroupsDef"/>
 <tiles:insert definition="stemLinksDef"/></c:when>

@@ -127,7 +127,12 @@
     <tagclass>edu.internet2.middleware.grouper.ui.tags.GrouperSubtitleTag</tagclass>
     <attribute>
         <name>key</name>
-        <required>true</required>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>label</name>
+        <required>false</required>
         <rtexprvalue>true</rtexprvalue>
     </attribute>
     <attribute>

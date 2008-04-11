@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: title.jsp,v 1.7 2008-04-11 05:53:47 mchyzer Exp $
+  @version $Id: title.jsp,v 1.8 2008-04-11 14:49:36 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -67,8 +67,8 @@
       </c:when>
     </c:choose>  
     <!-- trying title infodot with nav.properties key: <c:out value="${titleInfodotName}" /> -->
-    <c:if test="${!empty title1}"><div class="breadcrumb"><c:out value="${title1}" /></div></c:if>
-      <h1 id="title"><c:out value="${title2}" />
+    <c:if test="${!empty title1}"><div class="breadcrumb"><c:out value="${title1}" escapeXml="false"/></div></c:if>
+      <h1 id="title"><c:out value="${title2}" escapeXml="false"/>
       
       <%-- CH 20080325 only show if there is one --%> <c:if
         test="${!empty navNullMap[titleInfodotName]}"

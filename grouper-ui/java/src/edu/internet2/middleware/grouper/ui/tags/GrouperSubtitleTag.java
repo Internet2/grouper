@@ -44,9 +44,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperSubtitleTag extends BodyTagSupport {
 
   /**
-   * key of the nav.properties for text in subtitle
+   * key of the nav.properties for text in subtitle, mutually exclusive with label
    */
   private String key;
+
+  /**
+   * mutually exclusive with key, if not from nav.properties
+   */
+  private String label;
 
   /**
    * first param value of the string
@@ -62,6 +67,7 @@ public class GrouperSubtitleTag extends BodyTagSupport {
    * reset field on construct or recycle
    */
   private void init() {
+    this.label = null;
     this.key = null;
     this.param1 = null;
     this.param2 = null;
@@ -80,6 +86,11 @@ public class GrouperSubtitleTag extends BodyTagSupport {
     if ((string = EvalHelper.evalString("key", 
         this.key, this, this.pageContext)) != null) {
       this.key = string;
+    }
+    
+    if ((string = EvalHelper.evalString("label", 
+        this.label, this, this.pageContext)) != null) {
+      this.label = string;
     }
     
     if ((string = EvalHelper.evalString("param1", 
@@ -118,6 +129,12 @@ public class GrouperSubtitleTag extends BodyTagSupport {
 
     this.evaluateExpressions();
 
+    if (!StringUtils.isBlank(this.key) && !StringUtils.isBlank(this.label)) {
+      throw new RuntimeException("Cant set key and label in subtitle tag: " 
+          + this.key + ", " + this.label);
+    }
+
+    
     // ... retrieving and trimming our body
     String body = this.bodyContent == null ? null : this.bodyContent.getString();
     body = StringUtils.trim(body);
@@ -137,11 +154,20 @@ public class GrouperSubtitleTag extends BodyTagSupport {
       JspWriter out = this.pageContext.getOut();
       
       //see if there is an infodot for this subtitle
-      String infodotKey = "infodot.subtitle." + this.key;
-      MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)((HttpServletRequest)this
-          .pageContext.getRequest()).getSession().getAttribute("navNullMap");
+      String infodotKey = null;
+      MapBundleWrapper mapBundleWrapper = null;
       
-      boolean hasInfodot = !StringUtils.isEmpty((String)mapBundleWrapper.get(infodotKey));
+      boolean hasInfodot = false;
+
+      if (!StringUtils.isBlank(this.key)) {
+        //see if there is an infodot for this subtitle
+        infodotKey = "infodot.subtitle." + this.key;
+        mapBundleWrapper = (MapBundleWrapper)((HttpServletRequest)this
+            .pageContext.getRequest()).getSession().getAttribute("navNullMap");
+        
+        hasInfodot = !StringUtils.isEmpty((String)mapBundleWrapper.get(infodotKey));
+        
+      }
 
       //note, div didnt work since it didnt fully enclose the inner span
       out.print("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"actionheaderContainer" 
@@ -149,25 +175,29 @@ public class GrouperSubtitleTag extends BodyTagSupport {
           + "\" width=\"100%\"><tr><td>" +
       		"<span class=\"actionheader\">");
       
-      out.flush();
-      GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
-      grouperMessageTag.setPageContext(this.pageContext);
-      grouperMessageTag.setBundle("${nav}");
-      grouperMessageTag.setKey(this.key);
-      grouperMessageTag.doStartTag();
-      //maybe we have to do some substitutions
-      if (GrouperUtil.length(params) > 0) {
-        for (String param : params) {
-          GrouperParamTag grouperParamTag = new GrouperParamTag();
-          grouperParamTag.setPageContext(this.pageContext);
-          grouperParamTag.setParent(grouperMessageTag);
-          grouperParamTag.setValue(param);
-          grouperParamTag.doStartTag();
-          grouperParamTag.doEndTag();
+      if (!StringUtils.isBlank(this.key)) {
+        out.flush();
+        GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
+        grouperMessageTag.setPageContext(this.pageContext);
+        grouperMessageTag.setBundle("${nav}");
+        grouperMessageTag.setKey(this.key);
+        grouperMessageTag.doStartTag();
+        //maybe we have to do some substitutions
+        if (GrouperUtil.length(params) > 0) {
+          for (String param : params) {
+            GrouperParamTag grouperParamTag = new GrouperParamTag();
+            grouperParamTag.setPageContext(this.pageContext);
+            grouperParamTag.setParent(grouperMessageTag);
+            grouperParamTag.setValue(param);
+            grouperParamTag.doStartTag();
+            grouperParamTag.doEndTag();
+          }
         }
+        grouperMessageTag.doEndTag();
+        out.flush();
+      } else {
+        out.print(this.label);
       }
-      grouperMessageTag.doEndTag();
-      out.flush();
       out.print("</span>");
       
       String htmlHideShowId = GrouperUiUtils.uniqueId();
@@ -190,8 +220,13 @@ public class GrouperSubtitleTag extends BodyTagSupport {
       }
 
       out.print("</td></tr></table>\n");
+      
       out.print("<!-- subtitle infodot from nav.properties key: ");
-      out.print(infodotKey);
+      if (!StringUtils.isBlank(this.key)) {
+        out.print(infodotKey);
+      } else {
+        out.print("none, not a nav.properties subtitle");
+      }
       out.print(" \n-->");
       if (hasInfodot) {
         out.print("<div class=\"helpText\" \n");
@@ -210,7 +245,7 @@ public class GrouperSubtitleTag extends BodyTagSupport {
         //  /></div>
         out.print(" >");
         out.flush();
-        grouperMessageTag = new GrouperMessageTag();
+        GrouperMessageTag grouperMessageTag = new GrouperMessageTag();
         grouperMessageTag.setPageContext(this.pageContext);
         grouperMessageTag.setBundle("${nav}");
         grouperMessageTag.setKey(infodotKey);
@@ -280,6 +315,15 @@ public class GrouperSubtitleTag extends BodyTagSupport {
    */
   public void setParam2(String _param2) {
     this.param2 = _param2;
+  }
+
+  
+  /**
+   * mutually exclusive with key, if not from nav.properties
+   * @param label1 the label to set
+   */
+  public void setLabel(String label1) {
+    this.label = label1;
   }
 
 }

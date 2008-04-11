@@ -3,10 +3,11 @@
 			the maintenance of the subject
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSummary.jsp,v 1.6 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: SubjectSummary.jsp,v 1.7 2008-04-11 14:49:36 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<div class="subjectSummary">
+<div class="subjectSummary section">
+  <div class="sectionBody">
 	<tiles:insert definition="dynamicTileDef">
 		<tiles:put name="viewObject" beanName="subject" />
 		<tiles:put name="view" value="subjectInfo"/>
@@ -35,7 +36,11 @@
 	<div class="changeSubjectSummaryScope" style="clear:left;">
 		<tiles:insert definition="changeSubjectSummaryScopeDef"/>
 	</div>
-	<h2 style="clear:left;" class="actionheader"><grouper:message bundle="${nav}" key="${scopeListData.titleKey}"/></h2>
+</div>
+</div>
+<div class="section">
+  <grouper:subtitle key="${scopeListData.titleKey}" />
+  <div class="sectionBody">
 		<tiles:insert definition="dynamicTileDef">
 			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
 			<tiles:put name="view" value="${scopeListData.view}"/>
@@ -54,4 +59,5 @@
 		<div class="searchCountZero"><grouper:message bundle="${nav}" key="${scopeListData.noResultsKey}"/></div>
 	</c:if>
 </c:if>
+  </div>
 </div><!-- subjectSummary-->

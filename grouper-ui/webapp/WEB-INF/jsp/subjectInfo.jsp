@@ -2,23 +2,56 @@
 			Displays subject attributes
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectInfo.jsp,v 1.9 2008-04-03 13:30:21 isgwb Exp $
+  @version $Id: subjectInfo.jsp,v 1.10 2008-04-11 14:49:36 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <c:set var="subject" value="${viewObject}"/>
-<div class="SubjectInfo">
+<table class="formTable formTableSpaced SubjectInfo">
+
+<%-- get subject type safe --%>
+<c:set var="subjectType" value="unknown"  />
+<c:forEach var="attrName" items="${subjectAttributeNames}">
+  <c:if test="${attrName == 'subjectType'}">
+    <c:set var="subjectType" value="${subject[attrName]}"  />
+  </c:if>
+</c:forEach>
 
 <c:forEach var="attrName" items="${subjectAttributeNames}">
 <c:set target="${subject}" property="useMulti" value="${navMap['subject.attribute.multi.separator']}"/>
-<div class="formRow">
-	<div class="formLeft">
-		<c:out value="${attrName}"/>
-	</div>
-	<div class="formRight">
+<tr class="formTableRow">
+	<td class="formTableLeft">
+    <%-- this could be misleading, but put in some common labels from nav.properties and tooltips
+    
+subject.summary.displayName=Path
+subject.summary.extension=ID
+subject.summary.createTime=Created
+subject.summary.createSubjectId=Creator ID (entity ID)
+subject.summary.createSubjectType=Creator entity type
+subject.summary.modifyTime=Last edited
+subject.summary.modifySubjectId=Last editor ID (entity ID)
+subject.summary.modifySubjectType=Last editor entity type
+subject.summary.subjectType=Entity type
+    
+    --%>
+    <c:set var="subjectSummaryNavKey" value="subject.summary.${attrName}"  />
+    <%-- change some common ones so they dont overlap --%>
+    <c:if test="${subjectType == 'group'}">
+      <c:set var="subjectSummaryNavKey" value="subject.summary.group.${attrName}"  />
+    </c:if>
+    <c:choose>
+      <c:when test="${! empty navNullMap[subjectSummaryNavKey]}">
+        <grouper:message key="${subjectSummaryNavKey}" />
+      </c:when>
+      <c:otherwise>
+        <c:out value="${attrName}"/>
+      </c:otherwise>    
+    </c:choose>
+	</td>
+	<td class="formTableRight">
 		<c:out value="${subject[attrName]}"/>
-	</div>
-</div>
+	</td>
+</tr>
  
 </c:forEach>
 
@@ -35,17 +68,16 @@
 <c:forEach var="groupListField" items="${listFields}">
 	<c:set target="${listFieldParams}" property="listField" value="${groupListField}"/>
 
-<div class="formRow">
-	<div class="formLeft">
+<tr class="formTableRow">
+	<td class="formTableLeft">
 		<c:out value="${groupListField}"/>
-	</div>
-	<div class="formRight">
+	</td>
+	<td class="formTableRight">
 		<html:link page="/populateGroupMembers.do" name="listFieldParams" >
 	<grouper:message bundle="${nav}" key="subject.summary.view-list-field-members"><grouper:param value="${groupListField}"/></grouper:message></html:link>
-	</div>
-</div>
+	</td>
+</tr>
  
 </c:forEach>
-<div style="clear:left;"></div>
-</div><!--/SubjectInfo-->
+</table><!--/SubjectInfo-->
 
