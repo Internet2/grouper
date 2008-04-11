@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for people and groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearch.jsp,v 1.8 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: simpleSearch.jsp,v 1.9 2008-04-11 15:59:18 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -11,6 +11,9 @@
 <grouper:subtitle key="find.heading.search">
   <a class="underline subtitleLink" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"
     ><grouper:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a>
+    
+    <a href="#" onclick="return grouperHideShow(event, 'advancedSubjectSearch');" class="underline subtitleLink"><grouper:message key="find.search.subjects.specifySource" /></a>
+    
 </grouper:subtitle>
 <div class="sectionBody">
  <html:form styleId="SearchFormBean" action="/searchNewMembers" method="post">
@@ -25,21 +28,22 @@
     <html:hidden property="groupId"/>
 </c:if>
 <input type="hidden" name="stems" value="<c:out value="${forStems}"/>"/>
-<div class="formRow">
-	<div class="formLeft">
+<table class="formTable formTableSpaced">
+<tr class="formTableRow">
+<td class="formTableLeft">
 	<label for="searchTerm"><grouper:message bundle="${nav}" key="find.search-term"/></label>
-	</div>
-	<div class="formRight">
+  </td>
+<td class="formTableRight">
 	<input name="searchTerm" type="text" id="searchTerm"/>
-    </div>
-</div>
+    </td>
+</tr>
 
 <tiles:insert definition="subjectSearchFragmentDef">
 <c:if test="${!empty browsePath}">
 	<tiles:put name="groupInsert" value="searchFromDef"/>
 </c:if>
 </tiles:insert>
-
+</table>
 
 
 

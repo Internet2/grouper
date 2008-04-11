@@ -3,13 +3,21 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: StemPriviligees.jsp,v 1.6 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: StemPriviligees.jsp,v 1.7 2008-04-11 15:59:18 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<tiles:insert definition="showStemsLocationDef"/>
-<tiles:insert definition="selectStemPrivilegeDef"/>
-<grouper:subtitle key="stems.heading.list-members" />
 
+<div class="section">
+<div class="sectionBody">
+<tiles:insert definition="showStemsLocationDef"/>
+<br />
+<tiles:insert definition="selectStemPrivilegeDef"/>
+</div>
+</div>
+
+<div class="section">
+<grouper:subtitle key="stems.heading.list-members" />
+<div class="sectionBody">
 <tiles:insert definition="dynamicTileDef">
 	<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
 	<tiles:put name="view" value="privilegeLinks"/>
@@ -42,4 +50,6 @@
 	<grouper:message bundle="${nav}" key="priv.stems.list.cancel-and-work-in-new"/>
 </html:link>
 </c:if>
+</div>
+</div>
 </div>
