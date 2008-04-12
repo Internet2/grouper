@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.11 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: EditGroup.jsp,v 1.12 2008-04-12 05:25:29 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="editForm section">
@@ -13,25 +13,23 @@
   <fieldset><html:hidden property="groupId" />
   <table class="formTable formTableSpaced" cellspacing="2">
     <tr class="formTableRow">
-      <td class="formTableLeft"><label for="groupName"><c:out
-        value="${fieldList.extension.displayName}"
-      /></label></td>
-      <td class="formTableRight"><html:text property="groupName" size="50"
-        maxlength="50" styleId="groupName"
-      /></td>
-    </tr>
-    <tr class="formTableRow">
-      <td class="formTableLeft"><label for="groupDisplayName"><c:out
-        value="${fieldList.displayExtension.displayName}"
-      /></label></td>
+      <td class="formTableLeft"><label for="groupDisplayName">
+      <grouper:message key="field.displayName.displayExtension" /></label></td>
       <td class="formTableRight"><html:text property="groupDisplayName" size="50"
         maxlength="50" styleId="groupDisplayName"
       /></td>
     </tr>
     <tr class="formTableRow">
-      <td class="formTableLeft"><label for="groupDescription"><c:out
-        value="${fieldList.description.displayName}"
-      /></label></td>
+      <td class="formTableLeft"><label for="groupName">
+      <grouper:message key="field.displayName.extension" />
+      </label></td>
+      <td class="formTableRight"><html:text property="groupName" size="50"
+        maxlength="50" styleId="groupName"
+      /></td>
+    </tr>
+    <tr class="formTableRow">
+      <td class="formTableLeft"><label for="groupDescription">
+      <grouper:message key="field.displayName.description" /></label></td>
       <td class="formTableRight"><html:text property="groupDescription" size="50"
         maxlength="100" styleId="groupDescription"
       /></td>
