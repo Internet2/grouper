@@ -74,6 +74,10 @@
 
         <search>
             <searchType>searchSubject</searchType>
+	        <param>
+	      	  <param-name>numParameters</param-name>
+	       	  <param-value>1</param-value>
+	        </param>
             <param>
                 <param-name>sql</param-name>
                 <param-value>
@@ -89,12 +93,16 @@
                     (select subjectid, value as description from
                     subjectattribute where name='description') as desct
                     on subject.subjectid=desct.subjectid where
-                    subject.subjectid = '%TERM%'
+                    subject.subjectid = ?
                 </param-value>
             </param>
         </search>
         <search>
             <searchType>searchSubjectByIdentifier</searchType>
+	        <param>
+	      	  <param-name>numParameters</param-name>
+	       	  <param-value>1</param-value>
+	        </param>
             <param>
                 <param-name>sql</param-name>
                 <param-value>
@@ -110,12 +118,16 @@
                     (select subjectid, value as description from
                     subjectattribute where name='description') as desct
                     on subject.subjectid=desct.subjectid where
-                    loginidt.loginid = '%TERM%'
+                    loginidt.loginid = ?
                 </param-value>
             </param>
         </search>
         <search>
             <searchType>search</searchType>
+	        <param>
+	      	  <param-name>numParameters</param-name>
+	       	  <param-value>4</param-value>
+	        </param>
             <param>
                 <param-name>sql</param-name>
                 <param-value>
@@ -131,10 +143,10 @@
                     (select subjectid, value as description from
                     subjectattribute where name='description') as desct
                     on subject.subjectid=desct.subjectid where
-                    (lower(name) like '%%TERM%%') or
-                    (lower(lfnamet.lfname) like '%%TERM%%') or
-                    (lower(loginidt.loginid) like '%%TERM%%') or
-                    (lower(desct.description) like '%%TERM%%')
+                    (lower(name) like '%'||?||'%') or
+                    (lower(lfnamet.lfname) like '%'||?||'%') or
+                    (lower(loginidt.loginid) like '%'||?||'%') or
+                    (lower(desct.description) like '%'||?||'%')
                 </param-value>
             </param>
         </search>
@@ -197,6 +209,10 @@
         </init-param>
         <search>
             <searchType>searchSubject</searchType>
+	        <param>
+	      	  <param-name>numParameters</param-name>
+	       	  <param-value>1</param-value>
+	        </param>
             <param>
                 <param-name>sql</param-name>
                 <param-value>
@@ -219,12 +235,16 @@
                         from subjectattribute 
                         where name='description') as desct
                         on subject.subjectid=desct.subjectid 
-                    where subject.subjectid = '%TERM%'
+                    where subject.subjectid = ?
                 </param-value>
             </param>
         </search>
         <search>
             <searchType>searchSubjectByIdentifier</searchType>
+	        <param>
+	      	  <param-name>numParameters</param-name>
+	       	  <param-value>1</param-value>
+	        </param>
             <param>
                 <param-name>sql</param-name>
                 <param-value>
@@ -247,7 +267,7 @@
                         from subjectattribute 
                         where name='description') as desct
                         on subject.subjectid=desct.subjectid 
-                    where loginidt.loginid = '%TERM%'
+                    where loginidt.loginid = ?
                 </param-value>
             </param>
         </search>
