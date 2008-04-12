@@ -18,13 +18,21 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingException;
 
 /**
- * This is an AttributeModifier for modifying LDAP attribute values that
- * are known to hold DN strings. This class currently assumes that the "no value" 
+ * This is an AttributeModifier for modifying LDAP attribute values that are
+ * known to hold DN strings. This class currently assumes that the "no value"
  * and the values it is initialized with via the attribute are valid DN strings.
  * No validation is currently done to enforce this.
  */
@@ -36,7 +44,8 @@ public class DnAttributeModifier extends AttributeModifier
     private NameParser parser;
 
     /**
-     * Constructs a <code>DnAttributeModifier</code> for the attribute name without a "no value".
+     * Constructs a <code>DnAttributeModifier</code> for the attribute name
+     * without a "no value".
      * 
      * @param parser
      *            Name parser
@@ -59,74 +68,45 @@ public class DnAttributeModifier extends AttributeModifier
      * @param noValue
      *            "no value" value (null if the attribute is not required).
      */
-    public DnAttributeModifier(NameParser parser, String attributeName,
-            String noValue)
+    public DnAttributeModifier(NameParser parser, String attributeName, String noValue)
     {
         super(attributeName, noValue);
         this.parser = parser;
     }
 
     /**
-     * This method determines whether or not two DN strings are equal.
-     * 
-     * @param leftStr
-     *            String value
-     * @param rightStr
-     *            String value
-     * @return <code>true</code> if the two strings are equal, and
-     *         <code>false</code> otherwise
-     * @return NamingException thrown if an error occurs parsing the names
+     * {@inheritDoc}
      */
-    protected boolean isEqual(String leftStr, String rightStr)
-            throws NamingException
+    protected String makeComparisonString(String value)
     {
-        //
-        // Assume the strings are not equal
-        //
-        boolean equal = false;
-
-        //
-        // Determine equality
-        //
-        if (leftStr == null)
+        System.out.println("*********************** Bar ***********************");
+        Name name = null;
+        try
         {
-            equal = (rightStr == null);
+            System.out.println("About to parse name = \"" + value + "\"");
+            name = parser.parse(value.toLowerCase());
+            String rdn = name.get(name.size() - 1);
+            String[] parts = rdn.split("\\+");
+            List<String> list = new ArrayList<String>();
+            for (String element : parts)
+            {
+                list.add(element);
+            }
+            Collections.sort(list);
+            rdn = list.get(0);
+            for (int i = 1; i < list.size(); i++)
+            {
+                rdn = rdn + "+" + list.get(i);
+            }
+            name.remove(name.size() - 1);
+            name.add(rdn);
+            System.out.println("*********************Name = \"" + name + "\"\n");
+            return name.toString();
         }
-        else if (rightStr == null)
+        catch (Exception e)
         {
-            equal = false;
+            e.printStackTrace();
+            return value.toLowerCase();
         }
-        else
-        {
-            // 
-            // Convert rightStr and leftStr to Names, and compare
-            //
-            Name rightName = convertDnString(rightStr);
-            Name leftName = convertDnString(leftStr);
-
-            //
-            // Determine if equal
-            //
-            equal = rightName.equals(leftName);
-        }
-
-        return equal;
-    }
-
-    /**
-     * Converts DN string into a Name.
-     * 
-     * @param dnString
-     *            non-null DN string
-     * @return Name
-     * @throws NamingException
-     *             thrown if an error occurs parsing the DN string
-     */
-    protected Name convertDnString(String dnString) throws NamingException
-    {
-        // 
-        // This method was defined so caching could be added here if necessary
-        //
-        return parser.parse(dnString);
     }
 }

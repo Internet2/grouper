@@ -572,6 +572,21 @@ public class AttributeModifier
     }
 
     /**
+     * If <tt>caseSensitive</tt> is <tt>true</tt>, return value,
+     * otherwise return lowercased value.
+     * 
+     * Note that caseSensitive is a class variable in the enclosing class.
+     * 
+     * @param value
+     *            string to convert.
+     * @return value, possibly lowercased.
+     */
+    protected String makeComparisonString(String value)
+    {
+        return caseSensitive ? value : value.toLowerCase();
+    }
+
+    /**
      * Implements optional case ignoring set by backing it with a Map, mapping
      * the possibly lowercased values to the actual values.
      */
@@ -684,21 +699,6 @@ public class AttributeModifier
         public int size()
         {
             return map.size();
-        }
-
-        /**
-         * If <tt>caseSensitive</tt> is <tt>true</tt>, return value,
-         * otherwise return lowercased value.
-         * 
-         * Note that caseSensitive is a class variable in the enclosing class.
-         * 
-         * @param value
-         *            string to convert.
-         * @return value, possibly lowercased.
-         */
-        private String makeComparisonString(String value)
-        {
-            return caseSensitive ? value : value.toLowerCase();
         }
     }
 }
