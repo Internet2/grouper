@@ -7,9 +7,11 @@
 		  paged, however, all the subjects will be checked.
 --%><%--
   @author Gary Brown.
-  @version $Id: AssignNewMembers.jsp,v 1.3 2007-08-08 09:42:13 isgwb Exp $
+  @version $Id: AssignNewMembers.jsp,v 1.4 2008-04-12 05:05:02 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%><tiles:importAttribute />
+<div class="section">
+  <div class="sectionBody">
 <tiles:insert definition="showStemsLocationDef"/>
 <c:choose>
 	<c:when test="${alreadyChecked || subjectResultsSize==1}">
@@ -20,7 +22,6 @@
 	</c:otherwise>
 </c:choose>
 <c:if test="${empty groupSearchResultField}"><c:set scope="request" var="groupSearchResultField" value="${mediaMap['search.group.result-field']}"/></c:if>
-
 
 	<tiles:insert definition="dynamicTileDef">
 		<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
@@ -33,5 +34,6 @@
 		<tiles:put name="listInstruction" value="list.instructions.assign"/>
 		<tiles:put name="noResultsMsg" value="${navMap['find.subjects.no-results']}"/>
 	</tiles:insert>
-
+  </div>
+</div>
 

@@ -32,7 +32,7 @@ error.mail.buffer-size=100
 error.mail.subject=Grouper UI Error
 
 #Only set to true if you can genuinely logout.
-logout.link.show=false
+logout.link.show=true
 
 
 

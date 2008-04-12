@@ -1,17 +1,25 @@
 <%-- @annotation@ Top level JSP which displays a list of saved groups --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:message bundle="${nav}" key="saved-subjects.groups.intro"/>
-<div class="savedGroupsList">
+<div class="savedGroupsList section">
+<div class="sectionBody">
 <c:if test="${savedSubjectsSize==0}">
 <grouper:message bundle="${nav}" key="saved-subjects.groups.none"/>
 </c:if>
 
 <c:if test="${savedSubjectsSize>0}">
 	<html:form action="/populateListSavedGroups.do" method="post">
+  <table class="formTable formTableSpaced">
 	<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
-	<c:if test="${!empty groupSearchResultField && !empty mediaMap['search.group.result-field']}">
-		<html:submit styleClass="blueButton" property="x" value="${navMap['saved-subjects.groups.change-field']}"/>
-	</c:if>
+  <c:if test="${!empty groupSearchResultField && !empty mediaMap['search.group.result-field']}">
+    <tr class="formTableRow">
+    <td class="formTableLeft">&nbsp;</td>
+    <td class="formTableRight">
+    <html:submit styleClass="blueButton" property="x" value="${navMap['saved-subjects.groups.change-field']}"/>
+    </td>
+    </tr>
+  </c:if>
+  </table>
 	</html:form>
 	<html:form action="/removeSavedGroups.do" method="post">
 	<ul class="savedGroups">
@@ -27,6 +35,7 @@
 		<html:submit styleClass="blueButton" property="x" value="${navMap['saved-subjects.groups.remove-selected']}"/> 
 	</html:form>
 </c:if>
+</div>
 </div>
 
 

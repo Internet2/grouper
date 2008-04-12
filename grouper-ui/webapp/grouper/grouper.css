@@ -454,6 +454,17 @@ body {
   background-repeat: no-repeat;
 }
 
+#Navbar a.logoutLink {
+  text-decoration: underline;  
+  font-style: normal;
+}
+
+#Navbar a.logoutLink:hover {
+  text-decoration: underline;  
+  font-style: normal;
+    
+}
+ 
 .blueButton, .redButton {
     font-family: Tahoma, Arial, Helvetica, sans-serif;
     text-decoration: none;
