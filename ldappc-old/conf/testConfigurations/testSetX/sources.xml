@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.1 2007-01-11 21:36:17 singer Exp $
+$Id: sources.xml,v 1.2 2008-04-12 00:49:35 khuxtable Exp $
 -->
 
 <sources>
@@ -79,29 +79,41 @@ $Id: sources.xml,v 1.1 2007-01-11 21:36:17 singer Exp $
     <search>
       <searchType>searchSubject</searchType>
       <param>
+      	<param-name>numParameters</param-name>
+       	<param-value>1</param-value>
+      </param>
+      <param>
         <param-name>sql</param-name>
         <param-value>
-          select * from Subject where (subjectId='%TERM%')  
+          select * from Subject where (subjectId=?)  
         </param-value>
       </param>
     </search>
     <search>
       <searchType>searchSubjectByIdentifier</searchType>
       <param>
+      	<param-name>numParameters</param-name>
+       	<param-value>1</param-value>
+      </param>
+      <param>
         <param-name>sql</param-name>
         <param-value>
-          select * from Subject where (name='%TERM%')  
+          select * from Subject where (name=?)  
         </param-value>
       </param>
     </search>
     <search>
       <searchType>search</searchType>
+      <param>
+      	<param-name>numParameters</param-name>
+       	<param-value>2</param-value>
+      </param>
         <param>
           <param-name>sql</param-name>
           <param-value>
             select * from Subject where 
-                  (subjectId  like '%%TERM%%')
-              or  (name       like '%%TERM%%')
+                  (subjectId  like '%'||?||'%')
+              or  (name       like '%'||?||'%')
           </param-value>
       </param>
     </search>
@@ -165,6 +177,10 @@ $Id: sources.xml,v 1.1 2007-01-11 21:36:17 singer Exp $
         </init-param>
         <search>
             <searchType>searchSubject</searchType>
+	        <param>
+	          <param-name>numParameters</param-name>
+	       	  <param-value>1</param-value>
+	        </param>
             <param>
                 <param-name>sql</param-name>
                 <param-value>
@@ -187,12 +203,16 @@ $Id: sources.xml,v 1.1 2007-01-11 21:36:17 singer Exp $
                         from subjectattribute 
                         where name='description') as desct
                         on subject.subjectid=desct.subjectid 
-                    where subject.subjectid = '%TERM%'
+                    where subject.subjectid = ?
                 </param-value>
             </param>
         </search>
         <search>
             <searchType>searchSubjectByIdentifier</searchType>
+	        <param>
+	          <param-name>numParameters</param-name>
+	       	  <param-value>1</param-value>
+	        </param>
             <param>
                 <param-name>sql</param-name>
                 <param-value>
@@ -215,7 +235,7 @@ $Id: sources.xml,v 1.1 2007-01-11 21:36:17 singer Exp $
                         from subjectattribute 
                         where name='description') as desct
                         on subject.subjectid=desct.subjectid 
-                    where loginidt.loginid = '%TERM%'
+                    where loginidt.loginid = ?
                 </param-value>
             </param>
         </search>
