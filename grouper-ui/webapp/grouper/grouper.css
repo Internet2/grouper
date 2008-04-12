@@ -56,6 +56,11 @@ h1 {
 }
 
 
+.midSectionTitle {
+  font-weight: bold;
+  margin: 0px 0px 10px 10px;  
+}
+
 .browseStemsLocationHere {
  font-weight: bold;
  font-size:120%;
@@ -296,7 +301,8 @@ form {
 
 .sectionBody {
   padding-top: 5px;
-  padding-left: 3px;
+  padding-left: 10px;
+  padding-right: 10px;
   padding-bottom: 8px;
 }
 
@@ -310,6 +316,7 @@ form {
   background-color: #dfeff4;
   margin: 0px;
   padding: 3px;
+  padding-left: 10px;
 }
 
 /** not, if there is an infodot, it takes vertical space, so remove padding on top */
@@ -334,11 +341,9 @@ form {
  
 }
 .helpText {
-  border-color: #dedfde;
-  border-style: dashed;
-  border-width: 3px;
   margin: 7px 0px 5px 0px;
-  padding: 3px 3px 3px 3px;
+  padding: 10px 6px 10px 6px;
+  background-color: #ffffcc;
 }
 
 /* this makes infodots go away, but if grouperInfodot.css is disabled via
@@ -385,7 +390,7 @@ a.subtitleLink {
   /* dont wrap this in subtitle */
   white-space: nowrap;
   text-transform: none;
-  margin-left: 10px;
+  margin-left: 20px;
 }
 
 div.breadcrumb {
@@ -446,6 +451,7 @@ div.selectedTab, div.selectedTab a {
 
 body {
   background-image: url(images/grouperbg.gif);
+  background-repeat: no-repeat;
 }
 
 .blueButton, .redButton {

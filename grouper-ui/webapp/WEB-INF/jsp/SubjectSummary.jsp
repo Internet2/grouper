@@ -3,7 +3,7 @@
 			the maintenance of the subject
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSummary.jsp,v 1.7 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: SubjectSummary.jsp,v 1.8 2008-04-12 03:51:00 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="subjectSummary section">
@@ -33,14 +33,14 @@
 <tiles:insert definition="subjectLinksDef"/>
 
 
-	<div class="changeSubjectSummaryScope" style="clear:left;">
-		<tiles:insert definition="changeSubjectSummaryScopeDef"/>
-	</div>
 </div>
 </div>
 <div class="section">
-  <grouper:subtitle key="${scopeListData.titleKey}" />
+  <grouper:subtitle key="entity.search.results" />
   <div class="sectionBody">
+    <tiles:insert definition="changeSubjectSummaryScopeDef"/>
+    <br />
+    <div class="midSectionTitle"><grouper:message key="${scopeListData.titleKey}" /></div>
 		<tiles:insert definition="dynamicTileDef">
 			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
 			<tiles:put name="view" value="${scopeListData.view}"/>

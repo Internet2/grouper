@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for people and groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearch.jsp,v 1.9 2008-04-11 15:59:18 mchyzer Exp $
+  @version $Id: simpleSearch.jsp,v 1.10 2008-04-12 03:51:00 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -12,7 +12,8 @@
   <a class="underline subtitleLink" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"
     ><grouper:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a>
     
-    <a href="#" onclick="return grouperHideShow(event, 'advancedSubjectSearch');" class="underline subtitleLink"><grouper:message key="find.search.subjects.specifySource" /></a>
+    <a href="#" onclick="return grouperHideShow(event, 'advancedSubjectSearch');" 
+      class="underline subtitleLink"><grouper:message key="find.search.subjects.specifySource" ignoreTooltipStyle="true"/></a>
     
 </grouper:subtitle>
 <div class="sectionBody">

@@ -4,7 +4,7 @@
 		has selected Access privilege, and stems where subject has selected Naming privilege
 --%><%--
   @author Gary Brown.
-  @version $Id: changeSubjectSummaryScope.jsp,v 1.7 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: changeSubjectSummaryScope.jsp,v 1.8 2008-04-12 03:51:00 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -39,16 +39,24 @@
 		<html:select property="accessPriv">
 			<html:options name="allAccessPrivs"/>
 		</html:select>
+    <grouper:infodot hideShowHtmlId="accessPrivInfodot" />
 	</span>
-	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="any-access"/> <grouper:message bundle="${nav}" key="subject.list-all-access.scope.priv"/>
-	</span>
+  <div <grouper:hideShowTarget hideShowHtmlId="accessPrivInfodot"  /> class="helpText" >
+   <grouper:message key="access.priv.infodot" useNewTermContext="true" />
+  </div>
 	<span class="membershipListScope">
 		<html:radio property="membershipListScope" value="naming"/> <grouper:message bundle="${nav}" key="subject.list-naming.scope.priv"/>
 		<html:select property="namingPriv">
 			<html:options name="allNamingPrivs"/>
 		</html:select>
+    <grouper:infodot hideShowHtmlId="namingPrivInfodot" />
 	</span>
+  <div <grouper:hideShowTarget hideShowHtmlId="namingPrivInfodot"  /> class="helpText" >
+   <grouper:message key="naming.priv.infodot" useNewTermContext="true" />
+  </div>
+  <span class="membershipListScope">
+    <html:radio property="membershipListScope" value="any-access"/> <grouper:message bundle="${nav}" key="subject.list-all-access.scope.priv"/>
+  </span>
   <br />
 	<span class="membershipListScope">
 		<input type="submit" class="blueButton" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>

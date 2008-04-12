@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: SimpleSubjectSearch.jsp,v 1.8 2008-04-11 15:59:18 mchyzer Exp $
+  @version $Id: SimpleSubjectSearch.jsp,v 1.9 2008-04-12 03:51:00 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -12,7 +12,8 @@
 
   <div class="section searchSubjects"><grouper:subtitle key="find.heading.search">
     
-    <a href="#" onclick="return grouperHideShow(event, 'advancedSubjectSearch');" class="underline subtitleLink"><grouper:message key="find.search.subjects.specifySource" /></a>
+    <a href="#" onclick="return grouperHideShow(event, 'advancedSubjectSearch');" 
+      class="underline subtitleLink"><grouper:message key="find.search.subjects.specifySource"  ignoreTooltipStyle="true" /></a>
         
     <c:if test="${mediaMap['allow.self-subject-summary'] == 'true'}">
       <html:link styleClass="underline subtitleLink" page="/populateSubjectSummary.do"

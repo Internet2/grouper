@@ -103,7 +103,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateListSavedSubjectsAction.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateListSavedSubjectsAction.java,v 1.4 2008-04-12 03:51:01 mchyzer Exp $
  */
 public class PopulateListSavedSubjectsAction extends GrouperCapableAction {
 
@@ -114,15 +114,16 @@ public class PopulateListSavedSubjectsAction extends GrouperCapableAction {
 			throws Exception {
 		DynaActionForm subjectForm = (DynaActionForm) form;
 		boolean groupsOnly = "groupsOnly".equals(mapping.getParameter());
+    session.setAttribute("subtitle","");
 		if(groupsOnly) {
 			session.setAttribute("functionalArea", "SavedGroups");
 			session.setAttribute("title", "saved.groups");
-			session.setAttribute("subtitle","saved-subjects.groups.list");
+			//session.setAttribute("subtitle","saved-subjects.groups.list");
 			
 		}else{
 			session.setAttribute("functionalArea", "SavedSubjects");
 			session.setAttribute("title", "saved.subjects");
-			session.setAttribute("subtitle","saved-subjects.list");
+			//session.setAttribute("subtitle","saved-subjects.list");
 		}
 		String groupSearchResultField = request.getParameter("groupSearchResultField");
 		if(!isEmpty(groupSearchResultField)) {

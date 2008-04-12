@@ -2,7 +2,7 @@
       Tile which displays general help about the UI
 --%><%--
   @author Gary Brown.
-  @version $Id: generalHelp.jsp,v 1.10 2008-04-08 07:51:52 mchyzer Exp $
+  @version $Id: generalHelp.jsp,v 1.11 2008-04-12 03:51:00 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
@@ -10,22 +10,26 @@
 <dl>
   <dt>My Memberships*</dt>
   <dd>lets you find groups of which you are a member</dd>
-  <dt>Create Groups*</dt>
-  <dd>lets you create groups in folders where you have the <strong>Create group privilege</strong>,and 
-    subfolders where you have <strong>Create Folder privilege</strong></dd>
-  <dt>Manage Groups*</dt>
-  <dd>lets you find existing groups where you have <strong>Admin privilege</strong> 
-    or <strong>Update privilege</strong></dd>
+  <dd>&nbsp;&nbsp;&nbsp;-- groups where you have <strong>member</strong> privilege --</dd>
   <dt>Join Groups*</dt>
-  <dd>lets you find groups where you have <strong>Optin privilege</strong></dd>
-  <dt>All Groups</dt>
-  <dd>lets you explore all folders and lets you see groups where you have <strong>View 
-    privilege</strong>. There may be many thousands of folders and groups in Grouper.</dd>
-  <dt>Search entities</dt>
-  <dd>Lets you search for any entity known to Grouper. Allows an entity centric 
+  <dd>lets you find groups that you are eligible to join</dd>
+  <dd>&nbsp;&nbsp;&nbsp;-- groups where you have <strong>optin</strong> privilege --</dd>
+  <dt></dt>
+  <dt>Manage Groups*</dt>
+  <dd>lets you find groups where you may update membership lists or assign privileges to others</dd>
+  <dd>&nbsp;&nbsp;&nbsp;-- groups where you have <strong>update</strong> privilege or <strong>admin</strong> privilege --</dd>
+  <dt></dt>
+  <dt>Create Groups*</dt>
+  <dd>lets you create new groups or (sub)folders, as permitted by location</dd>
+  <dd>&nbsp;&nbsp;&nbsp;-- folders where you have <strong>create group </strong> privilege or <strong>create folder</strong> privilege --</dd>
+  <dt>Explore</dt>
+  <dd>lets you explore all groups that are visible to you</dd>
+  <dd>&nbsp;&nbsp;&nbsp;-- groups where you have <strong>view</strong> privilege --</dd>
+  <dt>Search</dt>
+  <dd>Lets you search for any entity known to Grouper. Allows an entity-centric 
     approach i.e. you can list all groups where the entity is a member or has 
     an Access privilege, or folders where the entity has one of the Create privileges.</dd>
-  <dt>Saved Groups</dt>
+  <dt>Group workspace</dt>
   <dd>As described below, Grouper provides several ways of finding groups. It 
     is possible, from the <em>Group Summary</em> page, to save, for the duration 
     of your session, a group in a list. This menu item provides quick access to 
@@ -33,7 +37,7 @@
     list provides the means for selecting groups for <em>Group Math</em>, described 
     below. Saved groups are stored in the same list as saved entities (see belolw), 
     however, this menu item filters the list to return only groups.</dd>
-  <dt>Saved entities</dt>
+  <dt>Entity workspace</dt>
   <dd>Grouper provides a <em>Entity summary</em> page which can be accessed from 
     many points in the UI. It is possible, from this page, to save, for the duration 
     of your session, an entity in a list. This menu item provides quick access 

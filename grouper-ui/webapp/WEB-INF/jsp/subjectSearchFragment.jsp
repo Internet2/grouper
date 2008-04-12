@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: subjectSearchFragment.jsp,v 1.7 2008-04-11 05:53:47 mchyzer Exp $
+  @version $Id: subjectSearchFragment.jsp,v 1.8 2008-04-12 03:51:00 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -23,7 +23,10 @@
     <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="${advancedMode}"/> >
     <td class="formTableLeft"><grouper:message bundle="${nav}"
       key="find.search-source"
-    /></td>
+    />
+    <grouper:infodot hideShowHtmlId="find.search-sourceInfodot" />
+    </td>
+    
     <td class="formTableRight"><input type="radio" value="all"
       <c:out value="${checked}"/> name="subjectSource" id="allRadio"
     />
@@ -33,6 +36,17 @@
     </td>
 
     </tr>
+    
+    <tr class="formTableRow " <grouper:hideShowTarget hideShowHtmlId="find.search-sourceInfodot"  />  >
+      <td colspan="2" class="formTableRight helpText">
+      
+   <grouper:message key="tooltipTargetted.find.search.subjects.specifySource" useNewTermContext="true" />
+      </td>    
+    
+    </tr>
+    
+    
+    
     <c:remove var="checked" />
   
     <c:forEach var="source" items="${subjectSources}" varStatus="sourceStatus">
@@ -60,7 +74,7 @@
         <c:set var="insertFragmentKey" value="subject.search.form-fragment.${source.id}" />
         <c:set var="insertFragment" value="${mediaMap[insertFragmentKey]}" /> <%
  if (!pageContext.getAttribute("insertFragment").toString().matches("^\\?\\?.*")) {
- %> <tr <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="${advancedMode}"/> ><td class="formTableLeft">&nbsp;</td><td><table class="formSubtable"><tiles:insert definition="${insertFragment}" /></table></td></tr> <%
+ %> <tr <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="${advancedMode}"/> ><td class="formTableLeft">&nbsp;</td><td><table class="formSubtable" style="margin-left: 30px"><tiles:insert definition="${insertFragment}" /></table></td></tr> <%
  }
  %> <c:remove var="checked" />
     </c:forEach>
