@@ -79,11 +79,9 @@ public class DnAttributeModifier extends AttributeModifier
      */
     protected String makeComparisonString(String value)
     {
-        System.out.println("*********************** Bar ***********************");
         Name name = null;
         try
         {
-            System.out.println("About to parse name = \"" + value + "\"");
             name = parser.parse(value.toLowerCase());
             String rdn = name.get(name.size() - 1);
             String[] parts = rdn.split("\\+");
@@ -100,7 +98,6 @@ public class DnAttributeModifier extends AttributeModifier
             }
             name.remove(name.size() - 1);
             name.add(rdn);
-            System.out.println("*********************Name = \"" + name + "\"\n");
             return name.toString();
         }
         catch (Exception e)
