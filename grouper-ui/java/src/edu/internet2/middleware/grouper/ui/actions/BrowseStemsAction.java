@@ -20,12 +20,19 @@ package edu.internet2.middleware.grouper.ui.actions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.CallerPageException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 
 /**
@@ -104,9 +111,10 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: BrowseStemsAction.java,v 1.8 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: BrowseStemsAction.java,v 1.9 2008-04-13 08:52:12 isgwb Exp $
  */
 public class BrowseStemsAction extends GrouperCapableAction {
+	protected static Log LOG = LogFactory.getLog(BrowseStemsAction.class);
 
 	//------------------------------------------------------------ Local
 	// Forwards
@@ -138,12 +146,19 @@ public class BrowseStemsAction extends GrouperCapableAction {
 		DynaActionForm browseForm = (DynaActionForm)form;
 		String currentNodeId = (String)browseForm.get("currentNode");
 		if(isEmpty(currentNodeId)) currentNodeId=getBrowseNode(session);
+		
+		if(!isEmpty(currentNodeId)) {
+			try {
+				GroupOrStem gos = GroupOrStem.findByID(grouperSession,currentNodeId);
+				if(gos.isStem()) browseForm.set("stemId",currentNodeId);
+			}catch(MissingGroupOrStemException e) {
+				Throwable t=NavExceptionHelper.fillInStacktrace(e);
+				LOG.error("Error retrieving id=" + currentNodeId + ": " + NavExceptionHelper.toLog(t));
+				throw new UnrecoverableErrorException("error.browse-stems.bad-node",t,currentNodeId);
+			}
+		}
 		if(isEmpty(request.getParameter("advancedSearch")))
 			setBrowseNode(currentNodeId,session);
-		if(!isEmpty(currentNodeId)) {
-			GroupOrStem gos = GroupOrStem.findByID(grouperSession,currentNodeId);
-			if(gos.isStem()) browseForm.set("stemId",currentNodeId);
-		}
 		//Multiple Struts actions map to this class. Param 
 		//indicates the appropriate view
 		String param = mapping.getParameter();
@@ -154,9 +169,14 @@ public class BrowseStemsAction extends GrouperCapableAction {
 			//The node we are finding members for
 			String findForNode = (String) session.getAttribute(
 					"findForNode");
-			GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,findForNode);
-			
+			try {
+				GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,findForNode);
 				if(groupOrStem.isStem()) return mapping.findForward(param + "ForStems");
+			}catch(MissingGroupOrStemException e) {
+				Throwable t=NavExceptionHelper.fillInStacktrace(e);
+				LOG.error("Could not retrieve findForNode=" + findForNode + ": " + NavExceptionHelper.toLog(t));
+				throw new UnrecoverableErrorException("error.browse-stems.bad-find-node",t,findForNode);
+			}
 		}
 		saveAsCallerPage(request,browseForm,"");
 		return mapping.findForward(param);

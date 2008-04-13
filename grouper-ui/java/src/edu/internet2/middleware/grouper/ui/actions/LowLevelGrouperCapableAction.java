@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -60,6 +62,7 @@ import edu.internet2.middleware.grouper.ui.GrouperComparator;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
 
@@ -72,7 +75,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.16 2008-04-09 14:27:36 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.17 2008-04-13 08:52:12 isgwb Exp $
  */
 
 /**
@@ -83,6 +86,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public abstract class LowLevelGrouperCapableAction 
 	extends org.apache.struts.action.Action {
+	protected static Log LOG = LogFactory.getLog(LowLevelGrouperCapableAction.class);
 	public static final String HIER_DELIM = GrouperHelper.HIER_DELIM; 
 	/**
 	 * Action specific - must be implemented by all subclasses
@@ -263,8 +267,13 @@ public abstract class LowLevelGrouperCapableAction
 		
 		if(node==null) {
 			return GroupOrStem.findByStem(s,StemFinder.findRootStem(s));
-		}	
-		return GroupOrStem.findByID(s,node);
+		}
+		try {
+			return GroupOrStem.findByID(s,node);
+		}catch (Exception e) {
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.browse.bad-current-id",e,node);
+		}
 	} 
 	
 	

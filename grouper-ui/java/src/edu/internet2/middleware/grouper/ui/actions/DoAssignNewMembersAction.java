@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,11 +22,16 @@ import edu.internet2.middleware.subject.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 /**
  * Top level Strut's action which assigns membership / privileges for a
@@ -134,10 +139,10 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.7 2007-04-11 08:21:25 isgwb Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.8 2008-04-13 08:52:12 isgwb Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
-
+	protected static Log LOG = LogFactory.getLog(DoAssignNewMembersAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_GroupMembers = "GroupMembers";
@@ -156,6 +161,8 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
+		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		//Cast the form to make it useful
 		DynaActionForm assignMembersForm = (DynaActionForm) form;
 		String groupId = (String) assignMembersForm.get("groupId");
@@ -169,7 +176,13 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 			listField = (String) session.getAttribute("findForListField");
 		}
 		if(!isEmpty(listField)) membershipField=listField;
-		Field mField = FieldFinder.find(membershipField);
+		Field mField = null;
+		try {
+			mField=FieldFinder.find(membershipField);
+		}catch(SchemaException e) {
+			LOG.error("Error retrieving " + membershipField,e);
+			throw new UnrecoverableErrorException("error.assign-new-members.bad-field",e,membershipField);
+		}
 		if (forStem)
 			folderId = stemId;
 		
@@ -178,26 +191,44 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 		if (folderId == null || folderId.length() == 0)
 			folderId = (String) session.getAttribute("findForNode");
 		
+		if(isEmpty(folderId)) {
+			String msg = "No stem or group or findForNode available";
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.assign-new-members.missing-id");
+		}
 		//subjectIds
 		String[] members = (String[])assignMembersForm.get("members");
 		Subject[] membersAsSubjects = new Subject[members.length];
 		String subjectTypeId;
 		Subject subject;
 		String subjectId;
+		String sourceId;
 		Group subjectGroup;
 		for (int i = 0; i < members.length; i++) {
 			subjectId = members[i];
 			subjectTypeId = request.getParameter("subjectType:" + members[i]);
-			if ("group".equals(subjectTypeId)) {
+			sourceId = request.getParameter("sourceId:" + members[i]);
+			/*if ("group".equals(subjectTypeId)) {
 				subjectGroup = GrouperHelper.groupLoadById(grouperSession,
 						subjectId);
 				
 				//TODO: is this needed?
 				subjectId = subjectGroup.getUuid();
-			}
+			}*/
 			//Need actual subject instance to assign privileges
-			subject = GrouperHelper.getSubjectFromIdAndType(subjectId,
-					subjectTypeId);
+			String msg = neh.missingParameters(subjectId,"subjectId",subjectTypeId,"subjectTypeId",sourceId,"sourceId");
+			if(msg!=null) {
+				LOG.error(msg);
+				throw new UnrecoverableErrorException("error.assign-members.missing-subject-parameter");
+			}
+			try {
+			subject = SubjectFinder.findById(subjectId,
+					subjectTypeId,sourceId);
+			}catch(Exception e) {
+				LOG.error(e);
+				throw new UnrecoverableErrorException("error.assign-members.retrieve-subject",e,subjectId);
+			}
+			
 			membersAsSubjects[i] = subject;
 		}
 		//Get the privileges checked in the UI
@@ -211,15 +242,15 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 			request.setAttribute("message", message);
 			return mapping.findForward(FORWARD_GroupMembers);
 		}
-		//TODO: could possibly fail on some - check wit blair as to
-		//how and wheter to make one transaction
+		
 		try {
 		GrouperHelper.assignPrivileges(grouperSession, folderId,
 				membersAsSubjects, privileges, "true".equals(request
 						.getParameter("stems")),mField);
 			message = new Message("priv.message.assigned");
-		}catch(IllegalArgumentException e) {
-			message = new Message("groups.add.member.error.circular",true);
+		}catch(Exception e) {
+			LOG.error("Could not assign all privileges", e);
+			throw new UnrecoverableErrorException("error.assign-members.assign-privs",e);
 		}
 		request.setAttribute("message", message);
 		//Make sure we don't switch inadvertantly to group context

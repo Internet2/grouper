@@ -23,12 +23,17 @@ import javax.servlet.http.HttpSession;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 
 
 /**
@@ -105,7 +110,7 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupsAction.java,v 1.4 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: PopulateCreateGroupsAction.java,v 1.5 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateCreateGroupsAction extends GrouperCapableAction {
 	
@@ -129,9 +134,20 @@ public class PopulateCreateGroupsAction extends GrouperCapableAction {
 		RepositoryBrowser repositoryBrowser = getRepositoryBrowser(grouperSession,session);
 		String curId = getBrowseNode(session);
 		if (isEmpty(curId)) {
-			stem = StemFinder.findByName(grouperSession,repositoryBrowser.getRootNode());
+			try {
+				stem = StemFinder.findByName(grouperSession,repositoryBrowser.getRootNode());
+			}catch(StemNotFoundException e) {
+				LOG.error("Could not find root stem [" + repositoryBrowser.getRootNode() + "]",e);
+				throw new UnrecoverableErrorException("error.create-groups.find-root",repositoryBrowser.getRootNode());
+			}
 		}else {
-			GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,curId);
+			GroupOrStem groupOrStem = null;
+			try {
+				groupOrStem=GroupOrStem.findByID(grouperSession,curId);
+			}catch(MissingGroupOrStemException e) {
+				LOG.error("Missing browse id",e);
+				throw new UnrecoverableErrorException("error.create-groups.find-current-node",curId);
+			}
 			stem = groupOrStem.getStem();
 			if(stem==null) stem = groupOrStem.getGroup().getParentStem();
 			setBrowseNode(stem.getUuid(),session);

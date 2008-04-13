@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.util.Map;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupOrStem.java,v 1.5 2008-04-07 07:54:15 mchyzer Exp $
+ * @version $Id: GroupOrStem.java,v 1.6 2008-04-13 08:52:12 isgwb Exp $
  */
 
 import edu.internet2.middleware.grouper.Group;
@@ -87,8 +87,7 @@ public class GroupOrStem {
 				Stem stem = StemFinder.findByUuid(s,id);
 				groupOrStem.stem = stem;
 			}catch(Exception se) {
-			  //pass the cause so that we can catch and see if groupNotFound
-				throw new RuntimeException("Unable to instantiate a group or stem with ID=" + id, se);
+				throw new MissingGroupOrStemException("Unable to instantiate a group or stem with ID=" + id);
 			}
 		}
 		return groupOrStem;
@@ -112,7 +111,7 @@ public class GroupOrStem {
 				Stem stem = StemFinder.findByName(s,name);
 				groupOrStem.stem = stem;
 			}catch(Exception se) {
-				throw new RuntimeException("Unable to instatiate a group or stem with name=" + name);
+				throw new MissingGroupOrStemException("Unable to instatiate a group or stem with name=" + name);
 			}
 		}
 		return groupOrStem;

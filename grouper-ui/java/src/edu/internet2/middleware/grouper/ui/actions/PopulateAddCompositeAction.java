@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -33,10 +35,13 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 
 /**
@@ -91,30 +96,48 @@ import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 
 
  * @author Gary Brown.
- * @version $Id: PopulateAddCompositeAction.java,v 1.2 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateAddCompositeAction.java,v 1.3 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateAddCompositeAction extends GrouperCapableAction {
 
-	
+	protected static Log LOG = LogFactory.getLog(PopulateAddCompositeAction.class);
 	public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
+		NavExceptionHelper neh=getExceptionHelper(session);
 		session.removeAttribute("subtitle");
 		DynaActionForm groupForm = (DynaActionForm) form;
 		String id = groupForm.getString("groupId");
 		if(isEmpty(id)) id = (String)request.getAttribute("groupId");
-		Group group = GroupFinder.findByUuid(grouperSession,id);
-		if(group.hasComposite()) {
-			group.deleteCompositeMember();
-		}else{
-			Set members = group.getImmediateMembers();
-			Iterator it = members.iterator();
-			Member member;
-			while(it.hasNext()) {
-				member = (Member)it.next();
-				group.deleteMember(member.getSubject());
+		if(isEmpty(id)) {
+			String msg = neh.missingParameters(id,"groupId");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.add-composite.missing-parameter");
+		}
+		Group group = null;
+		try{
+			group=GroupFinder.findByUuid(grouperSession,id);
+		}catch(GroupNotFoundException e) {
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.add-composite.bad-id");
+		}
+		try {
+			if(group.hasComposite()) {
+				group.deleteCompositeMember();
+			}else{
+				Set members = group.getImmediateMembers();
+				Iterator it = members.iterator();
+				Member member;
+				while(it.hasNext()) {
+					member = (Member)it.next();
+					group.deleteMember(member.getSubject());
+				}
 			}
+		}catch(Exception e) {
+			LOG.error("Error removing existing members before adding composite",e);
+			throw new UnrecoverableErrorException("error.add-composite.delete-members-error",e);
+		
 		}
 		request.setAttribute("browseParent",new GroupAsMap(group,grouperSession));
 		return mapping.findForward("addComposite");

@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -37,7 +39,10 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -203,10 +208,10 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.7 2008-04-03 13:30:21 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.8 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
-
+	protected static Log LOG = LogFactory.getLog(PopulateAssignNewMembersAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_AssignNewMembers = "AssignNewMembers";
@@ -253,7 +258,18 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 		Stem stem = null;
 		String findForNode = (String) request.getSession().getAttribute(
 				"findForNode");
-		groupOrStem= GroupOrStem.findByID(grouperSession,findForNode);
+		if(isEmpty(findForNode)) {
+			String msg = "No stem or group or findForNode available";
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.populate-assign-new-members.missing-id");
+		}
+		try{
+			groupOrStem= GroupOrStem.findByID(grouperSession,findForNode);
+		}catch(MissingGroupOrStemException e) {
+			Throwable t=NavExceptionHelper.fillInStacktrace(e);
+			LOG.error(NavExceptionHelper.toLog(t));
+			throw new UnrecoverableErrorException("error.populate-assign-new-members.bad-id",t,findForNode);
+		}
 		if(groupOrStem.isStem()) {
 			request.setAttribute("forStems", Boolean.TRUE);
 		}else{
@@ -289,15 +305,22 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 						+ members[i]);
 				sourceId = request.getParameter("sourceId:"
 						+ members[i]);
-				if ("group".equals(subjectTypeId)) {
-					subjectGroup = GroupFinder.findByUuid(grouperSession,
-							subjectId);
-					subjectMap = GrouperHelper.group2Map(grouperSession,
-							subjectGroup);
-				} else {
-					
-					subjectMap = GrouperHelper.subject2Map(grouperSession,
-							subjectId, subjectTypeId,sourceId);
+				try {
+					if ("group".equals(subjectTypeId)) {
+						subjectGroup = GroupFinder.findByUuid(grouperSession,
+								subjectId);
+						subjectMap = GrouperHelper.group2Map(grouperSession,
+								subjectGroup);
+					} else {
+						
+						subjectMap = GrouperHelper.subject2Map(grouperSession,
+								subjectId, subjectTypeId,sourceId);
+					}
+				}catch(Exception e) {
+					Throwable t=NavExceptionHelper.fillInStacktrace(e);
+					LOG.error("Error retrieving subject: " + subjectId + "," + subjectTypeId + ","+sourceId + ": " + NavExceptionHelper.toLog(t));
+					throw new UnrecoverableErrorException("error.populate-assign-new-members.bad-subject",t,subjectId);
+				
 				}
 				subjectRes.add(subjectMap);
 			}

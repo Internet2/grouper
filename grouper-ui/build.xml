@@ -176,6 +176,12 @@
 		<copy todir="${webapp.class.folder}" overwrite="true">
 			<fileset dir="${grouper.folder}/conf"/>
 		</copy>
+		<!-- Allow local log4j.properties -->
+		<condition property="local.log4j">
+			<equals trim="true" arg2="true" arg1="${use.local.log4j}"/>
+		</condition>
+		<antcall target="-local-log4j"/>
+		
 		<echo message="Copying ui resources to ${webapp.class.folder}/resources"/>
 		<mkdir dir="${webapp.class.folder}/resources"/>
 		<copy todir="${webapp.class.folder}/resources" overwrite="true" filtering="on">
@@ -188,6 +194,11 @@
 		<available file="optional-conf" property="optional.conf"/>
 		<!-- If available do further configuration -->
 		<antcall target="-optional-conf"/>
+	</target>
+	
+	<!-- Copy local log4j.properties -->
+	<target name="-local-log4j" if="local.log4j">
+		<copy filtering="true" file="${basedir}/log4j.properties" todir="${webapp.class.folder}" overwrite="true"/>
 	</target>
 	
 	

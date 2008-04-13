@@ -22,6 +22,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -29,9 +32,13 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -40,10 +47,10 @@ import edu.internet2.middleware.subject.Subject;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateChainAction.java,v 1.4 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateChainAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateChainAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_Chain = "Chain";
@@ -57,12 +64,25 @@ public class PopulateChainAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		session.setAttribute("subtitle","groups.action.show-members");
 		String subjectId = request.getParameter("subjectId");
 		String subjectType = request.getParameter("subjectType");
+		String sourceId = request.getParameter("sourceId");
 		
-		Subject subject = SubjectFinder.findById(subjectId,subjectType);
+		if(isEmpty(subjectId) || isEmpty(subjectType) || isEmpty(sourceId)) {
+			String msg = neh.missingParameters(subjectId,"subjectId",subjectType,"subjectType",sourceId,"sourceId");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.chain.missing-parameter");
+		}
+		Subject subject = null;
+		try{ 
+			subject=SubjectFinder.findById(subjectId,subjectType,sourceId);
+		}catch (Exception e) {
+			LOG.error("Unable to retrieve subject: " + subjectId + "," + sourceId,e);
+			String contextError="error.chain.subject.exception";
+			throw new UnrecoverableErrorException(contextError,e,subjectId);
+		}
 		DynaActionForm groupForm = (DynaActionForm) form;
 		
 		//Identify the group whose membership we are showing
@@ -72,15 +92,34 @@ public class PopulateChainAction extends GrouperCapableAction {
 			groupId = (String) request.getSession().getAttribute("findForNode");
 		if (groupId == null)
 			groupId = request.getParameter("asMemberOf");
-		Group group = GroupFinder.findByUuid(grouperSession,groupId);
+		if(isEmpty(groupId)) {
+			String msg = neh.missingAlternativeParameters(groupId,"groupId",groupId,"asMemberOf");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.chain.missing-group-id");
+		}
+		
+		Group group = null;
+		try{
+			group=GroupFinder.findByUuid(grouperSession,groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.chain.bad-id",groupId);
+		}
 		
 		String[] chainGroupIds=request.getParameterValues("chainGroupIds");
 		List chain = new ArrayList();
 		Group chainGroup = null;
+		
 		for(int i=chainGroupIds.length-1;i>-1;i--) {
-			chainGroup = GroupFinder.findByUuid(grouperSession,chainGroupIds[i]);
-			chain.add(GrouperHelper.group2Map(grouperSession,chainGroup));
+			try{
+				chainGroup = GroupFinder.findByUuid(grouperSession,chainGroupIds[i]);
+				chain.add(GrouperHelper.group2Map(grouperSession,chainGroup));
+			}catch(GroupNotFoundException e) {
+				LOG.error(e);
+				throw new UnrecoverableErrorException("error.chain.bad-chain-id",chainGroupIds[i]);
+			}
 		}
+		
 		
 		request.setAttribute("chainPath", chain);
 		

@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.ui.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -25,14 +26,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
-import edu.internet2.middleware.grouper.ui.actions.AddSavedSubjectAction;
 
 /**
  * Helper class centralise some Exception handling
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: NavExceptionHelper.java,v 1.1 2008-04-09 14:44:03 isgwb Exp $
+ * @version $Id: NavExceptionHelper.java,v 1.2 2008-04-13 08:52:12 isgwb Exp $
  */
 public class NavExceptionHelper {
 	protected static final Log LOG = LogFactory.getLog(NavExceptionHelper.class);
@@ -77,6 +77,8 @@ public class NavExceptionHelper {
 		if(messageKey!=null) {
 			try {
 				message = navBundle.getString(messageKey);
+				String[] args=cause.getMessageArgs();
+				if(args != null) message=MessageFormat.format(message,(Object[])args);
 			}catch(MissingResourceException e) {
 				LOG.error("Missing nav key: " + messageKey);
 			}
@@ -99,14 +101,41 @@ public class NavExceptionHelper {
 	 */
 	public  String missingParameters(String... params) {
 		StringBuffer msg = null;
+		int missingCount=0;
 		for(int i=0;i<params.length;i+=2) {
 			if(isEmpty(params[i])) {
-				if(i==0) {
+				if(missingCount==0) {
 					msg=new StringBuffer("Missing parameter(s) - [");
 				}else{
 					msg.append(", ");
 				}
 				msg.append(params[i+1]);
+				missingCount++;
+			}
+		}
+		if(msg!=null) msg.append("]");
+		else return null;
+		return msg.toString();
+	}
+	
+	/**
+	 * Helper method takes alternate parameter / parameter name pairs and
+	 * constructs a message, if any are empty, indicating what is missing
+	 * @param params
+	 * @return missing parameters
+	 */
+	public  String missingAlternativeParameters(String... params) {
+		StringBuffer msg = null;
+		int missingCount=0;
+		for(int i=0;i<params.length;i+=2) {
+			if(isEmpty(params[i])) {
+				if(missingCount==0) {
+					msg=new StringBuffer("Missing alternative parameter(s) - [");
+				}else{
+					msg.append(", ");
+				}
+				msg.append(params[i+1]);
+				missingCount++;
 			}
 		}
 		if(msg!=null) msg.append("]");

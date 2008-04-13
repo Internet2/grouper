@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2005 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2005 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,10 +20,15 @@ package edu.internet2.middleware.grouper.ui.actions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.grouper.*;
 
 /**
@@ -76,10 +81,10 @@ import edu.internet2.middleware.grouper.*;
 </table>
 
  * @author Gary Brown.
- * @version $Id: LeaveGroupAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: LeaveGroupAction.java,v 1.3 2008-04-13 08:52:12 isgwb Exp $
  */
 public class LeaveGroupAction extends GrouperCapableAction {
-
+	protected static Log LOG = LogFactory.getLog(LeaveGroupAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	/** Return to ManageGroups */
@@ -92,12 +97,29 @@ public class LeaveGroupAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-
+		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		String groupId = request.getParameter("groupId");
-		Group group = GrouperHelper.groupLoadById(grouperSession,
+		if(isEmpty(groupId)) {
+			String msg = neh.missingParameters(groupId,"groupId");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.leave-group.missing-parameter");
+		}
+		Group group = null;
+		try{
+			group=GrouperHelper.groupLoadById(grouperSession,
 				groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.leave-group.bad-id",groupId);
+		}
 		if(group.hasImmediateMember(grouperSession.getSubject())){
-			group.deleteMember(grouperSession.getSubject());	
+			try {
+				group.deleteMember(grouperSession.getSubject());	
+			}catch(Exception e) {
+				LOG.error(e);
+				throw new UnrecoverableErrorException("error.leave-group.add-error",e);
+			}
 		}
 		
 

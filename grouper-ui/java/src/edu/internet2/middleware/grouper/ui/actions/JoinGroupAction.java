@@ -20,11 +20,16 @@ package edu.internet2.middleware.grouper.ui.actions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 /**
  * Top level Strut's action which, assuming user has optin privilege, 
@@ -76,10 +81,10 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
 
  * @author Gary Brown.
- * @version $Id: JoinGroupAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
+ * @version $Id: JoinGroupAction.java,v 1.4 2008-04-13 08:52:12 isgwb Exp $
  */
 public class JoinGroupAction extends GrouperCapableAction {
-
+	protected static Log LOG = LogFactory.getLog(JoinGroupAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 
@@ -93,12 +98,29 @@ public class JoinGroupAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 
+		NavExceptionHelper neh=getExceptionHelper(session);
 		String groupId = request.getParameter("groupId");
-		Group group = GrouperHelper.groupLoadById(grouperSession,
+		if(isEmpty(groupId)) {
+			String msg = neh.missingParameters(groupId,"groupId");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.join-group.missing-parameter");
+		}
+		Group group = null;
+		try{
+			group=GrouperHelper.groupLoadById(grouperSession,
 				groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error("Could not find group with id=" + groupId,e);
+			throw new UnrecoverableErrorException("error.join-group.bad-id",groupId);
+		}
 		
 		if(!group.hasImmediateMember(grouperSession.getSubject())) {
-			group.addMember(grouperSession.getSubject());
+			try{
+				group.addMember(grouperSession.getSubject());
+			}catch(Exception e) {
+				LOG.error(e);
+				throw new UnrecoverableErrorException("error.join-group.add-error",e);
+			}
 		}
 			
 		request.setAttribute("message", new Message(

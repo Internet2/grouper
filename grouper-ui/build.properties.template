@@ -31,11 +31,6 @@ error.mail.threshold=ERROR
 error.mail.buffer-size=100
 error.mail.subject=Grouper UI Error
 
-#Only set to true if you can genuinely logout.
-logout.link.show=true
-
-
-
 #The Grouper UI requires an instance of the Grouper API. This can be a binary distribution
 #or a source distribution which has had the 'dist' ant target run.
 #If a java/src directory is present the Grouper UI ant html task will create combined

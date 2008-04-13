@@ -207,7 +207,7 @@ import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.10 2008-01-09 13:26:18 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.11 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 
@@ -275,6 +275,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		Map saveParams = new HashMap();
 		saveParams.put("subjectId",group.getUuid());
 		saveParams.put("subjectType","group");
+		saveParams.put("sourceId",group.toSubject().getSource().getId());
 		saveParams.put("callerPageId",request.getAttribute("thisPageId"));
 		saveParams.put("groupId",group.getUuid());
 		request.setAttribute("saveParams",saveParams);

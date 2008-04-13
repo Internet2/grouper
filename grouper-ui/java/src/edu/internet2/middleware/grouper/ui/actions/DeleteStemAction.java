@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,12 +21,15 @@ package edu.internet2.middleware.grouper.ui.actions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 
 /**
  * Top level Strut's action which removes a stem from repository. 
@@ -84,10 +87,10 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DeleteStemAction.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: DeleteStemAction.java,v 1.6 2008-04-13 08:52:12 isgwb Exp $
  */
 public class DeleteStemAction extends GrouperCapableAction {
-
+	protected static Log LOG = LogFactory.getLog(DeleteStemAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	/** Return to manage screen */
@@ -105,8 +108,18 @@ public class DeleteStemAction extends GrouperCapableAction {
 		//Get the stem to delete
 		
 		String stemId = getBrowseNode(session);
-		Stem stem = StemFinder.findByUuid(grouperSession, stemId);
-		
+		if(isEmpty(stemId)) {
+			String msg = "No stemId in session for browseMode:" + getBrowseMode(session);
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.delete-stem.missing-parameter");
+		}
+		Stem stem = null;
+		try {
+		StemFinder.findByUuid(grouperSession, stemId);
+		}catch(StemNotFoundException e) {
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.delete-stem.bad-id",stemId);
+		}
 		Stem parent = stem.getParentStem();
 	
 		Message message = new Message("stems.message.stem-deleted", stem.getDisplayExtension());
@@ -115,11 +128,9 @@ public class DeleteStemAction extends GrouperCapableAction {
 		try {
 				stem.delete();
 				setBrowseNode(parent.getUuid(),session);
-		}catch(Exception e){
-		
-			//Failed so change message
-			message = new Message("stems.message.stem-not-deleted", stem.getDisplayExtension(),true);
-		request.setAttribute("message", message);
+		}catch(StemDeleteException e){
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.delete-stem.unknown-error");
 		}
 		
 		//Reset browse node to parent

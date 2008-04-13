@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,13 +23,16 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.*;
-import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 /**
  * Top level Strut's action which removes a group from the repository.  
@@ -94,10 +97,10 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DeleteGroupAction.java,v 1.8 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: DeleteGroupAction.java,v 1.9 2008-04-13 08:52:12 isgwb Exp $
  */
 public class DeleteGroupAction extends GrouperCapableAction {
-
+	protected static Log LOG = LogFactory.getLog(DeleteGroupAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	/** Return to manage screen */
@@ -113,12 +116,23 @@ public class DeleteGroupAction extends GrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		//Get the id of the group to remove
+		NavExceptionHelper neh=getExceptionHelper(session);
 		String groupId = request.getParameter("groupId");
-		
+		if(isEmpty(groupId)) {
+			String msg = neh.missingParameters(groupId,"groupId");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.delete-group.missing-parameter");
+		}
 		
 		//Instantiate the group
-		Group group = GrouperHelper.groupLoadById(grouperSession,
+		Group group = null;
+		try {
+			group=GrouperHelper.groupLoadById(grouperSession,
 				groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.delete-group.bad-id",groupId);
+		}
 		
 		Message message=null;
 		String displayExtn = group.getDisplayExtension();
@@ -145,8 +159,8 @@ public class DeleteGroupAction extends GrouperCapableAction {
 				setBrowseNode(parent.getUuid(),session);
 				success=true;
 			}catch(GroupDeleteException e){
-				message = new Message("groups.message.group-fail-delete",
-						displayExtn, true);
+				LOG.error(e);
+				throw new UnrecoverableErrorException("error.delete-stem.unknown-error");
 			}
 		}
 		request.setAttribute("message", message);

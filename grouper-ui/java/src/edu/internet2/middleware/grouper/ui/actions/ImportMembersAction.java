@@ -25,6 +25,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -34,7 +37,11 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 
 
 
@@ -129,10 +136,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: ImportMembersAction.java,v 1.2 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: ImportMembersAction.java,v 1.3 2008-04-13 08:52:12 isgwb Exp $
  */
 public class ImportMembersAction extends GrouperCapableAction {
-	
+	protected static Log LOG = LogFactory.getLog(ImportMembersAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_ImportMembers = "ImportMembers";
@@ -152,13 +159,29 @@ public class ImportMembersAction extends GrouperCapableAction {
 			groupId = (String) session.getAttribute("findForNode");
 		if (groupId == null)
 			groupId = groupForm.getString("asMemberOf");
+		if(isEmpty(groupId)) {
+			String msg = "No groupId, findForNode or asMemberOf";
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.import-members.missing-parameter");
+		}
 		Group group = null;
 		String listField = groupForm.getString("listField");
 		String membershipField = "members";
 		
 		if(!isEmpty(listField)) membershipField=listField;
-		Field mField = FieldFinder.find(membershipField);
-		group = GroupFinder.findByUuid(grouperSession, groupId);
+		Field mField = null;
+		try {
+			mField=FieldFinder.find(membershipField);
+		}catch(SchemaException e) {
+			LOG.error("Error retrieving " + membershipField,e);
+			throw new UnrecoverableErrorException("error.import-members.bad-field",e,membershipField);
+		}
+		try {
+			group = GroupFinder.findByUuid(grouperSession, groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.import-members.bad-id",groupId);
+		}
 		request.setAttribute("subtitle","groups.action.import-members");
 		String format=groupForm.getString("importFormat");
 		if("members".equals(membershipField)) {

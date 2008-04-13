@@ -22,10 +22,11 @@ package edu.internet2.middleware.grouper.ui;
  * In general the code which throws such an exception should take care of logging. Code
  * catching this exception should not log it.
  * @author Gary Brown.
- * @version $Id: UnrecoverableErrorException.java,v 1.1 2008-04-09 14:23:08 isgwb Exp $
+ * @version $Id: UnrecoverableErrorException.java,v 1.2 2008-04-13 08:52:12 isgwb Exp $
  */
 public class UnrecoverableErrorException extends RuntimeException {
 	private String message = null;
+	private String[] messageArgs;
 	public UnrecoverableErrorException(String message) {
 		super(message);
 		this.message=message;
@@ -38,11 +39,30 @@ public class UnrecoverableErrorException extends RuntimeException {
 	
 	public UnrecoverableErrorException(Throwable t) {
 		super(t);
+
 	}
+	
+	public UnrecoverableErrorException(String message,String...messageArgs) {
+		super(message);
+		this.message=message;
+		this.messageArgs=messageArgs;
+	}
+	
+	public UnrecoverableErrorException(String message,Throwable t,String...messageArgs) {
+		super(message,t);
+		this.message=message;
+		this.messageArgs=messageArgs;
+	}
+	
+
 
 	@Override
 	public String getMessage() {
 		return message;
+	}
+	
+	public String[] getMessageArgs() {
+		return messageArgs;
 	}
 	
 	

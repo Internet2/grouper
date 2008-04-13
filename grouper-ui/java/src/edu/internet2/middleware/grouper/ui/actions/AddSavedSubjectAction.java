@@ -18,6 +18,8 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 
+import java.text.MessageFormat;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -98,7 +100,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AddSavedSubjectAction.java,v 1.4 2008-04-09 14:24:17 isgwb Exp $
+ * @version $Id: AddSavedSubjectAction.java,v 1.5 2008-04-13 08:52:12 isgwb Exp $
  */
 public class AddSavedSubjectAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(AddSavedSubjectAction.class);
@@ -113,7 +115,7 @@ public class AddSavedSubjectAction extends GrouperCapableAction {
 		String subjectId = subjectForm.getString("subjectId");
 		String subjectType = subjectForm.getString("subjectType");
 		String sourceId = subjectForm.getString("sourceId");
-		if(subjectId !=null && subjectType!=null && sourceId !=null) {
+		if(!isEmpty(subjectId) && !isEmpty(subjectType) && !isEmpty(sourceId)) {
 			LOG.info("Saved entity to workspace ("+subjectId + "," +subjectType+"," + sourceId+")");
 			try {
 				Subject subj = SubjectFinder.findById(subjectId,subjectType,sourceId);
@@ -125,6 +127,7 @@ public class AddSavedSubjectAction extends GrouperCapableAction {
 				}else{
 					contextError = getNavResources(request).getString("error.saved-groups.exception");	
 				}
+				contextError=MessageFormat.format(contextError, subjectId);
 				session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));
 				return redirectToCaller(subjectForm);
 			

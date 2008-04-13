@@ -1,6 +1,6 @@
 /*
-Copyright 2004-2007 University Corporation for Advanced Internet Development, Inc.
-Copyright 2004-2007 The University Of Bristol
+Copyright 2004-2008 University Corporation for Advanced Internet Development, Inc.
+Copyright 2004-2008 The University Of Bristol
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.ui.actions.GrouperCapableAction;
  *  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CallerPageFilter.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: CallerPageFilter.java,v 1.5 2008-04-13 08:52:12 isgwb Exp $
  */
 
 public class CallerPageFilter implements Filter {

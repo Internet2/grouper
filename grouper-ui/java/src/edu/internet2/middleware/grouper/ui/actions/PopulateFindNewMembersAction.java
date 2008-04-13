@@ -25,18 +25,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 
 /**
@@ -151,10 +156,10 @@ import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
  
 
  * @author Gary Brown.
- * @version $Id: PopulateFindNewMembersAction.java,v 1.9 2006-10-05 09:00:36 isgwb Exp $
+ * @version $Id: PopulateFindNewMembersAction.java,v 1.10 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateFindNewMembersAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateFindNewMembersAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_FindNewMembers = "FindNewMembers";
@@ -166,7 +171,7 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		session.setAttribute("subtitle","groups.action.find-new-members");
 		
 		DynaActionForm groupOrStemForm = (DynaActionForm) form;
@@ -191,8 +196,14 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 		}
 		//TODO: What should I do about forStems?
 		if(isEmpty(listField))listField=(String) session.getAttribute("findForListField");
-		if(targetId==null) {
+		if(isEmpty(targetId)) {
 			targetId = (String) session.getAttribute("findForNode");
+			if(isEmpty(targetId)) {
+				String msg = neh.missingAlternativeParameters(targetId,"groupId",targetId,"stemId",targetId,"findForNode");
+				LOG.error(msg);
+				throw new UnrecoverableErrorException("error.populate-find-new-members.missing-parameter");
+			
+			}
 			
 		}else{
 			if (session.getAttribute("findForNode") == null)
@@ -208,10 +219,21 @@ public class PopulateFindNewMembersAction extends GrouperCapableAction {
 		Map tmp;
 		Map tmpMap;
 		StringBuffer sb = new StringBuffer();
-		GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,(String)session.getAttribute("findForNode"));
-
+		GroupOrStem groupOrStem = null;
+		try{
+			groupOrStem=GroupOrStem.findByID(grouperSession,(String)session.getAttribute("findForNode"));
+		}catch(Exception e) {
+			LOG.error("Problem loading " + (String)session.getAttribute("findForNode"),e);
+			throw new UnrecoverableErrorException("error.populate-find-new-members.bad-id",e,(String)session.getAttribute("findForNode"));
+		}
 		RepositoryBrowser repositoryBrowser = getRepositoryBrowser(grouperSession,session);
-		List parentStems = repositoryBrowser.getParentStems(groupOrStem);
+		List parentStems = null;
+		try {
+			parentStems=repositoryBrowser.getParentStems(groupOrStem);
+		}catch(Exception e) {
+				LOG.error("Problem loading parent stems for " + groupOrStem.getId(),e);
+				throw new UnrecoverableErrorException("error.populate-find-new-members.bad-parent-stems",e,groupOrStem.getId());
+		}	
 		Map[] searchFromArray = new HashMap[parentStems.size()];
 		Map stemMap = null;
 		for (int i = 0; i < parentStems.size(); i++) {

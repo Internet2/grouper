@@ -22,6 +22,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -29,15 +32,20 @@ import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 
 
@@ -201,10 +209,10 @@ import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.8 2008-04-03 13:30:22 isgwb Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.9 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateGroupMemberAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_GroupMembers = "GroupMembers";
@@ -222,7 +230,7 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		//We are using same class for stems and groups, but action is different
 		//we distinguish by checking parameter
 		
@@ -241,8 +249,13 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 			membershipField=listField;
 			request.setAttribute("listField",listField);
 		}
-		Field mField = FieldFinder.find(membershipField);
-		
+		Field mField = null;
+		try {
+			mField=FieldFinder.find(membershipField);
+		}catch(SchemaException e) {
+			LOG.error("Error retrieving " + membershipField,e);
+			throw new UnrecoverableErrorException("error.group-member.bad-field",e,membershipField);
+		}
 		if(!isEmpty(contextGroupId)) {
 			contextGroup = GroupOrStem.findByID(grouperSession,contextGroupId);
 		}
@@ -258,9 +271,21 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 			asMemberOf = getBrowseNode(session);
 			groupOrStemMemberForm.set("asMemberOf",asMemberOf);
 		}
+		
+		if(isEmpty(asMemberOf)) {
+			String msg = neh.missingAlternativeParameters(contextGroupId,"contextGroupId",asMemberOf,"asMemberOf",asMemberOf,"findForNode");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.group-member.missing-grouporstem-id");
+		}
 		Group group = null;
 		Stem stem = null;
-		GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,asMemberOf);
+		GroupOrStem groupOrStem = null;
+		try{
+			groupOrStem=GroupOrStem.findByID(grouperSession,asMemberOf);
+		}catch(MissingGroupOrStemException e) {
+			LOG.error(e);
+			throw new UnrecoverableErrorException("error.group-member.bad-id",asMemberOf);
+		}
 		Map groupOrStemMap = null;
 		//In UI we need to display set of possible privileges - with effective ones
 		//pre-selected
@@ -288,11 +313,22 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		String subjectId = (String) groupOrStemMemberForm.get("subjectId");
 		String subjectType = (String) groupOrStemMemberForm.get("subjectType");
 		String sourceId = (String) groupOrStemMemberForm.get("sourceId");
-		
+		String msg = neh.missingParameters(subjectId,"subjectId",subjectType,"subjectTypeId",sourceId,"sourceId");
+		if(msg!=null) {
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.group-member.missing-subject-parameter");
+		}
 		//Retrieve subject whose privileges we are displaying and make
 		//available to view
-		Map subjectMap = GrouperHelper.subject2Map(grouperSession, subjectId,
-				subjectType,sourceId);
+		Map subjectMap =null;
+		try {
+			subjectMap=GrouperHelper.subject2Map(grouperSession, subjectId,
+					subjectType,sourceId);
+		}catch(Exception e) {
+			LOG.error("Error retrieving subject id=" + subjectId,e);
+			throw new UnrecoverableErrorException("error.group-member.retrieve-subject",e,subjectId);
+		}
+		 
 		
 		//Retrieve privileges current user, and selected subject have over
 		//current group/stem

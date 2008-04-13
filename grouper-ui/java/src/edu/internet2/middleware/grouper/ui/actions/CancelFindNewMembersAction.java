@@ -25,6 +25,9 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 
 /**
@@ -103,7 +106,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: CancelFindNewMembersAction.java,v 1.6 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: CancelFindNewMembersAction.java,v 1.7 2008-04-13 08:52:12 isgwb Exp $
  */
 public class CancelFindNewMembersAction extends GrouperCapableAction {
 
@@ -127,12 +130,18 @@ public class CancelFindNewMembersAction extends GrouperCapableAction {
 		session.removeAttribute("findForPriv");
 		session.removeAttribute("findForListField");
 		String forward = null;
-		GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,findForNode);
-
-		if(groupOrStem.isGroup()) {
-			forward=FORWARD_GroupSummary;
-		}else {
-			forward=FORWARD_Stem + getBrowseMode(session);
+		try {
+			GroupOrStem groupOrStem = GroupOrStem.findByID(grouperSession,findForNode);
+	
+			if(groupOrStem.isGroup()) {
+				forward=FORWARD_GroupSummary;
+			}else {
+				forward=FORWARD_Stem + getBrowseMode(session);
+			}
+		}catch(MissingGroupOrStemException e) {
+			Throwable t=NavExceptionHelper.fillInStacktrace(e);
+			LOG.error(NavExceptionHelper.toLog(t));
+			throw new UnrecoverableErrorException("error.browse-stems.bad-find-node",t,findForNode);
 		}
 		
 		return mapping.findForward(forward);

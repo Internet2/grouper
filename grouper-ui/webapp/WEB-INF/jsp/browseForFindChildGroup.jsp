@@ -3,7 +3,7 @@
 		  to render child groups
 --%><%--
   @author Gary Brown.
-  @version $Id: browseForFindChildGroup.jsp,v 1.6 2008-04-07 07:54:15 mchyzer Exp $
+  @version $Id: browseForFindChildGroup.jsp,v 1.7 2008-04-13 08:52:12 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -16,6 +16,7 @@
 		</c:otherwise>
 	</c:choose>
 	   <input type="hidden" name="subjectType:<c:out value="${viewObject.id}"/>" value="group"/>
+	   <input type="hidden" name="sourceId:<c:out value="${viewObject.id}"/>" value="g:gsa"/>
        <label for="members<c:out value="${itemPos}"/>" class="noCSSOnly">
 	   	<grouper:message bundle="${nav}" key="browse.select.group"/> <c:out value="${viewObject.displayExtension}"/>
 		</label>

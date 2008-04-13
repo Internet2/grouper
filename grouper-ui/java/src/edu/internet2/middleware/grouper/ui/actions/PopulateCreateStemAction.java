@@ -22,6 +22,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -87,10 +90,10 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateCreateStemAction.java,v 1.6 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateCreateStemAction.java,v 1.7 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateCreateStemAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateCreateStemAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_CreateStem = "CreateStem";

@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -37,12 +39,15 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -176,10 +181,10 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainsAction.java,v 1.11 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateChainsAction.java,v 1.12 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateChainsAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateChainsAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_Chain = "Chain";
@@ -193,12 +198,25 @@ public class PopulateChainsAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		session.setAttribute("subtitle","groups.action.show-members");
 		String subjectId = request.getParameter("subjectId");
 		String subjectType = request.getParameter("subjectType");
+		String sourceId = request.getParameter("sourceId");
+		if(isEmpty(subjectId) || isEmpty(subjectType) || isEmpty(sourceId)) {
+			String msg = neh.missingParameters(subjectId,"subjectId",subjectType,"subjectType",sourceId,"sourceId");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.chain.missing-parameter");
+		}
+		Subject subject = null;
 		
-		Subject subject = SubjectFinder.findById(subjectId,subjectType);
+		try{
+			subject=SubjectFinder.findById(subjectId,subjectType,sourceId);
+		}catch (Exception e) {
+			LOG.error("Unable to retrieve subject: " + subjectId + "," + sourceId,e);
+			String contextError="error.chain.subject.exception";
+			throw new UnrecoverableErrorException(contextError,e,subjectId);
+		}
 		DynaActionForm groupForm = (DynaActionForm) form;
 		saveAsCallerPage(request,groupForm,"findForNode");
 		
@@ -215,7 +233,18 @@ public class PopulateChainsAction extends GrouperCapableAction {
 			groupId = (String) session.getAttribute("findForNode");
 		if (groupId == null)
 			groupId = request.getParameter("asMemberOf");
-		Group group = GroupFinder.findByUuid(grouperSession,groupId); 
+		if(isEmpty(groupId)) {
+			String msg = neh.missingAlternativeParameters(groupId,"groupId",groupId,"asMemberOf",groupId,"findForNode");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.chain.missing-group-id");
+		}
+		Group group = null;
+		try{
+			group=GroupFinder.findByUuid(grouperSession,groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error("No group with id=" + groupId,e);
+			throw new UnrecoverableErrorException("error.chain.bad-id",groupId);
+		}
 		Map gMap = null;
 		if(group.hasComposite()) {
 			Composite comp = CompositeFinder.findAsOwner(group);
@@ -223,7 +252,15 @@ public class PopulateChainsAction extends GrouperCapableAction {
 			request.setAttribute("composite",gMap);
 			request.setAttribute("linkParams",new HashMap());
 		}else{
-			List ways = GrouperHelper.getAllWaysInWhichSubjectIsMemberOFGroup(grouperSession,subject,group,mField);
+			List ways = null;
+			try {
+				ways=GrouperHelper.getAllWaysInWhichSubjectIsMemberOFGroup(grouperSession,subject,group,mField);
+			}catch(Exception e) {
+				Throwable t=NavExceptionHelper.fillInStacktrace(e);
+				LOG.error("Error populating chains: " + NavExceptionHelper.toLog(t));
+				throw new UnrecoverableErrorException("error.chains.determine",t,subject.getId(),group.getUuid(),mField.getName());
+			
+			}
 			Group g = null;
 			Membership m = null;
 			

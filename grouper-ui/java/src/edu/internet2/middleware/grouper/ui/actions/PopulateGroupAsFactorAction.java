@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -37,9 +39,12 @@ import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 /**
  * Top level Strut's action which retrieves and makes available Composites
@@ -98,10 +103,10 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupAsFactorAction.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateGroupAsFactorAction.java,v 1.4 2008-04-13 08:52:12 isgwb Exp $
  */
 public class PopulateGroupAsFactorAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateGroupAsFactorAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_GroupAsFactor = "GroupAsFactor";
@@ -113,7 +118,7 @@ public class PopulateGroupAsFactorAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		session.setAttribute("subtitle", "groups.action.as-factor");
 		
 		DynaActionForm groupForm = (DynaActionForm) form;
@@ -122,9 +127,18 @@ public class PopulateGroupAsFactorAction extends GrouperCapableAction {
 		String groupId = (String) groupForm.get("groupId");
 		if (groupId == null || "".equals(groupId))
 			groupId = (String) request.getAttribute("groupId");
-
-		Group group = GroupFinder.findByUuid(grouperSession,
-				groupId);
+		if(isEmpty(groupId)) {
+			String msg = neh.missingParameters(groupId,"groupId");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.group-as-factor.missing-group-id");
+		}
+		Group group = null;
+		try{
+			group=GroupFinder.findByUuid(grouperSession,groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error("No group with id=" + groupId,e);
+			throw new UnrecoverableErrorException("error.group-as-factor.bad-id",groupId);
+		}
 		Set compOwners = CompositeFinder.findAsFactor(group);
 		Map compMap = null;
 		List composites = new ArrayList();
