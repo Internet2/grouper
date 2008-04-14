@@ -176,7 +176,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.14 2008-04-09 14:26:16 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.15 2008-04-14 08:54:30 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -249,6 +249,7 @@ public abstract class GrouperCapableAction
 				request.setAttribute("message",sessionMessage);
 				session.removeAttribute("sessionMessage");
 			}
+			request.setAttribute("linkBrowseMode",getLinkBrowseMode(session));
 			Date before = new Date();
 			ActionForward forward =  null;
 			try {

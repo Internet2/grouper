@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.12 2008-04-12 05:25:29 mchyzer Exp $
+  @version $Id: EditGroup.jsp,v 1.13 2008-04-14 08:54:30 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="editForm section">
@@ -84,7 +84,7 @@
   </c:if></fieldset>
 </html:form>
 <div class="linkButton"><c:if test="${! editMode}">
-  <html:link page="/populate${browseMode}Groups.do">
+  <html:link page="/populate${linkBrowseMode}Groups.do">
     <grouper:message bundle="${nav}" key="groups.create.cancel" />
   </html:link>
 </c:if> <c:if test="${editMode}">

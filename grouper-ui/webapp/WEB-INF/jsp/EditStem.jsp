@@ -2,7 +2,7 @@
 			Form for creating newstems or editing existing ones.
 --%><%--
   @author Gary Brown.
-  @version $Id: EditStem.jsp,v 1.9 2008-04-12 05:05:02 mchyzer Exp $
+  @version $Id: EditStem.jsp,v 1.10 2008-04-14 08:54:30 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -51,7 +51,7 @@
 </html:form>
 
 <div class="linkButton">
-<html:link page="/populate${browseMode}Groups.do">
+<html:link page="/populate${linkBrowseMode}Groups.do">
 	<grouper:message bundle="${nav}" key="stems.edit.cancel"/>
 </html:link>
 </div>

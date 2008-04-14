@@ -3,7 +3,7 @@
 		  except 'Find' mode 
 --%><%--
   @author Gary Brown.
-  @version $Id: SearchGroupResults.jsp,v 1.6 2008-04-11 05:53:47 mchyzer Exp $
+  @version $Id: SearchGroupResults.jsp,v 1.7 2008-04-14 08:54:30 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
   <div class="section groupSearchSubject">
@@ -80,7 +80,7 @@
 		<a href="populateSubjectSummary.do?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
 	</c:when>
 	<c:otherwise>
-		<a href="populate<c:out value="${browseMode}"/>Groups.do?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
+		<a href="populate<c:out value="${linkBrowseMode}"/>Groups.do?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
 	</c:otherwise>
 	</c:choose>
 </c:if>

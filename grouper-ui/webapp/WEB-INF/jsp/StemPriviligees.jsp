@@ -3,7 +3,7 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: StemPriviligees.jsp,v 1.7 2008-04-11 15:59:18 mchyzer Exp $
+  @version $Id: StemPriviligees.jsp,v 1.8 2008-04-14 08:54:30 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -42,7 +42,7 @@
 <html:link page="/populateFindNewMembersForStems.do" name="stemMembership">
 	<grouper:message bundle="${nav}" key="find.stems.add-new-privilegees"/>
 </html:link>
-<html:link page="/populate${browseMode}Groups.do" >
+<html:link page="/populate${linkBrowseMode}Groups.do" >
 	<grouper:message bundle="${nav}" key="priv.stems.list.cancel"/>
 </html:link>
 <c:if test="${isNewStem && !empty findForNode}">
