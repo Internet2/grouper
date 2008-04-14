@@ -24,7 +24,7 @@
 
         </group-queries>
 
-        <groups structure="flat" root-dn="ou=testgrouper,dc=my-domain,dc=com" ldap-object-class="groupOfUniqueNames"
+        <groups structure="flat" root-dn="ou=testgrouper,dc=example,dc=edu" ldap-object-class="groupOfUniqueNames"
             ldap-rdn-attribute="cn" grouper-attribute="name"><!-- 0 or 1 allowed -->
 
 
@@ -95,7 +95,7 @@
         <!-- Next line is for quickstart demo database: -->
         <source-subject-identifier source="jdbc" subject-attribute="LOGINID">
             <!-- 1 or more required -->
-            <ldap-search base="dc=my-domain,dc=com" scope="subtree_scope" filter="(ou={0})" />
+            <ldap-search base="dc=example,dc=edu" scope="subtree_scope" filter="(ou={0})" />
             <!-- exactly 1 required -->
         </source-subject-identifier>
 
@@ -105,7 +105,7 @@
         <!-- Next line is for quickstart demo database: -->
         <source-subject-identifier source="local" subject-attribute="LOGINID">
             <!-- 1 or more required -->
-            <ldap-search base="ou=testSignetSubjects,ou=testgrouper,dc=my-domain,dc=com" 
+            <ldap-search base="ou=testSignetSubjects,ou=testgrouper,dc=example,dc=edu" 
                     scope="subtree_scope" filter="(uid={0})" />
             <!-- exactly 1 required -->
         </source-subject-identifier>
@@ -123,7 +123,7 @@
                 <parameter name="security_principal" value="cn=manager, dc=sgif, dc=org" />
                 <parameter name="security_credentials" value="xxx" />
                  -->
-                <parameter name="security_principal" value="cn=manager,dc=my-domain,dc=com" />
+                <parameter name="security_principal" value="cn=manager,dc=example,dc=edu" />
                 <parameter name="security_credentials" value="123" />
             </parameter-list>
         </context>
