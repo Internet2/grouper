@@ -83,6 +83,10 @@ public class DnAttributeModifier extends AttributeModifier
         try
         {
             name = parser.parse(value.toLowerCase());
+            if (name.size() == 0)
+            {
+                return "";
+            }
             String rdn = name.get(name.size() - 1);
             String[] parts = rdn.split("\\+");
             List<String> list = new ArrayList<String>();
