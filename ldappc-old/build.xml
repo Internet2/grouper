@@ -406,7 +406,7 @@
 	-->
 	
 	<target name="createJar" depends="compile" description="Compile project and create a jar">
-        <property name="ldappcJarName" value="${app}-${impl.version}-${DSTAMP}-${TSTAMP}.jar"/>
+        <property name="ldappcJarName" value="${app}-${impl.version}-SNAPSHOT.jar"/>
         <jar basedir="${buildapp.classes}" destfile="${buildapp.lib}/${ldappcJarName}">
             <manifest>
                 <attribute name="Built-By"                value="${Tom Barton, et.al.}"/>
@@ -618,6 +618,7 @@
 
             <fileset dir="${grouper.conf}">
                 <include name="ehcache.xml"/>
+                <include name="grouper.ehcache.xml"/>
                 <include name="grouper.hibernate.properties"/>
                 <include name="grouper.properties"/>
             </fileset>
