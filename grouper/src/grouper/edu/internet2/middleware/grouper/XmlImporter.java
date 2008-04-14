@@ -51,7 +51,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.104 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: XmlImporter.java,v 1.105 2008-04-14 08:13:19 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -852,7 +852,11 @@ public class XmlImporter {
         continue;
       }
       orig                          = g.getAttribute(name); 
-      val                           = ( (Text) elAttr.getFirstChild() ).getData();
+      try {
+    	  val                           = ( (Text) elAttr.getFirstChild() ).getData();
+      }catch(NullPointerException npe) {
+    	  val=null;
+      }
       NotNullOrEmptyValidator vOrig = NotNullOrEmptyValidator.validate(orig);
       NotNullOrEmptyValidator vVal  = NotNullOrEmptyValidator.validate(val);
       if ( vVal.isValid() && !val.equals(orig) && ( vOrig.isInvalid() || this._isUpdatingAttributes() ) ) {
