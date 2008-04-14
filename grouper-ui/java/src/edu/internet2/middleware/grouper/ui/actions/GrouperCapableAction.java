@@ -176,7 +176,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.15 2008-04-14 08:54:30 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.16 2008-04-14 14:42:55 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -411,7 +411,12 @@ public abstract class GrouperCapableAction
 		Map reqMap = request.getParameterMap();
 		if(reqMap==null) {
 			if(request instanceof MultipartRequestWrapper) {
-				reqMap = ((MultipartRequestWrapper)request).getRequest().getParameterMap();
+				reqMap = new HashMap();
+
+				for (Enumeration<String> e = request.getParameterNames() ; e.hasMoreElements() ;) {
+			         String name = e.nextElement();
+			         reqMap.put(name, request.getParameter(name));
+			     }
 			}else{
 				reqMap = new HashMap();
 			}
