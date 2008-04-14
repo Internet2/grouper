@@ -25,7 +25,7 @@
         <tstamp/>
         <property name="impl.url" value="http://middleware.internet2.edu/to-be-determined/ldappc/"/>
         <property name="impl.vendor"            value="Internet2"/>
-        <property name="impl.version"           value="1.1"/>
+        <property name="impl.version"           value="1.1.0"/>
         <echo message="Ldappc Build File Version: ${impl.version} on ${DSTAMP} at ${TSTAMP}" />
 
     </target>
