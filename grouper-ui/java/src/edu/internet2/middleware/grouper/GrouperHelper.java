@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.47 2008-04-14 09:15:34 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.48 2008-04-14 16:05:27 isgwb Exp $
  */
 
 
@@ -2136,7 +2136,7 @@ public class GrouperHelper {
 	 */
 
 	public static List getChain(GrouperSession s,Membership m)throws GroupNotFoundException,MembershipNotFoundException,
-	MemberNotFoundException,SchemaException{
+	MemberNotFoundException,SchemaException,SubjectNotFoundException{
 		List chain = new ArrayList();
 		Group via = null;
 		Composite comp=null;
@@ -2197,7 +2197,7 @@ public class GrouperHelper {
 	 */
 
 	public static Map getCompositeMap(GrouperSession grouperSession,Composite comp)
-		throws GroupNotFoundException,MemberNotFoundException,SchemaException{
+		throws GroupNotFoundException,MemberNotFoundException,SchemaException,SubjectNotFoundException{
 		return getCompositeMap(grouperSession,comp,null);
 	
 	}
@@ -2216,7 +2216,7 @@ public class GrouperHelper {
 	 */
 
 	public static Map getCompositeMap(GrouperSession grouperSession,Composite comp,Subject subj)
-		throws GroupNotFoundException,MemberNotFoundException,SchemaException{
+		throws GroupNotFoundException,MemberNotFoundException,SchemaException,SubjectNotFoundException{
 		Map compMap = new ObjectAsMap(comp,"Composite");
 		compMap.put("leftGroup",new GroupAsMap(comp.getLeftGroup(),grouperSession));
 		Map membershipMap=null;
@@ -2241,17 +2241,26 @@ public class GrouperHelper {
 		return compMap;
 	}
 	
-	private static Map getMembershipAndCount(GrouperSession s,Group group,Subject subject) throws MemberNotFoundException,SchemaException {
+	private static Map getMembershipAndCount(GrouperSession s,Group group,Subject subject) throws MemberNotFoundException,SchemaException,SubjectNotFoundException {
 		Set memberships = null;
 		//memberships = MembershipFinder.findMembershipsNoPrivsNoSession(group,MemberFinder.findBySubject(s,subject),FieldFinder.find("members"));
 		memberships=group.getMemberships(FieldFinder.find("members"));
 		
 		if(memberships.size()==0) return null;
 		Iterator it = memberships.iterator();
-		Membership m = (Membership)it.next();
-		m.setSession(s);
-		Map mMap = ObjectAsMap.getInstance("MembershipAsMap",m);
-		mMap.put("noWays",new Integer(memberships.size()));
+		Membership m = null;
+		Membership selectedM = null;
+		int count=0;
+		while(it.hasNext()) {
+			m=(Membership)it.next();
+			if(SubjectHelper.eq(m.getMember().getSubject(),subject)) {
+				selectedM=m;
+				count++;
+			}
+		}
+		if(selectedM==null) return null;
+		Map mMap = ObjectAsMap.getInstance("MembershipAsMap",selectedM);
+		mMap.put("noWays",new Integer(count));
 		return mMap;
 	}
 	
