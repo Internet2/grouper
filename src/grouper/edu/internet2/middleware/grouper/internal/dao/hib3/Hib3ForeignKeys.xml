@@ -191,4 +191,21 @@
     </foreign-key>
   </table>
 
+  <table name="Subject">
+    <column name="subjectId"/>
+    <column name="subjectTypeId"/>
+    <column name="name"/>
+  </table>
+
+  <table name="SubjectAttribute">
+    <column name="subjectId"/>
+    <column name="name"/>
+    <column name="value"/>
+    <column name="searchValue"/>
+    
+    <foreign-key name="fk_subjectattr_subjectid" foreignTable="Subject">
+      <reference local="subjectId" foreign="subjectId"/>
+    </foreign-key>
+  </table>
+
 </database>
