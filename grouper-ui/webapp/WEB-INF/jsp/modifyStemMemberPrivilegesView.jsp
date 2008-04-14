@@ -3,7 +3,7 @@
 		  privileges for the active stem to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyStemMemberPrivilegesView.jsp,v 1.5 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: modifyStemMemberPrivilegesView.jsp,v 1.6 2008-04-14 16:09:36 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -14,8 +14,10 @@
 	<html:hidden property="contextSubjectId"/>
 	<html:hidden property="contextSubject"/>
 	<html:hidden property="contextSubjectType"/>
+	<html:hidden property="contextSourceId"/>
 	<html:hidden property="subjectId"/>
 	<html:hidden property="subjectType"/>
+	<html:hidden property="sourceId"/>
 	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	
 	<c:if test="${authUserPriv.STEM}">

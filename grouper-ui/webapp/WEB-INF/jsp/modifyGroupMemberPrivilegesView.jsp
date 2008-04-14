@@ -3,7 +3,7 @@
 		  membership / privileges for the active group to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.11 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.12 2008-04-14 16:09:47 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -14,9 +14,11 @@
 	<html:hidden property="contextSubjectId"/>
 	<html:hidden property="contextSubject"/>
 	<html:hidden property="contextSubjectType"/>
+	<html:hidden property="contextSourceId"/>
 	<html:hidden property="listField"/>
 	<html:hidden property="subjectId"/>
 	<html:hidden property="subjectType"/>
+	<html:hidden property="sourceId"/>
 	<html:hidden property="privilege"/>
 	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	
