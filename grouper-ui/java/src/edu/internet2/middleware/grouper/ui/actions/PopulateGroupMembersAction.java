@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -42,13 +44,17 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 
 /**
@@ -264,10 +270,10 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.21 2008-01-09 13:26:18 isgwb Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.22 2008-04-14 16:06:50 isgwb Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateGroupMembersAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_GroupMembers = "GroupMembers";
@@ -283,7 +289,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		if(!isEmpty(request.getParameter("submit.addMembers"))) return mapping.findForward(FORWARD_AddGroupMembers);
 		if(!isEmpty(request.getParameter("submit.import"))) {
 			return mapping.findForward(FORWARD_ImportMembers);
@@ -308,6 +314,12 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			groupId = (String) session.getAttribute("findForNode");
 		if (groupId == null)
 			groupId = request.getParameter("asMemberOf");
+		
+		if(isEmpty(groupId)) {
+			String msg = neh.missingAlternativeParameters(groupId,"groupId",groupId,"asMemberOf",groupId,"findForNode");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.group-members.missing-grouporstem-id");
+		}
 		Group group = null;
 		String listField = request.getParameter("listField");
 		String membershipField = "members";
@@ -322,7 +334,16 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		}
 		
 		if(!isEmpty(listField)) membershipField=listField;
-		Field mField = FieldFinder.find(membershipField);
+		Field mField = null;
+		
+		
+		try {
+			mField=FieldFinder.find(membershipField);
+		}catch(SchemaException e) {
+			LOG.error("Error retrieving " + membershipField,e);
+			throw new UnrecoverableErrorException("error.group-members.bad-field",e,membershipField);
+		}
+		
 		//Determine whether to show immediate, effective only, or all memberships
 		String membershipListScope = (String) groupForm
 				.get("membershipListScope");
@@ -337,7 +358,12 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 	
 		//Retrieve the membership according to scope selected by user
-		group = GroupFinder.findByUuid(grouperSession, groupId);
+		try{
+			group=GroupFinder.findByUuid(grouperSession,groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error("Error retirving group with id=" + groupId,e);
+			throw new UnrecoverableErrorException("error.group-members.bad-id",groupId);
+		}
 		
 		UIGroupPrivilegeResolver resolver = 
 			UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 

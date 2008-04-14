@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -34,11 +36,14 @@ import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 /**
  * Top level Strut's action which retrieves and makes available a GrouperGroup 
@@ -207,10 +212,10 @@ import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.11 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.12 2008-04-14 16:06:50 isgwb Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateGroupSummaryAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_GroupSummary = "GroupSummary";
@@ -222,7 +227,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		NavExceptionHelper neh=getExceptionHelper(session);
 		if("true".equals(request.getParameter("changeMode"))) PopulateAllGroupsAction.initMode(session);
 		session.setAttribute("subtitle", "groups.action.show-summary");
 		
@@ -232,10 +237,20 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		String groupId = (String) groupForm.get("groupId");
 		if (groupId == null || "".equals(groupId))
 			groupId = (String) request.getAttribute("groupId");
-
-		Group group = GroupFinder.findByUuid(grouperSession,
-				groupId);
 		
+		if(isEmpty(groupId)) {
+			String msg = neh.missingParameters(groupId,"groupId");
+			LOG.error(msg);
+			throw new UnrecoverableErrorException("error.group-summary.missing-id");
+		}
+		Group group = null;
+		try{
+			group=GroupFinder.findByUuid(grouperSession,
+				groupId);
+		}catch(GroupNotFoundException e) {
+			LOG.error("Error retirving group with id=" + groupId,e);
+			throw new UnrecoverableErrorException("error.group-summary.bad-id",groupId);
+		}
 		Map groupMap = GrouperHelper.group2Map(grouperSession, group);
 		groupMap.put("groupId", groupId);
 		groupMap.put("groupName", group.getName().substring(
