@@ -203,14 +203,29 @@ public class GroupProcessorTest extends TestCase
         Subject testSubject = null;
         String subjectTestString = null;
         subjectTestString = "babl";
-        Set testSubjects = SubjectFinder.findAll(subjectTestString);
-
-        Iterator it = testSubjects.iterator();
-        while (it.hasNext())
-        {            
-           testSubject = (Subject)it.next();
-           // Just use the first subject with "babl" as part of the name.
-           break;
+//        Set testSubjects = SubjectFinder.findAll(subjectTestString);
+//
+//        Iterator it = testSubjects.iterator();
+//        while (it.hasNext())
+//        {            
+//           testSubject = (Subject)it.next();
+//           // Just use the first subject with "babl" as part of the name.
+//           break;
+//        }
+        // We know there's only one subject matching "babl". Let's just find by Id.
+        try
+        {
+            testSubject = SubjectFinder.findById(subjectTestString);
+        }
+        catch (SubjectNotFoundException e)
+        {
+            fail("Could not find subject: " + subjectTestString);
+            System.out.println("Could not find subject: " + subjectTestString);
+        }
+        catch (SubjectNotUniqueException e)
+        {
+            fail("Subject not unique: " + subjectTestString);
+            System.out.println("Subject not unique: " + subjectTestString);
         }
         
         if (testSubject == null)
