@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -171,7 +172,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateStemPriviligeesAction.java,v 1.7 2008-04-15 13:43:21 isgwb Exp $
+ * @version $Id: PopulateStemPriviligeesAction.java,v 1.8 2008-04-15 13:56:37 isgwb Exp $
  */
 
 public class PopulateStemPriviligeesAction extends GrouperCapableAction {
@@ -194,7 +195,11 @@ public class PopulateStemPriviligeesAction extends GrouperCapableAction {
 		session.setAttribute("title", "stems.manage");
 		session.setAttribute("subtitle",
 				"stems.action.show-members");
-		request.setAttribute("subtitleArgs", new Object[] { privilege });
+		String displayPrivilege=privilege;
+		try {
+			displayPrivilege=getNavResources(request).getString("priv." + privilege);
+		}catch(MissingResourceException mre){}
+		request.setAttribute("subtitleArgs", new Object[] { displayPrivilege });
 		
 		
 		//Determine stem for which we are retrieving privilegees
