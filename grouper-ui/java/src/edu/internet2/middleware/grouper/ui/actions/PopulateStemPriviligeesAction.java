@@ -171,7 +171,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateStemPriviligeesAction.java,v 1.6 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: PopulateStemPriviligeesAction.java,v 1.7 2008-04-15 13:43:21 isgwb Exp $
  */
 
 public class PopulateStemPriviligeesAction extends GrouperCapableAction {
@@ -262,7 +262,7 @@ public class PopulateStemPriviligeesAction extends GrouperCapableAction {
 		request.setAttribute("browseParent",stemMap );
 		request.setAttribute("stem",stemMap );
 		request.setAttribute("allStemPrivs", GrouperHelper
-				.getStemPrivs(grouperSession));
+				.getStemPrivsWithLabels(getNavResources(request)));
 		
 
 		session.setAttribute("subtitle",

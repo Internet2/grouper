@@ -214,7 +214,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.13 2008-04-07 07:54:15 mchyzer Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.14 2008-04-15 13:43:21 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -427,7 +427,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 
 
 		request.setAttribute("allStemPrivs", GrouperHelper
-				.getStemPrivs(grouperSession));
+				.getStemPrivsWithLabels(getNavResources(request)));
 		request.setAttribute("currentLocation", curGroupOrStemMap);
 		request.setAttribute("repositoryBrowser",repositoryBrowser);
 		return null;

@@ -17,9 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -36,7 +35,6 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
-import edu.internet2.middleware.grouper.ui.util.FieldAsMap;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -57,7 +55,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.48 2008-04-14 16:05:27 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.49 2008-04-15 13:43:21 isgwb Exp $
  */
 
 
@@ -111,7 +109,9 @@ public class GrouperHelper {
 	
 	//Privs which relate to Stems - naming privileges
 	//CH 20080324 change for UI from:  "STEM", "CREATE" 
-	private static String[] stemPrivs = {"Create Group", "Create Folder"};
+	//private static String[] stemPrivs = {"Create Group", "Create Folder"};
+	//GB 20080415 changed back, but UI looks up display name now for select options 
+	private static String[] stemPrivs = {"CREATE", "STEM"};
 	public static void main(String args[]) throws Exception{
 		Subject subj = SubjectFinder.findById("GrouperSystem");
 		GrouperSession s = GrouperSession.start(subj);
@@ -1061,12 +1061,34 @@ public class GrouperHelper {
 	}
 
 	/**
-	 * Return an array of al naming privileges
+	 * Return an array of all naming privileges
 	 * @param s GrouperSession for authenticated user
 	 * @return array of privilege names
 	 */
 	public static String[] getStemPrivs(GrouperSession s) {
 		return stemPrivs;
+	}
+	
+	/**
+	 * Return a Collection of all naming privileges
+	 * @param bundle ResourceBundle to lookup display name
+	 * @return Collection of Maps of privilege names and display names
+	 */
+	public static Collection getStemPrivsWithLabels(ResourceBundle bundle) {
+		List<Map<String,String>> privs = new ArrayList<Map<String,String>>();
+		
+		String displayName=null;
+		for(int i=0;i<stemPrivs.length;i++){
+			Map priv = new HashMap();
+			displayName=stemPrivs[i];
+			try {
+				displayName=bundle.getString("priv." + stemPrivs[i]);
+			}catch(MissingResourceException mre){}
+			priv.put("value", stemPrivs[i]);
+			priv.put("label", displayName);
+			privs.add(priv);
+		}
+		return privs;
 	}
 
 	

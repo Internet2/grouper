@@ -4,7 +4,7 @@
 			active stem
 --%><%--
   @author Gary Brown.
-  @version $Id: StemMember.jsp,v 1.3 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: StemMember.jsp,v 1.4 2008-04-15 13:43:21 isgwb Exp $
 --%> 
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
@@ -18,7 +18,7 @@
 </h2>
 <c:set var="subject" value="${subject}" scope="request"/>
 
-<c:if test="${authUserPriv.CREATE}">
+<c:if test="${authUserPriv.CREATE || authUserPriv.STEM}">
 	<tiles:insert definition="stemMemberPrivsDef"/>
 </c:if>
 <div class="linkButton">
