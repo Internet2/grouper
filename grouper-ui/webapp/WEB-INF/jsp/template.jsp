@@ -7,7 +7,7 @@
 		  the generated XHTML.
 --%><%--
   @author Gary Brown.
-  @version $Id: template.jsp,v 1.6 2006-01-24 14:17:12 isgwb Exp $
+  @version $Id: template.jsp,v 1.7 2008-04-15 13:44:19 isgwb Exp $
 --%><?xml version="1.0" encoding="iso-8859-1"?>
 
 <!DOCTYPE html 
@@ -23,7 +23,9 @@
 <%@page import="java.io.PrintWriter"%>
 <%
 StringBuffer pageUrl = (StringBuffer) request.getAttribute("_pageUrl");
-String pageUrlMinusQuery = pageUrl.toString();
+if(pageUrl==null) pageUrl=new StringBuffer();
+String pageUrlMinusQuery = "";
+pageUrl.toString();
 
 request.setAttribute("pageUrlMinusQueryString", pageUrlMinusQuery); 
 char delim = '?';
