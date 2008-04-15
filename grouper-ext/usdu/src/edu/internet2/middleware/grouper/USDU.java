@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -13,8 +14,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -25,14 +24,29 @@ import edu.internet2.middleware.subject.SubjectType;
 /**
  * The Unresolvable Subject Deletion Utility finds and optionally deletes
  * members whose subjects can not be resolved by their source.
+ * 
+ * Documentation is available via the 'Unresolvable Subject Deletion Utility' on
+ * the Grouper Product wiki
+ * https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Product
  */
 
 public class USDU {
 
-  private static final Log LOG = LogFactory.getLog(USDU.class);
-
   // store the identifier for the GrouperSourceAdapter, probably "g:gsa"
   private static String grouperSourceAdapterId = null;
+
+  // map list names to corresponding privileges, a better way probably exists
+  private static Map<String, Privilege> list2priv = new HashMap<String, Privilege>();
+  static {
+    list2priv.put("admins", AccessPrivilege.ADMIN);
+    list2priv.put("optins", AccessPrivilege.OPTIN);
+    list2priv.put("optouts", AccessPrivilege.OPTOUT);
+    list2priv.put("readers", AccessPrivilege.READ);
+    list2priv.put("updaters", AccessPrivilege.UPDATE);
+    list2priv.put("viewers", AccessPrivilege.VIEW);
+    list2priv.put("creators", NamingPrivilege.CREATE);
+    list2priv.put("stemmers", NamingPrivilege.STEM);
+  }
 
   /**
    * Run {@link USDU}.
@@ -50,12 +64,12 @@ public class USDU {
 
     Options options = new Options();
     OptionGroup optionGroup = new OptionGroup();
-    optionGroup.addOption(new Option("all", false, "find members with unresolvable subjects from all sources"));
-    optionGroup.addOption(new Option("source", true, "find members with unresolvable subjects from source"));
-    optionGroup.addOption(new Option("uuid", true, "find member with unresolvable subject and member uuid"));
+    optionGroup.addOption(new Option("all", false, "find unresolvable subjects from all sources"));
+    optionGroup.addOption(new Option("source", true, "find unresolvable subjects from source"));
+    optionGroup.addOption(new Option("uuid", true, "find unresolvable subject with member uuid"));
     optionGroup.setRequired(true);
     options.addOptionGroup(optionGroup);
-    options.addOption("delete", false, "delete members with unresolvable subjects");
+    options.addOption("delete", false, "delete memberships and privileges");
 
     if (args.length == 0) {
       printUsage(options);
@@ -101,23 +115,39 @@ public class USDU {
     formatter.printHelp(USDU.class.getSimpleName(), options, true);
 
     System.out.println();
-    System.out.println("Members with unresolvable subjects will be printed with the following format: ");
-    System.out.println("'member uuid' 'subject id'/'subject type id'/'subject source id' 'group name' [delete]");
+    System.out.println("Unresolvable subjects are printed to stdout.");
+    System.out.println();
+    System.out.println("If an unresolvable subject is not a member of any groups:");
+    System.out.println(" member_uuid='<uuid>' subject='<id>' no_memberships");
+    System.out.println();
+    System.out.println("For every group or stem and list that an unresolvable subject is a member of:");
+    System.out.println(" member_uuid='<uuid>' subject='<id>' group|stem='<name>' list='<name>' [delete]");
+    System.out.println();
   }
 
   /**
-   * Find and optionally delete unresolvable member with supplied member uuid.
+   * Find and optionally delete memberships and privileges for the unresolvable
+   * subject with given member uuid.
    * 
    * @param s
+   *            the Grouper session
    * @param uuid
+   *            the uuid of the member
    * @param delete
+   *            if true will delete memberships and privileges
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
+   * @throws GroupNotFoundException
    * @throws MemberDeleteException
+   * @throws MemberNotFoundException
+   * @throws RevokePrivilegeException
+   * @throws SchemaException
    * @throws SourceUnavailableException
+   * @throws StemNotFoundException
    */
   public static void resolveMember(GrouperSession s, String uuid, boolean delete) throws IllegalArgumentException,
-      InsufficientPrivilegeException, MemberDeleteException, SourceUnavailableException {
+      InsufficientPrivilegeException, GroupNotFoundException, MemberDeleteException, MemberNotFoundException,
+      RevokePrivilegeException, SchemaException, SourceUnavailableException, StemNotFoundException {
 
     Member member;
     try {
@@ -132,80 +162,209 @@ public class USDU {
       return;
     }
 
-    if (member.getImmediateGroups().isEmpty()) {
-      System.out.println("member " + member + " is not resolvable, but is not a member of any groups");
-      return;
-    }
-
     Set<Member> members = new HashSet<Member>();
     members.add(member);
     resolveMembers(members, delete);
   }
 
   /**
-   * Find and optionally delete unresolvable members from all sources.
+   * Find and optionally delete memberships and privileges for unresolvable
+   * subjects from all sources.
    * 
    * @param s
+   *            the Grouper session
    * @param delete
+   *            if true will delete memberships and privileges
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
+   * @throws GroupNotFoundException
    * @throws MemberDeleteException
+   * @throws MemberNotFoundException
+   * @throws RevokePrivilegeException
+   * @throws SchemaException
    * @throws SourceUnavailableException
+   * @throws StemNotFoundException
    */
   public static void resolveMembers(GrouperSession s, boolean delete) throws IllegalArgumentException,
-      InsufficientPrivilegeException, MemberDeleteException, SourceUnavailableException {
+      InsufficientPrivilegeException, GroupNotFoundException, MemberDeleteException, MemberNotFoundException,
+      RevokePrivilegeException, SchemaException, SourceUnavailableException, StemNotFoundException {
 
     resolveMembers(s, null, delete);
   }
 
   /**
-   * Find and optionally delete unresolvable members from given source.
+   * Find and optionally delete memberships and privileges for unresolvable
+   * subjects from the specified source.
    * 
    * @param s
-   * @param source
+   *            the Grouper session
    * @param delete
+   *            if true will delete memberships and privileges
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
+   * @throws GroupNotFoundException
    * @throws MemberDeleteException
+   * @throws MemberNotFoundException
+   * @throws RevokePrivilegeException
+   * @throws SchemaException
    * @throws SourceUnavailableException
+   * @throws StemNotFoundException
    */
   public static void resolveMembers(GrouperSession s, Source source, boolean delete) throws IllegalArgumentException,
-      InsufficientPrivilegeException, MemberDeleteException, SourceUnavailableException {
+      InsufficientPrivilegeException, GroupNotFoundException, MemberDeleteException, MemberNotFoundException,
+      RevokePrivilegeException, SchemaException, SourceUnavailableException, StemNotFoundException {
 
     resolveMembers(getUnresolvableMembers(s, source), delete);
   }
 
-  private static void resolveMembers(Set<Member> unresolvables, boolean delete) throws IllegalArgumentException,
-      InsufficientPrivilegeException, MemberDeleteException, SourceUnavailableException {
+  /**
+   * Print to stdout and optionally delete memberships and privileges for the
+   * given unresolvable subjects.
+   * 
+   * @param unresolvables
+   *            a set of unresolvable members
+   * @param delete
+   *            if true will delete memberships and privileges
+   * @throws IllegalArgumentException
+   * @throws InsufficientPrivilegeException
+   * @throws GroupNotFoundException
+   * @throws MemberDeleteException
+   * @throws MemberNotFoundException
+   * @throws RevokePrivilegeException
+   * @throws SchemaException
+   * @throws SourceUnavailableException
+   * @throws StemNotFoundException
+   */
+  protected static void resolveMembers(Set<Member> unresolvables, boolean delete) throws IllegalArgumentException,
+      InsufficientPrivilegeException, GroupNotFoundException, MemberDeleteException, MemberNotFoundException,
+      RevokePrivilegeException, SchemaException, SourceUnavailableException, StemNotFoundException {
+
+    Set<Field> fields = getMemberFields();
 
     for (Member member : unresolvables) {
-      for (Object g : member.getImmediateGroups()) {
-        Group group = (Group) g;
-        System.out.print(member.getUuid() + " " + member + " '" + ((Group) group).getName() + "'");
-        if (delete) {
-          System.out.print(" delete");
-          deleteUnresolvableMember(member, group);
+      Set<Membership> memberships = getAllImmediateMemberships(member, fields);
+      if (memberships.isEmpty()) {
+        System.out.println("member_uuid='" + member.getUuid() + "' subject=" + member + " no_memberships");
+      } else {
+        for (Membership membership : memberships) {
+
+          System.out.print("member_uuid='" + member.getUuid() + "' subject=" + member);
+          if (membership.getList().getType().equals(FieldType.LIST)
+              || membership.getList().getType().equals(FieldType.ACCESS)) {
+            System.out.print(" group='" + membership.getGroup().getName());
+          }
+          if (membership.getList().getType().equals(FieldType.NAMING)) {
+            System.out.print(" stem='" + membership.getStem().getName());
+          }
+          System.out.print(" list='" + membership.getList().getName() + "'");
+
+          if (delete) {
+            System.out.print(" delete");
+            if (membership.getList().getType().equals(FieldType.LIST)) {
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getGroup(), membership.getList());
+            }
+            if (membership.getList().getType().equals(FieldType.ACCESS)) {
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getGroup(), getPrivilege(membership
+                  .getList()));
+            }
+            if (membership.getList().getType().equals(FieldType.NAMING)) {
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getStem(), getPrivilege(membership
+                  .getList()));
+            }
+          }
+          System.out.println();
         }
-        System.out.println();
       }
     }
   }
 
   /**
-   * Delete unresolvable member from group.
+   * Get memberships for a member for the given fields.
+   * 
+   * @param member
+   * @param fields
+   *            a set of 'list' fields
+   * @return a set of memberships
+   * @throws SchemaException
+   */
+  protected static Set<Membership> getAllImmediateMemberships(Member member, Set<Field> fields) throws SchemaException {
+
+    Set<Membership> memberships = new LinkedHashSet<Membership>();
+    for (Field field : fields) {
+      for (Object m : member.getImmediateMemberships(field)) {
+        memberships.add((Membership) m);
+      }
+    }
+    return memberships;
+  }
+
+  /**
+   * Delete unresolvable member from group and field.
    * 
    * @param member
    * @param group
+   * @param field
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws MemberDeleteException
    * @throws SourceUnavailableException
+   * @throws SchemaException
    */
-  public static void deleteUnresolvableMember(Member member, Group group) throws IllegalArgumentException,
-      InsufficientPrivilegeException, MemberDeleteException, SourceUnavailableException {
+  public static void deleteUnresolvableMember(Member member, Group group, Field field) throws IllegalArgumentException,
+      InsufficientPrivilegeException, MemberDeleteException, SourceUnavailableException, SchemaException {
 
-    LOG.info("deleting unresolvable member '" + member + "' from group '" + group.getName() + "'");
-    group.deleteMember(new USDUSubject(member.getSubjectId(), member.getSubjectSourceId(), member.getSubjectType()));
+    group.deleteMember(getUSDUSubject(member), field);
+  }
+
+  /**
+   * Revoke unresolvable member's privilege from group.
+   * 
+   * @param member
+   * @param group
+   * @param privilege
+   * @throws IllegalArgumentException
+   * @throws InsufficientPrivilegeException
+   * @throws RevokePrivilegeException
+   * @throws SchemaException
+   * @throws SourceUnavailableException
+   */
+  public static void deleteUnresolvableMember(Member member, Group group, Privilege privilege)
+      throws IllegalArgumentException, InsufficientPrivilegeException, RevokePrivilegeException, SchemaException,
+      SourceUnavailableException {
+
+    group.revokePriv(getUSDUSubject(member), privilege);
+  }
+
+  /**
+   * Revoke unresolvable member's privilege from stem.
+   * 
+   * @param member
+   * @param stem
+   * @param privilege
+   * @throws IllegalArgumentException
+   * @throws InsufficientPrivilegeException
+   * @throws RevokePrivilegeException
+   * @throws SchemaException
+   * @throws SourceUnavailableException
+   */
+  public static void deleteUnresolvableMember(Member member, Stem stem, Privilege privilege)
+      throws IllegalArgumentException, InsufficientPrivilegeException, RevokePrivilegeException, SchemaException,
+      SourceUnavailableException {
+
+    stem.revokePriv(getUSDUSubject(member), privilege);
+  }
+
+  /**
+   * Return a subject suitable for deleting membership and privileges.
+   * 
+   * @param member
+   * @return a contrived subject
+   * @throws IllegalArgumentException
+   * @throws SourceUnavailableException
+   */
+  protected static Subject getUSDUSubject(Member member) throws IllegalArgumentException, SourceUnavailableException {
+
+    return new USDUSubject(member.getSubjectId(), member.getSubjectSourceId(), member.getSubjectType());
   }
 
   /**
@@ -216,7 +375,7 @@ public class USDU {
    * @return
    *  the GrouperSourceAdapter identifier
    */
-  public static String getGrouperSourceAdapterId() {
+  protected static String getGrouperSourceAdapterId() {
 
     if (grouperSourceAdapterId == null) {
 
@@ -235,12 +394,46 @@ public class USDU {
   }
 
   /**
+   * Get fields of which a subject might be a member. Includes all fields of
+   * type FieldType.LIST, FieldType.ACCESS, and FieldType.NAMING.
+   * 
+   * @return set of fields
+   * @throws SchemaException
+   */
+  protected static Set<Field> getMemberFields() throws SchemaException {
+
+    Set<Field> listFields = new LinkedHashSet<Field>();
+    for (Object field : FieldFinder.findAllByType(FieldType.LIST)) {
+      listFields.add((Field) field);
+    }
+    for (Object field : FieldFinder.findAllByType(FieldType.ACCESS)) {
+      listFields.add((Field) field);
+    }
+    for (Object field : FieldFinder.findAllByType(FieldType.NAMING)) {
+      listFields.add((Field) field);
+    }
+    return listFields;
+  }
+
+  /**
+   * Map fields to privileges.
+   * 
+   * @param field
+   * @return the privilege matching the given field or null
+   */
+  protected static Privilege getPrivilege(Field field) {
+
+    return list2priv.get(field.getName());
+  }
+
+  /**
    * Find members whose subjects can not be found by their source.
    * 
    * @param s
    *            GrouperSession
    * @param source
-   * @return
+   *            if null will find members from all sources
+   * @return unresolvable members
    */
   public static Set<Member> getUnresolvableMembers(GrouperSession s, Source source) {
 
@@ -248,7 +441,7 @@ public class USDU {
 
     for (Object m : MemberFinder.findAll(s, source)) {
       Member member = (Member) m;
-      if (!isMemberResolvable(s, member) && !member.getImmediateMemberships().isEmpty()) {
+      if (!isMemberResolvable(s, member)) {
         members.add(member);
       }
     }
@@ -257,8 +450,9 @@ public class USDU {
   }
 
   /**
-   * Check if this member's subject be found in a source.
+   * Check if this member's subject can be found in a source.
    * 
+   * @param s
    * @param member
    * @return Boolean true if member's subject is found in source
    */
