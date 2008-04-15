@@ -111,7 +111,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: BrowseStemsAction.java,v 1.10 2008-04-15 07:42:50 isgwb Exp $
+ * @version $Id: BrowseStemsAction.java,v 1.11 2008-04-15 08:28:23 isgwb Exp $
  */
 public class BrowseStemsAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(BrowseStemsAction.class);
@@ -163,7 +163,8 @@ public class BrowseStemsAction extends GrouperCapableAction {
 		//indicates the appropriate view
 		String param = mapping.getParameter();
 		String mode = param.replaceAll("Groups", "").replaceAll("My", "");
-		setBrowseMode(mode, session);
+		if(mode.equals("") || mode.equals("All") || mode.equals("Create")
+				|| mode.equals("Manage")|| mode.equals("Join"))	setBrowseMode(mode, session);
 		
 		//Check if browsing to find members
 		if ("FindNewMembers".equals(param)) {
