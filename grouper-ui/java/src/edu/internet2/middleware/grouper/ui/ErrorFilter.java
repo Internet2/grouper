@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  *  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ErrorFilter.java,v 1.1 2008-04-09 14:14:38 isgwb Exp $
+ * @version $Id: ErrorFilter.java,v 1.2 2008-04-15 14:12:34 isgwb Exp $
  */
 
 public class ErrorFilter implements Filter {
@@ -158,7 +158,7 @@ public class ErrorFilter implements Filter {
 		}
 	}
 	
-	protected static void initNDC(HttpServletRequest request) {
+	public static void initNDC(HttpServletRequest request) {
 		HttpSession session=request.getSession();
 		String requestCount = session.getAttribute("requestCount").toString();
 		String pad="0000";

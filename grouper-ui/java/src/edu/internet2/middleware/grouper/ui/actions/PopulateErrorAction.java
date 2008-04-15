@@ -17,15 +17,23 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.MissingResourceException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
+import edu.internet2.middleware.grouper.ui.ErrorFilter;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.SessionInitialiser;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
+import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 /**
  * Top level Strut's action called on any Exception - can arise normally - or 
@@ -34,14 +42,15 @@ import edu.internet2.middleware.grouper.ui.Message;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateErrorAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateErrorAction.java,v 1.3 2008-04-15 14:12:34 isgwb Exp $
  */
 
 public class PopulateErrorAction extends org.apache.struts.action.Action {
-
+	protected static Log LOG = LogFactory.getLog(PopulateErrorAction.class);
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_Error = "error";
+	static final private String FORWARD_AuthError = "authError";
 
 
 
@@ -52,27 +61,38 @@ public class PopulateErrorAction extends org.apache.struts.action.Action {
 			HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 		
-		
+		String msg=null;
 		request.setAttribute("title","error.title");
-		
-		Message message = new Message("error.general",true);
-		request.setAttribute("message",message);
-		HttpSession session = request.getSession();
-		Exception e = (Exception) session.getAttribute("templateException");
-		if(e!=null) {
-			request.setAttribute("exception",e);
-			session.removeAttribute("templateException");
+		String code=request.getParameter("code");
+		if(org.apache.log4j.NDC.getDepth()==0) ErrorFilter.initNDC(request);
+		if(code!=null && !"".equals(code)) {
+			LOG.error("Caught '" + code + "' for " + request.getAttribute("javax.servlet.error.request_uri"));
+			try {
+				msg=LowLevelGrouperCapableAction.getNavResources(request).getString("error." + code);
+			}catch(MissingResourceException mre) {
+				msg=code;
+			}
 		}else{
-			e = (Exception) request.getAttribute("javax.servlet.error.exception");
-			request.setAttribute("exception",e);
+			HttpSession session = request.getSession();
+			Exception e = (Exception) session.getAttribute("templateException");
+			if(e!=null) {
+				request.setAttribute("exception",e);
+				session.removeAttribute("templateException");
+			}else{
+				e = (Exception) request.getAttribute("javax.servlet.error.exception");
+				request.setAttribute("exception",e);
+			}
+			LOG.error("Caught unhandled Exception: ",e);
+			NavExceptionHelper neh=LowLevelGrouperCapableAction.getExceptionHelper(session);
+			msg = neh.getMessage(new UnrecoverableErrorException(e));
 		}
-		if(e!=null) {
-			request.setAttribute("subtitle","error.subtitle");
-			request.setAttribute("subtitleArgs",new Object[]{e.getClass().getName() + ":" + e.getMessage()});
-		}else{
-			request.setAttribute("subtitle","empty.space");
+		request.setAttribute("seriousError",msg);
+		String user = SessionInitialiser.getAuthUser(request.getSession());
+		if(user==null){
+			return mapping.findForward(FORWARD_Error);
 		}
-		return mapping.findForward(FORWARD_Error);
+		return mapping.findForward(FORWARD_AuthError);
+
 		
 	}
 

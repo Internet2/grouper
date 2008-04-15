@@ -597,7 +597,8 @@
     <action path="/error" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateErrorAction"
             unknown="false" validate="false">                                            
-      <forward name="error" path="ErrorDef" redirect="false"/>
+       <forward name="error" path="ErrorNoAuthPageDef" redirect="false"/>
+      <forward name="authError" path="ErrorPageDef" redirect="false"/>
 	
     </action>
     
