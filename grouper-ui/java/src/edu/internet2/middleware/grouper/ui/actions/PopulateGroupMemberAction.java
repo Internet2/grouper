@@ -209,7 +209,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.9 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.10 2008-04-15 13:43:49 isgwb Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupMemberAction.class);
@@ -332,7 +332,7 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		
 		//Retrieve privileges current user, and selected subject have over
 		//current group/stem
-		Member member = MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId,subjectType));
+		Member member = MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId,subjectType,sourceId));
 		Map authUserPrivs = GrouperHelper.hasAsMap(grouperSession, groupOrStem,false);
 		Map privs = GrouperHelper.hasAsMap(grouperSession, groupOrStem, member,mField); 
 		Map extendedPrivs = GrouperHelper.getExtendedHas(grouperSession,groupOrStem,member,mField);
