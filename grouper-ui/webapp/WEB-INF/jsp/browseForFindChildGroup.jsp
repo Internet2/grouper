@@ -3,7 +3,7 @@
 		  to render child groups
 --%><%--
   @author Gary Brown.
-  @version $Id: browseForFindChildGroup.jsp,v 1.7 2008-04-13 08:52:12 isgwb Exp $
+  @version $Id: browseForFindChildGroup.jsp,v 1.8 2008-04-15 08:03:31 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -38,7 +38,7 @@
 					title="${linkTitle}">
 					
 						<fmt:message bundle="${nav}" key="groups.membership.view-group-attributes"/>
-		</html:link>	<grouper:message bundle="${nav}" key="groups.membership.for"/> [bffcg<c:out value="${viewObject[groupSearchResultField]}"/>]
+		</html:link>	<grouper:message bundle="${nav}" key="groups.membership.for"/> [<c:out value="${viewObject[groupSearchResultField]}"/>]
 
 
 		
