@@ -70,6 +70,7 @@ public class USDU {
     optionGroup.setRequired(true);
     options.addOptionGroup(optionGroup);
     options.addOption("delete", false, "delete memberships and privileges");
+    options.addOption("start", true, "start session as this subject, default GrouperSystem");
 
     if (args.length == 0) {
       printUsage(options);
@@ -87,7 +88,12 @@ public class USDU {
     }
 
     try {
-      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      GrouperSession s = null;
+      if (line.hasOption("start")) {
+        s = GrouperSession.start(SubjectFinder.findByIdentifier(line.getOptionValue("start")));
+      } else {
+        s = GrouperSession.start(SubjectFinder.findRootSubject());
+      }
 
       if (line.hasOption("uuid")) {
         resolveMember(s, line.getOptionValue("uuid"), line.hasOption("delete"));
@@ -101,7 +107,6 @@ public class USDU {
       }
 
     } catch (Exception e) {
-      e.printStackTrace();
       System.err.println(e.getMessage());
       System.exit(1);
     }
@@ -110,6 +115,8 @@ public class USDU {
   }
 
   private static void printUsage(Options options) {
+
+    System.out.println();
 
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(USDU.class.getSimpleName(), options, true);
@@ -130,11 +137,11 @@ public class USDU {
    * subject with given member uuid.
    * 
    * @param s
-   *            the Grouper session
+   *          the Grouper session
    * @param uuid
-   *            the uuid of the member
+   *          the uuid of the member
    * @param delete
-   *            if true will delete memberships and privileges
+   *          if true will delete memberships and privileges
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws GroupNotFoundException
@@ -172,9 +179,9 @@ public class USDU {
    * subjects from all sources.
    * 
    * @param s
-   *            the Grouper session
+   *          the Grouper session
    * @param delete
-   *            if true will delete memberships and privileges
+   *          if true will delete memberships and privileges
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws GroupNotFoundException
@@ -197,9 +204,9 @@ public class USDU {
    * subjects from the specified source.
    * 
    * @param s
-   *            the Grouper session
+   *          the Grouper session
    * @param delete
-   *            if true will delete memberships and privileges
+   *          if true will delete memberships and privileges
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws GroupNotFoundException
@@ -222,9 +229,9 @@ public class USDU {
    * given unresolvable subjects.
    * 
    * @param unresolvables
-   *            a set of unresolvable members
+   *          a set of unresolvable members
    * @param delete
-   *            if true will delete memberships and privileges
+   *          if true will delete memberships and privileges
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws GroupNotFoundException
@@ -283,7 +290,7 @@ public class USDU {
    * 
    * @param member
    * @param fields
-   *            a set of 'list' fields
+   *          a set of 'list' fields
    * @return a set of memberships
    * @throws SchemaException
    */
@@ -430,9 +437,9 @@ public class USDU {
    * Find members whose subjects can not be found by their source.
    * 
    * @param s
-   *            GrouperSession
+   *          GrouperSession
    * @param source
-   *            if null will find members from all sources
+   *          if null will find members from all sources
    * @return unresolvable members
    */
   public static Set<Member> getUnresolvableMembers(GrouperSession s, Source source) {
