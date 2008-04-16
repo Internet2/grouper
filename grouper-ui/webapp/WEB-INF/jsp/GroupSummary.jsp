@@ -3,7 +3,7 @@
 			the maintenance of the group
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupSummary.jsp,v 1.12 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: GroupSummary.jsp,v 1.13 2008-04-16 09:12:58 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -28,8 +28,11 @@
     		
     		<c:set target="${contextParams}" property="subjectId" value="${GroupFormBean.map.contextSubjectId}"/>
     		<c:set target="${contextParams}" property="subjectType" value="${GroupFormBean.map.contextSubjectType}"/>
+			<c:set target="${contextParams}" property="sourceId" value="${GroupFormBean.map.contextSourceId}"/>
     		<c:set target="${contextParams}" property="contextSubject" value="${GroupFormBean.map.contextSubject}"/>
+			<c:set target="${contextParams}" property="contextSubjectType" value="${GroupFormBean.map.contextSubjectType}"/>
     		<c:set target="${contextParams}" property="contextSourceId" value="${GroupFormBean.map.contextSourceId}"/>
+			
     		<c:set target="${contextParams}" property="groupId" value="${GroupFormBean.map.contextGroup}"/>
     		<div class="linkButton">
     		<c:out value="${saveButton}" escapeXml="false"/>

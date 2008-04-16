@@ -2,11 +2,12 @@
 			Displays a group when part of a chain
 --%><%--
   @author Gary Brown.
-  @version $Id: groupChainPathView.jsp,v 1.5 2008-04-07 07:54:15 mchyzer Exp $
+  @version $Id: groupChainPathView.jsp,v 1.6 2008-04-16 09:13:26 isgwb Exp $
 --%><%@page import="org.apache.struts.tiles.ComponentContext"%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 
 	<c:set target="${viewObject}" property="callerPageId" value="${thisPageId}"/>
+	<c:set target="${viewObject}" property="sourceId" value="g:gsa"/>
 
  <%--  Use params to make link title descriptive for accessibility --%>
  <span class="groupSummaryLink">		
