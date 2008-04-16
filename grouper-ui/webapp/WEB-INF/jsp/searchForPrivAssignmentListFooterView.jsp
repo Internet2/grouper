@@ -4,7 +4,7 @@
 		  when searching for subjects in 'Find' mode
 --%><%--
   @author Gary Brown.
-  @version $Id: searchForPrivAssignmentListFooterView.jsp,v 1.5 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: searchForPrivAssignmentListFooterView.jsp,v 1.6 2008-04-16 09:11:53 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -18,6 +18,9 @@
 	</div>
 </c:if>
 <div class="linkButton">
+<c:if test="${pager.count>0}">
+		<p><br/><input type="submit" class="blueButton" name="submit.group.member" value="<c:out value="${navMap['priv.assign']}"/>"/></p>
+	</c:if>
 <tiles:insert definition="callerPageButtonDef"/>
 <c:if test="${!forStems}">
 <html:link page="/cancelFindNewMembers.do" paramId="groupId" paramName="findForNode"  >
@@ -29,8 +32,6 @@
 </html:link></c:if>
 </div>
 
-<c:if test="${pager.count>0}">
-		<p><br/><input type="submit" class="blueButton" name="submit.group.member" value="<c:out value="${navMap['priv.assign']}"/>"/></p>
-	</c:if>
+
 	</form>
 	</div>
