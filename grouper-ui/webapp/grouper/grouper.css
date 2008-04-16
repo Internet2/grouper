@@ -431,7 +431,12 @@ div.selectedTab, div.selectedTab a {
 
 /** dont pad this from signet.  This is the blue bar across top with welcome message */
 #Navbar {
-  padding: 0px 0px 0px 0px;
+  padding-left:0px;
+  padding-right:0px;
+  padding-top:3px;
+  padding-bottom:3px;
+  line-height=15px;
+  vetical-align:middle;
 }
 /** dont space over from left */
 #Sidebar {
