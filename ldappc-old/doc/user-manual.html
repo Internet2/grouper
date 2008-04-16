@@ -271,7 +271,10 @@ element defines how the list of Groups to which a member belongs is
 maintained. This list is maintained on the member's associated directory
 entry. The <code>member-groups-list</code> element defines the attribute on
 the entry where the list is stored. It also defines the Group attribute whose
-value is used to identify the Group within the list.
+value is used to identify the Group within the list. The <code>member-groups-list</code>
+element has a <code>temporary-directory</code> attribute, which specifies a
+directory where intermediate files will be stored during the membership
+provisioning process. If not specified, it defaults to the current directory.
 </p>
 
 <h3>Attributes</h3>
@@ -352,9 +355,9 @@ updated be consistent with the provisioned memberships or permissions.
 
 <p>
 A template for creating the configuration file that controls how the data
-categories selected on the command line us provided in the conf directory as
-"ldappcTemplate.xml". The user should first copy this file into the config
-directory and name it ldappc.xml. Then modify it according to the
+categories selected on the command line us provided in the <code>conf</code> directory as
+"<code>ldappcTemplate.xml</code>". The user should first copy this file into the config
+directory and name it <code>ldappc.xml</code>. Then modify it according to the
 instructions therein.
 </p>
 
@@ -406,6 +409,39 @@ maintained on the provisioned Group entries, these values are always compared as
 parsed DN strings.  This ensures that DNs will always compare correctly.  For example,
 the two DNs <em>first=fred+last=flintstone,ou=bedrock</em> and <em>last=flintstone+first=fred,ou=bedrock</em>
 will compare equal.
+</p>
+
+<h2>Performance Tuning</h2>
+
+<p>
+There are several ways in which the time required for a provision cycle can be reduced.
+The <code>groups</code> and <code>source-subject-identifier</code> elements each have
+an <code>initial-cache-size</code> attribute, which can be used to perform an initial
+allocation of the hash tables used to store groups to be deleted and subjects retrieved
+from the Subject API. Setting these values to a prime number larger than the number
+of groups or subjects can reduce the run time. 
+</p>
+
+<p>
+Another important consideration is the number of lookups done in the Subject API. If the Subject ID
+in Grouper is stored in the LDAP directory and is indexed, which is highly recommended,
+then the Subject API need not be queried to retrieve search criteria for the LDAP object.
+This can speed up run times considerably.
+Specifying:
+</p>
+
+<pre>
+    &lt;source-subject-identifier source="example"
+                               subject-attribute="id"
+                               initial-cache-size="170001"&gt;
+        &lt;ldap-search base="ou=people,dc=example,dc=edu"
+                     scope="onelevel_scope"
+                     filter="(&amp;(subjectId={0})(objectclass=eduPerson))" /&gt;
+    &lt;/source-subject-identifier&gt;
+</pre>
+
+<p>
+will search the directory by criteria directly available from Grouper.
 </p>
 
 <hr/>
