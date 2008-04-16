@@ -19,6 +19,17 @@
 <html>
 <head>
 <title>Users Manual (Ldappc documentation)</title>
+<style type="text/css">
+td {
+	text-align: left;
+	vertical-align: top;
+}
+th {
+	text-align: left;
+	vertical-align: top;
+	border-bottom: 1px solid black;
+}
+</style>
 </head>
 <body bgcolor="white">
 
@@ -30,6 +41,7 @@ This document describes how to use the Ldappc program. This document is not
 yet complete. The discussion that is provided is limited to some of the
 program documentation and does not currently include discussion of the API.
 </p>
+
 <p>
 The user instructs the program on what actions to take using two separate
 mechanisms, command line input and a configuration file. The command line
@@ -47,46 +59,51 @@ used as a criteria for selecting which sets of groups, memberships, or
 permissions are subject to provisioning. The later is the role of the
 configuration file and its processor.
 </p>
+
 <p>
 The Program can be started from the command line with the following
 parameters. Replace the names listed under the Value column with actual
 values. Enter the keys exactly as shown.
 </p>
 
-<pre align="left">
- Key             Value          Description
- --------------  -------------  -------------------------------------------------------------------------
- no arguments                   Display the following list of available arguments to standard output. 
- -subject        subjectId      The SubjectId used to establish Grouper API and Signet API sessions.
-                                If any arguments are used, then &quot;-subject subjectId&quot; is required.
- -groups                        (Optional) When present, group information will be provisioned.
- -memberships                   (Optional) When present, membership information will be provisioned.
- -permissions                   (Optional) When present, privilege information will be provisioned.
- -lastModifyTime lastModifyTime (Optional) DateTime representation to select only objects changed since then.
-                                Allowed format: yyyy-MM-dd_hh:mm:ss or yyyy-MM-dd_hh:mm or 
-                                yyyy-MM-dd_hh or yyyy-MM-dd.  Missing hours, minutes, or seconds
-                                are replaced with zeros and the appropriate delimiters.
- -interval       interval       (Optional) Number of seconds between polling intervals.
- -configManager  configMgr      (Optional) Location of substitute configuration file, other than default.
-</pre>
+<table border="0" cellspacing="7px">
+<tr><th>Key</th><th>Value</th><th>Description</th></tr>
+<tr>
+<td>no arguments</td><td></td><td>Display the following list of available arguments to standard output.</td></tr>
+<tr><td><code>-subject</code></td><td><code><em>subjectId</em></code></td><td>The SubjectId used to establish Grouper API and Signet API sessions.<br/>
+                                If any arguments are used, then &quot;-subject subjectId&quot; is required.</td></tr>
+<tr><td><code>-groups</code></td><td></td><td>(Optional) When present, group information will be provisioned.</td></tr>
+<tr><td><code>-memberships</code></td><td></td><td>(Optional) When present, membership information will be provisioned.</td></tr>
+<tr><td><code>-permissions</code></td><td></td><td>(Optional) When present, privilege information will be provisioned.</td></tr>
+<tr><td><code>-lastModifyTime</code></td><td><code><em>lastModifyTime</em></code></td><td>(Optional) DateTime representation to select only objects changed since then.<br/>
+                                Allowed formats: <code>yyyy-MM-dd_hh:mm:ss</code> or <code>yyyy-MM-dd_hh:mm</code> or<br/>
+                                <code>yyyy-MM-dd_hh</code> or <code>yyyy-MM-dd</code>.
+                                Missing hours, minutes, or seconds<br/>
+                                are replaced with zeros and the appropriate delimiters.</td></tr>
+<tr><td><code>-interval</code></td><td><code><em>interval</em></code></td><td>(Optional) Number of seconds between polling intervals.</td></tr>
+<tr><td><code>-configManager</code></td><td><code><em>configMgr</em></code></td><td>(Optional) Location of substitute configuration file, other than default.</td></tr>
+</table>
 
 <p>
-When the "-groups" argument is present, Grouper group information will be
+When the <code>-groups</code> argument is present, Grouper group information will be
 provisioned into LDAP group entries per declarations in the configuration
 file.
 </p>
+
 <p>
-When the "-memberships" argument is present, Grouper group membership
+When the <code>-memberships</code> argument is present, Grouper group membership
 information will be provisioned into LDAP entries corresponding to members
 per declarations in the configuration file.
 </p>
+
 <p>
-When the "-permissions" argument is present, Signet permission information
+When the <code>-permissions</code> argument is present, Signet permission information
 will be provisioned into LDAP entries corresponding to privilegees per
 declarations in the configuration file.
 </p>
+
 <p>
-If the "-interval" parameter is present, the Program will continue to operate
+If the <code>-interval</code> parameter is present, the Program will continue to operate
 until killed; otherwise, it performs one provisioning cycle and terminates.
 </p>
 
@@ -112,7 +129,9 @@ example, in a environment which utilizes only Grouper and not Signet, the
 Signet configuration elements can be removed (or commented out) from the
 configuration file.
 </p>
+
 <h3>Common Configuration Elements</h3>
+
 <p>
 There are two configuration elements common to both Signet and Grouper. They
 are the <code>ldap</code> and <code>source-subject-identifiers</code>
@@ -122,6 +141,7 @@ Currently this is limited to the parameters necessary to connect with the
 directory. The parameters are based on JNDI, and their values may vary
 according to the directory server being used.
 </p>
+
 <p>
 The <code>source-subject-identifiers</code> element identifies for each
 Subject source how the provisioner locates the directory entry for a given
@@ -135,19 +155,22 @@ attribute whose value uniquely identifies the Subject within the directory,
 and an LDAP query filter that when combined with the attribute value locates
 the Subject's directory entry.
 </p>
+
 <h3>Signet Configuration Elements</h3>
+
 <p>
 The <code>signet</code> element contains the configuration elements needed
 for provisioning Signet permissions. There is one required element,
 <code>permissions-listing</code>. This element defines how provisioned
 permissions are stored within the directory. There are two supported storage
 methods. One method stores each of the Subject's permissions as a child
-<i>eduPermission</i> entry of the Subject's directory entry. This method
-requires the <i>eduPermission</i> schema to be available to the directory
+<em>eduPermission</em> entry of the Subject's directory entry. This method
+requires the <em>eduPermission</em> schema to be available to the directory
 server. The other method stores the permissions in a string format within an
 attribute of the Subject's directory entry. The attribute to be used on the
 Subject's directory entry and part of the string format are defined here.
 </p>
+
 <p>
 There are two methods for identifying the permissions to be provisioned.
 Either all active permissions can be provisioned, or permissions can be
@@ -164,7 +187,9 @@ functions for it to be selected for provisioning. If both the
 are defined, a permission only needs to satisfy one of those to be selected
 for provisioning.
 </p>
+
 <h3>Grouper Configuration Elements</h3>
+
 <p>
 The <code>grouper</code> element contains the configuration elements for
 Grouper. Whether provisioning memberships or groups, the provisioner takes a
@@ -176,6 +201,7 @@ based on subordinate stem or attribute value matching queries. The
 <code>group-queries</code> element contains the definitions of the queries
 to use when selecting the groups that define the provisioning data.
 </p>
+
 <p>
 Either groups, memberships or both may be provisioned when provisioning
 Grouper data. The <code>grouper</code> element splits the configuration
@@ -184,6 +210,7 @@ items for groups and memberships into the elements <code>groups</code> and
 element or elements necessary for the data being provisioned. Each is
 described further below.
 </p>
+
 <p>
 Provisioning groups requires the provisioner to create new or maintain
 existing Group directory entries. The <code>groups</code> element defines
@@ -199,10 +226,11 @@ attribute of the Group. If the structure is bushy, then a heirarchy of
 organizationalUnit entries is created under the root entry for each element
 of the Group's stem, the Group entry is created under the parent stem's OU
 entry, and the RDN is set to the Group's extension. It should be noted that
-the attribute name of the RDN of the Group may not be <i>ou</i>. This
+the attribute name of the RDN of the Group may not be <em>ou</em>. This
 prevents naming collisions between stem entries and the group entry when the
 "bushy" structure is used.
 </p>
+
 <p>
 The <code>groups</code> element defines two methods of storing membership
 information in a Group's directory entry. They can be used simultaneously.
@@ -215,6 +243,7 @@ the Subject attribute whose value is the indentifier stored in the list
 (e.g., loginId attribute). If the <code>group-members-name-list</code>
 element is not defined, then this membership list is not maintained.
 </p>
+
 <p>
 The second storage method is to store the DN of the associated directory
 entry for each member. The directory entry for each member is identified
@@ -224,6 +253,7 @@ element identifies that the DN list is to be maintained and defines the
 attribute to hold the DN list. If an entry cannot be found for a member, no
 DN is included in the membership list for that member.
 </p>
+
 <p>
 The <code>groups</code> element also provides a means of provisioning
 attribute values of the Group to the Group's directory entry. This is
@@ -232,6 +262,7 @@ element. This element maps a selected set of Group attributes to the
 corresponding directory entry attributes. The value from the Group attribute
 is provisioned to the directory entry attribute.
 </p>
+
 <p>
 The <code>memberships</code> element contains the configuration items
 related to provisioning memberships. It currently has only one child element,
@@ -253,10 +284,11 @@ For example, there are many Ldap servers (e.g., OpenLDAP) that support synonyms 
 attribute names. If a synonym is used, the server may return the canonical name 
 rather than the synonym. Unexpected errors may occur in
 the provisioning process in this situation. This same issue arises if the
-Ldap server being used supports <i>attribute subclassing</i> or <i>attribute
-language preferences</i>. Deployers will need to select attribute names 
+Ldap server being used supports <em>attribute subclassing</em> or <em>attribute
+language preferences</em>. Deployers will need to select attribute names 
 appropriately for their environment.
 </p>
+
 <p>
 The provisioning process assumes that attribute values returned from the Ldap server
 via Java JNDI are strings.  It is possible that some attribute values are not returned as strings.
@@ -282,6 +314,7 @@ still exists within Grouper. The same issue exists when provisioning
 permissions. Modifying the <code>permissions-queries</code> element can
 significantly alter the permissions to be provisioned.
 </p>
+
 <p>
 Many of the configuration elements allow a directory entry attribute to be
 defined where a list is to be maintained. When an attribute where a list is
@@ -289,6 +322,7 @@ being maintained is altered, the provisioner no longer has any reference to
 the original attribute. It will be the responsibility of the user to maintain
 the original attribute.
 </p>
+
 <p>
 The provisioning process assumes ownership of all attributes and entries that
 are defined in the configuration file. It adds and deletes values from these
@@ -300,6 +334,7 @@ provisioning process only assumes ownership of the attribute values that
 start with the prefix defined in the <code>permissions-listing</code>
 element in the configuration file
 </p>
+
 <p>
 The membership and permissions provisioning processes remove any previously
 provisioned memberships or permissions stored on directory entries that are
@@ -307,8 +342,8 @@ no longer valid. This can occur for example if a Group is deleted from
 Grouper, a privileged subject no longer exists in Signet, or the
 <code>group-queries</code> or <code>permissions-queries</code> elements
 are altered. This process considers any entry found using the filters defined
-in the <code>source-subject-identifiers</code> element with the <i>{0}</i>
-parameter replaced by <i>*</i> and having the appropriate attribute
+in the <code>source-subject-identifiers</code> element with the <em>{0}</em>
+parameter replaced by <em>*</em> and having the appropriate attribute
 populated as an entry that previously had data provisioned. These entries are
 updated be consistent with the provisioned memberships or permissions.
 </p>
@@ -335,6 +370,7 @@ values to determine equality. This can possibly effect the performance of the
 provisioning process or the accuracy of the data stored in the directory.  Each
 situation is described below. 
 </p>
+
 <p>
 The provisioning process attempts to minimize the number of updates made
 to the directory.  To do this requires comparing the current set of data stored
@@ -351,6 +387,7 @@ may view equivalent values as different.  This situation can also occur if the
 directory supports a more robust comparison operation on the attribute. Although
 unneeded updates are performed to the directory, the data will remain accurate.
 </p>
+
 <p>
 The case insensitive string value comparison used by the provisioning process
 may cause provisioned data to be inaccurate in the following situations.  If 
@@ -362,11 +399,12 @@ within Grouper, the two values "12 May 1990" and "May 12 1990" will not be consi
 equal by the provisioning process.  Both values will be included in the provisioned data
 set.
 </p>
+
 <p>
 There is one exception to this discussion.  When the group members DN list is being 
 maintained on the provisioned Group entries, these values are always compared as
 parsed DN strings.  This ensures that DNs will always compare correctly.  For example,
-the two DNs <i>first=fred+last=flintstone,ou=bedrock</i> and <i>last=flintstone+first=fred,ou=bedrock</i>
+the two DNs <em>first=fred+last=flintstone,ou=bedrock</em> and <em>last=flintstone+first=fred,ou=bedrock</em>
 will compare equal.
 </p>
 
