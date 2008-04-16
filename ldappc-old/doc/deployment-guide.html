@@ -135,8 +135,8 @@ without most of the descriptive text.
 </p>
 <p>
 Make sure that you have the JAVA_HOME environment variable set
-to point to the JDK1.5.  The code has been tested with JDK1.5 only
-If you do not wish to set JAVA_HOME or wish to use JDK1.4,  
+to point to the JDK1.5.  The code requires JDK1.5 or higher.
+If you do not wish to set JAVA_HOME 
 a change will be needed to one other configuration file, the
 antSystem.properties file, to set the "jvmbase" property.
 </p>
@@ -695,6 +695,23 @@ If you want to run the JUnit test cases using OpenLDAP and the built-in database
 a different port, in addition to the instances of port 51515 above needing changed,
 you will you will need to change the port number in the sqltool.rc file of the 
 ldappc/testDb directory, and possibly the username and password.
+</p>
+
+<h2>Final Deployment</h2>
+
+<p>
+After executing <code>ant install</code>, the contents of the <code>build/ldappc</code>
+directory minus the <code>classes</code> subdirectory can be copied
+elsewhere and the files in the <code>conf</code> subdirectory can be
+configured as desired for your production environment.
+</p>
+<p>
+The <code>scripts</code> subdirectory contains UN*X and Windows scripts to easily run
+the ldappc program.
+</p>
+<p>
+If you make changes to the code and rebuild it, the only file you must move is the
+<code>build/ldappc/lib/ldappc-1.1.0-SNAPSHOT.jar</code> file.
 </p>
 
 <hr/>
