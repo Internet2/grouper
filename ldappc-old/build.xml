@@ -85,6 +85,8 @@
          <echo message="test                Compiles, builds and runs built-in JUnit test cases."/>
          <echo message="cbx                 Compiles, builds and runs Ldappc." />
          <echo message="cbxJunit            Compiles, builds and runs specified JUnit test cases." />
+         <echo message="createJar           Compiles, builds and creates an ldappc.jar file." />
+         <echo message="docs                Builds the javadocs directory and files." />
          <echo message="install             Cleans build directory, compiles, builds and runs built-in test cases ." />
          <echo message=" "/>
          <echo message="When using cbxJunit make sure to use the -Dmaster parameter to select" />
