@@ -4,7 +4,7 @@
 		has selected Access privilege, and stems where subject has selected Naming privilege
 --%><%--
   @author Gary Brown.
-  @version $Id: changeSubjectSummaryScope.jsp,v 1.8 2008-04-12 03:51:00 mchyzer Exp $
+  @version $Id: changeSubjectSummaryScope.jsp,v 1.9 2008-04-16 09:55:03 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -47,7 +47,7 @@
 	<span class="membershipListScope">
 		<html:radio property="membershipListScope" value="naming"/> <grouper:message bundle="${nav}" key="subject.list-naming.scope.priv"/>
 		<html:select property="namingPriv">
-			<html:options name="allNamingPrivs"/>
+			<html:optionsCollection name="allNamingPrivs"/>
 		</html:select>
     <grouper:infodot hideShowHtmlId="namingPrivInfodot" />
 	</span>

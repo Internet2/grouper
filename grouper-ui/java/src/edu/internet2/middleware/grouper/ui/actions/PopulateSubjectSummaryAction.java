@@ -18,6 +18,7 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -272,7 +273,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.20 2008-04-09 14:43:31 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.21 2008-04-16 09:55:03 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 	
@@ -507,7 +508,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}
 		
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
-		String[] namingPrivs = GrouperHelper.getStemPrivs(grouperSession);
+		Collection namingPrivs = GrouperHelper.getStemPrivsWithLabels(getNavResources(request));
 		request.setAttribute("allAccessPrivs",accessPrivs);
 		request.setAttribute("allNamingPrivs",namingPrivs);
 		
