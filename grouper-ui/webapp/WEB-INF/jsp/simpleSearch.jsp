@@ -2,7 +2,7 @@
 		Tile which displays the simple search form for people and groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearch.jsp,v 1.10 2008-04-12 03:51:00 mchyzer Exp $
+  @version $Id: simpleSearch.jsp,v 1.11 2008-04-16 09:11:23 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -32,10 +32,12 @@
 <table class="formTable formTableSpaced">
 <tr class="formTableRow">
 <td class="formTableLeft">
-	<label for="searchTerm"><grouper:message bundle="${nav}" key="find.search-term"/></label>
+	<label for="searchTerm" class="noCSSOnly"><grouper:message
+          bundle="${nav}" key="find.search-term"
+        /></label><input name="searchTerm" type="text" id="searchTerm"/>
   </td>
 <td class="formTableRight">
-	<input name="searchTerm" type="text" id="searchTerm"/>
+	<html:submit styleClass="blueButton" property="submit.group.member" value="${navMap['find.action.search']}"/>
     </td>
 </tr>
 
@@ -49,7 +51,7 @@
 
 
 
-<div class="formRow"><html:submit styleClass="blueButton" property="submit.group.member" value="${navMap['find.action.search']}"/></div>
+
 <input type="hidden" name="newSearch" value="Y"/>
 </fieldset>
 </html:form>
