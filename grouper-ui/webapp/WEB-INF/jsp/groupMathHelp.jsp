@@ -2,7 +2,7 @@
         Standard tile which displays help text for group math
 --%><%--
   @author Gary Brown.
-  @version $Id: groupMathHelp.jsp,v 1.2 2008-04-08 07:51:52 mchyzer Exp $
+  @version $Id: groupMathHelp.jsp,v 1.3 2008-04-16 01:10:19 mchyzer Exp $
 --%>
 
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -37,7 +37,7 @@
     the groups is important. </dd>
 </dl>
 
-<p>A group can have a single composite member, or any number of subjects (including 
+<p>A group can have a single composite member, or any number of entities (including 
   groups) as members, but not a combination, however, groups which have a composite 
   member can be used anywhere other groups can be used.</p>
 </grouper:recordTile>
