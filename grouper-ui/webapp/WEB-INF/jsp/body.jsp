@@ -40,11 +40,7 @@ change definition for this --%>
 					<tiles:insert attribute="menu" />
 				</div><!--/SideBar-->
 			</c:if>
-      <div id="internet2">
-        <grouper:message key="internet2.sponsored.by" /><br /><br/>
-        <a href="http://internet2.edu" target="_blank"><img 
-        src="grouper/images/internet2.gif" alt="Internet2" style="border: 0px"/></a>
-      </div>
+			<tiles:insert attribute="internet2spons"/>
 			<!--Header-->
 			 <div id="Header" class="printerFriendlyNot">
 				<tiles:insert attribute="header" />

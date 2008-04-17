@@ -35,6 +35,7 @@
   </definition>
   
     <definition name="bodyDef" path="/WEB-INF/jsp/body.jsp">
+		<put name="internet2spons" type="definition" value="internet2sponsDef"/>
 	  <description>
 		  Start body tag + content
 	  </description>
