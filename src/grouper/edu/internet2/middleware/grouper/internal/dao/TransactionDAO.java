@@ -59,8 +59,6 @@ public interface TransactionDAO {
   /**
    * call this to see if a transaction is active (exists and not committed or rolledback)
    * 
-   * @param grouperRollbackType
-   *          type of commit (now or only under certain circumstances?)
    * @param grouperTransaction is the state of the transaction, can hold payload
    * @return the object returned from the callback
    */
