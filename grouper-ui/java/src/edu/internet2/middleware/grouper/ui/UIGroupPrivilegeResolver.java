@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
  * @see https://bugs.internet2.edu/jira/browse/GRP-72
  * 
  * @author Gary Brown.
- * @version $Id: UIGroupPrivilegeResolver.java,v 1.1 2008-01-09 13:26:18 isgwb Exp $
+ * @version $Id: UIGroupPrivilegeResolver.java,v 1.2 2008-04-17 18:59:46 isgwb Exp $
  */
 public interface UIGroupPrivilegeResolver {
 	/**
@@ -56,38 +56,38 @@ public interface UIGroupPrivilegeResolver {
 	
 	/**
 	 * Is the subject allowed to grant / revoke privileges?
-	 * @return
+	 * @return whether the Subject can manage privileges
 	 */
 	public boolean canManagePrivileges();
 	
 	/**
 	 * Is the subject allowed to edit core attributes
 	 * or delete the group?
-	 * @return
+	 * @return if the Subject can edit group
 	 */
 	public boolean canEditGroup();
 	
 	/**
 	 * Is the subject allowed to view the group?
-	 * @return
+	 * @return whether the Subject can view the group
 	 */
 	public boolean canViewGroup();
 	
 	/**
 	 * Is the subject allowed to view the membership?
-	 * @return
+	 * @return whether the Subject can read the group
 	 */
 	public boolean canReadGroup();
 	
 	/**
 	 * Is the subject allowed to optin to the group?
-	 * @return
+	 * @return whether the Subject can optin to the group
 	 */
 	public boolean canOptinGroup();
 	
 	/**
 	 * Is the subject allowed to optout of the group?
-	 * @return
+	 * @return whether the Subject can opt out of the  group
 	 */
 	public boolean canOptoutGroup();
 	
@@ -95,28 +95,28 @@ public interface UIGroupPrivilegeResolver {
 	/**
 	 * Can the subject modify the given field?
 	 * @param field
-	 * @return
+	 * @return whether the Subject can manage teh given field
 	 */
 	public boolean canManageField(String field);
 	
 	/**
 	 * Can the subject read the given field?
 	 * @param field
-	 * @return
+	 * @return whether the Subject can read th egiven field
 	 */
 	public boolean canReadField(String field);
 	
 	
 	/**
 	 * Can the subject change at least one custom attribute?
-	 * @return
+	 * @return if there are any custom attributes that the Subject can manage
 	 */
 	public boolean canManageAnyCustomField();
 	
 	
 	/**
 	 * Can the subject update the membership?
-	 * @return
+	 * @return if the Subject can manage members
 	 */
 	public boolean canManageMembers();
 	
@@ -125,7 +125,7 @@ public interface UIGroupPrivilegeResolver {
 	 * Map - which is strightforward for JSP/JSTL to 'query'.
 	 * Keys are method names. canReadField and canWriteField
 	 * use nested Maps. In JSTL ${groupPrivilegeResolver.canReadField['field']}
-	 * @return
+	 * @return all privilege resolutions
 	 */
 	public Map asMap();
 	

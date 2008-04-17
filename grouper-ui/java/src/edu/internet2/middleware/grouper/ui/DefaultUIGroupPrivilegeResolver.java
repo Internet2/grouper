@@ -32,10 +32,10 @@ import edu.internet2.middleware.subject.Subject;
  * applies the expected privilege resolution. Extend this class to add
  * your own business logic, and configure in media.properties using the key:
  * edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver
- * @see https://bugs.internet2.edu/jira/browse/GRP-72
+ * see https://bugs.internet2.edu/jira/browse/GRP-72
  * 
  * @author Gary Brown.
- * @version $Id: DefaultUIGroupPrivilegeResolver.java,v 1.1 2008-01-09 13:29:26 isgwb Exp $
+ * @version $Id: DefaultUIGroupPrivilegeResolver.java,v 1.2 2008-04-17 18:59:46 isgwb Exp $
  */
 public class DefaultUIGroupPrivilegeResolver implements
 		UIGroupPrivilegeResolver {

@@ -33,8 +33,8 @@ public class TagUtils {
 
 	/**
 	 * based on request get a nav string
-	 * @param httpSession
-	 * @return
+	 * @param srvletRequest
+	 * @return value
 	 */
 	public static String navResourceString(ServletRequest servletRequest, String key) {
 		
@@ -49,7 +49,7 @@ public class TagUtils {
 	 * based on request get a nav string
 	 * @param servletRequest 
 	 * @param key 
-	 * @return
+	 * @return value
 	 */
 	public static String mediaResourceString(ServletRequest servletRequest, String key) {
 		
