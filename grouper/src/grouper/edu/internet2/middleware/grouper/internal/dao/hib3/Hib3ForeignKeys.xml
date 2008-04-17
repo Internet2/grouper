@@ -25,7 +25,7 @@
     <column name="right_factor"/> 
     <column name="type"/> 
     <column name="creator_id"/> 
-    <column name="creator_time"/> 
+    <column name="create_time"/> 
 
     <foreign-key name="fk_composites_owner" foreignTable="grouper_groups">
       <reference local="owner" foreign="uuid"/>
@@ -64,9 +64,9 @@
     <column name="uuid"/> 
     <column name="parent_stem"/> 
     <column name="creator_id"/> 
-    <column name="creator_time"/> 
+    <column name="create_time"/> 
     <column name="modifier_id"/> 
-    <column name="modifier_time"/> 
+    <column name="modify_time"/> 
     <column name="create_source"/> 
     <column name="modify_source"/> 
 
