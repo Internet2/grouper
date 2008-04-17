@@ -12,5 +12,20 @@
     <definition extends="BaseDef" name="EasyLoginFormDef">
 		<put name="content" type="page" value="/WEB-INF/jsp/custom/EasyLoginForm.jsp"/>
   </definition>
+  
+  <definition name="bodyDef" path="/WEB-INF/jsp/body.jsp">
+		<put name="internet2spons" type="definition" value="emptyDef"/>
+	  <description>
+		  Start body tag + content
+	  </description>
+  </definition>
+  
+  <definition name="menuDef" path="/WEB-INF/jsp/custom/menu.jsp" controllerUrl="/prepareMenu.do">
+	  <description>
+		 Standard tile used in baseDef which appears at the left, by default,
+		 of all pages unless otherwise configured. Can be 'relocated' to the menu bar by CSS 
+	  </description>
+	  <put name="maintainModule" type="String" value="y"/>
+ </definition>
 </tiles-definitions>
 
