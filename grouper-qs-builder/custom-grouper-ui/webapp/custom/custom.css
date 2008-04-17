@@ -1,3 +1,7 @@
+body {
+  background-image: none;
+  background-repeat: no-repeat;
+}
 
 	
 	a.selectedTab { 
@@ -62,6 +66,17 @@
 	voice-family:inherit;
 	}
 
+#Content {
+	padding-top:5px
+}
+
+#TitleBox {
+	padding-top:20px
+}
+	
+#Sidebar.printerFriendlyNot{
+	background-color: #ffffff;
+}
 #Sidebar {
 	position: absolute;
 	margin-top:78px;
@@ -71,7 +86,7 @@
 	left: 5px;
    width:auto;	
 	text-align: left;
-	background-color: #39497b;
+	background-color: #ffffff;
 	/* top and bottom borders: 1px; left and right borders: 0px */
 /* Again, the ugly brilliant hack. */
 	voice-family: "\"}\"";
@@ -84,7 +99,7 @@ body>#Sidebar {width:auto;}
 
 .actionheader {
 	text-decoration: none;
-	color: #fff;
+	color: #056496;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 	font-size: 11px;
 	text-transform : uppercase;
@@ -94,13 +109,13 @@ body>#Sidebar {width:auto;}
 	margin: 0px 0px 0px 0px;
 	}
 	
-.actionbox {
+div.actionbox {
 	display:inline ! important;
 	float:left ! important;
 	text-decoration: none;
 	color: #000;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
-	font-size: 11px;
+	font-size: 9px;
 	line-height: 13px;
 	background-color:#39497b;
 	#padding: 1px 10px 1px 1px;
