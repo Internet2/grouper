@@ -27,10 +27,10 @@ import edu.internet2.middleware.subject.Subject;
  * it should probably be maintained by the loader rather than a user -
  * even GrouperSystem/wheel group members.
  * 
- * @see https://bugs.internet2.edu/jira/browse/GRP-72
+ * see https://bugs.internet2.edu/jira/browse/GRP-72
  * 
  * @author Gary Brown.
- * @version $Id: UIGroupPrivilegeResolver.java,v 1.2 2008-04-17 18:59:46 isgwb Exp $
+ * @version $Id: UIGroupPrivilegeResolver.java,v 1.3 2008-04-17 20:48:07 isgwb Exp $
  */
 public interface UIGroupPrivilegeResolver {
 	/**
@@ -43,14 +43,14 @@ public interface UIGroupPrivilegeResolver {
 	/**
 	 * Can only be called once, by the factory,
 	 * to set the subject for who we are resolving privileges
-	 * @param g
+	 * @param subj
 	 */
 	public void setSubject(Subject subj);
 	
 	/**
 	 * Can only be called once, by the factory,
 	 * to set the GrouperSession 
-	 * @param g
+	 * @param s
 	 */
 	public void setGrouperSession(GrouperSession s);
 	

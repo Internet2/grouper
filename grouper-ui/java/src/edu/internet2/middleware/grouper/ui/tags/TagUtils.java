@@ -33,7 +33,8 @@ public class TagUtils {
 
 	/**
 	 * based on request get a nav string
-	 * @param srvletRequest
+	 * @param servletRequest
+	 * @param key
 	 * @return value
 	 */
 	public static String navResourceString(ServletRequest servletRequest, String key) {
