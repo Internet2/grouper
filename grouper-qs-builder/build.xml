@@ -147,6 +147,7 @@
 			  <copy todir="${quickstart.dir}" file="doc/README.html"/>
 			  <copy tofile="${quickstart.dir}/build.xml" file="build-db.xml"/>
 			  <copy file="${quickstart.dir}/grouper-ui/build.properties.template" tofile="${quickstart.dir}/grouper-ui/build.properties"/>
+		 	<copy file="${quickstart.dir}/grouper-ui/log4j.template.properties" tofile="${quickstart.dir}/grouper-ui/log4j.properties"/>
 		 	<copy file="${quickstart.dir}/grouper-ui/template-tomcat-context.xml" tofile="${quickstart.dir}/grouper-ui/tomcat-context.xml"/>
 			 <!-- <copy tofile="${quickstart.dir}/grouper/build.xml" file="grouper-bin-build.xml"/>-->
 			  
