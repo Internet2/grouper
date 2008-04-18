@@ -15,8 +15,9 @@
   <li> the Grouper User Interface (UI) - a Java web application</li>
 </ul>
 <p>The UI must be built using the Ant script provided and installed on a Tomcat 
-  4.1.x/5 instance. In addition the HSQLDB database must be started. It is assumed 
-  that all components will be run on one machine. Other configurations are possible.</p>
+  5 instance. The UI does not work properly with JDK1.6. Use JDK 1.5.0.6 or greater. 
+  In addition the HSQLDB database must be started. It is assumed that all components 
+  will be run on one machine. Other configurations are possible.</p>
 <p>*Before you can use the Grouper API directly, you should build the UI (described 
   below), or run '<font face="Courier New, Courier, mono">ant dist</font>' in 
   <font face="Courier New, Courier, mono">grouper-qs/grouper</font></p>
@@ -39,6 +40,16 @@
   instance uncomment and set the appropriate value for deploy.home. If you do 
   not set this you will need to copy the UI to your Tomcat installations webapps 
   directory.</p>
+<p>As of v1.3.0 the UI has improved error handling and logging. To take advantage 
+  of new logging fetaures review and uncomment the lines:</p>
+<p><font face="Courier New, Courier, mono">#use.local.log4j=true<br>
+  #local.log4j.output-dir=c:/tomcat_5-5/logs/</font></p>
+<p>and set an appropriate directory. You may choose to have errors delivered by 
+  email - choose an appropriate <font face="Courier New, Courier, mono">error.append</font> 
+  value and configure:</p>
+<p><font face="Courier New, Courier, mono">error.mail.to<br>
+  error.mail.from<br>
+  error.mail.host</font></p>
 <p>Change directory to<font face="Courier New, Courier, mono"> grouper-qs</font> 
   and type <font face="Courier New, Courier, mono">ant ui</font>. </p>
 <p>A list of build targets* is displayed. If you have set deploy.home press <font face="Courier New, Courier, mono">default</font>. 
@@ -48,8 +59,9 @@
   or, if the latter, copy <font face="Courier New, Courier, mono">grouper-qs/dist/grouper.war</font> 
   to <font face="Courier New, Courier, mono">&lt;TOMCAT_HOME&gt;/webapps</font>.</p>
 <p>Using a web browser access the UI e.g.<font face="Courier New, Courier, mono"> 
-  http://localhost:8080/grouper</font>. Login as GrouperSystem - using the password 
-  from the<font face="Courier New, Courier, mono"> tomcat-users.xml</font> file.</p>
+  http://localhost:8080/grouper130rc1</font>. Login as GrouperSystem - using the 
+  password from the<font face="Courier New, Courier, mono"> tomcat-users.xml</font> 
+  file.</p>
 <p>You may want to review <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/log4j.properties</font> 
   and, if necessary, modify the values for the keys:</p>
 <ul>
@@ -122,7 +134,7 @@
   <li>backup <font face="Courier New, Courier, mono">grouper-qs/grouper/dist/run/grouper.script</font></li>
   <li>restart the HSQLDB database</li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
-    <font face="Courier New, Courier, mono">ant db-reset</font></li>
+    <font face="Courier New, Courier, mono">ant db-init</font></li>
   <li>restart the grouper web application</li>
 </ol>
 <h3 id="emptyAlternative" name="emptyAlternative">Settng up the QuickStart with an alternative supported database</h3>
@@ -142,8 +154,6 @@
   </li>
   <li>Copy any required Jar files for your JDBC drivers to <font face="Courier New, Courier, mono">grouper-qs/grouper/lib 
     </font></li>
-  <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
-    <font face="Courier New, Courier, mono">ant schemaexport</font></li>
   <li>from <font face="Courier New, Courier, mono">grouper-qs/grouper</font> type 
     <font face="Courier New, Courier, mono">ant db-init</font></li>
   <li>modify <font face="Courier New, Courier, mono">grouper-qs/grouper/conf/sources.xml</font> 
@@ -170,7 +180,8 @@
   will cause errors.</p>
 <p>When loading subjects who you want to be able to login to the Grouper UI, you 
   must specify a loginid attribute.</p>
-<p>You may use the new <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Import-Export+v1.1">XML import / export tool</a> to load stems, groups, memberships, 
-  privileges and custom group types</p>
+<p>You may use the <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Import-Export">XML 
+  import / export tool</a> to load stems, groups, memberships, privileges and 
+  custom group types</p>
 </body>
 </html>
