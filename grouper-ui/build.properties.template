@@ -20,8 +20,8 @@ logout.link.show=true
 #local.log4j.output-dir=c:/tomcat_5-5/logs/
 
 #If you want to email errors append to grouper_mail - only works with use.local.log4j=true
-#error.append=grouper_log
-error.append=grouper_log,grouper_mail
+error.append=grouper_log
+#error.append=grouper_log,grouper_mail
 #Change to valid email addresses
 error.mail.to=to@yourhost.edu
 error.mail.from=from@yourhost.edu
