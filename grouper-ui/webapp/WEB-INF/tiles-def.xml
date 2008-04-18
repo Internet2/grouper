@@ -40,6 +40,11 @@
 		  Start body tag + content
 	  </description>
   </definition>
+  	 <definition name="internet2sponsDef" path="/WEB-INF/jsp/internet2spons.jsp">
+		<description>
+			Includes sponsored by + Internet2 logo
+	  </description>
+	 </definition>
   
   <definition name="contentDef" path="/WEB-INF/jsp/content.jsp">
 	  <description>
