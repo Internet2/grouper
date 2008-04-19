@@ -216,8 +216,10 @@
 	<!-- ## End From axis
 	############################################### -->
 	<target name="compile">
-		<javac srcdir="${basedir}/src/grouper-ws" destdir="${build.dir.grouper-ws}" classpathref="ws.class.path" debug="true">
-			<compilerarg value="-Xlint:deprecation" />
+		<javac srcdir="${basedir}/src/grouper-ws" 
+		  destdir="${build.dir.grouper-ws}" 
+		  classpathref="ws.class.path" debug="true">
+			<!-- compilerarg value="-Xlint:deprecation" / -->
 		</javac>
 	</target>
 	<!-- 
