@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Grouper UI Contribution - penn-auth</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<h2>Grouper UI Contribution - penn-auth</h2>
+<table width="75%" border="1">
+  <tr> 
+    <td>Contributed by</td>
+    <td>University of Pennsylvania</td>
+  </tr>
+  <tr> 
+    <td>Purpose</td>
+    <td>Enables the Grouper UI to authenticate using the single sign on at penn.</td>
+  </tr>
+  <tr> 
+    <td>How it works</td>
+    <td>Provides the Penn websec client library and configures Servlet API Filters to 
+      manage authentication.  To use this, if the apache websec plugin is installed, 
+      just go to the app from the browser, you will be prompted to login, then 
+      forwarded to the app.  If you are developing without the apache module, go to
+      a url like this: https://rosetta.upenn.edu/cgi-bin/websec/websec_authform?app=StudentHome&websec_page=http://localhost:8090/grouper/callLogin.do</td>
+  </tr>
+  <tr> 
+    <td>Instructions</td>
+    <td>This contribution is designed to be run from within the normal Grouper 
+      UI build process and is run by adding : <br> <font face="Courier New, Courier, mono">&lt;ant 
+      antfile=&quot;build.xml&quot; target=&quot;webapp&quot; dir=&quot;${contrib.dir}/penn-auth&quot; 
+      inheritrefs=&quot;true&quot; /&gt;</font> <p>to the build file. Normally 
+        you would include this line in the build file defined by the 
+        <font face="Courier New, Courier, mono">additional.build</font> 
+        property.</p>
+      <p>Before building this contribution copy <font face="Courier New, Courier, mono">build.properties.template</font> 
+        to <font face="Courier New, Courier, mono">build.properties</font> and 
+        modify the values within to match your system.</p>
+      <p>In order to prevent a standard authentication pop-up appearing after 
+        you have CAS authenticated, you must override the callLogin action in 
+        struts-config.xml, so that the user is redirected to<em> /home.do</em> 
+        rather than<em> /login.do</em> </p>
+      <pre>&lt;action path=&quot;/callLogin&quot; scope=&quot;request&quot;
+        type=&quot;edu.internet2.middleware.grouper.ui.actions.CallLoginAction&quot;
+        unknown=&quot;false&quot; validate=&quot;false&quot;&gt;
+       &lt;forward name=&quot;callLogin&quot; path=&quot;<strong>/home.do</strong>&quot; redirect=&quot;true&quot;/&gt;
+&lt;/action&gt;</pre>
+      <p>Rather than edit the struts-config.xml file provided with the Grouper 
+        UI, you should <em>extend</em> the UI as described at <a href="https://wiki.internet2.edu/confluence/display/GrouperWG/Customizing+the+Grouper+UI+v1.0">https://wiki.internet2.edu/confluence/display/GrouperWG/Customizing+the+Grouper+UI+v1.0</a></p></td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+</body>
+</html>
