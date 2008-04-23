@@ -151,7 +151,16 @@ logging services for purposes of application debugging and auditing."
 * License:  Apache License, Version 2.0 (?)
 * Updated:  20070315
 
+# jsr107cache-1.0.jar
+
+"Some cache library that ehcache uses sometimes like on solaris"
+
+* Version: 1.0
+* Source: http://repo1.maven.org/maven2/net/sf/jsr107cache/jsr107cache/1.0/jsr107cache-1.0.jar
+* License: Probably the same as ehcache
+* Updated 2008/04/23
+
 ---
 
-$Id: README.txt,v 1.12 2007-08-30 15:52:22 blair Exp $
+$Id: README.txt,v 1.13 2008-04-23 16:17:56 mchyzer Exp $
 

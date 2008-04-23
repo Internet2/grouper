@@ -23,5 +23,6 @@
 	<classpathentry kind="lib" path="lib/p6spy.jar"/>
 	<classpathentry kind="lib" path="lib/jamon-2.7.jar"/>
 	<classpathentry kind="lib" path="lib/DdlUtils-1.0.jar"/>
+  <classpathentry kind="lib" path="lib/jsr107cache-1.0.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
