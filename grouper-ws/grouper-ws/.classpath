@@ -99,5 +99,6 @@
 	<classpathentry kind="lib" path="lib/axis/wsdl4j-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/axis/wstx-asl-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/axis/xbean-2.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/jsr107cache-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
