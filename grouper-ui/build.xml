@@ -256,14 +256,14 @@
 		
 		</path>
 		<antcall target="-compileGrouper"/>
-		<javac srcdir="${ui.folder}/java/src" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="${debug}">
+		<javac srcdir="${ui.folder}/java/src" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="true">
 		<include name="edu/internet2/middleware/grouper/GrouperHelper.java"/>
 			<include name="edu/internet2/middleware/grouper/ui/InitialStems.java"/>
 			<include name="edu/internet2/middleware/grouper/PersonalStem.java"/>
 		</javac>
 		<!-- Compile ui code - mostly Struts actions -->
 		
-		<javac srcdir="${ui.folder}/java/src" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="${debug}"/>
+		<javac srcdir="${ui.folder}/java/src" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="true"/>
 		<!-- Call any site specific build script. This may be used to introduce site specific Struts action,
 		  	     local Subject implementations etc -->
 		<antcall target="-additional-build">
@@ -368,7 +368,7 @@
 	-->
 	<target name="-compileGrouper" if="grouper.compile.api">
 		<echo message="Compiling the Grouper api"/>
-		<javac srcdir="${grouper.folder}/src/grouper" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="${debug}"/>
+		<javac srcdir="${grouper.folder}/src/grouper" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="true"/>
 		<copy todir="${webapp.class.folder}">
 			<fileset dir="${grouper.folder}/src/grouper">
 				<include name="**/*.xml"/>
