@@ -3,7 +3,9 @@
  */
 package edu.internet2.middleware.grouper.ws.util;
 
+import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -55,6 +57,63 @@ import edu.internet2.middleware.subject.Subject;
  * 
  */
 public final class GrouperServiceUtils {
+
+  /**
+   * compute a url of a resource
+   * @param resourceName
+   * @param canBeNull if cant be null, throw runtime
+   * @return the URL
+   */
+  public static URL computeUrl(String resourceName, boolean canBeNull) {
+    //get the url of the navigation file
+    ClassLoader cl = classLoader();
+
+    URL url = null;
+
+    try {
+      url = cl.getResource(resourceName);
+    } catch (NullPointerException npe) {
+      String error = "computeUrl() Could not find resource file: " + resourceName;
+      throw new RuntimeException(error, npe);
+    }
+
+    if (!canBeNull && url == null) {
+      throw new RuntimeException("Cant find resource: " + resourceName);
+    }
+
+    return url;
+  }
+
+
+  /**
+   * fast class loader
+   * @return the class loader
+   */
+  public static ClassLoader classLoader() {
+    return GrouperServiceUtils.class.getClassLoader();
+  }
+
+
+  /**
+   * get a file name from a resource name
+   * 
+   * @param resourceName
+   *          is the classpath location
+   * 
+   * @return the file path on the system
+   */
+  public static File fileFromResourceName(String resourceName) {
+    
+    URL url = computeUrl(resourceName, true);
+
+    if (url == null) {
+      return null;
+    }
+
+    File configFile = new File(url.getFile());
+
+    return configFile;
+  }
 
   /**
    * retrieve group type based on name
