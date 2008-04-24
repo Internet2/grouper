@@ -18,25 +18,27 @@
 	<property file="build.properties" />
 
 	<!-- validate the build.properties -->
-	<fail message="Couldnt detect build.properties property file entry: webapp.folder" unless="webapp.folder" />
-	<fail message="Couldnt detect build.properties property file entry: dist.cleanOnDist" unless="dist.cleanOnDist" />
-	<fail message="Couldnt detect build.properties property file entry: dist.packageAar" unless="dist.packageAar" />
-  <fail message="Couldnt detect build.properties property file entry: webapp.authentication.use.rampart" unless="webapp.authentication.use.rampart" />
-	<fail message="Couldnt detect build.properties property file entry: dist.generateWsdlOnDist" unless="dist.generateWsdlOnDist" />
-	<fail message="Couldnt detect build.properties property file entry: dist.generateClientOnDist" unless="dist.generateClientOnDist" />
-	<fail message="Couldnt detect build.properties property file entry: deploy.context.path" unless="deploy.context.path" />
-	<fail message="Couldnt detect build.properties property file entry: generated.client.project.dir" unless="generated.client.project.dir" />
-	<fail message="Couldnt detect build.properties property file entry: grouper.dir" unless="grouper.dir" />
-	<fail message="Couldnt detect build.properties property file entry: grouper.dist.dir" unless="grouper.dist.dir" />
-	<fail message="Couldnt detect build.properties property file entry: stop.tomcat.on.quick.or.dist" unless="stop.tomcat.on.quick.or.dist" />
-	<fail message="Couldnt detect build.properties property file entry: tomcat.dir" unless="tomcat.dir" />
-	<fail message="Couldnt detect build.properties property file entry: tomcat.port" unless="tomcat.port" />
-	<fail message="Couldnt detect build.properties property file entry: cvs.branch" unless="cvs.branch" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): webapp.folder" unless="webapp.folder" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.cleanOnDist" unless="dist.cleanOnDist" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.packageAar" unless="dist.packageAar" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): webapp.authentication.use.rampart" unless="webapp.authentication.use.rampart" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.generateWsdlOnDist" unless="dist.generateWsdlOnDist" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.generateClientOnDist" unless="dist.generateClientOnDist" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.buildGeneratedClientJarOnDist" unless="dist.buildGeneratedClientJarOnDist" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): deploy.context.path" unless="deploy.context.path" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): generated.client.project.dir" unless="generated.client.project.dir" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): grouper.dir" unless="grouper.dir" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): grouper.dist.dir" unless="grouper.dist.dir" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): stop.tomcat.on.quick.or.dist" unless="stop.tomcat.on.quick.or.dist" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): tomcat.dir" unless="tomcat.dir" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): tomcat.port" unless="tomcat.port" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): cvs.branch" unless="cvs.branch" />
 
 	<property name="webapp.folder" value="${dist.home}/${webapp.name}" />
 
 	<property name="build.dir" value="${basedir}/build" />
 	<property name="build.dir.grouper-ws" value="${build.dir}/grouper-ws" />
+  <property name="build.dir.grouper-ws-soap-client" value="${build.dir}/grouper-ws-soap-client" />
 
 	<mkdir dir="${build.dir}" />
 	<mkdir dir="${build.dir.grouper-ws}" />
@@ -338,6 +340,42 @@
 			<fileset dir="${webapp.folder}" />
 		</jar>
 
+	  <if>
+	    <istrue value="${dist.buildGeneratedClientJarOnDist}" />
+	    <then>
+	      <!-- every build is clean -->
+	      <mkdir dir="${build.dir.grouper-ws-soap-client}" />
+	      <delete dir="${build.dir.grouper-ws-soap-client}" />
+        <mkdir dir="${build.dir.grouper-ws-soap-client}" />
+
+	      <!-- make the generated soap client jar -->
+	      <!-- compile first -->
+	      <path id="generated.client.class.path">
+	         <!-- Make available jar files that Grouper needs -->
+	         <fileset dir="${generated.client.project.dir}">
+	           <!-- matches lib and libRampart -->
+	           <include name="lib**/*.jar" />
+	         </fileset>
+
+	       </path>
+
+	      <javac srcdir="${generated.client.project.dir}/src" 
+	         destdir="${build.dir.grouper-ws-soap-client}" 
+	         classpathref="generated.client.class.path" debug="true">
+	         <!-- compilerarg value="-Xlint:deprecation" / -->
+        </javac>
+        <!-- copy over resources -->
+	      <copy toDir="${build.dir.grouper-ws-soap-client}" failonerror="false">
+          <fileset dir="${generated.client.project.dir}/src" includes="**"/>
+	        <fileset dir="${generated.client.project.dir}/resources" includes="**"/>
+	      </copy>
+
+	      <jar destfile="${dist.home}/grouper-ws-soap-client.jar">
+	        <fileset dir="${build.dir.grouper-ws-soap-client}" />
+	      </jar>
+	    </then>
+	  </if>
+	  
 	</target>
 
 
