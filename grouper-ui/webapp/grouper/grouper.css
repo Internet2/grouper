@@ -484,6 +484,12 @@ body {
     font-size: 11px;
     cursor: pointer;
 }
+/** there is a slight underline on tooltips in buttons that should be removed in certain cases */
+.blueButton .tooltip, .redButton .tooltip, .linkButton a .tooltip {
+  border-bottom: none;
+}
+
+
 .blueButton, .redButton {
     border:1px solid black;
     border-top-color:#666;
