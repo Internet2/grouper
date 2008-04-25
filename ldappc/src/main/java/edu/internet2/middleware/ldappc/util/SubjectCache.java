@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.4 2008-04-10 17:14:20 khuxtable Exp $
+ * $Id: SubjectCache.java,v 1.5 2008-04-25 19:09:57 khuxtable Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -244,13 +244,20 @@ public class SubjectCache
         Name baseName = parser.parse(filter.getBase());
 
         subjectIdLookups++;
-        Name subjectDn = subjectIdToDnTables.get(sourceId).get(subjectIdentifier);
-        if (subjectDn != null)
+        Name subjectDn = null;
+        if (subjectIdToDnTables.get(sourceId) == null)
         {
-            subjectIdTableHits++;
-            return subjectDn;
+            subjectIdToDnTables.put(sourceId, new Hashtable<String, Name>(DEFAULT_HASH_ESTIMATE));
         }
-
+        else
+        {
+            subjectDn = subjectIdToDnTables.get(sourceId).get(subjectIdentifier);
+            if (subjectDn != null)
+            {
+                subjectIdTableHits++;
+                return subjectDn;
+            }
+        }
         String filterExpr = filter.getFilter();
 
         Object[] filterArgs = new Object[] { subjectIdentifier };
