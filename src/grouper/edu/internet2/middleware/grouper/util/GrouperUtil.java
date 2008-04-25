@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,10 +36,12 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import net.sf.cglib.proxy.Enhancer;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -52,6 +55,106 @@ import org.apache.commons.logging.LogFactory;
  */
 @SuppressWarnings("serial")
 public class GrouperUtil {
+
+  /** keep a cache of db change whitelists */
+  private static Set<MultiKey> dbChangeWhitelist = new HashSet<MultiKey>();
+  
+  /**
+   * see if there is a grouper properties db match
+   * @param whitelist true if whitelist, false if blacklist
+   * @param user is the db user
+   * @param url is the db url
+   * @return true if found match, false if not
+   */
+  public static boolean findGrouperPropertiesDbMatch(boolean whitelist, String user, String url) {
+
+    //lets check the whitelist and blacklist first
+    Properties grouperProperties = GrouperUtil.propertiesFromResourceName("grouper.properties");
+
+    //check blacklist
+    //db.change.deny.user.0=
+    //db.change.deny.url.0=
+    //db.change.allow.user.0=grouper
+    //db.change.allow.url.0=jdbc:mysql://localhost:3306/grouper
+
+    int index = 0;
+    String typeString = whitelist ? "allow" : "deny";
+    while (true) {
+      String currentUser = StringUtils.trim(grouperProperties.getProperty(
+          "db.change." + typeString + ".user." + index));
+      String currentUrl = StringUtils.trim(grouperProperties.getProperty(
+          "db.change." + typeString + ".url." + index));
+      
+      //if we are done checking
+      if (StringUtils.isBlank(currentUser) || StringUtils.isBlank(currentUrl)) {
+        break;
+      }
+      if (StringUtils.equals(currentUser, user) && StringUtils.equals(currentUrl, url)) {
+        return true;
+      }
+      index++;
+    }
+    return false;
+  }
+  
+  /**
+   * prompt the user about db changes
+   * @param reason e.g. delete all tables
+   */
+  public static void promptUserAboutDbChanges(String reason) {
+    Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
+    
+    String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
+    String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+
+    MultiKey cacheKey = new MultiKey(reason, url, user);
+    
+    //if already ok'ed this question in the jre instance, then we are all set
+    if (dbChangeWhitelist.contains(cacheKey)) {
+      return;
+    }
+    
+    //check blacklist
+    if (findGrouperPropertiesDbMatch(false, user, url)) {
+      System.out.println("This DB user '" + user + "' and url '" + url + "' are denied to be " +
+      		"changed in the grouper.properties");
+      System.exit(0);
+
+    }
+    
+    //check whitelist
+    if (findGrouperPropertiesDbMatch(true, user, url)) {
+      System.out.println("This DB user '" + user + "' and url '" + url + "' are allowed to be " +
+          "changed in the grouper.properties");
+
+    } else {
+    
+      //ask user if ok
+      System.out.println("(note, you can whitelist or blacklist db urls and users in the grouper.properties)");
+      //note the following must be println and not just print so it will show up in ant
+      System.out.println("Are you sure you want to " + reason + " in db user '" + user + "', db url '" + url + "'? (y|n): ");
+      System.out.flush(); // empties buffer, before you input text
+      
+      BufferedReader stdin = null;
+      String message = null; // Creates a variable called message for input
+  
+      try {
+        stdin = new BufferedReader(new InputStreamReader(System.in));
+        message = stdin.readLine();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      } finally {
+        GrouperUtil.closeQuietly(stdin);
+      }
+  
+      if (!StringUtils.equalsIgnoreCase(StringUtils.trimToEmpty(message), "y")) {
+        System.out.println("OK, exiting");
+        System.exit(0);
+      }
+    }    
+    //all good, add to cache so we dont have to repeatedly ask user
+    dbChangeWhitelist.add(cacheKey);
+  }
 
   /**
    * get a unique string identifier based on the current time,
@@ -774,6 +877,11 @@ public class GrouperUtil {
    */
   private static char[] lastId = convertLongToStringSmall(new Date().getTime())
       .toCharArray();
+
+  /**
+   * cache the properties read from resource 
+   */
+  private static Map<String, Properties> resourcePropertiesCache = new HashMap<String, Properties>();
 
   /**
    * assign data to a field
@@ -4297,5 +4405,31 @@ public class GrouperUtil {
     }
   
     return string;
+  }
+
+  /**
+   * read properties from a resource, dont modify the properties returned since they are cached
+   * @param resourceName
+   * @return the properties
+   */
+  public synchronized static Properties propertiesFromResourceName(String resourceName) {
+    Properties properties = resourcePropertiesCache.get(resourceName);
+    if (properties == null) {
+  
+      properties = new Properties();
+      //TODO move this to grouperutil
+      URL url = computeUrl(resourceName, true);
+      InputStream inputStream = null;
+      try {
+        inputStream = url.openStream();
+        properties.load(inputStream);
+      } catch (Exception e) {
+        throw new RuntimeException("Problem with resource: '" + resourceName + "'");
+      } finally {
+        GrouperUtil.closeQuietly(inputStream);
+      }
+  
+    }
+    return properties;
   }
 }
