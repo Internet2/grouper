@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Perform low-level operations on the Groups Registry.
@@ -26,7 +27,7 @@ import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.50 2007-12-05 11:25:10 isgwb Exp $
+ * @version $Id: RegistryReset.java,v 1.51 2008-04-25 21:30:24 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -64,6 +65,10 @@ public class RegistryReset {
    * Attempt to reset the Groups Registry to a pristine state.
    */
   public static void reset() {
+    
+    //make sure it is ok to change db
+    GrouperUtil.promptUserAboutDbChanges("delete all grouper data");
+    
     RegistryReset rr = new RegistryReset();
     try {
       MemberFinder.clearInternalMembers();

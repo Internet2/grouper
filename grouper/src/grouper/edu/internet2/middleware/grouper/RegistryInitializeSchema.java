@@ -16,14 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
+
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.1 2007-04-30 16:15:12 blair Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.2 2008-04-25 21:30:24 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -34,6 +41,10 @@ public class RegistryInitializeSchema {
    * @since   1.2.0
    */
   public static void main(String[] args) {
+    
+    //make sure it is ok to change db
+    GrouperUtil.promptUserAboutDbChanges("delete/recreate all tables");
+
     try {
       ( (RegistryDAO) GrouperDAOFactory.getFactory().getRegistry() ).initializeSchema();
       System.exit(0);
