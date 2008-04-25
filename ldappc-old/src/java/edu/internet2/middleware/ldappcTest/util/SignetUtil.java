@@ -18,27 +18,24 @@
 
 package edu.internet2.middleware.ldappcTest.util;
 
-import junit.framework.TestCase;
+import java.util.Iterator;
+import java.util.Set;
 
+import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.subject.Subject;
-
-
+import edu.internet2.middleware.signet.Limit;
+import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import  edu.internet2.middleware.signet.Signet;
-import  edu.internet2.middleware.signet.SignetRuntimeException;
-import  edu.internet2.middleware.signet.LimitValue;
-import  edu.internet2.middleware.signet.Limit;
-import  edu.internet2.middleware.signet.PrivilegedSubject;
-import  edu.internet2.middleware.signet.Privilege;
-import  edu.internet2.middleware.signet.Permission;
-import  edu.internet2.middleware.signet.tree.TreeNode;
-import  edu.internet2.middleware.signet.choice.Choice;
-import  edu.internet2.middleware.signet.choice.ChoiceSet;
-
-import java.util.Set;
-import java.util.Iterator;
+import edu.internet2.middleware.signet.Permission;
+import edu.internet2.middleware.signet.Privilege;
+import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetRuntimeException;
+import edu.internet2.middleware.signet.choice.Choice;
+import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
+import edu.internet2.middleware.signet.tree.TreeNode;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for examining Signet data
@@ -87,15 +84,11 @@ public class SignetUtil extends TestCase
         //
         // Get the PrivilegedSubject
         //
-        PrivilegedSubject privSubject = null;
-        try
-        { 
-            // example for uid lsaito, Saito, Lee      "person"       "SD00009"
-             privSubject = signet.getPrivilegedSubject(subjectTypeId, subjectId);
-        } 
-        catch(ObjectNotFoundException onfe)
-        { 
-             ErrorLog.error(SignetUtil.class, "Could not find PrivilegedSubject.  " + onfe.getMessage());
+        SignetSubject privSubject = null;
+        // example for uid lsaito, Saito, Lee      "person"       "SD00009"
+        privSubject = signet.getSubject(subjectTypeId, subjectId);
+        if (privSubject == null) { 
+             ErrorLog.error(SignetUtil.class, "Could not find PrivilegedSubject.");
         } 
 
         Set privileges = privSubject.getPrivileges();

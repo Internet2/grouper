@@ -34,9 +34,9 @@ import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Privilege;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetRuntimeException;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
 import edu.internet2.middleware.subject.Subject;
 
@@ -183,14 +183,10 @@ public class SignetProvisionerPermissionsTest extends TestCase
         //
         // Get the PrivilegedSubject, which should be uid=lsaito, Saito, Lee
         //
-        PrivilegedSubject privSubject = null;
-        try
-        { 
-             privSubject = signet.getPrivilegedSubject("person", "SD00009");
-        } 
-        catch(ObjectNotFoundException onfe)
-        { 
-             fail("Could not find PrivilegedSubject.  " + onfe.getMessage());
+        SignetSubject privSubject = null;
+        privSubject = signet.getSubject("person", "SD00009");
+        if (privSubject == null) {
+             fail("Could not find PrivilegedSubject.");
         } 
         Set privileges = privSubject.getPrivileges();
         Privilege privilege = null;

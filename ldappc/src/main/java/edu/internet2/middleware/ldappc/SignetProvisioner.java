@@ -40,9 +40,9 @@ import edu.internet2.middleware.ldappc.synchronize.StringPermissionSynchronizer;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -127,7 +127,9 @@ public class SignetProvisioner extends Provisioner
         // Get the list of privileged subjects
         //
         Signet signet = new Signet();
-        List privSubjs = signet.getPrivilegedSubjects();
+        
+        // FIXME Is SignetAppSource.SIGNET_SOURCE_ID the appropriate source name?
+        Vector privSubjs = signet.getSubjectsBySource(SignetAppSource.SIGNET_SOURCE_ID);
 
         //
         // For each privileged subject, process the active permissions
@@ -138,29 +140,26 @@ public class SignetProvisioner extends Provisioner
             //
             // Get the privileged subject
             //
-            PrivilegedSubject privSubj = (PrivilegedSubject) privSubjIterator
+            SignetSubject privSubj = (SignetSubject) privSubjIterator
                     .next();
 
             //
             // Try to find the privilege subject's subject.
             //
             Subject subject = null;
-            try
-            {
-                //
-                // Using signet.getSubject() as privSubj.getSubject() encounters
-                // a NullPointerException.
-                //
-                subject = signet.getSubject(privSubj.getSubjectTypeId(),
-                        privSubj.getSubjectId());
-            }
-            catch(ObjectNotFoundException onfe)
+            //
+            // Using signet.getSubject() as privSubj.getSubject() encounters
+            // a NullPointerException.
+            //
+            subject = signet.getSubject(privSubj.getSubjectType(),
+                    privSubj.getId());
+            if (subject == null)
             {
                 //
                 // Handle the exception
                 //
                 String errorData = getErrorData(privSubj, null, null);
-                logThrowableWarning(onfe, errorData);
+                logThrowableWarning(null, errorData);
 
                 //
                 // Simply continue with the loop
@@ -301,7 +300,7 @@ public class SignetProvisioner extends Provisioner
      *            DN of <code>subject</code>'s LDAP entry
      * @return data string
      */
-    protected String getErrorData(PrivilegedSubject privSubj, Subject subject,
+    protected String getErrorData(SignetSubject privSubj, Subject subject,
             Name subjectDn)
     {
         String errorData = "PRIVILEGED SUBJECT";

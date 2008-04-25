@@ -21,29 +21,28 @@ package edu.internet2.middleware.ldappcTest.dbBuilder;
 import java.util.Iterator;
 import java.util.List;
 
-
-import javax.naming.NamingException;
-import javax.naming.NameNotFoundException;
-import javax.naming.NotContextException;
 import javax.naming.ContextNotEmptyException;
 import javax.naming.NameAlreadyBoundException;
-import javax.naming.ldap.LdapContext;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.naming.NotContextException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-
+import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.ldappc.ConfigManager;
+import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.signet.PrivilegedSubject;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
 
 /**
 * This class provisions Signet privileged subject data to the
@@ -101,7 +100,8 @@ public class SignetSubjectProvisioner
        // Get the list of privileged subjects
        //
        Signet signet = new Signet();
-       List privSubjects = signet.getPrivilegedSubjects();
+       // FIXME Is SignetAppSource.SIGNET_SOURCE_ID the correct source?
+       List privSubjects = signet.getSubjectsBySource(SignetAppSource.SIGNET_SOURCE_ID);
        
        //
        // Create the DN that is used as a base for adding subjects.
@@ -132,7 +132,7 @@ public class SignetSubjectProvisioner
                //
                // Get the privileged subject
                //
-               PrivilegedSubject privSubject = (PrivilegedSubject) privSubjectIterator.next();
+               SignetSubject privSubject = (SignetSubject) privSubjectIterator.next();
     
                //
                // Try to find the subject.
@@ -145,8 +145,8 @@ public class SignetSubjectProvisioner
                //
 
 
-               subject = signet.getSubject(privSubject.getSubjectTypeId(),
-                       privSubject.getSubjectId());
+               subject = signet.getSubject(privSubject.getSubjectType(),
+                       privSubject.getId());
 
                //
                // TEMPORARY FIX: Don't process the "signet" subject. 

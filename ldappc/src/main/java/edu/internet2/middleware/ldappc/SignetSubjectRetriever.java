@@ -22,6 +22,7 @@ import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import  edu.internet2.middleware.signet.Signet;
 import  edu.internet2.middleware.signet.SignetRuntimeException;
+import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 
 import java.util.List;
 
@@ -68,7 +69,8 @@ public class SignetSubjectRetriever
         
         try
         {
-            privSubj = signet.getPrivilegedSubjects();
+            // FIXME Is SignetAppSource.SIGNET_SOURCE_ID the correct source?
+            privSubj = signet.getSubjectsBySource(SignetAppSource.SIGNET_SOURCE_ID);
         }
         catch (SignetRuntimeException sre)
         {
