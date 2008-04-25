@@ -297,6 +297,11 @@ form {
   margin-top: 20px;
   margin-left: 20px;
   margin-right: 20px;
+  /* in ie6, text disappears, this will fix it
+  http://plone.org/documentation/how-to/internet-explorer-invisible-text
+  http://www.positioniseverything.net/explorer/peekaboo.html
+   */
+  height: 0.01%;
 }
 
 .sectionBody {
