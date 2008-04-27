@@ -253,7 +253,9 @@ public class HibernateSession {
       String errorString = "Problem in HibernateSession: " + hibernateSession;
       // rethrow
       if (e instanceof GrouperDAOException) {
-        LOG.error(errorString);
+        if (!GrouperUtil.injectInException(e, errorString)) {
+          LOG.error(errorString);
+        }
         throw (GrouperDAOException) e;
       }
       // if hibernate exception, repackage
@@ -262,8 +264,9 @@ public class HibernateSession {
       }
       // if runtime, then rethrow
       if (e instanceof RuntimeException) {
-        // note, it would be nice to get this in the exception, but also nice to preserve the original exception
-        LOG.error(errorString);
+        if (!GrouperUtil.injectInException(e, errorString)) {
+          LOG.error(errorString);
+        }
         throw (RuntimeException) e;
       }
       // if exception and not handled, convert to GrouperDaoException
