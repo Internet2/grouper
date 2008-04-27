@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="lib" path="lib/bsh-2.0b4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
