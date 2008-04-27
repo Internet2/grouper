@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.3 2008-03-24 20:15:36 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.4 2008-04-27 13:08:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -24,6 +24,19 @@ public class GrouperUtilTest extends TestCase {
     TestRunner.run(new GrouperUtilTest("testIndentJson"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * make sure exceptions inject
+   */
+  public void testInjectException() {
+    Exception e = new Exception();
+    GrouperUtil.injectInException(e, "hey");
+    assertEquals("hey", e.getMessage());
+    GrouperUtil.injectInException(e, "there");
+    assertTrue(e.getMessage().contains("hey"));
+    assertTrue(e.getMessage().contains("there"));
+    
   }
   
   /**

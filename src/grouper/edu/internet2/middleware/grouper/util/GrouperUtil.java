@@ -47,6 +47,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.GrouperConfig;
+
 
 /**
  * utility methods for grouper
@@ -58,6 +60,36 @@ public class GrouperUtil {
 
   /** keep a cache of db change whitelists */
   private static Set<MultiKey> dbChangeWhitelist = new HashSet<MultiKey>();
+  
+  /**
+   * If we can, inject this into the exception, else log error
+   * @param t
+   * @param message
+   * @return true if success, false if not
+   */
+  public static boolean injectInException(Throwable t, String message) {
+    
+    String throwableFieldName = GrouperConfig.getProperty("throwable.data.field.name");
+    
+    if (StringUtils.isBlank(throwableFieldName)) {
+      //this is the field for sun java 1.5
+      throwableFieldName = "detailMessage";
+    }
+    try {
+      String currentValue = t.getMessage();
+      if (!StringUtils.isBlank(currentValue)) {
+        currentValue += ",\n" + message;
+      } else {
+        currentValue = message;
+      }
+      assignField(t, throwableFieldName, currentValue);
+      return true;
+    } catch (Throwable t2) {
+      //dont worry about what the problem is, return false so the caller can log
+      return false;
+    }
+    
+  }
   
   /**
    * see if there is a grouper properties db match
@@ -4417,7 +4449,7 @@ public class GrouperUtil {
     if (properties == null) {
   
       properties = new Properties();
-      //TODO move this to grouperutil
+
       URL url = computeUrl(resourceName, true);
       InputStream inputStream = null;
       try {
