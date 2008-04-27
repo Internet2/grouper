@@ -1,0 +1,13 @@
+syntax: glob
+*~
+*.bak
+*.class
+*.log
+*.log.?
+*.swp
+bin/
+CVS/
+gsh-*.zip
+src/gsh/com/devclue/grouper/shell/GrouperShellVersion.java
+.svn/
+TEST-*.xml

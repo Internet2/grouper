@@ -1,0 +1,58 @@
+
+# gsh News
+
+This file provides information on gsh releases.
+
+---
+
+## gsh 0.1.1
+
+Released: 20070515
+
+* Modified to become a Grouper API extension.
+
+---
+
+## gsh 0.1.0
+
+Released: 20061102
+
+### CHANGES
+* NEW:    Added methods for exporting-and-importing XML:
+    * xmlFromFile(filename)
+    * xmlFromString(string)
+    * xmlFromURL(URL)
+    * xmlToFile(filename)
+    * xmlToString()
+    * xmlUpdateFromFile(filename)
+    * xmlUpdateFromString(string)
+    * xmlUpdateFromURL(URL)
+* UPDATE: Increase gsh memory allocation in `gsh.sh` and `gsh.bat`
+* NEW:    Added *GroupType* commands for *Group*s:
+    * groupAddType(group, type)
+    * groupDelType(group, type)
+    * groupGetTypes(group)
+    * groupHasType(group, type)
+* NEW:    Added *GroupType* commands:
+    * typeAdd(name)
+    * typeAddAttr(type, name, read, write, req)
+    * typeAddList(type, name, read, write)
+    * typeDel(name)
+    * typeDelField(type, name)
+    * typeFind(name)
+    * typeGetFields(name)
+* NEW:    Added `bin/gsh.bat` [Gary Brown]
+
+---
+
+## gsh 0.0.1
+
+Released: 20060720
+
+### CHANGES
+* First release of *GrouperShell*.
+
+---
+
+$Id: NEWS.txt,v 1.1.1.1 2008-04-27 14:52:15 tzeller Exp $
+

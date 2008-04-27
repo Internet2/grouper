@@ -1,0 +1,307 @@
+<!-- $Id: build.xml,v 1.1.1.1 2008-04-27 14:52:15 tzeller Exp $ -->
+
+<project name="GrouperShell" default="compile" basedir=".">
+
+  <!-- Global Properties -->
+  <property name="app.name"         value="gsh"/>
+  <property name="impl.vendor"      value="devclue.com"/>
+  <property name="impl.url"         value="http://groupertoolkit.blogspot.com/"/>
+  <property name="impl.version"     value="0.1.1"/>
+
+  <property name="build"            location="${basedir}/build"/>
+  <property name="build.gsh"        location="${build}/gsh"/>
+  <property name="build.test"       location="${build}/test"/>
+
+  <property name="javadoc.packages" value="com.devclue.grouper.*,com.devclue.grouper.*.*" />
+
+  <property name="src"              location="${basedir}/src"/>
+  <property name="src.bin"          location="${src}/bin"/>
+  <property name="src.gsh"          location="${src}/gsh"/>
+  <property name="src.test"         location="${src}/test"/>
+
+  <property name="log.build"        value="${basedir}/build.log"/>
+  <property name="log.test.build"   value="${basedir}/test-build.log"/>
+  <property name="log.test.run"     value="${basedir}/test.log"/>
+
+  <property name="memory.start"     value="64m"/>
+  <property name="memory.max"       value="256m"/>
+  <!-- Global Properties -->
+
+
+  <!-- TARGETS -->
+
+  <!-- target: clean -->
+  <target name="clean"
+          description="clean built files"
+  >
+    <delete dir="${build}"/>
+    <delete file="${src.gsh}/com/devclue/grouper/shell/GrouperShellVersion.java"/>
+    <delete>
+      <fileset dir="${basedir}" includes="TEST-*.xml"/>
+    </delete>
+    <delete>
+      <fileset dir="${basedir}" includes="*.log"/>
+      <fileset dir="${basedir}" includes="*.log.?"/>
+    </delete>
+  </target>
+  <!-- target: clean -->
+
+  <!-- target: compile --> 
+  <target name="compile" 
+          depends="init"
+          description="compile GrouperShell"
+  >
+    <record name="${log.build}" action="start"/>
+    <antcall target="compile.class.version"/>
+    <javac srcdir="${src.gsh}" destdir="${build.gsh}">
+      <classpath refid="project.classpath"/>
+    </javac>
+    <copy todir="${build.gsh}">
+      <fileset dir="${src.gsh}" includes="**/*.bsh"/>
+    </copy>
+    <record name="${log.build}" action="stop"/>
+  </target>
+  <!-- target: compile -->
+
+  <!-- target: compile.class.version -->
+  <target name="compile.class.version">
+    <filter token="GSH_VERSION" value="${impl.version}"/>
+    <copy file="${src.gsh}/com/devclue/grouper/shell/GrouperShellVersion.java.in"
+          tofile="${src.gsh}/com/devclue/grouper/shell/GrouperShellVersion.java"
+          filtering="true"
+    />
+  </target>
+  <!-- target: compile.class.version -->
+
+  <!-- target: ext.clean -->
+  <target name="ext.clean">
+    <antcall target="clean"/>
+  </target>
+  <!-- target: ext.clean -->
+
+  <!-- target: ext.compile -->
+  <target name="ext.compile">
+    <antcall target="compile"/>
+  </target>
+  <!-- target: ext.compile -->
+
+  <!-- target: ext.doc -->
+  <target name="ext.doc">
+    <antcall target="javadoc"/>
+  </target>
+  <!-- target: ext.doc -->
+
+  <!-- target: ext.install -->
+  <target name="ext.install">
+    <antcall target="install"/>
+  </target>
+  <!-- target: ext.install -->
+
+  <!-- target: ext.test -->
+  <target name="ext.test">
+    <antcall target="test"/>
+  </target>
+  <!-- target: ext.test -->
+
+  <!-- target: init -->
+  <target name="init"
+          description="initialize paths and properties"
+  >
+    <tstamp />
+    <mkdir dir="${build.gsh}"/>
+    <mkdir dir="${build.test}"/>
+    <path id="project.classpath">
+      <pathelement path="${java.class.path}"/>
+      <fileset dir="${basedir}/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+      <pathelement location="${build.gsh}"/>
+      <pathelement location="${build.test}"/>
+      <pathelement location="${test.data}"/>
+      <pathelement path="${GROUPER_CLASSPATH}"/>
+    </path>
+  </target>
+  <!-- target: init -->
+
+  <!-- target: install -->
+  <target name="install" 
+          depends="compile"
+  > 
+    <jar destfile="${GROUPER_EXT_LIB}/${app.name}-${impl.version}.jar" basedir="${build.gsh}">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Implementation-Vendor"   value="${impl.vendor}"/>
+        <attribute name="Implementation-Title"    value="${app.name}"/>
+        <attribute name="Implementation-Version"  value="${impl.version}" />
+        <attribute name="Implementation-URL"      value="${impl.url}" />
+    </manifest>
+    </jar>
+    <!-- install binaries -->
+    <filter token="GROUPER_CONF"    value="${GROUPER_CONF}"/>
+    <filter token="GROUPER_EXT_LIB" value="${GROUPER_EXT_LIB}"/>
+    <filter token="GROUPER_HOME"    value="${GROUPER_HOME}"/>
+    <filter token="GSH_HOME"        value="${basedir}"/>
+    <filter token="GSH_MEM_START"   value="${memory.start}"/>
+    <filter token="GSH_MEM_MAX"     value="${memory.max}"/>
+    <filter token="GSH_VERSION"     value="${impl.version}"/>
+    <copy todir="${GROUPER_EXT_BIN}" filtering="true">
+      <fileset dir="${src.bin}"/>
+    </copy>
+    <chmod  file="${GROUPER_EXT_BIN}/gsh.bat" perm="ugo+rx"/>
+    <chmod  file="${GROUPER_EXT_BIN}/gsh.sh"  perm="ugo+rx"/>
+    <!-- install libraries -->
+    <copy todir="${GROUPER_EXT_LIB}">
+      <fileset dir="${basedir}/lib">
+        <include  name="*.jar"/>
+      </fileset>
+    </copy>
+  </target>
+  <!-- target: install -->
+ 
+  <!-- target: javadoc -->
+  <target name="javadoc" 
+          depends="init"
+  >
+    <property name="dist.dir.javadoc" location="${GROUPER_EXT_DOC}/gsh"/>
+    <mkdir    dir="${dist.dir.javadoc}"/>
+    <javadoc  destdir="${dist.dir.javadoc}"
+              access="public"
+              author="true"
+              breakiterator="true"
+              classpathref="project.classpath" 
+              nodeprecatedlist="false"
+              nodeprecated="false"
+              noindex="false"
+              nonavbar="false"
+              notree="false"
+              splitindex="true"
+              stylesheetfile="${GROUPER_DOC_CSS}"
+              use="true"
+              version="true"
+    > 
+      <packageset dir="${src.gsh}" defaultexcludes="yes"/>
+    </javadoc>
+  </target>
+  <!-- target: javadoc -->
+
+  <!-- target: package.src -->
+  <target name="package.src"
+          depends="clean"
+          description="Create a gsh source package"
+  >
+    <zip destfile="${basedir}/${app.name}-${impl.version}-src.zip">
+      <zipfileset dir="${basedir}" prefix="${app.name}-${impl.version}">
+        <exclude name="*.zip"/>
+        <exclude name=".hgignore"/>
+        <exclude name=".hg/"/>
+        <exclude name="*.swp"/>
+      </zipfileset>
+    </zip>
+  </target>
+  <!-- target: package.src -->
+
+  <!-- shell -->
+  <target name="shell" 
+          depends="compile"
+          description="(crudely) run GrouperShell"
+  >
+    <java fork="no"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="com.devclue.grouper.shell.GrouperShell"
+          failonerror="true"
+    />
+  </target>
+  <!-- shell -->
+
+  <!-- target: test -->
+  <target name="test" 
+          depends="test-compile"
+  >
+    <antcall target="test-shell"/>
+    <junit  fork="yes"
+            haltonerror="yes"
+            haltonfailure="yes"
+            maxmemory="${memory.max}"
+            printsummary="yes"
+            showoutput="yes"
+    >
+      <classpath  refid="project.classpath"/>
+      <formatter  type="xml"/>
+      <batchtest  fork="yes"
+      >
+        <formatter  type="xml"/>
+        <fileset    dir="${src.test}">
+          <include  name="**/Test*.java"/>
+          <exclude  name="**/Suite*.java"/>
+        </fileset>  
+      </batchtest>
+    </junit>
+  </target>
+  <!-- target: test -->
+
+  <!-- test-compile -->
+  <target name="test-compile" 
+          depends="install"
+  >
+    <record name="${log.test.build}" action="start"/>
+    <javac srcdir="${src.test}" destdir="${build.test}">
+      <classpath refid="project.classpath"/>
+    </javac>
+    <record name="${log.test.build}" action="stop"/>
+  </target>
+  <!-- test-compile -->
+
+  <!-- target: test-run -->
+  <target name="test-run" 
+          depends="test-compile"
+  >
+    <record name="${log.test.run}" 
+            action="start"
+            append="yes"
+    />
+    <echo message="running test: ${name}" />
+    <java fork="yes"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="com.devclue.grouper.shell.GrouperShell"
+          taskname="junit"
+          failonerror="true"
+    >
+      <arg value="${src.test}/${name}.gsh"/>
+    </java>
+    <record name="${log.test.run}" action="stop"/>
+  </target>
+  <!-- target: test-run -->
+
+  <!-- target: test-shell -->
+  <target name="test-shell"
+          description="run .gsh tests"
+          depends="test-compile"
+  >
+    <antcall  target="test-run">
+      <param  name="name" value="test"/>
+    </antcall>
+    <antcall  target="test-run">
+      <param  name="name" value="stems"/>
+    </antcall>
+    <antcall  target="test-run">
+      <param  name="name" value="groups"/>
+    </antcall>
+    <antcall  target="test-run">
+      <param  name="name" value="privs"/>
+    </antcall>
+    <antcall  target="test-run">
+      <param  name="name" value="composites"/>
+    </antcall>
+    <antcall  target="test-run">
+      <param  name="name" value="group_types"/>
+    </antcall>
+    <antcall  target="test-run">
+      <param  name="name" value="xml"/>
+    </antcall>
+  </target>
+  <!-- target: test-shell -->
+
+</project>
+

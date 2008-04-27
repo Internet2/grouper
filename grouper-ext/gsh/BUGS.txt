@@ -1,0 +1,18 @@
+
+# gsh Bugs
+
+This file provides information on known gsh bugs.
+
+$Id: BUGS.txt,v 1.1.1.1 2008-04-27 14:52:15 tzeller Exp $
+
+---
+
+* 20060710  `x = last()` does not work. 
+* 20060707  When using an embedded HSQLDB database for the Groups Registry on
+	          Windows, the database will not always shutdown properly
+	          and will require manual intervention.
+* 20060623  The handling of gsh errors remains muddled, especially in regard 
+            to throwing proper failure-indicating return values.
+* 20060623  Multiline commands are **not** handled properly.  Long lines are
+            your friend at the moment.
+
