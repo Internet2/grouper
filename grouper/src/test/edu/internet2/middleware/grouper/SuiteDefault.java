@@ -22,13 +22,14 @@ import  junit.framework.*;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.31 2008-03-06 19:10:29 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.32 2008-04-28 21:20:15 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
 
+    suite.addTestSuite( GrouperVersionTest.class );
     suite.addTestSuite( Test_api_ChildGroupFilter.class );
     suite.addTestSuite( Test_api_ChildStemFilter.class );
     suite.addTestSuite( Test_api_Group.class );
