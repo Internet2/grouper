@@ -10,11 +10,13 @@ import  bsh.*;
 import  java.util.*;
 import  org.apache.commons.lang.time.*;
 
+import edu.internet2.middleware.grouper.ErrorLog;
+
 /**
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.1.1.1 2008-04-27 14:52:17 tzeller Exp $
+ * @version $Id: ShellHelper.java,v 1.2 2008-04-28 11:12:37 isgwb Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -37,7 +39,23 @@ class ShellHelper {
       }
     }
     catch (bsh.EvalError eBEE) {
-      i.error(E.BSH_EVAL + eBEE.getMessage());
+    	//2008-04-25: Gary Brown
+    	//Invocation errors were being swallowed giving no indication of the
+    	//actual problem. Now GSH prints more detailed error + causes and
+    	//logs full stacktrace
+    	StringBuffer err = new StringBuffer(eBEE.getMessage());
+    	if(eBEE instanceof TargetError) {
+    		Throwable t=((TargetError)eBEE).getTarget();
+    		if(t!=null) {
+    			ErrorLog.error(GrouperShell.class, eBEE.getMessage(), t);
+    			err.append("\n// See error log for full stacktrace");
+    		}
+	    	while(t!=null) {
+	    		err.append("\n// caused by: " + t.getClass().getName() + ":\n// " + t.getMessage());
+	    		t=t.getCause();
+	    	}
+    	}
+      i.error(E.BSH_EVAL + err.toString());
     }
     // Now update the command history
     try {
