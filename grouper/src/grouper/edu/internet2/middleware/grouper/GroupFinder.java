@@ -16,22 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  java.util.ArrayList;
-import  java.util.Set;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.49 2007-10-16 13:24:05 isgwb Exp $
+ * @version $Id: GroupFinder.java,v 1.50 2008-04-28 14:59:06 mchyzer Exp $
  */
 public class GroupFinder {
 
   // PRIVATE CLASS CONSTANTS //
+  /** error for finding by attribute */
   private static final String ERR_FINDBYATTRIBUTE = "could not find group by attribute: ";
+
+  /** error for finding by type */
   private static final String ERR_FINDBYTYPE      = "could not find group by type: ";
   
   
@@ -81,6 +87,47 @@ public class GroupFinder {
     }
     throw new GroupNotFoundException( ERR_FINDBYATTRIBUTE + Quote.single(attr) );
   } // public static Group findByAttribute(s, attr, val)
+
+  /**
+   * Find <tt>Group</tt>s by attribute value.  Returns groups or empty set if none (never null)
+   * <pre class="eg">
+   *   Set<Group> groups = GroupFinder.findAllByAttribute(s, "description", "some value");
+   * </pre>
+   * @param   s     Search within this session context.
+   * @param   attr  Search on this attribute.
+   * @param   val   Search for this value.
+   * @return  Matching {@link Group}.
+   * @throws  IllegalArgumentException
+   * @since   1.1.0
+   */
+  public static Set<Group> findAllByAttribute(GrouperSession s, String attr, String val)
+      throws  IllegalArgumentException {
+    NotNullValidator v = NotNullValidator.validate(s);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null session");
+    }
+    v = NotNullValidator.validate(attr);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null attribute");
+    }
+    v = NotNullValidator.validate(val);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null value");
+    }
+    Set<GroupDTO> dtos = GrouperDAOFactory.getFactory().getGroup().findAllByAttr(attr, val);
+    Set<Group> groups= new LinkedHashSet<Group>();
+    if (dtos != null && dtos.size() > 0) {
+      for (GroupDTO groupDTO : dtos) {
+        Group g = new Group();
+        g.setDTO(groupDTO);
+        g.setSession(s);
+        if ( s.getMember().canView(g) ) {
+          groups.add(g);
+        }
+      }
+    }
+    return groups;
+  } 
 
   /**
    * Find a group within the registry by name.
@@ -154,6 +201,31 @@ public class GroupFinder {
     }
     throw new GroupNotFoundException(ERR_FINDBYTYPE + Quote.single( type.toString() ));
   } // public static Group findByType(s, type)
+
+  /**
+   * Find all groups within the registry by their {@link GroupType}.  Or empty set if none (never null).
+   * <pre class="eg">
+   *   Set<Group> groups = GroupFinder.findAllByType( s, GroupTypeFinder.find("your type") );
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   type  Find group with this {@link GroupType}.
+   * @return  A set of {@link Group}s
+   * @throws  IllegalArgumentException
+   */
+  public static Set<Group> findAllByType(GrouperSession s, GroupType type) throws IllegalArgumentException {
+    NotNullValidator v = NotNullValidator.validate(s);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null session");
+    }
+    v = NotNullValidator.validate(type);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException("null type");
+    }
+    Set<Group> groups = PrivilegeHelper.canViewGroups(
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByType( (GroupTypeDTO) type.getDTO() )
+    );
+    return GrouperUtil.nonNull(groups);
+  } 
 
   /**
    * Find a group within the registry by UUID.

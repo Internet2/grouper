@@ -4464,4 +4464,35 @@ public class GrouperUtil {
     }
     return properties;
   }
+
+  /**
+   * do a case-insensitive matching
+   * @param theEnumClass class of the enum
+   * @param <E> generic type
+   * 
+   * @param string
+   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @return the enum or null or exception if not found
+   * @throws RuntimeException if there is a problem
+   */
+  public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
+      boolean exceptionOnNotFound) throws RuntimeException {
+    
+    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
+      return null;
+    }
+    for (E e : theEnumClass.getEnumConstants()) {
+      if (StringUtils.equalsIgnoreCase(string, e.name())) {
+        return e;
+      }
+    }
+    StringBuilder error = new StringBuilder(
+        "Cant find " + theEnumClass.getSimpleName() + " from string: '").append(string);
+    error.append("', expecting one of: ");
+    for (E e : theEnumClass.getEnumConstants()) {
+      error.append(e.name()).append(", ");
+    }
+    throw new RuntimeException(error.toString());
+  
+  }
 }
