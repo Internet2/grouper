@@ -20,6 +20,14 @@ gsh has moved from <http://code.google.com/p/blair/> to the Internet2 CVS reposi
 
       cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi login
       cvs -z3 -d :pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi co grouper-ext/gsh
+      
+    * Documentation is available via "Tools & Topics for On-Going Administration" on the Grouper Product Wiki:
+    
+      https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Product
+      
+      or via the following link to the GrouperShell (gsh) page:
+
+      https://wiki.internet2.edu:443/confluence/x/oFk
 
 Please report bugs / feature requests to grouper-users@internet2.edu.
 
@@ -49,5 +57,5 @@ Read gsh commands from a script file:
 
 ---
 
-$Id: README.txt,v 1.2 2008-04-29 15:15:41 isgwb Exp $
+$Id: README.txt,v 1.3 2008-04-29 18:13:42 tzeller Exp $
 
