@@ -6,12 +6,11 @@
 		If configured, an dthe user has appropriate privileges, it is possible to import/export members from/to flat files
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.9 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.10 2008-04-29 18:02:31 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<grouper:subtitle key="groups.heading.change-members-list-scope" />
-<div class="changeScope">
+
 <html:form  action="/populateGroupMembers" enctype="multipart/form-data">
 <html:hidden property="groupId"/>
 <html:hidden property="contextSubject"/>
@@ -44,9 +43,11 @@
 	<html:options collection="sources" property="key" labelProperty="value"/>
 	</html:select>
 	</c:if>
+  <br />
 	<span class="membershipListScope">
 		<input name="submit.changeScope" type="submit" class="blueButton" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
 	</span>
+  <br />
 	<c:if test="${MembershipExporter.active}">
   <grouper:subtitle key="groups.heading.export-members" />
 	
@@ -83,9 +84,7 @@
 			</c:otherwise>
 		</c:choose>
 		<input type="submit" class="blueButton" name="submit.import" value="<c:out value="${navMap['groups.import.submit']}"/>"/>
-		
 	</c:if>
 	</fieldset>
 </html:form>
-</div>
 </grouper:recordTile>

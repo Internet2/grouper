@@ -79,7 +79,7 @@ h1 {
 .groupLinks {
 	clear:both;
 }
-
+/*
 .linkButton {
   margin-top: 5px;
   margin-bottom: 5px;  
@@ -96,20 +96,31 @@ h1 {
   border-left-color:#666;
   background-color: #015782;
   color: #FFFFFF;
-  /* need to compress the font like submit buttons */
   letter-spacing: -1px;
 	line-height:220%;
-
-  
 }
 
 .linkButton a:hover { 
   text-decoration: none;
 } 
-
 .linkButton a.redLink {
   background-color: #990000;
 }
+*/
+
+.linkButton {
+  margin-top: 10px;
+  line-height: 300%;
+}
+
+.linkButton a {
+  text-decoration: underline;
+  margin: 2px 12px 2px 0px;
+  font-size: 12px;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
 
 .pageBlurb {
 	width:50%;
