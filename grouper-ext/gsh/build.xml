@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.1.1.1 2008-04-27 14:52:15 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.2 2008-04-29 12:33:16 isgwb Exp $ -->
 
 <project name="GrouperShell" default="compile" basedir=".">
 
@@ -139,6 +139,7 @@
     <!-- install binaries -->
     <filter token="GROUPER_CONF"    value="${GROUPER_CONF}"/>
     <filter token="GROUPER_EXT_LIB" value="${GROUPER_EXT_LIB}"/>
+    <filter token="GROUPER_EXT_BIN" value="${GROUPER_EXT_BIN}"/>
     <filter token="GROUPER_HOME"    value="${GROUPER_HOME}"/>
     <filter token="GSH_HOME"        value="${basedir}"/>
     <filter token="GSH_MEM_START"   value="${memory.start}"/>
