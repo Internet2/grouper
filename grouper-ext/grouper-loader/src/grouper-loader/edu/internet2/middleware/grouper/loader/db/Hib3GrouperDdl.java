@@ -1,14 +1,18 @@
 /**
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.1 2008-04-29 13:54:50 mchyzer Exp $
+ * $Id: Hib3GrouperDdl.java,v 1.1 2008-04-30 08:03:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.db;
+
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 
 /**
  * maps to the grouper ddl table
  */
-public class GrouperDdl {
+public class Hib3GrouperDdl {
   
   /** uuid of the row */
   private String id = null;
@@ -19,8 +23,8 @@ public class GrouperDdl {
   /** version of the object in the db */
   private int dbVersion = 0;
   
-  /** version of the object that grouper expects */
-  private int grouperVersion = 0;
+  /** version of the object that the java side expects */
+  private int javaVersion = 0;
   
   /**
    * object name in db (in java its converted to a java name)
@@ -55,19 +59,19 @@ public class GrouperDdl {
   }
   
   /**
-   * version of the object that grouper expects
-   * @return the grouperVersion
+   * version of the object that the java side expects
+   * @return the javaVersion
    */
-  public int getGrouperVersion() {
-    return this.grouperVersion;
+  public int getJavaVersion() {
+    return this.javaVersion;
   }
   
   /**
-   * version of the object that grouper expects
-   * @param grouperVersion1 the grouperVersion to set
+   * version of the object that the java side expects
+   * @param javaVersion1 the javaVersion to set
    */
-  public void setGrouperVersion(int grouperVersion1) {
-    this.grouperVersion = grouperVersion1;
+  public void setJavaVersion(int javaVersion1) {
+    this.javaVersion = javaVersion1;
   }
 
   
@@ -87,5 +91,21 @@ public class GrouperDdl {
   public void setId(String id1) {
     this.id = id1;
   }
-
+  
+  /**
+   * find a ddl in a list
+   * @param hib3GrouperDdls
+   * @param objectName
+   * @return the ddl object
+   */
+  public static Hib3GrouperDdl findInList(List<Hib3GrouperDdl> hib3GrouperDdls, String objectName) {
+    if (hib3GrouperDdls != null) {
+      for (Hib3GrouperDdl hib3GrouperDdl : hib3GrouperDdls) {
+        if (StringUtils.equals(hib3GrouperDdl.getObjectName(), objectName)) {
+          return hib3GrouperDdl;
+        }
+      }
+    }
+    return null;
+  }
 }

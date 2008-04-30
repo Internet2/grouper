@@ -19,12 +19,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-
-<!-- $Id: GrouperDdl.hbm.xml,v 1.1 2008-04-29 13:54:50 mchyzer Exp $ -->
-
+<!-- $Id: Hib3GrouperDdl.hbm.xml,v 1.1 2008-04-30 08:03:05 mchyzer Exp $ -->
 <hibernate-mapping package="edu.internet2.middleware.grouper.loader.db"
   default-lazy="false">
-  <class name="GrouperDdl" table="grouper_ddl">
+  <class name="Hib3GrouperDdl" table="grouper_ddl">
 
     <id name="id" type="string" unsaved-value="null" length="128">
       <generator class="uuid.hex" />
@@ -38,8 +36,8 @@
       <column name="db_version" not-null="true" />
     </property>
 
-    <property name="grouperVersion" type="int">
-      <column name="grouper_version" not-null="true" />
+    <property name="javaVersion" type="int">
+      <column name="java_version" not-null="true" />
     </property>
 
   </class>
