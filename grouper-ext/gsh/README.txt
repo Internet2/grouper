@@ -29,7 +29,8 @@ gsh has moved from <http://code.google.com/p/blair/> to the Internet2 CVS reposi
 
       https://wiki.internet2.edu:443/confluence/x/oFk
 
-Please report bugs / feature requests to grouper-users@internet2.edu.
+Please report bugs / feature requests using Jira (https://bugs.internet2.edu/jira/browse/GRP) - use the 
+'Exts' component, or mail grouper-users@internet2.edu.
 
 
 
@@ -57,5 +58,5 @@ Read gsh commands from a script file:
 
 ---
 
-$Id: README.txt,v 1.3 2008-04-29 18:13:42 tzeller Exp $
+$Id: README.txt,v 1.4 2008-04-30 09:35:37 isgwb Exp $
 
