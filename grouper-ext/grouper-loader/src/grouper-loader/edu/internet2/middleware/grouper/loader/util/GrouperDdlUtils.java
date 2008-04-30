@@ -1,9 +1,10 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.1 2008-04-30 08:03:05 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.2 2008-04-30 09:04:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.util;
 
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlVersionable;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.loader.db.Hib3GrouperDdl;
@@ -39,28 +41,6 @@ public class GrouperDdlUtils {
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperDdlUtils.class);
 
-  //StringWriter buffer = new StringWriter();
-  //sqlBuilder.setWriter(buffer);
-
-  //    processTableStructureChanges(Database currentModel,
-  //        Database desiredModel,
-  //        Table    sourceTable,
-  //        Table    targetTable,
-  //        Map      parameters,
-  //        List     changes) throws IOException
-
-  //GrouperUtil.callMethod(sqlBuilder.getClass(), sqlBuilder, "processTableStructureChanges",
-  //    new Class[]{Database.class, Database.class, Table.class, Table.class, Map.class, List.class},
-  //    new Object[]{oldDatabase, newDatabase, oldDatabase.findTable("grouper_ext_loader_log"), table, null, GrouperUtil.toList(addColumnChange)});
-
-  //getSqlBuilder().alterDatabase(currentModel, desiredModel, null);
-  //ddl = buffer.toString();
-  //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-  //String ddl = platform.getAlterTablesSql(connection, database);
-
-  //System.out.println(ddl);
-
-  //System.out.println(ddl);
 
   /**
    * retrieve the ddl utils platform
@@ -101,6 +81,8 @@ public class GrouperDdlUtils {
     
     Connection connection = null;
 
+    StringBuilder result = new StringBuilder();
+    
     try {
       connection = grouperDb.connection();
 
@@ -136,9 +118,10 @@ public class GrouperDdlUtils {
         String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
         //to be safe lets only deal with tables related to this object
         platform.getModelReader().setDefaultTablePattern(defaultTablePattern);
+        //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
 
-        StringBuilder result = new StringBuilder();
-        
+        SqlBuilder sqlBuilder = platform.getSqlBuilder();
+
         //the db version is less than the java version
         //lets go up one version at a time until we are current
         for (int version = dbVersion+1; version<=javaVersion;version++) {
@@ -156,27 +139,45 @@ public class GrouperDdlUtils {
             Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                 grouperDb.getUser().toUpperCase(), null);
             
-            //get these to the previous version
-            upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, version);
+            //get this to the previous version
+            upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, version-1);
+            //get this to the current version
             upgradeDatabaseVersion(newDatabase, dbVersion, objectName, version);
             
             //upgrade to version: version
+            //we need to upgrade from one version to another, but dont want to get the version from the DB, so 
+            //call protected method via reflection
+            StringWriter buffer = new StringWriter();
+            sqlBuilder.setWriter(buffer);
+            try {
+              
+              sqlBuilder.alterDatabase(oldDatabase, newDatabase, null);
+            } catch (Exception e) {
+              throw new RuntimeException("Problem with object name: " + objectName, e);
+            }
             
+            //GrouperUtil.callMethod(sqlBuilder.getClass(), sqlBuilder, "processTableStructureChanges",
+            //  new Class[]{Database.class, Database.class, Table.class, Table.class, Map.class, List.class},
+            //  new Object[]{oldDatabase, newDatabase, oldDatabase.findTable("grouper_ext_loader_log"), table, null, GrouperUtil.toList(addColumnChange)});
+
+            script = buffer.toString();
             
-            SqlBuilder sqlBuilder = platform.getSqlBuilder();
-            String ddl = null;
-            platform.alterTables(null, false);
+            //String ddl = platform.getAlterTablesSql(connection, database);
+
 
           }
+          //is this db independent?  if not, figure out what the issues are and fix so we can have comments
+          result.append("/* upgrade " + objectName + " from V" + (version-1) + " to V" + version + " */\n");
           if (!StringUtils.isBlank(script)) {
-            //is this db independent?  if not, figure out what the issues are and fix so we can have comments
-            result.append("/* upgrade " + objectName + " from V" + (version-1) + " to V" + version + " */\n");
             result.append(script).append("\n\n");
           }
+          if (version == 0) {
+            result.append("insert into grouper_ddl values ('" + GrouperUuid.getUuid() +  "', '" + objectName + "', 0, " + javaVersion + ");\n");
+          } else {
+            result.append("update grouper_ddl set db_version = " + version + " where object_name = '" + objectName + "';\n");
+          }
+          result.append("commit;\n\n");
         }
-        
-        
-        
       }
       
 
@@ -185,6 +186,13 @@ public class GrouperDdlUtils {
       GrouperLoaderUtils.closeQuietly(connection);
     }
 
+    String resultString = result.toString();
+    
+    if (StringUtils.isNotBlank(resultString)) {
+      resultString = "Database requires updates:\n\n" + resultString + "\n\n";
+      LOG.error(resultString);
+    }
+    
   }
 
   /**
@@ -329,7 +337,7 @@ public class GrouperDdlUtils {
     
     //find the ddl in the list
     Hib3GrouperDdl hib3GrouperDdl = Hib3GrouperDdl.findInList(cachedDdls, objectName);
-    if (hib3GrouperDdl == null) {
+    if (hib3GrouperDdl != null) {
       return hib3GrouperDdl.getDbVersion();
     }
     return -1;
@@ -448,13 +456,13 @@ public class GrouperDdlUtils {
    * @return the object name
    */
   public static String objectName(Enum dbObjectVersion) {
-    String className = dbObjectVersion.getClass().getSimpleName();
+    String className = dbObjectVersion.getDeclaringClass().getSimpleName();
     
     //now we have GrouperEnum, strip off the Enum part
-    if (!className.endsWith("Enum")) {
-      throw new RuntimeException("Db object version classes MUST end in Enum! '" + className + "'");
+    if (!className.endsWith("Ddl")) {
+      throw new RuntimeException("Db object version classes MUST end in Ddl! '" + className + "'");
     }
-    String objectName = className.substring(0, className.length()-4);
+    String objectName = className.substring(0, className.length()-3);
     return objectName;
   }
   
@@ -487,7 +495,6 @@ public class GrouperDdlUtils {
         GrouperUtil.closeQuietly(in);
       }
     } catch (Throwable t) {
-      String msg = "unable to initialize hibernate: " + t.getMessage();
       throw new ExceptionInInitializerError(t);
     }
   } // static

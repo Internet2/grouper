@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderDdl.java,v 1.1 2008-04-30 08:03:05 mchyzer Exp $
+ * $Id: GrouperLoaderDdl.java,v 1.2 2008-04-30 09:04:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -19,6 +19,22 @@ public enum GrouperLoaderDdl implements DdlVersionable {
 
   /** first version of grouper */
   V1 {
+    /**
+     * add the table grouploader_log for logging and detect and add columns
+     * @see edu.internet2.middleware.grouper.ddl.GrouperLoaderDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database) {
+      
+      //see if the grouper_ext_loader_log table is there
+      Table grouploaderLogTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouploader_log", 
+          "log table with a row for each grouper loader job run");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_priority", 
+          "Priority of this job (5 is unprioritized, higher the better)", Types.INTEGER, null, false, false);
+    }
+  },
+  V0 {
     /**
      * add the table grouploader_log for logging and detect and add columns
      * @see edu.internet2.middleware.grouper.ddl.GrouperLoaderDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
@@ -78,8 +94,6 @@ public enum GrouperLoaderDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_interval_seconds", 
           "How many seconds this is supposed to wait between runs", Types.INTEGER, null, false, false);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_priority", 
-          "Priority of this job (5 is unprioritized, higher the better)", Types.INTEGER, null, false, false);
     }
   };
 

@@ -4151,6 +4151,40 @@ public class GrouperUtil {
   }
 
   /**
+   * @param resourceName is the string resource from classpath to read (e.g. grouper.properties)
+   * @param allowNull is true if its ok if the resource is null or if it is not found or blank or whatever.
+   * 
+   * @return String or null if allowed or RuntimeException if not allowed
+   */
+  public static String readResourceIntoString(String resourceName, boolean allowNull) {
+    if (StringUtils.isBlank(resourceName)) {
+      if (allowNull) {
+        return null;
+      }
+      throw new RuntimeException("Resource name is blank");
+    }
+    URL url = computeUrl(resourceName, allowNull);
+
+    //this is ok
+    if (url == null && allowNull) {
+      return null;
+    }
+    
+    InputStream inputStream = null;
+    StringWriter stringWriter = new StringWriter();
+    try {
+      inputStream = url.openStream();
+      copy(inputStream, stringWriter, "ISO-8859-1");
+    } catch (IOException ioe) {
+      throw new RuntimeException("Error reading resource: '" + resourceName + "'", ioe);
+    } finally {
+      closeQuietly(inputStream);
+      closeQuietly(stringWriter);
+    }
+    return stringWriter.toString();
+  }
+
+  /**
    * <p>
    * Reads the contents of a file into a String.
    * </p>

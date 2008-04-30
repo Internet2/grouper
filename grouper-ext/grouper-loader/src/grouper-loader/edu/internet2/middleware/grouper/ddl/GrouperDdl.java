@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.1 2008-04-30 08:03:05 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.2 2008-04-30 09:04:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.loader.util.GrouperDdlUtils;
 public enum GrouperDdl implements DdlVersionable {
 
   /** first version of grouper */
-  V1 {
+  V0 {
     /**
      * add the table grouploader_log for logging and detect and add columns
      * @see edu.internet2.middleware.grouper.ddl.GrouperLoaderDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
@@ -60,7 +60,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @return the current version
    */
   public static int currentVersion() {
-    return 1;
+    return 0;
   }
 
   /**
