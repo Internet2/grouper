@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.175 2008-04-24 03:23:03 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.176 2008-05-01 07:04:42 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -649,6 +649,8 @@
             printsummary="yes"
             showoutput="yes"
     >
+      <!-- rely on db init prompting the user -->
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/>
       <classpath  refid="test.classpath"/>
       <formatter  type="xml"/>
       <test       name="edu.internet2.middleware.grouper.SuiteDefault"
@@ -702,7 +704,15 @@
                 classpathref="project.classpath" 
     />
     <fail unless="test.class.exists" message="Could not find test class '${test.class}'"/>
+    <java fork="false"
+              maxmemory="${memory.max}"
+              classpathref="project.classpath"
+              classname="edu.internet2.middleware.grouper.util.ConfirmDbChange"
+              failonerror="true"
+        />
     <junit printsummary="withOutAndErr" fork="true"> 
+      <!-- we just prompted the user about the changes -->
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/>
       <classpath  refid="test.classpath"/>
       <formatter  type="plain" usefile="false"/>
       <test       name="${test.class}"/>

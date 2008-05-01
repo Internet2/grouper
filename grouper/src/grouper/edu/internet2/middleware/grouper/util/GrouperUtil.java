@@ -146,6 +146,16 @@ public class GrouperUtil {
       return;
     }
     
+    //this might be set from junit ant task
+    String allow = System.getProperty("grouper.allow.db.changes");
+    if (StringUtils.equals("true", allow)) {
+      System.out.println("System property grouper.allow.db.changes is true which allows db changes to user '" 
+          + user + "' and url '" + url + "'");
+      //all good, add to cache so we dont have to repeatedly tell user
+      dbChangeWhitelist.add(cacheKey);
+      return;
+    }
+
     //check blacklist
     if (findGrouperPropertiesDbMatch(false, user, url)) {
       System.out.println("This DB user '" + user + "' and url '" + url + "' are denied to be " +
@@ -164,7 +174,8 @@ public class GrouperUtil {
       //ask user if ok
       System.out.println("(note, you can whitelist or blacklist db urls and users in the grouper.properties)");
       //note the following must be println and not just print so it will show up in ant
-      System.out.println("Are you sure you want to " + reason + " in db user '" + user + "', db url '" + url + "'? (y|n): ");
+      String prompt = "Are you sure you want to " + reason + " in db user '" + user + "', db url '" + url + "'? (y|n): ";
+      System.out.println(prompt);
       System.out.flush(); // empties buffer, before you input text
       
       BufferedReader stdin = null;
@@ -172,16 +183,31 @@ public class GrouperUtil {
   
       try {
         stdin = new BufferedReader(new InputStreamReader(System.in));
-        message = stdin.readLine();
+        //we want to read until we dont get empty, and until we get a y or an n
+        for (int i=0;i<10;i++) {
+          message = stdin.readLine();
+          message = StringUtils.trimToEmpty(message);
+          if (!StringUtils.isEmpty(message)) {
+            if (StringUtils.equalsIgnoreCase(message, "y") || StringUtils.equalsIgnoreCase(message, "n")) {
+              break;
+            }
+            System.out.println("Didn't receive 'y' or 'n', received '" + message + "'...");       
+            System.out.println(prompt);
+            System.out.flush(); // empties buffer, before you input text
+          }
+        }
+        if (!StringUtils.equalsIgnoreCase(message, "y") && !StringUtils.equalsIgnoreCase(message, "n")) {
+          System.out.println("Sorry you are having trouble, try the whitelist in grouper.properties");
+          System.exit(1);
+        }
       } catch (Exception e) {
         throw new RuntimeException(e);
       } finally {
         GrouperUtil.closeQuietly(stdin);
       }
-  
-      if (!StringUtils.equalsIgnoreCase(StringUtils.trimToEmpty(message), "y")) {
-        System.out.println("OK, exiting");
-        System.exit(0);
+      if (!StringUtils.equalsIgnoreCase(message, "y")) {
+        System.out.println("Didn't receive 'y', received '" + message + "', OK, exiting");
+        System.exit(1);
       }
     }    
     //all good, add to cache so we dont have to repeatedly ask user
