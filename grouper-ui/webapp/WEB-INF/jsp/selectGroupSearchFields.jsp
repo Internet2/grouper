@@ -2,27 +2,23 @@
 		  Allow user to select which fields they want to search
 --%><%--
   @author Gary Brown.
-  @version $Id: selectGroupSearchFields.jsp,v 1.7 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: selectGroupSearchFields.jsp,v 1.8 2008-05-01 16:11:21 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
 <tiles:importAttribute ignore="true"/>
-<div class="searchFieldTitle">
-		<div class="formRow">
-			<div class="formLeft">
+		<tr class="formTableRow">
+			<div class="formTableLeft">
 				<strong><grouper:message bundle="${nav}" key="find.search.in-field"/></strong>	
 			</div>
-			<div class="formRight">
-				<strong><grouper:message bundle="${nav}" key="find.search.in-field-input"/></strong>	
+			<div class="formTableRight">&nbsp;</strong>	
 			</div>
-			</div>
-</div>
+	  </tr>
 <c:if test="${empty maxFields}"><c:set var="maxFields" value="${mediaMap['search.max-fields']}"/></c:if>
 <input type="hidden" name="maxFields" value="<c:out value="${maxFields}"/>"/>
 <c:forEach begin="1" end="${maxFields}" varStatus="fieldCount">
-<div class="searchField">
-	<div class="formRow">
-		<div class="formLeft">
+	<tr class="formTableRow">
+		<td class="formTableLeft">
 		<c:set var="searchFieldName">searchField.<c:out value="${fieldCount.count}"/></c:set>
 		<c:set var="searchFieldQuery">searchField.<c:out value="${fieldCount.count}"/>.query</c:set>
 		<c:set var="searchFieldAndOrNot">searchField.<c:out value="${fieldCount.count}"/>.searchAndOrNot</c:set>
@@ -46,8 +42,8 @@
 						</c:if>
 				</c:forEach>
 			</select>
-		</div>
-		<div class="formRight">
+		</td>
+		<td class="formTableRight">
 			<input type="text" 
 			       name="<c:out value="${searchFieldQuery}"/>" 
 				   value="<c:out value="${advancedSearchFieldParams[searchFieldQuery]}"/>" size="25" <c:if test="${fieldCount.count==1}">tabindex="1"</c:if>/>
@@ -59,9 +55,8 @@
 				<option value="not" <c:if test="${advancedSearchFieldParams[searchFieldAndOrNot]=='not'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.not"/></option>
 			</select>
 			</c:if>
-		</div>
-	</div>
-</div>
+		</td>
+	</tr>
    
 </c:forEach>
 

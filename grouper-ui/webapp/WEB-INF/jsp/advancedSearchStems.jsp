@@ -2,14 +2,15 @@
 		Tile which displays the advanced search form for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchStems.jsp,v 1.6 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: advancedSearchStems.jsp,v 1.7 2008-05-01 16:11:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
+<div class="section">
 <a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
-<div class="advancedSearchStems">
 <grouper:subtitle key="find.heading.stems-advanced-search" />
+<div class="sectionBody">
 <p><a href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a></p>
 
 		<c:set var="submitAction" value="/searchStems"/>
@@ -22,18 +23,20 @@
 	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	<input type="hidden" name="previousCallerPageId" value="<c:out value="${grouperForm.map.callerPageId}"/>"/>
 	<fieldset>			
+    <table class="formTable">
 		<fieldset class="nested">
 				<tiles:insert definition="selectStemSearchFieldsDef"/>
 		</fieldset>
-		<div class="formRow"><tiles:insert definition="searchFromDef"/></div><br/>
+		<tiles:insert definition="searchFromDef"/>
     	
 
 		<tiles:insert definition="searchStemResultFieldChoiceDef"/>
+    </table>
 		<html:submit styleClass="blueButton" property="submit.search" value="${navMap['stems.action.search']}"/>
-
+   
 	</fieldset>
 	</html:form>
 </div>
 <a name="endSearch" id="endSearch"></a>
-
+</div>
 </grouper:recordTile>
