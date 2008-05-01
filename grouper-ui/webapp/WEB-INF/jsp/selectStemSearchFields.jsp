@@ -2,14 +2,14 @@
 		  Allow user to select which fields they want to search
 --%><%--
   @author Gary Brown.
-  @version $Id: selectStemSearchFields.jsp,v 1.3 2008-05-01 16:11:21 mchyzer Exp $
+  @version $Id: selectStemSearchFields.jsp,v 1.4 2008-05-01 16:20:43 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <tiles:importAttribute ignore="true"/>
 		<tr class="formTableRow">
 			<td class="formTableLeft">
-				<strong><grouper:message bundle="${nav}" key="find.search.in-field"/></strong>	
+				<grouper:message bundle="${nav}" key="find.search.in-field"/>	
 			</td>
 			<td class="formRight">&nbsp;</div>
 			</td>

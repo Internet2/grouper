@@ -2,17 +2,16 @@
 		  Allow user to select which fields they want to search
 --%><%--
   @author Gary Brown.
-  @version $Id: selectGroupSearchFields.jsp,v 1.8 2008-05-01 16:11:21 mchyzer Exp $
+  @version $Id: selectGroupSearchFields.jsp,v 1.9 2008-05-01 16:20:43 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
 <tiles:importAttribute ignore="true"/>
 		<tr class="formTableRow">
-			<div class="formTableLeft">
-				<strong><grouper:message bundle="${nav}" key="find.search.in-field"/></strong>	
-			</div>
-			<div class="formTableRight">&nbsp;</strong>	
-			</div>
+			<td class="formTableLeft">
+				<grouper:message bundle="${nav}" key="find.search.in-field"/>	
+			</td>
+			<td class="formTableRight">&nbsp;</td>
 	  </tr>
 <c:if test="${empty maxFields}"><c:set var="maxFields" value="${mediaMap['search.max-fields']}"/></c:if>
 <input type="hidden" name="maxFields" value="<c:out value="${maxFields}"/>"/>
