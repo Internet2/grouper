@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.2 2008-04-29 12:33:16 isgwb Exp $ -->
+<!-- $Id: build.xml,v 1.3 2008-05-01 14:07:24 isgwb Exp $ -->
 
 <project name="GrouperShell" default="compile" basedir=".">
 
@@ -53,7 +53,7 @@
   >
     <record name="${log.build}" action="start"/>
     <antcall target="compile.class.version"/>
-    <javac srcdir="${src.gsh}" destdir="${build.gsh}">
+    <javac srcdir="${src.gsh}" destdir="${build.gsh}" debug="on" debuglevel="lines,var,source">
       <classpath refid="project.classpath"/>
     </javac>
     <copy todir="${build.gsh}">
@@ -246,7 +246,7 @@
           depends="install"
   >
     <record name="${log.test.build}" action="start"/>
-    <javac srcdir="${src.test}" destdir="${build.test}">
+    <javac srcdir="${src.test}" destdir="${build.test}" debug="on" debuglevel="lines,var,source">
       <classpath refid="project.classpath"/>
     </javac>
     <record name="${log.test.build}" action="stop"/>
