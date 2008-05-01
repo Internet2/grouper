@@ -21,6 +21,7 @@ import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import  edu.internet2.middleware.subject.*;
 import  java.io.IOException;
 import  java.text.DateFormat;
@@ -51,7 +52,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.105 2008-04-14 08:13:19 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.106 2008-05-01 07:04:42 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -155,6 +156,8 @@ public class XmlImporter {
    * @since   1.1.0
    */
   public static void main(String[] args) {
+    //make sure right db
+    GrouperUtil.promptUserAboutDbChanges("import data from xml");
     if (XmlArgs.internal_wantsHelp(args)) {
       System.out.println( _getUsage() );
       System.exit(0);
