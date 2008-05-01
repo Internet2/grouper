@@ -3,14 +3,22 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupPriviligees.jsp,v 1.5 2008-04-03 07:48:21 mchyzer Exp $
+  @version $Id: GroupPriviligees.jsp,v 1.6 2008-05-01 18:22:36 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
+<div class="section">
+<div class="sectionBody">
 <tiles:insert definition="showStemsLocationDef"/>
-<tiles:insert definition="selectGroupPrivilegeDef"/>
+</div>
+</div>
 
+<div class="section">
 <grouper:subtitle key="groups.heading.list-privilegees" />
+<div class="sectionBody">
+<br />
+<tiles:insert definition="selectGroupPrivilegeDef"/>
+<br />
 
 <tiles:insert definition="dynamicTileDef">
 	<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
@@ -44,5 +52,6 @@
 </div>
 <br/>
 
-
+</div>
+</div>
 
