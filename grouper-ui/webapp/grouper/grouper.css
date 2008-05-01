@@ -60,7 +60,9 @@ h1 {
   font-weight: bold;
   margin: 0px 0px 10px 10px;  
 }
-
+.browseStemsLocation {
+  margin-bottom: 5px;  
+}
 .browseStemsLocationHere {
  font-weight: bold;
  font-size:120%;
@@ -70,11 +72,6 @@ h1 {
 	background-color:ffddcc;
 	padding-below:5px;
 }
-
-.groupInfo {
-	
-}
-
 
 .groupLinks {
 	clear:both;
@@ -132,7 +129,7 @@ h1 {
 	display:block;
 }
 
-.groupInfo .formLeft {
+.groupInfo .formTableLeft {
 	background-color:#6699ff;
 	color:000000;
 	font-weight:bold;
@@ -140,15 +137,15 @@ h1 {
 	border-bottom-width:1px;
 	border-bottom-style:solid;
 }
-.groupTypes .formRight .formLeft {
+.groupTypes .formTableRight .formTableLeft {
 	background-color:#cccccc;
 	color:000000;
 }
-.groupTypes .formLeft {
+.groupTypes .formTableLeft {
 	background-color:#99ccff;
 	color:000000;
 }
-.groupInfo .formRow {
+tr.groupInfo {
 	border-bottom-color:#cccccc;
 	#border-bottom-width:1px;
 	#border-bottom-style:solid;
@@ -175,7 +172,7 @@ h1 {
 }
 
 .formTable .formTableRow, .formTable .formTableRow td {
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 .formTable .formTableLeft {
@@ -240,7 +237,7 @@ fieldset {
 	width:260px;
 }
 
-.typesHeader .formLeft{
+.typesHeader .formTableLeft{
 	background-color:rgb(1, 87, 130);
 	color:#ffffff;
 	font-weight:bold;
@@ -249,13 +246,13 @@ fieldset {
 	margin-top:10px;
 }
 
-.typesHeader .formRight .formLeft {
+.typesHeader .formTableRight .formTableLeft {
 	background-color:rgb(1, 87, 130);
 	color:#ffffff;
 	font-weight:bold;
 }
 
-.typesHeader .formRow .formRight .formRow .formRight {
+.typesHeader .formTableRight .formTableRow .formTableRight {
 	background-color:rgb(1, 87, 130);
 	color:#ffffff;
 	font-weight:bold;

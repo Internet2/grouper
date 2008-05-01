@@ -1,9 +1,12 @@
 <%-- @annotation@ Top level JSP which allows user to create a composite --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
+<div class="section">
+<grouper:subtitle key="groups.composite.add" />
+  <div class="sectionBody">
+
 <tiles:insert definition="showStemsLocationDef"/>
 
-<grouper:subtitle key="groups.composite.add" />
 
 
 <c:if test="${savedSubjectsSize<2}">
@@ -12,37 +15,40 @@
 <html:form action="/saveComposite" method="post">
 <input type="hidden" name="groupId" value="<c:out value="${browseParent.groupId}"/>">
 <fieldset>
-<div class="formRow">
-	<div class="formLeft"><grouper:message bundle="${nav}" key="groups.composite.leftGroup"/></div>
-	<div class="formRight">
+<table class="formTable">
+<tr class="formTableRow">
+	<td class="formTableLeft"><grouper:message bundle="${nav}" key="groups.composite.leftGroup"/></td>
+	<td class="formTableRight">
 		<html:select property="leftGroup">
 			<html:options collection="savedSubjects" property="id" labelProperty="displayName"/>		
 		</html:select>
-	</div>
-</div>
-<div class="formRow">
-	<div class="formLeft"><grouper:message bundle="${nav}" key="groups.composite.type"/></div>
-	<div class="formRight">
+	</td>
+</tr>
+<tr class="formTableRow">
+	<td class="formTableLeft"><grouper:message bundle="${nav}" key="groups.composite.type"/></td>
+	<td class="formTableRight">
 		<select name="compositeType">
 			<option value="union"><grouper:message bundle="${nav}" key="union"/></option>
 			<option value="intersection"><grouper:message bundle="${nav}" key="intersection"/></option>
 			<option value="complement"><grouper:message bundle="${nav}" key="complement"/></option>
 		</select>
-	</div>
-</div>
-<div class="formRow">
-	<div class="formLeft"><grouper:message bundle="${nav}" key="groups.composite.rightGroup"/></div>
-	<div class="formRight">
+	</td>
+</tr>
+<tr class="formTableRow">
+	<td class="formTableLeft"><grouper:message bundle="${nav}" key="groups.composite.rightGroup"/></td>
+	<td class="formTableRight">
 		<html:select property="rightGroup">
 			<html:options collection="savedSubjects" property="id" labelProperty="displayName"/>		
 		</html:select>
-	</div>
-</div>
+	</td>
+</tr>
+</table>
 </fieldset>
 <c:if test="${savedSubjectsSize>1}">
 <html:submit styleClass="blueButton" property="submit.saveAndAssign" value="${navMap['groups.composite.add']}"/>
 </c:if>
 </html:form>
 <div class="linkButton"><tiles:insert definition="callerPageButtonDef"/></div>
-
+</div>
+</div>
 
