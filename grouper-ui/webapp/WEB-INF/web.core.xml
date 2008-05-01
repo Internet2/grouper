@@ -63,8 +63,8 @@
   <location>/error.do?code=404</location> 
 </error-page>
   <error-page> 
-  <error-code>401</error-code> 
-  <location>/error.do?code=401</location> 
+  <error-code>403</error-code> 
+  <location>/error.do?code=403</location> 
 </error-page>
   <error-page> 
   <error-code>500</error-code> 
