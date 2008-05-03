@@ -2,7 +2,7 @@
 			Browse tree / search screen for finding members 
 --%><%--
   @author Gary Brown.
-  @version $Id: FindNewMembers.jsp,v 1.5 2008-04-11 15:59:18 mchyzer Exp $
+  @version $Id: FindNewMembers.jsp,v 1.6 2008-05-03 04:09:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -27,6 +27,7 @@
 
 <div class="section">
 <div class="sectionBody">
+<div class="linkButton">
 <c:if test="${forStems}">
 <html:link page="/cancelFindNewMembers.do" paramId="currentNode" paramName="findForNode">
 	<grouper:message bundle="${nav}" key="find.for-stems.cancel"/>
