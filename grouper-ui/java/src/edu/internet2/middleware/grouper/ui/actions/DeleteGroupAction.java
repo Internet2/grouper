@@ -97,7 +97,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DeleteGroupAction.java,v 1.9 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: DeleteGroupAction.java,v 1.10 2008-05-03 03:57:32 mchyzer Exp $
  */
 public class DeleteGroupAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(DeleteGroupAction.class);
@@ -160,7 +160,7 @@ public class DeleteGroupAction extends GrouperCapableAction {
 				success=true;
 			}catch(GroupDeleteException e){
 				LOG.error(e);
-				throw new UnrecoverableErrorException("error.delete-stem.unknown-error");
+				throw new UnrecoverableErrorException("error.delete-group.unknown-error");
 			}
 		}
 		request.setAttribute("message", message);
