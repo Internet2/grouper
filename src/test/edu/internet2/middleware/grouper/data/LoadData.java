@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.data;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.Date;
 
 import org.hibernate.Session;
 
@@ -171,7 +172,7 @@ public class LoadData {
              }
            }
 
-           System.out.println("Stems: " + stemsCreated + ", Groups: " + groupsCreated + ", Memberships: " + membersAdded);
+           System.out.println(new Date() + ", stem: " + secStem.getName() + ", stems: " + stemsCreated + ", Groups: " + groupsCreated + ", Memberships: " + membersAdded);
          }
       }
     }
