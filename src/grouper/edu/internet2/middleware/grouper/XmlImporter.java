@@ -52,7 +52,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.106 2008-05-01 07:04:42 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.107 2008-05-06 21:30:50 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -157,7 +157,7 @@ public class XmlImporter {
    */
   public static void main(String[] args) {
     //make sure right db
-    GrouperUtil.promptUserAboutDbChanges("import data from xml");
+    GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     if (XmlArgs.internal_wantsHelp(args)) {
       System.out.println( _getUsage() );
       System.exit(0);
