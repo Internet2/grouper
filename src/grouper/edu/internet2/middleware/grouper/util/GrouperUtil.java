@@ -171,18 +171,30 @@ public class GrouperUtil {
 
     } else {
     
-      //ask user if ok
-      System.out.println("(note, you can whitelist or blacklist db urls and users in the grouper.properties)");
-      //note the following must be println and not just print so it will show up in ant
-      String prompt = "Are you sure you want to " + reason + " in db user '" + user + "', db url '" + url + "'? (y|n): ";
-      System.out.println(prompt);
-      System.out.flush(); // empties buffer, before you input text
-      
       BufferedReader stdin = null;
       String message = null; // Creates a variable called message for input
   
       try {
         stdin = new BufferedReader(new InputStreamReader(System.in));
+        
+        //CH 20080506: THIS DOESNT WORK!
+        //make sure there is nothing already on stdin
+        //int available = System.in.available();
+        //System.out.println("Available: " + available);
+        //
+        ////read these on stdin
+        //if (available > 0) {
+        //  stdin.read(new char[available]);
+        //}
+        
+        //ask user if ok
+        System.out.println("(note, might need to type in your response multiple times (Java stdin is flaky))");
+        System.out.println("(note, you can whitelist or blacklist db urls and users in the grouper.properties)");
+        //note the following must be println and not just print so it will show up in ant
+        String prompt = "Are you sure you want to " + reason + " in db user '" + user + "', db url '" + url + "'? (y|n): ";
+        System.out.println(prompt);
+        System.out.flush(); // empties buffer, before you input text
+        
         //we want to read until we dont get empty, and until we get a y or an n
         for (int i=0;i<10;i++) {
           message = stdin.readLine();
@@ -202,8 +214,9 @@ public class GrouperUtil {
         }
       } catch (Exception e) {
         throw new RuntimeException(e);
-      } finally {
-        GrouperUtil.closeQuietly(stdin);
+      //CH: 20080506: Maybe we shouldnt close stdin... wont be able to use again?
+      //} finally {
+      //  GrouperUtil.closeQuietly(stdin);
       }
       if (!StringUtils.equalsIgnoreCase(message, "y")) {
         System.out.println("Didn't receive 'y', received '" + message + "', OK, exiting");
@@ -212,6 +225,7 @@ public class GrouperUtil {
     }    
     //all good, add to cache so we dont have to repeatedly ask user
     dbChangeWhitelist.add(cacheKey);
+    System.out.println("Continuing...");
   }
 
   /**
