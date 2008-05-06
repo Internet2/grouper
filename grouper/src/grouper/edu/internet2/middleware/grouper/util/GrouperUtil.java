@@ -132,8 +132,9 @@ public class GrouperUtil {
   /**
    * prompt the user about db changes
    * @param reason e.g. delete all tables
+   * @param checkResponse true if the response from the user should be checked, or just display the prompt
    */
-  public static void promptUserAboutDbChanges(String reason) {
+  public static void promptUserAboutDbChanges(String reason, boolean checkResponse) {
     Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
     
     String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
@@ -194,7 +195,9 @@ public class GrouperUtil {
         String prompt = "Are you sure you want to " + reason + " in db user '" + user + "', db url '" + url + "'? (y|n): ";
         System.out.println(prompt);
         System.out.flush(); // empties buffer, before you input text
-        
+        if (!checkResponse) {
+          return;
+        }
         //we want to read until we dont get empty, and until we get a y or an n
         for (int i=0;i<10;i++) {
           message = stdin.readLine();

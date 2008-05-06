@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.176 2008-05-01 07:04:42 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.177 2008-05-06 21:30:50 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -232,6 +232,20 @@
     <record name="${db.init.log}" action="stop"/>
   </target>
   <!-- target: db.init -->
+
+  <!-- target: db.init.test, change from schemaexport to compile if you dont want db blown away... -->
+  <target name="db.init.test" 
+          depends="init, schemaexport.test"
+          description="Initialize Test Groups Registry"
+  >
+    <record name="${db.init.log}" action="start"/>
+    <java fork="true"
+          classpathref="test.classpath"
+          classname="edu.internet2.middleware.grouper.RegistryInstall"
+    />
+    <record name="${db.init.log}" action="stop"/>
+  </target>
+  <!-- target: db.init.test -->
 
   <!-- target: db-init -->
   <!-- TODO 20070329 deprecate post 1.2.0 -->
@@ -573,6 +587,22 @@
           depends="init, compile"
           description="Generate SQL schema appropriate for configured database"
   >
+    <!-- CH example of prompting user with ant, then pass env var to init schema 
+    java fork="false"
+              maxmemory="${memory.max}"
+              classpathref="test.classpath"
+              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+              failonerror="true"
+        />
+    
+    <input validargs="y,n"
+        addproperty="do.delete"
+      />
+      <condition property="do.abort">
+        <equals arg1="n" arg2="${do.delete}"/>
+      </condition>
+      <fail if="do.abort">Build aborted by user.</fail -->
+    
     <record name="${schemaexport.log}" action="start"/>
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir.run}"/>
@@ -585,6 +615,25 @@
     <record name="${schemaexport.log}" action="stop"/>
   </target>
   <!-- target: schemaexport -->
+
+  <!-- target: schemaexport.test -->
+  <target name="schemaexport.test" 
+          depends="init, compile"
+          description="Generate Test SQL schema appropriate for configured database"
+  >
+    
+    <record name="${schemaexport.log}" action="start"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir.run}"/>
+    <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="test.classpath"
+          classname="edu.internet2.middleware.grouper.RegistryInitializeSchema"
+          failonerror="true"
+    />
+    <record name="${schemaexport.log}" action="stop"/>
+  </target>
+  <!-- target: schemaexport.test -->
 
   <!-- target: addforeignkeys -->
   <target name="addforeignkeys" 
@@ -634,7 +683,7 @@
 
   <!-- target: test -->
   <target name="test" 
-          depends="test.compile, db.init"
+          depends="test.compile, db.init.test"
           description="Run Grouper Tests"
   >
     <echo/>
@@ -680,7 +729,7 @@
   >
     <record name="${test.log}" action="start" append="yes"/>
     <javac srcdir="${src.dir.test}" destdir="${build.dir.test}">
-      <classpath  refid="project.classpath"/>
+      <classpath  refid="test.classpath"/>
       <include name="**/*.java" />
     </javac>
 	<!--copy over test specific conf-->
@@ -701,12 +750,12 @@
     <property name="test.class" value="edu.internet2.middleware.grouper.${test}"/>
     <available  classname="${test.class}"
                 property="test.class.exists"
-                classpathref="project.classpath" 
+                classpathref="test.classpath" 
     />
     <fail unless="test.class.exists" message="Could not find test class '${test.class}'"/>
     <java fork="false"
               maxmemory="${memory.max}"
-              classpathref="project.classpath"
+              classpathref="test.classpath"
               classname="edu.internet2.middleware.grouper.util.ConfirmDbChange"
               failonerror="true"
         />

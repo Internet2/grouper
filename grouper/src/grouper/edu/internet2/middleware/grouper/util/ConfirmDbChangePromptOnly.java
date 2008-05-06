@@ -22,11 +22,11 @@ import org.apache.commons.lang.StringUtils;
 
 
 /**
- * Make sure the user is ok with db changes
+ * Make sure the user is ok with db changes, only display message
  * @author Chris Hyzer
- * @version $Id: ConfirmDbChange.java,v 1.2 2008-05-06 21:30:50 mchyzer Exp $
+ * @version $Id: ConfirmDbChangePromptOnly.java,v 1.1 2008-05-06 21:30:50 mchyzer Exp $
  */
-public class ConfirmDbChange {
+public class ConfirmDbChangePromptOnly {
 
   /**
    * 
@@ -37,7 +37,7 @@ public class ConfirmDbChange {
 //      System.out.println("Need to pass arg to confirm class");
 //      System.exit(1);
 //    }
-    GrouperUtil.promptUserAboutDbChanges("run ant", true);
+    GrouperUtil.promptUserAboutDbChanges("run ant", false);
   }
 } 
 

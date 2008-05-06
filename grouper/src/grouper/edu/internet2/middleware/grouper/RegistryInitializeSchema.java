@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.2 2008-04-25 21:30:24 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.3 2008-05-06 21:30:50 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -43,7 +43,7 @@ public class RegistryInitializeSchema {
   public static void main(String[] args) {
     
     //make sure it is ok to change db
-    GrouperUtil.promptUserAboutDbChanges("delete/recreate all tables");
+    GrouperUtil.promptUserAboutDbChanges("delete/recreate all tables", true);
 
     try {
       ( (RegistryDAO) GrouperDAOFactory.getFactory().getRegistry() ).initializeSchema();
