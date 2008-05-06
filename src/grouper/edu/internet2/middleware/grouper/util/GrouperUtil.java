@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.GrouperConfig;
 
 
 /**
- * utility methods for grouper
+ * utility methods for grouper.
  * @author mchyzer
  *
  */
