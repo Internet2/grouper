@@ -16,13 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.lang.StringUtils;
+
+import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import  edu.internet2.middleware.subject.*;
 
 /**
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.10 2008-02-17 08:44:42 mchyzer Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.11 2008-05-07 20:04:16 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -48,13 +52,13 @@ public class Test_uc_WheelGroup extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    junit.textui.TestRunner.run(new Test_uc_WheelGroup("test_canAdminWhenMemberOfWheel"));
+    //TestRunner.run(new Test_uc_WheelGroup("test_canAdminWhenMemberOfWheel"));
+    TestRunner.run(Test_uc_WheelGroup.class);
   }
 
 
   private Group   dev, wheel;
   private R       r;
-  private Stem    etc;
   private Subject subjA;
 
 
@@ -62,8 +66,16 @@ public class Test_uc_WheelGroup extends GrouperTest {
     super.setUp();
     try {
       r     = R.getContext("grouper");
-      etc   = r.root.addChildStem("etc", "etc");
-      wheel = etc.addChildGroup("wheel", "wheel");
+      
+      String wheelGroupName = GrouperConfig.getProperty("groups.wheel.group");
+      
+      if (StringUtils.isBlank(wheelGroupName)) {
+        throw new RuntimeException("grouper.properties must have an extry for " +
+        		"groups.wheel.group, e.g. etc:sysadmingroup");
+      }
+      GrouperSession grouperSession = r.startRootSession();
+      String extension = GrouperUtil.extensionFromName(wheelGroupName);
+      wheel = Group.saveGroup(grouperSession, wheelGroupName, null, wheelGroupName, extension, "description for " + extension, SaveMode.INSERT_OR_UPDATE, true);
       dev   = r.getGroup("i2mi:grouper", "grouper-dev");
       subjA = r.getSubject("a");
     }
