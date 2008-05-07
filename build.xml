@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.178 2008-05-07 16:56:15 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.179 2008-05-07 18:02:52 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -766,7 +766,7 @@
     <record name="${test.log}" action="start" append="yes"/>
     <mkdir dir="${dist.dir.test}"/>
     <!-- rely on db init prompting the user -->
-    <!-- junit  fork="yes"
+    <junit  fork="yes"
             haltonerror="yes"
             haltonfailure="yes"
             maxmemory="${memory.max}"
@@ -779,7 +779,7 @@
       <test       name="edu.internet2.middleware.grouper.SuiteDefault"
                   todir="${dist.dir.test}"
       />
-    </junit -->
+    </junit>
     <!-- TODO 20061228 Switch to batchtest once I've migrated the tests
           <batchtest  fork="yes"
                       todir="${dist.dir.test}"
