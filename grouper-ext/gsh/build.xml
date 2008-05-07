@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.3 2008-05-01 14:07:24 isgwb Exp $ -->
+<!-- $Id: build.xml,v 1.4 2008-05-07 16:56:18 mchyzer Exp $ -->
 
 <project name="GrouperShell" default="compile" basedir=".">
 
@@ -120,6 +120,16 @@
       <pathelement location="${test.data}"/>
       <pathelement path="${GROUPER_CLASSPATH}"/>
     </path>
+    <path id="test.classpath">
+      <pathelement path="${java.class.path}"/>
+      <fileset dir="${basedir}/lib">
+        <include name="**/*.jar"/>
+      </fileset>
+      <pathelement location="${build.gsh}"/>
+      <pathelement location="${build.test}"/>
+      <pathelement location="${test.data}"/>
+      <pathelement path="${TEST_CLASSPATH}"/>
+    </path>
   </target>
   <!-- target: init -->
 
@@ -227,7 +237,9 @@
             printsummary="yes"
             showoutput="yes"
     >
-      <classpath  refid="project.classpath"/>
+      <!-- we just prompted the user about the changes in test-shell -->
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/>
+      <classpath  refid="test.classpath"/>
       <formatter  type="xml"/>
       <batchtest  fork="yes"
       >
@@ -247,7 +259,7 @@
   >
     <record name="${log.test.build}" action="start"/>
     <javac srcdir="${src.test}" destdir="${build.test}" debug="on" debuglevel="lines,var,source">
-      <classpath refid="project.classpath"/>
+      <classpath refid="test.classpath"/>
     </javac>
     <record name="${log.test.build}" action="stop"/>
   </target>
@@ -264,11 +276,13 @@
     <echo message="running test: ${name}" />
     <java fork="yes"
           maxmemory="${memory.max}"
-          classpathref="project.classpath"
+          classpathref="test.classpath"
           classname="com.devclue.grouper.shell.GrouperShell"
           taskname="junit"
           failonerror="true"
     >
+      <!-- we just prompted the user about the changes in test-shell -->
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/>
       <arg value="${src.test}/${name}.gsh"/>
     </java>
     <record name="${log.test.run}" action="stop"/>
@@ -280,7 +294,23 @@
           description="run .gsh tests"
           depends="test-compile"
   >
-    <antcall  target="test-run">
+    <!-- make sure ok to delete data -->
+    <java fork="false"
+               maxmemory="${memory.max}"
+               classpathref="test.classpath"
+               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+               failonerror="true"
+         />
+     
+     <input validargs="y,n"
+         addproperty="do.delete.gsh"
+       />
+       <condition property="do.abort.gsh">
+         <equals arg1="n" arg2="${do.delete.gsh}"/>
+       </condition>
+       <fail if="do.abort.gsh">Build aborted by user.</fail>
+     
+      <antcall  target="test-run">
       <param  name="name" value="test"/>
     </antcall>
     <antcall  target="test-run">

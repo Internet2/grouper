@@ -66,9 +66,14 @@
 			<pathelement location="${build.test}" />
 			<pathelement path="${GROUPER_CLASSPATH}" />
 		</path>
-		<path id="project.test.classpath">
-			<pathelement location="${GROUPER_HOME}/src/test/conf" />
-			<path refid="project.classpath" />
+		<path id="test.classpath">
+      <pathelement path="${java.class.path}" />
+      <fileset dir="${basedir}/lib">
+        <include name="**/*.jar" />
+      </fileset>
+      <pathelement location="${build}" />
+      <pathelement location="${build.test}" />
+      <pathelement path="${TEST_CLASSPATH}" />
 		</path>
 	</target>
 
@@ -128,13 +133,30 @@
 	</target>
 
 	<target name="test" depends="test-compile">
-		<junit fork="yes"
+	   <java fork="false"
+	              maxmemory="${memory.max}"
+	              classpathref="test.classpath"
+	              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+	              failonerror="true"
+	        />
+	    
+	    <input validargs="y,n"
+	        addproperty="do.delete.usdu"
+	      />
+	      <condition property="do.abort.usdu">
+	        <equals arg1="n" arg2="${do.delete.usdu}"/>
+	      </condition>
+	      <fail if="do.abort.usdu">Build aborted by user.</fail>
+	    
+	 		<junit fork="yes"
 		       haltonerror="yes"
 		       haltonfailure="yes"
 		       maxmemory="${memory.max}"
 		       printsummary="yes"
 		       showoutput="yes">
-			<classpath refid="project.test.classpath" />
+      <!-- we just prompted the user about the changes above -->
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/>
+			<classpath refid="test.classpath" />
 			<formatter type="xml" />
 			<batchtest fork="yes">
 				<formatter type="xml" />
@@ -148,7 +170,7 @@
 
 	<target name="test-compile" depends="init">
 		<javac srcdir="${src.test}" destdir="${build.test}">
-			<classpath refid="project.classpath" />
+			<classpath refid="test.classpath" />
 		</javac>
 	</target>
 
