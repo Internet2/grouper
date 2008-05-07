@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.7 2007-03-10 13:31:17 khuxtable Exp $
-$Date: 2007-03-10 13:31:17 $
+$Id: JDBCSourceAdapter.java,v 1.8 2008-05-07 18:29:02 mchyzer Exp $
+$Date: 2008-05-07 18:29:02 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -109,9 +109,9 @@ public class JDBCSourceAdapter
             ResultSet rs = getSqlResults(id, stmt, search);
             subject = createUniqueSubject(rs, search,  id);
         } catch (InvalidQueryException nqe) {
-            log.error("InvalidQueryException occurred: " + nqe.getMessage(), nqe);
+            log.error("InvalidQueryException occurred: " + nqe.getMessage() + ", " + search.getParam("sql"), nqe);
         } catch (SQLException ex) {
-            log.error("SQLException occurred: " + ex.getMessage(), ex);
+            log.error("SQLException occurred: " + ex.getMessage() + ", " + search.getParam("sql"), ex);
         } finally {
             closeStatement(stmt);
             closeConnection(conn);
@@ -146,9 +146,9 @@ public class JDBCSourceAdapter
                 result.add(subject);
             }
         } catch (InvalidQueryException nqe) {
-            log.error("InvalidQueryException occurred: " + nqe.getMessage(), nqe);
+            log.error("InvalidQueryException occurred: " + nqe.getMessage() + ", " + search.getParam("sql"), nqe);
         } catch (SQLException ex) {
-            log.debug("SQLException occurred: " + ex.getMessage(), ex);
+            log.error("SQLException occurred: " + ex.getMessage() + ", " + search.getParam("sql"), ex);
         } finally {
             closeStatement(stmt);
             closeConnection(conn);
@@ -254,17 +254,15 @@ public class JDBCSourceAdapter
      * @param stmt
      * @param search
      * @return resultSet
+     * @throws SQLException 
      */
-    protected ResultSet getSqlResults(String searchValue, PreparedStatement stmt, Search search) {
+    protected ResultSet getSqlResults(String searchValue, PreparedStatement stmt, Search search) 
+           throws SQLException {
         ResultSet rs = null;
-        try {
-            for (int i = 1; i <= Integer.parseInt(search.getParam("numParameters")); i++) {
-                stmt.setString(i, searchValue);
-            }
-            rs = stmt.executeQuery();
-        } catch (SQLException ex) {
-            log.debug("SQLException occurred: " + ex.getMessage(), ex);
+        for (int i = 1; i <= Integer.parseInt(search.getParam("numParameters")); i++) {
+            stmt.setString(i, searchValue);
         }
+        rs = stmt.executeQuery();
         return rs;
     }
 
@@ -301,7 +299,7 @@ public class JDBCSourceAdapter
             }
 
         } catch (SQLException ex) {
-            log.debug("SQLException occurred: " + ex.getMessage(), ex);
+            log.error("SQLException occurred: " + ex.getMessage(), ex);
         }
         return attributes;
     }
@@ -333,7 +331,7 @@ public class JDBCSourceAdapter
         } catch (Exception ex) {
             log.error("Error loading JDBC driver: " + ex.getMessage(), ex);
             throw new SourceUnavailableException(
-                    "Error loading JDBC driver", ex);
+                    "Error loading JDBC driver: " + driver, ex);
         }
         log.info("JDBC driver loaded.");
     }
@@ -356,10 +354,10 @@ public class JDBCSourceAdapter
         
         ConnectionFactory connFactory = null;
         PoolableConnectionFactory poolConnFactory = null;
-        
+        String dbUrl = null;
         try {
             log.debug("Initializing connection factory.");
-            String dbUrl = props.getProperty("dbUrl");
+            dbUrl = props.getProperty("dbUrl");
             String dbUser = props.getProperty("dbUser");
             String dbPwd = props.getProperty("dbPwd");
             connFactory = new DriverManagerConnectionFactory(dbUrl, dbUser, dbPwd);
@@ -368,7 +366,7 @@ public class JDBCSourceAdapter
             log.error(
                     "Error initializing connection factory: " + ex.getMessage(), ex);
             throw new SourceUnavailableException(
-                    "Error initializing connection factory", ex);
+                    "Error initializing connection factory: " + dbUrl, ex);
         }
         
         try {
