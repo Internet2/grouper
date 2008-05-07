@@ -1,4 +1,4 @@
-<!-- $Id: ext-build.xml,v 1.3 2008-01-18 16:23:28 tzeller Exp $ -->
+<!-- $Id: ext-build.xml,v 1.4 2008-05-07 16:56:15 mchyzer Exp $ -->
 
 <project name="Grouper Extensions" default="ext.compile" basedir=".">
 
@@ -11,6 +11,7 @@
     <sequential>
       <subant target="@{target}">
         <property name="GROUPER_CLASSPATH"  refid="project.classpath"/>
+        <property name="TEST_CLASSPATH"  refid="test.classpath"/>
         <property name="GROUPER_CONF"       location="${conf.dir}"/>
         <property name="GROUPER_DOC_CSS"    location="${javadoc.css}"/>
         <property name="GROUPER_EXT_BIN"    location="${ext.dir.bin}"/>
@@ -45,6 +46,7 @@
   >
     <subant target="${target}">
       <property name="GROUPER_CLASSPATH"  refid="project.classpath"/>
+      <property name="TEST_CLASSPATH"  refid="test.classpath"/>
       <property name="GROUPER_CONF"       location="${conf.dir}"/>
       <property name="GROUPER_DOC_CSS"    location="${javadoc.css}"/>
       <property name="GROUPER_EXT_BIN"    location="${ext.dir.bin}"/>

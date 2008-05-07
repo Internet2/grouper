@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.177 2008-05-06 21:30:50 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.178 2008-05-07 16:56:15 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -225,10 +225,13 @@
           description="Initialize Groups Registry"
   >
     <record name="${db.init.log}" action="start"/>
+    <!-- CH already prompted in schemaexport -->
     <java fork="true"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.RegistryInstall"
-    />
+    >
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+      </java>
     <record name="${db.init.log}" action="stop"/>
   </target>
   <!-- target: db.init -->
@@ -238,11 +241,15 @@
           depends="init, schemaexport.test"
           description="Initialize Test Groups Registry"
   >
-    <record name="${db.init.log}" action="start"/>
+    <!-- CH already prompted in schemaexport -->
+     
+      <record name="${db.init.log}" action="start"/>
     <java fork="true"
           classpathref="test.classpath"
           classname="edu.internet2.middleware.grouper.RegistryInstall"
-    />
+    >
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+    </java>
     <record name="${db.init.log}" action="stop"/>
   </target>
   <!-- target: db.init.test -->
@@ -259,12 +266,29 @@
   <target name="db.reset"
           depends="compile"
   >
-    <java fork="true"
+    <java fork="false"
+               maxmemory="${memory.max}"
+               classpathref="test.classpath"
+               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+               failonerror="true"
+         />
+     
+     <input validargs="y,n"
+         addproperty="do.delete.reset"
+       />
+       <condition property="do.abort.reset">
+         <equals arg1="n" arg2="${do.delete.reset}"/>
+       </condition>
+       <fail if="do.abort.reset">Build aborted by user.</fail>
+     
+      <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.RegistryReset"
-    />
-  </target>
+    >
+        <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+      </java>
+    </target>
   <!-- target: db.reset -->
 
   <!-- target: dist -->
@@ -500,13 +524,26 @@
     <filter token="base"  value="${converted.base}"/>
     <!-- Apparently ${file.separator} is not appropriate here -->
     <filter token="slash"       value="/"/>
+    <!-- CH 2008/05/07 why are these filter tokens??? -->
     <filter token="timeToIdle"  value="30"/>
     <filter token="timeToLive"  value="120"/>
+    <!-- CH 2008/05/07 TODO this is bad, if someone customizing their conf file, and then another
+      gets committed to cvs, it will overwrite their changes... -->
     <copy todir="${conf.dir}" filtering="true">
       <fileset dir="${src.dir.conf}"/>
     </copy>
     <filter token="timeToIdle"  value="1"/>
     <filter token="timeToLive"  value="1"/>
+    
+    <!-- see if grouper.properties is there -->
+    <condition property="configfile" value="${conf.dir}/grouper.properties" 
+        else="${conf.dir}/grouper.example.properties">
+      <available file="${conf.dir}/grouper.properties" type="file"/>
+    </condition>
+    
+    <!-- if grouper.properties is there, copy it to itself, if not, get the example -->
+    <copy tofile="${conf.dir}/grouper.properties" file="${configfile}" verbose="true" />
+    
     <copy todir="${src.dir.test.conf}" filtering="true">
       <fileset dir="${src.dir.conf}">
         <include name="grouper.ehcache.xml"/>
@@ -587,8 +624,8 @@
           depends="init, compile"
           description="Generate SQL schema appropriate for configured database"
   >
-    <!-- CH example of prompting user with ant, then pass env var to init schema 
-    java fork="false"
+    <!-- CH example of prompting user with ant, then pass env var to init schema -->
+    <java fork="false"
               maxmemory="${memory.max}"
               classpathref="test.classpath"
               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
@@ -596,12 +633,12 @@
         />
     
     <input validargs="y,n"
-        addproperty="do.delete"
+        addproperty="do.delete.export"
       />
-      <condition property="do.abort">
-        <equals arg1="n" arg2="${do.delete}"/>
+      <condition property="do.abort.export">
+        <equals arg1="n" arg2="${do.delete.export}"/>
       </condition>
-      <fail if="do.abort">Build aborted by user.</fail -->
+      <fail if="do.abort.export">Build aborted by user.</fail>
     
     <record name="${schemaexport.log}" action="start"/>
     <mkdir dir="${dist.dir}"/>
@@ -611,7 +648,9 @@
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.RegistryInitializeSchema"
           failonerror="true"
-    />
+    >
+    <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+     </java>
     <record name="${schemaexport.log}" action="stop"/>
   </target>
   <!-- target: schemaexport -->
@@ -622,6 +661,22 @@
           description="Generate Test SQL schema appropriate for configured database"
   >
     
+    <!-- CH example of prompting user with ant, then pass env var to init schema -->
+    <java fork="false"
+              maxmemory="${memory.max}"
+              classpathref="test.classpath"
+              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+              failonerror="true"
+        />
+    
+    <input validargs="y,n"
+        addproperty="do.delete.exporttest"
+      />
+      <condition property="do.abort.exporttest">
+        <equals arg1="n" arg2="${do.delete.exporttest}"/>
+      </condition>
+      <fail if="do.abort.exporttest">Build aborted by user.</fail>
+
     <record name="${schemaexport.log}" action="start"/>
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir.run}"/>
@@ -630,7 +685,9 @@
           classpathref="test.classpath"
           classname="edu.internet2.middleware.grouper.RegistryInitializeSchema"
           failonerror="true"
-    />
+    >
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+    </java>
     <record name="${schemaexport.log}" action="stop"/>
   </target>
   <!-- target: schemaexport.test -->
@@ -640,6 +697,21 @@
           depends="init, compile"
           description="Adds the foreign keys to the database"
   >
+    <java fork="false"
+               maxmemory="${memory.max}"
+               classpathref="test.classpath"
+               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+               failonerror="true"
+         />
+     
+     <input validargs="y,n"
+         addproperty="do.delete.keys"
+       />
+       <condition property="do.abort.keys">
+         <equals arg1="n" arg2="${do.delete.keys}"/>
+       </condition>
+       <fail if="do.abort.keys">Build aborted by user.</fail>
+     
     <record name="${schemaexport.log}" action="start"/>
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir.run}"/>
@@ -648,7 +720,9 @@
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.RegistryAddForeignKeys"
           failonerror="true"
-    />
+    >
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+    </java>
     <record name="${schemaexport.log}" action="stop"/>
   </target>
   <!-- target: addforeignkeys -->
@@ -691,32 +765,32 @@
     <echo/>
     <record name="${test.log}" action="start" append="yes"/>
     <mkdir dir="${dist.dir.test}"/>
-    <junit  fork="yes"
+    <!-- rely on db init prompting the user -->
+    <!-- junit  fork="yes"
             haltonerror="yes"
             haltonfailure="yes"
             maxmemory="${memory.max}"
             printsummary="yes"
             showoutput="yes"
     >
-      <!-- rely on db init prompting the user -->
       <jvmarg value="-Dgrouper.allow.db.changes=true"/>
       <classpath  refid="test.classpath"/>
       <formatter  type="xml"/>
       <test       name="edu.internet2.middleware.grouper.SuiteDefault"
                   todir="${dist.dir.test}"
       />
-<!-- TODO 20061228 Switch to batchtest once I've migrated the tests
-      <batchtest  fork="yes"
-                  todir="${dist.dir.test}"
-      >
-        <formatter  type="xml"/>
-        <fileset    dir="${src.dir.test}">
-          <include  name="**/Test*.java"/>
-          <exclude  name="**/Suite*.java"/>
-        </fileset>  
-      </batchtest>
--->
-    </junit>
+    </junit -->
+    <!-- TODO 20061228 Switch to batchtest once I've migrated the tests
+          <batchtest  fork="yes"
+                      todir="${dist.dir.test}"
+          >
+            <formatter  type="xml"/>
+            <fileset    dir="${src.dir.test}">
+              <include  name="**/Test*.java"/>
+              <exclude  name="**/Suite*.java"/>
+            </fileset>  
+          </batchtest>
+    -->
     <!-- test extensions -->
     <antcall target="ext.test"/>
     <record name="${test.log}" action="stop"/>
@@ -728,7 +802,7 @@
           depends="init, compile"
   >
     <record name="${test.log}" action="start" append="yes"/>
-    <javac srcdir="${src.dir.test}" destdir="${build.dir.test}">
+    <javac srcdir="${src.dir.test}" destdir="${build.dir.test}" debug="true">
       <classpath  refid="test.classpath"/>
       <include name="**/*.java" />
     </javac>
@@ -753,12 +827,21 @@
                 classpathref="test.classpath" 
     />
     <fail unless="test.class.exists" message="Could not find test class '${test.class}'"/>
+    <!-- CH example of prompting user with ant, then pass env var to init schema -->
     <java fork="false"
               maxmemory="${memory.max}"
               classpathref="test.classpath"
-              classname="edu.internet2.middleware.grouper.util.ConfirmDbChange"
+              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
               failonerror="true"
         />
+    
+    <input validargs="y,n"
+        addproperty="do.delete.test"
+      />
+      <condition property="do.abort.test">
+        <equals arg1="n" arg2="${do.delete.test}"/>
+      </condition>
+      <fail if="do.abort.test">Build aborted by user.</fail>
     <junit printsummary="withOutAndErr" fork="true"> 
       <!-- we just prompted the user about the changes -->
       <jvmarg value="-Dgrouper.allow.db.changes=true"/>
@@ -801,13 +884,29 @@
           depends="ensure.cmd"        
           description='Perform XML export of Groups Registry [Pass -Dcmd="command line arguments"]'
   >
-    <java fork="true"
+    <java fork="false"
+               maxmemory="${memory.max}"
+               classpathref="test.classpath"
+               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+               failonerror="true"
+         />
+     
+     <input validargs="y,n"
+         addproperty="do.delete.xmlexport"
+       />
+       <condition property="do.abort.xmlexport">
+         <equals arg1="n" arg2="${do.delete.xmlexport}"/>
+       </condition>
+       <fail if="do.abort.xmlexport">Build aborted by user.</fail>
+     
+      <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.XmlExporter"
           failonerror="true"
     >
-      <arg line="${cmd}"/>
+        <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+           <arg line="${cmd}"/>
     </java>
   </target>
   <!-- target: xml.export -->
@@ -817,13 +916,29 @@
           depends="ensure.cmd"        
           description='Perform XML import of Groups Registry [Pass -Dcmd="command line arguments"]'
   >
-    <java fork="true"
+    <java fork="false"
+               maxmemory="${memory.max}"
+               classpathref="test.classpath"
+               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+               failonerror="true"
+         />
+     
+     <input validargs="y,n"
+         addproperty="do.delete.import"
+       />
+       <condition property="do.abort.import">
+         <equals arg1="n" arg2="${do.delete.import}"/>
+       </condition>
+       <fail if="do.abort.import">Build aborted by user.</fail>
+     
+      <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.XmlImporter"
           failonerror="true"
     >
-      <arg line="${cmd}"/>
+        <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+        <arg line="${cmd}"/>
     </java>
   </target>
   <!-- target: xml.import -->
