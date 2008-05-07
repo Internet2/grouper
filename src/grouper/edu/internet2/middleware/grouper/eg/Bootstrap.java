@@ -16,11 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.eg;
+import org.apache.commons.lang.StringUtils;
+
 import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import  edu.internet2.middleware.subject.*; // Import Subject API
 
 /**
- * EXAMPLE Bootstrap your Groups Registry by creating a wheel group.
+ * EXAMPLE Bootstrap your Groups Registry by creating a sysadmin (wheel) group.
  * <p>Running <code>ant eg.bootstrap</code> will run this example code.</p>
  * <h4>Step 0: Import Required Packages</h4>
  * <p>To begin using the Grouper API you will first need to import the Grouper API,
@@ -58,7 +61,7 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
  * <pre class="eg">
  * Stem root = StemFinder.findRootStem(s);
  * </pre>
- * <h4>Step 4: Find Or Add Top-Level Stem "etc"</h4>
+ * <h4>Step 4: Find Or Add Top-Level Stem "etc" (or whatever is configured in grouper.properties)</h4>
  * <p>After retrieving the root stem you can create a new top-level stem, in this case
  * named "etc", beneath the root stem.  
  * <pre class="eg">
@@ -82,9 +85,19 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
  *   }
  * }
  * </pre>
- * <h4>Step 5: Find Or Add Group "etc:wheel"</h4>
+ * However, we are creating a dynamically named stem based on the wheel group named in grouper.properties:
+ * <pre class="eg">
+ *    try {
+ *      this.etc = Stem.saveStem(this.s, etcStem, null, etcStem, displayExtn, null, SaveMode.INSERT_OR_UPDATE, true);
+ *      System.err.println("created top-level stem: " + this.etc);
+ *    }
+ *    catch (Exception eIP) {
+ *      throw new GrouperRuntimeException( "error adding top-level stem: " + eIP.getMessage() + ", " + etcStem, eIP );
+ *    }
+ * </pre> 
+ * <h4>Step 5: Find Or Add Sysadmin Group "etc:sysadmin" (or whatever is configured in grouper.properties)</h4>
  * <p>After adding the top-level "etc" stem you can then create the wheel group
- * ("etc:wheel") beneath it.</p>
+ * ("etc:sysadmin") beneath it.</p>
  * <pre class="eg">
  * Group   wheel;
  * String  extn        = "wheel";
@@ -105,6 +118,17 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
  *     // not privileged to create wheel group
  *   }
  * }
+ * </pre>
+ * However, we are doing things more dynamically:
+ * <pre class="eg">
+ *    try {
+ *      // create group if it doesn't exist
+ *      this.wheel = Group.saveGroup(this.s, wheelGroupName, null, wheelGroupName, displayExtn, null, SaveMode.INSERT_OR_UPDATE, true);
+ *      System.err.println("created sysadmin (wheel) group: " + this.wheel);
+ *    }
+ *    catch (Exception eGA) {
+ *      throw new GrouperRuntimeException( "error adding sysadmin group: " + eGA.getMessage() + ", " + wheelGroupName, eGA );
+ *    }
  * </pre>
  * <h4>Step 6: Find <i>GrouperAll</i> Subject</h4>
  * <p><i>GrouperAll</i> is another subject internal to Grouper.  When you assign a
@@ -145,7 +169,7 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
  * }
  * </pre>
  * @author  blair christensen.
- * @version $Id: Bootstrap.java,v 1.1 2007-06-19 18:14:36 blair Exp $
+ * @version $Id: Bootstrap.java,v 1.2 2008-05-07 20:04:16 mchyzer Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/Bootstrap.java?root=I2MI&view=markup">Source</a>
  * @since   1.2.0
  */
@@ -205,13 +229,13 @@ public class Bootstrap {
         // this is *not* recommend for most grouper deployments as it will give every
         // subject root-like privileges over the entire groups registry. 
         this.wheel.addMember(grouperAll);
-        System.err.println("added GrouperAll to wheel group");
+        System.err.println("added GrouperAll to sysadmin (wheel) group");
       }
       catch (InsufficientPrivilegeException eIP) {
-        throw new GrouperRuntimeException( "error adding GrouperAll to wheel group: " + eIP.getMessage(), eIP );
+        throw new GrouperRuntimeException( "error adding GrouperAll to sysadmin (wheel) group: " + eIP.getMessage(), eIP );
       }
       catch (MemberAddException eMA) {
-        throw new GrouperRuntimeException( "error adding GrouperAll to wheel group: " + eMA.getMessage(), eMA );
+        throw new GrouperRuntimeException( "error adding GrouperAll to sysadmin (wheel) group: " + eMA.getMessage(), eMA );
       }
     }
     else {
@@ -230,24 +254,21 @@ public class Bootstrap {
   }
 
   private void findOrAddTopLevelStem() {
-    String extn         = "etc";
+    String etcStem = GrouperUtil.parentStemNameFromName(this.wheelGroupName());
     String displayExtn  = "Grouper Administration";
     // check to see if stem exists
     try {
-      this.etc = StemFinder.findByName(this.s, extn);
+      this.etc = StemFinder.findByName(this.s, etcStem);
       System.err.println("found top-level stem: " + this.etc);
     }
     catch (StemNotFoundException eNSNF) {
       // create stem if it doesn't exist
       try {
-        this.etc = this.root.addChildStem(extn, displayExtn);
+        this.etc = Stem.saveStem(this.s, etcStem, null, etcStem, displayExtn, null, SaveMode.INSERT_OR_UPDATE, true);
         System.err.println("created top-level stem: " + this.etc);
       }
-      catch (InsufficientPrivilegeException eIP) {
-        throw new GrouperRuntimeException( "error adding top-level stem: " + eIP.getMessage(), eIP );
-      }
-      catch (StemAddException eNSA) {
-        throw new GrouperRuntimeException( "error adding top-level stem: " + eNSA.getMessage(), eNSA );
+      catch (Exception eIP) {
+        throw new GrouperRuntimeException( "error adding top-level stem: " + eIP.getMessage() + ", " + etcStem, eIP );
       }
     }
   }
@@ -258,26 +279,41 @@ public class Bootstrap {
   }
 
   private void findOrAddWheelGroup() {
-    String  extn        = "wheel";
-    String  displayExtn = "Wheel Group";
+    String wheelGroupName = wheelGroupName();
+    String  extn        = GrouperUtil.extensionFromName(wheelGroupName);
+    
+    //if etc:wheel (the old way), use that as the friendly name
+    String  displayExtn = StringUtils.equals(wheelGroupName, "etc:wheel") ? "Wheel Group" 
+        : "Sysadmin group";
     // check to see if group exists
     try {
       this.wheel = GroupFinder.findByName( s, this.etc.getName() + ":" + extn );
-      System.err.println("found wheel group: " + this.wheel);
+      System.err.println("found sysadmin (wheel) group: " + this.wheel);
     }
     catch (GroupNotFoundException eGNF) {
       try {
         // create group if it doesn't exist
-        this.wheel = this.etc.addChildGroup(extn, displayExtn);
-        System.err.println("created wheel group: " + this.wheel);
+        this.wheel = Group.saveGroup(this.s, wheelGroupName, null, wheelGroupName, displayExtn, displayExtn, SaveMode.INSERT_OR_UPDATE, true);
+        System.err.println("created sysadmin (wheel) group: " + this.wheel);
       }
-      catch (GroupAddException eGA) {
-        throw new GrouperRuntimeException( "error adding wheel group: " + eGA.getMessage(), eGA );
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        throw new GrouperRuntimeException( "error adding top-level group: " + eIP.getMessage(), eIP );
+      catch (Exception eGA) {
+        throw new GrouperRuntimeException( "error adding sysadmin group: " + eGA.getMessage() + ", " + wheelGroupName, eGA );
       }
     }
+  }
+
+
+  /**
+   * @return
+   */
+  private String wheelGroupName() {
+    String wheelGroupName = GrouperConfig.getProperty("groups.wheel.group");
+    
+    if (StringUtils.isBlank(wheelGroupName)) {
+      throw new RuntimeException("grouper.properties must have an extry for " +
+          "groups.wheel.group, e.g. etc:sysadmingroup");
+    }
+    return wheelGroupName;
   }
 
   private void startSession() {
