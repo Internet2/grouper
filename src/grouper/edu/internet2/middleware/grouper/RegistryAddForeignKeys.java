@@ -16,6 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
+
+import  java.io.FileWriter;
+import  java.io.IOException;
+
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 
@@ -33,13 +37,26 @@ public class RegistryAddForeignKeys {
    * @since   1.3.0
    */
   public static void main(String[] args) {
+
+    FileWriter fw = null;
+
     try {
-      ( (RegistryDAO) GrouperDAOFactory.getFactory().getRegistry() ).addForeignKeys();
-      System.exit(0);
+      fw = new FileWriter(GrouperConfig.getBuildProperty("schemaexport.out"), true);
+      ( (RegistryDAO) GrouperDAOFactory.getFactory().getRegistry() ).addForeignKeys(fw);
+    }
+    catch (IOException e) {
+      throw new RuntimeException( e.getMessage() );
     }
     catch (GrouperDAOException eDAO) {
-      System.err.println( eDAO.getMessage() );
-      System.exit(1);
+      throw new RuntimeException( eDAO.getMessage() );
+    }
+    finally {
+      if (fw != null) {
+        try {
+          fw.close();
+        }
+        catch (IOException e) { }
+      }
     }
   } 
 

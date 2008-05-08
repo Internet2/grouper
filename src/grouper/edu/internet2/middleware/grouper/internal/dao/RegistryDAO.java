@@ -17,11 +17,13 @@
 
 package edu.internet2.middleware.grouper.internal.dao;
 
+import  java.io.Writer;
+
 /** 
  * Basic <code>Registry</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistryDAO.java,v 1.4 2008-04-03 18:09:43 shilen Exp $
+ * @version $Id: RegistryDAO.java,v 1.5 2008-05-08 19:41:15 shilen Exp $
  * @since   1.2.0
  */
 public interface RegistryDAO extends GrouperDAO {
@@ -41,13 +43,13 @@ public interface RegistryDAO extends GrouperDAO {
   /**
    * @since   1.3.0
    */
-  public void addForeignKeys()
+  public void addForeignKeys(Writer writer)
     throws  GrouperDAOException;
 
   /**
    * @since   1.3.0
    */
-  public void dropForeignKeys()
+  public void dropForeignKeys(Writer writer)
     throws  GrouperDAOException;
 
 } 
