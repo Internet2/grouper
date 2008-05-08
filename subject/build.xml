@@ -98,7 +98,7 @@
 
 	<!-- Compile classes -->
 	<target name="compile" depends="init">
-		<javac
+		<javac debug="true"
 			srcdir="${src.dir}"
 			destdir="${build.dir}"
 			includes="**/*.java">
