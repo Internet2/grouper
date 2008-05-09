@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.4 2008-05-07 16:56:18 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.5 2008-05-09 04:26:45 tzeller Exp $ -->
 
 <project name="GrouperShell" default="compile" basedir=".">
 
@@ -200,8 +200,8 @@
           depends="clean"
           description="Create a gsh source package"
   >
-    <zip destfile="${basedir}/${app.name}-${impl.version}-src.zip">
-      <zipfileset dir="${basedir}" prefix="${app.name}-${impl.version}">
+    <zip destfile="${basedir}/${app.name}.zip">
+      <zipfileset dir="${basedir}" prefix="${app.name}">
         <exclude name="*.zip"/>
         <exclude name=".hgignore"/>
         <exclude name=".hg/"/>
