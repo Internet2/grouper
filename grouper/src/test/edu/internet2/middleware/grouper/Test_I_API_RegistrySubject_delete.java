@@ -16,15 +16,41 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.util.GrouperUtilTest;
 import  edu.internet2.middleware.subject.Subject;
 
 /**
  * Test <code>Group.delete()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_RegistrySubject_delete.java,v 1.1 2007-05-31 17:57:45 blair Exp $
+ * @version $Id: Test_I_API_RegistrySubject_delete.java,v 1.2 2008-05-09 02:33:58 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_RegistrySubject_delete extends GrouperTest {
+
+  /**
+   * 
+   */
+  public Test_I_API_RegistrySubject_delete() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_I_API_RegistrySubject_delete(String name) {
+    super(name);
+  }
+
+  /**
+   * 
+   * @param args
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new Test_I_API_RegistrySubject_delete(""));
+    TestRunner.run(Test_I_API_RegistrySubject_delete.class);
+  }
 
   // PRIVATE INSTANCE VARIABLES //
   private RegistrySubject rSubjX;
