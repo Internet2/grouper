@@ -19,7 +19,6 @@
 
 	<target name="clean">
 		<delete dir="${build}" />
-		<delete dir="${GROUPER_EXT_LIB}/launcher" />
 		<delete>
 			<fileset dir="${basedir}" includes="TEST-*.xml" />
 		</delete>
