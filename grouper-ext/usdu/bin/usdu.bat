@@ -1,8 +1,8 @@
 @echo off
 
-%rem Author: Gary Brown
+rem Author: Gary Brown
 
-rem $Id: usdu.bat,v 1.3 2008-05-09 03:26:41 tzeller Exp $
+rem $Id: usdu.bat,v 1.4 2008-05-09 03:31:53 tzeller Exp $
 
 
 rem if "%OS%" == "Windows_NT" setlocal
