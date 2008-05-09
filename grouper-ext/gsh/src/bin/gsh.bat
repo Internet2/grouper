@@ -1,19 +1,5 @@
 @echo off
 
-rem Author: Gary Brown
-
-rem $Id: gsh.bat,v 1.4 2008-05-09 04:24:12 tzeller Exp $
-
-
-rem if "%OS%" == "Windows_NT" setlocal
-
-if not "%1" == "acp" goto execute
-
-goto end
-
-:execute
-
-
 set JAVA=java
 
 set GSH=com.devclue.grouper.shell.GrouperShell
@@ -37,5 +23,3 @@ rem POPULATED AT BUILD
 
 
 %JAVA% -Xms%MEM_START% -Xmx%MEM_MAX% -jar %GROUPER_HOME%/lib/invoker.jar -cpdir %GROUPER_CONF% -cpalljars %GROUPER_HOME%/lib -cpalljars %GROUPER_EXT_LIB% -cpjar %GROUPER_HOME%/dist/lib/grouper.jar %GSH_JVMARGS% %GSH% %*
-
-:end
