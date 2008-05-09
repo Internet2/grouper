@@ -1,4 +1,4 @@
-<!-- $Id: ext-build.xml,v 1.5 2008-05-09 05:18:27 mchyzer Exp $ -->
+<!-- $Id: ext-build.xml,v 1.6 2008-05-09 13:25:57 tzeller Exp $ -->
 
 <project name="Grouper Extensions" default="ext.compile" basedir=".">
 
@@ -99,9 +99,10 @@
           depends="ext.init"
   >
     <iterate target="ext.install"/>
-    <!-- fix line endings -->
+    <!-- fix line endings and permissions-->
     <fixcrlf srcdir="${ext.dir}/bin" eol="unix" includes="*.sh" />
     <fixcrlf srcdir="${ext.dir}/bin" eol="dos" includes="*.bat" />
+    <chmod dir="${ext.dir}/bin" includes="*.sh,*.bat" perm="ugo+rx"/>
   </target>
   <!-- target: ext.install -->
 

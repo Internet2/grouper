@@ -103,8 +103,6 @@
 				<filter token="USDU_VERSION" value="${version}" />
 			</filterset>
 		</copy>
-		<chmod file="${GROUPER_EXT_BIN}/usdu.sh" perm="ugo+rx" />		
-		<chmod file="${GROUPER_EXT_BIN}/usdu.bat" perm="ugo+rx" />
 		<!-- copy 3rd party libraries to ext/lib -->
 		<copy todir="${GROUPER_EXT_LIB}">
 			<fileset dir="${basedir}/lib" />

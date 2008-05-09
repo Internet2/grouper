@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.5 2008-05-09 04:26:45 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.6 2008-05-09 13:26:01 tzeller Exp $ -->
 
 <project name="GrouperShell" default="compile" basedir=".">
 
@@ -158,8 +158,6 @@
     <copy todir="${GROUPER_EXT_BIN}" filtering="true">
       <fileset dir="${src.bin}"/>
     </copy>
-    <chmod  file="${GROUPER_EXT_BIN}/gsh.bat" perm="ugo+rx"/>
-    <chmod  file="${GROUPER_EXT_BIN}/gsh.sh"  perm="ugo+rx"/>
     <!-- install libraries -->
     <copy todir="${GROUPER_EXT_LIB}">
       <fileset dir="${basedir}/lib">
