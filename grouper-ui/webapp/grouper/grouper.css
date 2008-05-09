@@ -34,8 +34,13 @@ h1 {
 #LeftInNav {float:left;}
 #RightInNav {float:right;margin-right:9px}
 
-.inNav{font-size:8pt;
-           height:1.5em;}
+#RightInNav .blueButton {
+  background-color: #DFEFF4;
+  color:  #015782;
+}
+select.inNav {
+font-size:9px;
+}
 #grouperIntro {
 	width:50%;
 	float:left;
