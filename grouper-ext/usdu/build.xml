@@ -107,12 +107,6 @@
 		<chmod file="${GROUPER_EXT_BIN}/usdu.sh" perm="ugo+rx" />
 		<chmod file="${GROUPER_EXT_BIN}/usdu.shellscript" perm="ugo+rx" />
 		<chmod file="${GROUPER_EXT_BIN}/usdu.bat" perm="ugo+rx" />
-		<!-- copy commons-launcher files to ext/bin -->
-		<copy todir="${GROUPER_EXT_BIN}">
-			<fileset dir="${src.bin}">
-				<exclude name="**/usdu.*" />
-			</fileset>
-		</copy>
 		<!-- copy 3rd party libraries to ext/lib -->
 		<copy todir="${GROUPER_EXT_LIB}">
 			<fileset dir="${basedir}/lib" />
