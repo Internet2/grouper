@@ -160,7 +160,16 @@ logging services for purposes of application debugging and auditing."
 * License: Probably the same as ehcache
 * Updated 2008/04/23
 
+# invoker.jar
+
+"reduces the complexity of classpath management."
+
+* Version: 1.0
+* Source: http://www.cs.put.poznan.pl/dweiss/xml/projects/invoker/index.xml?lang=en
+* License: Public Domain
+* Updated 2008/05/08
+
 ---
 
-$Id: README.txt,v 1.13 2008-04-23 16:17:56 mchyzer Exp $
+$Id: README.txt,v 1.14 2008-05-09 03:01:21 tzeller Exp $
 
