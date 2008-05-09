@@ -171,5 +171,31 @@ logging services for purposes of application debugging and auditing."
 
 ---
 
-$Id: README.txt,v 1.14 2008-05-09 03:01:21 tzeller Exp $
+# mailapi.jar
+
+can send mail, e.g. for log4j
+
+* License: Public Domain
+* Updated 2008/05/08
+
+---
+
+# activation.jar
+
+can send mail, e.g. for log4j
+
+* License: Public Domain
+* Updated 2008/05/08
+
+---
+
+# smtp.jar
+
+can send mail, e.g. for log4j
+
+* License: Public Domain
+* Updated 2008/05/08
+
+---
+$Id: README.txt,v 1.15 2008-05-09 05:18:27 mchyzer Exp $
 

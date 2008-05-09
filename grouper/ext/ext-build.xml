@@ -1,4 +1,4 @@
-<!-- $Id: ext-build.xml,v 1.4 2008-05-07 16:56:15 mchyzer Exp $ -->
+<!-- $Id: ext-build.xml,v 1.5 2008-05-09 05:18:27 mchyzer Exp $ -->
 
 <project name="Grouper Extensions" default="ext.compile" basedir=".">
 
@@ -99,6 +99,9 @@
           depends="ext.init"
   >
     <iterate target="ext.install"/>
+    <!-- fix line endings -->
+    <fixcrlf srcdir="${ext.dir}/bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="${ext.dir}/bin" eol="dos" includes="*.bat" />
   </target>
   <!-- target: ext.install -->
 
