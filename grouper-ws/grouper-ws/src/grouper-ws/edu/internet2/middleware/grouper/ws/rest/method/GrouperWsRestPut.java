@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPut.java,v 1.6 2008-03-31 07:22:02 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPut.java,v 1.7 2008-05-12 04:23:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -94,11 +94,12 @@ public enum GrouperWsRestPut {
       //url should be: /v1_3_000/stems/aStem:aStem2
       String stemName = GrouperServiceUtils.popUrlString(urlStrings);
       String operation = GrouperServiceUtils.popUrlString(urlStrings);
-      
+
       if (requestObject instanceof WsRestStemSaveRequest) {
         if (!StringUtils.isBlank(stemName)) {
           throw new WsInvalidQueryException("Dont pass stem name when saving batch stems: '" + stemName + "'");
         }
+        //TODO why is condition same
         if (!StringUtils.isBlank(stemName)) {
           throw new WsInvalidQueryException("Dont pass sub resource when saving batch stems: '" + operation + "'");
         }
@@ -108,7 +109,7 @@ public enum GrouperWsRestPut {
       if (requestObject instanceof WsRestStemSaveLiteRequest && !StringUtils.isBlank(operation)) {
         throw new WsInvalidQueryException("Dont pass sub resource when saving stem: '" + operation + "'");
       }
-      
+
       if ((requestObject == null || requestObject instanceof WsRestStemSaveLiteRequest) 
           && StringUtils.isBlank(operation) ) {
         return GrouperServiceRest.stemSaveLite(clientVersion, stemName, (WsRestStemSaveLiteRequest)requestObject);

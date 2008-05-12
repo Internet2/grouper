@@ -18,22 +18,26 @@
 	<property file="build.properties" />
 
 	<!-- validate the build.properties -->
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): webapp.folder" unless="webapp.folder" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.cleanOnDist" unless="dist.cleanOnDist" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.packageAar" unless="dist.packageAar" />
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): webapp.authentication.use.rampart" unless="webapp.authentication.use.rampart" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.generateWsdlOnDist" unless="dist.generateWsdlOnDist" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.generateClientOnDist" unless="dist.generateClientOnDist" />
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): dist.buildGeneratedClientJarOnDist" unless="dist.buildGeneratedClientJarOnDist" />
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): deploy.context.path" unless="deploy.context.path" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): generated.client.project.dir" unless="generated.client.project.dir" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): grouper.dir" unless="grouper.dir" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): grouper.dist.dir" unless="grouper.dist.dir" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): stop.tomcat.on.quick.or.dist" unless="stop.tomcat.on.quick.or.dist" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): tomcat.dir" unless="tomcat.dir" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): tomcat.port" unless="tomcat.port" />
-	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy from build.example.properties): cvs.branch" unless="cvs.branch" />
-
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): webapp.folder" unless="webapp.folder" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.cleanOnDist" unless="dist.cleanOnDist" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.packageAar" unless="dist.packageAar" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): webapp.authentication.use.rampart" unless="webapp.authentication.use.rampart" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.generateWsdlOnDist" unless="dist.generateWsdlOnDist" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.generateClientOnDist" unless="dist.generateClientOnDist" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.buildGeneratedClientJarOnDist" unless="dist.buildGeneratedClientJarOnDist" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): deploy.context.path" unless="deploy.context.path" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): generated.client.project.dir" unless="generated.client.project.dir" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.dir" unless="grouper.dir" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.dist.dir" unless="grouper.dist.dir" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): stop.tomcat.on.quick.or.dist" unless="stop.tomcat.on.quick.or.dist" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): tomcat.dir" unless="tomcat.dir" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): tomcat.port" unless="tomcat.port" />
+	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): cvs.branch" unless="cvs.branch" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.lib.dir" unless="grouper.lib.dir" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.jar.name" unless="grouper.jar.name" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.conf.dir" unless="grouper.conf.dir" />
+  
+  
 	<property name="webapp.folder" value="${dist.home}/${webapp.name}" />
 
 	<property name="build.dir" value="${basedir}/build" />
@@ -308,10 +312,29 @@
 		<copy todir="${webapp.folder}/WEB-INF/classes">
 			<fileset dir="${basedir}/resources" />
 		</copy>
-		<copy todir="${webapp.folder}/WEB-INF/lib">
+    <copy todir="${webapp.folder}/WEB-INF/classes" overwrite="true" verbose="true">
+      <fileset dir="${grouper.conf.dir}" />
+    </copy>
+	  
+	  <available file="${grouper.jar.name}" property="grouper.file.exists" value="true" />
+
+	  <if>
+	    <not>
+	      <isset property="grouper.file.exists" />
+  	  </not>      
+  	  <then>
+  	    <fail message="Cant find grouper.jar from build.properties entry grouper.jar.name: ${grouper.jar.name}!" /> 
+  	  </then>
+	  </if>
+
+	  <copy todir="${webapp.folder}/WEB-INF/lib">
 			<fileset dir="${basedir}/lib/axis" includes="*.jar" />
       <fileset dir="${basedir}/lib/rampart" includes="*.jar" />
-			<fileset dir="${basedir}/lib/grouper" includes="*.jar" />
+			<fileset dir="${grouper.lib.dir}">
+			  <include name="*.jar"/>
+        <exclude name="grouper*.jar"/>
+			</fileset>
+      <fileset file="${grouper.jar.name}" />
 			<fileset dir="${basedir}/lib/grouper-ws" includes="*.jar" />
 			<fileset dir="${dist.home}" includes="grouper-ws.jar" />
 		</copy>

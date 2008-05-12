@@ -288,4 +288,21 @@ public final class GrouperWsConfig {
    */
   public static final String WS_SECURITY_RAMPART_AUTHENTICATION_CLASS = 
     "ws.security.rampart.authentication.class";
+  
+  /**
+   * name of param: ws.client.user.group.name
+   * If there is an entry here for group name, then all web service client 
+   * users must be in this group (before the actAs)
+   * e.g. etc:webServiceClientUsers
+   */
+  public static final String WS_CLIENT_USER_GROUP_NAME = "ws.client.user.group.name";
+
+  /**
+   * name of param: ws.client.user.group.cache.minutes
+   * cache the decision to allow a user to user web services, so it doesnt have to be calculated each time
+   * defaults to 30 minutes: 
+   */
+  public static final String WS_CLIENT_USER_GROUP_CACHE_MINUTES = "ws.client.user.group.cache.minutes";
+
+
 }

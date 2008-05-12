@@ -158,9 +158,7 @@ public class GrouperServiceJ2ee implements Filter {
       Class<? extends WsCustomAuthentication> theClass = GrouperUtil
           .forName(authenticationClassName);
 
-      //TODO remove typecast when new grouper
-      WsCustomAuthentication wsAuthentication = (WsCustomAuthentication) GrouperUtil
-          .newInstance(theClass);
+      WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
 
       userIdLoggedIn = wsAuthentication
           .retrieveLoggedInSubjectId(retrieveHttpServletRequest());
@@ -220,6 +218,9 @@ public class GrouperServiceJ2ee implements Filter {
   /** cache the actAs */
   private static ExpirableCache<MultiKey, Boolean> actAsCache = null;
 
+  /** cache the actAs */
+  private static ExpirableCache<MultiKey, Boolean> subjectAllowedCache = null;
+
   /**
    * get the actAsCache, and init if not initted
    * @return the actAsCache
@@ -231,6 +232,19 @@ public class GrouperServiceJ2ee implements Filter {
       actAsCache = new ExpirableCache<MultiKey, Boolean>(actAsTimeoutMinutes);
     }
     return actAsCache;
+  }
+
+  /**
+   * get the subjectAllowedCache, and init if not initted
+   * @return the subjectAllowedCache
+   */
+  private static ExpirableCache<MultiKey, Boolean> subjectAllowedCache() {
+    if (subjectAllowedCache == null) {
+      int subjectAllowedTimeoutMinutes = GrouperWsConfig.getPropertyInt(
+          GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES, 30);
+      subjectAllowedCache = new ExpirableCache<MultiKey, Boolean>(subjectAllowedTimeoutMinutes);
+    }
+    return subjectAllowedCache;
   }
 
   /**
@@ -246,6 +260,49 @@ public class GrouperServiceJ2ee implements Filter {
     //TODO test this
     Subject loggedInSubject = retrieveSubjectLoggedIn();
 
+    //make sure allowed
+    String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
+    
+    String loggedInSubjectId = loggedInSubject.getId();
+    if (!StringUtils.isBlank(userGroupName)) {
+      GrouperSession grouperSession = null;
+      
+      try {
+        //cache key to get or set if a user can act as another
+        MultiKey cacheKey = new MultiKey(loggedInSubjectId, 
+            loggedInSubject.getSource().getId());
+
+        Boolean allowedInCache = subjectAllowedCache().get(cacheKey);
+
+        //if not in cache
+        if (allowedInCache == null) {
+          grouperSession = GrouperSession.start(
+              SubjectFinder.findById("GrouperSystem")
+            );
+
+          Group group = GroupFinder.findByName(grouperSession, userGroupName);
+          if (!group.hasMember(loggedInSubject)) {
+            //not allowed, cache it
+            subjectAllowedCache().put(cacheKey, false);
+            throw new RuntimeException("User is not authorized");
+          }
+          subjectAllowedCache().put(cacheKey, true);
+        } else {
+          //if in cache, reflect that
+          if (!allowedInCache) {
+            throw new RuntimeException("User is not authorized");
+          }
+        }
+      } catch (Exception e) {
+        LOG.error("user: '" + loggedInSubjectId + "' is not a member of group: '" + userGroupName 
+            + "', and therefore is not authorized to use the app (configured in local media.properties penn.uiGroup", e);
+        throw new RuntimeException("User is not authorized", e);
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
+      }
+    }
+
+    
     // if there is no actAs specified, then just use the logged in user
     if (actAsLookup == null || actAsLookup.blank()) {
       return loggedInSubject;
@@ -256,7 +313,7 @@ public class GrouperServiceJ2ee implements Filter {
     //lets see if in cache    
 
     //cache key to get or set if a user can act as another
-    MultiKey cacheKey = new MultiKey(loggedInSubject.getId(), loggedInSubject.getSource()
+    MultiKey cacheKey = new MultiKey(loggedInSubjectId, loggedInSubject.getSource()
         .getId(), actAsSubject.getId(), actAsSubject.getSource().getId());
 
     Boolean inCache = actAsCache().get(cacheKey);
