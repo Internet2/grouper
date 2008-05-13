@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.1 2008-04-28 06:40:23 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.2 2008-05-13 19:30:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.db;
 
@@ -12,7 +12,9 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -33,8 +35,43 @@ public class GrouperLoaderResultset {
   /**
    * 
    */
+  public static final String GROUP_NAME_COL = "GROUP_NAME";
+
+  /**
+   * 
+   */
   public static final String SUBJECT_SOURCE_ID_COL = "SUBJECT_SOURCE_ID";
 
+  /**
+   * get a resultset on another resultset and a group name
+   * @param parentResultSet
+   * @param groupName
+   */
+  public GrouperLoaderResultset(GrouperLoaderResultset parentResultSet, String groupName) {
+    this.columnNames = parentResultSet.columnNames == null ? null : new ArrayList<String>(parentResultSet.columnNames);
+    this.columnTypes = parentResultSet.columnTypes == null ? null : new ArrayList<Integer>(parentResultSet.columnTypes);
+    for (int i=0;i<parentResultSet.data.size();i++) {
+      
+      if (StringUtils.equals(groupName, (String)parentResultSet.getCell(i, GROUP_NAME_COL, true))) {
+        //dont clone the row, just add the row there
+        this.data.add(parentResultSet.data.get(i));
+      }
+      
+    }
+  }
+  
+  /**
+   * get a set of group names
+   * @return the set of names, never null
+   */
+  public Set<String> groupNames() {
+    Set<String> groupNames = new LinkedHashSet<String>();
+    for (int i=0;i<this.data.size();i++) {
+      groupNames.add((String)this.getCell(i, GROUP_NAME_COL, true));
+    }
+    return groupNames;
+  }
+  
   /**
    * get a resultset based on a db and query
    * @param grouperLoaderDb
@@ -220,4 +257,5 @@ public class GrouperLoaderResultset {
     }
     return foundMatch;
   }
+
 }

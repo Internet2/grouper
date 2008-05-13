@@ -1,8 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderStatus.java,v 1.1 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: GrouperLoaderStatus.java,v 1.2 2008-05-13 19:30:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -27,4 +29,18 @@ public enum GrouperLoaderStatus {
   
   /** job didnt finish, it had problems */
   ERROR;
+  
+  /**
+   * do a case-insensitive matching
+   * 
+   * @param string
+   * @param exceptionOnNotFound true to throw exception if method not found
+   * @return the enum or null or exception if not found
+   */
+  public static GrouperLoaderStatus valueOfIgnoreCase(String string,
+      boolean exceptionOnNotFound) {
+    return GrouperUtil.enumValueOfIgnoreCase(GrouperLoaderStatus.class, 
+        string, exceptionOnNotFound);
+  }
+
 }

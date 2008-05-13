@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.3 2008-05-13 07:11:04 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.4 2008-05-13 19:30:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.util;
 
@@ -180,7 +180,7 @@ public class GrouperDdlUtils {
           //is this db independent?  if not, figure out what the issues are and fix so we can have comments
           String summary = timestamp + ": upgrade " + objectName + " from V" + (version-1) + " to V" + version;
           result.append("/* " + summary + " */\n");
-          historyBuilder.insert(0, summary + "\\n");
+          historyBuilder.insert(0, summary + ", ");
           
           String historyString = StringUtils.abbreviate(historyBuilder.toString(), 4000);
 
@@ -188,7 +188,8 @@ public class GrouperDdlUtils {
             result.append(script).append("\n\n");
           }
           if (version == 0) {
-            result.append("insert into grouper_ddl values ('" + GrouperUuid.getUuid() 
+            result.append("insert into grouper_ddl (id, object_name, db_version, java_version, " +
+            		"last_updated, history) values ('" + GrouperUuid.getUuid() 
                 +  "', '" + objectName + "', 0, " + javaVersion
                 + ", '" + timestamp + "', \n'" + historyString + "');\n");
           } else {

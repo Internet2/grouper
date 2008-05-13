@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderDdl.java,v 1.3 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: GrouperLoaderDdl.java,v 1.4 2008-05-13 19:30:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -125,6 +125,15 @@ public enum GrouperLoaderDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "delete_count", 
           "The number of records deleted", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "total_count", 
+          "The total number of records (e.g. total number of members)", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_name", 
+          "If this job is a subjob of another job, then put the parent job name here", Types.VARCHAR, "512", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_id", 
+          "If this job is a subjob of another job, then put the parent job id here", Types.VARCHAR, "128", false, false);
 
     }
   };

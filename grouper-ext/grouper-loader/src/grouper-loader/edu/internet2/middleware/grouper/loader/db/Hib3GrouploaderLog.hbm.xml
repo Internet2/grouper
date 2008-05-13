@@ -19,7 +19,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<!-- $Id: Hib3GrouploaderLog.hbm.xml,v 1.1 2008-05-13 07:11:04 mchyzer Exp $ -->
+<!-- $Id: Hib3GrouploaderLog.hbm.xml,v 1.2 2008-05-13 19:30:00 mchyzer Exp $ -->
 <hibernate-mapping package="edu.internet2.middleware.grouper.loader.db"
   default-lazy="false">
   <class name="Hib3GrouploaderLog" table="grouploader_log">
@@ -108,6 +108,18 @@
 
     <property name="deleteCount" type="int">
       <column name="delete_count" />
+    </property>
+
+    <property name="totalCount" type="int">
+      <column name="total_count" />
+    </property>
+
+    <property name="parentJobName" type="string">
+      <column name="parent_job_name"  length="512" />
+    </property>
+
+    <property name="parentJobId" type="string">
+      <column name="parent_job_id"  length="128" />
     </property>
 
   </class>

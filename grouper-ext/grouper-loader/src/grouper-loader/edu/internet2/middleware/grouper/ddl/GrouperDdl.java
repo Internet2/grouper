@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.3 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.4 2008-05-13 19:30:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -18,23 +18,6 @@ import edu.internet2.middleware.grouper.loader.util.GrouperDdlUtils;
  */
 public enum GrouperDdl implements DdlVersionable {
 
-  /** second version of grouper */
-  V2 {
-    /**
-     * add columns for last_edited, and unique constraint on name
-     * @see edu.internet2.middleware.grouper.ddl.GrouperLoaderDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
-     */
-    @Override
-    public void updateVersionFromPrevious(Database database) {
-      
-      //see if the grouper_ext_loader_log table is there
-      Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindTable(database,"grouper_ddl");
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "last_updated2", 
-          "last update timestamp, string so it can easily be used from update statement", 
-          Types.VARCHAR, "50", false, false);
-    }
-  },
   /** second version of grouper */
   V1 {
     /**
@@ -103,7 +86,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @return the current version
    */
   public static int currentVersion() {
-    return 2;
+    return 1;
   }
 
   /**

@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouploaderLog.java,v 1.1 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: Hib3GrouploaderLog.java,v 1.2 2008-05-13 19:30:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.db;
 
@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 
 import edu.internet2.middleware.grouper.loader.util.GrouperLoaderHibUtils;
 import edu.internet2.middleware.grouper.loader.util.GrouperLoaderUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -86,7 +87,126 @@ public class Hib3GrouploaderLog {
   /** number of records deleted */
   private Integer deleteCount = 0;
 
+  /** number of records total (e.g. size of group) */
+  private Integer totalCount = 0;
   
+  /** if this is a subjob of another job, then put the parent job name here */
+  private String parentJobName;
+  
+  /** if this is a subjob of another job, then put the parent job id here */
+  private String parentJobId;
+  
+  /**
+   * add to totalCount
+   * @param add
+   */
+  public void addTotalCount(Integer add) {
+    this.totalCount = GrouperUtil.defaultIfNull(this.totalCount, 0);
+    add = GrouperUtil.defaultIfNull(add, 0);
+    this.totalCount += add;
+  }
+  
+  /**
+   * add to deleteCount
+   * @param add
+   */
+  public void addDeleteCount(Integer add) {
+    this.deleteCount = GrouperUtil.defaultIfNull(this.deleteCount, 0);
+    add = GrouperUtil.defaultIfNull(add, 0);
+    this.deleteCount += add;
+  }
+  
+  /**
+   * add to updateCount
+   * @param add
+   */
+  public void addUpdateCount(Integer add) {
+    this.updateCount = GrouperUtil.defaultIfNull(this.updateCount, 0);
+    add = GrouperUtil.defaultIfNull(add, 0);
+    this.updateCount += add;
+  }
+  
+  /**
+   * add to insertCount
+   * @param add
+   */
+  public void addInsertCount(Integer add) {
+    this.insertCount = GrouperUtil.defaultIfNull(this.insertCount, 0);
+    add = GrouperUtil.defaultIfNull(add, 0);
+    this.insertCount += add;
+  }
+  
+  /**
+   * add to unresolvable subjectCount
+   * @param add
+   */
+  public void addUnresolvableSubjectCount(int add) {
+    this.unresolvableSubjectCount = GrouperUtil.defaultIfNull(this.unresolvableSubjectCount, 0);
+    this.unresolvableSubjectCount += add;
+  }
+  
+  /**
+   * if this is a subjob of another job, then put the parent job name here
+   * @return the parentJobName
+   */
+  public String getParentJobName() {
+    return this.parentJobName;
+  }
+
+
+
+  
+  /**
+   * if this is a subjob of another job, then put the parent job name here
+   * @param parentJobName1 the parentJobName to set
+   */
+  public void setParentJobName(String parentJobName1) {
+    this.parentJobName = parentJobName1;
+  }
+
+
+
+  
+  /**
+   * if this is a subjob of another job, then put the parent job id here
+   * @return the parentJobId
+   */
+  public String getParentJobId() {
+    return this.parentJobId;
+  }
+
+
+
+  
+  /**
+   * if this is a subjob of another job, then put the parent job id here
+   * @param parentJobId1 the parentJobId to set
+   */
+  public void setParentJobId(String parentJobId1) {
+    this.parentJobId = parentJobId1;
+  }
+
+
+
+  /**
+   * number of records total (e.g. size of group)
+   * @return the totalCount
+   */
+  public Integer getTotalCount() {
+    return this.totalCount;
+  }
+
+
+  
+  /**
+   * number of records total (e.g. size of group)
+   * @param totalCount1 the totalCount to set
+   */
+  public void setTotalCount(Integer totalCount1) {
+    this.totalCount = totalCount1;
+  }
+
+
   /**
    * number of records inserted
    * @return the insertCount
@@ -511,6 +631,8 @@ public class Hib3GrouploaderLog {
     this.host = GrouperLoaderUtils.truncateAscii(this.host, 128);
     this.groupUuid = GrouperLoaderUtils.truncateAscii(this.groupUuid, 128);
     this.jobScheduleQuartzCron = GrouperLoaderUtils.truncateAscii(this.jobScheduleQuartzCron, 128);
+    this.parentJobName = GrouperLoaderUtils.truncateAscii(this.parentJobName, 512);
+    this.parentJobId = GrouperLoaderUtils.truncateAscii(this.parentJobId, 128);
   }
   
   /**

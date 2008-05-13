@@ -19,7 +19,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<!-- $Id: Hib3GrouperDdl.hbm.xml,v 1.2 2008-05-13 07:11:04 mchyzer Exp $ -->
+<!-- $Id: Hib3GrouperDdl.hbm.xml,v 1.3 2008-05-13 19:30:00 mchyzer Exp $ -->
 <hibernate-mapping package="edu.internet2.middleware.grouper.loader.db"
   default-lazy="false">
   <class name="Hib3GrouperDdl" table="grouper_ddl">
@@ -40,13 +40,13 @@
       <column name="java_version" not-null="true" />
     </property>
 
-    <!-- property name="lastUpdated" type="string">
+    <property name="lastUpdated" type="string">
       <column name="last_updated" />
     </property>
     
     <property name="history" type="string">
       <column name="history" />
-    </property -->
+    </property>
 
     
 
