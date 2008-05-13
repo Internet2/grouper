@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.2 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.3 2008-05-13 07:13:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader;
 
@@ -211,6 +211,8 @@ public enum GrouperLoaderType {
           }
           
         });
+        hib3GrouploaderLog.setInsertCount(subjectsToAdd.size());
+        hib3GrouploaderLog.setDeleteCount(subjectsToRemove.size());
         hib3GrouploaderLog.setStatus(status.name());
       } catch (Exception e) {
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
