@@ -1,12 +1,14 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.2 2008-04-30 09:04:07 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.3 2008-05-13 07:11:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.util;
 
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.Connection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -17,7 +19,11 @@ import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.PlatformFactory;
 import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Index;
+import org.apache.ddlutils.model.IndexColumn;
+import org.apache.ddlutils.model.NonUniqueIndex;
 import org.apache.ddlutils.model.Table;
+import org.apache.ddlutils.model.UniqueIndex;
 import org.apache.ddlutils.platform.SqlBuilder;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -31,6 +37,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.loader.db.Hib3GrouploaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -40,7 +47,6 @@ public class GrouperDdlUtils {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperDdlUtils.class);
-
 
   /**
    * retrieve the ddl utils platform
@@ -97,6 +103,8 @@ public class GrouperDdlUtils {
         
         DdlVersionable ddlVersionable = retieveVersion(objectName, javaVersion);
         
+        StringBuilder historyBuilder = retrieveHistory(objectName);
+        
         //this is the version in the db
         int dbVersion = retrieveDdlDbVersion(objectName);
 
@@ -115,6 +123,7 @@ public class GrouperDdlUtils {
           continue;
         }
 
+        //pattern to get only certain objects (e.g. GROUPERLOADER% )
         String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
         //to be safe lets only deal with tables related to this object
         platform.getModelReader().setDefaultTablePattern(defaultTablePattern);
@@ -166,15 +175,26 @@ public class GrouperDdlUtils {
 
 
           }
+          //make sure no single quotes in any of these...
+          String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
           //is this db independent?  if not, figure out what the issues are and fix so we can have comments
-          result.append("/* upgrade " + objectName + " from V" + (version-1) + " to V" + version + " */\n");
+          String summary = timestamp + ": upgrade " + objectName + " from V" + (version-1) + " to V" + version;
+          result.append("/* " + summary + " */\n");
+          historyBuilder.insert(0, summary + "\\n");
+          
+          String historyString = StringUtils.abbreviate(historyBuilder.toString(), 4000);
+
           if (!StringUtils.isBlank(script)) {
             result.append(script).append("\n\n");
           }
           if (version == 0) {
-            result.append("insert into grouper_ddl values ('" + GrouperUuid.getUuid() +  "', '" + objectName + "', 0, " + javaVersion + ");\n");
+            result.append("insert into grouper_ddl values ('" + GrouperUuid.getUuid() 
+                +  "', '" + objectName + "', 0, " + javaVersion
+                + ", '" + timestamp + "', \n'" + historyString + "');\n");
           } else {
-            result.append("update grouper_ddl set db_version = " + version + " where object_name = '" + objectName + "';\n");
+            result.append("update grouper_ddl set db_version = " + version 
+                + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
+                + "' where object_name = '" + objectName + "';\n");
           }
           result.append("commit;\n\n");
         }
@@ -195,6 +215,22 @@ public class GrouperDdlUtils {
     
   }
 
+  /**
+   * find history for a certain object name
+   * @param objectName
+   * @return the history or new stringbuilder if none available
+   */
+  public static StringBuilder retrieveHistory(String objectName) {
+    retrieveDdlsFromCacheAndUpdateJavaVersions();
+    for (Hib3GrouperDdl hib3GrouperDdl : GrouperUtil.nonNull(cachedDdls)) {
+      if (StringUtils.equals(objectName, hib3GrouperDdl.getObjectName())) {
+        return hib3GrouperDdl.getHistory() == null ? new StringBuilder() 
+          : new StringBuilder(hib3GrouperDdl.getHistory());
+      }
+    }
+    return new StringBuilder();
+  }
+  
   /**
    * retrieve a version of a ddl object versionable
    * @param objectName
@@ -255,37 +291,33 @@ public class GrouperDdlUtils {
       try {
         cachedDdls = retrieveDdlsFromDb();
         
-        //ok we got some
-        if (cachedDdls != null) {
+        for (Hib3GrouperDdl hib3GrouperDdl : GrouperUtil.nonNull(cachedDdls)) {
           
-          for (Hib3GrouperDdl hib3GrouperDdl : cachedDdls) {
+          //get the grouper version
+          int currentGrouperDbVersion = hib3GrouperDdl.getJavaVersion();
+          
+          String objectName = hib3GrouperDdl.getObjectName();
+          
+          int currentGrouperApiVersion = retrieveDdlJavaVersion(objectName);
+          
+          if (currentGrouperApiVersion != currentGrouperDbVersion) {
             
-            //get the grouper version
-            int currentGrouperDbVersion = hib3GrouperDdl.getJavaVersion();
+            //we need to update
+            hib3GrouperDdl.setJavaVersion(currentGrouperApiVersion);
             
-            String objectName = hib3GrouperDdl.getObjectName();
-            
-            int currentGrouperApiVersion = retrieveDdlJavaVersion(objectName);
-            
-            if (currentGrouperApiVersion != currentGrouperDbVersion) {
+            //get the latest version
+            Session session = null;
+            Transaction transaction = null;
+            try {
+              session = session();
+              transaction = session.beginTransaction();
               
-              //we need to update
-              hib3GrouperDdl.setJavaVersion(currentGrouperApiVersion);
-              
-              //get the latest version
-              Session session = null;
-              Transaction transaction = null;
-              try {
-                session = session();
-                transaction = session.beginTransaction();
-                
-                session.save(hib3GrouperDdl);
-                transaction.commit();
-              } catch (Exception e) {
-                GrouperLoaderUtils.rollbackQuietly(transaction);
-              } finally {
-                GrouperLoaderUtils.closeQuietly(session);
-              }
+              session.saveOrUpdate(hib3GrouperDdl);
+              transaction.commit();
+            } catch (Exception e) {
+              GrouperLoaderUtils.rollbackQuietly(transaction);
+            } finally {
+              GrouperLoaderUtils.closeQuietly(session);
             }
           }
         }
@@ -488,7 +520,9 @@ public class GrouperDdlUtils {
         Properties p = new Properties();
         p.load(in);
         // And now load all configuration information
-        CFG = new Configuration().addProperties(p).addClass(Hib3GrouperDdl.class);
+        CFG = new Configuration().addProperties(p).addClass(Hib3GrouperDdl.class)
+          .addClass(Hib3GrouploaderLog.class);
+        
         // And finally create our session factory
         FACTORY = CFG.buildSessionFactory();
       } finally {
@@ -555,6 +589,68 @@ public class GrouperDdlUtils {
     }
     return table;
   }
+
+  /**
+   * add an index on a table
+   * @param database
+   * @param tableName
+   * @param indexName 
+   * @param unique
+   * @param columnNames
+   * @return the index
+   */
+  public static Index ddlutilsAddIndex(Database database, String tableName, String indexName, 
+      boolean unique, String... columnNames) {
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName);
+    Index index = unique ? new UniqueIndex() : new NonUniqueIndex();
+    index.setName(indexName);
+    
+    for (String columnName : columnNames) {
+      
+      Column column = GrouperDdlUtils.ddlutilsFindColumn(table, columnName);
+      IndexColumn nameColumn = new IndexColumn(column);
+      index.addColumn(nameColumn);
+      
+    }
+    
+    table.addIndex(index);
+    return index;
+  }
+  
+  /**
+   * find table, if not exist, throw exception
+   * @param database
+   * @param tableName
+   * @return the table
+   */
+  public static Table ddlutilsFindTable(Database database, String tableName) {
+    Table table = database.findTable(tableName);
+    if (table == null) {
+      throw new RuntimeException("Cant find table: '" + tableName 
+          + "', perhaps you need to rollback your ddl version in the DB and sync up");
+    }
+    return table;
+  }
+  
+  /**
+   * find column, if not exist, throw exception
+   * @param table table to get column from
+   * @param columnName column name of column (case insensitive)
+   * @return the column
+   */
+  public static Column ddlutilsFindColumn(Table table, String columnName) {
+    Column[] columns = table.getColumns();
+    
+    for (Column column : GrouperUtil.nonNull(columns)) {
+      
+      if (StringUtils.equalsIgnoreCase(columnName, column.getName())) {
+        return column;
+      }
+    }
+    
+    throw new RuntimeException("Cant find table: '" + table.getName() 
+        + "' columns: '" + columnName + "', perhaps you need to rollback your ddl version in the DB and sync up");
+  }
   
   /**
    * find or create column with various properties
@@ -578,7 +674,7 @@ public class GrouperDdlUtils {
       //just add to end of columns
       table.addColumn(column);
     }
-    
+
     column.setPrimaryKey(primaryKey);
     column.setRequired(required);
     column.setDescription(description);

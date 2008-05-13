@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.2 2008-04-30 09:04:07 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.3 2008-05-13 07:11:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -18,6 +18,49 @@ import edu.internet2.middleware.grouper.loader.util.GrouperDdlUtils;
  */
 public enum GrouperDdl implements DdlVersionable {
 
+  /** second version of grouper */
+  V2 {
+    /**
+     * add columns for last_edited, and unique constraint on name
+     * @see edu.internet2.middleware.grouper.ddl.GrouperLoaderDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database) {
+      
+      //see if the grouper_ext_loader_log table is there
+      Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindTable(database,"grouper_ddl");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "last_updated2", 
+          "last update timestamp, string so it can easily be used from update statement", 
+          Types.VARCHAR, "50", false, false);
+    }
+  },
+  /** second version of grouper */
+  V1 {
+    /**
+     * add columns for last_edited, and unique constraint on name
+     * @see edu.internet2.middleware.grouper.ddl.GrouperLoaderDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database) {
+      
+      //see if the grouper_ext_loader_log table is there
+      Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindTable(database,"grouper_ddl");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "last_updated", 
+          "last update timestamp, string so it can easily be used from update statement", 
+          Types.VARCHAR, "50", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "history", 
+          "history of this object name, with most recent first (truncated after 4k)", 
+          Types.VARCHAR, "4000", false, false);
+      
+      //object name is unique
+      GrouperDdlUtils.ddlutilsAddIndex(database, "grouper_ddl", "grouper_ddl_object_name_idx", 
+          true, "object_name");
+      
+    }
+  }, 
   /** first version of grouper */
   V0 {
     /**
@@ -28,20 +71,20 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database) {
 
       //see if the grouper_ext_loader_log table is there
-      Table grouploaderLogTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_ddl", 
+      Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_ddl", 
           "holds a record for each database object name, and db version, and java version");
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "id", "uuid of this ddl record", 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "id", "uuid of this ddl record", 
           Types.VARCHAR, "128", true, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "object_name", 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "object_name", 
           "Corresponds to an enum in grouper.ddl package (with Ddl on end), represents one module, " +
           "so grouper itself is one object", Types.VARCHAR, "128", false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "db_version", 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "db_version", 
           "Version of this object as far as DB knows about", Types.INTEGER, null, false, false);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "java_version", 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "java_version", 
           "Version of this object as far as Java knows about (should be greater or equal to db version)", 
           Types.INTEGER, null, false, false);
       
@@ -60,7 +103,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @return the current version
    */
   public static int currentVersion() {
-    return 0;
+    return 2;
   }
 
   /**
