@@ -19,4 +19,43 @@ grouper.hibernate.example.properties
 path="/grouper-ws" reloadable="false"/>
 
 - manage your db driver.  Some db drivers are included with grouper-ws.  Delete/add to the lib dir as appropriate.
+- edit your web.xml appropriately.  If you arent doing container auth (e.g. for apache auth, or rampart, or kerberos), take out the section at bottom:
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Web services</web-resource-name>
+      <url-pattern>/services/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>grouper_user</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Web services</web-resource-name>
+      <url-pattern>/servicesRest/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <!-- NOTE:  This role is not present in the default users file -->
+      <role-name>grouper_user</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <!-- Define the Login Configuration for this Application -->
+  <login-config>
+    <auth-method>BASIC</auth-method>
+    <realm-name>Grouper Application</realm-name>
+  </login-config>
+
+  <!-- Security roles referenced by this web application -->
+  <security-role>
+    <description>
+      The role that is required to log in to web service
+    </description>
+    <role-name>grouper_user</role-name>
+  </security-role>
+
+
+
 - do a "dist" build, and get started
