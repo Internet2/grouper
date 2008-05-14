@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.4 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.5 2008-05-14 05:39:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader;
 
@@ -69,6 +69,11 @@ public class GrouperLoader {
    * job param of group name of the loader
    */
   public static final String GROUPER_LOADER_GROUP_NAME = "grouperLoaderGroupName";
+
+  /**
+   * groups to and with to restrict members (e.g. "and" with activeEmployees)
+   */
+  public static final String GROUPER_LOADER_AND_GROUPS = "grouperLoaderAndGroups";
 
   /**
    * group attribute name of type of schedule, must match one of the enums in GrouperLoaderScheduleType

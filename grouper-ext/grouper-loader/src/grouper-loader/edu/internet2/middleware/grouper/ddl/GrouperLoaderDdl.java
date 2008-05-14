@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderDdl.java,v 1.4 2008-05-13 19:30:00 mchyzer Exp $
+ * $Id: GrouperLoaderDdl.java,v 1.5 2008-05-14 05:39:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -134,6 +134,9 @@ public enum GrouperLoaderDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_id", 
           "If this job is a subjob of another job, then put the parent job id here", Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "and_group_names", 
+          "If this group query is anded with another group or groups, they are listed here comma separated", Types.VARCHAR, "512", false, false);
 
     }
   };

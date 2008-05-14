@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouploaderLog.java,v 1.2 2008-05-13 19:30:00 mchyzer Exp $
+ * $Id: Hib3GrouploaderLog.java,v 1.3 2008-05-14 05:39:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.db;
 
@@ -96,6 +96,25 @@ public class Hib3GrouploaderLog {
   /** if this is a subjob of another job, then put the parent job id here */
   private String parentJobId;
   
+  /** if this is anded with other groups, these are the names */
+  private String andGroupNames;
+  
+  /**
+   * if this is anded with other groups, these are the names
+   * @return the andGroupNames
+   */
+  public String getAndGroupNames() {
+    return this.andGroupNames;
+  }
+  
+  /**
+   * if this is anded with other groups, these are the names
+   * @param andGroupNames1 the andGroupNames to set
+   */
+  public void setAndGroupNames(String andGroupNames1) {
+    this.andGroupNames = andGroupNames1;
+  }
+
   /**
    * add to totalCount
    * @param add
