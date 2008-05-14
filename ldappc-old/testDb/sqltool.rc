@@ -1,1 +1,0 @@
-# This file defines the URL-id that are used to connect to# the database server that underlies the Auth2ldap testing installation.urlid signetdburl jdbc:hsqldb:hsql://localhost:51515/signetdbusername sapasswordurlid grouperdburl jdbc:hsqldb:hsql://localhost:51515/grouperdbusername sapassword
