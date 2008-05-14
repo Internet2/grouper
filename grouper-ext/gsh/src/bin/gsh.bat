@@ -1,15 +1,32 @@
+rem Author: Gary Brown
+
+rem $Id: gsh.bat,v 1.3 2008-05-01 14:08:31 isgwb Exp $
+
+
+
 @echo off
 
-set JAVA=java
+rem if "%OS%" == "Windows_NT" setlocal
 
-set GSH=com.devclue.grouper.shell.GrouperShell
+if not "%1" == "acp" goto execute
 
+
+
+set GSH_CP=%GSH_CP%;%2
+
+
+
+goto end
+
+
+
+:execute
 
 rem POPULATED AT BUILD
 
 set GROUPER_HOME=@GROUPER_HOME@
 
-set GROUPER_CONF=@GROUPER_CONF@
+set GSH_HOME=@GSH_HOME@
 
 set GROUPER_EXT_LIB=@GROUPER_EXT_LIB@
 
@@ -22,4 +39,48 @@ set MEM_MAX=@GSH_MEM_MAX@
 rem POPULATED AT BUILD
 
 
-%JAVA% -Xms%MEM_START% -Xmx%MEM_MAX% -jar %GROUPER_HOME%/lib/invoker.jar -cpdir %GROUPER_CONF% -cpalljars %GROUPER_HOME%/lib -cpalljars %GROUPER_EXT_LIB% -cpjar %GROUPER_HOME%/dist/lib/grouper.jar %GSH_JVMARGS% %GSH% %*
+
+rem The user's CLASSPATH
+
+set GSH_CP=%CLASSPATH%
+
+rem Append Grouper .jar
+
+
+
+rem Append Grouper's build classes
+
+set GSH_CP=%GSH_CP%;%GROUPER_HOME%/build/grouper
+
+rem Append Grouper's configuration
+
+set GSH_CP=%GSH_CP%;%GROUPER_HOME%/conf
+
+
+
+
+
+rem Append Grouper's 3rd party libs
+
+for %%f in (%GROUPER_HOME%\lib\*.jar) do call %GROUPER_EXT_BIN%\gsh acp %%f
+
+rem Append gsh .jar
+
+
+
+rem Append gsh's build classes
+
+set GSH_CP=%GSH_CP%;%GSH_HOME%/build/gsh
+
+rem Append gsh's 3rd party libs
+
+for %%f in (%GROUPER_EXT_LIB%\*.jar) do call %GROUPER_EXT_BIN%\gsh acp %%f
+
+
+
+java -classpath %GSH_CP% -Xms%MEM_START% -Xmx%MEM_MAX% %GSH_JVMARGS% com.devclue.grouper.shell.GrouperShell %*
+
+set GSH_CP=
+
+:end
+

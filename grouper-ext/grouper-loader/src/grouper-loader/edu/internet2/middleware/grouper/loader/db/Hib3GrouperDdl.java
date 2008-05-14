@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouperDdl.java,v 1.2 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: Hib3GrouperDdl.java,v 1.1 2008-04-30 08:03:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.db;
 
@@ -26,48 +26,6 @@ public class Hib3GrouperDdl {
   /** version of the object that the java side expects */
   private int javaVersion = 0;
   
-  /** last updated timestamp, in string form so easy to update */
-  private String lastUpdated = null;
-  
-  /** history, with most recent first */
-  private String history = null;
-  
-  
-  /**
-   * last updated timestamp, in string form so easy to update
-   * @return the lastUpdated
-   */
-  public String getLastUpdated() {
-    return this.lastUpdated;
-  }
-
-  
-  /**
-   * last updated timestamp, in string form so easy to update
-   * @param lastUpdated1 the lastUpdated to set
-   */
-  public void setLastUpdated(String lastUpdated1) {
-    this.lastUpdated = lastUpdated1;
-  }
-
-  
-  /**
-   * history, with most recent first
-   * @return the history
-   */
-  public String getHistory() {
-    return this.history;
-  }
-
-  
-  /**
-   * history, with most recent first
-   * @param history1 the history to set
-   */
-  public void setHistory(String history1) {
-    this.history = history1;
-  }
-
   /**
    * object name in db (in java its converted to a java name)
    * @return the objectName
@@ -150,5 +108,4 @@ public class Hib3GrouperDdl {
     }
     return null;
   }
-    
 }

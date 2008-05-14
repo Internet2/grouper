@@ -20,7 +20,29 @@ MEM_START=@GSH_MEM_START@
 MEM_MAX=@GSH_MEM_MAX@
 # POPULATED AT BUILD
 
-${JAVA} -Xms${MEM_START} -Xmx${MEM_MAX} -jar ${GROUPER_HOME}/lib/invoker.jar -cpdir ${GROUPER_CONF} -cpalljars ${GROUPER_HOME}/lib -cpalljars ${GROUPER_EXT_LIB} -cpjar ${GROUPER_HOME}/dist/lib/grouper.jar ${GSH_JVMARGS} ${GSH} "$@"
+# Preserve the user's $CLASSPATH
+CP=${CLASSPATH}
 
+# Append Grouper .jar or build classes
+# TODO 20070320 this is fragile
+grouper_jar=${GROUPER_HOME}/dist/lib/grouper.jar
+if [ -f ${grouper_jar} ]; then
+  CP=${CP}:${grouper_jar}
+else
+  CP=${CP}:${GROUPER_HOME}/build/grouper
+fi
+
+# Append Grouper's configuration
+CP=${CP}:${GROUPER_HOME}/conf
+
+# Append Grouper's 3rd party libraries
+for f in ${GROUPER_HOME}/lib/*.jar; do CP=${CP}:${f}; done
+
+# Append gsh .jar  
+CP=${CP}:${GROUPER_EXT_LIB}/gsh-${GSH_VERSION}.jar
+# Append gsh's 3rd party libs
+CP=${CP}:${GROUPER_EXT_LIB}/bsh-2.0b4.jar
+
+${JAVA} -classpath ${CP} -Xms${MEM_START} -Xmx${MEM_MAX} ${GSH_JVMARGS} ${GSH} "$@"
 exit $?
 

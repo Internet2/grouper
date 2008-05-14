@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderDdl.java,v 1.5 2008-05-14 05:39:48 mchyzer Exp $
+ * $Id: GrouperLoaderDdl.java,v 1.2 2008-04-30 09:04:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -17,25 +17,10 @@ import edu.internet2.middleware.grouper.loader.util.GrouperDdlUtils;
  */
 public enum GrouperLoaderDdl implements DdlVersionable {
 
-  /** second version of grouper loader */
-  V2 {
-    /**
-     * detect and add index for job name
-     * @see edu.internet2.middleware.grouper.ddl.GrouperLoaderDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
-     */
-    @Override
-    public void updateVersionFromPrevious(Database database) {
-      
-      //see if the grouper_ext_loader_log table is there
-      GrouperDdlUtils.ddlutilsAddIndex(database, "grouploader_log",
-          "grouper_loader_job_name_idx", false, "job_name");
-    }
-  },
-  
-  /** second version of grouper loader */
+  /** first version of grouper */
   V1 {
     /**
-     * detect and add column for priority of job
+     * add the table grouploader_log for logging and detect and add columns
      * @see edu.internet2.middleware.grouper.ddl.GrouperLoaderDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
      */
     @Override
@@ -49,8 +34,6 @@ public enum GrouperLoaderDdl implements DdlVersionable {
           "Priority of this job (5 is unprioritized, higher the better)", Types.INTEGER, null, false, false);
     }
   },
-  
-  /** first version of grouper loader */
   V0 {
     /**
      * add the table grouploader_log for logging and detect and add columns
@@ -70,7 +53,7 @@ public enum GrouperLoaderDdl implements DdlVersionable {
           "Could be group name (friendly) or just config name", Types.VARCHAR, "512", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "status", 
-          "STARTED, SUCCESS, ERROR, WARNING, CONFIG_ERROR", Types.VARCHAR, "20", false, false);
+          "STARTED, SUCCESS, ERROR", Types.VARCHAR, "10", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "started_time", 
           "When the job was started", Types.TIMESTAMP, null, false, false);
@@ -111,33 +94,6 @@ public enum GrouperLoaderDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_interval_seconds", 
           "How many seconds this is supposed to wait between runs", Types.INTEGER, null, false, false);
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "last_updated", 
-          "When this record was last updated", Types.TIMESTAMP, null, false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "unresolvable_subject_count", 
-          "The number of records which were not subject resolvable", Types.INTEGER, null, false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "insert_count", 
-          "The number of records inserted", Types.INTEGER, null, false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "update_count", 
-          "The number of records updated", Types.INTEGER, null, false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "delete_count", 
-          "The number of records deleted", Types.INTEGER, null, false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "total_count", 
-          "The total number of records (e.g. total number of members)", Types.INTEGER, null, false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_name", 
-          "If this job is a subjob of another job, then put the parent job name here", Types.VARCHAR, "512", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_id", 
-          "If this job is a subjob of another job, then put the parent job id here", Types.VARCHAR, "128", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "and_group_names", 
-          "If this group query is anded with another group or groups, they are listed here comma separated", Types.VARCHAR, "512", false, false);
-
     }
   };
 
@@ -153,7 +109,7 @@ public enum GrouperLoaderDdl implements DdlVersionable {
    * @return the current version
    */
   public static int currentVersion() {
-    return 2;
+    return 1;
   }
 
   /**

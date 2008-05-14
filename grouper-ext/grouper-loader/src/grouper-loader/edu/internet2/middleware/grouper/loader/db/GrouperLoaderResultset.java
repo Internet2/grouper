@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.3 2008-05-14 05:39:48 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.1 2008-04-28 06:40:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.db;
 
@@ -12,21 +12,11 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.loader.util.GrouperLoaderUtils;
-import edu.internet2.middleware.subject.SourceUnavailableException;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /**
@@ -43,43 +33,8 @@ public class GrouperLoaderResultset {
   /**
    * 
    */
-  public static final String GROUP_NAME_COL = "GROUP_NAME";
-
-  /**
-   * 
-   */
   public static final String SUBJECT_SOURCE_ID_COL = "SUBJECT_SOURCE_ID";
 
-  /**
-   * get a resultset on another resultset and a group name
-   * @param parentResultSet
-   * @param groupName
-   */
-  public GrouperLoaderResultset(GrouperLoaderResultset parentResultSet, String groupName) {
-    this.columnNames = parentResultSet.columnNames == null ? null : new ArrayList<String>(parentResultSet.columnNames);
-    this.columnTypes = parentResultSet.columnTypes == null ? null : new ArrayList<Integer>(parentResultSet.columnTypes);
-    for (int i=0;i<parentResultSet.data.size();i++) {
-      
-      if (StringUtils.equals(groupName, (String)parentResultSet.getCell(i, GROUP_NAME_COL, true))) {
-        //dont clone the row, just add the row there
-        this.data.add(parentResultSet.data.get(i));
-      }
-      
-    }
-  }
-  
-  /**
-   * get a set of group names
-   * @return the set of names, never null
-   */
-  public Set<String> groupNames() {
-    Set<String> groupNames = new LinkedHashSet<String>();
-    for (int i=0;i<this.data.size();i++) {
-      groupNames.add((String)this.getCell(i, GROUP_NAME_COL, true));
-    }
-    return groupNames;
-  }
-  
   /**
    * get a resultset based on a db and query
    * @param grouperLoaderDb
@@ -111,16 +66,15 @@ public class GrouperLoaderResultset {
         }
         
         while(resultSet.next()) {
-          Row row = new Row();
-          Object[] rowData = new Object[columnCount];
-          row.setRowData(rowData);
+          
+          Object[] row = new Object[columnCount];
           this.data.add(row);
           //at this point, assume everything is either a string or a timestamp
           for (int i=0;i<columnCount;i++) {
             if (this.columnTypes.get(i) == Types.TIMESTAMP) {
-              rowData[i] = resultSet.getTimestamp(i+1);
+              row[i] = resultSet.getTimestamp(i+1);
             } else {
-              rowData[i] = resultSet.getString(i+1);
+              row[i] = resultSet.getString(i+1);
             }
           }
           
@@ -149,113 +103,8 @@ public class GrouperLoaderResultset {
    * the number of cols will equal the number of column names
    * user arrays since lightweight
    */
-  private List<Row> data = new ArrayList<Row>();
+  private List<Object[]> data = new ArrayList<Object[]>();
 
-  /**
-   * logger 
-   */
-  private static final Log LOG = LogFactory.getLog(GrouperLoaderResultset.class);
-
-  /**
-   * simple struct for subjects
-   */
-  public class Row {
-    /** row data from db */
-    private Object[] rowData;
-    
-    /** the subject for this row */
-    private Subject subject;
-    
-    /** the error for this row */
-    private String subjectError;
-
-    /**
-     * @return the rowData
-     */
-    public Object[] getRowData() {
-      return this.rowData;
-    }
-    
-    /**
-     * @param rowData1 the rowData to set
-     */
-    public void setRowData(Object[] rowData1) {
-      this.rowData = rowData1;
-    }
-    
-    /**
-     * @return the subject
-     */
-    public Subject getSubject() {
-      if (this.subject != null || this.subjectError != null) {
-        return this.subject;
-      }
-      //if it is null, and null, then it must not have been retrieved,
-      //so get it
-      String subjectId = (String)this.getCell(
-          GrouperLoaderResultset.SUBJECT_ID_COL, true);
-      String subjectSourceId = (String)this.getCell(
-          GrouperLoaderResultset.SUBJECT_SOURCE_ID_COL, false);
-
-      String defaultSubjectSourceId = GrouperLoaderConfig.getPropertyString(
-          GrouperLoaderConfig.DEFAULT_SUBJECT_SOURCE_ID);
-      
-      //maybe get the sourceId from config file
-      subjectSourceId = StringUtils.defaultString(subjectSourceId, defaultSubjectSourceId);
-      try {
-        if (!StringUtils.isBlank(subjectSourceId)) {
-          this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId);
-        } else {
-          this.subject = SubjectFinder.findById(subjectId);
-        }
-      } catch (Exception e) {
-        this.subjectError = "Problem with subjectId: " 
-            + subjectId + ", subjectSourceId: " + subjectSourceId;
-        LOG.error(this.subjectError, e); 
-        if (e instanceof SubjectNotFoundException
-            || e instanceof SubjectNotUniqueException
-            || e instanceof SourceUnavailableException) {
-          //swallow these...
-        } else {
-          //rethrow these
-          if (e instanceof RuntimeException) {
-            throw (RuntimeException)e;
-          }
-          //this shouldnt really be possible
-          throw new RuntimeException(e);
-        }
-         
-      }
-      return this.subject;
-    }
-
-    /**
-     * get a cell in the data structure
-     * @param columnName
-     * @param exceptionOnColNotFound
-     * @return the cell or null if col not found and not throwing exception if col not found
-     */
-    public Object getCell(String columnName, boolean exceptionOnColNotFound) {
-
-      if (GrouperLoaderResultset.this.hasColumnName(columnName)) {
-        int columnIndex = GrouperLoaderResultset.this.columnIndex(columnName);
-        return this.rowData[columnIndex];
-      }
-      if (exceptionOnColNotFound) {
-        throw new RuntimeException("Column not found: " + columnName);
-      }
-      return null;
-    }
-    
-    /**
-     * @return the error
-     */
-    public String getSubjectError() {
-      return this.subjectError;
-    }
-    
-  }
-  
   /**
    * find a column index in the resultset
    * @param columnNameInput
@@ -270,15 +119,6 @@ public class GrouperLoaderResultset {
       i++;
     }
     throw new RuntimeException("Cant find column: " + columnNameInput);
-  }
-
-  /**
-   * find a certain row
-   * @param i
-   * @return the row
-   */
-  public Row retrieveRow(int i) {
-    return this.data.get(i);
   }
 
   /**
@@ -305,7 +145,15 @@ public class GrouperLoaderResultset {
    * @return the cell or null if col not found and not throwing exception if col not found
    */
   public Object getCell(int rowIndex, String columnName, boolean exceptionOnColNotFound) {
-    return this.data.get(rowIndex).getCell(columnName, exceptionOnColNotFound);
+    if (this.hasColumnName(columnName)) {
+      int columnIndex = this.columnIndex(columnName);
+      Object[] row = this.data.get(rowIndex);
+      return row[columnIndex];
+    }
+    if (exceptionOnColNotFound) {
+      throw new RuntimeException("Column not found: " + columnName);
+    }
+    return null;
   }
   
   /**
@@ -341,42 +189,35 @@ public class GrouperLoaderResultset {
   }
 
   /**
-   * remove by row
-   * @param row
-   */
-  public void remove(Row row) {
-    this.data.remove(row);
-  }
-
-  /**
-   * find a row and return
+   * find a member and remove
    * @param subjectId
    * @param subjectSourceId
-   * @return row if found, else null
+   * @return if one was removed
    */
-  public Row find(String subjectId, String subjectSourceId) {
+  public boolean remove(String subjectId, String subjectSourceId) {
     int subjectIndex = this.columnIndex(SUBJECT_ID_COL);
 
     //might not have subject source id
     boolean hasSubjectSourceIdCol = this.hasColumnName(SUBJECT_SOURCE_ID_COL);
     int subjectSourceIdIndex = hasSubjectSourceIdCol ? this.columnIndex(SUBJECT_SOURCE_ID_COL) : -1;
 
-    Iterator<Row> iterator = this.data.iterator();
+    boolean foundMatch = false;
+    
+    Iterator<Object[]> iterator = this.data.iterator();
     while(iterator.hasNext()) {
-      Row row = iterator.next();
-      Object[] rowData = row.getRowData();
-      if (StringUtils.equals((String)rowData[subjectIndex], subjectId)) {
+      Object[] row = iterator.next();
+      if (StringUtils.equals((String)row[subjectIndex], subjectId)) {
         if (hasSubjectSourceIdCol) {
-          if (!StringUtils.equals((String)rowData[subjectSourceIdIndex], subjectSourceId)) {
+          if (!StringUtils.equals((String)row[subjectSourceIdIndex], subjectSourceId)) {
             continue;
           }
         }
         //at this point, they are the same
-        return row;
+        foundMatch = true;
+        iterator.remove();
         //dont break, since could have multiple
       }
     }
-    return null;
+    return foundMatch;
   }
-
 }

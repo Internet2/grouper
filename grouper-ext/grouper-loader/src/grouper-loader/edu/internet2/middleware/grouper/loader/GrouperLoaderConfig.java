@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderConfig.java,v 1.2 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: GrouperLoaderConfig.java,v 1.1 2008-04-28 06:40:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader;
 
@@ -19,12 +19,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperLoaderConfig {
 
   /**
-   * name of param: loader.retain.db.logs.days
-   * number of days to retain db logs in table grouperloader_log.  -1 is forever.  default is 7
-   */
-  public static final String LOADER_RETAIN_DB_LOGS_DAYS = "loader.retain.db.logs.days";
-
-  /**
    * name of param: loader.thread.pool.size
    * number of threads in the loader threadpool.  Only this number of jobs can run at once
    * jobs which are on deck will block, or will fail if the blocking timeout occurs
@@ -33,14 +27,6 @@ public class GrouperLoaderConfig {
    */
   public static final String LOADER_THREAD_POOL_SIZE = "loader.thread.pool.size";
 
-  /**
-   * name of param: default.subject.source.id
-   * if you want queries which do not specify subject source to come from a certain
-   * source, specify here (improves performance so it doesnt search through all sources)
-   * default is 10
-   */
-  public static final String DEFAULT_SUBJECT_SOURCE_ID = "default.subject.source.id";
-  
   /**
    * cache the properties configuration
    */

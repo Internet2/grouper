@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.6 2008-05-09 13:26:01 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.3 2008-05-01 14:07:24 isgwb Exp $ -->
 
 <project name="GrouperShell" default="compile" basedir=".">
 
@@ -120,16 +120,6 @@
       <pathelement location="${test.data}"/>
       <pathelement path="${GROUPER_CLASSPATH}"/>
     </path>
-    <path id="test.classpath">
-      <pathelement path="${java.class.path}"/>
-      <fileset dir="${basedir}/lib">
-        <include name="**/*.jar"/>
-      </fileset>
-      <pathelement location="${build.gsh}"/>
-      <pathelement location="${build.test}"/>
-      <pathelement location="${test.data}"/>
-      <pathelement path="${TEST_CLASSPATH}"/>
-    </path>
   </target>
   <!-- target: init -->
 
@@ -158,6 +148,8 @@
     <copy todir="${GROUPER_EXT_BIN}" filtering="true">
       <fileset dir="${src.bin}"/>
     </copy>
+    <chmod  file="${GROUPER_EXT_BIN}/gsh.bat" perm="ugo+rx"/>
+    <chmod  file="${GROUPER_EXT_BIN}/gsh.sh"  perm="ugo+rx"/>
     <!-- install libraries -->
     <copy todir="${GROUPER_EXT_LIB}">
       <fileset dir="${basedir}/lib">
@@ -198,8 +190,8 @@
           depends="clean"
           description="Create a gsh source package"
   >
-    <zip destfile="${basedir}/${app.name}.zip">
-      <zipfileset dir="${basedir}" prefix="${app.name}">
+    <zip destfile="${basedir}/${app.name}-${impl.version}-src.zip">
+      <zipfileset dir="${basedir}" prefix="${app.name}-${impl.version}">
         <exclude name="*.zip"/>
         <exclude name=".hgignore"/>
         <exclude name=".hg/"/>
@@ -235,9 +227,7 @@
             printsummary="yes"
             showoutput="yes"
     >
-      <!-- we just prompted the user about the changes in test-shell -->
-      <jvmarg value="-Dgrouper.allow.db.changes=true"/>
-      <classpath  refid="test.classpath"/>
+      <classpath  refid="project.classpath"/>
       <formatter  type="xml"/>
       <batchtest  fork="yes"
       >
@@ -257,7 +247,7 @@
   >
     <record name="${log.test.build}" action="start"/>
     <javac srcdir="${src.test}" destdir="${build.test}" debug="on" debuglevel="lines,var,source">
-      <classpath refid="test.classpath"/>
+      <classpath refid="project.classpath"/>
     </javac>
     <record name="${log.test.build}" action="stop"/>
   </target>
@@ -274,13 +264,11 @@
     <echo message="running test: ${name}" />
     <java fork="yes"
           maxmemory="${memory.max}"
-          classpathref="test.classpath"
+          classpathref="project.classpath"
           classname="com.devclue.grouper.shell.GrouperShell"
           taskname="junit"
           failonerror="true"
     >
-      <!-- we just prompted the user about the changes in test-shell -->
-      <jvmarg value="-Dgrouper.allow.db.changes=true"/>
       <arg value="${src.test}/${name}.gsh"/>
     </java>
     <record name="${log.test.run}" action="stop"/>
@@ -292,23 +280,7 @@
           description="run .gsh tests"
           depends="test-compile"
   >
-    <!-- make sure ok to delete data -->
-    <java fork="false"
-               maxmemory="${memory.max}"
-               classpathref="test.classpath"
-               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
-               failonerror="true"
-         />
-     
-     <input validargs="y,n"
-         addproperty="do.delete.gsh"
-       />
-       <condition property="do.abort.gsh">
-         <equals arg1="n" arg2="${do.delete.gsh}"/>
-       </condition>
-       <fail if="do.abort.gsh">Build aborted by user.</fail>
-     
-      <antcall  target="test-run">
+    <antcall  target="test-run">
       <param  name="name" value="test"/>
     </antcall>
     <antcall  target="test-run">
