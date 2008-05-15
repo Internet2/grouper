@@ -28,7 +28,7 @@ import  net.sf.ehcache.Statistics;
 /**
  * Base class for common cache operations.
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.6 2008-01-24 11:13:15 mchyzer Exp $
+ * @version $Id: EhcacheController.java,v 1.7 2008-05-15 20:21:59 mchyzer Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
@@ -36,6 +36,16 @@ public class EhcacheController implements CacheController {
  
   private CacheManager mgr;
 
+  /**
+   * @see java.lang.Object#finalize()
+   */
+  @Override
+  protected void finalize() throws Throwable {
+    super.finalize();
+    if (this.mgr != null) {
+      this.mgr.shutdown();
+    }
+  }
 
  
   /**
@@ -43,7 +53,6 @@ public class EhcacheController implements CacheController {
    * @since   1.2.1
    */
   public EhcacheController() {
-    this.initialize();
   }
 
 
@@ -53,7 +62,9 @@ public class EhcacheController implements CacheController {
    * @since   1.2.1
    */
   public void flushCache() {
-    this.mgr.clearAll(); // TODO 20070823 how much of a performance hit is calling this method?
+    if (this.mgr != null) {
+      this.mgr.clearAll(); // TODO 20070823 how much of a performance hit is calling this method?
+    }
   }
 
   /**
@@ -63,8 +74,9 @@ public class EhcacheController implements CacheController {
    */
   public Cache getCache(String name) 
     throws  IllegalStateException
-  {
-    if ( this.mgr.cacheExists(name) ) {
+  { 
+    this.initialize();
+    if (this.mgr.cacheExists(name) ) {
       return this.mgr.getCache(name);
     }
     throw new IllegalStateException( "cache not found: " + name + " make sure the cache" +
@@ -76,6 +88,8 @@ public class EhcacheController implements CacheController {
    * @since   1.2.1
    */
   public CacheStats getStats(String cache) {
+    //not sure if we need to initialize, since no stats will be found...
+    this.initialize();
     Cache c = this.getCache(cache);
     c.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_GUARANTEED);
     return new EhcacheStats( c.getStatistics() );
@@ -86,12 +100,14 @@ public class EhcacheController implements CacheController {
    * @since   1.2.1
    */
   public void initialize() {
-    URL url = this.getClass().getResource("/grouper.ehcache.xml");
-    if (url == null) {
-      throw new RuntimeException("Cant find resourse /grouper.ehcache.xml, " +
-      		"make sure it is on the classpath");
+    if (this.mgr == null) {
+      URL url = this.getClass().getResource("/grouper.ehcache.xml");
+      if (url == null) {
+        throw new RuntimeException("Cant find resourse /grouper.ehcache.xml, " +
+        		"make sure it is on the classpath");
+      }
+      this.mgr = new CacheManager(url);
     }
-    this.mgr = new CacheManager(url);
   }
   
 }
