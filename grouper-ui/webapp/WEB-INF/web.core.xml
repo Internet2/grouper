@@ -6,10 +6,10 @@
           "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-<filter>
+<!--<filter>
   	<filter-name>Error Catcher</filter-name>
   	<filter-class>edu.internet2.middleware.grouper.ui.ErrorFilter</filter-class>
-  </filter>
+  </filter>-->
 <filter>
   	<filter-name>Login check</filter-name>
   	<filter-class>edu.internet2.middleware.grouper.ui.LoginCheckFilter</filter-class>
@@ -25,7 +25,7 @@
   <filter>
   	<filter-name>Caller page</filter-name>
   	<filter-class>edu.internet2.middleware.grouper.ui.CallerPageFilter</filter-class>
-    </filter>
+    </filter><!--
    <filter-mapping>
   	<filter-name>Error Catcher</filter-name>
   	<url-pattern>*.do</url-pattern>
@@ -33,7 +33,7 @@
   <filter-mapping>
   	<filter-name>Error Catcher</filter-name>
   	<url-pattern>/gotoCallerPage</url-pattern>
-  </filter-mapping>
+  </filter-mapping>-->
    <filter-mapping>
   	<filter-name>Caller page</filter-name>
   	<url-pattern>/gotoCallerPage</url-pattern>
