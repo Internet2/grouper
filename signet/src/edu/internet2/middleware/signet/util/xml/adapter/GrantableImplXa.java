@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/GrantableImplXa.java,v 1.3 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/GrantableImplXa.java,v 1.4 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -46,7 +46,7 @@ public abstract class GrantableImplXa extends EntityImplXa
 
 	public void setValues(GrantableImpl signetGrantable)
 	{
-		super.setValues(signetGrantable);
+		super.setValues(signetGrantable); // see call to setId below!!!
 
 		GrantableImplXb xmlGrantable = (GrantableImplXb)xmlEntity;
 
@@ -157,14 +157,14 @@ public abstract class GrantableImplXa extends EntityImplXa
 
 //		private Integet		id;
 		// See comment regarding "id" field in this.setValues(GrantableImpl)
-//		try
-//		{
-//			signetGrantable.setId(Integer.parseInt(xmlGrantable.getId()));
-//		}
-//		catch (NumberFormatException nfe)
-//		{
-//			nfe.printStackTrace();
-//		}
+		try
+		{
+			signetGrantable.setId(new Integer(xmlGrantable.getId()));
+		}
+		catch (NumberFormatException nfe)
+		{
+			nfe.printStackTrace();
+		}
 	}
 
 }

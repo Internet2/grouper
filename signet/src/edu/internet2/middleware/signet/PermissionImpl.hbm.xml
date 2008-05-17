@@ -13,7 +13,8 @@
 			</generator>
 		</id>
 		<timestamp name="modifyDatetime"/>
-		
+
+<!--
 		<set
 			name="functions"
 			table="signet_function_permission"
@@ -28,7 +29,7 @@
 				<column name="functionKey"/>
 			</many-to-many>
 		</set>
-		
+-->
 		<set
 			name="limits"
 			table="signet_permission_limit"

@@ -1,6 +1,6 @@
 /*--
-$Id: TreeImpl.java,v 1.14 2007-10-05 08:27:42 ddonn Exp $
-$Date: 2007-10-05 08:27:42 $
+$Id: TreeImpl.java,v 1.15 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
 
 Copyright 2007 Internet2, Stanford University
 
@@ -63,29 +63,45 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 //modifyContext
 //comment
 
+/**
+ * Implementation of a Scope Tree
+ */
 public class TreeImpl extends EntityImpl implements Tree
 {
-  private Set             subsystems;
 
-  protected Set<TreeNodeImpl>		nodes;
+	/** Subsystems that reference this Scope Tree */
+	private Set					subsystems;
+	/** The complete set of ALL TreeNodes owned by this Tree */
+	protected Set<TreeNodeImpl>	nodes;
+	/** The TreeAdapter used to abstract the Tree's persistence (e.g. SQL) */
+	private TreeAdapter			adapter;
+	/** The TreeAdapter's ClassName */
+	private String				adapterClassName;
 
-  private TreeAdapter adapter;
 
-  private String          adapterClassName;
-
+	/**
+	 * Default constructor
+	 */
 	public TreeImpl()
-  {
-    super();
-    nodes = new HashSet<TreeNodeImpl>();
-  }
+	{
+		super();
+		nodes = new HashSet<TreeNodeImpl>();
+	}
 
-  TreeImpl(Signet signet, TreeAdapter adapter, String id, String name)
-  {
-    super(signet, id, name, Status.ACTIVE);
-    this.setAdapter(adapter);
-    nodes = new HashSet<TreeNodeImpl>();
-    this.subsystems = new HashSet();
-  }
+	/**
+	 * Constructor
+	 * @param signet An instance of Signet
+	 * @param adapter A TreeAdapter
+	 * @param id Tree Id
+	 * @param name Tree Name
+	 */
+	TreeImpl(Signet signet, TreeAdapter adapter, String id, String name)
+	{
+		super(signet, id, name, Status.ACTIVE);
+		this.setAdapter(adapter);
+		nodes = new HashSet<TreeNodeImpl>();
+		this.subsystems = new HashSet();
+	}
 
   public void setSignet(Signet signet)
   {
@@ -319,7 +335,7 @@ public class TreeImpl extends EntityImpl implements Tree
 	{
 		return new ToStringBuilder(this)
 				.append("id", getId())
-				.append("createDatetime", getCreateDatetime())
+//				.append("createDatetime", getCreateDatetime())
 				.append("modifyDatetime", getModifyDatetime())
 				.toString();
 	}

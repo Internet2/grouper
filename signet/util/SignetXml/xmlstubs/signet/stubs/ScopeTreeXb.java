@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ScopeTreeXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ScopeTreeXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -30,14 +30,14 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ScopeTreeXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "adapterClassName", "rootNodes" }
+		propOrder = { "adapterClassName", "organizations" }
 )
 public class ScopeTreeXb extends EntityImplXb
 {
-	@XmlElement(name="rootNodes", required=false)
-	protected List<TreeNodeImplXb>	rootNodes;
-
 	@XmlElement(name="adapterClassName", required=false)
 	protected String				adapterClassName;
+
+	@XmlElement(name="Organization", required=false)
+	protected List<TreeNodeImplXb>	organizations;
 
 }

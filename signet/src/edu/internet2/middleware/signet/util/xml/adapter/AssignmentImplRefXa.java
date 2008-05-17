@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplRefXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplRefXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -39,15 +39,28 @@ public class AssignmentImplRefXa
 	protected AssignmentImplRefXb	xmlAssignmentRef;
 
 
+	/**
+	 * Default constructor
+	 */
 	public AssignmentImplRefXa()
 	{
 	}
 
+	/**
+	 * Constructor - initializes Signet reference
+	 * @param signet An instance of Signet
+	 */
 	public AssignmentImplRefXa(Signet signet)
 	{
 		this.signet = signet;
 	}
 
+	/**
+	 * Initialize this adapter with the given Signet Assignment, and
+	 * initialize an XML binder for the Ref
+	 * @param signetAssignment A Signet Assignment
+	 * @param signet An instance of Signet
+	 */
 	public AssignmentImplRefXa(AssignmentImpl signetAssignment, Signet signet)
 	{
 		this(signet);
@@ -56,6 +69,12 @@ public class AssignmentImplRefXa
 		setValues(signetAssignment);
 	}
 
+	/**
+	 * Initialize this adapter with the given XML binder and initialize a
+	 * Signet Assignment for it
+	 * @param xmlAssignmentRef
+	 * @param signet
+	 */
 	public AssignmentImplRefXa(AssignmentImplRefXb xmlAssignmentRef, Signet signet)
 	{
 		this(signet);
@@ -65,26 +84,42 @@ public class AssignmentImplRefXa
 	}
 
 
+	/**
+	 * @return The Signet Assignment
+	 */
 	public AssignmentImpl getSignetAssignment()
 	{
 		return (signetAssignment);
 	}
 
+	/**
+	 * Initialize the XML binder (previously created) with the values from the
+	 * signet assignment
+	 * @param signetAssignment A Signet Assignment
+	 */
 	public void setValues(AssignmentImpl signetAssignment)
 	{
+		// note: GrantableImpl overrides EntityImpl's ID field, must convert
 		xmlAssignmentRef.setId(signetAssignment.getId().toString());
-		xmlAssignmentRef.setName(signetAssignment.getName());
 		xmlAssignmentRef.setStatus(signetAssignment.getStatus().toString());
 		xmlAssignmentRef.setCanGrant(signetAssignment.canGrant());
 		xmlAssignmentRef.setCanUse(signetAssignment.canUse());
 	}
 
 
+	/**
+	 * @return The XML binder
+	 */
 	public AssignmentImplRefXb getXmlAssignmentRef()
 	{
 		return (xmlAssignmentRef);
 	}
 
+	/**
+	 * The XML binder is a reference to, not a definition of, an Assignment and
+	 * therefore a DB lookup is required
+	 * @param xmlAssignmentRef An XML binder
+	 */
 	public void setValues(AssignmentImplRefXb xmlAssignmentRef)
 	{
 		HibernateDB hibr = signet.getPersistentDB();

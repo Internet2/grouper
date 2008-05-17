@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -69,14 +69,6 @@ public class LimitImplXa extends LimitImplRefXa
 		super.setValues(signetLimitImpl);
 
 		LimitImplXb xmlLimitImpl = (LimitImplXb)xmlLimitImplRef;
-//	protected Integer			key;
-//		xmlLimitImplRef.setLimitPK(signetLimitImpl.getKey());
-
-//	protected String			subsystemId;
-//		xmlLimitImplRef.setSubsystemId(signetLimitImpl.getSubsystem().getId());
-
-//	protected String			id;
-//		xmlLimitImplRef.setId(signetLimitImpl.getId());
 
 //	protected String			dataType;
 		xmlLimitImpl.setDataType(signetLimitImpl.getDataType().getName());
@@ -87,16 +79,27 @@ public class LimitImplXa extends LimitImplRefXa
 //	protected String			name;
 		xmlLimitImpl.setName(signetLimitImpl.getName());
 
+//  private String				helpText;
+		xmlLimitImpl.setHelpText(signetLimitImpl.getHelpText());
+
+//  private Date				modifyDatetime;
+		xmlLimitImpl.setModifyDatetime(
+				Util.convertDateToString(signetLimitImpl.getModifyDatetime()));
+
 //	protected String			status;
 		xmlLimitImpl.setStatus(signetLimitImpl.getStatus().getName());
+
+//  private String				renderer;
+		xmlLimitImpl.setRenderer(signetLimitImpl.getRenderer());
 
 //	protected int				displayOrder;
 		xmlLimitImpl.setDisplayOrder(signetLimitImpl.getDisplayOrder());
 
-//	protected Set<LimitValueXb>	limitValues;
-//		List<LimitValueXb> xmlLimitValueList = xmlLimitImplRef.getLimitValues();
-//		for (Iterator<LimitValue> sigLimitValues = signetLimitImpl.get
+//  private final String		limitType="reserved";
+		xmlLimitImpl.setLimitType(signetLimitImpl.getLimitType());
+
 	}
+
 
 	public LimitImplXb getXmlLimitImpl()
 	{
@@ -105,21 +108,16 @@ public class LimitImplXa extends LimitImplRefXa
 
 	public void setValues(LimitImplXb xmlLimitImpl)
 	{
-		super.setValues(xmlLimitImpl);
+		// Don't call super.setValues() here because it does a DB lookup
 
 //	protected Integer			key;
-//		signetLimitImpl.setKey(new Integer(xmlLimitImplRef.getLimitPK()));
+		signetLimitImpl.setKey(xmlLimitImpl.getKey());
 
 //	protected String			subsystemId;
-//		try
-//		{
-//			Subsystem subsys = signet.getPersistentDB().getSubsystem(xmlLimitImplRef.getSubsystemId());
-//			signetLimitImpl.setSubsystem(subsys);
-//		}
-//		catch (ObjectNotFoundException e) { e.printStackTrace(); }
+		signetLimitImpl.setSubsystemId(xmlLimitImpl.getSubsystemId());
 
 //	protected String			id;
-//		signetLimitImpl.setId(xmlLimitImplRef.getId());
+		signetLimitImpl.setId(xmlLimitImpl.getId());
 
 //	protected String			dataType;
 		signetLimitImpl.setDataType((DataType)DataType.getInstanceByName(xmlLimitImpl.getDataType()));
@@ -130,11 +128,25 @@ public class LimitImplXa extends LimitImplRefXa
 //	protected String			name;
 		signetLimitImpl.setName(xmlLimitImpl.getName());
 
+//  private String				helpText;
+		signetLimitImpl.setHelpText(xmlLimitImpl.getHelpText());
+
+//  private Date				modifyDatetime;
+		signetLimitImpl.setModifyDatetime(
+				Util.convertStringToDate(xmlLimitImpl.getModifyDatetime()));
+
 //	protected String			status;
 		signetLimitImpl.setStatus((Status)Status.getInstanceByName(xmlLimitImpl.getStatus()));
 
+//  private String			renderer;
+		signetLimitImpl.setRenderer(xmlLimitImpl.getRenderer());
+
 //	protected int				displayOrder;
 		signetLimitImpl.setDisplayOrder(xmlLimitImpl.getDisplayOrder());
+
+//  private final String		limitType="reserved";
+		signetLimitImpl.setLimitType(xmlLimitImpl.getLimitType());
+
 	}
 
 }

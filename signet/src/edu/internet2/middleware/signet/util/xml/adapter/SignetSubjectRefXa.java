@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectRefXa.java,v 1.3 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectRefXa.java,v 1.4 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -124,7 +124,7 @@ public class SignetSubjectRefXa
 	public void setValues(SignetSubject signetSubject)
 	{
 //	protected Long			subject_PK;
-		xmlSubject.setSubjectPK(signetSubject.getSubject_PK());
+		xmlSubject.setKey(signetSubject.getSubject_PK());
 
 //	protected String		subjectId;
 		xmlSubject.setSubjectId(signetSubject.getId());
@@ -184,7 +184,7 @@ public class SignetSubjectRefXa
 		if (null == signet)
 		{
 			log.error("Unable to lookup SignetSubject (PK=" +
-					xmlSubject.getSubjectPK() +
+					xmlSubject.getKey() +
 					") because no Signet instance is available");
 			return;
 		}
@@ -192,7 +192,7 @@ public class SignetSubjectRefXa
 		HibernateDB hibr = signet.getPersistentDB();
 		if (null != hibr)
 		{
-			long pk = xmlSubject.getSubjectPK();
+			long pk = xmlSubject.getKey();
 			if (0L < pk)
 			{
 				signetSubject = hibr.getSubject(pk);

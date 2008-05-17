@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.24 2007-10-05 08:27:42 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.25 2008-05-17 20:54:09 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -637,13 +637,17 @@ public class SignetSubject implements Subject, Comparable
 
 	/**
 	 * Get a filtered set of Assignments received by this subject
-	 * @param isActive Selector for Active/Pending/Inactive Assignments
+	 * @param isActive Selector for Active/Pending/Inactive Assignments. If
+	 * null, all assignments are returned.
 	 * @return Returns the assignmentsReceived.
 	 * (Note well that this is not the _original_ Hibernate-controlled set).
 	 * @see edu.internet2.middleware.signet.Status#getInstanceByName(String) Status.getInstanceByName(String)
 	 */
 	public Set<AssignmentImpl> getAssignmentsReceived(String isActive)
 	{
+		if ((null == isActive) || (0 == isActive.length()))
+			return (getAssignmentsReceived());
+
 		HashSet retval = new HashSet();
 
 		if (null != assignmentsReceived)
@@ -785,13 +789,17 @@ public class SignetSubject implements Subject, Comparable
 
 	/**
 	 * Get the set of Proxies received by this Subject.
-	 * @param isActive Selector for Active/Pending/Inactive proxies
+	 * @param isActive Selector for Active/Pending/Inactive proxies. If null,
+	 * all Proxies are returned.
 	 * @return A Set of ProxyImpl objects that have been received by Subject.
 	 * May be an empty set but never null.
 	 * @see edu.internet2.middleware.signet.Status#getInstanceByName(String) Status.getInstanceByName(String)
 	 */
 	public Set<ProxyImpl> getProxiesReceived(String isActive)
 	{
+		if ((null == isActive) || (0 == isActive.length()))
+			return (getProxiesReceived());
+
 		HashSet<ProxyImpl> retval = new HashSet<ProxyImpl>();
 
 		if (null != proxiesReceived)
@@ -2116,18 +2124,47 @@ public class SignetSubject implements Subject, Comparable
 
 
 	/**
-	 * Returns the current Privileges for this Subject
+	 * Returns the current active Privileges for this Subject
 	 * @return the current Privileges for this Subject
 	 */
 	public Set getPrivileges()
 	{
+		return (getPrivileges(Status.ACTIVE.getName()));
+//		Set privileges = new HashSet();
+//
+//		Set assignments = getAssignmentsReceived();
+//		assignments = Common.filterAssignments(assignments, Status.ACTIVE);
+//		for (Iterator assignmentsIterator = assignments.iterator(); assignmentsIterator.hasNext(); )
+//		{
+//			Assignment assignment = (Assignment)(assignmentsIterator.next());
+//			Set assignmentPrivileges = PrivilegeImpl.getPrivileges(assignment);
+//			privileges.addAll(assignmentPrivileges);
+//		}
+//
+//		return privileges;
+	}
+
+	/**
+	 * Returns the current Privileges for this Subject that have the given
+	 * status. If status is a null or zero-length, all privileges are returned.
+	 * @param status A string representing a Status value (e.g. active).
+	 * @return the current Privileges for this Subject
+	 * @see Status
+	 */
+	public Set getPrivileges(String status)
+	{
 		Set privileges = new HashSet();
 
-		Set assignments = getAssignmentsReceived();
-		assignments = Common.filterAssignments(assignments, Status.ACTIVE);
-		for (Iterator assignmentsIterator = assignments.iterator(); assignmentsIterator.hasNext(); )
+		Set assignments;
+		if ((null != status) && (0 < status.length()))
+			assignments = getAssignmentsReceived(status);
+		else
+			assignments = getAssignmentsReceived();
+//		assignments = Common.filterAssignments(assignments, status);
+		for (Assignment assignment : (Set<Assignment>)assignments)
+//		for (Iterator assignmentsIterator = assignments.iterator(); assignmentsIterator.hasNext(); )
 		{
-			Assignment assignment = (Assignment)(assignmentsIterator.next());
+//			Assignment assignment = (Assignment)(assignmentsIterator.next());
 			Set assignmentPrivileges = PrivilegeImpl.getPrivileges(assignment);
 			privileges.addAll(assignmentPrivileges);
 		}

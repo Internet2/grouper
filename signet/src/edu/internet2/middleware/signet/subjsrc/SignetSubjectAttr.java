@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.9 2007-10-05 08:27:42 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.10 2008-05-17 20:54:09 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -137,7 +137,7 @@ public class SignetSubjectAttr
 	/**
 	 * @return the subjectAttr_PK
 	 */
-	protected Long getSubjectAttr_PK()
+	public Long getSubjectAttr_PK()
 	{
 		return subjectAttr_PK;
 	}
@@ -145,7 +145,7 @@ public class SignetSubjectAttr
 	/**
 	 * @param subjectAttrKey the subjectAttr_PK to set
 	 */
-	protected void setSubjectAttr_PK(Long subjectAttrKey)
+	public void setSubjectAttr_PK(Long subjectAttrKey)
 	{
 		this.subjectAttr_PK = subjectAttrKey;
 	}

@@ -5,7 +5,7 @@
   '-//Hibernate/Hibernate Configuration DTD//EN'
   'http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd'>
 
-<!-- $Header: /home/hagleyj/i2mi/signet/config/hibernate.cfg.xml,v 1.29 2007-05-03 01:16:14 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/config/hibernate.cfg.xml,v 1.30 2008-05-17 20:54:09 ddonn Exp $ -->
 
 <hibernate-configuration>
   <session-factory>
@@ -26,19 +26,49 @@
 	<!-- Use the Hibr 3.x query translator (default) -->
 	<property name="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</property>
 
+	<!-- database connection pool properties for C3P0 Connection Pooling -->
+	<!--
+	 Hibernate's C3P0ConnectionProvider explicitly sets 7 c3p0 configuration
+	 properties, based on your hibernate configuration, overriding any
+	 configuration you may have set in a c3p0.properties file. If you are using
+	 Hibernate's C3P0ConnectionProvider you must set the following properties
+	 in your hibernate configuration, using hibernate-specific configuration
+	 keys. All other properties must be defined as usual in a c3p0.properties
+	 file. This is confusing, and will hopefully be simplified some time in the
+	 future, but for now...
+	 The following properties must be set in your hibernate configuration: 
+		c3p0-native property name		hibernate configuration key
+		*************************		***************************
+		c3p0.acquireIncrement			hibernate.c3p0.acquire_increment
+		c3p0.idleConnectionTestPeriod	hibernate.c3p0.idle_test_period
+		c3p0.initialPoolSize			not available - uses minimum size
+		c3p0.maxIdleTime				hibernate.c3p0.timeout
+		c3p0.maxPoolSize				hibernate.c3p0.max_size
+		c3p0.maxStatements				hibernate.c3p0.max_statements
+		c3p0.minPoolSize				hibernate.c3p0.min_size
+		c3p0.testConnectionsOnCheckout 	hibernate.c3p0.validate hibernate 2.x only!
+	-->
+	<property name="hibernate.c3p0.acquire_increment">3</property>
+	<property name="hibernate.c3p0.idle_test_period">60</property>
+	<property name="hibernate.c3p0.timeout">300</property>
+	<property name="hibernate.c3p0.max_size">5</property>
+	<property name="hibernate.c3p0.max_statements">10</property>
+	<property name="hibernate.c3p0.min_size">0</property>
+<!--	<property name="hibernate.c3p0.checkoutTimeout">30000</property>   -->
+
 	<!-- database connection pool properties for Jakarta Commons DBCP -->
-	<property name="hibernate.connection.pool_size">25</property>
-	<property name="hibernate.dbcp.maxActive">25</property>
-	<property name="hibernate.dbcp.initialSize">25</property>
-	<property name="hibernate.dbcp.maxIdle">8</property>
-	<property name="hibernate.dbcp.maxWait">-1</property>
+<!--	<property name="hibernate.connection.pool_size">10</property> -->
+<!--	<property name="hibernate.dbcp.maxActive">10</property> -->
+<!--	<property name="hibernate.dbcp.initialSize">10</property> -->
+<!--	<property name="hibernate.dbcp.maxIdle">8</property> -->
+<!--	<property name="hibernate.dbcp.maxWait">-1</property> -->
 
 	<!-- DBCP PreparedStatements config -->
-	<property name="poolPreparedStatements">true</property>
-	<property name="hibernate.dbcp.ps.maxActive">64</property>
-	<property name="hibernate.dbcp.ps.maxIdle">64</property>
-	<property name="hibernate.dbcp.ps.maxWait">-1</property>
-	<property name="hibernate.dbcp.ps.whenExhaustedAction">1</property>
+<!--	<property name="poolPreparedStatements">true</property> -->
+<!--	<property name="hibernate.dbcp.ps.maxActive">64</property> -->
+<!--	<property name="hibernate.dbcp.ps.maxIdle">64</property> -->
+<!--	<property name="hibernate.dbcp.ps.maxWait">-1</property> -->
+<!--	<property name="hibernate.dbcp.ps.whenExhaustedAction">1</property> -->
 
 
 	<!-- Import the object/relational mapping files -->

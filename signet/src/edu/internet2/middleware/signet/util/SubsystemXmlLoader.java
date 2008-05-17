@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SubsystemXmlLoader.java,v 1.22 2007-07-06 21:59:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/SubsystemXmlLoader.java,v 1.23 2008-05-17 20:54:09 ddonn Exp $
 Copyright 2007 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +59,7 @@ import edu.internet2.middleware.signet.tree.Tree;
 /**
  * Utility application to import Subsystems into Signet's persistent store.
  * 
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  * @author lmcrae@stanford.edu
  *
  */
@@ -142,13 +142,14 @@ public class SubsystemXmlLoader
 		Transaction tx = hs.beginTransaction();
 
 		Tree tempTree = null;
-        try { tempTree = hibr.getTree(hs, scopeId); }
-        catch (ObjectNotFoundException e)
-        {
-        	hibr.closeSession(hs);
-            throw new ObjectNotFoundException("Subsystem " + subsystemId + " -- Scope \"" + scopeId
-                + "\" is not a defined Tree");
-        }
+        tempTree = hibr.getTreeById(hs, scopeId);
+//        try { tempTree = hibr.getTreeById(hs, scopeId); }
+//        catch (ObjectNotFoundException e)
+//        {
+//        	hibr.closeSession(hs);
+//            throw new ObjectNotFoundException("Subsystem " + subsystemId + " -- Scope \"" + scopeId
+//                + "\" is not a defined Tree");
+//        }
 
         Subsystem subsystem = SignetFactory.newSubsystem(
         		signet, subsystemId, subsystemName, subsystemHelpText, Status.ACTIVE);
@@ -561,7 +562,7 @@ public class SubsystemXmlLoader
         	String[] fileargs = parseArgs(args);
             if (1 > fileargs.length)
             {
-				System.out.println("Signet SubsystemXmlLoader, $Revision: 1.22 $");
+				System.out.println("Signet SubsystemXmlLoader, $Revision: 1.23 $");
 				System.out.println("Usage:\n\tSubsystemXmlLoader [-q] <inputfile> [inputfile] ...");
 				System.out.println("\t\t-q : Quiet, do not prompt on overwrite");
 				System.out.println("\t\tinputfile : a file containing Signet subsystem data");

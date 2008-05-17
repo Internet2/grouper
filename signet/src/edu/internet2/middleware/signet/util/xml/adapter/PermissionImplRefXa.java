@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PermissionImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PermissionImplRefXa.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,32 +17,32 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml.adapter;
 
-import java.util.List;
-import java.util.Set;
-import org.hibernate.Session;
-import edu.internet2.middleware.signet.LimitImpl;
+import org.apache.commons.logging.Log;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PermissionImpl;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.SubsystemImpl;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
-import edu.internet2.middleware.signet.util.xml.binder.LimitImplRefXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
-import edu.internet2.middleware.signet.util.xml.binder.PermissionImplXb;
+import edu.internet2.middleware.signet.util.xml.binder.PermissionImplRefXb;
 
 /**
- * PermissionImplXa<p>
+ * PermissionImplRefXa<p>
  * Adapter class for Signet XML Binding.
- * Maps a PermissionImpl and a PermissionImplXb.
+ * Maps a PermissionImpl and a PermissionImplRefXb.
  * @see PermissionImpl
- * @see PermissionImplXb
+ * @see PermissionImplRefXb
  */
-public class PermissionImplXa extends EntityImplXa
+public class PermissionImplRefXa
 {
+	protected Signet				signet;
+	protected PermissionImpl		signetPermission;
+	protected PermissionImplRefXb	xmlPermission;
+	protected Log					log;
+
 	/**
 	 * default constructor
 	 */
-	public PermissionImplXa()
+	public PermissionImplRefXa()
 	{
 		super();
 	}
@@ -51,9 +51,9 @@ public class PermissionImplXa extends EntityImplXa
 	 * Constructor - initialize the signet value only
 	 * @param signet An instance of Signet
 	 */
-	public PermissionImplXa(Signet signet)
+	public PermissionImplRefXa(Signet signet)
 	{
-		super(signet);
+		this.signet = signet;
 	}
 
 	/**
@@ -62,11 +62,11 @@ public class PermissionImplXa extends EntityImplXa
 	 * @param signetPermission The Signet Permission
 	 * @param signet An instance of Signet
 	 */
-	public PermissionImplXa(PermissionImpl signetPermission, Signet signet)
+	public PermissionImplRefXa(PermissionImpl signetPermission, Signet signet)
 	{
 		this(signet);
-		signetEntity = signetPermission;
-		xmlEntity = new ObjectFactory().createPermissionImplXb();
+		this.signetPermission = signetPermission;
+		xmlPermission = new ObjectFactory().createPermissionImplRefXb();
 		setValues(signetPermission);
 	}
 
@@ -76,11 +76,11 @@ public class PermissionImplXa extends EntityImplXa
 	 * @param xmlPermission The Permission XML binder
 	 * @param signet An instance of Signet
 	 */
-	public PermissionImplXa(PermissionImplXb xmlPermission, Signet signet)
+	public PermissionImplRefXa(PermissionImplRefXb xmlPermission, Signet signet)
 	{
 		this(signet);
-		xmlEntity = xmlPermission;
-		signetEntity = new PermissionImpl();
+		this.xmlPermission = xmlPermission;
+		signetPermission = new PermissionImpl();
 		setValues(xmlPermission);
 	}
 
@@ -90,7 +90,7 @@ public class PermissionImplXa extends EntityImplXa
 	 */
 	public PermissionImpl getSignetPermission()
 	{
-		return ((PermissionImpl)signetEntity);
+		return (signetPermission);
 	}
 
 	/**
@@ -112,30 +112,24 @@ public class PermissionImplXa extends EntityImplXa
 	 */
 	public void setValues(PermissionImpl signetPermission)
 	{
-		super.setValues(signetPermission);
-
-		PermissionImplXb xmlPermission = (PermissionImplXb)xmlEntity;
-
 //	private Integer     key;
-		xmlPermission.setKey(signetPermission.getKey());
+		xmlPermission.setKey(signetPermission.getKey().intValue());
+
+//	private String		name;
+		xmlPermission.setId(signetPermission.getId());
 
 //	private Subsystem	subsystem;
 		xmlPermission.setSubsystemId(signetPermission.getSubsystem().getId());
 
-//	private Set			limits;
-		// get the (empty) list of XML limits
-		List<LimitImplRefXb> xmlLimits = xmlPermission.getLimit();
-		for (LimitImpl sigLimit : (Set<LimitImpl>)signetPermission.getLimits())
-			xmlLimits.add(new LimitImplRefXa(sigLimit, signet).getXmlLimitImplRef());
 	}
 
 
 	/**
 	 * @return The XML binder
 	 */
-	public PermissionImplXb getXmlPermission()
+	public PermissionImplRefXb getXmlPermission()
 	{
-		return ((PermissionImplXb)xmlEntity);
+		return (xmlPermission);
 	}
 
 	/**
@@ -144,49 +138,26 @@ public class PermissionImplXa extends EntityImplXa
 	 * @param xmlPermission The XML binder
 	 * @param signet An instance of Signet
 	 */
-	public void setValues(PermissionImplXb xmlPermission, Signet signet)
+	public void setValues(PermissionImplRefXb xmlPermission, Signet signet)
 	{
 		this.signet = signet;
 		setValues(xmlPermission);
 	}
 
 	/**
-	 * Initialize the Signet Permission (previous created) with the values in
-	 * the XML binder
+	 * Since this is a permission reference, do a DB lookup
 	 * @param xmlPermission The XML binder
 	 */
-	public void setValues(PermissionImplXb xmlPermission)
+	public void setValues(PermissionImplRefXb xmlPermission)
 	{
-		super.setValues(xmlPermission);
-
-		PermissionImpl sigPerm = (PermissionImpl)signetEntity;
-
-//	private Integer     key;
-		sigPerm.setKey(new Integer(xmlPermission.getKey()));
-
-		HibernateDB hibr = signet.getPersistentDB();
-		Session hs = hibr.openSession();
-
-//	private Subsystem	subsystem;
 		try
 		{
-			SubsystemImpl subsys = (SubsystemImpl)hibr.load(hs, SubsystemImpl.class, xmlPermission.getSubsystemId());
-			sigPerm.setSubsystem(subsys);
-
-//	private Set			limits;
-			for (LimitImplRefXb xmlLimit : xmlPermission.getLimit())
-			{
-				LimitImpl sigLimit = hibr.getLimit(xmlLimit.getKey());
-				sigPerm.addLimit(sigLimit);
-			}
+			HibernateDB hibr = signet.getPersistentDB();
+			signetPermission = (PermissionImpl)hibr.load(PermissionImpl.class, xmlPermission.getKey());
 		}
-		catch (ObjectNotFoundException onfe)
+		catch (ObjectNotFoundException e)
 		{
-			onfe.printStackTrace();
-		}
-		finally
-		{
-			hibr.closeSession(hs);
+			e.printStackTrace();
 		}
 	}
 

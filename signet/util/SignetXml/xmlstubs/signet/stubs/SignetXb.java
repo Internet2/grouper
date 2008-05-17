@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -29,31 +29,53 @@ import javax.xml.bind.annotation.XmlType;
  * SignetXb 
  * 
  */
-@XmlRootElement(name="SignetRoot", namespace="http://www.internet2.edu/signet")
+@XmlRootElement(name="Signet", namespace="http://www.internet2.edu/signet")
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name="SignetXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "scopeTrees", "subsystems", "subjects", "proxies", "assignments" }
+		propOrder = {
+			"scopeTree",
+			"subsystem",
+			"subject",
+			"proxy",
+			"assignment",
+			"permission"
+		}
 )
 public class SignetXb
 {
 	@XmlAttribute(name="version", required=true)
 	protected String					version;
 
-	@XmlElement(name="Assignment", required=false)
-	protected List<AssignmentImplXb>	assignments;
-
-	@XmlElement(name="Proxy", required=false)
-	protected List<ProxyImplXb>			proxies;
-
-	@XmlElement(name="Subject", required=false)
-	protected List<SignetSubjectXb>		subjects;
+	///////////////////////////////
+	//  Signet Metadata
+	///////////////////////////////
 
 	@XmlElement(name="ScopeTree", required=false)
-	protected List<ScopeTreeXb>			scopeTrees;
+	protected List<ScopeTreeXb>			scopeTree;
 
-	@XmlElement(name="Subsystems", required=false)
-	protected List<SubsystemImplXb>		subsystems;
+	@XmlElement(name="Subject", required=false)
+	protected List<SignetSubjectXb>		subject;
+
+	@XmlElement(name="Subsystem", required=false)
+	protected List<SubsystemImplXb>		subsystem;
+
+	///////////////////////////////
+	//  Privilege Data
+	///////////////////////////////
+
+	@XmlElement(name="Assignment", required=false)
+	protected List<AssignmentImplXb>	assignment;
+
+	@XmlElement(name="Proxy", required=false)
+	protected List<ProxyImplXb>			proxy;
+
+	///////////////////////////////
+	//  Permissions Doc
+	///////////////////////////////
+
+	@XmlElement(name="PermissionsDoc", required=false)
+	protected List<PermissionsDocXb>	permission;
 
 }

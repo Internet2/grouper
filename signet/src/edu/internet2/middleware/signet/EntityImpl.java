@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.20 2007-09-12 15:41:57 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.21 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -17,7 +17,6 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.util.Calendar;
 import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,7 +43,8 @@ public abstract class EntityImpl implements Entity, Name
   private String comment;
   
   /* The date and time this entity was first created. */
-  private Date	createDatetime;
+// DMD 01/22/08 - createDatetime is never used, nor is it persisted
+//  private Date	createDatetime;
   
   /* The account which created this entity. */ 
   private String	createDbAccount;
@@ -80,7 +80,7 @@ public abstract class EntityImpl implements Entity, Name
 	{
 		log = LogFactory.getLog(this.getClass());
 		this.id = null;
-		setCreateDatetime(Calendar.getInstance().getTime());
+//		setCreateDatetime(Calendar.getInstance().getTime());
 	}
 
 	/**
@@ -152,13 +152,13 @@ public abstract class EntityImpl implements Entity, Name
     return (createContext);
   }
   
-  /**
-   * @return Returns the date and time this entity was first created.
-   */
-  public Date getCreateDatetime()
-  {
-    return this.createDatetime;
-  }
+//  /**
+//   * @return Returns the date and time this entity was first created.
+//   */
+//  public Date getCreateDatetime()
+//  {
+//    return this.createDatetime;
+//  }
   
   /**
    * @return Returns the account which last modified this entity.
@@ -200,13 +200,13 @@ public abstract class EntityImpl implements Entity, Name
     this.createContext = createContext;
   }
   
-  /**
-   * @param createDatetime The createDatetime to set.
-   */
-  public void setCreateDatetime(Date createDatetime)
-  {
-    this.createDatetime = createDatetime;
-  }
+//  /**
+//   * @param createDatetime The createDatetime to set.
+//   */
+//  public void setCreateDatetime(Date createDatetime)
+//  {
+//    this.createDatetime = createDatetime;
+//  }
   
   /**
    * @param modifyDbAccount The modifyDbAccount to set.
@@ -351,7 +351,7 @@ public abstract class EntityImpl implements Entity, Name
 		buf.append(", id(EntityImpl)=" + id); //$NON-NLS-1$
 		buf.append(", status=" + status.toString()); //$NON-NLS-1$
 		buf.append(", comment=\"" + comment + "\""); //$NON-NLS-1$ $NON-NLS-2$
-		buf.append(", createDate=" + (null != createDatetime ? createDatetime.toString() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
+//		buf.append(", createDate=" + (null != createDatetime ? createDatetime.toString() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
 		buf.append(", modifyDate=" + (null != modifyDatetime ? modifyDatetime.toString() : "<null>")); //$NON-NLS-1$ $NON-NLS-2$
 		buf.append(", createDbAccount=" + createDbAccount); //$NON-NLS-1$
 		buf.append(", createContext=" + createContext); //$NON-NLS-1$

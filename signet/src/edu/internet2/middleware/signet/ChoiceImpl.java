@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceImpl.java,v 1.11 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: ChoiceImpl.java,v 1.12 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -30,7 +30,7 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  * @author acohen
  *
  */
-class ChoiceImpl implements Choice
+public class ChoiceImpl implements Choice
 {
   // This field is a simple synthetic key for this record in the database.
   private Integer   key;
@@ -48,7 +48,7 @@ class ChoiceImpl implements Choice
    * Every Hibernate-persistable entity must have a default,
    * parameterless constructor.
    */
-  ChoiceImpl()
+  public ChoiceImpl()
   {
   }
   
@@ -73,7 +73,7 @@ class ChoiceImpl implements Choice
   /**
 	 * @param displayOrder The displayOrder to set.
 	 */
-  void setDisplayOrder(int displayOrder)
+  public void setDisplayOrder(int displayOrder)
   {
     this.displayOrder = displayOrder;
   }
@@ -81,7 +81,7 @@ class ChoiceImpl implements Choice
   /**
    * @param displayValue The displayValue to set.
    */
-  void setDisplayValue(String displayValue)
+  public void setDisplayValue(String displayValue)
   {
     this.displayValue = displayValue;
   }
@@ -89,7 +89,7 @@ class ChoiceImpl implements Choice
   /**
    * @param rank The rank to set.
    */
-  void setRank(int rank)
+  public void setRank(int rank)
   {
     this.rank = rank;
   }
@@ -105,7 +105,7 @@ class ChoiceImpl implements Choice
   /**
    * @param choiceSet The ChoiceSet to set.
    */
-  void setChoiceSet(ChoiceSet choiceSet)
+  public void setChoiceSet(ChoiceSet choiceSet)
   {
     this.choiceSet = choiceSet;
   }
@@ -121,7 +121,7 @@ class ChoiceImpl implements Choice
   /**
    * @param value The value to set.
    */
-  void setValue(String value)
+  public void setValue(String value)
   {
     this.value = value;
   }
@@ -176,7 +176,7 @@ class ChoiceImpl implements Choice
   /**
    * @return Returns the modifyDatetime.
    */
-  Date getModifyDatetime()
+  public Date getModifyDatetime()
   {
     return this.modifyDatetime;
   }
@@ -184,7 +184,7 @@ class ChoiceImpl implements Choice
   /**
    * @param modifyDatetime The modifyDatetime to set.
    */
-  void setModifyDatetime(Date modifyDatetime)
+  public void setModifyDatetime(Date modifyDatetime)
   {
     this.modifyDatetime = modifyDatetime;
   }
@@ -254,7 +254,7 @@ class ChoiceImpl implements Choice
   /* This method is for use only by Hibernate.
    * 
    */
-  protected Integer getKey()
+  public Integer getKey()
   {
     return this.key;
   }
@@ -262,7 +262,7 @@ class ChoiceImpl implements Choice
   /* This method is for use only by Hibernate.
    * 
    */
-  protected void setKey(Integer key)
+  public void setKey(Integer key)
   {
     this.key = key;
   }

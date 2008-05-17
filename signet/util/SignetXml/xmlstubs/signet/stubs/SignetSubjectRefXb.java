@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetSubjectRefXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetSubjectRefXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -36,20 +36,20 @@ import javax.xml.bind.annotation.XmlType;
 )
 public class SignetSubjectRefXb
 {
-	/** Primary key for persistent store of Subjects.
-	 * If non-null and non-zero, subject_PK indicates this Subject exists in
-	 * Persisted store.
-	 * Hibernate field. */
-	@XmlAttribute(name="subject_PK", required=true)
-	protected Long			subject_PK;
+	/** The identifier of the originating Source of this Subject. Hibernate field. */
+	@XmlAttribute(name="sourceId", required=true)
+	protected String		sourceId;
 
 	/** The identifier of this Subject as defined in the original SubjectAPI
 	 * Subject. Hibernate field. */
 	@XmlAttribute(name="subjectId", required=false)
 	protected String		subjectId;
 
-	/** The identifier of the originating Source of this Subject. Hibernate field. */
-	@XmlAttribute(name="sourceId", required=true)
-	protected String		sourceId;
+	/** Primary key for persistent store of Subjects.
+	 * If non-null and non-zero, subject_PK indicates this Subject exists in
+	 * Persisted store.
+	 * Hibernate field. */
+	@XmlAttribute(name="key", required=true)
+	protected Long			key;
 
 }

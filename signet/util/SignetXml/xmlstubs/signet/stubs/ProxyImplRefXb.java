@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ProxyImplRefXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ProxyImplRefXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package signet.stubs;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -30,26 +31,36 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProxyImplRefXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { }
+		propOrder = {"actAs", "canExtend", "canUse", "effectiveDate", "status", "subsystem" }
 )
 public class ProxyImplRefXb
 {
 	/** A String-based ID */
 	@XmlAttribute(name="id", required=true)
-	protected String	id;	// see GrantableImplXb, has an Integer id defined
+	protected int		id;	// see GrantableImplXb, has an Integer id defined
 
-	/** The name of this EntityImplXb */
-	@XmlAttribute(name="name", required=false)
-	protected String	name;
-
-	/** The status (ACTIVE | INACTIVE | PENDING) of this EntityImplXb */
-	@XmlAttribute(name="status", required=true)
-	protected String	status;
-
-	@XmlAttribute(name="canExtend", required=true)
+	/** Can this proxy be extended by the recipient to other Subjects? */
+	@XmlElement(name="canExtend", required=true)
 	protected boolean	canExtend;
 
-	@XmlAttribute(name="canUse", required=true)
+	/** Can this proxy be used by the recipient? */
+	@XmlElement(name="canUse", required=true)
 	protected boolean	canUse;
+
+	/** The status (ACTIVE | INACTIVE | PENDING) of this EntityImplXb */
+	@XmlElement(name="status", required=true)
+	protected String	status;
+
+	/** The Subject this is a proxy for */
+	@XmlElement(name="actAs", required=true)
+	protected String	actAs;
+
+	/** The Subsystem this proxy is valid for */
+	@XmlElement(name="subsystem", required=true)
+	protected String	subsystem;
+
+	/** The Effective Date */
+	@XmlElement(name="effectiveDate", required=true)
+	protected String	effectiveDate;
 
 }

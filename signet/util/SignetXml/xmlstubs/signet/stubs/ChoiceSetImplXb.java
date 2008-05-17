@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ChoiceSetImplXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ChoiceSetImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -33,25 +33,26 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ChoiceSetImplXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "subsystemId", "modifyDatetime", "choices" }
+		propOrder = { "modifyDatetime", "adapterClassName", "choices" }
 )
 public class ChoiceSetImplXb
 {
-	@XmlAttribute(name="choiceSet_PK", required=true)
-	protected Integer				key;
-
-	@XmlAttribute(name="choiceSetId", required=true)
-	protected String				id;
-
-	@XmlElement(name="subsystemId", required=true)
+	@XmlAttribute(name="subsystemId", required=true)
 	protected String				subsystemId;
 
-	@XmlElement(name="choices", required=false)
-	protected List<ChoiceImplXb>	choices;
+	@XmlAttribute(name="id", required=true)
+	protected String				id;
 
-	@XmlAttribute(name="adapterClassName", required=false)
+	@XmlAttribute(name="key", required=true)
+	protected Integer				key;
+
+	@XmlElement(name="adapterClassName", required=false)
 	protected String				adapterClassName;
 
 	@XmlElement(name="modifyDatetime", required=false)
 	protected String				modifyDatetime;
+
+	@XmlElement(name="choice", required=false)
+	protected List<ChoiceImplXb>	choices;
+
 }

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.11 2007-07-31 09:22:08 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.12 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -472,9 +472,9 @@ public String latencyMinutes;
 	 */
 	public Vector getSubjects()
 	{
-//TODO Implement getSubjects
-System.out.println("PersistedSignetSource.getSubjects: not implemented yet!");
-		return new Vector();
+		Vector retval = new Vector();
+		retval.addAll(persistMgr.getSubjects());
+		return (retval);
 	}
 
 

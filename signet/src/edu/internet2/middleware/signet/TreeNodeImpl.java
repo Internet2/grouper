@@ -1,6 +1,6 @@
 /*--
-$Id: TreeNodeImpl.java,v 1.20 2007-10-24 21:48:10 ddonn Exp $
-$Date: 2007-10-24 21:48:10 $
+$Id: TreeNodeImpl.java,v 1.21 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -33,10 +33,11 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
 {
-  private TreeImpl tree;
-  private String   treeId;
-  private Set      parents;
-  private Set      children;
+  private TreeImpl	tree;
+  private String	treeId;
+  private Set		parents;
+  private Set		children;
+  private String	nodeType;
   /* for runtime optimization only */
   private boolean  parentsAlreadyFetched  = false;
   /* for runtime optimization only */
@@ -134,18 +135,10 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
 		{
 			HibernateDB hibr = signet.getPersistentDB();
 			Session hs = hibr.openSession();
-			try
-			{
-				tree = (TreeImpl)(hibr.getTree(hs, treeId));
-			}
-			catch (ObjectNotFoundException onfe)
-			{
-				throw new SignetRuntimeException(onfe);
-			}
-			finally
-			{
-				hibr.closeSession(hs);
-			}
+
+			tree = (TreeImpl)(hibr.getTreeById(hs, treeId));
+
+			hibr.closeSession(hs);
 		}
 
 		return (tree);
@@ -177,7 +170,7 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
 	    	HibernateDB hibr = signet.getPersistentDB();
 		    Session hs = hibr.openSession();
 	
-		    tree = (TreeImpl)(hibr.getTree(hs, treeId));
+		    tree = (TreeImpl)(hibr.getTreeById(hs, treeId));
 	
 		    hibr.closeSession(hs);
 	    }
@@ -309,17 +302,6 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
         .append(this.getId(), rhs.getId()).isEquals();
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
-  public int hashCode()
-  {
-    // you pick a hard-coded, randomly chosen, non-zero, odd number
-    // ideally different for each class
-    return new HashCodeBuilder(17, 37).append(this.getTreeId()).append(
-        this.getId()).toHashCode();
-  }
-
   /**
    * Returns a String of the form {treeAdapterClassName}:{treeId}:{nodeId}
    * This is used by UI code to determine which node from the Select Scope tree
@@ -339,6 +321,138 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
 		return (buf.toString());
 	}
 
+
+  /**
+   * @param treeNodes A Set of TreeNodes
+   * @return True if this node is an ancestor of all nodes in the set
+   */
+  public boolean isAncestorOfAll(Set treeNodes)
+  {
+	boolean retval = true; // assume success
+
+	if ((null == treeNodes) || (0 >= treeNodes.size()))
+		retval = false;
+	else
+	{
+		for (Iterator treeNodesIterator = treeNodes.iterator();
+				treeNodesIterator.hasNext() && retval; )
+		{
+			TreeNodeImpl otherTreeNode = (TreeNodeImpl)treeNodesIterator.next();
+			retval = otherTreeNode.getTreeId().equals(getTreeId()) &&
+					otherTreeNode.isAncestorOf(this);
+		}
+	}
+
+    return (retval);
+  }
+
+	/**
+	 * Determine if this TreeNode is a descendant of any TreeNodes in a Set
+	 * @param treeNodes The list of potential ancestors. May be null or empty set.
+	 * @return true if this is a descendant of any TreeNode, false otherwise
+	 */
+	public boolean isDescendantOfAny(Set treeNodes)
+	{
+		boolean found = false;
+
+		if ((null == treeNodes) || (0 >= treeNodes.size()))
+			return (found);
+
+		for (Iterator iter = treeNodes.iterator(); iter.hasNext() && !found; )
+			found = isDescendantOf((TreeNode)iter.next());
+
+		return (found);
+	}
+
+
+  /* This method exists only for use by Hibernate.
+   */
+  public TreeNodeFullyQualifiedId getFullyQualifiedId()
+  {
+    return new TreeNodeFullyQualifiedId(this.getTreeId(), this.getId());
+  }
+
+  /*
+   * This method exists only for use by Hibernate.
+   */
+  void setFullyQualifiedId(TreeNodeFullyQualifiedId tnfqId) throws ObjectNotFoundException
+  {
+    setTreeId(tnfqId.getTreeId());
+    setId(tnfqId.getTreeNodeId());
+  }
+  
+  public String getId()
+  {
+    return super.getStringId();
+  }
+  
+  // This method is only for use by Hibernate.
+  private void setId(String id)
+  {
+    super.setStringId(id);
+  }
+
+  /* (non-Javadoc)
+   * @see edu.internet2.middleware.signet.Entity#inactivate()
+   */
+  public void inactivate()
+  {
+    throw new UnsupportedOperationException
+      ("This method is not yet implemented");
+  }
+
+
+	/**
+	 * Set the nodeType property
+	 * @param nodeType
+	 */
+	public void setNodeType(String nodeType)
+	{
+		this.nodeType = nodeType;
+	}
+
+	/**
+	 * @return The nodeType property
+	 */
+	public String getNodeType()
+	{
+		return (nodeType);
+	}
+
+
+  ///////////////////////////////
+  // implements Comparable
+  ///////////////////////////////
+
+  /* (non-Javadoc)
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o)
+  {
+    String thisName = null;
+    String otherName = null;
+
+    thisName = this.getName();
+    otherName = ((TreeNode) o).getName();
+
+    return thisName.compareToIgnoreCase(otherName);
+  }
+
+
+  ///////////////////////////////
+  // overrides Object
+  ///////////////////////////////
+
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  public int hashCode()
+  {
+    // you pick a hard-coded, randomly chosen, non-zero, odd number
+    // ideally different for each class
+    return new HashCodeBuilder(17, 37).append(this.getTreeId()).append(
+        this.getId()).toHashCode();
+  }
 
 	/*
 	 * (non-Javadoc)
@@ -387,99 +501,6 @@ public class TreeNodeImpl extends EntityImpl implements TreeNode, Comparable
 //    return this.getTree().getAdapter().getClass().getName()
 //           + SignetFactory.SCOPE_PART_DELIMITER + this.getTreeId()
 //           + SignetFactory.SCOPE_PART_DELIMITER + this.getId();
-  }
-
-  /**
-   * @param treeNodes A Set of TreeNodes
-   * @return True if this node is an ancestor of all nodes in the set
-   */
-  public boolean isAncestorOfAll(Set treeNodes)
-  {
-	boolean retval = true; // assume success
-
-	if ((null == treeNodes) || (0 >= treeNodes.size()))
-		retval = false;
-	else
-	{
-		for (Iterator treeNodesIterator = treeNodes.iterator();
-				treeNodesIterator.hasNext() && retval; )
-		{
-			TreeNodeImpl otherTreeNode = (TreeNodeImpl)treeNodesIterator.next();
-			retval = otherTreeNode.getTreeId().equals(getTreeId()) &&
-					otherTreeNode.isAncestorOf(this);
-		}
-	}
-
-    return (retval);
-  }
-
-	/**
-	 * Determine if this TreeNode is a descendant of any TreeNodes in a Set
-	 * @param treeNodes The list of potential ancestors. May be null or empty set.
-	 * @return true if this is a descendant of any TreeNode, false otherwise
-	 */
-	public boolean isDescendantOfAny(Set treeNodes)
-	{
-		boolean found = false;
-
-		if ((null == treeNodes) || (0 >= treeNodes.size()))
-			return (found);
-
-		for (Iterator iter = treeNodes.iterator(); iter.hasNext() && !found; )
-			found = isDescendantOf((TreeNode)iter.next());
-
-		return (found);
-	}
-
-
-  /* (non-Javadoc)
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
-   */
-  public int compareTo(Object o)
-  {
-    String thisName = null;
-    String otherName = null;
-
-    thisName = this.getName();
-    otherName = ((TreeNode) o).getName();
-
-    return thisName.compareToIgnoreCase(otherName);
-  }
-
-  /* This method exists only for use by Hibernate.
-   */
-  public TreeNodeFullyQualifiedId getFullyQualifiedId()
-  {
-    return new TreeNodeFullyQualifiedId(this.getTreeId(), this.getId());
-  }
-
-  /*
-   * This method exists only for use by Hibernate.
-   */
-  void setFullyQualifiedId(TreeNodeFullyQualifiedId tnfqId) throws ObjectNotFoundException
-  {
-    setTreeId(tnfqId.getTreeId());
-    setId(tnfqId.getTreeNodeId());
-  }
-  
-  public String getId()
-  {
-    return super.getStringId();
-  }
-  
-  // This method is only for use by Hibernate.
-  private void setId(String id)
-  {
-    super.setStringId(id);
-  }
-
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Entity#inactivate()
-   */
-  public void inactivate()
-  {
-    throw new UnsupportedOperationException
-      ("This method is not yet implemented");
   }
 
 }

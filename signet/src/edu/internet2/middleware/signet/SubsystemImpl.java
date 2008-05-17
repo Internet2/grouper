@@ -1,6 +1,6 @@
 /*--
-$Id: SubsystemImpl.java,v 1.23 2007-10-05 08:27:42 ddonn Exp $
-$Date: 2007-10-05 08:27:42 $
+$Id: SubsystemImpl.java,v 1.24 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -43,7 +43,8 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
   private Map     limits;
   private Map     permissions;
   
-  private Tree    tree;
+  private TreeImpl	tree;
+//  private Tree    tree;
 
 // not used
 //  private boolean choiceSetsNotYetFetched  = true;
@@ -133,12 +134,10 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
    */
   public Tree getTree()
   {
-    if (tree instanceof TreeImpl)
-    {
-      ((TreeImpl) tree).setSignet(signet);
-    }
+    if (null != tree)
+      tree.setSignet(signet);
 
-    return this.tree;
+    return (tree);
   }
 
   public void setTree(Tree tree)
@@ -148,7 +147,7 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
       ((TreeImpl) tree).setSignet(signet);
     }
 
-    this.tree = tree;
+    this.tree = (TreeImpl)tree;
   }
 
   /**
@@ -310,12 +309,12 @@ public class SubsystemImpl extends EntityImpl implements Subsystem
     return map;
   }
 
-  void add(Function function)
+  public void add(Function function)
   {
     this.functions.add(function);
   }
   
-  void add(ChoiceSet choiceSet)
+  public void add(ChoiceSet choiceSet)
   {
     this.choiceSets.add(choiceSet);
   }

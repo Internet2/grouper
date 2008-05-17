@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitImplRefXa.java,v 1.2 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitImplRefXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -75,7 +75,7 @@ public class LimitImplRefXa
 	public void setValues(LimitImpl signetLimitImpl)
 	{
 //	protected Integer			key;
-		xmlLimitImplRef.setLimitPK(signetLimitImpl.getKey());
+		xmlLimitImplRef.setKey(signetLimitImpl.getKey().intValue());
 
 //	protected String			subsystemId;
 		xmlLimitImplRef.setSubsystemId(signetLimitImpl.getSubsystem().getId());
@@ -83,24 +83,6 @@ public class LimitImplRefXa
 //	protected String			id;
 		xmlLimitImplRef.setId(signetLimitImpl.getId());
 
-//	protected String			dataType;
-//		xmlLimitImplRef.setDataType(signetLimitImpl.getDataType().getName());
-
-//	protected String			choiceSetId;
-//		xmlLimitImplRef.setChoiceSetId(signetLimitImpl.getChoiceSet().getId());
-
-//	protected String			name;
-//		xmlLimitImplRef.setName(signetLimitImpl.getName());
-
-//	protected String			status;
-//		xmlLimitImplRef.setStatus(signetLimitImpl.getStatus().getName());
-
-//	protected int				displayOrder;
-//		xmlLimitImplRef.setDisplayOrder(signetLimitImpl.getDisplayOrder());
-
-//	protected Set<LimitValueXb>	limitValues;
-//		List<LimitValueXb> xmlLimitValueList = xmlLimitImplRef.getLimitValues();
-//		for (Iterator<LimitValue> sigLimitValues = signetLimitImpl.get
 	}
 
 	public LimitImplRefXb getXmlLimitImplRef()
@@ -115,7 +97,7 @@ public class LimitImplRefXa
 		if (null == signet)
 		{
 			log.error("Unable to lookup Limit (PK=" +
-					xmlLimitImpl.getLimitPK() +
+					xmlLimitImpl.getKey() +
 					") because no Signet instance is available");
 			return;
 		}
@@ -123,7 +105,7 @@ public class LimitImplRefXa
 		HibernateDB hibr = signet.getPersistentDB();
 		if (null != hibr)
 		{
-			int limit_pk = xmlLimitImpl.getLimitPK().intValue();
+			int limit_pk = xmlLimitImpl.getKey();
 			if (0 < limit_pk)
 			{
 				signetLimitImpl = hibr.getLimit(limit_pk);

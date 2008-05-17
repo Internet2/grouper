@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetSubjectXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetSubjectXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -32,9 +32,17 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SignetSubjectXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "subjectName", "actingAs", "modifyDatetime", "synchDatetime",
-			"assignmentsGranted", "assignmentsReceived",
-			"proxiesGranted", "proxiesReceived", "signetSubjectAttrs" }
+		propOrder = {
+			"subjectName",
+			"actingAs",
+			"modifyDatetime",
+			"synchDatetime",
+			"subjectAttr" //,
+//			"assignmentGranted",
+//			"assignmentReceived",
+//			"proxyGranted",
+//			"proxyReceived"
+		}
 )
 public class SignetSubjectXb extends SignetSubjectRefXb
 {
@@ -76,28 +84,28 @@ public class SignetSubjectXb extends SignetSubjectRefXb
 
 	/** A Set of SignetSubjectAttribute representing the attributes of interest
 	 * for this Subject. Hibernate collection */
-	@XmlElement(name="signetSubjectAttrs", required=false)
-	protected Set<SignetSubjectAttrXb>	signetSubjectAttrs;
+	@XmlElement(name="subjectAttr", required=false)
+	protected Set<SignetSubjectAttrXb>	subjectAttr;
 
 	/** A Subject may act as another Subject for the purpose of managing
 	 * Proxies and Assignments. Not a Hibernate field. */
 	@XmlElement(required=false)
 	protected SignetSubjectRefXb		actingAs;
 
-	/** The set of assignments granted BY this subject */
-	@XmlElement(required=false)
-	protected List<AssignmentImplRefXb>	assignmentsGranted;
-
-	/** The set of assignments granted TO this subject */
-	@XmlElement(required=false)
-	protected List<AssignmentImplRefXb>	assignmentsReceived;
-
-	/** The set of proxies granted BY this subject */
-	@XmlElement(required=false)
-	protected List<ProxyImplRefXb>		proxiesGranted;
-
-	/** The set of proxies granted TO this subject */
-	@XmlElement(required=false)
-	protected List<ProxyImplRefXb>		proxiesReceived;
+//	/** The set of assignments granted BY this subject */
+//	@XmlElement(required=false)
+//	protected List<AssignmentImplRefXb>	assignmentGranted;
+//
+//	/** The set of assignments granted TO this subject */
+//	@XmlElement(required=false)
+//	protected List<AssignmentImplRefXb>	assignmentReceived;
+//
+//	/** The set of proxies granted BY this subject */
+//	@XmlElement(required=false)
+//	protected List<ProxyImplRefXb>		proxyGranted;
+//
+//	/** The set of proxies granted TO this subject */
+//	@XmlElement(required=false)
+//	protected List<ProxyImplRefXb>		proxyReceived;
 
 }

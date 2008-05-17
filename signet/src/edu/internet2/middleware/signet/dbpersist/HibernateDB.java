@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.16 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.17 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -68,7 +68,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -499,22 +499,135 @@ protected Session stdSession = null;
 
 
 	/**
-	 * Gets a single Tree by ID.
-	 * 
+	 * Proxy for getTreeById(Session hs, String id)
 	 * @param hs The Hibernate Session to use
+	 * @param id The ID of the Tree
+	 * @return the specified Tree
+	 */
+	public Tree getTree(Session hs, String id)
+	{
+		return (getTreeById(hs, id));
+	}
+
+	/**
+	 * Gets a single Tree by ID. Opens a Hibernate Session for the duration of
+	 * this call. Note that this class caches the previously selected Tree
 	 * @param id The ID of the Tree
 	 * @return the specified Tree
 	 * @throws ObjectNotFoundException
 	 */
-	public Tree getTree(Session hs, String id) throws ObjectNotFoundException
+	public Tree getTreeById(String id) throws ObjectNotFoundException
+	{
+		return (getTreeById(null, id));
+	}
+
+	/**
+	 * Gets a single Tree by ID using the supplied Hibernate Session. If
+	 * hs is null a new Hibernate Session is opened and closed for the
+	 * duration of this call.
+	 * @param hs The Hibernate Session to use
+	 * @param id The ID of the Tree
+	 * @return the specified Tree
+	 */
+	public Tree getTreeById(Session hs, String id)
 	{
 		if ((null == cachedTree) || ( !cachedTree.getId().equals(id)))
 		{
-			cachedTree = (TreeImpl)(load(hs, TreeImpl.class, id));
-			cachedTree.setSignet(signet);
+			Session session = (null != hs) ? hs : openSession();
+
+			try
+			{
+				cachedTree = (TreeImpl)(load(session, TreeImpl.class, id));
+				cachedTree.setSignet(signet);
+			}
+			catch (ObjectNotFoundException onfe)
+			{
+				log.error(onfe);
+			}
+			finally
+			{
+				if (null == hs)
+					closeSession(hs);
+			}
+			
 		}
 
 		return (cachedTree);
+	}
+
+	/**
+	 * Return the single Tree for the given SubsystemId
+	 * @param hs A Hibernate Session
+	 * @param subsysId The Subsystem Id
+	 * @return The Tree for the given Subsystem or null if not found
+	 */
+	public Tree getTreeBySubsystemId(Session hs, String subsysId)
+	{
+		Tree retval = null;
+
+		Session session = (null != hs) ? hs : openSession();
+
+		try
+		{
+			Query query = createQuery(session, HibernateQry.Qry_treeBySubsysId);
+			query.setString("subsystemID", subsysId);
+			List resultList = query.list();
+			// should be 1-and-only-1 Tree for a given Subsystem
+			switch (resultList.size())
+			{
+				case 0:
+					log.error("No Tree found for Subsystem Id = " + subsysId);
+					break;
+				case 1:
+					retval = (Tree)resultList.get(0);
+					break;
+				default:
+					log.error(resultList.size() + " Trees found for Subsystem Id = " + subsysId);
+					break;
+			}
+		}
+		catch (HibernateException e)
+		{
+			log.error(e);
+		}
+		finally
+		{
+			if (null == hs)
+				closeSession(session);
+		}
+
+		return (retval);
+	}
+
+	/**
+	 * Return a Set of all Scope Trees defined in Signet's persisted store
+	 * @param hs A Hibernate Session to use. If null, a Session is opened
+	 * then closed for this call.
+	 * @return Set of all Scope Trees defined in Signet's persisted store.
+	 * May be an empty set, but never null.
+	 */
+	public Set getTrees(Session hs)
+	{
+		Set retval = new HashSet();
+
+		Session session = (null != hs) ? hs : openSession();
+
+		try
+		{
+			Query query = createQuery(session, HibernateQry.Qry_treesAll);
+			retval.addAll(query.list());
+		}
+		catch (HibernateException e)
+		{
+			log.error(e);
+		}
+		finally
+		{
+			if (null == hs)
+				closeSession(session);
+		}
+
+		return (retval);
 	}
 
 
@@ -539,6 +652,30 @@ protected Session stdSession = null;
 		return (retval);
 	}
 
+	/**
+	 * Get all Subsystems, with optional Status filter
+	 * @param status Optional
+	 * @return All Subsystems, optionally filtered by Status
+	 */
+	public Set getSubsystems(Status status)
+	{
+		Set retval = new HashSet();
+
+		Session tmp_hs = openSession();
+
+		StringBuffer queryBuf = new StringBuffer(HibernateQry.Qry_subsystemsAll);
+		if (null != status)
+			queryBuf.append(HibernateQry.Qry_subsystemByStatus_STUB);
+
+		Query query = tmp_hs.createQuery(queryBuf.toString());
+		if (null != status)
+			query.setString("status", status.getName());
+		retval.addAll(query.list());
+
+		closeSession(tmp_hs);
+
+		return (retval);
+	}
 
 	/**
 	 * Gets a single Subsystem by ID.
@@ -573,6 +710,68 @@ protected Session stdSession = null;
 		subsystemImpl.setSignet(signet);
 		closeSession(hs);
 		return subsystemImpl;
+	}
+
+	/**
+	 * Get all Subsystems matching the subsysName and optional status
+	 * @param hs A Hibernate Session. If null, this method will open (and close)
+	 * a new Session for the duration of the call
+	 * @param subsysName The name (not ID) of the Subsystem to find
+	 * @param status Optional parameter to filter on the Status value
+	 * @return A Set of Subsystems matching the subsysName and optional status,
+	 * may be an empty Set (never null)
+	 */
+	public Set getSubsystemsByName(Session hs, String subsysName, Status status)
+	{
+		Set retval = new HashSet();
+
+		Session tmp_hs = (null == hs ? openSession() : hs);
+
+		StringBuffer queryBuf = new StringBuffer(HibernateQry.Qry_subsystemByName);
+		if (null != status)
+			queryBuf.append(HibernateQry.Qry_subsystemByStatus_STUB);
+
+		Query query = tmp_hs.createQuery(queryBuf.toString());
+		query.setString("name", subsysName);
+		if (null != status)
+			query.setString("status", status.getName());
+		retval.addAll(query.list());
+
+		if (null == hs)
+			closeSession(tmp_hs);
+
+		return (retval);
+	}
+
+	/**
+	 * Get all Subsystems matching the scopeTree and optional status
+	 * @param hs A Hibernate Session. If null, this method will open (and close)
+	 * a new Session for the duration of the call
+	 * @param scopeTreeId The scope Tree to use
+	 * @param status Optional parameter to filter on the Status value
+	 * @return A Set of Subsystems matching the scopeTree and optional status,
+	 * may be an empty Set (never null)
+	 */
+	public Set getSubsystemsByScopeTree(Session hs, String scopeTreeId, Status status)
+	{
+		Set retval = new HashSet();
+
+		Session tmp_hs = (null == hs ? openSession() : hs);
+
+		StringBuffer queryBuf = new StringBuffer(HibernateQry.Qry_subsystemByScopeTreeId);
+		if (null != status)
+			queryBuf.append(HibernateQry.Qry_subsystemByStatus_STUB);
+
+		Query query = tmp_hs.createQuery(queryBuf.toString());
+		query.setString("scopetreeid", scopeTreeId);
+		if (null != status)
+			query.setString("status", status.getName());
+		retval.addAll(query.list());
+
+		if (null == hs)
+			closeSession(tmp_hs);
+
+		return (retval);
 	}
 
 
@@ -688,29 +887,29 @@ protected Session stdSession = null;
 		}
 		catch (HibernateException e)
 		{
-			if (null == hs)
+			if (null == hs) // don't put into a 'finally' because hs is used below
 				closeSession(session);
 			throw new SignetRuntimeException(e);
 		}
 
-		try
-		{
-			Tree tree = getTree(session, treeId);
+//		try
+//		{
+			Tree tree = getTreeById(session, treeId);
 			for (Iterator iter = resultList.iterator(); iter.hasNext(); )
 			{
 				TreeNodeRelationship tnr = (TreeNodeRelationship)(iter.next());
 				parents.add(tree.getNode(tnr.getParentNodeId()));
 			}
-		}
-		catch (ObjectNotFoundException e)
-		{
-			throw new SignetRuntimeException(e);
-		}
-		finally
-		{
+//		}
+//		catch (ObjectNotFoundException e)
+//		{
+//			throw new SignetRuntimeException(e);
+//		}
+//		finally
+//		{
 			if (null == hs)
 				closeSession(session);
-		}
+//		}
 
 		return (parents);
 	}
@@ -762,16 +961,12 @@ protected Session stdSession = null;
 			query.setString("parentNodeId", parentNode.getId()); //$NON-NLS-1$
 			List<TreeNodeRelationship> result = query.list();
 
-			Tree tree = getTree(session, treeId);
+			Tree tree = getTreeById(session, treeId);
 
 			for (TreeNodeRelationship tnr : result)
 				children.add(tree.getNode(tnr.getChildNodeId()));
 		}
-		catch (HibernateException e)
-		{
-			throw new SignetRuntimeException(e);
-		}
-		catch (ObjectNotFoundException e)
+		catch (Exception e)
 		{
 			throw new SignetRuntimeException(e);
 		}
@@ -945,7 +1140,7 @@ protected Session stdSession = null;
 		else
 		{
 			Session hs = openSession();
-			treeImpl = (TreeImpl)getTree(hs, id);
+			treeImpl = (TreeImpl)getTreeById(hs, id);
 			closeSession(hs);
 		}
 
@@ -1321,7 +1516,6 @@ protected Session stdSession = null;
 
 	/**
 	 * Gets a single Function by primary key.
-	 * 
 	 * @param pkey The DB primary key
 	 * @return The Function object matching the primary key
 	 * @throws ObjectNotFoundException
@@ -1335,7 +1529,6 @@ protected Session stdSession = null;
 
 	/**
 	 * Gets a single Function by Function Id and Subsystem Id.
-	 * 
 	 * @param functionId The functionId field value to match
 	 * @param subsystemId The subsystemId field value to match
 	 * @return The Function matching the unique id/subsystem, or null
@@ -1344,10 +1537,30 @@ protected Session stdSession = null;
 	public Function getFunction(String functionId, String subsystemId)
 			throws ObjectNotFoundException
 	{
+		Session hs = openSession();
+
+		FunctionImpl retval = (FunctionImpl)getFunction(hs, functionId, subsystemId);
+
+		closeSession(hs);
+
+		return (retval);
+	}
+
+	/**
+	 * Gets a single Function by Function Id and Subsystem Id.
+	 * @param functionId The functionId field value to match
+	 * @param subsystemId The subsystemId field value to match
+	 * @return The Function matching the unique id/subsystem, or null
+	 * @throws ObjectNotFoundException
+	 */
+	public Function getFunction(Session hs, String functionId, String subsystemId)
+			throws ObjectNotFoundException
+	{
 		FunctionImpl retval = null;
 
-		Session hs = openSession();
-		Query qry = createQuery(hs, HibernateQry.Qry_functionByIdAndSubsys);
+		Session tmp_hs = (null == hs ? openSession() : hs);
+
+		Query qry = createQuery(tmp_hs, HibernateQry.Qry_functionByIdAndSubsys);
 		qry.setString("function_id", functionId); //$NON-NLS-1$
 		qry.setString("subsys_id", subsystemId); //$NON-NLS-1$
 
@@ -1361,7 +1574,8 @@ protected Session stdSession = null;
 		}
 		finally
 		{
-			closeSession(hs);
+			if (null == hs)
+				closeSession(tmp_hs);
 		}
 
 		if (null != retval)
@@ -1518,6 +1732,12 @@ protected Session stdSession = null;
 	}
 
 
+	/**
+	 * Get the Subject that matches the identifier (SubjectAuthId DB field)
+	 * @param identifier
+	 * @return The Signet Subject or null.
+	 * @throws ObjectNotFoundException
+	 */
 	public SignetSubject getSubjectByIdentifier(String identifier)
 			throws ObjectNotFoundException
 	{
@@ -1568,6 +1788,81 @@ else
 		}
 
 		closeSession(hs);
+		return (retval);
+	}
+
+	/**
+	 * Get all Subjects that have the given attribute and the given attribute
+	 * value
+	 * @param attrName The name of the attribute
+	 * @param attrValue The value to match
+	 * @return All Subjects that have the given attribute and the given
+	 * attribute value, may be an empty Set (never null)
+	 */
+	public Set getSubjectsByAttributeValue(String attrName, String attrValue)
+	{
+		HashSet<SignetSubject> retval = new HashSet<SignetSubject>();
+		
+		Session hs = openSession();
+		Query query = createQuery(hs, HibernateQry.Qry_subjectByAttrValue);
+		query.setString("attrName", attrName);
+		query.setString("attrValue", attrValue);
+		List<SignetSubject> resultList = query.list(); //(List<SignetSubject>)query.list();
+// returns a List of arrays!
+for (Iterator iter = resultList.iterator(); iter.hasNext(); )
+{
+	Object obj = iter.next();
+	if (obj instanceof Object[])
+		retval.add((SignetSubject)((Object[])obj)[0]);
+	else
+		retval.add((SignetSubject)obj);
+}
+//		retval.addAll(resultList);
+
+		closeSession(hs);
+
+		return (retval);
+	}
+
+	/**
+	 * Return a Set of all SignetSubjects in the Signet DB, may be an empty
+	 * Set but never null
+	 * @return A Set of all SignetSubjects in the Signet DB, may be an empty
+	 * Set but never null
+	 */
+	public Set getSubjects()
+	{
+		HashSet retval = new HashSet();
+
+		Session hs = openSession();
+		Query query = createQuery(hs, HibernateQry.Qry_subjectAll);
+		List resultList = query.list();
+
+		retval.addAll(resultList);
+
+		closeSession(hs);
+
+		return (retval);
+	}
+
+	/**
+	 * Get all Persisted Signet Subjects having a matching sourceId.
+	 * @param sourceId The SourceId to match
+	 * @return A Set of SignetSubjects, may be empty but never null
+	 */
+	public Set getSubjectsBySourceId(String sourceId)
+	{
+		HashSet retval = new HashSet();
+
+		Session hs = openSession();
+		Query query = createQuery(hs, HibernateQry.Qry_subjBySrc);
+		query.setString("source_id", sourceId);
+		List resultList = query.list();
+
+		retval.addAll(resultList);
+
+		closeSession(hs);
+
 		return (retval);
 	}
 

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlUtil.java,v 1.1 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlUtil.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -55,7 +55,7 @@ public abstract class XmlUtil
 //				marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
 
 			ObjectFactory factory = new ObjectFactory();
-			JAXBElement<SignetXb> element = factory.createSignetRoot(signetXb);
+			JAXBElement<SignetXb> element = factory.createSignet(signetXb);
 			marshaller.marshal(element, fos);
 			fos.flush();
 		}

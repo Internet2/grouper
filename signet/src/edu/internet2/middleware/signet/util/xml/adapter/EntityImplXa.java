@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/EntityImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/EntityImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -58,14 +58,12 @@ public abstract class EntityImplXa
 	public void setValues(EntityImpl signetEntity)
 	{
 //    protected String status;
-		xmlEntity.setStatus(signetEntity.getStatus().toString());
+		if (null != signetEntity.getStatus())
+			xmlEntity.setStatus(signetEntity.getStatus().toString());
 
 //    protected String comment;
 		xmlEntity.setComment(signetEntity.getComment());
 		
-//    protected XMLGregorianCalendar createDatetime;
-		xmlEntity.setCreateDatetime(Util.convertDateToString(signetEntity.getCreateDatetime()));
-
 //    protected XMLGregorianCalendar modifyDatetime;
 		xmlEntity.setModifyDatetime(Util.convertDateToString(signetEntity.getModifyDatetime()));
 
@@ -103,8 +101,10 @@ public abstract class EntityImplXa
 //    protected String comment;
 		signetEntity.setComment(xmlEntity.getComment());
 		
-//    protected XMLGregorianCalendar createDatetime;
-		signetEntity.setCreateDatetime(Util.convertStringToDate(xmlEntity.getCreateDatetime()));
+////    protected XMLGregorianCalendar createDatetime;
+//		String tmpDate = xmlEntity.getCreateDatetime();
+//		if ((null != tmpDate) && (0 < tmpDate.trim().length()))
+//			signetEntity.setCreateDatetime(Util.convertStringToDate(tmpDate));
 
 //    protected XMLGregorianCalendar modifyDatetime;
 		signetEntity.setModifyDatetime(Util.convertStringToDate(xmlEntity.getModifyDatetime()));

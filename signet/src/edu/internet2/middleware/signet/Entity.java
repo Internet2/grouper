@@ -1,6 +1,6 @@
 /*--
-$Id: Entity.java,v 1.9 2007-02-24 02:11:32 ddonn Exp $
-$Date: 2007-02-24 02:11:32 $
+$Id: Entity.java,v 1.10 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,9 +18,6 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet;
 
-import java.util.Date;
-
-import edu.internet2.middleware.signet.Status;
 
 /**
 * This interface specifies some common methods that every 
@@ -38,11 +35,12 @@ interface Entity
    * @return Returns the status of this entity.
    */
   public Status getStatus();
-  
-  /**
-   * Gets the date and time this entity was first created.
-   * 
-   * @return Returns the date and time this entity was first created.
-   */
-  public Date getCreateDatetime();
+
+// DMD 01/22/08 - createDateTime is never used
+//  /**
+//   * Gets the date and time this entity was first created.
+//   * 
+//   * @return Returns the date and time this entity was first created.
+//   */
+//  public Date getCreateDatetime();
 }

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SubsystemImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SubsystemImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -18,7 +18,6 @@ limitations under the License.
 package edu.internet2.middleware.signet.util.xml.adapter;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.hibernate.Session;
@@ -26,11 +25,10 @@ import edu.internet2.middleware.signet.CategoryImpl;
 import edu.internet2.middleware.signet.ChoiceSetImpl;
 import edu.internet2.middleware.signet.FunctionImpl;
 import edu.internet2.middleware.signet.LimitImpl;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PermissionImpl;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SubsystemImpl;
-import edu.internet2.middleware.signet.choice.ChoiceSet;
+import edu.internet2.middleware.signet.TreeImpl;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.tree.Tree;
 import edu.internet2.middleware.signet.util.xml.binder.CategoryImplXb;
@@ -50,16 +48,29 @@ import edu.internet2.middleware.signet.util.xml.binder.SubsystemImplXb;
  */
 public class SubsystemImplXa extends EntityImplXa
 {
+	/**
+	 * Default constructor
+	 */
 	public SubsystemImplXa()
 	{
 		super();
 	}
 
+	/**
+	 * Constructor - Initialize this adapter with the instance of Signet
+	 * @param signet An instance of Signet
+	 */
 	public SubsystemImplXa(Signet signet)
 	{
 		super(signet);
 	}
 
+	/**
+	 * Initialize this adapter with the given Signet Subsystem, and create an
+	 * XML binder for it.
+	 * @param signetSubsystem A Signet Subsystem
+	 * @param signet An instance of Signet
+	 */
 	public SubsystemImplXa(SubsystemImpl signetSubsystem, Signet signet)
 	{
 		this(signet);
@@ -68,6 +79,12 @@ public class SubsystemImplXa extends EntityImplXa
 		setValues(signetSubsystem, signet);
 	}
 
+	/**
+	 * Initialize this adapter with the given XML binder, and create a
+	 * Signet Subsystem for it.
+	 * @param xmlSubsystem An XML binder
+	 * @param signet An instance of Signet
+	 */
 	public SubsystemImplXa(SubsystemImplXb xmlSubsystem, Signet signet)
 	{
 		this(signet);
@@ -77,112 +94,149 @@ public class SubsystemImplXa extends EntityImplXa
 	}
 
 
+	/**
+	 * @return The Signet Subsystem for this adapter
+	 */
 	public SubsystemImpl getSignetSubsystem()
 	{
 		return ((SubsystemImpl)signetEntity);
 	}
 
+	/**
+	 * Initialize the XML binder (previously created) with the values of the
+	 * Signet Subsystem
+	 * @param signetSubsystem A Signet Subsystem
+	 * @param signet An instance of Signet
+	 */
 	public void setValues(SubsystemImpl signetSubsystem, Signet signet)
 	{
 		this.signet = signet;
 		setValues(signetSubsystem);
 	}
 
+	/**
+	 * Initialize the XML binder (previously created) with the values of the
+	 * Signet Subsystem
+	 * @param signetSubsystem A Signet Subsystem
+	 */
 	public void setValues(SubsystemImpl signetSubsystem)
 	{
 		super.setValues(signetSubsystem);
 
 		SubsystemImplXb xmlSubsys = (SubsystemImplXb)xmlEntity;
 
+//	private Tree	tree;
+		TreeImpl tmpTree = (TreeImpl)signetSubsystem.getTree();
+		if (null != tmpTree)
+			xmlSubsys.setScopeTreeId(tmpTree.getId());
+
 //  private String  helpText;
 		xmlSubsys.setHelpText(signetSubsystem.getHelpText());
 
 //  private Set     categories;
-		List<CategoryImplXb> xmlCats = xmlSubsys.getCategories();
+		List<CategoryImplXb> xmlCats = xmlSubsys.getCategory();
 		for (CategoryImpl signetCat : (Set<CategoryImpl>)signetSubsystem.getCategories())
 			xmlCats.add(new CategoryImplXa(signetCat, signet).getXmlCategory());
 
 //  private Set     functions;
-		List<FunctionImplXb> xmlFuncs = xmlSubsys.getFunctions();
+		List<FunctionImplXb> xmlFuncs = xmlSubsys.getFunction();
 		for (FunctionImpl signetFunc : (Set<FunctionImpl>)signetSubsystem.getFunctions())
 			xmlFuncs.add(new FunctionImplXa(signetFunc, signet).getXmlFunction());
 
 //  private Set     choiceSets;
-		List<ChoiceSetImplXb> xmlChoices = xmlSubsys.getChoiceSets();
+		List<ChoiceSetImplXb> xmlChoices = xmlSubsys.getChoiceSet();
 		for (ChoiceSetImpl signetChoiceSet : (Set<ChoiceSetImpl>)signetSubsystem.getChoiceSets())
 			xmlChoices.add(new ChoiceSetImplXa(signetChoiceSet, signet).getXmlChoiceSet());
 		
 //  private Map     limits;
-		List<LimitImplXb> xmlLimits = xmlSubsys.getLimits();
+		List<LimitImplXb> xmlLimits = xmlSubsys.getLimit();
 		for (LimitImpl signetLimit : (Collection<LimitImpl>)signetSubsystem.getLimits().values())
 			xmlLimits.add(new LimitImplXa(signetLimit, signet).getXmlLimitImpl());
 
 //  private Map     permissions;
-		List<PermissionImplXb> xmlPerms = xmlSubsys.getPermissions();
+		List<PermissionImplXb> xmlPerms = xmlSubsys.getPermission();
 		for (PermissionImpl signetPerm : (Collection<PermissionImpl>)signetSubsystem.getPermissions().values())
 			xmlPerms.add(new PermissionImplXa(signetPerm, signet).getXmlPermission());
 
-//  private Tree    tree;
-		xmlSubsys.setScopeTreeId(signetSubsystem.getTree().getId());
 	}
 
 
+	/**
+	 * @return The XML binder for this adapter
+	 */
 	public SubsystemImplXb getXmlSubsystem()
 	{
 		return ((SubsystemImplXb)xmlEntity);
 	}
 
+	/**
+	 * Initialize the Signet Subsystem (previously created) with the values of
+	 * the XML binder
+	 * @param xmlSubsystem An XML binder
+	 * @param signet An instance of Signet
+	 */
 	public void setValues(SubsystemImplXb xmlSubsystem, Signet signet)
 	{
 		this.signet = signet;
 		setValues(xmlSubsystem);
 	}
 	
+	/**
+	 * Initialize the Signet Subsystem (previously created) with the values of
+	 * the XML binder
+	 * @param xmlSubsystem An XML binder
+	 */
 	public void setValues(SubsystemImplXb xmlSubsystem)
 	{
+		/* setting properties is order-dependend:
+			1. scopeTreeId
+			2. helpText
+			3. choiceSets
+			4. limits
+			5. permissions
+			6. categories
+			7. functions
+		*/
 		super.setValues(xmlSubsystem);
 
 		SubsystemImpl signetSubsys = (SubsystemImpl)signetEntity;
 
-//  private String  helpText;
-		signetSubsys.setHelpText(xmlSubsystem.getHelpText());
-
-//  private Set     categories;
-		for (CategoryImplXb xmlCat : xmlSubsystem.getCategories())
-			signetSubsys.add(new CategoryImplXa(xmlCat, signet).getSignetCategory());
-
-//  private Set     functions;
-		HashSet<FunctionImpl> sigFuncs = new HashSet<FunctionImpl>();
-		for (FunctionImplXb xmlFunc : xmlSubsystem.getFunctions())
-			sigFuncs.add(new FunctionImplXa(xmlFunc, signet).getSignetFunction());
-		signetSubsys.setFunctions(sigFuncs);
-
-//  private Set     choiceSets;
-		HashSet<ChoiceSet> sigChoiceSets = new HashSet<ChoiceSet>();
-		for (ChoiceSetImplXb xmlChoiceSet : xmlSubsystem.getChoiceSets())
-			sigChoiceSets.add(new ChoiceSetImplXa(xmlChoiceSet, signet).getSignetChoiceSet());
-		signetSubsys.setChoiceSets(sigChoiceSets);
-
-//  private Map     limits;
-		for (LimitImplXb xmlLimit : xmlSubsystem.getLimits())
-			signetSubsys.add(new LimitImplXa(xmlLimit, signet).getSignetLimitImpl());
-
-//  private Map     permissions;
-		for (PermissionImplXb xmlPermission : xmlSubsystem.getPermissions())
-			signetSubsys.add(new PermissionImplXa(xmlPermission, signet).getSignetPermission());
-
 //  private Tree    tree;
 		HibernateDB hibr = signet.getPersistentDB();
 		Session hs = hibr.openSession();
-		Tree dbTree = null;
-		try
-		{
-			dbTree = hibr.getTree(hs, xmlSubsystem.getScopeTreeId());
-		}
-		catch (ObjectNotFoundException e) { e.printStackTrace(); }
-		finally { hibr.closeSession(hs); }
 
+		Tree dbTree = hibr.getTreeById(hs, xmlSubsystem.getScopeTreeId());
 		signetSubsys.setTree(dbTree);
+
+		hibr.closeSession(hs);
+
+//  private String  helpText;
+		signetSubsys.setHelpText(xmlSubsystem.getHelpText());
+
+//  private Set     choiceSets;
+		for (ChoiceSetImplXb xmlChoiceSet : xmlSubsystem.getChoiceSet())
+		{
+			ChoiceSetImpl sigChoiceSet = new ChoiceSetImplXa(xmlChoiceSet, signet).getSignetChoiceSet();
+			sigChoiceSet.setSubsystem(signetSubsys);
+			signetSubsys.add(sigChoiceSet);
+		}
+
+//  private Map     limits;
+		for (LimitImplXb xmlLimit : xmlSubsystem.getLimit())
+			signetSubsys.add(new LimitImplXa(xmlLimit, signet).getSignetLimitImpl());
+
+//  private Map     permissions;
+		for (PermissionImplXb xmlPermission : xmlSubsystem.getPermission())
+			signetSubsys.add(new PermissionImplXa(xmlPermission, signet).getSignetPermission());
+
+//  private Set     categories;
+		for (CategoryImplXb xmlCat : xmlSubsystem.getCategory())
+			signetSubsys.add(new CategoryImplXa(xmlCat, signet).getSignetCategory());
+
+//  private Set     functions;
+		for (FunctionImplXb xmlFunc : xmlSubsystem.getFunction())
+			signetSubsys.add(new FunctionImplXa(xmlFunc, signet).getSignetFunction());
+
 	}
 	
 }

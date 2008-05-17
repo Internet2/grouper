@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.21 2007-07-06 21:59:20 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/ProxyImpl.java,v 1.22 2008-05-17 20:54:09 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -117,7 +117,7 @@ public class ProxyImpl extends GrantableImpl implements Proxy
 	addHistoryRecord(createHistoryRecord());
   }
 
-  void setSubsystem(Subsystem subsystem)
+  public void setSubsystem(Subsystem subsystem)
   {
     this.subsystem = (SubsystemImpl)subsystem;
   }
@@ -253,7 +253,7 @@ public class ProxyImpl extends GrantableImpl implements Proxy
   }
   
   /* This method is for use only by Hibernate. */
-  protected void setCanExtend(boolean canExtend)
+  public void setCanExtend(boolean canExtend)
   {
     this.canExtend = canExtend;
   }
@@ -285,7 +285,7 @@ public class ProxyImpl extends GrantableImpl implements Proxy
   }
   
   /* This method is only for use by Hibernate. */
-  protected void setCanUse(boolean canUse)
+  public void setCanUse(boolean canUse)
   {
     this.canUse = canUse;
   }

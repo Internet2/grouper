@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplRefXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplRefXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -73,11 +73,13 @@ public class ProxyImplRefXa
 
 	public void setValues(ProxyImpl signetProxy)
 	{
-		xmlProxyRef.setId(signetProxy.getStringId());
-		xmlProxyRef.setName(signetProxy.getName());
+		xmlProxyRef.setId(signetProxy.getId().intValue());
 		xmlProxyRef.setStatus(signetProxy.getStatus().toString());
 		xmlProxyRef.setCanExtend(signetProxy.canExtend());
 		xmlProxyRef.setCanUse(signetProxy.canUse());
+		xmlProxyRef.setActAs(signetProxy.getGrantor().getId());
+		xmlProxyRef.setSubsystem(signetProxy.getSubsystem().getId());
+		xmlProxyRef.setEffectiveDate(Util.convertDateToString(signetProxy.getEffectiveDate()));
 	}
 
 
@@ -92,7 +94,7 @@ public class ProxyImplRefXa
 		Proxy dbProxy = null;
 		try
 		{
-			dbProxy = hibr.getProxy(Integer.parseInt(xmlProxyRef.getId()));
+			dbProxy = hibr.getProxy(xmlProxyRef.getId());
 		}
 		catch (NumberFormatException nfe) { nfe.printStackTrace(); }
 		catch (ObjectNotFoundException onfe) { onfe.printStackTrace(); }

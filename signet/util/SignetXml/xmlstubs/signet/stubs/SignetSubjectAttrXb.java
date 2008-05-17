@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetSubjectAttrXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetSubjectAttrXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -32,13 +32,20 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SignetSubjectAttrXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "attrValue", "parent", "modifyDate" }
+		propOrder = {
+			"name",
+			"value",
+			"type",
+			//"parent",
+			"modifyDate",
+			"sequence"
+		}
 )
 public class SignetSubjectAttrXb
 {
 	/** DB primary key */
-	@XmlAttribute(name="subjectAttr_PK", required=true)
-	protected Long					subjectAttr_PK;
+	@XmlAttribute(name="key", required=true)
+	protected Long					key;
 
 	/**
 	 * Mapped attribute name as defined in SubjectSources.xml. Note that the
@@ -47,27 +54,27 @@ public class SignetSubjectAttrXb
 	 * this SignetSubjectAttrXb. mappedName is the Signet-internal attribute name
 	 * that has been homogenized across all Sources. 
 	 */
-	@XmlAttribute(name="mappedName", required=false)
-	protected String				mappedName;
+	@XmlElement(name="name", required=false)
+	protected String				name;
 
 	/** The attribute's value */
-	@XmlElement(name="attrValue", required=true)
-	protected String				attrValue;
+	@XmlElement(name="value", required=true)
+	protected String				value;
 
 	/** The attribute's type (e.g. string, integer, float, etc.) */
-	@XmlAttribute(name="attrType", required=true)
-	protected String				attrType;
+	@XmlElement(name="type", required=true)
+	protected String				type;
 
 	/** date/time stamp of the most recent update of the persisted value */
 	@XmlElement(name="modifyDate", required=false)
 	protected String				modifyDate;
 
-	/** the sequence number for multi-valued attributes */
-	@XmlAttribute(name="sequence", required=true)
-	protected int					sequence;
+//	/** the owner of this attribute */
+//	@XmlElement(name="parent", required=false)
+//	protected SignetSubjectRefXb	parent;
 
-	/** the owner of this attribute */
-	@XmlElement(name="parent", required=true)
-	protected SignetSubjectRefXb	parent;
+	/** the sequence number for multi-valued attributes */
+	@XmlElement(name="sequence", required=true)
+	protected int					sequence;
 
 }

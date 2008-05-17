@@ -1,6 +1,6 @@
 /*--
-$Id: Constants.java,v 1.30 2007-08-07 23:26:18 ddonn Exp $
-$Date: 2007-08-07 23:26:18 $
+$Id: Constants.java,v 1.31 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -18,10 +18,8 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.ui;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-
 import edu.internet2.middleware.signet.Category;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.Permission;
@@ -188,7 +186,7 @@ public final class Constants
         public String getHelpText() {return null;}
         public void inactivate() {}
         public Status getStatus() {return null;}
-        public Date getCreateDatetime() {return null;}
+//        public Date getCreateDatetime() {return null;}
         public String getName()
         {
         	return (ResLoaderUI.getString("Constants.wildcard_subsystem.name"));

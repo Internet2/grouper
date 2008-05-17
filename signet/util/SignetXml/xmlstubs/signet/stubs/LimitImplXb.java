@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/LimitImplXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/LimitImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -33,11 +33,31 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LimitImplXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "dataType", "choiceSetId", "name",
-			"status", "displayOrder", "limitValues" }
+		propOrder = {
+			"name",
+			"dataType",
+			"status",
+			"helpText",
+			"modifyDatetime",
+			"choiceSetId",
+			"renderer",
+			"limitType",
+			"displayOrder"
+		}
 )
 public class LimitImplXb extends LimitImplRefXb
 {
+/*
+  private DataType			dataType;
+  private String			choiceSetId;
+  private String			name;
+  private String			helpText;
+  private Date				modifyDatetime;
+  private Status			status;
+  private String			renderer;
+  private int				displayOrder;
+  private final String		limitType="reserved";
+*/
 	@XmlElement(name="dataType", required=true)
 	protected String			dataType;
 
@@ -47,18 +67,22 @@ public class LimitImplXb extends LimitImplRefXb
 	@XmlElement(name="name", required=true)
 	protected String			name;
 
-//	protected String			helpText;
-//	protected Date				modifyDatetime;
+	@XmlElement(name="helpText", required=false)
+	protected String			helpText;
+
+	@XmlElement(name="modifyDatetime", required=true)
+	protected String			modifyDatetime;
 
 	@XmlElement(name="status", required=true)
 	protected String			status;
 
-//	protected Set				permissions;
+	@XmlElement(name="renderer", required=true)
+	protected String			renderer;
 
 	@XmlElement(name="displayOrder", required=true)
 	protected int				displayOrder;
 
-	@XmlElement(name="limitValues", required=false)
-	protected List<LimitValueXb>	limitValues;
+	@XmlElement(name="limitType", required=false)
+	protected String			limitType;
 
 }

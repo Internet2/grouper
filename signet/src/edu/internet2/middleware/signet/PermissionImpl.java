@@ -1,6 +1,6 @@
 /*--
- $Id: PermissionImpl.java,v 1.17 2006-12-16 01:08:53 ddonn Exp $
- $Date: 2006-12-16 01:08:53 $
+ $Id: PermissionImpl.java,v 1.18 2008-05-17 20:54:09 ddonn Exp $
+ $Date: 2008-05-17 20:54:09 $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -39,7 +39,7 @@ public class PermissionImpl extends EntityImpl
   private Integer     key;
 
   private Subsystem	subsystem;
-  private Set				functions;
+//  private Set				functions;
   private Set				limits;
   
   /**
@@ -49,7 +49,7 @@ public class PermissionImpl extends EntityImpl
   public PermissionImpl()
   {
     super();
-    this.functions = new HashSet();
+//    this.functions = new HashSet();
     this.limits = new HashSet();
   }
   
@@ -65,21 +65,21 @@ public class PermissionImpl extends EntityImpl
   {
     super(subsystem.getSignet(), id, null, status);
     this.setSubsystem(subsystem);
-    this.functions = new HashSet();
+//    this.functions = new HashSet();
     this.limits = new HashSet();
   }
   
-  /* This method exists only for use by Hibernate. */
-  void setFunctions(Set functions)
-  {
-    this.functions = functions;
-  }
-
-  public Set getFunctions()
-  {
-    return this.functions;
-  }
-  
+//  /* This method exists only for use by Hibernate. */
+//  void setFunctions(Set functions)
+//  {
+//    this.functions = functions;
+//  }
+//
+//  public Set getFunctions()
+//  {
+//    return this.functions;
+//  }
+//  
   /* This method exists only for use by Hibernate. */
   void setLimits(Set limits)
   {
@@ -91,22 +91,22 @@ public class PermissionImpl extends EntityImpl
     return this.limits;
   }
   
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Permission#addFunction(edu.internet2.middleware.signet.Function)
-   */
-  public void addFunction(Function function)
-  {
-    // Do we have this Function already? If so, just return. That
-    // helps to prevent an infinite loop of adding Permissions and
-    // Functions to each other.
-    
-    if (!(this.functions.contains(function)))
-    {
-      this.functions.add(function);
-      ((FunctionImpl)function).addPermission(this);
-    }
-  }
-
+//  /* (non-Javadoc)
+//   * @see edu.internet2.middleware.signet.Permission#addFunction(edu.internet2.middleware.signet.Function)
+//   */
+//  public void addFunction(Function function)
+//  {
+//    // Do we have this Function already? If so, just return. That
+//    // helps to prevent an infinite loop of adding Permissions and
+//    // Functions to each other.
+//    
+//    if (!(this.functions.contains(function)))
+//    {
+//      this.functions.add(function);
+//      ((FunctionImpl)function).addPermission(this);
+//    }
+//  }
+//
   public void addLimit(Limit limit)
   {
     // Do we have this Limit already? If so, just return. That
@@ -116,7 +116,7 @@ public class PermissionImpl extends EntityImpl
     if (!(this.limits.contains(limit)))
     {
       this.limits.add(limit);
-      ((LimitImpl)limit).add(this);
+//      ((LimitImpl)limit).add(this);
     }
   }
   
@@ -172,7 +172,7 @@ public class PermissionImpl extends EntityImpl
   /* This method is for use only by Hibernate.
    * 
    */
-  protected Integer getKey()
+  public Integer getKey()
   {
     return this.key;
   }
@@ -180,7 +180,7 @@ public class PermissionImpl extends EntityImpl
   /* This method is for use only by Hibernate.
    * 
    */
-  protected void setKey(Integer key)
+  public void setKey(Integer key)
   {
     this.key = key;
   }

@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.68 2007-10-24 21:48:10 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.69 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -405,6 +405,25 @@ public final class Signet implements Serializable
 			retval = new Vector();
 		else
 			retval = signetSources.getSubjectsBySource(sourceId);
+
+		return (retval);
+	}
+
+
+	/**
+	 * Get all Persisted Signet Subjects having a matching sourceId.
+	 * @param sourceId The SourceId to match. Facade method for
+	 * HibernateDb.getSubjectsBySourceId()
+	 * @return A Set of SignetSubjects, may be empty but never null
+	 * @see HibernateDB#getSubjectsBySourceId(String)
+	 */
+	public Set getSubjectsBySourceId(String sourceId)
+	{
+		HibernateDB hibr = getPersistentDB();
+
+		Set retval = hibr.getSubjectsBySourceId(sourceId);
+		if (null == retval)
+			retval = new HashSet();
 
 		return (retval);
 	}

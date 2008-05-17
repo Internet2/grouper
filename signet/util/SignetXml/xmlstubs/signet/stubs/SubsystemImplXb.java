@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SubsystemImplXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SubsystemImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -29,8 +29,15 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SubsystemImplXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "scopeTreeId", "helpText", "categories", "functions",
-			"choiceSets", "limits", "permissions" }
+		propOrder = {
+			"scopeTreeId",
+			"helpText",
+			"choiceSet",
+			"limit",
+			"permission",
+			"category",
+			"function"
+		}
 )
 public class SubsystemImplXb extends EntityImplXb
 {
@@ -40,19 +47,19 @@ public class SubsystemImplXb extends EntityImplXb
 	@XmlElement(required=false)
 	protected String					helpText;
 
-	@XmlElement(required=true)
-	protected List<CategoryImplXb>		categories;
+	@XmlElement(required=false)
+	protected List<ChoiceSetImplXb>		choiceSet;
 
-	@XmlElement(required=true)
-	protected List<FunctionImplXb>		functions;
+	@XmlElement(required=false)
+	protected List<LimitImplXb>			limit;
 
-	@XmlElement(required=true)
-	protected List<ChoiceSetImplXb>		choiceSets;
+	@XmlElement(required=false)
+	protected List<PermissionImplXb>	permission;
 
-	@XmlElement(required=true)
-	protected List<LimitImplXb>			limits;
+	@XmlElement(required=false)
+	protected List<CategoryImplXb>		category;
 
-	@XmlElement(required=true)
-	protected List<PermissionImplXb>	permissions;
+	@XmlElement(required=false)
+	protected List<FunctionImplXb>		function;
 
 }

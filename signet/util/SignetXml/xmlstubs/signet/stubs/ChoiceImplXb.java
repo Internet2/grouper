@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ChoiceImplXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ChoiceImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -32,12 +32,15 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ChoiceImplXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "value", "displayValue", "displayOrder", "rank", "modifyDatetime" }
+		propOrder = { "modifyDatetime", "value", "displayValue", "displayOrder", "rank"}
 )
 public class ChoiceImplXb
 {
-	@XmlAttribute(name="choiceId", required=true)
-	protected int			key;
+	@XmlAttribute(name="choiceSetKey", required=true)
+	protected int			choiceSetKey;
+
+	@XmlAttribute(name="key", required=true)
+	protected int			choiceKey;
 
 	@XmlElement(name="displayOrder", required=true)
 	protected int			displayOrder;

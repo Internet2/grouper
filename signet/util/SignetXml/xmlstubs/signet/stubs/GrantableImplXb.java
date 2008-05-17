@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/GrantableImplXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/GrantableImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -32,44 +32,52 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "GrantableImplXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "effectiveDate", "expirationDate", "grantor", "proxy",
-			"grantee", "revoker", "instanceNumber" }
+		propOrder = {
+			"effectiveDate",
+			"expirationDate",
+			"grantor",
+			"proxy",
+			"grantee",
+			"revoker",
+			"instanceNumber"
+		}
 )
 public abstract class GrantableImplXb extends EntityImplXb
 {
 	/** Database primary key. GrantableImplXb is unusual among Signet entities in
 	 * that it has a numeric, not alphanumeric ID.
 	 * Note!! Overrides/masks super.id (a dangerous practice) */
-//	protected Integer		id;
+//	@XmlAttribute(name="id", required=true)
+//	protected int					id;
 
 	/** If this Grantable instance was granted directly by a PrivilegedSubject,
 	 * then this is that PrivilegedSubject and 'proxy', below, will be null.
 	 * If this Grantable instance was granted by an "acting as" Subject, then
 	 * this is that "acting as" Subject and 'proxy' will be the logged-in Subject. */
-	@XmlElement(name="Grantor", required=true)
+	@XmlElement(name="grantor", required=true)
 	protected SignetSubjectRefXb	grantor;
 
 	/** If this Grantable instance was granted/revoked directly by a Subject,
 	 * then this is null. If this Grantable instance was granted/revoked by an
 	 * "acting as" Subject, then this is the "acting as" PrivilegedSubject. */
-	@XmlElement(name="ActingAs", required=false)
+	@XmlElement(name="actingAs", required=false)
 	protected SignetSubjectRefXb	proxy;
 
 	/** The recipient of this grant */
-	@XmlElement(name="Grantee", required=true)
+	@XmlElement(name="grantee", required=true)
 	protected SignetSubjectRefXb	grantee;
 
 	/** The revoker of this grant */
-	@XmlElement(name="Revoker", required=false)
+	@XmlElement(name="revoker", required=false)
 	protected SignetSubjectRefXb	revoker;
 
 	@XmlElement(name="effectiveDate", required=true)
-	protected String	    effectiveDate;
+	protected String				effectiveDate;
 
 	@XmlElement(name="expirationDate", required=false)
-	protected String   		expirationDate;
+	protected String				expirationDate;
 
 	@XmlElement(name="instanceNumber", required=true)
-	protected int			instanceNumber;
+	protected int					instanceNumber;
 
 }

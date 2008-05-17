@@ -1,6 +1,6 @@
 /*--
-$Id: ChoiceSetImpl.java,v 1.13 2007-10-05 08:27:42 ddonn Exp $
-$Date: 2007-10-05 08:27:42 $
+$Id: ChoiceSetImpl.java,v 1.14 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -92,7 +92,7 @@ public class ChoiceSetImpl implements ChoiceSet
   /**
    * @param id The id to set.
    */
-  void setId(String id)
+  public void setId(String id)
   {
     this.id = id;
   }
@@ -195,7 +195,7 @@ public class ChoiceSetImpl implements ChoiceSet
     return this.choiceSetAdapter;
   }
 
-  void setChoiceSetAdapter(ChoiceSetAdapter adapter)
+  public void setChoiceSetAdapter(ChoiceSetAdapter adapter)
   {
     this.choiceSetAdapter = adapter;
     this.adapterClassName = adapter.getClass().getName();
@@ -210,7 +210,7 @@ public class ChoiceSetImpl implements ChoiceSet
   /**
    * @param subsystem The subsystem to set.
    */
-  void setSubsystem(Subsystem subsystem)
+  public void setSubsystem(Subsystem subsystem)
   {
     this.subsystem = subsystem;
   }
@@ -258,7 +258,7 @@ public class ChoiceSetImpl implements ChoiceSet
   /* This method is for use only by Hibernate.
    * 
    */
-  protected Integer getKey()
+  public Integer getKey()
   {
     return this.key;
   }
@@ -266,7 +266,7 @@ public class ChoiceSetImpl implements ChoiceSet
   /* This method is for use only by Hibernate.
    * 
    */
-  protected void setKey(Integer key)
+  public void setKey(Integer key)
   {
     this.key = key;
   }

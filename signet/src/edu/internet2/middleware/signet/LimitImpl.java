@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.20 2007-09-12 15:41:56 ddonn Exp $
-$Date: 2007-09-12 15:41:56 $
+$Id: LimitImpl.java,v 1.21 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,12 +19,9 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
+import org.apache.commons.logging.Log;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 /**
@@ -33,6 +30,8 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  */
 public final class LimitImpl implements Limit
 {
+	protected Log		log;
+
   // This field is a simple synthetic key for this record in the database.
   private Integer     key;
 
@@ -48,10 +47,9 @@ public final class LimitImpl implements Limit
   private Date				modifyDatetime;
   private Status			status;
   private String			renderer;
-  private Set		  		permissions;
-  private int					displayOrder;
-  
-  private final String			limitType="reserved";
+//  private Set		  		permissions;
+  private int				displayOrder;
+  private String			limitType="reserved";
 
   /**
    * Hibernate requires that each persistable entity have a default
@@ -60,7 +58,7 @@ public final class LimitImpl implements Limit
   public LimitImpl()
   {
       super();
-      this.permissions = new HashSet();
+//      this.permissions = new HashSet();
   }
 
   
@@ -89,7 +87,7 @@ public final class LimitImpl implements Limit
     this.helpText = helpText;
     this.status = status;
     this.renderer = renderer;
-    this.permissions = new HashSet();
+//    this.permissions = new HashSet();
   }
   
   public void setSignet(Signet signet)
@@ -136,7 +134,7 @@ public final class LimitImpl implements Limit
     return this.helpText;
   }
   
-  void setHelpText(String helpText)
+  public void setHelpText(String helpText)
   {
     this.helpText = helpText;
   }
@@ -144,26 +142,31 @@ public final class LimitImpl implements Limit
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.SubsystemPart#getSubsystem()
    */
-  public Subsystem getSubsystem()
+  public Subsystem getSubsystem() throws SignetRuntimeException
   {
-    if ((this.subsystem == null)
-        && (this.subsystemId != null)
-        && (this.getSignet() != null))
+    if ((null == subsystem) || ( !subsystem.getId().equals(subsystemId)))
     {
-      try
-      {
-        subsystem = getSignet().getPersistentDB().getSubsystem(subsystemId);
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new SignetRuntimeException(onfe);
-      }
-    }
-    
-    return this.subsystem;
+    	if (null == signet)
+    		log.error("No Signet instance found");
+    	else if (null == subsystemId)
+    		log.error("SubsystemId is invalid");
+    	else
+    	{
+			try
+			{
+				subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
+			}
+			catch (ObjectNotFoundException onfe)
+			{
+				throw new SignetRuntimeException(onfe);
+			}
+		}
+	}
+
+	return (subsystem);
   }
   
-  String getSubsystemId()
+  public String getSubsystemId()
   {
     return this.subsystemId;
   }
@@ -174,11 +177,10 @@ public final class LimitImpl implements Limit
   public void setSubsystem(Subsystem subsystem)
   {
       this.subsystem = subsystem;
-      this.subsystemId = subsystem.getId();
+      subsystemId = subsystem.getId();
   }
   
-  void setSubsystemId(String subsystemId)
-  throws ObjectNotFoundException
+  public void setSubsystemId(String subsystemId)
   {
     this.subsystemId = subsystemId;
   }
@@ -239,7 +241,7 @@ public final class LimitImpl implements Limit
   /**
    * @return Returns the date and time this entity was last modified.
    */
-  final Date getModifyDatetime()
+  public Date getModifyDatetime()
   {
     return this.modifyDatetime;
   }
@@ -247,7 +249,7 @@ public final class LimitImpl implements Limit
   /**
    * @param modifyDatetime The modifyDatetime to set.
    */
-  final void setModifyDatetime(Date modifyDatetime)
+  public void setModifyDatetime(Date modifyDatetime)
   {
     this.modifyDatetime = modifyDatetime;
   }
@@ -268,7 +270,7 @@ public final class LimitImpl implements Limit
     this.status = status;
   }
   
-  void setRenderer(String renderer)
+  public void setRenderer(String renderer)
   {
       this.renderer = renderer;
   }
@@ -297,7 +299,7 @@ public final class LimitImpl implements Limit
   /**
    * @return Returns the limitType.
    */
-  String getLimitType()
+  public String getLimitType()
   {
     return this.limitType;
   }
@@ -305,42 +307,42 @@ public final class LimitImpl implements Limit
   /**
    * @param limitType The limitType to set.
    */
-  void setLimitType(String limitType)
+  public void setLimitType(String limitType)
   {
-    // This method does nothing, and is just a place-holder.
+    this.limitType = limitType;
   }
   
-  /**
-   * @return Returns the permissions.
-   */
-  Set getPermissions() {
-    return this.permissions;
-  }
-  
-  /**
-   * @param permissions The permissions to set.
-   */
-  void setPermissions(Set permissions) {
-    this.permissions = permissions;
-  }
-
-
-  /**
-   * @param permission
-   */
-  public void add(Permission permission)
-  {
-    // Do we have this Permission already? If so, just return. That
-    // helps to prevent an infinite loop of adding Permissions and
-    // Limits to each other.
-    
-    if (!(this.permissions.contains(permission)))
-    {
-      this.permissions.add(permission);
-      permission.addLimit(this);
-    }
-  }
-
+//  /**
+//   * @return Returns the permissions.
+//   */
+//  Set getPermissions() {
+//    return this.permissions;
+//  }
+//  
+//  /**
+//   * @param permissions The permissions to set.
+//   */
+//  void setPermissions(Set permissions) {
+//    this.permissions = permissions;
+//  }
+//
+//
+//  /**
+//   * @param permission
+//   */
+//  public void add(Permission permission)
+//  {
+//    // Do we have this Permission already? If so, just return. That
+//    // helps to prevent an infinite loop of adding Permissions and
+//    // Limits to each other.
+//    
+//    if (!(this.permissions.contains(permission)))
+//    {
+//      this.permissions.add(permission);
+//      permission.addLimit(this);
+//    }
+//  }
+//
   public int getDisplayOrder()
   {
     return this.displayOrder;

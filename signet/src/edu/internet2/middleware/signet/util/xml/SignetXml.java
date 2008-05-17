@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.2 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -54,34 +54,19 @@ public class SignetXml
 		if (cmd.getCommand().equals(Command.CMD_EXPORT) ||
 			cmd.getCommand().equals(Command.CMD_APPEND))
 		{
+			if (cmd.getFilename().equals(STDOUT_FILENAME))
+				cmd.setOutFile(System.out);
+			else
+				setupOutfile(cmd);
+
+			exportXml(cmd);
+
 			try
 			{
-				if (cmd.getFilename().equals(STDOUT_FILENAME))
-					cmd.setOutFile(System.out);
-				else
-				{
-					File outFile = new File(cmd.getFilename());
-					StringBuffer buf = new StringBuffer();
-					if (outFile.exists())
-					{
-						if (cmd.getCommand().equals(Command.CMD_EXPORT))
-							buf.append("Overwriting");
-						else
-							buf.append("Appending to");
-					}
-					else
-						buf.append("Creating");
-					buf.append(" XML file " + outFile.getCanonicalPath());
-					log.info(buf.toString());
-					cmd.setOutFile(new FileOutputStream(outFile,
-									cmd.getCommand().equals(Command.CMD_APPEND)));
-				}
-				exportXml(cmd);
 				cmd.getOutFile().flush();
 				if ( !cmd.getOutFile().equals(System.out))
 					cmd.getOutFile().close();
 			}
-			catch (FileNotFoundException e) { e.printStackTrace(); }
 			catch (IOException e) { e.printStackTrace(); }
 		}
 
@@ -91,30 +76,53 @@ public class SignetXml
 				cmd.setInFile(System.in);
 			else
 			{
-				try
-				{
-					File infile = new File(cmd.getFilename());
-					cmd.setInFile(new FileInputStream(infile));
-					log.info("Reading XML file \"" + cmd.getFilename() + "\"");
-
-					new XmlImporter(signet, log).importXml(cmd);
-
-					if ( !cmd.getInFile().equals(System.in))
-						cmd.getInFile().close();
-				}
+				File infile = new File(cmd.getFilename());
+				try { cmd.setInFile(new FileInputStream(infile)); }
 				catch (FileNotFoundException e)
 				{
 					log.error("Input XML file \"" + cmd.getFilename() + "\" not found.");
 				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
 			}
+
+			log.info("Reading XML file \"" + cmd.getFilename() + "\"");
+
+			new XmlImporter(signet, log).importXml(cmd);
+
+			try
+			{
+				if ( !cmd.getInFile().equals(System.in))
+					cmd.getInFile().close();
+			}
+			catch (IOException e) { e.printStackTrace(); }
 		}
 
 		else
 			log.error("Unknown command: " + cmd.getCommand());
+	}
+
+	protected void setupOutfile(Command cmd)
+	{
+		try
+		{
+			File outFile = new File(cmd.getFilename());
+			StringBuffer buf = new StringBuffer();
+			if (outFile.exists())
+			{
+				if (cmd.getCommand().equals(Command.CMD_EXPORT))
+					buf.append("Overwriting");
+				else
+					buf.append("Appending to");
+			}
+			else
+				buf.append("Creating");
+			buf.append(" XML file " + outFile.getCanonicalPath());
+			log.info(buf.toString());
+			cmd.setOutFile(new FileOutputStream(outFile,
+							cmd.getCommand().equals(Command.CMD_APPEND)));
+		}
+		catch (FileNotFoundException e) { e.printStackTrace(); }
+		catch (IOException e) { e.printStackTrace(); }
+
 	}
 
 	public void exportXml(Command cmd)
@@ -122,48 +130,19 @@ public class SignetXml
 		if (cmd.getType().equals(Command.EX_ASSGN))
 			new AssignmentXml(signet).exportAssignment(cmd);
 		else if (cmd.getType().equals(Command.EX_PERM))
-			exportPermission(cmd);
-		else if (cmd.getType().equals(Command.EX_PROXY))
-			exportProxy(cmd);
+			new PermissionXml(signet).exportPermission(cmd);
+//		else if (cmd.getType().equals(Command.EX_PROXY))
+//			exportProxy(cmd);
 		else if (cmd.getType().equals(Command.EX_SCOPE))
-			exportScopeTree(cmd);
+			new ScopeTreeXml(signet).exportScopeTree(cmd);
 		else if (cmd.getType().equals(Command.EX_SUBJ))
-			exportSubject(cmd);
+			new SubjectXml(signet).exportSubject(cmd);
 		else if (cmd.getType().equals(Command.EX_SUBSYS))
-			exportSubsystem(cmd);
+			new SubsystemXml(signet).exportSubsystem(cmd);
 		else
 			log.error("Invalid command: " + cmd.toString());
 	}
 
-	protected void exportPermission(Command cmd)
-	{
-//TODO export Permission
-		log.warn("That Type is not supported yet: " + cmd.toString());
-	}
-
-	protected void exportProxy(Command cmd)
-	{
-//TODO export Proxy
-		log.warn("That Type is not supported yet: " + cmd.toString());
-	}
-
-	protected void exportScopeTree(Command cmd)
-	{
-//TODO export ScopeTree
-		log.warn("That Type is not supported yet: " + cmd.toString());
-	}
-
-	protected void exportSubject(Command cmd)
-	{
-//TODO export Subject
-		log.warn("That Type is not supported yet: " + cmd.toString());
-	}
-
-	protected void exportSubsystem(Command cmd)
-	{
-//TODO export Subsystem
-		log.warn("That Type is not supported yet: " + cmd.toString());
-	}
 
 
 	/////////////////////////////////////
@@ -172,7 +151,7 @@ public class SignetXml
 
 	protected static CommandOptions		options;
 	protected static Vector<Command>	commands;
-	protected static String				version = "$Revision: 1.2 $";
+	protected static String				version = "$Revision: 1.3 $";
 	protected static Log				mainLog;
 
 

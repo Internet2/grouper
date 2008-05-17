@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/TreeNodeImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/PermissionImplRefXb.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -25,20 +25,23 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * TreeNodeImplXb 
+ * PermissionImplXb 
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TreeNodeImplXb",
+@XmlType(name = "PermissionImplRefXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "organizations" }
+		propOrder = { "subsystemId" }
 )
-public class TreeNodeImplXb extends EntityImplXb
+public class PermissionImplRefXb
 {
-	@XmlAttribute(name="type", required=true)
-	protected String type;
+	@XmlAttribute(name="subsystemId", required=true)
+	protected String			subsystemId;
 
-	@XmlElement(name="Organization", required=false)
-	protected List<TreeNodeImplXb>	organizations;
+	@XmlAttribute(name="id", required=true)
+	protected String			id;
+
+	@XmlAttribute(name="key", required=true)
+	protected int				key;
 
 }

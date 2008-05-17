@@ -13,7 +13,8 @@
 			</generator>
 		</id>
 		<timestamp name="modifyDatetime"/>
-		
+
+<!--
 		<set
 			name="permissions"
 			table="signet_permission_limit"
@@ -23,7 +24,7 @@
 				class="edu.internet2.middleware.signet.PermissionImpl"
 				column="permissionKey"/>
 		</set>
-		
+-->		
 		<property
 			name="id"
 			column="limitID"/>

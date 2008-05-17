@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.3 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.4 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -208,21 +208,11 @@ log.info("AssignmentImplXa.setValues(AssignmentImplXb): Caught general Exception
 //  private TreeNode			scope;
 			HibernateDB hibr = signet.getPersistentDB();
 			Session hs = hibr.openSession();
-			try
-			{
-				String[] path = Util.parseScopePath(xmlAssignment.getScope());
-				Tree tree = hibr.getTree(hs, path[0]);
-				TreeNodeImpl node = (TreeNodeImpl)tree.getNode(path[1]);
-				signetAssignment.setScope(node);
-			}
-			catch (ObjectNotFoundException e2)
-			{
-				e2.printStackTrace();
-			}
-			finally
-			{
-				hibr.closeSession(hs);
-			}
+			String[] path = Util.parseScopePath(xmlAssignment.getScope());
+			Tree tree = hibr.getTreeById(hs, path[0]);
+			TreeNodeImpl node = (TreeNodeImpl)tree.getNode(path[1]);
+			signetAssignment.setScope(node);
+			hibr.closeSession(hs);
 
 //  private FunctionImpl		function;
 			String functionId = xmlAssignment.getFunction();

@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/AssignmentImplRefXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/AssignmentImplRefXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -37,22 +37,18 @@ import javax.xml.bind.annotation.XmlType;
 )
 public class AssignmentImplRefXb
 {
-	/** A String-based ID, overridden by GrantableImplXb */
-	@XmlAttribute(name="id", required=true)
-	protected String	id;	// see GrantableImplXb, has an Integer id defined
-
-	/** The name of this EntityImplXb */
-	@XmlAttribute(name="name", required=false)
-	protected String	name;
-
-	/** The status (ACTIVE | INACTIVE | PENDING) of this EntityImplXb */
-	@XmlAttribute(name="status", required=false)
-	protected String	status;
-
     @XmlAttribute(name="canGrant", required=true)
 	protected boolean	canGrant;
 
     @XmlAttribute(name="canUse", required=true)
 	protected boolean	canUse;
+
+	/** The status (ACTIVE | INACTIVE | PENDING) of this EntityImplXb */
+	@XmlAttribute(name="status", required=false)
+	protected String	status;
+
+	/** A String-based ID, overridden by GrantableImplXb */
+	@XmlAttribute(name="id", required=true)
+	protected String	id;	// see GrantableImplXb, has an Integer id defined
 
 }

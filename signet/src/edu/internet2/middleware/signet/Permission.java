@@ -1,6 +1,6 @@
 /*--
-$Id: Permission.java,v 1.12 2007-06-14 21:39:04 ddonn Exp $
-$Date: 2007-06-14 21:39:04 $
+$Id: Permission.java,v 1.13 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -40,22 +40,22 @@ extends SubsystemPart, Serializable
   */
  public String getId();
  
- /**
-  * Gets the {@link Function}s associated with this <code>Permission</code>.
-  * 
-  * @return the <code>Function</code>s associated with this
-  * <code>Permission</code>.
-  */
- public Set getFunctions();
- 
- /**
-  * Adds a <code>Function</code> to the set of <code>Function</code>s
-  * associated with this <code>Permission</code>.
-  * 
-  * @param function The <code>Function</code> to be associated with this
-  *   <code>Permission</code>.
-  */
- public void addFunction(Function function);
+// /**
+//  * Gets the {@link Function}s associated with this <code>Permission</code>.
+//  * 
+//  * @return the <code>Function</code>s associated with this
+//  * <code>Permission</code>.
+//  */
+// public Set getFunctions();
+// 
+// /**
+//  * Adds a <code>Function</code> to the set of <code>Function</code>s
+//  * associated with this <code>Permission</code>.
+//  * 
+//  * @param function The <code>Function</code> to be associated with this
+//  *   <code>Permission</code>.
+//  */
+// public void addFunction(Function function);
  
  /**
   * Adds a <code>Limit</code> to the set of <code>Limit</code>s associated with

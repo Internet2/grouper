@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectAttrXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectAttrXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -63,19 +63,21 @@ public class SignetSubjectAttrXa
 
 	public void setValues(SignetSubjectAttr signetAttr)
 	{
-		xmlSubjectAttr.setMappedName(signetAttr.getMappedName());
+		xmlSubjectAttr.setKey(signetAttr.getSubjectAttr_PK().longValue());
+		xmlSubjectAttr.setName(signetAttr.getMappedName());
+		xmlSubjectAttr.setValue(signetAttr.getValue());
+		xmlSubjectAttr.setType(signetAttr.getType());
 		xmlSubjectAttr.setModifyDate(Util.convertDateToString(signetAttr.getModifyDate()));
 		xmlSubjectAttr.setSequence(signetAttr.getSequence());
-		xmlSubjectAttr.setAttrType(signetAttr.getType());
-		xmlSubjectAttr.setAttrValue(signetAttr.getValue());
 	}
 
 	public void setValues(SignetSubjectAttrXb xmlAttr)
 	{
-		signetSubjectAttr.setMappedName(xmlAttr.getMappedName());
+		signetSubjectAttr.setSubjectAttr_PK(new Long(xmlAttr.getKey()));
+		signetSubjectAttr.setMappedName(xmlAttr.getName());
+		signetSubjectAttr.setValue(xmlAttr.getValue(), xmlAttr.getType());
 		signetSubjectAttr.setModifyDate(Util.convertStringToDate(xmlAttr.getModifyDate()));
 		signetSubjectAttr.setSequence(xmlAttr.getSequence());
-		signetSubjectAttr.setValue(xmlAttr.getAttrValue(), xmlAttr.getAttrType());
 	}
 
 //	public SignetSubjectAttrXa(Vector<SignetSubjectAttr> signetSubjectAttrs)

@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.21 2007-12-06 01:18:32 ddonn Exp $
-$Date: 2007-12-06 01:18:32 $
+$Id: FunctionImpl.java,v 1.22 2008-05-17 20:54:09 ddonn Exp $
+$Date: 2008-05-17 20:54:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,12 +19,9 @@ limitations under the License.
 package edu.internet2.middleware.signet;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -117,7 +114,7 @@ public class FunctionImpl extends EntityImpl implements Function
   {    
     return this.permissions;
   }
-  
+
   /* (non-Javadoc)
    * @see edu.internet2.middleware.signet.SubsystemPart#getSubsystem()
    */
@@ -198,7 +195,7 @@ public class FunctionImpl extends EntityImpl implements Function
     if (!(this.permissions.contains(permission)))
     {
       this.permissions.add(permission);
-      permission.addFunction(this);
+//      permission.addFunction(this);
     }
   }
   
@@ -236,25 +233,21 @@ public class FunctionImpl extends EntityImpl implements Function
 //    return limitArray;
 //  }
   
-  public Set getLimits()
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Function#getLimits()
+	 */
+	public Set getLimits()
   {
     Set functionLimits = new HashSet();
-    Set permissions = this.getPermissions();
-    Iterator permissionsIterator = permissions.iterator();
-    
-    while (permissionsIterator.hasNext())
+
+    for (PermissionImpl permission : (Set<PermissionImpl>)permissions)
     {
-      Permission permission = (Permission)(permissionsIterator.next());
-      Set permissionLimits = ((PermissionImpl)permission).getLimits();
+      Set permissionLimits = permission.getLimits();
       
-      Iterator permissionLimitsIterator = permissionLimits.iterator();
-      while (permissionLimitsIterator.hasNext())
+      for (LimitImpl limitImpl : (Set<LimitImpl>)permissionLimits)
       {
-        LimitImpl limitImpl = (LimitImpl)(permissionLimitsIterator.next());
-        if (this.getSignet() != null)
-        {
-          limitImpl.setSignet(this.getSignet());
-        }
+    	  if (null != signet)
+    		  limitImpl.setSignet(signet);
       }
       
       functionLimits.addAll(permissionLimits);
@@ -263,7 +256,10 @@ public class FunctionImpl extends EntityImpl implements Function
     return functionLimits;
   }
   
-  public String getId()
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Function#getId()
+	 */
+	public String getId()
   {
     return super.getStringId();
   }

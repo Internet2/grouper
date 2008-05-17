@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/FunctionImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/FunctionImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,10 +17,14 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml.adapter;
 
+import java.util.List;
+import java.util.Set;
 import edu.internet2.middleware.signet.FunctionImpl;
+import edu.internet2.middleware.signet.PermissionImpl;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.util.xml.binder.FunctionImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
+import edu.internet2.middleware.signet.util.xml.binder.PermissionImplRefXb;
 
 /**
  * FunctionImplXa <p>
@@ -69,7 +73,21 @@ public class FunctionImplXa extends EntityImplXa
 
 	public void setValues(FunctionImpl signetFunction)
 	{
-//TODO FunctionImplXa.setValues
+		super.setValues(signetFunction);
+
+		FunctionImplXb xmlFunc = (FunctionImplXb)xmlEntity;
+
+		xmlFunc.setKey(signetFunction.getKey().intValue());
+
+		xmlFunc.setSubsystemId(signetFunction.getSubsystem().getId());
+
+		xmlFunc.setCategoryId(signetFunction.getCategory().getId());
+
+		xmlFunc.setHelpText(signetFunction.getHelpText());
+
+		List<PermissionImplRefXb> xmlPerms = xmlFunc.getPermission();
+		for (PermissionImpl sigPerm : (Set<PermissionImpl>)signetFunction.getPermissions())
+			xmlPerms.add(new PermissionImplRefXa(sigPerm, signet).getXmlPermission());
 	}
 
 
@@ -87,6 +105,7 @@ public class FunctionImplXa extends EntityImplXa
 	public void setValues(FunctionImplXb xmlFunctionImpl)
 	{
 //TODO FunctionImplXa.setValues
+System.out.println("FunctionImplXa.setValues - not implemented yet");
 	}
 
 }

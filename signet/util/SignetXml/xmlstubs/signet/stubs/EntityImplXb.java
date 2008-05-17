@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/EntityImplXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/EntityImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -31,31 +31,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EntityImplXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "comment", "createDatetime", "modifyDatetime",
-			"createDbAccount", "modifyDbAccount", "createContext",
-			"modifyContext", "createUserID", "modifyUserID" }
+		propOrder = {
+			"comment",
+			"modifyDatetime",
+			"createDbAccount",
+			"modifyDbAccount",
+			"createContext",
+			"modifyContext",
+			"createUserID",
+			"modifyUserID" }
 )
 public abstract class EntityImplXb
 {
-	/** A String-based ID, overridden by GrantableImplXb */
-	@XmlAttribute(name="id", required=true)
-	protected String	id;	// see GrantableImplXb, has an Integer id defined
+	/** The status (ACTIVE | INACTIVE | PENDING) of this EntityImplXb */
+	@XmlAttribute(name="status", required=false)
+	protected String	status;
 
 	/** The name of this EntityImplXb */
 	@XmlAttribute(name="name", required=false)
 	protected String	name;
 
-	/** The status (ACTIVE | INACTIVE | PENDING) of this EntityImplXb */
-	@XmlAttribute(name="status", required=false)
-	protected String	status;
+	/** A String-based ID, overridden by GrantableImplXb */
+	@XmlAttribute(name="id", required=true)
+	protected String	id;	// see GrantableImplXb, has an Integer id defined
 
 	/** A comment for the use of metadata maintainers. */
 	@XmlElement(name="comment", required=false)
 	protected String	comment;
-
-	/** The date and time this entity was first created. */
-	@XmlElement(name="createDatetime", required=true)
-	protected String	createDatetime;
 
 	/** The date and time this entity was last modified. */
 	@XmlElement(name="modifyDatetime", required=false)

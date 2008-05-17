@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,8 +17,10 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml.adapter;
 
+import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.ProxyImpl;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.ProxyImplXb;
 
@@ -65,7 +67,13 @@ public class ProxyImplXa extends GrantableImplXa
 
 	public void setValues(ProxyImpl signetProxyImpl)
 	{
-//TODO ProxyImplXa.setValues
+		super.setValues(signetProxyImpl);
+
+		ProxyImplXb xmlProxy = (ProxyImplXb)this.xmlEntity;
+
+		xmlProxy.setCanExtend(signetProxyImpl.canExtend());
+		xmlProxy.setCanUse(signetProxyImpl.canUse());
+		xmlProxy.setSubsystemId(signetProxyImpl.getSubsystem().getId());
 	}
 
 
@@ -76,7 +84,21 @@ public class ProxyImplXa extends GrantableImplXa
 
 	public void setValues(ProxyImplXb xmlProxyImpl)
 	{
-//TODO ProxyImplXa.setValues
+		super.setValues(xmlProxyImpl);
+
+		ProxyImpl sigProxy = (ProxyImpl)signetEntity;
+
+		sigProxy.setCanExtend(xmlProxyImpl.isCanExtend());
+		sigProxy.setCanUse(xmlProxyImpl.isCanUse());
+		HibernateDB hibr = signet.getPersistentDB();
+		try
+		{
+			sigProxy.setSubsystem(hibr.getSubsystem(xmlProxyImpl.getSubsystemId()));
+		}
+		catch (ObjectNotFoundException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 }

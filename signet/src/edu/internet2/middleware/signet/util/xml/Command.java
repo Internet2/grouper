@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/Command.java,v 1.1 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/Command.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -40,11 +40,14 @@ public class Command
 	protected static final String EQUALS		= "="; // a bit overboard, I know
 
 	// parameters
-	protected static final String PARAM_SUBJID	= "subjId";
-	protected static final String PARAM_SCOPEID	= "scopeId";
-	protected static final String PARAM_STATUS	= "status";
-	protected static final String PARAM_FUNCID	= "functionId";
-	protected static final String PARAM_SUBSYSID = "subsysId";
+	protected static final String PARAM_SUBJID		= "subjId";
+	protected static final String PARAM_SCOPEID		= "scopeId";
+	protected static final String PARAM_STATUS		= "status";
+	protected static final String PARAM_FUNCID		= "functionId";
+	protected static final String PARAM_SUBSYSID	= "subsysId";
+	protected static final String PARAM_PERMID		= "permId";
+	protected static final String PARAM_SOURCEID	= "source";
+	protected static final String PARAM_NAME		= "name";
 
 	// commands
 	protected static final String CMD_IMPORT	= "import";

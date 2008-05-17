@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetSubjectWrapperXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/FunctionImplRefXb.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,25 +19,29 @@ package signet.stubs;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * SignetSubjectWrapperXb - this class exists for the sole purpose of allowing
- * an GrantableImplXb to have a grantor, grantee, proxy, and revoker that
- * _contain_ a Subject, instead of being a Subject.
- * In other words, grantee has a Subject, instead of grantee is a Subject.
+ * FunctionImplRefXb 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "SignetSubjectWrapperXb",
+@XmlType(name = "FunctionImplRefXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "subject" }
+		propOrder = {  }
 )
-public class SignetSubjectWrapperXb
+public class FunctionImplRefXb
 {
-	@XmlElement(name="Subject", required=true)
-	protected SignetSubjectRefXb subject;
+	@XmlAttribute(name="subsystemId", required=true)
+	protected String			subsystemId;
 
-	public SignetSubjectRefXb getSubject() { return (subject); }
-	public void setSubject(SignetSubjectRefXb subject) { this.subject = subject; }
+	@XmlAttribute(name="id", required=true)
+	protected String			id;
+
+	/** This field is a simple synthetic key for this record in the database. */
+	@XmlAttribute(name="key", required=true)
+	protected Integer			key;
+
 }

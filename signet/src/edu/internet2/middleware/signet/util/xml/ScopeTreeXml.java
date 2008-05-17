@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/ScopeTreeXml.java,v 1.1 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/ScopeTreeXml.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -18,12 +18,17 @@ limitations under the License.
 package edu.internet2.middleware.signet.util.xml;
 
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.TreeImpl;
+import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.util.xml.adapter.ScopeTreeXa;
+import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
 import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeXb;
+import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 
 /**
  * ScopeTreeXml - A class to export a Signet Tree to XML based on
@@ -75,9 +80,9 @@ public class ScopeTreeXml extends XmlUtil
 	 */
 	public void exportScopeTree(Command cmd)
 	{
-		Status status = null;
-		String[] subjIds = null;
-		String[] functionIds = null;
+//		Status status = null;
+//		String[] subjIds = null;
+//		String[] functionIds = null;
 		String[] scopeIds = null;
 		String[] subsysIds = null;
 
@@ -85,19 +90,19 @@ public class ScopeTreeXml extends XmlUtil
 		int argCount = 0;
 		for (String key : params.keySet())
 		{
-			if (key.equalsIgnoreCase(Command.PARAM_STATUS))
-				status = (Status)Status.getInstanceByName(params.get(key));
-			else if (key.equalsIgnoreCase(Command.PARAM_SUBJID))
-			{
-				subjIds = parseList(params.get(key));
-				argCount++;
-			}
-			else if (key.equalsIgnoreCase(Command.PARAM_FUNCID))
-			{
-				functionIds = parseList(params.get(key));
-				argCount++;
-			}
-			else if (key.equalsIgnoreCase(Command.PARAM_SCOPEID))
+//			if (key.equalsIgnoreCase(Command.PARAM_STATUS))
+//				status = (Status)Status.getInstanceByName(params.get(key));
+//			else if (key.equalsIgnoreCase(Command.PARAM_SUBJID))
+//			{
+//				subjIds = parseList(params.get(key));
+//				argCount++;
+//			}
+//			else if (key.equalsIgnoreCase(Command.PARAM_FUNCID))
+//			{
+//				functionIds = parseList(params.get(key));
+//				argCount++;
+//			}
+			if (key.equalsIgnoreCase(Command.PARAM_SCOPEID))
 			{
 				scopeIds = parseList(params.get(key));
 				argCount++;
@@ -116,12 +121,53 @@ public class ScopeTreeXml extends XmlUtil
 
 		if (2 <= argCount)
 		{
-			log.error("Too many Assignment parameters specified. May only be one of " +
-					Command.PARAM_FUNCID + ", " + Command.PARAM_SCOPEID + ", " +
-					Command.PARAM_SUBJID + ", or " + Command.PARAM_SUBSYSID +
-					", or no parameter for All records.");
+			log.error("Too many ScopeTree parameters specified. May only be one of " +
+//					Command.PARAM_FUNCID + ", " +
+					Command.PARAM_SCOPEID + ", " +
+//					Command.PARAM_SUBJID + ", or " +
+					Command.PARAM_SUBSYSID + ", " +
+					"or no parameter for All records.");
 			return;
 		}
+
+		SignetXa adapter = new SignetXa(signet);
+		SignetXb xml = adapter.getXmlSignet();
+		List<ScopeTreeXb> xmlScopeTreeList = xml.getScopeTree();
+		HibernateDB hibr = signet.getPersistentDB();
+		Session hs = hibr.openSession();
+
+		if ((null != scopeIds) && (0 < scopeIds.length))
+		{
+			for (String id : scopeIds)
+			{
+				TreeImpl tree = (TreeImpl)hibr.getTreeById(hs, id);
+				if (null != tree)
+					xmlScopeTreeList.add(new ScopeTreeXa(tree, signet).getXmlScopeTree());
+				else
+					log.warn("No ScopeTree found for ScopeTreeId=\"" + id + "\"");
+			}
+		}
+		else if ((null != subsysIds) && (0 < subsysIds.length))
+		{
+			for (String id : subsysIds)
+			{
+				TreeImpl tree = (TreeImpl)hibr.getTreeBySubsystemId(hs, id);
+				if (null != tree)
+					xmlScopeTreeList.add(new ScopeTreeXa(tree, signet).getXmlScopeTree());
+				else
+					log.warn("No ScopeTree found for SubsystemId=\"" + id + "\"");
+			}
+		}
+		else // export ALL ScopeTrees
+		{
+			Set trees = hibr.getTrees(hs);
+			for (TreeImpl tree : (Set<TreeImpl>)trees)
+				xmlScopeTreeList.add(new ScopeTreeXa(tree, signet).getXmlScopeTree());
+		}
+
+		marshalXml(xml, cmd.getOutFile());
+
+		hibr.closeSession(hs);
 
 	}
 

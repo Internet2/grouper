@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ChoiceSetImplXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ChoiceSetImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,8 +17,12 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml.adapter;
 
+import java.util.Set;
+import edu.internet2.middleware.signet.ChoiceImpl;
 import edu.internet2.middleware.signet.ChoiceSetImpl;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetFactory;
+import edu.internet2.middleware.signet.util.xml.binder.ChoiceImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.ChoiceSetImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 
@@ -67,9 +71,23 @@ public class ChoiceSetImplXa
 		return (signetChoiceSet);
 	}
 
+	public void setValues(ChoiceSetImpl signetChoiceSet, Signet signet)
+	{
+		this.signet = signet;
+		setValues(signetChoiceSet);
+	}
+
 	public void setValues(ChoiceSetImpl signetChoiceSet)
 	{
-//TODO ChoiceSetImplXa.setValues
+		xmlChoiceSet.setKey(signetChoiceSet.getKey().intValue());
+		xmlChoiceSet.setId(signetChoiceSet.getId());
+		xmlChoiceSet.setSubsystemId(signetChoiceSet.getSubsystem().getId());
+		xmlChoiceSet.setAdapterClassName(signetChoiceSet.getChoiceSetAdapter().getClass().getName());
+		for (ChoiceImpl choice : (Set<ChoiceImpl>)signetChoiceSet.getChoices())
+		{
+			ChoiceImplXb xmlChoice = new ChoiceImplXa(choice, signet).getXmlChoiceImpl();
+			xmlChoiceSet.getChoice().add(xmlChoice);
+		}
 	}
 
 
@@ -80,7 +98,18 @@ public class ChoiceSetImplXa
 
 	public void setValues(ChoiceSetImplXb xmlChoiceSet)
 	{
-//TODO ChoiceSetImplXa.setValues
+		signetChoiceSet.setKey(new Integer(xmlChoiceSet.getKey()));
+		signetChoiceSet.setId(xmlChoiceSet.getId());
+//TODO - Set the ChoiceSet Subsystem value
+System.out.println("ChoiceSetImplXa.setValues(ChoiceSetImplXb) - Set the ChoiceSet Subsystem value, not implemented yet");
+		signetChoiceSet.setChoiceSetAdapter(
+				SignetFactory.getChoiceSetAdapter(signet, xmlChoiceSet.getAdapterClassName()));
+		for (ChoiceImplXb xmlChoice : xmlChoiceSet.getChoice())
+		{
+			ChoiceImpl sigChoice = new ChoiceImplXa(xmlChoice, signet).getSignetChoiceImpl();
+			sigChoice.setChoiceSet(signetChoiceSet);
+			signetChoiceSet.getChoices().add(sigChoice);
+		}
 	}
 
 }

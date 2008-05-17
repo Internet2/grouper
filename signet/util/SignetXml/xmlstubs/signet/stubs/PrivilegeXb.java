@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/AssignmentImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/PrivilegeXb.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -31,30 +31,46 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AssignmentImplXb",
+@XmlType(name = "PrivilegeXb",
 		namespace="http://www.internet2.edu/signet",
 		propOrder = {
+			"functionId",
+			"subsystemId",
+			"scopePath",
+			"status",
 			"canUse",
 			"canGrant",
+			"effectiveDate",
+			"expirationDate",
 			"limitValues"
 		}
 )
-public class AssignmentImplXb extends GrantableImplXb
+public class PrivilegeXb
 {
-	@XmlAttribute(name="function", required=true)
+	@XmlElement(name="function", required=true)
 	protected String				functionId;
 
-	@XmlAttribute(name="subsystem", required=true)
+	@XmlElement(name="subsystem", required=true)
 	protected String				subsystemId;
 
-	@XmlAttribute(name="scope", required=true)
+	@XmlElement(name="scope", required=true)
 	protected String				scopePath;
+
+	/** The status (ACTIVE | INACTIVE | PENDING) */
+	@XmlElement(name="status", required=false)
+	protected String				status;
 
     @XmlElement(name="canUse", required=true)
 	protected boolean				canUse;
 
     @XmlElement(name="canGrant", required=true)
 	protected boolean				canGrant;
+
+	@XmlElement(name="effectiveDate", required=true)
+	protected String				effectiveDate;
+
+	@XmlElement(name="expirationDate", required=false)
+	protected String				expirationDate;
 
     @XmlElement(name="LimitValue")
 	protected Set<LimitValueXb>		limitValues;

@@ -20,7 +20,10 @@
 			name="status"
 			type="edu.internet2.middleware.signet.StatusType"
 			not-null="true" />
+
 		<property name="name" type="string" not-null="true"/>
+
+		<property name="nodeType" type="string" not-null="false"/>
 		
 <!--
 		<property name="createDatetime" type="timestamp" not-null="true"/>

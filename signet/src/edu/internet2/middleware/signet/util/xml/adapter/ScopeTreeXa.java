@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ScopeTreeXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ScopeTreeXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -67,7 +67,7 @@ public class ScopeTreeXa extends EntityImplXa
 		this(signet);
 		signetEntity = signetScopeTree;
 		xmlEntity = new ObjectFactory().createScopeTreeXb();
-		setValues(signetScopeTree, signet);
+		setValues(signetScopeTree);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class ScopeTreeXa extends EntityImplXa
 		this(signet);
 		xmlEntity = xmlScopeTree;
 		signetEntity = new TreeImpl();
-		setValues(xmlScopeTree, signet);
+		setValues(xmlScopeTree);
 	}
 
 	/**
@@ -129,26 +129,9 @@ public class ScopeTreeXa extends EntityImplXa
 			xmlScopeTree.setAdapterClassName(ta.getClass().getName());
 
 //	private Set nodes;
-		List<TreeNodeImplXb> xmlNodes = xmlScopeTree.getRootNodes();
+		List<TreeNodeImplXb> xmlNodes = xmlScopeTree.getOrganization();
 		for (TreeNodeImpl root : (Set<TreeNodeImpl>)signetScopeTree.getRoots())
-			addXmlNodes(root, xmlNodes);
-	}
-
-	/**
-	 * Recursively traverse the TreeNodeImpl hierarchy, creating XML binders for each
-	 * @param signetTreeNode A Signet TreeNodeImpl
-	 * @param parentXmlNodes The List of TreeNodeImplXb children for the parent
-	 */
-	protected void addXmlNodes(TreeNodeImpl signetTreeNode, List<TreeNodeImplXb> parentXmlNodes)
-	{
-		// add the XML node for the incoming signet node
-		TreeNodeImplXb xmlTreeNode = new TreeNodeImplXa(signetTreeNode, signet).getXmlTreeNodeImpl();
-		parentXmlNodes.add(xmlTreeNode);
-
-		// recursively add its children
-		List<TreeNodeImplXb> xmlChildren = xmlTreeNode.getChildren();
-		for (TreeNodeImpl signetChild : (Set<TreeNodeImpl>)signetTreeNode.getChildren())
-			addXmlNodes(signetChild, xmlChildren);
+			xmlNodes.add(new TreeNodeImplXa(root, signet).getXmlTreeNodeImpl());
 	}
 
 
@@ -181,8 +164,8 @@ public class ScopeTreeXa extends EntityImplXa
 //	private Set nodes;
 		// get all nodes in hierarchy, may contain duplicate nodes
 		Set<TreeNodeImpl> tmpNodeSet = new HashSet<TreeNodeImpl>();
-		for (TreeNodeImplXb xmlNode : xmlScopeTree.getRootNodes())
-			addSignetNodes(xmlNode, tmpNodeSet);
+		for (TreeNodeImplXb xmlNode : xmlScopeTree.getOrganization())
+			tmpNodeSet.add(new TreeNodeImplXa(xmlNode, signet).getSignetTreeNodeImpl());
 
 		// create a Hashtable to eliminate duplicate nodes, based on node id
 		Hashtable<String, TreeNodeImpl> tmpHashtable = new Hashtable<String, TreeNodeImpl>();
@@ -194,22 +177,6 @@ public class ScopeTreeXa extends EntityImplXa
 		// of TreeNodeImplXb objects during XML export
 		Set<TreeNodeImpl> signetNodes = signetTree.getNodes();
 		signetNodes.addAll(tmpHashtable.values());
-	}
-
-	/**
-	 * Recursively traverse the TreeNodeImplXb hierarchy, creating Signet TreeNodeImpls for each
-	 * @param xmlNode An XML binder TreeNodeImplXb
-	 * @param parentSignetNodes The Set of TreeNodeImpls for the Signet TreeImpl (a flat list, not a hierarchy!)
-	 */
-	protected void addSignetNodes(TreeNodeImplXb xmlNode, Set<TreeNodeImpl> parentSignetNodes)
-	{
-		// add the Signet node for the incoming XML node
-		TreeNodeImpl signetNode = new TreeNodeImplXa(xmlNode, signet).getSignetTreeNodeImpl();
-		parentSignetNodes.add(signetNode);
-
-		// recursively add its children
-		for (TreeNodeImplXb xmlChild : xmlNode.getChildren())
-			addSignetNodes(xmlChild, parentSignetNodes);
 	}
 
 }

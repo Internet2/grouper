@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/CategoryImplXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/CategoryImplXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -17,10 +17,12 @@ limitations under the License.
 */
 package signet.stubs;
 
+import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
@@ -29,12 +31,15 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CategoryImplXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { }
+		propOrder = { "subsystemId" }
 )
 public class CategoryImplXb extends EntityImplXb
 {
   /** This field is a simple synthetic key for this record in the database. */
-	@XmlAttribute(name="category_PK", required=true)
-	protected Integer				key;
+	@XmlAttribute(name="key", required=true)
+	protected int			key;
+
+	@XmlElement(name="subsystemId", required=true)
+	protected String		subsystemId;
 
 }

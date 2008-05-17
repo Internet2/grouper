@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/LimitImplRefXb.java,v 1.1 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/LimitImplRefXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -37,14 +37,14 @@ import javax.xml.bind.annotation.XmlType;
 )
 public class LimitImplRefXb
 {
-	/** This field is a simple synthetic key for this record in the database. */
-	@XmlAttribute(name="limitPK")
-	protected Integer			key;
-
 	@XmlAttribute(name="subsystemId")
 	protected String			subsystemId;
 
 	@XmlAttribute(name="id")
 	protected String			id;
+
+	/** This field is a simple synthetic key for this record in the database. */
+	@XmlAttribute(name="key")
+	protected int				key;
 
 }
