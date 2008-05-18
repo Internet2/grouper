@@ -1,4 +1,4 @@
-REM $Header: /home/hagleyj/i2mi/signet/util/dist-signet_cp.bat,v 1.10 2007-10-05 09:41:40 ddonn Exp $
+REM $Header: /home/hagleyj/i2mi/signet/util/dist-signet_cp.bat,v 1.11 2008-05-18 23:05:22 ddonn Exp $
 REM
 REM This file is intended to be called from each of the run.bat files in
 REM the subdirectories of util. DOS Batch does not provide a dynamic means of
@@ -18,6 +18,7 @@ set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\activation.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\antlr-2.7.6.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\asm-attrs.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\asm.jar
+set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\c3p0-0.9.0.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\cglib-2.1.3.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\commons-beanutils-1.7.0.jar
 set CLASSPATH=%CLASSPATH%;%SIGNET_LIBS%\commons-collections-3.2.jar

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.4 2008-05-18 23:05:22 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -151,7 +151,7 @@ public class SignetXml
 
 	protected static CommandOptions		options;
 	protected static Vector<Command>	commands;
-	protected static String				version = "$Revision: 1.3 $";
+	protected static String				version = "$Revision: 1.4 $";
 	protected static Log				mainLog;
 
 
@@ -338,6 +338,11 @@ public class SignetXml
 				tmpCmd.setType(args[i]);
 				parseParams(args, i, tmpCmd);
 				i = tmpCmd.getNextArg();
+			}
+			else
+			{
+				System.out.println("SignetXml.parseExportCmd: Invalid argument found for Export command - \"" + args[i] + "\"");
+				done = true;
 			}
 		}
 

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/Command.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/Command.java,v 1.3 2008-05-18 23:05:22 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,6 +17,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
@@ -37,7 +38,9 @@ public class Command
 	protected static final String HELP_1_FLAG	= "-h";
 	protected static final String HELP_FILE		= "commandHelp.txt";
 	protected static final String VERSION_FLAG	= "-v";
-	protected static final String EQUALS		= "="; // a bit overboard, I know
+	protected static final String EQUALS		= ":"; // DOS treats "=" as a separator
+//	protected static final String EQUALS		= "="; // a bit overboard, I know
+	protected static final String XML_EXTENSION	= ".xml";
 
 	// parameters
 	protected static final String PARAM_SUBJID		= "subjId";
@@ -105,7 +108,16 @@ public class Command
 	public String getType() { return type; }
 	public void setType(String type) { this.type = type; }
 
-	public void setFilename(String filename) { this.filename = filename; }
+	public void setFilename(String filename)
+	{
+		this.filename = filename;
+		if ((null != this.filename) && (0 < this.filename.length()))
+		{
+			File f = new File(this.filename);
+			if ( !f.getAbsolutePath().trim().toLowerCase().endsWith(XML_EXTENSION))
+				this.filename = this.filename + XML_EXTENSION;
+		}
+	}
 	public String getFilename() { return (filename); }
 
 	public InputStream getInFile() { return inFile; }
