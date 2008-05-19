@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplRefXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplRefXa.java,v 1.4 2008-05-19 00:43:05 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -21,6 +21,7 @@ import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Proxy;
 import edu.internet2.middleware.signet.ProxyImpl;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.ProxyImplRefXb;
@@ -78,7 +79,9 @@ public class ProxyImplRefXa
 		xmlProxyRef.setCanExtend(signetProxy.canExtend());
 		xmlProxyRef.setCanUse(signetProxy.canUse());
 		xmlProxyRef.setActAs(signetProxy.getGrantor().getId());
-		xmlProxyRef.setSubsystem(signetProxy.getSubsystem().getId());
+		Subsystem subsys = signetProxy.getSubsystem(); // proxy for signet_superuser has no subsystem
+		if (null != subsys)
+			xmlProxyRef.setSubsystem(subsys.getId());
 		xmlProxyRef.setEffectiveDate(Util.convertDateToString(signetProxy.getEffectiveDate()));
 	}
 
