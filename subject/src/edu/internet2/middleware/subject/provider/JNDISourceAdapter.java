@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISourceAdapter.java,v 1.7 2007-07-12 17:39:38 blair Exp $
-$Date: 2007-07-12 17:39:38 $
+$Id: JNDISourceAdapter.java,v 1.8 2008-05-22 14:08:17 isgwb Exp $
+$Date: 2008-05-22 14:08:17 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -167,7 +167,7 @@ public class JNDISourceAdapter
         try {
             Attribute attribute = attributes.get(subjectIDAttributeName);
             if (attribute == null) {
-                log.error("The LDAP attribute \"" + subjectIDAttributeName + "\" does not have a value. It is being used as the Grouper special attribute \"SubjectID\".");
+                log.error("The LDAP attribute \"" + subjectIDAttributeName + "\" does not have a value. It is beging used as the Grouper special attribute \"SubjectID\".");
                 return null;
             }
             subjectID   = (String) attribute.get();
@@ -282,8 +282,8 @@ public class JNDISourceAdapter
                 String name = attr.getID();
                 Set values = new HashSet();
                 for (NamingEnumeration en = attr.getAll(); en.hasMore(); ) {
-                    String value = (String) en.next();
-                    values.add(value);
+                    Object value =  en.next();
+                    values.add(value.toString());
                 }
                 attributes.put(name, values);
             }
