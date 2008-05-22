@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXMLServlet.java,v 1.5 2007-07-06 21:59:20 ddonn Exp $
-$Date: 2007-07-06 21:59:20 $
+$Id: PermissionsXMLServlet.java,v 1.6 2008-05-22 19:35:32 ddonn Exp $
+$Date: 2008-05-22 19:35:32 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,15 +19,21 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import edu.internet2.middleware.signet.PermissionsXML;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
+import edu.internet2.middleware.signet.util.xml.Command;
+import edu.internet2.middleware.signet.util.xml.PermissionXml;
 
 /**
  * @author Andy Cohen
@@ -53,39 +59,30 @@ public class PermissionsXMLServlet implements Servlet {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see javax.servlet.Servlet#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
-   */
-  public void service(ServletRequest request, ServletResponse response)
-      throws ServletException, IOException
-  {
-    HttpServletRequest httpRequest = (HttpServletRequest)request;
-    
-    Signet signet
-    = (Signet)
-        (httpRequest.getSession().getAttribute(Constants.SIGNET_ATTRNAME));
-  
-    SignetSubject currentGranteePrivilegedSubject =
-    	(SignetSubject)httpRequest.getSession().getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
-        
-    PermissionsXML permissionsXML;
-    
-    try
-    {
-      permissionsXML = new PermissionsXML(signet);
-      response.setContentType("text/xml");
-      permissionsXML.generateXML
-        (currentGranteePrivilegedSubject, response.getOutputStream());
-    }
-    catch (Exception e)
-    {
-      throw new ServletException(e);
-    }
-  }
+	/*
+	 * (non-Javadoc)
+	 * @see javax.servlet.Servlet#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
+	 */
+	public void service(ServletRequest request, ServletResponse response) throws /* ServletException, */IOException
+	{
+		HttpSession session = ((HttpServletRequest)request).getSession();
 
-  /* (non-Javadoc)
-   * @see javax.servlet.Servlet#getServletInfo()
-   */
+		Signet signet = (Signet)session.getAttribute(Constants.SIGNET_ATTRNAME);
+		SignetSubject grantee = (SignetSubject)session.getAttribute(Constants.CURRENTPSUBJECT_ATTRNAME);
+
+		response.setContentType("text/xml");
+		ServletOutputStream sos = response.getOutputStream();
+
+		PermissionXml pXml = new PermissionXml(signet);
+		pXml.exportPermission(grantee, Status.ACTIVE, sos);
+
+		sos.flush();
+	}
+
+  /*
+	 * (non-Javadoc)
+	 * @see javax.servlet.Servlet#getServletInfo()
+	 */
   public String getServletInfo() {
     // TODO Auto-generated method stub
     return null;

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/PermissionXml.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/PermissionXml.java,v 1.2 2008-05-22 19:35:32 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,6 +17,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml;
 
+import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
@@ -168,6 +169,55 @@ public class PermissionXml extends XmlUtil
 		}
 		else
 			log.error("At least one subjId is required");
+	}
+
+	/**
+	 * Perform the XML export of this Subject's Permissions
+	 * @param subj Export the Subject's permissions
+	 * @param status Filter the output for one of ACTIVE, INACTIVE, PENDING.
+	 * If null, no filtering occurs.
+	 * @param outFile The destination of the output. If null, uses stdout
+	 */
+	public void exportPermission(SignetSubject subj, Status status, OutputStream outFile)
+	{
+		if (null == subj)
+			return;
+		if (null == outFile)
+			outFile = System.out;
+
+		SignetXa adapter = new SignetXa(signet);
+		SignetXb xml = adapter.getXmlSignet();
+		List<PermissionsDocXb> xmlPermDocs = xml.getPermissionsDoc(); // get the empty list
+
+		String statusStr = (null == status) ? null : status.getName();
+
+		PermissionsDocXb permDoc = new PermissionsDocXb();
+
+		// export the SubjectRef
+		permDoc.setSubject(new SignetSubjectRefXa(subj, signet).getXmlSubject());
+
+		List<PrivilegeXb> privList = permDoc.getPermission(); // get the empty list
+		Set<AssignmentImpl> privs = subj.getAssignmentsReceived(statusStr);
+
+		// export the assigned privileges
+		for (AssignmentImpl priv : privs)
+		{
+			PrivilegeXb xmlPriv = new PrivilegeXa(priv, signet).getXmlPrivilege();
+			privList.add(xmlPriv);
+		}
+
+		// export the Proxies
+		List<ProxyImplRefXb> proxyList = permDoc.getProxy(); // get the empty list
+		Set<ProxyImpl> proxies = subj.getProxiesReceived(statusStr);
+		for (ProxyImpl proxy : proxies)
+		{
+			ProxyImplRefXb xmlProxy = new ProxyImplRefXa(proxy, signet).getXmlProxyRef();
+			proxyList.add(xmlProxy);
+		}
+
+		xmlPermDocs.add(permDoc);
+
+		marshalXml(xml, outFile);
 	}
 
 }

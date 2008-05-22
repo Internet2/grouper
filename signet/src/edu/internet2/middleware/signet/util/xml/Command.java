@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/Command.java,v 1.3 2008-05-18 23:05:22 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/Command.java,v 1.4 2008-05-22 19:35:32 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -33,43 +33,43 @@ public class Command
 	////////////////////////////////
 
 	// parameter flags
-	protected static final String CMD_INFILE	= "-c";
-	protected static final String HELP_2_FLAG	= "-?";
-	protected static final String HELP_1_FLAG	= "-h";
-	protected static final String HELP_FILE		= "commandHelp.txt";
-	protected static final String VERSION_FLAG	= "-v";
-	protected static final String EQUALS		= ":"; // DOS treats "=" as a separator
-//	protected static final String EQUALS		= "="; // a bit overboard, I know
-	protected static final String XML_EXTENSION	= ".xml";
+	public static final String CMD_INFILE		= "-c";
+	public static final String HELP_2_FLAG		= "-?";
+	public static final String HELP_1_FLAG		= "-h";
+	public static final String HELP_FILE		= "commandHelp.txt";
+	public static final String VERSION_FLAG		= "-v";
+	public static final String EQUALS			= ":"; // DOS treats "=" as a separator
+//	public static final String EQUALS			= "="; // a bit overboard, I know
+	public static final String XML_EXTENSION	= ".xml";
 
 	// parameters
-	protected static final String PARAM_SUBJID		= "subjId";
-	protected static final String PARAM_SCOPEID		= "scopeId";
-	protected static final String PARAM_STATUS		= "status";
-	protected static final String PARAM_FUNCID		= "functionId";
-	protected static final String PARAM_SUBSYSID	= "subsysId";
-	protected static final String PARAM_PERMID		= "permId";
-	protected static final String PARAM_SOURCEID	= "source";
-	protected static final String PARAM_NAME		= "name";
+	public static final String PARAM_SUBJID		= "subjId";
+	public static final String PARAM_SCOPEID	= "scopeId";
+	public static final String PARAM_STATUS		= "status";
+	public static final String PARAM_FUNCID		= "functionId";
+	public static final String PARAM_SUBSYSID	= "subsysId";
+	public static final String PARAM_PERMID		= "permId";
+	public static final String PARAM_SOURCEID	= "source";
+	public static final String PARAM_NAME		= "name";
 
 	// commands
-	protected static final String CMD_IMPORT	= "import";
-	protected static final String CMD_APPEND	= "append";
-	protected static final String CMD_EXPORT	= "export";
+	public static final String CMD_IMPORT		= "import";
+	public static final String CMD_APPEND		= "append";
+	public static final String CMD_EXPORT		= "export";
 
-	// import commands: add | update | deactivate | delete
-	protected static final String IM_ADD		= "add";
-	protected static final String IM_UPD		= "update";
-	protected static final String IM_DEACT		= "deactivate";
-	protected static final String IM_DEL		= "delete";
+	// import command types: add | update | deactivate | delete
+	public static final String IM_ADD			= "add";
+	public static final String IM_UPD			= "update";
+	public static final String IM_DEACT			= "deactivate";
+	public static final String IM_DEL			= "delete";
 
-	// export commands: assignment | permission | proxy | scopeTree | subject | subsystem
-	protected static final String EX_ASSGN		= "assignment";
-	protected static final String EX_PERM		= "permission";
-	protected static final String EX_PROXY		= "proxy";
-	protected static final String EX_SCOPE		= "scopeTree";
-	protected static final String EX_SUBJ		= "subject";
-	protected static final String EX_SUBSYS		= "subsystem";
+	// export command types: assignment | permission | proxy | scopeTree | subject | subsystem
+	public static final String EX_ASSGN			= "assignment";
+	public static final String EX_PERM			= "permission";
+	public static final String EX_PROXY			= "proxy";
+	public static final String EX_SCOPE			= "scopeTree";
+	public static final String EX_SUBJ			= "subject";
+	public static final String EX_SUBSYS		= "subsystem";
 
 
 	//////////////////////////
