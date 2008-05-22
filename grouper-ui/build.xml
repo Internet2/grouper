@@ -288,6 +288,7 @@
 		</condition>
 		<antcall target="-copyContent"/>
 		<echo message="Processing web.xml"/>
+		<copy file="${ui.folder}/webapp/WEB-INF/web.error.xml" tofile="${temp.dir}/99.web.error.xml"/>
 		<path id="web.xml.files">
 			<fileset dir="${temp.dir}">
 				<include name="**/*.xml"/>
@@ -333,7 +334,7 @@
 	-->
 	<target name="-merge-xmls" unless="web.xmls.isempty">
 	<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml"/>
-	<copy file="${ui.folder}/webapp/WEB-INF/web.error.xml" tofile="${temp.dir}/99.web.error.xml"/>
+	
 	<path id="final.web.xml.files">
 			<fileset dir="${temp.dir}">
 				<include name="**/*.xml"/>
@@ -799,4 +800,4 @@
 		  <echo/>
 		  <fail>Please run ant again so it can find catalina-ant.jar</fail>
 	  </target>
-</project>
+</project>                  	  							   		    		
