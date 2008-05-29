@@ -1,0 +1,108 @@
+Release Notes for SIGNET_1_3_0rc01
+==================================
+
+API Changes
+-----------
+
+Added XML import/export capability
+
+Increased visibility of several class' methods.
+
+Some minor cleanup/fixup of javadoc comments.
+
+Added getActingAs() method to SignetSubject.java.
+
+Fixed problem with TreeNodeImpl.toString() regarding display of Scope Tree in UI.
+
+Changed AssignmentImpl.scope from TreeNode to TreeNodeImpl. This changes
+   the API for AssignmentImpl.java. Spcifically - the constructor, setScope,
+   and getScope.
+
+Generalized SignetApiUtil.setEntitysSignetValue to accept 
+   Collection<EntityImpl> instead of Set
+
+Made the following classes (or methods in them) public: ChoiceImpl, 
+   ChoiceSetImpl, GrantableImpl, 
+
+Removed unused methods
+   edu.internet2.middleware.signet.Entity.getCreateDatetime()
+   edu.internet2.middleware.signet.EntityImpl.setCreateDatetime()
+
+Removed references to Permissions from LimitImpl (unused, and also 
+   doubly-linked)
+
+Removed references to Functions from Permission (unused, and also
+   doubly-linked)
+
+Added getSubjectsBySourceId(String sourceId) to Signet.java
+
+Added several methods to HibernateDB:
+	getSubsystemById(Stirng id), getSubsystemById(Session hs, Stirng id)
+	getTreeBySubsystemId(String id), getTreeBySubsystemId(Session hs, String id)
+	getTrees(Session hs)
+	getSubsystems(Status status)
+	getSubsystemsByName(Session hs, String subsysName, Status status)
+	getSubsystemsByScopeTree(Session hs, String scopeTreeId, Status status)
+	getSubjectsByAttributeValue(String attrName, String attrValue)
+	getSubjects()
+	getSubjectsBySourceId(String sourceId)
+	getLimit(int limit_pk)
+	getLimit(String subsystemId, String limitId)
+	getAssignmentsBySubsystem()
+	getAssignmentsByFunction()
+	getAssignmentsByScope()
+	getFunction(...)
+
+Moved Hibernate Query strings from HibernateDB to new class HibernateQry
+
+Implemented PersistedSignetSource.getSubjects() (was always returning empty set).
+
+Modified two methods in SignetSubject to accept a null or zero-length parameter in which
+case it returns all assignments or proxies.
+	getAssignmentsReceived(String isActive) 
+	getProxiesReceived(String isActive)
+	
+
+Added SignetSubject.getPrivileges(Status status)
+
+
+Utilities
+---------
+
+Added optional command-line parameter to dist-signet_cp.bat to allow
+   setting base directory lib files.
+
+Added SignetXml
+
+
+Signet Build
+------------
+
+Fixed some problems in buildSignetXmlDefs.xml task definition file.
+
+Added Signet-specific information to MANIFEST.MF in the webapp WAR file
+
+
+Configuration and Resources
+---------------------------
+
+Fixed problem with error message format for property Signet.msg.exc.noAdapter_2
+	(in file signetResApp.properties)
+
+
+Third Party Libs
+----------------
+
+Added JAXB 2.1.5 libs for Signet Xml
+
+Switched from DBCP to C3P0 Connection Pooling (Hibernate's version)
+
+
+Database
+--------
+No changes in model
+
+
+User Interface
+--------------
+Modified "View XML" link to display data in the new PermissionXML format

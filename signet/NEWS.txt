@@ -1,4 +1,91 @@
 ======================================== 
+Signet  05/27/08
+
+Release Notes for CVS-tagged version SIGNET_1_3_0rc01
+----------------------------------------------------
+Changes in this version:
+(All changes from CVS tags SIGNET_1_2_2a through SIGNET_1_2_2i, inclusive)
+
+API Changes
+-----------
+1.  Added XML import/export capability
+2.  Increased visibility of several class' methods.
+3.  Some minor cleanup/fixup of javadoc comments.
+4.  Added getActingAs() method to SignetSubject.java.
+5.  Fixed problem with TreeNodeImpl.toString() regarding display of Scope Tree
+    in UI.
+6.  Changed AssignmentImpl.scope from TreeNode to TreeNodeImpl. This changes
+    the API for AssignmentImpl.java. Spcifically - the constructor, setScope,
+    and getScope.
+7.  Generalized SignetApiUtil.setEntitysSignetValue to accept 
+    Collection<EntityImpl> instead of Set
+8.  Made the following classes (or methods in them) public: ChoiceImpl, 
+    ChoiceSetImpl, GrantableImpl, 
+9.  Removed unused methods
+    edu.internet2.middleware.signet.Entity.getCreateDatetime()
+    edu.internet2.middleware.signet.EntityImpl.setCreateDatetime()
+10. Removed references to Permissions from LimitImpl (unused, and also 
+    doubly-linked)
+11. Removed references to Functions from Permission (unused, and also
+    doubly-linked)
+12. Added getSubjectsBySourceId(String sourceId) to Signet.java
+13. Added several methods to HibernateDB:
+	getSubsystemById(Stirng id), getSubsystemById(Session hs, Stirng id)
+	getTreeBySubsystemId(String id), getTreeBySubsystemId(Session hs, String id)
+	getTrees(Session hs)
+	getSubsystems(Status status)
+	getSubsystemsByName(Session hs, String subsysName, Status status)
+	getSubsystemsByScopeTree(Session hs, String scopeTreeId, Status status)
+	getSubjectsByAttributeValue(String attrName, String attrValue)
+	getSubjects()
+	getSubjectsBySourceId(String sourceId)
+	getLimit(int limit_pk)
+	getLimit(String subsystemId, String limitId)
+	getAssignmentsBySubsystem()
+	getAssignmentsByFunction()
+	getAssignmentsByScope()
+	getFunction(...)
+14. Moved Hibernate Query strings from HibernateDB to new class HibernateQry
+15. Implemented PersistedSignetSource.getSubjects() (was always returning an
+    empty set).
+16. Modified two methods in SignetSubject to accept a null or zero-length
+    parameter in which case it returns all assignments or proxies.
+	getAssignmentsReceived(String isActive) 
+	getProxiesReceived(String isActive)
+17. Added SignetSubject.getPrivileges(Status status)
+
+Utilities
+---------
+1.  Added optional command-line parameter to dist-signet_cp.bat to allow
+    setting base directory lib files.
+2.  Added SignetXml
+
+Signet Build
+------------
+1.  Fixed some problems in buildSignetXmlDefs.xml task definition file.
+2.  Added Signet-specific information to MANIFEST.MF in the webapp WAR file
+
+Configuration and Resources
+---------------------------
+1.  Fixed problem with error message format for property
+    Signet.msg.exc.noAdapter_2 (in file signetResApp.properties)
+
+Third Party Libs
+----------------
+1.  Added JAXB 2.1.5 libs for Signet Xml
+
+2.  Switched from DBCP to C3P0 Connection Pooling (Hibernate's version)
+
+Database
+--------
+1.  No changes in model
+
+User Interface
+--------------
+1.  Modified "View XML" link to display data in the new PermissionXML format
+
+
+======================================== 
 Signet  08/14/07
 
 Release Notes for CVS-tagged version SIGNET_1_2_2
