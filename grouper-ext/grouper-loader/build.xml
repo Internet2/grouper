@@ -1,5 +1,7 @@
 <project name="grouper-loader" default="compile" basedir=".">
 
+  <property file="build.properties"/>
+  
 	<property name="app.name" value="grouper-loader" />
 	<property name="version" value="0.1" />
 
@@ -48,9 +50,14 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac srcdir="${src}" destdir="${build}">
+		<javac srcdir="${src}" destdir="${build}" debug="true">
 			<classpath refid="project.classpath" />
 		</javac>
+	  <!-- copy non-source files to build -->
+	  <copy todir="${build}">
+      <fileset dir="${src}" />
+	  </copy>
+	
 	</target>
 
 	<target name="init">
@@ -89,17 +96,18 @@
 		<!-- copy and filter tokens in batch files and launch files to ext/bin -->
 		<copy todir="${GROUPER_EXT_BIN}">
 			<fileset dir="${src.bin}">
-				<include name="**/grouper-loader.*" />
+				<include name="**/grouperloader.*" />
 			</fileset>
 			<filterset>
 				<filter token="GROUPER_CONF" value="${GROUPER_CONF}" />
 				<filter token="GROUPER_EXT_LIB" value="${GROUPER_EXT_LIB}" />
 				<filter token="GROUPER_EXT_BIN" value="${GROUPER_EXT_BIN}" />
+        <filter token="GROUPER_EXT_CONF" value="${GROUPER_EXT_CONF}" />
 				<filter token="GROUPER_HOME" value="${GROUPER_HOME}" />
 				<filter token="GROUPER_CLASSPATH"
 				        value="${GROUPER_CLASSPATH}" />
-				<filter token="GROUPER_LOADER_MEM_START" value="${memory.start}" />
-				<filter token="GROUPER_LOADER_MEM_MAX" value="${memory.max}" />
+				<filter token="GROUPERLOADER_MEM_START" value="${memory.start}" />
+				<filter token="GROUPERLOADER_MEM_MAX" value="${memory.max}" />
 				<filter token="GROUPER_LOADER_VERSION" value="${version}" />
 			</filterset>
 		</copy>
@@ -107,20 +115,43 @@
 		<copy todir="${GROUPER_EXT_LIB}">
 			<fileset dir="${basedir}/lib" />
 		</copy>
+    <!-- copy confs to ext/lib -->
+    <copy todir="${GROUPER_EXT_CONF}">
+      <fileset dir="${basedir}/conf" />
+    </copy>
 	</target>
 
 	<target name="package.src"
-	        depends="clean"
 	        description="Create a source package">
+	  <delete file="${basedir}/${app.name}.zip" />
 		<zip destfile="${basedir}/${app.name}.zip">
 			<zipfileset dir="${basedir}" prefix="${app.name}">
 				<exclude name="*.zip" />
+        <exclude name="build/" />
 				<exclude name=".hgignore" />
 				<exclude name=".hg/" />
 				<exclude name="*.swp" />
+			  <exclude name="conf/" />
 			</zipfileset>
+      <zipfileset dir="${basedir}" prefix="${app.name}">
+        <include name="conf/grouper-loader.properties" />
+        <include name="conf/grouper-loader.example.properties" />
+      </zipfileset>
 		</zip>
 	</target>
+  
+  <target name="install.package.src" depends="compile,package.src"
+          description="Replace the grouper install, and unzip">
+    <!-- remove the grouper-loader installation -->
+    <delete file="${grouper.dir}/ext/grouper-loader.zip"  />    
+    <mkdir dir="${grouper.dir}/ext/grouper-loader" />    
+    <delete dir="${grouper.dir}/ext/grouper-loader" />    
+    <mkdir dir="${grouper.dir}/ext/grouper-loader" />    
+    <!-- copy the zip over there -->
+    <copy file="grouper-loader.zip" todir="${grouper.dir}/ext" />
+    <!-- unzip it -->
+    <unzip dest="${grouper.dir}/ext" src="${grouper.dir}/ext/grouper-loader.zip" />
+  </target>
 
 	<target name="test" depends="test-compile">
 	   <java fork="false"
