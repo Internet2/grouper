@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.179 2008-05-07 18:02:52 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.180 2008-06-02 17:19:08 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -479,11 +479,13 @@
     <tstamp/>
     <mkdir dir="${build.dir.test}"/>
     <mkdir dir="${ext.dir.lib}"/> <!-- a bit of a hack -->
+    <mkdir dir="${ext.dir}/conf"/>
     <!-- only define our classpath once -->
     <path id="project.classpath">
       <pathelement path="${java.class.path}"/>
       <!-- for configuration files -->
       <pathelement location="${conf.dir}"/>
+      <pathelement location="${ext.dir}/conf"/>
       <fileset dir="${lib.dir}">
         <include name="**/*.jar"/>
       </fileset>
