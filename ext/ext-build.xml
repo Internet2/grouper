@@ -1,4 +1,4 @@
-<!-- $Id: ext-build.xml,v 1.6 2008-05-09 13:25:57 tzeller Exp $ -->
+<!-- $Id: ext-build.xml,v 1.7 2008-06-02 17:19:08 mchyzer Exp $ -->
 
 <project name="Grouper Extensions" default="ext.compile" basedir=".">
 
@@ -16,6 +16,8 @@
         <property name="GROUPER_DOC_CSS"    location="${javadoc.css}"/>
         <property name="GROUPER_EXT_BIN"    location="${ext.dir.bin}"/>
         <property name="GROUPER_EXT_DOC"    location="${ext.dir.doc}"/>
+        
+        <property name="GROUPER_EXT_CONF"    location="${ext.dir}/conf"/>
         <property name="GROUPER_EXT_LIB"    location="${ext.dir.lib}"/>
         <property name="GROUPER_HOME"       location="${basedir}"/>
         <fileset dir="${ext.dir}" includes="*/build.xml"/>
@@ -50,7 +52,9 @@
       <property name="GROUPER_CONF"       location="${conf.dir}"/>
       <property name="GROUPER_DOC_CSS"    location="${javadoc.css}"/>
       <property name="GROUPER_EXT_BIN"    location="${ext.dir.bin}"/>
+      <property name="GROUPER_EXT_CONF"    location="${ext.dir}/conf"/>
       <property name="GROUPER_EXT_DOC"    location="${ext.dir.doc}"/>
+      <property name="GROUPER_CONF"    location="${ext.dir}/conf"/>
       <property name="GROUPER_EXT_LIB"    location="${ext.dir.lib}"/>
       <property name="GROUPER_HOME"       location="${basedir}"/>
       <fileset dir="${ext.dir}/${ext}" includes="build.xml"/>
@@ -64,6 +68,9 @@
     <delete dir="${ext.dir.doc}"/>
     <delete>
       <fileset dir="${ext.dir.lib}"/>
+    </delete>
+    <delete>
+      <fileset dir="${ext.dir}/conf"/>
     </delete>
     <iterate target="ext.clean"/>
   </target>
@@ -90,6 +97,7 @@
     <mkdir dir="${ext.dir.bin}"/>
     <mkdir dir="${ext.dir.doc}"/>
     <mkdir dir="${ext.dir.lib}"/>
+    <mkdir dir="${ext.dir}/conf"/>
   </target>
   <!-- target: ext.init -->
 
