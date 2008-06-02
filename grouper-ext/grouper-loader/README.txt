@@ -15,12 +15,12 @@ GROUPER_HOME/ant build
 
 ## USE
 
-Run usdu and print usage from a Unix-like environment:
+Run grouper-loader from a Unix-like environment:
 
- $ GROUPER_HOME/ext/bin/grouper-loader.sh
+ $ GROUPER_HOME/ext/bin/grouperloader.sh
 
-Run usdu and print usage from a Windows environment:
+Run grouper-loader from a Windows environment:
 
- $ GROUPER_HOME/ext/bin/grouper-loader.bat
+ $ GROUPER_HOME/ext/bin/grouperloader.bat
  
  
