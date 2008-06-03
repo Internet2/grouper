@@ -140,7 +140,7 @@
 		</zip>
 	</target>
   
-  <target name="install.package.src" depends="compile,package.src"
+  <target name="install.package.src" depends="package.src"
           description="Replace the grouper install, and unzip">
     <!-- remove the grouper-loader installation -->
     <delete file="${grouper.dir}/ext/grouper-loader.zip"  />    
