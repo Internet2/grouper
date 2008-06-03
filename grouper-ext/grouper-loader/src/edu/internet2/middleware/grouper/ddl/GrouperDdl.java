@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.1 2008-06-01 21:27:26 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.2 2008-06-03 19:05:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -30,13 +30,6 @@ public enum GrouperDdl implements DdlVersionable {
       //see if the grouper_ext_loader_log table is there
       Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindTable(database,"grouper_ddl");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "last_updated", 
-          "last update timestamp, string so it can easily be used from update statement", 
-          Types.VARCHAR, "50", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "history", 
-          "history of this object name, with most recent first (truncated after 4k)", 
-          Types.VARCHAR, "4000", false, false);
       
       //object name is unique
       GrouperDdlUtils.ddlutilsAddIndex(database, "grouper_ddl", "grouper_ddl_object_name_idx", 
@@ -71,6 +64,13 @@ public enum GrouperDdl implements DdlVersionable {
           "Version of this object as far as Java knows about (should be greater or equal to db version)", 
           Types.INTEGER, null, false, false);
       
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "last_updated", 
+          "last update timestamp, string so it can easily be used from update statement", 
+          Types.VARCHAR, "50", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "history", 
+          "history of this object name, with most recent first (truncated after 4k)", 
+          Types.VARCHAR, "4000", false, false);
     }
   };
 
