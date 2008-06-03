@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderDb.java,v 1.1 2008-06-01 21:27:25 mchyzer Exp $
+ * $Id: GrouperLoaderDb.java,v 1.2 2008-06-03 19:09:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.db;
 
@@ -37,7 +37,7 @@ public class GrouperLoaderDb {
       Connection connection = DriverManager.getConnection(this.url,this.user, this.pass);
       return connection;
     } catch (Exception e) {
-      throw new RuntimeException("Problems with db: " + this);
+      throw new RuntimeException("Problems with db: " + this, e);
     }
     
   }
