@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.1 2008-06-01 21:27:26 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.2 2008-06-04 07:07:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader;
 
@@ -141,7 +141,7 @@ public class GrouperLoader {
     //schedule daily anytime
     //6am daily: "0 0 6 * * ?"
     //every minute for testing: "0 * * * * ?"
-    String cronString = "0 * * * * ?";
+    String cronString = "0 0 6 * * ?";
     
     //this is a low priority job
     int priority = 1;
