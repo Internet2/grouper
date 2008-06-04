@@ -72,7 +72,7 @@ gsh-0.1.1 11% type.addAttribute(sess, "grouperLoaderQuery", read, admin, true)
 gsh-0.1.1 12% type.addAttribute(sess, "grouperLoaderQuartzCron", read, admin, false)
 gsh-0.1.1 13% type.addAttribute(sess, "grouperLoaderIntervalSeconds", read, admin, false)
 gsh-0.1.1 14% type.addAttribute(sess, "grouperLoaderPriority", read, admin, false)
-gsh-0.1.1 15% type.addAttribute(sess, "grouperLoaderAndGroups", read, admin, false)attribute: 'grouperLoaderType' 
+gsh-0.1.1 15% type.addAttribute(sess, "grouperLoaderAndGroups", read, admin, false)
 
 ## make a grouper-loadable group
 
