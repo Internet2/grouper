@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: JsonIndenter.java,v 1.1 2008-03-24 20:15:35 mchyzer Exp $
+ * $Id: JsonIndenter.java,v 1.2 2008-06-05 19:34:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -264,16 +264,16 @@ public class JsonIndenter {
   }
 
   /**
-   * find the start tag from xml and a start from index
+   * find the start tag from json and a start from index
    * either look for a quote, {, [ or scalar.  generally not whitespace
-   * @param xml
+   * @param json
    * @param startFrom
    * @return the start tag index of -1 if not found another
    */
-  static int findNextStartTagIndex(String xml, int startFrom) {
-    int length = xml.length();
+  static int findNextStartTagIndex(String json, int startFrom) {
+    int length = json.length();
     for (int i= startFrom; i<length;i++) {
-      char curChar = xml.charAt(i);
+      char curChar = json.charAt(i);
       if (Character.isWhitespace(curChar)) {
         continue;
       }
@@ -283,23 +283,23 @@ public class JsonIndenter {
   }
   
   /**
-   * find the end tag from xml and a start from index
-   * @param xml
+   * find the end tag from json and a start from index
+   * @param json
    * @param startFrom is the char after the start of tag
    * @return the start tag index of -1 if not found another
    */
-  static int findNextEndTagIndex(String xml, int startFrom) {
-    int length = xml.length();
+  static int findNextEndTagIndex(String json, int startFrom) {
+    int length = json.length();
     
     //see if quoted string
-    boolean quotedString = xml.charAt(startFrom-1) == '\"';
+    boolean quotedString = json.charAt(startFrom-1) == '\"';
     
     int ignoreSlashInIndex = -1;
     boolean afterSlash = false;
     for (int i= startFrom; i<length;i++) {
       //we are after a slash, if not ignored, and if last was slash
-      afterSlash = i != ignoreSlashInIndex && i!= startFrom && xml.charAt(i-1) == '\\';
-      char curChar = xml.charAt(i);
+      afterSlash = i != ignoreSlashInIndex && i!= startFrom && json.charAt(i-1) == '\\';
+      char curChar = json.charAt(i);
       
       //if first slash, ignore slash in next index
       if (!afterSlash && curChar == '\\') {
@@ -320,16 +320,16 @@ public class JsonIndenter {
       }
     }
     //end at end of string
-    return xml.length()-1;
+    return json.length()-1;
   }
   
   /**
-   * @param theXml is the xml to format
+   * @param theJson is the json to format
    * indenter
    */
-  public JsonIndenter(String theXml) {
-    if (theXml != null) {
-      this.json = StringUtils.trimToEmpty(theXml);
+  public JsonIndenter(String theJson) {
+    if (theJson != null) {
+      this.json = StringUtils.trimToEmpty(theJson);
     }
   }
   
