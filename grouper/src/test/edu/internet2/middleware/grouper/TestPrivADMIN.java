@@ -18,15 +18,33 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.11.6.1 2008-06-07 16:11:55 mchyzer Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.11.6.2 2008-06-07 17:01:43 mchyzer Exp $
  */
 public class TestPrivADMIN extends TestCase {
+
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    TestRunner.run(new TestPrivADMIN("testRenameGroupWithADMIN"));
+  }
+  
+  /**
+   * 
+   */
+  public TestPrivADMIN() {
+    super();
+  }
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestPrivADMIN.class);

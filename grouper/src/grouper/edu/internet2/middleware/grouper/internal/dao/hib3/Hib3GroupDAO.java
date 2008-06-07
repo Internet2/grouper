@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.12 2008-04-04 14:31:26 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.12.2.1 2008-06-07 17:01:43 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
@@ -850,27 +850,26 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     Map                   attrs = new HashMap(this.attributes);
     String                k;
     //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
-    Iterator              it = qry.iterate();
-    while (it.hasNext()) {
-      a = (Hib3AttributeDAO) it.next();
-      k = a.getAttrName();
+    List<Hib3AttributeDAO> attributes = GrouperUtil.nonNull(qry.list());
+    for (Hib3AttributeDAO attribute : attributes) {
+      k = attribute.getAttrName();
       if ( attrs.containsKey(k) ) {
         // attr both in db and in memory.  compare.
-        if ( !a.getValue().equals( (String) attrs.get(k) ) ) {
-          a.setValue( (String) attrs.get(k) );
-          hs.update(a);
+        if ( !attribute.getValue().equals( (String) attrs.get(k) ) ) {
+          attribute.setValue( (String) attrs.get(k) );
+          hs.update(attribute);
         }
         attrs.remove(k);
       }
       else {
         // attr only in db.
-        hs.delete(a);
+        hs.delete(attribute);
         attrs.remove(k);
       }
     }
     // now handle entries that were only in memory
     Map.Entry kv;
-    it = attrs.entrySet().iterator();
+    Iterator it = attrs.entrySet().iterator();
     while (it.hasNext()) {
       kv = (Map.Entry) it.next();
       Hib3AttributeDAO dao = new Hib3AttributeDAO(); 
