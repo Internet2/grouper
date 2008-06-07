@@ -38,7 +38,9 @@ import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -56,13 +58,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.12.2.1 2008-06-07 17:01:43 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.12.2.2 2008-06-07 19:28:22 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
+public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle, HibGrouperLifecycle {
 
+  /** save the state when retrieving from DB */
+  private Hib3GroupDAO dbVersion = null;
 
-  private               Map                       attributes = null;
+  private               Map<String, String>                       attributes = null;
   private               String                    createSource;
   private               long                      createTime;
   private               String                    creatorUUID;
@@ -88,13 +92,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs = hibernateSession.getSession();
-            hs.save(  // new group-type tuple
+            hibernateSession.byObject().save(  // new group-type tuple
                 new Hib3GroupTypeTupleDAO()
                   .setGroupUuid( _g.getUuid() )
                   .setTypeUuid( _gt.getUuid() )
               );
-            hs.saveOrUpdate( Rosetta.getDAO(_g) ); // modified group
+            //note this used to be saveOrUpdate
+            hibernateSession.byObject().update( Rosetta.getDAO(_g) ); // modified group
             //let HibernateSession commit or rollback depending on if problem or enclosing transaction
             return null;
           }
@@ -621,9 +625,27 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
 
   // @since   @HEAD@
   public void onLoad(Session hs, Serializable id) {
+    
+    this.dbVersionReset();
     // nothing
   } // public void onLoad(hs, id)
 
+  private void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Hib3GroupDAO();
+    this.dbVersion.attributes = this.attributes == null ? null : new HashMap<String,String>(this.attributes);
+    this.dbVersion.createSource = this.createSource;
+    this.dbVersion.createTime = this.createTime;
+    this.dbVersion.creatorUUID = this.creatorUUID;
+    this.dbVersion.id = this.id;
+    this.dbVersion.modifierUUID = this.modifierUUID;
+    this.dbVersion.modifySource = this.modifySource;
+    this.dbVersion.modifyTime = this.modifyTime;
+    this.dbVersion.parentUUID = this.parentUUID;
+    this.dbVersion.uuid = this.uuid;
+
+  }
+  
   // @since   @HEAD@
   public boolean onSave(Session hs) 
     throws  CallbackException
@@ -636,12 +658,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   public boolean onUpdate(Session hs) 
     throws  CallbackException
   {
-    try {
-      this._updateAttributes(hs);
-    }
-    catch (HibernateException eH) {
-      throw new CallbackException( eH.getMessage(), eH );
-    } 
     return Lifecycle.NO_VETO;
   } // public boolean onUpdate(hs)k
 
@@ -838,9 +854,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   // PRIVATE INSTANCE METHODS //
 
   // @since   @HEAD@
-  private void _updateAttributes(Session hs) 
-    throws  HibernateException
-  {
+  /**
+   * update the attributes for a group
+   * @param hibernateSession 
+   * @param checkExisting true if an update, false if insert
+   */
+  private void _updateAttributes(HibernateSession hibernateSession, boolean checkExisting) {
+    Session hs = hibernateSession.getSession();
+    ByObject byObject = hibernateSession.byObject();
+    //TODO convert this to a byHql method
     // TODO 20070531 split and test
     Query qry = hs.createQuery("from Hib3AttributeDAO as a where a.groupUuid = :uuid");
     qry.setCacheable(false);
@@ -850,20 +872,20 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     Map                   attrs = new HashMap(this.attributes);
     String                k;
     //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
-    List<Hib3AttributeDAO> attributes = GrouperUtil.nonNull(qry.list());
+    List<Hib3AttributeDAO> attributes = checkExisting ? GrouperUtil.nonNull(qry.list()) : new ArrayList<Hib3AttributeDAO>();
     for (Hib3AttributeDAO attribute : attributes) {
       k = attribute.getAttrName();
       if ( attrs.containsKey(k) ) {
         // attr both in db and in memory.  compare.
         if ( !attribute.getValue().equals( (String) attrs.get(k) ) ) {
           attribute.setValue( (String) attrs.get(k) );
-          hs.update(attribute);
+          byObject.update(attribute);
         }
         attrs.remove(k);
       }
       else {
         // attr only in db.
-        hs.delete(attribute);
+        byObject.delete(attribute);
         attrs.remove(k);
       }
     }
@@ -876,7 +898,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
       dao.setAttrName( (String) kv.getKey() );
       dao.setGroupUuid(this.uuid);
       dao.setValue( (String) kv.getValue() );
-      hs.save(dao);
+      byObject.save(dao);
     }
   } // private void _updateAttributes(hs)
 
@@ -1006,6 +1028,33 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     });
 
     return resultGroups;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    this._updateAttributes(hibernateSession, true);
+    this.dbVersionReset();
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostSave(HibernateSession hibernateSession) {
+    this._updateAttributes(hibernateSession, false);
+    this.dbVersionReset();
+
+  }
+
+  
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  public Hib3GroupDAO getDbVersion() {
+    return this.dbVersion;
   }
 
 } 

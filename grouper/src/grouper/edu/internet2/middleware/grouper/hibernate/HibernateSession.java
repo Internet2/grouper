@@ -36,6 +36,14 @@ public class HibernateSession {
   private static final Log LOG = LogFactory.getLog(HibernateSession.class);
 
   /**
+   * 
+   * @return the class
+   */
+  public ByObject byObject(){
+    return new ByObject(this);
+  }
+  
+  /**
    * construct a hibernate session based on existing hibernate session (if
    * applicable), and a transaction type. If these conflict, then throw grouper
    * dao exception exception

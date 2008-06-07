@@ -9,10 +9,8 @@ import java.util.Collection;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.util.Rosetta;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -108,11 +106,11 @@ public class ByObjectStatic {
   
             public Object callback(HibernateSession hibernateSession) {
               
-              Session session  = hibernateSession.getSession();
-              
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
-              session.update(object);
+              
+              hibernateSession.byObject().update(object);
+              
               return null;
             }
         
@@ -150,11 +148,11 @@ public class ByObjectStatic {
   
             public Object callback(HibernateSession hibernateSession) {
               
-              Session session  = hibernateSession.getSession();
-              
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
-              return session.save(object);
+              
+              return hibernateSession.byObject().save(object);
+              
             }
         
       });
@@ -193,13 +191,10 @@ public class ByObjectStatic {
   
             public Object callback(HibernateSession hibernateSession) {
               
-              Session session  = hibernateSession.getSession();
-              
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
-              for (Object object : collection) {
-                session.delete(object);
-              }
+              
+              hibernateSession.byObject().delete(collection);
               return null;
             }
         
@@ -239,12 +234,11 @@ public class ByObjectStatic {
           new HibernateHandler() {
   
             public Object callback(HibernateSession hibernateSession) {
-              
-              Session session  = hibernateSession.getSession();
-              
+
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
-              session.delete(object);
+              
+              hibernateSession.byObject().delete(object);
               return null;
             }
         

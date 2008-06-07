@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -49,7 +50,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.6.2.1 2008-06-07 16:11:55 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.6.2.2 2008-06-07 19:28:22 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -101,21 +102,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session       hs  = hibernateSession.getSession();
               Hib3DAO  groupDao = (Hib3DAO) Rosetta.getDAO(_groupDto);
-              hs.save(groupDao);
-
-              // add attributes
-              Map.Entry kv;
-              Iterator attrIter = _groupDto.getAttributes().entrySet().iterator();
-              while (attrIter.hasNext()) {
-                kv = (Map.Entry) attrIter.next();
-                Hib3AttributeDAO attrDao = new Hib3AttributeDAO();
-                attrDao.setAttrName( (String) kv.getKey() );
-                attrDao.setGroupUuid( _groupDto.getUuid() );
-                attrDao.setValue( (String) kv.getValue() );
-                hs.save(attrDao);
-              }
+              ByObject byObject = hibernateSession.byObject();
+              byObject.save(groupDao);
 
               // add group-type tuples
               Hib3GroupTypeTupleDAO  tuple = new Hib3GroupTypeTupleDAO();
@@ -123,11 +112,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               while (it.hasNext()) {
                 tuple.setGroupUuid( _groupDto.getUuid() );
                 tuple.setTypeUuid( ( (GroupTypeDTO) it.next() ).getUuid() );
-                hs.save(tuple); // new group-type tuple
+                byObject.save(tuple); // new group-type tuple
               }
-              hs.update( Rosetta.getDAO(_stemDto) );
+              hibernateSession.byObject().update( Rosetta.getDAO(_stemDto) );
               if ( !GrouperDAOFactory.getFactory().getMember().exists( _memberDto.getUuid() ) ) {
-                hs.save( Rosetta.getDAO(_memberDto) );
+                byObject.save( Rosetta.getDAO(_memberDto) );
               }
               return groupDao.getId();
             }
@@ -153,10 +142,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
             public Object callback(HibernateSession hibernateSession) {
 
-              Session       hs  = hibernateSession.getSession();
               Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_child);
-              hs.save(dao);
-              hs.update( Rosetta.getDAO(_parent) );
+              hibernateSession.byObject().save(dao);
+              hibernateSession.byObject().update( Rosetta.getDAO(_parent) );
               return dao.getId();
             }
         
@@ -684,12 +672,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session     hs  = hibernateSession.getSession();
               Iterator it = children.iterator();
+              ByObject byObject = hibernateSession.byObject();
               while (it.hasNext()) {
-                hs.update( Rosetta.getDAO( it.next() ) );
+                byObject.update( Rosetta.getDAO( it.next() ) );
               }
-              hs.update( Rosetta.getDAO(_ns) );
+              byObject.update( Rosetta.getDAO(_ns) );
               return null;
             }
         
