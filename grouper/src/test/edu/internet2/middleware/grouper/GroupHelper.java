@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.15 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: GroupHelper.java,v 1.15.6.1 2008-06-07 16:11:55 mchyzer Exp $
  */
 class GroupHelper {
 
@@ -298,6 +298,7 @@ class GroupHelper {
     String  err = "did not " + msg + ": ";
     try {
       g.setAttribute(attr, val);
+      g.store();
       LOG.debug("setAttr.1");
       Assert.assertTrue(msg, true);
       LOG.debug("setAttr.2");
@@ -324,6 +325,7 @@ class GroupHelper {
     String  msg = "did not " + err + ": ";
     try {
       g.setAttribute(attr, val);
+      g.store();
       LOG.debug("setAttrFail.1");
       Assert.fail(err);
     }

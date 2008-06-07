@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.6 2008-04-03 18:09:43 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.6.2.1 2008-06-07 16:11:55 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -92,7 +92,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public String createChildGroup(final StemDTO _parent, final GroupDTO _child, final MemberDTO _m)
+  public String createChildGroup(final StemDTO _stemDto, final GroupDTO _groupDto, final MemberDTO _memberDto)
     throws  GrouperDAOException {
     
     try {
@@ -102,42 +102,42 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
             public Object callback(HibernateSession hibernateSession) {
               Session       hs  = hibernateSession.getSession();
-              Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_child);
-              hs.save(dao);
+              Hib3DAO  groupDao = (Hib3DAO) Rosetta.getDAO(_groupDto);
+              hs.save(groupDao);
 
               // add attributes
               Map.Entry kv;
-              Iterator attrIter = _child.getAttributes().entrySet().iterator();
+              Iterator attrIter = _groupDto.getAttributes().entrySet().iterator();
               while (attrIter.hasNext()) {
                 kv = (Map.Entry) attrIter.next();
                 Hib3AttributeDAO attrDao = new Hib3AttributeDAO();
                 attrDao.setAttrName( (String) kv.getKey() );
-                attrDao.setGroupUuid( _child.getUuid() );
+                attrDao.setGroupUuid( _groupDto.getUuid() );
                 attrDao.setValue( (String) kv.getValue() );
                 hs.save(attrDao);
               }
 
               // add group-type tuples
               Hib3GroupTypeTupleDAO  tuple = new Hib3GroupTypeTupleDAO();
-              Iterator                    it    = _child.getTypes().iterator();
+              Iterator                    it    = _groupDto.getTypes().iterator();
               while (it.hasNext()) {
-                tuple.setGroupUuid( _child.getUuid() );
+                tuple.setGroupUuid( _groupDto.getUuid() );
                 tuple.setTypeUuid( ( (GroupTypeDTO) it.next() ).getUuid() );
                 hs.save(tuple); // new group-type tuple
               }
-              hs.update( Rosetta.getDAO(_parent) );
-              if ( !GrouperDAOFactory.getFactory().getMember().exists( _m.getUuid() ) ) {
-                hs.save( Rosetta.getDAO(_m) );
+              hs.update( Rosetta.getDAO(_stemDto) );
+              if ( !GrouperDAOFactory.getFactory().getMember().exists( _memberDto.getUuid() ) ) {
+                hs.save( Rosetta.getDAO(_memberDto) );
               }
-              return dao.getId();
+              return groupDao.getId();
             }
         
       });
       return id;
     } catch (GrouperDAOException e) {
-      String error = "Problem create child stem: " + GrouperUtil.toStringSafe(_parent)
-        + ", child: " + GrouperUtil.toStringSafe(_child) + ", memberDto: " 
-        + GrouperUtil.toStringSafe(_m) + ", " + e.getMessage();
+      String error = "Problem create child stem: " + GrouperUtil.toStringSafe(_stemDto)
+        + ", child: " + GrouperUtil.toStringSafe(_groupDto) + ", memberDto: " 
+        + GrouperUtil.toStringSafe(_memberDto) + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
   } 

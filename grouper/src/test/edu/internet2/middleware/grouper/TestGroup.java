@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.8 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: TestGroup.java,v 1.8.6.1 2008-06-07 16:11:55 mchyzer Exp $
  */
 public class TestGroup extends GrouperTest {
 
@@ -203,6 +203,7 @@ public class TestGroup extends GrouperTest {
     try {
       try {
         i2.setExtension(null);
+        i2.store();
         Assert.fail("set null extn");
       }
       catch (GroupModifyException eSA) {
@@ -210,6 +211,7 @@ public class TestGroup extends GrouperTest {
       }
       try {
         i2.setExtension("");
+        i2.store();
         Assert.fail("set empty extn");
       }
       catch (GroupModifyException eSA) {
@@ -233,6 +235,7 @@ public class TestGroup extends GrouperTest {
     try {
       try {
         i2.setDisplayExtension(null);
+        i2.store();
         Assert.fail("set null displayExtn");
       }
       catch (GroupModifyException eSA) {
@@ -240,6 +243,7 @@ public class TestGroup extends GrouperTest {
       }
       try {
         i2.setDisplayExtension("");
+        i2.store();
         Assert.fail("set empty displayExtn");
       }
       catch (GroupModifyException eSA) {
@@ -247,6 +251,7 @@ public class TestGroup extends GrouperTest {
       }
       try {
         i2.setDisplayExtension("a:test");
+        i2.store();
         Assert.fail("set colon-containing displayExtn");
       }
       catch (GroupModifyException eSA) {
@@ -350,6 +355,7 @@ public class TestGroup extends GrouperTest {
       String          orig  = i2.getDescription(); 
       String          set   = "this is a group"; 
       i2.setDescription(set);
+      i2.store();
       Assert.assertTrue("!orig",  !i2.getDescription().equals(orig));
       Assert.assertTrue("set",    i2.getDescription().equals(set));
       s.stop();

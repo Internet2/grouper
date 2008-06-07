@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr7.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGAttr7.java,v 1.3.6.1 2008-06-07 16:11:55 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr7 extends TestCase {
@@ -49,6 +49,7 @@ public class TestGAttr7 extends TestCase {
 
       try {
         gA.setAttribute("description", null);
+        gA.store();
         T.fail("set null attribute value");
       }
       catch (GroupModifyException eGM) {
