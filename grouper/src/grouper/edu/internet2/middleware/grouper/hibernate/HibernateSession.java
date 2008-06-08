@@ -367,6 +367,22 @@ public class HibernateSession {
   }
 
   /**
+   * misc actions for hibernate session
+   * @return the class
+   */
+  public HibernateMisc misc(){
+    return new HibernateMisc(this);
+  }
+
+  /**
+   * hql action for hibernate
+   * @return the byhql
+   */
+  public ByHql byHql(){
+    return new ByHql(this);
+  }
+
+  /**
    * see if this is a new hibernate session
    * 
    * @return the newHibernateSession

@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.1.2.1 2008-06-07 19:28:22 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.1.2.2 2008-06-08 07:21:24 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -103,8 +103,9 @@ public class ByObject extends HibernateDelegate {
     try {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
-      
+
       Serializable id = session.save(object);
+      
       if (object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostSave(hibernateSession);
       }
@@ -117,6 +118,76 @@ public class ByObject extends HibernateDelegate {
       throw e;
     }
     
+  }
+
+  /**
+   * <pre>
+   * call hibernate method "save" on an object
+   * 
+   * HibernateSession.byObjectStatic().save(dao);
+   * 
+   * </pre>
+   * @param object to save
+   * @throws GrouperDAOException
+   */
+  public void saveOrUpdate(final Object object) throws GrouperDAOException {
+    try {
+      HibernateSession hibernateSession = this.getHibernateSession();
+      Session session  = hibernateSession.getSession();
+
+      Boolean isInsert = null;
+      if (object instanceof HibGrouperLifecycle) {
+        isInsert = HibUtilsMapping.isInsert(hibernateSession, object);
+      }
+      
+      session.saveOrUpdate(object);
+
+      if (object instanceof HibGrouperLifecycle) {
+        if (isInsert) {
+          ((HibGrouperLifecycle)object).onPostSave(hibernateSession);
+        } else {
+          ((HibGrouperLifecycle)object).onPostUpdate(hibernateSession);
+        }
+      }
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
+      throw e;
+    }
+    
+  }
+
+  /**
+   * <pre>
+   * call hibernate method "load" on an object
+   * 
+   * </pre>
+   * @param <T> 
+   * @param theClass to load
+   * @param id to find in db
+   * @return the result
+   * @throws GrouperDAOException
+   */
+  public <T> T load(final Class<T> theClass, Serializable id) throws GrouperDAOException {
+    try {
+      HibernateSession hibernateSession = this.getHibernateSession();
+      Session session  = hibernateSession.getSession();
+
+      T result = (T)session.load(theClass, id);
+      
+      return result;
+
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in load: " + theClass + ", " 
+          + id + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in load: " + theClass + ", " 
+          + id + ", " + this, e);
+      throw e;
+    }
   }
 
   /**

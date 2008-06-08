@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
@@ -39,7 +40,7 @@ import  org.hibernate.classic.Lifecycle;
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.2.4.1 2008-06-08 07:21:24 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle {
 
@@ -344,21 +345,22 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO, Lifecycle
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
     GroupTypeDTO  _type;
     Iterator      it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
     Iterator      itF;
+    ByObject byObject = hibernateSession.byObject();
     while (it.hasNext()) {
       _type = (GroupTypeDTO) it.next();
       if ( ! ( _type.getName().equals("base") || _type.getName().equals("naming") ) ) {
         itF = _type.getFields().iterator(); 
         while (itF.hasNext()) {
           FieldDTO f = (FieldDTO) itF.next();
-          hs.delete( Rosetta.getDAO(f) );
+          byObject.delete( Rosetta.getDAO(f) );
         }
-        hs.delete( Rosetta.getDAO(_type) );
+        byObject.delete( Rosetta.getDAO(_type) );
       }
     }
   }

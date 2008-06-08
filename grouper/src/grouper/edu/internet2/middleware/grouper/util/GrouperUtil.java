@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.beans.PropertyDescriptor;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +42,7 @@ import java.util.Set;
 
 import net.sf.cglib.proxy.Enhancer;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -4572,4 +4574,31 @@ public class GrouperUtil {
     throw new RuntimeException(error.toString());
   
   }
+
+  /**
+   * if there is a valid accessible property descriptor, get it
+   * @param object
+   * @param property
+   * @return the property descriptor
+   */
+  public static PropertyDescriptor retrievePropertyDescriptor(Object object, String property) {
+    try {
+      return PropertyUtils.getPropertyDescriptor(object, property);
+    } catch (Exception e) {
+    }
+    return null;
+  }
+
+  /**
+   * this assumes the property exists, and is a simple property
+   * @param object
+   * @param property
+   * @return the value
+   */
+  public static Object propertyValue(Object object, String property)  {
+    Method getter = getter(object.getClass(), property, true, true);
+    Object result = invokeMethod(getter, object);
+    return result;
+  }
+
 }

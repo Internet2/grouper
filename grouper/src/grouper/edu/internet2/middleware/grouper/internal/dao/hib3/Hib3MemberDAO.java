@@ -43,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.4.4.1 2008-06-08 07:21:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
@@ -338,11 +338,11 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3MemberDAO as m where m.subjectId != :subject")
-      .setParameter( "subject", "GrouperSystem" )
+    hibernateSession.byHql().createQuery("delete from Hib3MemberDAO as m where m.subjectId != :subject")
+      .setString( "subject", "GrouperSystem" )
       .executeUpdate()
       ;
     existsCache = new HashMap<String, Boolean>();

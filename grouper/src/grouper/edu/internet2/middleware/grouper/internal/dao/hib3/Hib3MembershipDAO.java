@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.10 2008-05-06 18:37:45 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.10.2.1 2008-06-08 07:21:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -728,26 +728,26 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session     hs  = hibernateSession.getSession();
             Iterator it = mof.getDeletes().iterator();
+            ByObject byObject = hibernateSession.byObject();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.delete( grouperDAO );
+              byObject.delete( grouperDAO );
             }
             it = mof.getSaves().iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.saveOrUpdate( grouperDAO );
+              byObject.saveOrUpdate( grouperDAO );
             }
             it = mof.getModifiedGroups().iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.saveOrUpdate( grouperDAO );
+              byObject.saveOrUpdate( grouperDAO );
             }
             it = mof.getModifiedStems().iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.saveOrUpdate( grouperDAO );
+              byObject.saveOrUpdate( grouperDAO );
             }
             return null;
           }
@@ -759,9 +759,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
+    Session hs = hibernateSession.getSession();
     HibUtils.executeSql("update grouper_memberships gm set gm.PARENT_MEMBERSHIP = null", null);
     
     List<Hib3MembershipDAO> hib3MembershipDAOs = 
@@ -780,30 +781,5 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   } 
   
-//PRIVATE CLASS METHODS //
-//@since 1.3.0
-  private Set<MembershipDTO> _getMembershipsFromMembershipAndMemberQuery(Session session, Query qry)
-    throws  HibernateException
-  {
-    Set<MembershipDTO> memberships = new LinkedHashSet<MembershipDTO>();
-    Iterator it = qry.list().iterator();
-    
-    while (it.hasNext()) {
-      Object[] tuple = (Object[])it.next();
-      Hib3MembershipDAO currMembershipDAO = (Hib3MembershipDAO)tuple[0];
-      HibUtils.evict(null, session,currMembershipDAO, false);
-      
-      Hib3MemberDAO currMemberDAO = (Hib3MemberDAO)tuple[1];
-      HibUtils.evict(null, session,currMemberDAO, false);
-      
-      currMembershipDAO.setMemberDAO(currMemberDAO);
-      memberships.add(MembershipDTO.getDTO(currMembershipDAO));
-    }
-    return memberships;
-      
-
-  } // private Set<MembershipDAO> _getMembershipsFromMembershipAndmemberQuery(qry)
-
-
 } 
 

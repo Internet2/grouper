@@ -27,7 +27,7 @@ import  org.hibernate.cfg.*;
  * Base Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.4 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.4.2.1 2008-06-08 07:21:24 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {
@@ -76,7 +76,7 @@ abstract class Hib3DAO {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static Configuration getConfiguration()
+  public static Configuration getConfiguration()
     throws  HibernateException
   {
     return CFG;

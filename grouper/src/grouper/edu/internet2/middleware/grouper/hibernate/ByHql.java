@@ -6,11 +6,13 @@ package edu.internet2.middleware.grouper.hibernate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 
@@ -24,10 +26,11 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
  * @author mchyzer
  *
  */
-public class ByHqlStatic {
+public class ByHql extends HibernateDelegate {
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(ByHqlStatic.class);
+  @SuppressWarnings("unused")
+  private static final Log LOG = LogFactory.getLog(ByHql.class);
 
   /** assign a transaction type, default use the transaction modes
    * GrouperTransactionType.READONLY_OR_USE_EXISTING, and 
@@ -45,7 +48,7 @@ public class ByHqlStatic {
    * @param theGrouperTransactionType
    * @return the same object for chaining
    */
-  public ByHqlStatic setGrouperTransactionType(GrouperTransactionType 
+  public ByHql setGrouperTransactionType(GrouperTransactionType 
       theGrouperTransactionType) {
     this.grouperTransactionType = theGrouperTransactionType;
     return this;
@@ -57,7 +60,7 @@ public class ByHqlStatic {
    * @param cacheable the cacheable to set
    * @return this object for chaining
    */
-  public ByHqlStatic setCacheable(Boolean cacheable) {
+  public ByHql setCacheable(Boolean cacheable) {
     this.cacheable = cacheable;
     return this;
   }
@@ -68,7 +71,7 @@ public class ByHqlStatic {
    */
   @Override
   public String toString() {
-    StringBuilder result = new StringBuilder("ByHqlStatic, query: '");
+    StringBuilder result = new StringBuilder("ByHql, query: '");
     result.append(this.query).append("', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
     result.append(", tx type: ").append(this.grouperTransactionType);
@@ -108,7 +111,7 @@ public class ByHqlStatic {
    * @param theHqlQuery
    * @return this object for chaining
    */
-  public ByHqlStatic createQuery(String theHqlQuery) {
+  public ByHql createQuery(String theHqlQuery) {
     this.query = theHqlQuery;
     return this;
   }
@@ -129,7 +132,7 @@ public class ByHqlStatic {
    * @param cacheRegion the cacheRegion to set
    * @return this object for chaining
    */
-  public ByHqlStatic setCacheRegion(String cacheRegion) {
+  public ByHql setCacheRegion(String cacheRegion) {
     this.cacheRegion = cacheRegion;
     return this;
   }
@@ -140,7 +143,7 @@ public class ByHqlStatic {
    * @param value
    * @return this object for chaining
    */
-  public ByHqlStatic setString(String bindVarName, String value) {
+  public ByHql setString(String bindVarName, String value) {
     this.bindVarNameParams().add(new HibernateParam(bindVarName, value, String.class));
     return this;
   }
@@ -151,7 +154,7 @@ public class ByHqlStatic {
    * @param value is long, primitive so not null
    * @return this object for chaining
    */
-  public ByHqlStatic setLong(String bindVarName, long value) {
+  public ByHql setLong(String bindVarName, long value) {
     this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Long.class));
     return this;
   }
@@ -162,7 +165,7 @@ public class ByHqlStatic {
    * @param value is long, primitive so not null
    * @return this object for chaining
    */
-  public ByHqlStatic setInteger(String bindVarName, int value) {
+  public ByHql setInteger(String bindVarName, int value) {
     this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Integer.class));
     return this;
   }
@@ -185,32 +188,37 @@ public class ByHqlStatic {
    * @return the object or null if none found
    * @throws GrouperDAOException
    */
-  public <T> T uniqueResult(final Class<T> returnType) throws GrouperDAOException {
-    try {
-      GrouperTransactionType grouperTransactionTypeToUse = 
-        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
-            GrouperTransactionType.READONLY_OR_USE_EXISTING);
-      
-      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
-          new HibernateHandler() {
-  
-            public Object callback(HibernateSession hibernateSession) {
-              
-              ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              return byHql.uniqueResult(returnType);
-            }
-        
-      });
-      
-      return result;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in uniqueResult: (" + returnType + "), " + this, e);
-      throw e;
-    } catch (RuntimeException e) {
-      LOG.error("Exception in uniqueResult: " + this, e);
-      throw e;
-    }
+  public <T> T uniqueResult(Class<T> returnType) throws GrouperDAOException {
+
+    HibernateSession hibernateSession = this.getHibernateSession();
+    Session session  = hibernateSession.getSession();
+    Query query = ByHql.this.attachQueryInfo(session);
+    T object = (T) query.uniqueResult();
+    HibUtils.evict(hibernateSession, object, true);
+    return object;
     
+  }
+  
+  /**
+   * <pre>
+   * call hql executeUpdate
+   * 
+   * e.g.
+   * 
+   * Hib3GroupDAO hib3GroupDAO = HibernateSession.byHqlStatic()
+   * .createQuery("from Hib3GroupDAO as g where g.uuid = :uuid")
+   *  .setCacheable(false)
+   *  .setCacheRegion(KLASS + ".Exists")
+   *  .setString("uuid", uuid).uniqueResult(Hib3GroupDAO.class);
+   * 
+   * </pre>
+   * @throws GrouperDAOException 
+   */
+  public void executeUpdate() throws GrouperDAOException {
+    HibernateSession hibernateSession = this.getHibernateSession();
+    Session session  = hibernateSession.getSession();
+    Query query = ByHql.this.attachQueryInfo(session);
+    query.executeUpdate();
   }
   
   /**
@@ -229,92 +237,76 @@ public class ByHqlStatic {
    * @return the list or the empty list if not found (never null)
    * @throws GrouperDAOException
    */
-  public <T> List<T> list(final Class<T> returnType) throws GrouperDAOException {
-    try {
-      GrouperTransactionType grouperTransactionTypeToUse = 
-        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
-            GrouperTransactionType.READONLY_OR_USE_EXISTING);
+  public <T> List<T> list(Class<T> returnType) {
       
-      List<T> result = (List<T>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
-          new HibernateHandler() {
-  
-            public Object callback(HibernateSession hibernateSession) {
-              
-              ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              List<T> list = byHql.list(returnType);
-              return list;
-            }
-        
-      });
-      
-      return result;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in list: (" + returnType + "), " + this, e);
-      throw e;
-    } catch (RuntimeException e) {
-      LOG.error("Exception in list: (" + returnType + "), " + this, e);
-      throw e;
-    }
+    HibernateSession hibernateSession = this.getHibernateSession();
+    Session session  = hibernateSession.getSession();
+    Query query = ByHql.this.attachQueryInfo(session);
+    //not sure this can ever be null, but make sure not to make iterating results easier
+    List<T> list = GrouperUtil.nonNull(query.list());
+    HibUtils.evict(hibernateSession,  list, true);
+    return list;
     
   }
 
   /**
-   * <pre>
-   * call hql executeUpdate
-   * 
-   * </pre>
-   * @throws GrouperDAOException
+   * prepare query based on hql
+   * @param session hib session
+   * @return the query
    */
-  public void executeUpdate() throws GrouperDAOException {
-    try {
-      GrouperTransactionType grouperTransactionTypeToUse = 
-        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
-            GrouperTransactionType.READONLY_OR_USE_EXISTING);
-      
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
-          new HibernateHandler() {
-  
-            public Object callback(HibernateSession hibernateSession) {
-              
-              ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              byHql.executeUpdate();
-              return null;
-            }
-        
-      });
-      
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in executeUpdate: " + this, e);
-      throw e;
-    } catch (RuntimeException e) {
-      LOG.error("Exception in executeUpdate: " + this, e);
-      throw e;
+  private Query attachQueryInfo(Session session) {
+    Query   query = session.createQuery(this.query);
+    if (this.cacheable != null) {
+      query.setCacheable(this.cacheable);
     }
+    if (this.cacheRegion != null) {
+      query.setCacheRegion(this.cacheRegion);
+    }
+    //note, dont call the method bindVarNameParams() so it doesnt lazyload...
+    if (this.bindVarNameParams != null) {
+      for (HibernateParam hibernateParam : this.bindVarNameParams()) {
+        
+        if (String.class.equals(hibernateParam.getType())) {
+          query.setString(hibernateParam.getName(), (String)hibernateParam.getValue());
+        } else if (Long.class.equals(hibernateParam.getType())) {
+          query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
+        } else if (Integer.class.equals(hibernateParam.getType())) {
+          query.setInteger(hibernateParam.getName(), (Integer)hibernateParam.getValue());
+        } else {
+          throw new RuntimeException("Invalid bind var type: " 
+              + hibernateParam );
+        }
+      }
+    }
+    return query;
     
   }
 
+
   /**
-   * create a byhql
-   * @param hibernateSession
-   * @return the byhql
+   * @param theHibernateSession
    */
-  private ByHql byHql(HibernateSession hibernateSession) {
-    
-    ByHql byHql = new ByHql(hibernateSession);
-    //transfer all data over
-    byHql.setBindVarNameParams(ByHqlStatic.this.bindVarNameParams);
-    byHql.setCacheable(ByHqlStatic.this.cacheable);
-    byHql.setCacheRegion(ByHqlStatic.this.cacheRegion);
-    byHql.setQuery(ByHqlStatic.this.query);
-    return byHql;
-    
+  public ByHql(HibernateSession theHibernateSession) {
+    super(theHibernateSession);
   }
+
+
   
   /**
-   * constructor
-   *
+   * @param bindVarNameParams1 the bindVarNameParams to set
    */
-  ByHqlStatic() {}
+  void setBindVarNameParams(List<HibernateParam> bindVarNameParams1) {
+    this.bindVarNameParams = bindVarNameParams1;
+  }
+
+
+  
+  /**
+   * @param query1 the query to set
+   */
+  void setQuery(String query1) {
+    this.query = query1;
+  }
   
   
   

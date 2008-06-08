@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -31,7 +32,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>GrouperSession</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GrouperSessionDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3GrouperSessionDAO.java,v 1.2.4.1 2008-06-08 07:21:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO {
@@ -66,8 +67,8 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session     hs  = hibernateSession.getSession();
-            hs.delete( hs.load( Hib3GrouperSessionDAO.class, _s.getId() ) );
+            ByObject byObject = hibernateSession.byObject();
+            byObject.delete( byObject.load( Hib3GrouperSessionDAO.class, _s.getId() ) );
             return null;
           }
       
@@ -138,10 +139,10 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3GrouperSessionDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from Hib3GrouperSessionDAO").executeUpdate();
   } 
 
 } 

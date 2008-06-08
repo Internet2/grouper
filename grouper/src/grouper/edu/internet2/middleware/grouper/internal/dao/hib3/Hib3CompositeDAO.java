@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateMisc;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
@@ -40,7 +41,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.3.2.1 2008-06-07 19:28:22 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.3.2.2 2008-06-08 07:21:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
@@ -251,27 +252,27 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
           public Object callback(HibernateSession hibernateSession) {
             
             ByObject byObject = hibernateSession.byObject();
-            Session hs = hibernateSession.getSession();
+            HibernateMisc misc = hibernateSession.misc();
             Iterator it = toDelete.iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
               byObject.delete( grouperDAO );
             } 
-            hs.flush();
+            misc.flush();
             
             it = toAdd.iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
               byObject.save( grouperDAO );
             }
-            hs.flush();
+            misc.flush();
 
             it = modGroups.iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
               byObject.update( grouperDAO );
             }
-            hs.flush();
+            misc.flush();
 
             it = modStems.iterator();
             while (it.hasNext()) {
@@ -288,10 +289,10 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3CompositeDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from Hib3CompositeDAO").executeUpdate();
   } 
 
 } 
