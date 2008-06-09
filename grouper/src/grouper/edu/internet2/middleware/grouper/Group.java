@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.181.2.1 2008-06-07 16:11:55 mchyzer Exp $
+ * @version $Id: Group.java,v 1.181.2.2 2008-06-09 19:26:05 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -1632,7 +1632,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  A set of {@link Membership} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set getMemberships() 
+  public Set<Membership> getMemberships() 
     throws  GrouperRuntimeException
   {
     try {
@@ -1660,10 +1660,10 @@ public class Group extends GrouperAPI implements Owner {
    * @return  A set of {@link Membership} objects.
    * @throws  SchemaException
    */
-  public Set getMemberships(Field f) 
+  public Set<Membership> getMemberships(Field f) 
     throws  SchemaException
   {
-    return new LinkedHashSet( 
+    return new LinkedHashSet<Membership>( 
       PrivilegeHelper.canViewMemberships( 
         this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( this.getUuid(), f )
       )

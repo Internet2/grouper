@@ -29,7 +29,7 @@ import  java.util.Set;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.8 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.8.2.1 2008-06-09 19:26:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -193,10 +193,13 @@ public class PrivilegeHelper {
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
+   * @param s 
+   * @param c 
+   * @return 
    * @SINCE   1.2.1
    */
-  protected static Set canViewMemberships(GrouperSession s, Collection c) {
-    Set         mships  = new LinkedHashSet();
+  protected static Set<Membership> canViewMemberships(GrouperSession s, Collection c) {
+    Set<Membership>         mships  = new LinkedHashSet<Membership>();
     Membership  ms;
     Iterator    it      = c.iterator();
     while ( it.hasNext() ) {

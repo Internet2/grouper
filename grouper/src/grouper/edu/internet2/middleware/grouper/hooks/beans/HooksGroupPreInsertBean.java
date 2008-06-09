@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksGroupPreInsertBean.java,v 1.1.2.1 2008-06-09 05:52:52 mchyzer Exp $
+ * $Id: HooksGroupPreInsertBean.java,v 1.1.2.2 2008-06-09 19:26:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -8,7 +8,7 @@ import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 
 
 /**
- * pre update bean
+ * pre insert bean
  */
 public class HooksGroupPreInsertBean extends HooksBean {
 
@@ -26,12 +26,9 @@ public class HooksGroupPreInsertBean extends HooksBean {
   
   /**
    * object being inserted
-   * @return the hib3GroupDAO
+   * @return the GroupDAO
    */
   public GroupDAO getGroupDao() {
     return this.groupDao;
   }
-
-  
-  
 }

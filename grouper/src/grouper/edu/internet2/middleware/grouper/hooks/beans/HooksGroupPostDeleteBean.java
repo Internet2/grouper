@@ -1,12 +1,12 @@
 /*
  * @author mchyzer
- * $Id: HooksGroupPostDeleteBean.java,v 1.1.2.1 2008-06-09 05:52:52 mchyzer Exp $
+ * $Id: HooksGroupPostDeleteBean.java,v 1.1.2.2 2008-06-09 19:26:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
 
 /**
- * pre update bean
+ * post delete bean
  */
 public class HooksGroupPostDeleteBean extends HooksBean {
 

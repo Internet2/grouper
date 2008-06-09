@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHookType.java,v 1.1.2.1 2008-06-09 05:52:52 mchyzer Exp $
+ * $Id: GrouperHookType.java,v 1.1.2.2 2008-06-09 19:26:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -22,8 +23,13 @@ public enum GrouperHookType {
   /**
    * group hooks
    */
-  GROUP("hooks.group.class", GroupHooks.class);
+  GROUP("hooks.group.class", GroupHooks.class),
   
+  /**
+   * group hooks
+   */
+  MEMBERSHIP("hooks.membership.class", MembershipHooks.class);
+
   /**
    * construct
    * @param thePropertyFileKey

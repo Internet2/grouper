@@ -34,6 +34,12 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.MembershipHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostUpdateHighLevelBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreUpdateHighLevelBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
@@ -47,7 +53,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.10.2.1 2008-06-08 07:21:24 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.10.2.2 2008-06-09 19:26:05 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -103,7 +109,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllByCreatedAfter(Date d, Field f) 
+  public Set<MembershipDTO> findAllByCreatedAfter(Date d, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -126,7 +132,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllByCreatedBefore(Date d, Field f) 
+  public Set<MembershipDTO> findAllByCreatedBefore(Date d, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -150,7 +156,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllByMember(String memberUUID) 
+  public Set<MembershipDTO> findAllByMember(String memberUUID) 
     throws  GrouperDAOException {
     Set mships = new LinkedHashSet();
     List<Hib3MembershipDAO> hib3MembershipDAOs = HibernateSession.byHqlStatic()
@@ -168,7 +174,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllByMemberAndVia(String memberUUID, String viaUUID) 
+  public Set<MembershipDTO> findAllByMemberAndVia(String memberUUID, String viaUUID) 
     throws  GrouperDAOException {
 
     Set mships = new LinkedHashSet();
@@ -191,7 +197,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllByOwnerAndField(String ownerUUID, Field f) 
+  public Set<MembershipDTO> findAllByOwnerAndField(String ownerUUID, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -216,7 +222,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllByOwnerAndFieldAndType(String ownerUUID, Field f, String type) 
+  public Set<MembershipDTO> findAllByOwnerAndFieldAndType(String ownerUUID, Field f, String type) 
     throws  GrouperDAOException {
     Set mships  = new LinkedHashSet();
     List<Hib3MembershipDAO> hib3MembershipDAOs = HibernateSession.byHqlStatic()
@@ -241,7 +247,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f) 
+  public Set<MembershipDTO> findAllByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f) 
     throws  GrouperDAOException {
     Set mships = new LinkedHashSet();
     List<Hib3MembershipDAO> hib3MembershipDAOs = HibernateSession.byHqlStatic()
@@ -293,6 +299,24 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    //see if there is a hook class
+    MembershipHooks membershipHooks = (MembershipHooks)GrouperHookType.MEMBERSHIP.hooksInstance();
+    
+    if (membershipHooks != null) {
+      HooksMembershipPreInsertBean hooksMembershipPreInsertBean = 
+        new HooksMembershipPreInsertBean(new HooksContext(), this);
+            
+      membershipHooks.membershipPreInsert(hooksMembershipPreInsertBean);
+    }
+  }
+
+  /**
    * @since   @HEAD@
    */
   public MembershipDTO findByOwnerAndMemberAndFieldAndType(String ownerUUID, String memberUUID, Field f, String type)
@@ -323,7 +347,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllChildMemberships(MembershipDTO _ms) 
+  public Set<MembershipDTO> findAllChildMemberships(MembershipDTO _ms) 
     throws  GrouperDAOException
   {
     Set mships  = new LinkedHashSet();
@@ -342,7 +366,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllEffective(String ownerUUID, String memberUUID, Field f, String viaUUID, int depth) 
+  public Set<MembershipDTO> findAllEffective(String ownerUUID, String memberUUID, Field f, String viaUUID, int depth) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -375,7 +399,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllEffectiveByMemberAndField(String memberUUID, Field f) 
+  public Set<MembershipDTO> findAllEffectiveByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -402,7 +426,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllEffectiveByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f)
+  public Set<MembershipDTO> findAllEffectiveByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f)
     throws  GrouperDAOException {
     Set mships = new LinkedHashSet();
     List<Hib3MembershipDAO> hib3MembershipDAOs = HibernateSession.byHqlStatic()
@@ -430,7 +454,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   1.2.1
    */
-  public Set findAllByOwnerAndMember(String ownerUUID, String memberUUID) 
+  public Set<MembershipDTO> findAllByOwnerAndMember(String ownerUUID, String memberUUID) 
     throws  GrouperDAOException {
     
     //Added by Gary Brown 2007-11-01 so that getPrivs can do one query rather than 6
@@ -455,7 +479,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllImmediateByMemberAndField(String memberUUID, Field f) 
+  public Set<MembershipDTO> findAllImmediateByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -501,7 +525,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findMembershipsByMemberAndField(String memberUUID, Field f)
+  public Set<MembershipDTO> findMembershipsByMemberAndField(String memberUUID, Field f)
     throws  GrouperDAOException
   {
     Set mships = new LinkedHashSet();
@@ -719,6 +743,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
+   * @param mof 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void update(final DefaultMemberOf mof) 
@@ -728,6 +754,17 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
+            
+            //see if there is a hook class
+            MembershipHooks membershipHooks = (MembershipHooks)GrouperHookType.MEMBERSHIP.hooksInstance();
+            
+            if (membershipHooks != null) {
+              HooksMembershipPreUpdateHighLevelBean hooksMembershipPreUpdateHighLevelBean = 
+                new HooksMembershipPreUpdateHighLevelBean(new HooksContext(), mof);
+                    
+              membershipHooks.membershipPreUpdateHighLevel(hooksMembershipPreUpdateHighLevelBean);
+            }
+            
             Iterator it = mof.getDeletes().iterator();
             ByObject byObject = hibernateSession.byObject();
             while (it.hasNext()) {
@@ -749,6 +786,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
               byObject.saveOrUpdate( grouperDAO );
             }
+
+            if (membershipHooks != null) {
+              HooksMembershipPostUpdateHighLevelBean hooksMembershipPostUpdateHighLevelBean = 
+                new HooksMembershipPostUpdateHighLevelBean(new HooksContext(), mof);
+                    
+              membershipHooks.membershipPostUpdateHighLevel(hooksMembershipPostUpdateHighLevelBean);
+            }
+            
             return null;
           }
       
@@ -779,7 +824,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .executeUpdate();
     }
 
-  } 
-  
+  }
+
 } 
 
