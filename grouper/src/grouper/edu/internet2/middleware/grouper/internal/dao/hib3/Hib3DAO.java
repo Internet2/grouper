@@ -18,23 +18,106 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import  edu.internet2.middleware.grouper.ErrorLog;
 import  edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+
 import  java.io.InputStream;
+import java.io.Serializable;
 import  java.util.Properties;
 import  org.hibernate.*;
 import  org.hibernate.cfg.*;
+import org.hibernate.classic.Lifecycle;
 
 /**
  * Base Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.4.2.1 2008-06-08 07:21:24 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.4.2.2 2008-06-09 05:52:52 mchyzer Exp $
  * @since   @HEAD@
  */
-abstract class Hib3DAO {
+abstract class Hib3DAO implements HibGrouperLifecycle, Lifecycle {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Configuration  CFG;
+  /**
+   * @see org.hibernate.classic.Lifecycle#onDelete(org.hibernate.Session)
+   */
+  public boolean onDelete(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onLoad(org.hibernate.Session, java.io.Serializable)
+   */
+  public void onLoad(Session s, Serializable id) {
+    this.dbVersionReset();
+  }
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onSave(org.hibernate.Session)
+   */
+  public boolean onSave(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onUpdate(org.hibernate.Session)
+   */
+  public boolean onUpdate(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
+  }
+
   private static final SessionFactory FACTORY;
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostDelete(HibernateSession hibernateSession) {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostSave(HibernateSession hibernateSession) {
+    this.dbVersionReset();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    this.dbVersionReset();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreDelete(HibernateSession hibernateSession) {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreSave(HibernateSession hibernateSession) {
+    
+  }
+  
+  /**
+   * get the type of the hooks (which tells all methods and stuff)
+   * @return the type of the hooks
+   */
+  GrouperHookType grouperHooksType() {
+    return null;
+  }
+  
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreUpdate(HibernateSession hibernateSession) {
+  }
+
 
   // STATIC //
   static {
@@ -101,5 +184,10 @@ abstract class Hib3DAO {
   // @since   @HEAD@
   protected abstract String getId();
 
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  void dbVersionReset() {
+  }
 } 
 

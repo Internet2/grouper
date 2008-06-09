@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,10 +37,13 @@ import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
@@ -56,10 +58,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.12.2.3 2008-06-08 07:21:24 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.12.2.4 2008-06-09 05:52:52 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle, HibGrouperLifecycle {
+public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /** save the state when retrieving from DB */
   private Hib3GroupDAO dbVersion = null;
@@ -588,14 +590,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle, HibGro
     return Lifecycle.NO_VETO;
   } 
 
-  // @since   @HEAD@
-  public void onLoad(Session hs, Serializable id) {
-    
-    this.dbVersionReset();
-    // nothing
-  } // public void onLoad(hs, id)
-
-  private void dbVersionReset() {
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  void dbVersionReset() {
     //lets get the state from the db so we know what has changed
     this.dbVersion = new Hib3GroupDAO();
     this.dbVersion.attributes = this.attributes == null ? null : new HashMap<String,String>(this.attributes);
@@ -618,13 +617,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle, HibGro
     existsCache.put( this.getUuid(), true );
     return Lifecycle.NO_VETO;
   } 
-
-  // @since   @HEAD@
-  public boolean onUpdate(Session hs) 
-    throws  CallbackException
-  {
-    return Lifecycle.NO_VETO;
-  } // public boolean onUpdate(hs)k
 
   /**
    * @since   @HEAD@
@@ -868,6 +860,31 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle, HibGro
   } // private void _updateAttributes(hs)
 
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    //see if there is a hook class
+    GroupHooks groupHooks = (GroupHooks)GrouperHookType.GROUP.hooksInstance();
+    
+    if (groupHooks != null) {
+      HooksGroupPreInsertBean hooksGroupPreInsertBean = new HooksGroupPreInsertBean(new HooksContext(), this);
+      groupHooks.groupPreInsert(hooksGroupPreInsertBean);
+    }
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#grouperHooksType()
+   */
+  @Override
+  GrouperHookType grouperHooksType() {
+    return GrouperHookType.GROUP;
+  }
+
   // @since 1.2.1         
   /**
    * @param session 
@@ -946,19 +963,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle, HibGro
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
     this._updateAttributes(hibernateSession, true);
-    this.dbVersionReset();
+    super.onPostUpdate(hibernateSession);
 
   }
 
   /**
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
+  @Override
   public void onPostSave(HibernateSession hibernateSession) {
     this._updateAttributes(hibernateSession, false);
-    this.dbVersionReset();
-
+    super.onPostSave(hibernateSession);
   }
-
   
   /**
    * save the state when retrieving from DB

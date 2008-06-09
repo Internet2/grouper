@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.hooks.veto.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -269,6 +270,9 @@ public class HibernateSession {
       // if hibernate exception, repackage
       if (e instanceof HibernateException) {
         throw new GrouperDAOException(errorString, e);
+      }
+      if (e instanceof HookVeto) {
+        throw (HookVeto)e;
       }
       // if runtime, then rethrow
       if (e instanceof RuntimeException) {

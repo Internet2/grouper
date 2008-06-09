@@ -7,13 +7,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 
+import edu.internet2.middleware.grouper.hooks.veto.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
 /**
- * @version $Id: ByObject.java,v 1.1.2.2 2008-06-08 07:21:24 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.1.2.3 2008-06-09 05:52:52 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -104,12 +105,19 @@ public class ByObject extends HibernateDelegate {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
 
+      if (object instanceof HibGrouperLifecycle) {
+        ((HibGrouperLifecycle)object).onPreSave(hibernateSession);
+      }
+
       Serializable id = session.save(object);
       
       if (object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostSave(hibernateSession);
       }
       return id;
+    } catch (HookVeto hookVeto) {
+      //just throw, this is ok
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;
@@ -149,6 +157,9 @@ public class ByObject extends HibernateDelegate {
           ((HibGrouperLifecycle)object).onPostUpdate(hibernateSession);
         }
       }
+    } catch (HookVeto hookVeto) {
+      //just throw, this is ok
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;
@@ -207,6 +218,9 @@ public class ByObject extends HibernateDelegate {
         ((HibGrouperLifecycle)object).onPostUpdate(hibernateSession);
       }
       
+    } catch (HookVeto hookVeto) {
+      //just throw, this is ok
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in update: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;

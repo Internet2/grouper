@@ -28,7 +28,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.55.2.1 2008-06-07 16:11:55 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.55.2.2 2008-06-09 05:52:52 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -90,7 +90,7 @@ public class GrouperConfig {
   protected static final String ALL           = "GrouperAll";
   protected static final String ATTR_C        = "createSubject";
   protected static final String ATTR_CT       = "createTime";
-  protected static final String ATTR_DESCRIPTION        = "description";
+  public static final String ATTR_DESCRIPTION        = "description";
   public static final String ATTR_DISPLAY_EXTENSION       = "displayExtension";
   public static final String ATTR_DISPLAY_NAME       = "displayName";
   public static final String ATTR_EXTENSION        = "extension";

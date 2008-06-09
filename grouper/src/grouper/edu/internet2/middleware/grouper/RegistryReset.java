@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.52.2.1 2008-06-08 07:21:24 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.52.2.2 2008-06-09 05:52:52 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -99,7 +99,7 @@ public class RegistryReset {
   }
 
   // @since   1.2.0
-  protected static void internal_resetRegistryAndAddTestSubjects() { 
+  public static void internal_resetRegistryAndAddTestSubjects() { 
     RegistryReset rr = new RegistryReset();
     try {
       MemberFinder.clearInternalMembers();
