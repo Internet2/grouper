@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: PennWebsecRequestWrapper.java,v 1.3 2008-06-09 20:01:42 mchyzer Exp $
+ * $Id: PennWebsecRequestWrapper.java,v 1.2 2008-05-09 02:32:59 mchyzer Exp $
  */
 package edu.upenn.isc.grouper_ui.security;
 
@@ -15,12 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.subject.Subject;
 import edu.upenn.isc.fast.websec.WebsecClient;
 import edu.upenn.isc.fast.websec.WebsecException;
 import edu.upenn.isc.fast.websec.WebsecOutput;
@@ -101,7 +96,7 @@ public class PennWebsecRequestWrapper extends HttpServletRequestWrapper {
       //granted this will not take into account local media.properties, but shouldnt
       //be customized much
       Properties mediaProperties = GrouperUiUtils
-        .propertiesFromResourceName("resources/custom/media.properties");
+        .propertiesFromResourceName("resources/grouper/media.properties");
       
       String appName = StringUtils.defaultIfEmpty((String)mediaProperties.get("pennWebsecAppName"), "StudentHome");
       String websecBinary = StringUtils.defaultIfEmpty((String)mediaProperties.get("pennWebsecBinary"), 
@@ -119,30 +114,7 @@ public class PennWebsecRequestWrapper extends HttpServletRequestWrapper {
         throw we;
       }
       
-      user = websecOutput.getPennid();
-      
-      //if configured to be in group, make sure
-      String uiGroupName = (String)mediaProperties.get("penn.uiGroup");
-      if (!StringUtils.isBlank(uiGroupName)) {
-        GrouperSession grouperSession = null;
-        
-        try {
-          grouperSession = GrouperSession.start(
-            SubjectFinder.findById("GrouperSystem")
-          );
-          Subject subject = SubjectFinder.findByIdentifier(user);
-          Group group = GroupFinder.findByName(grouperSession, uiGroupName);
-          if (!group.hasMember(subject)) {
-            throw new RuntimeException("User is not authorized");
-          }
-        } catch (Exception e) {
-          LOG.error("user: '" + user + "' is not a member of group: '" + uiGroupName 
-              + "', and therefore is not authorized to use the app (configured in local media.properties penn.uiGroup");
-          throw new RuntimeException("User is not authorized", e);
-        } finally {
-          GrouperSession.stopQuietly(grouperSession);
-        }
-      }
+      user = websecOutput.getPennkey();
       
       //stash in session
       httpSession.setAttribute(PENN_SESSION_USER_KEY, user);

@@ -214,7 +214,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.15 2008-05-28 15:37:14 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.14 2008-04-15 13:43:21 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -247,9 +247,9 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 			omitForAssignment=findForNode;
 		}
 		
-		
+		if(repositoryBrowser.isFlatCapable()) {
 			isFlat = processFlatForMode(browseMode, request, session);
-		
+		}
 		String startStr = request.getParameter("start");
 		if (startStr == null || "".equals(startStr))
 			startStr = "0";

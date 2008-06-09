@@ -75,7 +75,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.18 2008-05-28 15:37:14 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.17 2008-04-13 08:52:12 isgwb Exp $
  */
 
 /**
@@ -372,12 +372,7 @@ public abstract class LowLevelGrouperCapableAction
 	 * @return whether flat mode is on or not
 	 */
 	protected boolean processFlatForMode(String mode,HttpServletRequest request,HttpSession session) {
-		GrouperSession s = SessionInitialiser.getGrouperSession(session);
-		RepositoryBrowser rb = getRepositoryBrowser(s, session);
-		if(!rb.isFlatCapable()) {
-			request.setAttribute("isFlat",Boolean.FALSE);
-			return false;
-		}
+		
 		String flat = request.getParameter("flat");
 		Boolean isFlat = (Boolean)session.getAttribute("isFlat" + mode);
 		if((flat==null || flat.length()==0)) {
