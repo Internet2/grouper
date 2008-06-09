@@ -2,7 +2,7 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.13 2008-05-01 16:11:21 mchyzer Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.12 2008-04-11 14:49:36 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -39,7 +39,6 @@ bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
 	<input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 	<input type="hidden" name="previousCallerPageId" value="<c:out value="${grouperForm.map.callerPageId}"/>"/>
 	<fieldset>			
-    <table class="formTable">
 		<fieldset class="nested">
 				<tiles:insert definition="selectGroupSearchFieldsDef"/>
 		</fieldset>
@@ -48,9 +47,8 @@ bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
 					<tiles:insert definition="selectGroupSearchTypesDef"/>
 			</fieldset>
 		</c:if>
-		<tiles:insert definition="searchFromDef"/>
+		<div class="formRow"><tiles:insert definition="searchFromDef"/></div><br/>
 		<tiles:insert definition="searchGroupResultFieldChoiceDef"/>
-    </table>
     <br /><br />
 		<html:submit styleClass="blueButton" property="submit.search" value="${navMap['groups.action.search']}"/>
 	</fieldset>

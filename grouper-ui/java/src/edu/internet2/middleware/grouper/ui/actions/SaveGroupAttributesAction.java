@@ -100,7 +100,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.9 2008-04-26 16:26:30 mchyzer Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.8 2007-04-11 08:19:24 isgwb Exp $
  */
 public class SaveGroupAttributesAction extends GrouperCapableAction {
 
@@ -150,7 +150,7 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       	
       	
       	
-		request.setAttribute("message",new Message("groups.action.saved-attr",false));
+		request.setAttribute("message",new Message("groups.action.saved-attr",true));
 
 		String submit = request.getParameter("submit.save");
 		

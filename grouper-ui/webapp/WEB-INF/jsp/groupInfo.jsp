@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: groupInfo.jsp,v 1.7 2008-05-01 04:59:31 mchyzer Exp $
+  @version $Id: groupInfo.jsp,v 1.6 2008-04-10 19:50:25 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -48,12 +48,12 @@
           key="groups.summary.types"
         /></td>
         <td class="formTableRight">
-        <table class="groupTypes formTable"><tiles:insert definition="dynamicTileDef">
+        <div class="groupTypes"><tiles:insert definition="dynamicTileDef">
           <tiles:put name="viewObject" beanName="group" beanProperty="types" />
           <tiles:put name="view" value="groupSummaryGroupTypes" />
           <tiles:put name="itemView" value="groupSummary" />
           <tiles:put name="listless" value="TRUE" />
-        </tiles:insert></table>
+        </tiles:insert></div>
         </td>
       </tr>
     </c:if>

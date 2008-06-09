@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.12 2008-05-20 16:44:38 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.11 2008-04-02 15:38:58 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
 
@@ -100,7 +100,6 @@ public class SubjectAsMap extends ObjectAsMap {
 					}else{
 						StringBuffer sb = new StringBuffer();
 						Set values = (Set)subject.getAttributeValues((String)key);
-						if(values==null) return null;
 						Iterator it = values.iterator();
 						Object val;
 						int count=0;

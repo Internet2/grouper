@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.15 2008-04-23 20:32:14 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.14 2008-04-09 14:19:37 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -145,9 +145,6 @@ public class SessionInitialiser {
 						chainedMediaBundle));
 		session.setAttribute("mediaMap", new MapBundleWrapper(
 				chainedMediaBundle, false));
-		//returns null if not there, not question marks
-    session.setAttribute("mediaNullMap", new MapBundleWrapper(
-        chainedMediaBundle, true));
 		String pageSizes = chainedMediaBundle
 				.getString("pager.pagesize.selection");
 

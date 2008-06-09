@@ -34,13 +34,8 @@ h1 {
 #LeftInNav {float:left;}
 #RightInNav {float:right;margin-right:9px}
 
-#RightInNav .blueButton {
-  background-color: #DFEFF4;
-  color:  #015782;
-}
-select.inNav {
-font-size:9px;
-}
+.inNav{font-size:8pt;
+           height:1.5em;}
 #grouperIntro {
 	width:50%;
 	float:left;
@@ -65,9 +60,7 @@ font-size:9px;
   font-weight: bold;
   margin: 0px 0px 10px 10px;  
 }
-.browseStemsLocation {
-  margin-bottom: 5px;  
-}
+
 .browseStemsLocationHere {
  font-weight: bold;
  font-size:120%;
@@ -78,10 +71,15 @@ font-size:9px;
 	padding-below:5px;
 }
 
+.groupInfo {
+	
+}
+
+
 .groupLinks {
 	clear:both;
 }
-/*
+
 .linkButton {
   margin-top: 5px;
   margin-bottom: 5px;  
@@ -98,31 +96,20 @@ font-size:9px;
   border-left-color:#666;
   background-color: #015782;
   color: #FFFFFF;
+  /* need to compress the font like submit buttons */
   letter-spacing: -1px;
 	line-height:220%;
+
+  
 }
 
 .linkButton a:hover { 
   text-decoration: none;
 } 
+
 .linkButton a.redLink {
   background-color: #990000;
 }
-*/
-
-.linkButton {
-  margin-top: 10px;
-  line-height: 300%;
-}
-
-.linkButton a {
-  text-decoration: underline;
-  margin: 2px 12px 2px 0px;
-  font-size: 12px;
-  white-space: nowrap;
-  font-weight: bold;
-}
-
 
 .pageBlurb {
 	width:50%;
@@ -134,7 +121,7 @@ font-size:9px;
 	display:block;
 }
 
-.groupInfo .formTableLeft {
+.groupInfo .formLeft {
 	background-color:#6699ff;
 	color:000000;
 	font-weight:bold;
@@ -142,15 +129,15 @@ font-size:9px;
 	border-bottom-width:1px;
 	border-bottom-style:solid;
 }
-.groupTypes .formTableRight .formTableLeft {
+.groupTypes .formRight .formLeft {
 	background-color:#cccccc;
 	color:000000;
 }
-.groupTypes .formTableLeft {
+.groupTypes .formLeft {
 	background-color:#99ccff;
 	color:000000;
 }
-tr.groupInfo {
+.groupInfo .formRow {
 	border-bottom-color:#cccccc;
 	#border-bottom-width:1px;
 	#border-bottom-style:solid;
@@ -177,7 +164,7 @@ tr.groupInfo {
 }
 
 .formTable .formTableRow, .formTable .formTableRow td {
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .formTable .formTableLeft {
@@ -242,7 +229,7 @@ fieldset {
 	width:260px;
 }
 
-.typesHeader .formTableLeft{
+.typesHeader .formLeft{
 	background-color:rgb(1, 87, 130);
 	color:#ffffff;
 	font-weight:bold;
@@ -251,13 +238,13 @@ fieldset {
 	margin-top:10px;
 }
 
-.typesHeader .formTableRight .formTableLeft {
+.typesHeader .formRight .formLeft {
 	background-color:rgb(1, 87, 130);
 	color:#ffffff;
 	font-weight:bold;
 }
 
-.typesHeader .formTableRight .formTableRow .formTableRight {
+.typesHeader .formRow .formRight .formRow .formRight {
 	background-color:rgb(1, 87, 130);
 	color:#ffffff;
 	font-weight:bold;
@@ -310,11 +297,6 @@ form {
   margin-top: 20px;
   margin-left: 20px;
   margin-right: 20px;
-  /* in ie6, text disappears, this will fix it
-  http://plone.org/documentation/how-to/internet-explorer-invisible-text
-  http://www.positioniseverything.net/explorer/peekaboo.html
-   */
-  height: 0.01%;
 }
 
 .sectionBody {
@@ -497,12 +479,6 @@ body {
     font-size: 11px;
     cursor: pointer;
 }
-/** there is a slight underline on tooltips in buttons that should be removed in certain cases */
-.blueButton .tooltip, .redButton .tooltip, .linkButton a .tooltip {
-  border-bottom: none;
-}
-
-
 .blueButton, .redButton {
     border:1px solid black;
     border-top-color:#666;

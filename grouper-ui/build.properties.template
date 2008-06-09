@@ -63,6 +63,7 @@ default.webapp.folder.cleanable=true
 #additional.build=${basedir}/../custom-grouper-ui/additional-build.xml
 
 #For development keep these if you want to be able to debug the UI Java source
+debug=true
 debug.level=lines,vars,source
 
 ########################################################

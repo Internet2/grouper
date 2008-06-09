@@ -2,25 +2,28 @@
 		  Dynamic tile Which allows user to select fields to search, query text and whether to and/or/not with next term
 --%><%--
   @author Gary Brown.
-  @version $Id: fieldATTRIBUTESearchValueView.jsp,v 1.3 2008-05-01 04:59:31 mchyzer Exp $
+  @version $Id: fieldATTRIBUTESearchValueView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <c:if test="${itemPos==1}">
-	<tr class="formTableRow">
-		<td class="formTableLeft">
+<div class="searchFieldTitle">
+	<div class="formRow">
+		<div class="formLeft">
 			<grouper:message bundle="${nav}" key="find.search.field-title"/>
-		</td>
-		<td class="formTableRight">
+		</div>
+		<div class="formRight">
 			<grouper:message bundle="${nav}" key="find.search.input-title"/>			
-		</td>
-	</tr>
+		</div>
+	</div>
+</div>
 </c:if>
-	<tr class="formTableRow">
-		<td class="formTableLeft">
+<div class="searchField">
+	<div class="formRow">
+		<div class="formLeft">
 			<c:out value="${itemPos}"/><input type="checkbox" name="attr.<c:out value="${viewObject.name}"/>.doSearch" value="true"/><c:out value="${viewObject.name}"/>
-		</td>
-		<td class="formTableRight">
+		</div>
+		<div class="formRight">
 			<input type="text" name="attr.<c:out value="${viewObject.name}"/>.searchValue" size="25"/>
 			<select name="attr.<c:out value="${viewObject.name}"/>.searchAndOr">
 				<option value="or"><grouper:message bundle="${nav}" key="find.search.or"/></option>
@@ -29,8 +32,9 @@
 			
 			
 			
-		</td>
-	</tr>
+		</div>
+	</div>
+</div>
    
 
 

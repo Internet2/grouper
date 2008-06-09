@@ -21,7 +21,7 @@
                 destdir="${webapp.class.folder}"
                 classpathref="contrib.class.path"
                 debuglevel="${debug.level}"
-                debug="true" 
+                debug="${debug}" 
               />
               <!-- make site specific jar files available to webapp -->
               <copy toDir="${webapp.folder}/WEB-INF/lib" overwrite="true">

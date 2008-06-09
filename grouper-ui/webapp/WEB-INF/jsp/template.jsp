@@ -7,12 +7,12 @@
 		  the generated XHTML.
 --%><%--
   @author Gary Brown.
-  @version $Id: template.jsp,v 1.9 2008-05-01 09:44:22 isgwb Exp $
+  @version $Id: template.jsp,v 1.7 2008-04-15 13:44:19 isgwb Exp $
 --%><?xml version="1.0" encoding="iso-8859-1"?>
 
-<!DOCTYPE html PUBLIC 
-"-//W3C//DTD XHTML 1.0 Transitional//EN" 
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <%@page import="org.apache.struts.tiles.ComponentContext"%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
@@ -24,7 +24,8 @@
 <%
 StringBuffer pageUrl = (StringBuffer) request.getAttribute("_pageUrl");
 if(pageUrl==null) pageUrl=new StringBuffer();
-String pageUrlMinusQuery = pageUrl.toString();
+String pageUrlMinusQuery = "";
+pageUrl.toString();
 
 request.setAttribute("pageUrlMinusQueryString", pageUrlMinusQuery); 
 char delim = '?';

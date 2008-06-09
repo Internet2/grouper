@@ -3,21 +3,15 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.15 2008-04-29 18:02:31 mchyzer Exp $
+  @version $Id: GroupMembers.jsp,v 1.14 2008-04-03 07:48:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
-<div class="section">
-<div class="sectionBody">
 <tiles:insert definition="showStemsLocationDef"/>
-</div>
-</div>
-
-<div class="changeScope section">
-<grouper:subtitle key="groups.heading.list-members" />
-<div class="sectionBody">
 
 <tiles:insert definition="changeMembershipScopeDef"/>
+
+<grouper:subtitle key="groups.heading.list-members" />
 
 <c:choose>
 	<c:when test="${!removableMembers}">
@@ -103,5 +97,4 @@
 </c:choose>
 </div>
 <br/>
-</div>
-</div>
+

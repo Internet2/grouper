@@ -14,18 +14,25 @@ Can save and
 <tiles:insert definition="showStemsLocationDef" controllerUrl="/prepareBrowsePath.do"/>
 <html:form styleId="EditGroupAttributesForm" action="/saveGroupAttributes" method="post">
 <html:hidden property="groupId"/>
-  <table class="formTable">
-	<tr class="typesHeader groupTypes groupInfo formTableRow">
-		<td class="formTableLeft">
+<div class="groupInfo">
+<div class="groupTypes">
+<div class="typesHeader">
+	<div class="formRow">
+		<div class="formLeft">
 			<grouper:message bundle="${nav}" key="groups.edit-attributes.types-header"/>
-		</td>
-		<td class="formTableLeft">
-			<grouper:message bundle="${nav}" key="groups.edit-attributes.attributes-header"/>
-		</td>
-		<td class="formTableLeft" style="text-align: left">
-			<grouper:message bundle="${nav}" key="groups.edit-attributes.values-header"/>
-		</td>
-	</tr>
+		</div>
+		<div class="formRight">
+			<div class="formRow">
+				<div class="formLeft">
+					<grouper:message bundle="${nav}" key="groups.edit-attributes.attributes-header"/>
+				</div>
+				<div class="formRight">
+					<grouper:message bundle="${nav}" key="groups.edit-attributes.values-header"/>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <c:if test="${!empty group.types}">
 <tiles:insert definition="dynamicTileDef">
 	<tiles:put name="viewObject" beanName="group" beanProperty="types"/>
@@ -34,12 +41,11 @@ Can save and
 	<tiles:put name="listless" value="TRUE"/>
 </tiles:insert>
 </c:if>
-<tr class="formTableRow">
-<td colspan="3">
+</div>
+<div class="formRow">
  <html:submit styleClass="blueButton" property="submit.save" value="${navMap['groups.action.attr-save']}"/>
  <html:submit styleClass="blueButton" property="submit.save_add" value="${navMap['groups.action.attr-save-add']}"/>
- </td>
- </tr>
- </table>
+ </div>
+ </div>
 </html:form>
 
