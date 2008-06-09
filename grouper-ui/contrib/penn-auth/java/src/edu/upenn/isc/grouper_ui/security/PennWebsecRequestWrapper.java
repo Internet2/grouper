@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: PennWebsecRequestWrapper.java,v 1.2 2008-05-09 02:32:59 mchyzer Exp $
+ * $Id: PennWebsecRequestWrapper.java,v 1.1 2008-04-23 20:32:14 mchyzer Exp $
  */
 package edu.upenn.isc.grouper_ui.security;
 
@@ -114,7 +114,7 @@ public class PennWebsecRequestWrapper extends HttpServletRequestWrapper {
         throw we;
       }
       
-      user = websecOutput.getPennkey();
+      user = websecOutput.getPennid();
       
       //stash in session
       httpSession.setAttribute(PENN_SESSION_USER_KEY, user);

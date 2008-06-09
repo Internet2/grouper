@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  *  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ErrorFilter.java,v 1.3 2008-05-09 02:32:59 mchyzer Exp $
+ * @version $Id: ErrorFilter.java,v 1.2 2008-04-15 14:12:34 isgwb Exp $
  */
 
 public class ErrorFilter implements Filter {
@@ -97,7 +97,7 @@ public class ErrorFilter implements Filter {
 				SessionInitialiser.init(module,session);
 			}catch(Exception e) {
 				Log LOG = LogFactory.getLog(ErrorFilter.class);
-				LOG.error("Error initialising session: " + e.getMessage(), e);
+				LOG.error("Error initialising session: " + e.getMessage());
 			}
 		}
 		

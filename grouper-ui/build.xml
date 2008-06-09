@@ -288,7 +288,6 @@
 		</condition>
 		<antcall target="-copyContent"/>
 		<echo message="Processing web.xml"/>
-		<copy file="${ui.folder}/webapp/WEB-INF/web.error.xml" tofile="${temp.dir}/99.web.error.xml"/>
 		<path id="web.xml.files">
 			<fileset dir="${temp.dir}">
 				<include name="**/*.xml"/>
@@ -334,7 +333,6 @@
 	-->
 	<target name="-merge-xmls" unless="web.xmls.isempty">
 	<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml"/>
-	
 	<path id="final.web.xml.files">
 			<fileset dir="${temp.dir}">
 				<include name="**/*.xml"/>
@@ -398,8 +396,6 @@
 	<target name="-additional-build" if="additional.build">
 		<echo message="Calling site specific build script - '${additional.build}' - target=${target}"/>
 		<dirname property="additional.build.dir" file="${additional.build}"/>
-		<!-- In trying to debug why ui.class.path was not inherited the problem went away when the line below was added for debugging!-->
-		<property name="uicp" refid="ui.class.path"/>
 		<ant antfile="${additional.build}" target="${target}" inheritrefs="true" dir="${additional.build.dir}"/>
 	</target>
 	
@@ -802,4 +798,4 @@
 		  <echo/>
 		  <fail>Please run ant again so it can find catalina-ant.jar</fail>
 	  </target>
-</project>                  	  							   		    		
+</project>
