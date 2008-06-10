@@ -619,7 +619,7 @@ public class GrouperProvisioner extends Provisioner
                 {
                     if (currentSubjectDn != null)
                     {
-                        updateSubject(currentSubjectDn, existingObjectDns.contains(subjectDn),
+                        updateSubject(currentSubjectDn, !existingObjectDns.contains(subjectDn),
                                 adds, dels, reps);
                     }
                     adds.clear();
@@ -737,6 +737,20 @@ public class GrouperProvisioner extends Provisioner
         catch (NamingException e)
         {
             e.printStackTrace();
+            System.out.println("Printing ModItems array:");
+            for (ModificationItem modItem : modItems) {
+                System.out.println("op = " + modItem.getModificationOp() + ", id = " + modItem.getAttribute().getID());
+                Attribute attr = modItem.getAttribute();
+                for (int i = 0; i < attr.size(); i++) {
+                    try {
+                        System.out.println("    " + attr.get(i));
+                    } catch (NamingException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                }
+            }
+            System.out.println("Done printing ModItems array:");
         }
     }
 
