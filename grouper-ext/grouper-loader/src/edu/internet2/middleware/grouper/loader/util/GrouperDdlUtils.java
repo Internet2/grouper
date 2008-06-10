@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.1 2008-06-01 21:27:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.2 2008-06-10 15:33:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.util;
 
@@ -212,6 +212,7 @@ public class GrouperDdlUtils {
     if (StringUtils.isNotBlank(resultString)) {
       resultString = "Database requires updates:\n\n" + resultString + "\n\n";
       LOG.error(resultString);
+      System.out.println(resultString);
     }
     
   }
