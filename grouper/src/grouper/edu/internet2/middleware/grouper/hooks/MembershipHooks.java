@@ -1,17 +1,17 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooks.java,v 1.1.2.1 2008-06-09 19:26:05 mchyzer Exp $
+ * $Id: MembershipHooks.java,v 1.1.2.2 2008-06-11 06:19:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostDeleteBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostInsertBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostUpdateBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostUpdateHighLevelBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostAddMemberBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreDeleteBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreUpdateBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreUpdateHighLevelBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
 
 
 /**
@@ -38,19 +38,19 @@ public abstract class MembershipHooks {
   
   /**
    * called right before a membership update (high level, not the side effects)
-   * @param preUpdateHighLevelBean
+   * @param preAddMemberBean
    */
-  public void membershipPreUpdateHighLevel(
-      HooksMembershipPreUpdateHighLevelBean preUpdateHighLevelBean) {
+  public void membershipPreAddMember(
+      HooksMembershipPreAddMemberBean preAddMemberBean) {
     
   }
   
   /**
    * called right after a membership update (high level, not the side effects)
-   * @param postUpdateHighLevelBean
+   * @param postAddMemberBean
    */
-  public void membershipPostUpdateHighLevel(
-      HooksMembershipPostUpdateHighLevelBean postUpdateHighLevelBean) {
+  public void membershipPostAddMember(
+      HooksMembershipPostAddMemberBean postAddMemberBean) {
     
   }
   

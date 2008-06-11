@@ -36,9 +36,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostUpdateHighLevelBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostAddMemberBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreUpdateHighLevelBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -53,7 +53,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.10.2.2 2008-06-09 19:26:05 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.10.2.3 2008-06-11 06:19:41 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -759,10 +759,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             MembershipHooks membershipHooks = (MembershipHooks)GrouperHookType.MEMBERSHIP.hooksInstance();
             
             if (membershipHooks != null) {
-              HooksMembershipPreUpdateHighLevelBean hooksMembershipPreUpdateHighLevelBean = 
-                new HooksMembershipPreUpdateHighLevelBean(new HooksContext(), mof);
+              HooksMembershipPreAddMemberBean hooksMembershipPreUpdateHighLevelBean = 
+                new HooksMembershipPreAddMemberBean(new HooksContext(), mof);
                     
-              membershipHooks.membershipPreUpdateHighLevel(hooksMembershipPreUpdateHighLevelBean);
+              membershipHooks.membershipPreAddMember(hooksMembershipPreUpdateHighLevelBean);
             }
             
             Iterator it = mof.getDeletes().iterator();
@@ -788,10 +788,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             }
 
             if (membershipHooks != null) {
-              HooksMembershipPostUpdateHighLevelBean hooksMembershipPostUpdateHighLevelBean = 
-                new HooksMembershipPostUpdateHighLevelBean(new HooksContext(), mof);
+              HooksMembershipPostAddMemberBean hooksMembershipPostUpdateHighLevelBean = 
+                new HooksMembershipPostAddMemberBean(new HooksContext(), mof);
                     
-              membershipHooks.membershipPostUpdateHighLevel(hooksMembershipPostUpdateHighLevelBean);
+              membershipHooks.membershipPostAddMember(hooksMembershipPostUpdateHighLevelBean);
             }
             
             return null;

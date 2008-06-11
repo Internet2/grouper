@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.internal.dto.StemDTO;
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.7.6.1 2008-06-09 19:26:05 mchyzer Exp $
+ * @version $Id: BaseMemberOf.java,v 1.7.6.2 2008-06-11 06:19:41 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
@@ -151,7 +151,7 @@ public abstract class BaseMemberOf implements MemberOf {
     return this._m;
   }
   // @since   1.2.0
-  protected MembershipDTO getMembershipDTO() {
+  public MembershipDTO getMembershipDTO() {
     return this._ms;
   }
   // @since   1.2.0

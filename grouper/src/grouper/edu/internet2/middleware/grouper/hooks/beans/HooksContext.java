@@ -1,15 +1,26 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.1.2.1 2008-06-09 05:52:52 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.1.2.2 2008-06-11 06:19:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.util.ExpirableCache;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * context in which hooks are running
@@ -30,6 +41,130 @@ public class HooksContext {
    */
   public HooksContext() {
     
+  }
+  
+  /**
+   * hooks internal attribute key for grouper session
+   */
+  public static final String HOOKS_KEY_SUBJECT_LOGGED_IN = "_grouperSubjectLoggedIn";
+  
+  /**
+   * hooks internal attribute key for grouper session
+   */
+  public static final String HOOKS_KEY_SUBJECT_ACT_AS = "_grouperSubjectActAs";
+  
+  /**
+   * current user logged in to app (e.g. UI or WS)
+   * @return the subject logged in (or null if not available)
+   */
+  public Subject getSubjectLoggedIn() {
+    return (Subject)this.getAttribute(HOOKS_KEY_SUBJECT_LOGGED_IN);
+  }
+  
+  /**
+   * current acting subject in app (if applicable)
+   * @return the subject acting as (or null if not available)
+   */
+  public Subject getSubjectActAs() {
+    return (Subject)this.getAttribute(HOOKS_KEY_SUBJECT_ACT_AS);
+  }
+  
+  /**
+   * this will be a threadsafe attribute
+   * @param subject or null to clear
+   */
+  public static void assignSubjectLoggedIn(Subject subject) {
+    setAttributeThreadLocal(HOOKS_KEY_SUBJECT_LOGGED_IN, subject, true);
+  }
+  
+  /**
+   * this will be a threadsafe attribute
+   * @param subject or null to clear
+   */
+  public static void assignSubjectActAs(Subject subject) {
+    setAttributeThreadLocal(HOOKS_KEY_SUBJECT_ACT_AS, subject, true);
+  }
+  
+  /**
+   * cache group to uuids for 5 minutes
+   */
+  private static ExpirableCache<String, Group> groupNameToGroupCache = new ExpirableCache<String, Group>(5);
+  
+  /**
+   * cache group to uuids for 5 minutes
+   */
+  private static ExpirableCache<MultiKey, Boolean> subjectInGroupCache = new ExpirableCache<MultiKey, Boolean>(5);
+  
+  /**
+   * see if the current act as subject is in a certain group.  Note, this group uuid will be stored
+   * in a cache.  Also the result will be stored in a cache, it is not meant to hold too many items
+   * @param groupName
+   * @return true if in group, false if not in group, or if the subject is not available
+   */
+  public boolean isSubjectActAsInGroup(String groupName) {
+    Subject subject = this.getSubjectActAs();
+    if (subject == null) {
+      return false;
+    }
+    
+    //see if answer is cached
+    MultiKey multiKey = new MultiKey(groupName, subject.getId(), subject.getSource());
+    Boolean result = subjectInGroupCache.get(multiKey);
+    if (Boolean.TRUE.equals(result)) {
+      return true;
+    }
+    if (Boolean.FALSE.equals(result)) {
+      return false;
+    }
+    
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.start(rootSubject);
+
+      //see if group cached
+      Group group = groupNameToGroupCache.get(groupName);
+      
+      if (group == null) {
+        group = GroupFinder.findByName(grouperSession, groupName);
+        groupNameToGroupCache.put(groupName, group);
+      }
+      
+      boolean isMember = group.hasMember(subject);
+      
+      //put it in cache either way
+      subjectInGroupCache.put(multiKey, isMember);
+      
+      return isMember;
+    } catch (Exception e) {
+      throw new RuntimeException("Problem seeing if subject: " + subject.getId() + ", " 
+          + subject.getSource() + ", is in group: " + groupName);
+    } finally { 
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * return the grouper session, or null if none in context
+   * @return the grouper session
+   */
+  public GrouperSession getGrouperSession() {
+    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
+      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
+    if (sessions != null) {
+      //get the last non-null one, remove if not there
+      for (int i=sessions.size()-1;i>=0;i--) {
+        WeakReference<GrouperSession> reference = sessions.get(i);
+        GrouperSession session = reference.get();
+        if (session == null) {
+          sessions.remove(i);
+        } else {
+          return session;
+        }
+      }
+    }
+    //cant find
+    return null;
   }
   
   /**
@@ -118,9 +253,78 @@ public class HooksContext {
   }
   
   /**
+   * clear out the threadlocal attributes at a point when everything should be clear
+   */
+  public static void clearThreadLocal() {
+    threadLocalAttribute().clear();
+  }
+
+  /**
+   * keep sessions in a list so they fall off when done
+   * @param grouperSession
+   */
+  public static void removeGrouperSessionThreadLocal(GrouperSession grouperSession) {
+    
+    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
+      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
+    
+    if (sessions != null) {
+      //lets find and remove this one or removed ones
+      Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();
+      while (iterator.hasNext()) {
+        WeakReference<GrouperSession> currentReference = iterator.next();
+        
+        //if not there, or the one to remove, then remove
+        GrouperSession currentSession = currentReference.get();
+        if (currentSession == null || currentSession == grouperSession) {
+          iterator.remove();
+        }
+        
+      }
+      
+    }
+  }
+  
+  /**
+   * keep sessions in a list so they fall off when done
+   * @param grouperSession
+   */
+  public static void addGrouperSessionThreadLocal(GrouperSession grouperSession) {
+    
+    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
+      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
+
+    if (sessions == null) {
+      sessions = new ArrayList<WeakReference<GrouperSession>>();
+      setAttributeThreadLocal(HooksContext.HOOKS_KEY_GROUPER_SESSION, sessions, false);
+    }
+    
+    //lets clear out removed ones
+    Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();
+    while (iterator.hasNext()) {
+      WeakReference<GrouperSession> currentReference = iterator.next();
+      
+      //if not there, remove
+      GrouperSession currentSession = currentReference.get();
+      if (currentSession == null) {
+        iterator.remove();
+      }
+      
+    }
+    
+    //add to end
+    sessions.add(new WeakReference<GrouperSession>(grouperSession));
+  }
+  
+  /**
    * local attributes just for this context
    */
   private Map<String, HooksAttribute> attributeLocal = new HashMap<String, HooksAttribute>();
+
+  /**
+   * hooks internal attribute key for grouper session
+   */
+  public static final String HOOKS_KEY_GROUPER_SESSION = "_grouperSession";
   
   /**
    * keys of attributes (all put together, global, threadlocal, local
