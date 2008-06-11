@@ -1,25 +1,19 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.1.2.1 2008-06-11 06:19:38 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.1.2.2 2008-06-11 07:21:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ui.hooks;
-
-import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.SchemaException;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperBuiltinContextType;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
 import edu.internet2.middleware.grouper.hooks.veto.HookVetoGroupInsert;
-import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 
 
 /**
@@ -53,7 +47,7 @@ public class MembershipHooksImplExample extends MembershipHooks {
           throw new RuntimeException(se);
         }
         if (group.hasType(groupType)) {
-          throw new HookVetoGroupInsert("hook.veto.group.name.prefix", "group must be in the 'penn' top level folder");
+          throw new HookVetoGroupInsert("hook.veto.loader.membership", "the membership of this group is automatically managed and does not permit manual changes");
         }
         
       }
