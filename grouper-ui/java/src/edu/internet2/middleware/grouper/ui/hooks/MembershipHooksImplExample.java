@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.1.2.2 2008-06-11 07:21:19 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.1.2.3 2008-06-11 07:21:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ui.hooks;
 
@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
 import edu.internet2.middleware.grouper.hooks.veto.HookVetoGroupInsert;
+import edu.internet2.middleware.grouper.hooks.veto.HookVetoMembershipUpdate;
 
 
 /**
@@ -47,7 +48,7 @@ public class MembershipHooksImplExample extends MembershipHooks {
           throw new RuntimeException(se);
         }
         if (group.hasType(groupType)) {
-          throw new HookVetoGroupInsert("hook.veto.loader.membership", "the membership of this group is automatically managed and does not permit manual changes");
+          throw new HookVetoMembershipUpdate("hook.veto.loader.membership", "the membership of this group is automatically managed and does not permit manual changes");
         }
         
       }
