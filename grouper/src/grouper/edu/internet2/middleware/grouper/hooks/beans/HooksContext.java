@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.1.2.3 2008-06-12 05:44:59 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.1.2.4 2008-06-12 07:10:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.util.ExpirableCache;
+import edu.internet2.middleware.grouper.util.GrouperCache;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -88,12 +88,16 @@ public class HooksContext {
   /**
    * cache group to uuids for 5 minutes
    */
-  private static ExpirableCache<String, Group> groupNameToGroupCache = new ExpirableCache<String, Group>(5);
+  private static GrouperCache<String, Group> groupNameToGroupCache = 
+    new GrouperCache<String, Group>("edu.internet2.middleware.grouper.hooks.beans.HooksContext.groupNameToGroupCache",
+        2000, false, 0, 60*5, false);
   
   /**
    * cache group to uuids for 5 minutes
    */
-  private static ExpirableCache<MultiKey, Boolean> subjectInGroupCache = new ExpirableCache<MultiKey, Boolean>(5);
+  private static GrouperCache<MultiKey, Boolean> subjectInGroupCache = 
+    new GrouperCache<MultiKey, Boolean>("edu.internet2.middleware.grouper.hooks.beans.HooksContext.subjectInGroupCache",
+        2000, false, 0, 60*5, false);
   
   /**
    * see if the current act as subject is in a certain group.  Note, this group uuid will be stored

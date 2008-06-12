@@ -64,6 +64,18 @@ public class GrouperUtil {
   private static Set<MultiKey> dbChangeWhitelist = new HashSet<MultiKey>();
   
   /**
+   * sleep, if interrupted, throw runtime
+   * @param millis
+   */
+  public static void sleep(long millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (InterruptedException ie) {
+      throw new RuntimeException(ie);
+    }
+  }
+  
+  /**
    * If we can, inject this into the exception, else log error
    * @param t
    * @param message
@@ -918,36 +930,30 @@ public class GrouperUtil {
   /**
    * use the field cache, expire every day (just to be sure no leaks)
    */
-  private static ExpirableCache<String, Set<Field>> fieldSetCache = new ExpirableCache<String, Set<Field>>(
-      60 * 24);
+  private static GrouperCache<String, Set<Field>> fieldSetCache = 
+    new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.GrouperUtil.fieldSetCache",
+        2000, false, 0, 60*60*24, false);
 
   /**
    * make a cache with max size to cache declared methods
    */
-  private static Map<Class, Method[]> declaredMethodsCache = new HashMap<Class, Method[]>() {
-    /**
-     * @see java.util.HashMap#put(java.lang.Object,java.lang.Object)
-     */
-    @Override
-    public Method[] put(Class key, Method[] value) {
-      if (this.size() > 2000) {
-        return null;
-      }
-      return super.put(key, value);
-    }
-  };
+  private static GrouperCache<Class, Method[]> declaredMethodsCache = 
+    new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.GrouperUtil.declaredMethodsCache",
+      2000, false, 0, 60*60*24, false);
 
   /**
    * use the field cache, expire every day (just to be sure no leaks) 
    */
-  private static ExpirableCache<String, Set<Method>> getterSetCache = new ExpirableCache<String, Set<Method>>(
-      60 * 24);
+  private static GrouperCache<String, Set<Method>> getterSetCache = 
+    new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.GrouperUtil.getterSetCache",
+        2000, false, 0, 60*60*24, false);
 
   /**
    * use the field cache, expire every day (just to be sure no leaks) 
    */
-  private static ExpirableCache<String, Set<Method>> setterSetCache = new ExpirableCache<String, Set<Method>>(
-      60 * 24);
+  private static GrouperCache<String, Set<Method>> setterSetCache = 
+    new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.GrouperUtil.setterSetCache",
+        2000, false, 0, 60*60*24, false);
 
   /**
    * Field lastId.
