@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.1.2.2 2008-06-11 06:19:41 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.1.2.3 2008-06-12 05:44:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -291,13 +291,19 @@ public class HooksContext {
    */
   public static void addGrouperSessionThreadLocal(GrouperSession grouperSession) {
     
-    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
+     HooksAttribute hooksAttribute = threadLocalAttribute()
       .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-
-    if (sessions == null) {
+     
+    List<WeakReference<GrouperSession>> sessions;
+     
+    if (hooksAttribute == null) {
       sessions = new ArrayList<WeakReference<GrouperSession>>();
       setAttributeThreadLocal(HooksContext.HOOKS_KEY_GROUPER_SESSION, sessions, false);
+      hooksAttribute = threadLocalAttribute()
+        .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
     }
+    
+    sessions = (List<WeakReference<GrouperSession>>)hooksAttribute.getValue();
     
     //lets clear out removed ones
     Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();

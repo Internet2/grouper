@@ -19,13 +19,13 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
-import edu.internet2.middleware.grouper.hooks.veto.HookVeto;
+import edu.internet2.middleware.grouper.hooks.HookVeto;
 
 /**
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.6.4.1 2008-06-09 05:52:52 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.6.4.2 2008-06-12 05:44:59 mchyzer Exp $
  */
 public class StemHelper {
 

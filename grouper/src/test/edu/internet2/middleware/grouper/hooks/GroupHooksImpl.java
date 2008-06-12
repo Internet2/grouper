@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImpl.java,v 1.1.2.2 2008-06-09 19:26:05 mchyzer Exp $
+ * $Id: GroupHooksImpl.java,v 1.1.2.3 2008-06-12 05:44:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -8,7 +8,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
-import edu.internet2.middleware.grouper.hooks.veto.HookVetoGroupInsert;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 
 
@@ -30,7 +29,7 @@ public class GroupHooksImpl extends GroupHooks {
     String extension = (String)groupDAO.getAttributes().get(GrouperConfig.ATTR_EXTENSION);
     mostRecentInsertGroupExtension = extension;
     if (StringUtils.equals("test2", extension)) {
-      throw new HookVetoGroupInsert("hook.veto.group.insert.name.not.test2", "name cannot be test2");
+      throw new HookVeto("hook.veto.group.insert.name.not.test2", "name cannot be test2");
     }
     
   }

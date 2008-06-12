@@ -41,6 +41,8 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.HookVeto;
+import edu.internet2.middleware.grouper.hooks.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
@@ -58,7 +60,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.12.2.4 2008-06-09 05:52:52 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.12.2.5 2008-06-12 05:44:59 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -872,7 +874,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     if (groupHooks != null) {
       HooksGroupPreInsertBean hooksGroupPreInsertBean = new HooksGroupPreInsertBean(new HooksContext(), this);
-      groupHooks.groupPreInsert(hooksGroupPreInsertBean);
+      try {
+        groupHooks.groupPreInsert(hooksGroupPreInsertBean);
+      } catch (HookVeto hv) {
+        hv.assignVetoType(VetoTypeGrouper.GROUP_PRE_INSERT, false);
+        throw hv;
+      }
     }
     
   }

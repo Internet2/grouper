@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl.java,v 1.1.2.2 2008-06-11 06:19:41 mchyzer Exp $
+ * $Id: MembershipHooksImpl.java,v 1.1.2.3 2008-06-12 05:44:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -8,7 +8,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
-import edu.internet2.middleware.grouper.hooks.veto.HookVetoMembershipUpdate;
 
 
 /**
@@ -36,7 +35,7 @@ public class MembershipHooksImpl extends MembershipHooks {
     String subjectId = preAddMemberBean.getMemberDTO().getSubjectId();
     mostRecentInsertMemberSubjectId = subjectId;
     if (StringUtils.equals(SubjectTestHelper.SUBJ1.getId(), subjectId)) {
-      throw new HookVetoMembershipUpdate("hook.veto.subjectId.not.subj1", "subject cannot be subj1");
+      throw new HookVeto("hook.veto.subjectId.not.subj1", "subject cannot be subj1");
     }
   }
 

@@ -13,7 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.hooks.veto.HookVeto;
+import edu.internet2.middleware.grouper.hooks.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

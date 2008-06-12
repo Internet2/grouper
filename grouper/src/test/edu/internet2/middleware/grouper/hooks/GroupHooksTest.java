@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksTest.java,v 1.1.2.2 2008-06-09 19:26:05 mchyzer Exp $
+ * $Id: GroupHooksTest.java,v 1.1.2.3 2008-06-12 05:44:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -13,7 +13,6 @@ import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
-import edu.internet2.middleware.grouper.hooks.veto.HookVetoGroupInsert;
 
 
 /**
@@ -49,8 +48,9 @@ public class GroupHooksTest extends GrouperTest {
     try {
       group = StemHelper.addChildGroup(this.edu, "test2", "the test2");
       fail("Should veto test2");
-    } catch (HookVetoGroupInsert hookVetoGroupInsert) {
-      assertEquals("name cannot be test2", hookVetoGroupInsert.getReason());
+    } catch (HookVeto hookVeto) {
+      assertEquals("name cannot be test2", hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.GROUP_PRE_INSERT, hookVeto.getVetoType());
     }
     
   }
