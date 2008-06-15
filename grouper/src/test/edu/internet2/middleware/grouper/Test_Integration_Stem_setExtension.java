@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.4.6.1 2008-06-07 19:28:22 mchyzer Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.4.6.2 2008-06-15 04:29:56 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
@@ -37,7 +37,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_Integration_Stem_setExtension("testSetExtension_ChangeAndPropagateAsRoot"));
+    TestRunner.run(new Test_Integration_Stem_setExtension("testSetExtension_ChangeAndPropagateAsNonRoot"));
   }
   
   // TESTS //  
@@ -197,6 +197,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
       String  val = "new extension";
       ns.setExtension(val);
+//      ns.store();
 
       // Verify propagation in a new session
       GrouperSession  s       = r.startAllSession();

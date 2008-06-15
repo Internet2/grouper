@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,7 +51,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.6.2.3 2008-06-08 07:21:24 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.6.2.4 2008-06-15 04:29:56 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -89,6 +90,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   private String  parentUUID;
   /** */
   private String  uuid;
+
+
+  /**
+   * save the state when retrieving from DB 
+   */
+  private Hib3StemDAO dbVersion = null;
 
   /**
    * @since   @HEAD@
@@ -157,6 +164,29 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throw new GrouperDAOException( error, e );
     }
   } 
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Hib3StemDAO();
+    this.dbVersion.createSource = this.createSource;
+    this.dbVersion.createTime = this.createTime;
+    this.dbVersion.creatorUUID = this.creatorUUID;
+    this.dbVersion.description = this.description;
+    this.dbVersion.displayExtension = this.displayExtension;
+    this.dbVersion.extension = this.extension;
+    this.dbVersion.id = this.id;
+    this.dbVersion.modifierUUID = this.modifierUUID;
+    this.dbVersion.modifySource = this.modifySource;
+    this.dbVersion.modifyTime = this.modifyTime;
+    this.dbVersion.name = this.name;
+    this.dbVersion.parentUUID = this.parentUUID;
+    this.dbVersion.uuid = this.uuid;
+
+  }
 
   /**
    * @since   @HEAD@
@@ -851,6 +881,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
 
   // PROTECTED CLASS METHODS //
+
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  public Hib3StemDAO getDbVersion() {
+    return this.dbVersion;
+  }
 
   /**
    * @param hibernateSession 

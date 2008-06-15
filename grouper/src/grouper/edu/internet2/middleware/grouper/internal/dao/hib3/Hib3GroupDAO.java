@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -60,7 +61,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.12.2.5 2008-06-12 05:44:59 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.12.2.6 2008-06-15 04:29:56 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -591,6 +592,47 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     existsCache.put( this.getUuid(), false );
     return Lifecycle.NO_VETO;
   } 
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#stateDifferentThanDb()
+   */
+  boolean stateDifferentThanDb() {
+    if (dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    if (!GrouperUtil.equalsMap(this.dbVersion.attributes, this.attributes)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.dbVersion.createSource, this.createSource)) {
+      return true;
+    }
+    if (this.dbVersion.createTime != this.createTime) {
+      return true;
+    }
+    if (!StringUtils.equals(this.dbVersion.creatorUUID, this.creatorUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.dbVersion.id, this.id)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.dbVersion.modifierUUID, this.modifierUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.dbVersion.modifySource, this.modifySource)) {
+      return true;
+    }
+    if (this.dbVersion.modifyTime != this.modifyTime) {
+      return true;
+    }
+    if (!StringUtils.equals(this.dbVersion.parentUUID, this.parentUUID)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.dbVersion.uuid, this.uuid)) {
+      return true;
+    }
+    return false;
+  }
 
   /**
    * take a snapshot of the data since this is what is in the db

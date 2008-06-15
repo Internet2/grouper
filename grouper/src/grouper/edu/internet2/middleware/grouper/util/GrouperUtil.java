@@ -44,6 +44,7 @@ import net.sf.cglib.proxy.Enhancer;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -64,6 +65,41 @@ public class GrouperUtil {
   private static Set<MultiKey> dbChangeWhitelist = new HashSet<MultiKey>();
   
   /**
+   * see if two maps are the equivalent (based on number of entries, 
+   * and the equals() method of the keys and values)
+   * @param first
+   * @param second
+   * @return true if equal
+   */
+  public static boolean equalsMap(Map first, Map second) {
+    if (first == second) {
+      return true;
+    }
+    int firstSize = first == null ? 0 : first.size();
+    int secondSize = second == null ? 0 : second.size();
+    if (firstSize != secondSize) {
+      return false;
+    }
+    //if both empty then all good
+    if (firstSize == 0) {
+      return true;
+    }
+    for (Object key : first.keySet()) {
+      
+      Object firstValue = first.get(key);
+      if (!second.containsKey(key)) {
+        return false;
+      }
+      Object secondValue = second.get(key);
+      if (!ObjectUtils.equals(firstValue, secondValue)) {
+        return false;
+      }
+      
+    }
+    return true;
+  }
+  
+  /**
    * sleep, if interrupted, throw runtime
    * @param millis
    */
@@ -76,7 +112,7 @@ public class GrouperUtil {
   }
   
   /**
-   * If we can, inject this into the exception, else log error
+   * If we can, inject this into the exception, else return false
    * @param t
    * @param message
    * @return true if success, false if not

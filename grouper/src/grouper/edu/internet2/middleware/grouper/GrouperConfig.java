@@ -28,7 +28,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.55.2.2 2008-06-09 05:52:52 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.55.2.3 2008-06-15 04:29:56 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -217,5 +217,26 @@ public class GrouperConfig {
     throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
   }
   
-} 
+  /**
+   * @param property 
+   * @param defaultValue 
+   * @return the property value, or the default value if the property value is blank
+   * @throws IllegalArgumentException 
+   */
+  public String getProperty(String property, String defaultValue) 
+      throws  IllegalArgumentException {
 
+    String val = getProperty(property);
+
+    //if no val, then return the default value
+    if (StringUtils.isBlank(property)) {
+      return defaultValue;
+    }
+    return val;
+  }
+
+  /** property setters dont cause queries */
+  public static final String PROP_SETTERS_DONT_CAUSE_QUERIES 
+    = "grouper.setters.dont.cause.queries";
+  
+} 

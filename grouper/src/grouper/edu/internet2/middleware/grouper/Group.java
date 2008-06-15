@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.181.2.2 2008-06-09 19:26:05 mchyzer Exp $
+ * @version $Id: Group.java,v 1.181.2.3 2008-06-15 04:29:56 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -2438,10 +2438,22 @@ public class Group extends GrouperAPI implements Owner {
   }
   
   /**
-   * store this object to the DB
+   * store this object to the DB.  If
+   * grouper.setters.dont.cause.queries is false, then this is a no-op
    */
   public void store() {
-    GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+    }
+  }
+  
+  /**
+   * store this object to the DB
+   */
+  private void storeIfConfiguredToStore() {
+    if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+    }
   }
   
   /**
@@ -2513,6 +2525,7 @@ public class Group extends GrouperAPI implements Owner {
       }
       this._getDTO().setAttributes(attrs);
       this.internal_setModified();
+      this.storeIfConfiguredToStore();
       sw.stop();
       EVENT_LOG.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }

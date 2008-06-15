@@ -1,10 +1,12 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.4 2008-04-27 13:08:36 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.4.2.1 2008-06-15 04:29:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -24,6 +26,45 @@ public class GrouperUtilTest extends TestCase {
     TestRunner.run(new GrouperUtilTest("testIndentJson"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * see if testing for equal maps work
+   */
+  public void testEqualsMap() {
+    
+    Map<String, String> first = null;
+    Map<String, String> second = null;
+    
+    assertTrue("nulls should be equal", GrouperUtil.equalsMap(first, second));
+    
+    first = new HashMap<String, String>();
+    
+    assertTrue("null is equal to empty", GrouperUtil.equalsMap(first, second));
+    
+    first.put("key1", "value1");
+    
+    assertFalse("null is not empty to map with size", GrouperUtil.equalsMap(first, second));
+    assertTrue("map is equal to self", GrouperUtil.equalsMap(first, first));
+    
+    second = new HashMap<String, String>();
+    second.put("key1", "value2");
+    
+    assertFalse("not equal if same size, different values", GrouperUtil.equalsMap(first, second));
+    
+    second.put("key1", "value1");
+    
+    assertTrue("equal if same size, same keys/values", GrouperUtil.equalsMap(first, second));
+    
+    first.put("key2", "value2");
+    assertFalse("not equal if different size", GrouperUtil.equalsMap(first, second));
+    
+    second.put("key2", "value2");
+    assertTrue("equal if same size, same keys/values", GrouperUtil.equalsMap(first, second));
+    
+    second.put("key3", "value2");
+    second.remove("key2");
+    assertFalse("not equal if same size, different keys", GrouperUtil.equalsMap(first, second));
   }
   
   /**

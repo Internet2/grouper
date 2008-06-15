@@ -33,7 +33,7 @@ import org.hibernate.classic.Lifecycle;
  * Base Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.4.2.2 2008-06-09 05:52:52 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.4.2.3 2008-06-15 04:29:56 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO implements HibGrouperLifecycle, Lifecycle {
@@ -188,6 +188,14 @@ abstract class Hib3DAO implements HibGrouperLifecycle, Lifecycle {
    * take a snapshot of the data since this is what is in the db
    */
   void dbVersionReset() {
+  }
+  
+  /**
+   * see if the state of this object has changed compared to the DB state (last known)
+   * @return true if changed, false if not
+   */
+  boolean stateDifferentThanDb() {
+    throw new RuntimeException("Not implemented");
   }
 } 
 
