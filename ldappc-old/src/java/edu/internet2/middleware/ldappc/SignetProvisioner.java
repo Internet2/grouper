@@ -151,7 +151,7 @@ public class SignetProvisioner extends Provisioner
             // Using signet.getSubject() as privSubj.getSubject() encounters
             // a NullPointerException.
             //
-            subject = signet.getSubject(privSubj.getSubjectType(),
+            subject = signet.getSubject(privSubj.getSourceId(),
                     privSubj.getId());
             if (subject == null)
             {
