@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Basic Hibernate <code>RegistrySubject</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3RegistrySubjectDAO.java,v 1.2.4.1 2008-06-08 07:21:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDAO {
@@ -132,11 +132,11 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3RegistrySubjectAttributeDAO").executeUpdate();
-    hs.createQuery("delete from Hib3RegistrySubjectDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from Hib3RegistrySubjectAttributeDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from Hib3RegistrySubjectDAO").executeUpdate();
   } 
 
 } 

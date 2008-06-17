@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllUtilTests.java,v 1.2 2008-03-24 20:15:36 mchyzer Exp $
+ * $Id: AllUtilTests.java,v 1.2.2.1 2008-06-12 07:10:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -20,6 +20,7 @@ public class AllUtilTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.util");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperUtilTest.class);
+    suite.addTestSuite(GrouperCacheTest.class);
     suite.addTestSuite(XmlIndenterTest.class);
     suite.addTestSuite(JsonIndenterTest.class);
     //$JUnit-END$

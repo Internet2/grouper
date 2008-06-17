@@ -28,11 +28,17 @@ import  java.util.Set;
  * Basic <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.8 2008-03-20 16:40:22 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.8.2.1 2008-06-17 17:00:23 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
 
+  /**
+   * set the dto so data can be passed back
+   * @param groupDTO
+   */
+  public void setGroupDTO(GroupDTO groupDTO);
+  
   /**
    * @since   1.2.0
    */

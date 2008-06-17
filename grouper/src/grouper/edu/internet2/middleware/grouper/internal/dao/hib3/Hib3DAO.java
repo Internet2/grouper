@@ -16,25 +16,113 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.ErrorLog;
-import  edu.internet2.middleware.grouper.GrouperConfig;
-import  java.io.InputStream;
-import  java.util.Properties;
-import  org.hibernate.*;
-import  org.hibernate.cfg.*;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Properties;
+import java.util.Set;
+
+import org.hibernate.CallbackException;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.classic.Lifecycle;
+
+import edu.internet2.middleware.grouper.ErrorLog;
+import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 
 /**
  * Base Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.4 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.4.2.4 2008-06-17 17:00:23 mchyzer Exp $
  * @since   @HEAD@
  */
-abstract class Hib3DAO {
+abstract class Hib3DAO implements HibGrouperLifecycle, Lifecycle {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Configuration  CFG;
+  /**
+   * @see org.hibernate.classic.Lifecycle#onDelete(org.hibernate.Session)
+   */
+  public boolean onDelete(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onLoad(org.hibernate.Session, java.io.Serializable)
+   */
+  public void onLoad(Session s, Serializable id) {
+    this.dbVersionReset();
+  }
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onSave(org.hibernate.Session)
+   */
+  public boolean onSave(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onUpdate(org.hibernate.Session)
+   */
+  public boolean onUpdate(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
+  }
+
   private static final SessionFactory FACTORY;
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostDelete(HibernateSession hibernateSession) {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostSave(HibernateSession hibernateSession) {
+    this.dbVersionReset();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    this.dbVersionReset();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreDelete(HibernateSession hibernateSession) {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreSave(HibernateSession hibernateSession) {
+    
+  }
+  
+  /**
+   * get the type of the hooks (which tells all methods and stuff)
+   * @return the type of the hooks
+   */
+  GrouperHookType grouperHooksType() {
+    return null;
+  }
+  
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreUpdate(HibernateSession hibernateSession) {
+  }
+
 
   // STATIC //
   static {
@@ -76,7 +164,7 @@ abstract class Hib3DAO {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static Configuration getConfiguration()
+  public static Configuration getConfiguration()
     throws  HibernateException
   {
     return CFG;
@@ -101,5 +189,27 @@ abstract class Hib3DAO {
   // @since   @HEAD@
   protected abstract String getId();
 
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  void dbVersionReset() {
+  }
+  
+  /**
+   * see if the state of this object has changed compared to the DB state (last known)
+   * @return true if changed, false if not
+   */
+  boolean dbVersionDifferent() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * see which fields have changed compared to the DB state (last known)
+   * note that attributes will print out: attribute__attributeName
+   * @return a set of attributes changed, or empty set if none
+   */
+  Set<String> dbVersionDifferentFields() {
+    throw new RuntimeException("Not implemented");
+  }
 } 
 

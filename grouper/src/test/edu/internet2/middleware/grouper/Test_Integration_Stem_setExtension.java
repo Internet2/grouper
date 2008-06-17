@@ -16,11 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.4 2007-05-31 18:52:25 blair Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.4.6.2 2008-06-15 04:29:56 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
@@ -29,7 +32,29 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
   private static final Log LOG = LogFactory.getLog(Test_Integration_Stem_setExtension.class);
 
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_Integration_Stem_setExtension("testSetExtension_ChangeAndPropagateAsNonRoot"));
+  }
+  
   // TESTS //  
+
+  /**
+   * 
+   */
+  public Test_Integration_Stem_setExtension() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_Integration_Stem_setExtension(String name) {
+    super(name);
+  }
 
   public void testSetExtension_NotPrivileged() {
     try {
@@ -150,10 +175,11 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       assertEquals( "child group 1 name verification", grouper.getName() + ":" + users.getExtension(), users.getName() );
     }
     catch (GroupNotFoundException eGNF) {
-      fail( "did not find renamed group by name: " + eGNF.getMessage() );
+      
+      fail( "did not find renamed group by name: " + ExceptionUtils.getFullStackTrace(eGNF) );
     }  
     catch (StemNotFoundException eNSNF) {
-      fail( "did not find renamed stem by name: " + eNSNF.getMessage() );
+      fail( "did not find renamed stem by name: " + ExceptionUtils.getFullStackTrace(eNSNF) );
     }
     catch (Exception e) {
       unexpectedException(e);
@@ -171,6 +197,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
       String  val = "new extension";
       ns.setExtension(val);
+//      ns.store();
 
       // Verify propagation in a new session
       GrouperSession  s       = r.startAllSession();

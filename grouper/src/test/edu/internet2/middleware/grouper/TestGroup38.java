@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup38.java,v 1.2 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroup38.java,v 1.2.6.1 2008-06-07 16:11:55 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGroup38 extends TestCase {
@@ -53,6 +53,7 @@ public class TestGroup38 extends TestCase {
       Group           a = GroupFinder.findByName(s, gA.getName());
       try {
         a.setAttribute("description", "new value");
+        a.store();
         Assert.fail("FAIL: set description w/out priv");
       }
       catch (InsufficientPrivilegeException eIP) {

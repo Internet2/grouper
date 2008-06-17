@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType11.java,v 1.4 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroupType11.java,v 1.4.6.1 2008-06-07 16:11:55 mchyzer Exp $
  */
 public class TestGroupType11 extends GrouperTest {
 
@@ -69,6 +69,7 @@ public class TestGroupType11 extends GrouperTest {
       );
       try {
         g.setAttribute(attr.getName(), name);
+        g.store();
         Assert.assertTrue("set attribute", true);
       }
       catch (Exception e) {

@@ -16,32 +16,39 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
-import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.annotations.GrouperIngoreFieldConstant;
+import edu.internet2.middleware.grouper.hibernate.ByHql;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.HookVeto;
+import edu.internet2.middleware.grouper.hooks.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
@@ -54,27 +61,95 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.12 2008-04-04 14:31:26 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.12.2.7 2008-06-17 17:00:23 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
+public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
-  private               Map                       attributes = null;
-  private               String                    createSource;
-  private               long                      createTime;
-  private               String                    creatorUUID;
-  private static        HashMap<String, Boolean>  existsCache = new HashMap<String, Boolean>();
-  private static  final String                    KLASS                         = Hib3GroupDAO.class.getName();
-  private               String                    id;
-  private               String                    modifierUUID;
-  private               String                    modifySource;
-  private               long                      modifyTime;
-  private               String                    parentUUID;
-  private               String                    uuid;
+  /** constant for field name for: attributes */
+  public static final String FIELD_ATTRIBUTES = "attributes";
 
+  /** constant for field name for: createSource */
+  public static final String FIELD_CREATE_SOURCE = "createSource";
+
+  /** constant for field name for: createTime */
+  public static final String FIELD_CREATE_TIME = "createTime";
+
+  /** constant for field name for: creatorUUID */
+  public static final String FIELD_CREATOR_UUID = "creatorUUID";
+
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: modifierUUID */
+  public static final String FIELD_MODIFIER_UUID = "modifierUUID";
+
+  /** constant for field name for: modifySource */
+  public static final String FIELD_MODIFY_SOURCE = "modifySource";
+
+  /** constant for field name for: modifyTime */
+  public static final String FIELD_MODIFY_TIME = "modifyTime";
+
+  /** constant for field name for: parentUUID */
+  public static final String FIELD_PARENT_UUID = "parentUUID";
+
+  /** constant for field name for: uuid */
+  public static final String FIELD_UUID = "uuid";
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+  
+  /** save the state when retrieving from DB */
+  private Hib3GroupDAO dbVersion = null;
+
+  /** constant for prefix of field diffs for attributes: attribute__ */
+  public static final String ATTRIBUTE_PREFIX = "attribute__";
+  
+  /** */
+  private Map<String, String> attributes = null;
+
+  /** */
+  private String createSource;
+
+  /** */
+  private long createTime;
+
+  /** */
+  private String creatorUUID;
+
+  /** */
+  private static HashMap<String, Boolean> existsCache = new HashMap<String, Boolean>();
+
+  /** */
+  private static final String KLASS = Hib3GroupDAO.class.getName();
+
+  /** */
+
+  /** */
+  private String id;
+
+  /** */
+  private String modifierUUID;
+
+  /** */
+  private String modifySource;
+
+  /** */
+  private long modifyTime;
+
+  /** */
+  private String parentUUID;
+
+  /** */
+  private String uuid;
+
+  /** group dto to pass data back */
+  private GroupDTO groupDTO;
 
   // PUBLIC INSTANCE METHODS //
 
@@ -88,13 +163,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs = hibernateSession.getSession();
-            hs.save(  // new group-type tuple
+            hibernateSession.byObject().save(  // new group-type tuple
                 new Hib3GroupTypeTupleDAO()
                   .setGroupUuid( _g.getUuid() )
                   .setTypeUuid( _gt.getUuid() )
               );
-            hs.saveOrUpdate( Rosetta.getDAO(_g) ); // modified group
+            //note this used to be saveOrUpdate
+            hibernateSession.byObject().update( Rosetta.getDAO(_g) ); // modified group
             //let HibernateSession commit or rollback depending on if problem or enclosing transaction
             return null;
           }
@@ -103,6 +178,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   } 
 
   /**
+   * @param _g 
+   * @param mships 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void delete(final GroupDTO _g, final Set mships)
@@ -113,25 +191,27 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
+            ByObject byObject = hibernateSession.byObject();
             // delete memberships
             Iterator it = mships.iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.delete( grouperDAO );
+              byObject.delete( grouperDAO );
             }
-            hs.flush();
+            hibernateSession.misc().flush();
             
             // delete attributes
-            Query qry = hs.createQuery("delete from Hib3AttributeDAO where group_id = :group");
-            qry.setString("group", _g.getUuid() );
-            qry.executeUpdate();
+            ByHql byHql = hibernateSession.byHql();
+            byHql.createQuery("delete from Hib3AttributeDAO where group_id = :group");
+            byHql.setString("group", _g.getUuid() );
+            byHql.executeUpdate();
             // delete type tuples
-            qry = hs.createQuery("delete from Hib3GroupTypeTupleDAO where group_uuid = :group");
-            qry.setString("group", _g.getUuid() );
-            qry.executeUpdate();
+            byHql = hibernateSession.byHql();
+            byHql.createQuery("delete from Hib3GroupTypeTupleDAO where group_uuid = :group");
+            byHql.setString("group", _g.getUuid() );
+            byHql.executeUpdate();
             // delete group
-            hs.delete( Rosetta.getDAO(_g) );
+            byObject.delete( Rosetta.getDAO(_g) );
             return null;
           }
     });
@@ -139,6 +219,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   } 
 
   /**
+   * @param _g 
+   * @param _gt 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void deleteType(final GroupDTO _g, final GroupTypeDTO _gt) 
@@ -148,9 +231,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
-            hs.delete( Hib3GroupTypeTupleDAO.findByGroupAndType(_g, _gt) );
-            hs.saveOrUpdate( Rosetta.getDAO(_g) ); 
+            
+            hibernateSession.byObject().delete( Hib3GroupTypeTupleDAO.findByGroupAndType(_g, _gt) );
+            
+            //NOTE: used to be saveOrUpdate
+            hibernateSession.byObject().update( Rosetta.getDAO(_g) ); 
+            
             return null;
           }
     });
@@ -180,34 +266,31 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   } 
 
   /**
+   * @param uuid 
+   * @return 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Map findAllAttributesByGroup(final String uuid) throws  GrouperDAOException {
     final Map attrs = new HashMap();
 
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
-        new HibernateHandler() {
-
-          public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
-            Query   qry = hs.createQuery("from Hib3AttributeDAO as a where a.groupUuid = :uuid");
-            qry.setCacheable(false);
-            qry.setCacheRegion(KLASS + ".FindAllAttributesByGroup");
-            qry.setString("uuid", uuid);
-            Hib3AttributeDAO a;
-            Iterator              it = qry.list().iterator();
-            while (it.hasNext()) {
-              a = (Hib3AttributeDAO) it.next();
-              attrs.put( a.getAttrName(), a.getValue() );
-            }
-            return null;
-          }
-    });
+    List<Hib3AttributeDAO> hib3Attributes = HibernateSession.byHqlStatic()
+      .setGrouperTransactionType(GrouperTransactionType.READONLY_OR_USE_EXISTING)
+      .createQuery("from Hib3AttributeDAO as a where a.groupUuid = :uuid")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindAllAttributesByGroup")
+      .setString("uuid", uuid).list(Hib3AttributeDAO.class);
     
+    for (Hib3AttributeDAO hib3AttributeDAO : hib3Attributes) {
+      attrs.put( hib3AttributeDAO.getAttrName(), hib3AttributeDAO.getValue() );
+    }
     return attrs;
   } 
 
   /**
+   * @param val 
+   * @return 
+   * @throws GrouperDAOException 
+   * @throws IllegalStateException 
    * @since   @HEAD@
    */
   public Set findAllByAnyApproximateAttr(final String val) 
@@ -218,17 +301,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
-            Query   qry = hs.createQuery(
+            
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
                 "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where a.groupUuid in " +
                 "(select a2.groupUuid from Hib3AttributeDAO as a2 where lower(a2.value) like :value) " +
                 "and a.groupUuid = g.uuid"
-              );
-            qry.setCacheable(false);
-            qry.setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr");
-            qry.setString( "value", "%" + val.toLowerCase() + "%" );
+              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr")
+              .setString( "value", "%" + val.toLowerCase() + "%" ).list(Object[].class);
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
             return groups;
           }
     });
@@ -254,48 +335,19 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
             //boolean strategy1 = true;
             //if (strategy1) {
                //CH 2008022: change to 3 joins to improve performance
-              Query   qry = hs.createQuery(
+              List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
                   "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a," +
                   "Hib3AttributeDAO as a2 where a.groupUuid = g.uuid " +
                   "and a.groupUuid = a2.groupUuid and a2.attrName = :field and lower(a2.value) like :value"
-                );
-  //              Query   qry = hs.createQuery(
-  //                  "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where a.groupUuid in " + 
-  //                  "(select a2.groupUuid from Hib3AttributeDAO as a2 where a2.attrName = :field and lower(a2.value) like :value) " +
-  //                  "and a.groupUuid = g.uuid"
-  //                );
-              qry.setCacheable(false);
-              qry.setCacheRegion(KLASS + ".FindAllByApproximateAttr");
-              qry.setString("field", attr);
-              qry.setString( "value", "%" + val.toLowerCase() + "%" );
+                ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateAttr")
+                .setString("field", attr)
+                .setString( "value", "%" + val.toLowerCase() + "%" ).list(Object[].class);
   
-              Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+              Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
               return groups;
-            //} 
-            //this is not faster:
-            //Stats (strategy1):
-            //JAMon Label=runPerfProblem2Helper, Units=ms.: (LastValue=2391.0, Hits=10.0, Avg=2481.2, Total=24812.0, Min=2391.0, Max=2610.0, Active=0.0, Avg Active=1.0, Max Active=1.0, First Access=Wed Mar 05 04:06:13 EST 2008, Last Access=Wed Mar 05 04:06:35 EST 2008)
-            //
-            //Stats (strategy2):
-            //JAMon Label=runPerfProblem2Helper, Units=ms.: (LastValue=2735.0, Hits=10.0, Avg=2753.1, Total=27531.0, Min=2656.0, Max=3062.0, Active=0.0, Avg Active=1.0, Max Active=1.0, First Access=Wed Mar 05 04:08:58 EST 2008, Last Access=Wed Mar 05 04:09:22 EST 2008)
-
-            //if not old way, try new way
-//            Query   qry = hs.createQuery(
-//                "select a from Hib3AttributeDAO as a," +
-//                "Hib3AttributeDAO as a2 " +
-//                "where a.groupUuid = a2.groupUuid and a2.attrName = :field and lower(a2.value) like :value"
-//              );
-//            qry.setCacheable(false);
-//            qry.setCacheRegion(KLASS + ".FindAllByApproximateAttr");
-//            qry.setString("field", attr);
-//            qry.setString( "value", "%" + val.toLowerCase() + "%" );
-//
-//            Set groups = _getGroupsFromGroupsAndAttributesQuery2(hs, qry);
-//            return groups;
             
           }
     });
@@ -321,8 +373,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
-            Query   qry = hs.createQuery(
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
                 "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where a.groupUuid in " +
                 "(select a2.groupUuid from Hib3AttributeDAO as a2 where " +
                   "   (a2.attrName = 'name'              and lower(a2.value) like :value) " +
@@ -330,12 +381,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
                   "or (a2.attrName = 'extension'         and lower(a2.value) like :value) " +
                   "or (a2.attrName = 'displayExtension'  and lower(a2.value) like :value) " +
                 ") " + "and a.groupUuid = g.uuid"
-              );
-              qry.setCacheable(false);
-              qry.setCacheRegion(KLASS + ".FindAllByApproximateName");
-              qry.setString( "value", "%" + name.toLowerCase() + "%" );
+              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateName")
+              .setString( "value", "%" + name.toLowerCase() + "%" ).list(Object[].class);
 
-            Set  groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+            Set  groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
             return groups;
           }
     });
@@ -351,16 +400,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
-            Query   qry = hs.createQuery(
+
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
                 "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where g.createTime > :time " +
                 "and a.groupUuid = g.uuid"
-              );
-            qry.setCacheable(false);
-            qry.setCacheRegion(KLASS + ".FindAllByCreatedAfter");
-            qry.setLong( "time", d.getTime() );
+              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByCreatedAfter")
+              .setLong( "time", d.getTime() ).list(Object[].class);
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
             return groups;
           }
     });
@@ -368,6 +415,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   }
 
   /**
+   * @param d 
+   * @return 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set findAllByCreatedBefore(final Date d) 
@@ -376,16 +426,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
       public Object callback(HibernateSession hibernateSession) {
-        Session hs  = hibernateSession.getSession();
-        Query   qry = hs.createQuery(
+        
+        List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
             "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where g.createTime < :time " +
             "and a.groupUuid = g.uuid"
-          );
-        qry.setCacheable(false);
-        qry.setCacheRegion(KLASS + ".FindAllByCreatedBefore");
-        qry.setLong( "time", d.getTime() );
+          ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByCreatedBefore")
+          .setLong( "time", d.getTime() ).list(Object[].class);
 
-        Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+        Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
         return groups ;
       }
     });
@@ -402,16 +450,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
       public Object callback(HibernateSession hibernateSession) {
-        Session hs  = hibernateSession.getSession();
-        Query   qry = hs.createQuery(
+
+        List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
             "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where g.modifyTime > :time " +
             "and a.groupUuid = g.uuid"
-          );
-        qry.setCacheable(false);
-        qry.setCacheRegion(KLASS + ".FindAllByModifiedAfter");
-        qry.setLong( "time", d.getTime() );
+          ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByModifiedAfter")
+          .setLong( "time", d.getTime() ).list(Object[].class);
 
-        Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+        Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
         return groups;
       }
     });
@@ -427,16 +473,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
-            Query   qry = hs.createQuery(
+
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
                 "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a where g.modifyTime < :time " +
                 "and a.groupUuid = g.uuid"
-              );
-            qry.setCacheable(false);
-            qry.setCacheRegion(KLASS + ".FindAllByModifiedBefore");
-            qry.setLong( "time", d.getTime() );
+              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByModifiedBefore")
+              .setLong( "time", d.getTime() ).list(Object[].class);
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
             return groups;
           }
     });
@@ -453,17 +497,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
-            Query   qry = hs.createQuery(
+
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
                 "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a, Hib3GroupTypeTupleDAO as gtt " +
                 "where gtt.typeUuid = :type " +
                 "and a.groupUuid = gtt.groupUuid and a.groupUuid = g.uuid"
-              );
-            qry.setCacheable(false);
-            qry.setCacheRegion(KLASS + ".FindAllByType");
-            qry.setString( "type", _gt.getUuid() );
+              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByType")
+              .setString( "type", _gt.getUuid() ).list(Object[].class);
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
             return groups;
           }
     });
@@ -619,11 +661,52 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     return Lifecycle.NO_VETO;
   } 
 
-  // @since   @HEAD@
-  public void onLoad(Session hs, Serializable id) {
-    // nothing
-  } // public void onLoad(hs, id)
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#dbVersionDifferent()
+   */
+  @Override
+  boolean dbVersionDifferent() {
+    Set<String> differentFields = dbVersionDifferentFields();
+    return differentFields.size() > 0;
+  }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#dbVersionDifferentFields()
+   */
+  @Override
+  Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        GrouperUtil.toSet(FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, 
+            FIELD_CREATOR_UUID, FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE,
+            FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID), ATTRIBUTE_PREFIX);
+    return result;
+  }
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Hib3GroupDAO();
+    this.dbVersion.attributes = this.attributes == null ? null : new HashMap<String,String>(this.attributes);
+    this.dbVersion.createSource = this.createSource;
+    this.dbVersion.createTime = this.createTime;
+    this.dbVersion.creatorUUID = this.creatorUUID;
+    this.dbVersion.id = this.id;
+    this.dbVersion.modifierUUID = this.modifierUUID;
+    this.dbVersion.modifySource = this.modifySource;
+    this.dbVersion.modifyTime = this.modifyTime;
+    this.dbVersion.parentUUID = this.parentUUID;
+    this.dbVersion.uuid = this.uuid;
+  }
+  
   // @since   @HEAD@
   public boolean onSave(Session hs) 
     throws  CallbackException
@@ -631,19 +714,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     existsCache.put( this.getUuid(), true );
     return Lifecycle.NO_VETO;
   } 
-
-  // @since   @HEAD@
-  public boolean onUpdate(Session hs) 
-    throws  CallbackException
-  {
-    try {
-      this._updateAttributes(hs);
-    }
-    catch (HibernateException eH) {
-      throw new CallbackException( eH.getMessage(), eH );
-    } 
-    return Lifecycle.NO_VETO;
-  } // public boolean onUpdate(hs)k
 
   /**
    * @since   @HEAD@
@@ -654,22 +724,23 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
+            
+            ByObject byObject = hibernateSession.byObject();
             Iterator it = mof.getDeletes().iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.delete( grouperDAO );
+              byObject.delete( grouperDAO );
             }
-            hs.flush();
+            hibernateSession.misc().flush();
             
             it = mof.getSaves().iterator();
             while (it.hasNext()) {
               GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.saveOrUpdate( grouperDAO);
+              byObject.saveOrUpdate( grouperDAO);
             }
-            hs.flush();
+            hibernateSession.misc().flush();
             
-            hs.update( Rosetta.getDAO(_g) );
+            byObject.update( Rosetta.getDAO(_g) );
             return null;
           }
     });
@@ -684,12 +755,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
+            ByObject byObject = hibernateSession.byObject();
             Iterator it = toDelete.iterator();
             while (it.hasNext()) {
-              hs.delete( Rosetta.getDAO( it.next() ) );
+              byObject.delete( Rosetta.getDAO( it.next() ) );
             }
-            hs.update( Rosetta.getDAO(_g) );
+            byObject.update( Rosetta.getDAO(_g) );
             return null;
           }
     });
@@ -800,14 +871,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
     // TODO 20070307 ideally i would just put hooks for associated tables into "onDelete()" 
     //               but right now that is blowing up due to the session being flushed.
-    hs.createQuery("delete from Hib3GroupTypeTupleDAO").executeUpdate();
-    hs.createQuery("delete from Hib3AttributeDAO").executeUpdate(); 
-    hs.createQuery("delete from Hib3GroupDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from Hib3GroupTypeTupleDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from Hib3AttributeDAO").executeUpdate(); 
+    hibernateSession.byHql().createQuery("delete from Hib3GroupDAO").executeUpdate();
     existsCache = new HashMap<String, Boolean>();
   } 
 
@@ -838,55 +909,95 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
   // PRIVATE INSTANCE METHODS //
 
   // @since   @HEAD@
-  private void _updateAttributes(Session hs) 
-    throws  HibernateException
-  {
+  /**
+   * update the attributes for a group
+   * @param hibernateSession 
+   * @param checkExisting true if an update, false if insert
+   */
+  private void _updateAttributes(HibernateSession hibernateSession, boolean checkExisting) {
+    ByObject byObject = hibernateSession.byObject();
     // TODO 20070531 split and test
-    Query qry = hs.createQuery("from Hib3AttributeDAO as a where a.groupUuid = :uuid");
-    qry.setCacheable(false);
-    qry.setCacheRegion(KLASS + "._UpdateAttributes");
-    qry.setString("uuid", this.uuid);
+    ByHql byHql = hibernateSession.byHql();
+    byHql.createQuery("from Hib3AttributeDAO as a where a.groupUuid = :uuid");
+    byHql.setCacheable(false);
+    byHql.setCacheRegion(KLASS + "._UpdateAttributes");
+    byHql.setString("uuid", this.uuid);
     Hib3AttributeDAO a;
     Map                   attrs = new HashMap(this.attributes);
     String                k;
     //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
-    Iterator              it = qry.iterate();
-    while (it.hasNext()) {
-      a = (Hib3AttributeDAO) it.next();
-      k = a.getAttrName();
+    List<Hib3AttributeDAO> attributes = checkExisting ? GrouperUtil.nonNull(byHql.list(Hib3AttributeDAO.class)) : new ArrayList<Hib3AttributeDAO>();
+    for (Hib3AttributeDAO attribute : attributes) {
+      k = attribute.getAttrName();
       if ( attrs.containsKey(k) ) {
         // attr both in db and in memory.  compare.
-        if ( !a.getValue().equals( (String) attrs.get(k) ) ) {
-          a.setValue( (String) attrs.get(k) );
-          hs.update(a);
+        if ( !attribute.getValue().equals( (String) attrs.get(k) ) ) {
+          attribute.setValue( (String) attrs.get(k) );
+          byObject.update(attribute);
         }
         attrs.remove(k);
       }
       else {
         // attr only in db.
-        hs.delete(a);
+        byObject.delete(attribute);
         attrs.remove(k);
       }
     }
     // now handle entries that were only in memory
     Map.Entry kv;
-    it = attrs.entrySet().iterator();
+    Iterator it = attrs.entrySet().iterator();
     while (it.hasNext()) {
       kv = (Map.Entry) it.next();
       Hib3AttributeDAO dao = new Hib3AttributeDAO(); 
       dao.setAttrName( (String) kv.getKey() );
       dao.setGroupUuid(this.uuid);
       dao.setValue( (String) kv.getValue() );
-      hs.save(dao);
+      byObject.save(dao);
     }
   } // private void _updateAttributes(hs)
 
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    //see if there is a hook class
+    GroupHooks groupHooks = (GroupHooks)GrouperHookType.GROUP.hooksInstance();
+    
+    if (groupHooks != null) {
+      HooksGroupPreInsertBean hooksGroupPreInsertBean = new HooksGroupPreInsertBean(new HooksContext(), this);
+      try {
+        groupHooks.groupPreInsert(hooksGroupPreInsertBean);
+      } catch (HookVeto hv) {
+        hv.assignVetoType(VetoTypeGrouper.GROUP_PRE_INSERT, false);
+        throw hv;
+      }
+    }
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#grouperHooksType()
+   */
+  @Override
+  GrouperHookType grouperHooksType() {
+    return GrouperHookType.GROUP;
+  }
+
   // @since 1.2.1         
-  private Set _getGroupsFromGroupsAndAttributesQuery(Session session, Query qry)
+  /**
+   * @param session 
+   * @param hib3GroupAttributeDAOs 
+   * @return 
+   * @throws HibernateException 
+   * 
+   */
+  private Set _getGroupsFromGroupsAndAttributesQuery(HibernateSession hibernateSession, List<Object[]> hib3GroupAttributeDAOs)
     throws  HibernateException {   
     Set groups = new LinkedHashSet();
-    List<Object[]> hib3GroupAttributeDAOs = qry.list();
     Iterator it = hib3GroupAttributeDAOs.iterator();
     HashMap results = new HashMap();
         
@@ -902,7 +1013,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         currAttributes = new HashMap();
       }
       Hib3AttributeDAO currAttributeDAO = (Hib3AttributeDAO)tuple[1];
-      HibUtils.evict(null, session, currAttributeDAO, true);
+      HibUtils.evict(hibernateSession, currAttributeDAO, true);
       currAttributes.put(currAttributeDAO.getAttrName(), currAttributeDAO.getValue());
       currGroupDAO.setAttributes(currAttributes);
       results.put(groupId, currGroupDAO);
@@ -912,69 +1023,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
     while (values.hasNext()) {
       Hib3GroupDAO hib3GroupDao = (Hib3GroupDAO)values.next();
       groups.add(GroupDTO.getDTO(hib3GroupDao));
-      HibUtils.evict(null, session, hib3GroupDao, true);
+      HibUtils.evict(hibernateSession, hib3GroupDao, true);
     } 
       
     return groups;
   } // private Set _getGroupsFromGroupsAndAttributesQuery(qry)
   
-  /**
-   * this is a way to get groups and attributes from only attributes, seeing if it were any faster, and it was slower...
-   * @param session
-   * @param qry
-   * @return the groups (with attributes attached)
-   * @throws HibernateException
-   */
-  private Set<GroupDTO> _getGroupsFromGroupsAndAttributesQuery2(Session session, Query qry)
-    throws  HibernateException {
-    List<Hib3AttributeDAO> hib3AttributeDAOs = qry.list();
-    //map of group id to the map of attributes for the group
-    Map<String, Map<String, String>> groupIdsAttributes = new LinkedHashMap<String, Map<String, String>>(
-        GrouperUtil.length(hib3AttributeDAOs)/4);
-    
-    for (Hib3AttributeDAO hib3AttributeDAO : hib3AttributeDAOs) {
-      
-      //get the group id
-      String groupUuid = hib3AttributeDAO.getGroupUuid();
-      //get the map
-      Map<String, String> attributes = groupIdsAttributes.get(groupUuid);
-      //init if not there
-      if (attributes == null) {
-        attributes = new HashMap<String, String>();
-        groupIdsAttributes.put(groupUuid, attributes);
-      }
-      
-      //put the attribute in there
-      attributes.put(hib3AttributeDAO.getAttrName(), hib3AttributeDAO.getValue());
-      
-      HibUtils.evict(null, session, hib3AttributeDAO, true);
-    }
-    
-    //now we have the attributes and the list of groupIds, now lets get the groups in batches of 200
-    List<String> groupUuids = new ArrayList<String>(groupIdsAttributes.keySet());
-    int batchSize = 200;
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupUuids, batchSize);
-    //result
-    Set<GroupDTO> groups = new LinkedHashSet<GroupDTO>();
-    //go through each batch of 200
-    for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
-      
-      List<String> batchOfGroupIds = GrouperUtil.batchList(groupUuids, batchSize, batchIndex);
-      List<Hib3GroupDAO> hib3GroupDAOs = HibernateSession.byCriteriaStatic()
-        .list(Hib3GroupDAO.class, Restrictions.in("uuid", batchOfGroupIds));
-      
-      //for each one, add attributes
-      for (Hib3GroupDAO hib3GroupDAO : hib3GroupDAOs) {
-        Map<String, String> attributeMap = groupIdsAttributes.get(hib3GroupDAO.getUuid());
-        hib3GroupDAO.setAttributes(attributeMap);
-        groups.add(GroupDTO.getDTO(hib3GroupDAO));
-        HibUtils.evict(null, session, hib3GroupDAO, true);
-      }
-      
-    }
-    return groups;
-  } // private Set _getGroupsFromGroupsAndAttributesQuery(qry)
-
   /**
    * <p><b>Implementation Notes.</b></p>
    * <ol>
@@ -989,24 +1043,54 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO, Lifecycle {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session hs  = hibernateSession.getSession();
-            Query   qry = hs.createQuery(
+
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
                 "select g, a from Hib3GroupDAO as g, Hib3AttributeDAO as a," +
                 "Hib3AttributeDAO as a2 where a.groupUuid = g.uuid " +
                 "and a.groupUuid = a2.groupUuid and a2.attrName = :field and a2.value = :value"
-              );
-            qry.setCacheable(false);
-            qry.setCacheRegion(KLASS + ".FindAllByAttr");
-            qry.setString("field", attr);
-            qry.setString( "value", val );
+              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAttr")
+              .setString("field", attr).setString( "value", val ).list(Object[].class);
 
-            Set groups = _getGroupsFromGroupsAndAttributesQuery(hs, qry);
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
             return groups;
             
           }
     });
 
     return resultGroups;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    this._updateAttributes(hibernateSession, true);
+    super.onPostUpdate(hibernateSession);
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    this._updateAttributes(hibernateSession, false);
+    super.onPostSave(hibernateSession);
+  }
+  
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  public Hib3GroupDAO getDbVersion() {
+    return this.dbVersion;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#setGroupDTO(edu.internet2.middleware.grouper.internal.dto.GroupDTO)
+   */
+  public void setGroupDTO(GroupDTO groupDTO1) {
+    this.groupDTO = groupDTO1;
   }
 
 } 

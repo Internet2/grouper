@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml0.java,v 1.6 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestXml0.java,v 1.6.6.1 2008-06-07 16:11:55 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXml0 extends GrouperTest {
@@ -71,18 +71,22 @@ public class TestXml0 extends GrouperTest {
 
       Group gAA = assertFindGroupByName( r.rs, "i2:a:a" );
       gAA.setDisplayExtension(amp);
+      gAA.store();
       assertGroupDisplayExtension(gAA, amp);
 
       Group gBA = assertFindGroupByName( r.rs, "i2:b:a" );
       gBA.setDisplayExtension(apos);
+      gBA.store();
       assertGroupDisplayExtension(gBA, apos);
 
       Group gCA = assertFindGroupByName( r.rs, "i2:c:a" );
       gCA.setDisplayExtension(gt);
+      gCA.store();
       assertGroupDisplayExtension(gCA, gt);
 
       Group gDA = assertFindGroupByName( r.rs, "i2:d:a" );
       gDA.setDisplayExtension(lt);
+      gDA.store();
       assertGroupDisplayExtension(gDA, lt);
 
       r.rs.stop();

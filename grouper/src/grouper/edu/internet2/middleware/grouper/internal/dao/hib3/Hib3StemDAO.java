@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -49,7 +51,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.6 2008-04-03 18:09:43 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.6.2.4 2008-06-15 04:29:56 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -89,10 +91,16 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /** */
   private String  uuid;
 
+
+  /**
+   * save the state when retrieving from DB 
+   */
+  private Hib3StemDAO dbVersion = null;
+
   /**
    * @since   @HEAD@
    */
-  public String createChildGroup(final StemDTO _parent, final GroupDTO _child, final MemberDTO _m)
+  public String createChildGroup(final StemDTO _stemDto, final GroupDTO _groupDto, final MemberDTO _memberDto)
     throws  GrouperDAOException {
     
     try {
@@ -101,43 +109,31 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session       hs  = hibernateSession.getSession();
-              Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_child);
-              hs.save(dao);
-
-              // add attributes
-              Map.Entry kv;
-              Iterator attrIter = _child.getAttributes().entrySet().iterator();
-              while (attrIter.hasNext()) {
-                kv = (Map.Entry) attrIter.next();
-                Hib3AttributeDAO attrDao = new Hib3AttributeDAO();
-                attrDao.setAttrName( (String) kv.getKey() );
-                attrDao.setGroupUuid( _child.getUuid() );
-                attrDao.setValue( (String) kv.getValue() );
-                hs.save(attrDao);
-              }
+              Hib3DAO  groupDao = (Hib3DAO) Rosetta.getDAO(_groupDto);
+              ByObject byObject = hibernateSession.byObject();
+              byObject.save(groupDao);
 
               // add group-type tuples
               Hib3GroupTypeTupleDAO  tuple = new Hib3GroupTypeTupleDAO();
-              Iterator                    it    = _child.getTypes().iterator();
+              Iterator                    it    = _groupDto.getTypes().iterator();
               while (it.hasNext()) {
-                tuple.setGroupUuid( _child.getUuid() );
+                tuple.setGroupUuid( _groupDto.getUuid() );
                 tuple.setTypeUuid( ( (GroupTypeDTO) it.next() ).getUuid() );
-                hs.save(tuple); // new group-type tuple
+                byObject.save(tuple); // new group-type tuple
               }
-              hs.update( Rosetta.getDAO(_parent) );
-              if ( !GrouperDAOFactory.getFactory().getMember().exists( _m.getUuid() ) ) {
-                hs.save( Rosetta.getDAO(_m) );
+              hibernateSession.byObject().update( Rosetta.getDAO(_stemDto) );
+              if ( !GrouperDAOFactory.getFactory().getMember().exists( _memberDto.getUuid() ) ) {
+                byObject.save( Rosetta.getDAO(_memberDto) );
               }
-              return dao.getId();
+              return groupDao.getId();
             }
         
       });
       return id;
     } catch (GrouperDAOException e) {
-      String error = "Problem create child stem: " + GrouperUtil.toStringSafe(_parent)
-        + ", child: " + GrouperUtil.toStringSafe(_child) + ", memberDto: " 
-        + GrouperUtil.toStringSafe(_m) + ", " + e.getMessage();
+      String error = "Problem create child stem: " + GrouperUtil.toStringSafe(_stemDto)
+        + ", child: " + GrouperUtil.toStringSafe(_groupDto) + ", memberDto: " 
+        + GrouperUtil.toStringSafe(_memberDto) + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
   } 
@@ -153,10 +149,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
             public Object callback(HibernateSession hibernateSession) {
 
-              Session       hs  = hibernateSession.getSession();
               Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_child);
-              hs.save(dao);
-              hs.update( Rosetta.getDAO(_parent) );
+              hibernateSession.byObject().save(dao);
+              hibernateSession.byObject().update( Rosetta.getDAO(_parent) );
               return dao.getId();
             }
         
@@ -169,6 +164,29 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throw new GrouperDAOException( error, e );
     }
   } 
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Hib3StemDAO();
+    this.dbVersion.createSource = this.createSource;
+    this.dbVersion.createTime = this.createTime;
+    this.dbVersion.creatorUUID = this.creatorUUID;
+    this.dbVersion.description = this.description;
+    this.dbVersion.displayExtension = this.displayExtension;
+    this.dbVersion.extension = this.extension;
+    this.dbVersion.id = this.id;
+    this.dbVersion.modifierUUID = this.modifierUUID;
+    this.dbVersion.modifySource = this.modifySource;
+    this.dbVersion.modifyTime = this.modifyTime;
+    this.dbVersion.name = this.name;
+    this.dbVersion.parentUUID = this.parentUUID;
+    this.dbVersion.uuid = this.uuid;
+
+  }
 
   /**
    * @since   @HEAD@
@@ -646,21 +664,22 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session     hs  = hibernateSession.getSession();
+
+              ByObject byObject = hibernateSession.byObject();
               Iterator it = mof.getDeletes().iterator();
               while (it.hasNext()) {
                 GrouperDAO grouperDAO = Rosetta.getDAO( it.next());
-                hs.delete(  grouperDAO );
+                byObject.delete(  grouperDAO );
               }
-              hs.flush();
+              hibernateSession.misc().flush();
               
               it = mof.getSaves().iterator();
               while (it.hasNext()) {
-                hs.saveOrUpdate( it.next() );
+                byObject.saveOrUpdate( it.next() );
               }
-              hs.flush();
+              hibernateSession.misc().flush();
               
-              hs.update( _ns.getDAO() );
+              byObject.update( _ns.getDAO() );
               return null;
             }
         
@@ -684,12 +703,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session     hs  = hibernateSession.getSession();
               Iterator it = children.iterator();
+              ByObject byObject = hibernateSession.byObject();
               while (it.hasNext()) {
-                hs.update( Rosetta.getDAO( it.next() ) );
+                byObject.update( Rosetta.getDAO( it.next() ) );
               }
-              hs.update( Rosetta.getDAO(_ns) );
+              byObject.update( Rosetta.getDAO(_ns) );
               return null;
             }
         
@@ -713,12 +732,13 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session     hs  = hibernateSession.getSession();
+
+              ByObject byObject = hibernateSession.byObject();
               Iterator it = toDelete.iterator();
               while (it.hasNext()) {
-                hs.delete( Rosetta.getDAO( it.next() ) );
+                byObject.delete( Rosetta.getDAO( it.next() ) );
               }
-              hs.update( Rosetta.getDAO(_ns) );
+              byObject.update( Rosetta.getDAO(_ns) );
               return null;
             }
         
@@ -863,34 +883,41 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   // PROTECTED CLASS METHODS //
 
   /**
-   * @param hs 
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  public Hib3StemDAO getDbVersion() {
+    return this.dbVersion;
+  }
+
+  /**
+   * @param hibernateSession 
    * @throws HibernateException 
    * 
    */
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
     // To appease Oracle the root stem is named ":" internally.
     List<Hib3StemDAO> hib3StemDAOs = 
-      hs.createQuery("from Hib3StemDAO as ns where ns.name not like :stem order by name desc")
-      .setParameter("stem", Stem.DELIM)
-      .list()
-      ;
+      hibernateSession.byHql().createQuery("from Hib3StemDAO as ns where ns.name not like :stem order by name desc")
+      .setString("stem", Stem.DELIM)
+      .list(Hib3StemDAO.class);
 
     // Deleting each stem from the time created in descending order. This is necessary to prevent
     // deleting parent stems before child stems which causes integrity constraint violations  on some
     // databases.
     for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-      hs.createQuery("delete from Hib3StemDAO ns where ns.uuid=:uuid")
+      hibernateSession.byHql().createQuery("delete from Hib3StemDAO ns where ns.uuid=:uuid")
       .setString("uuid", hib3StemDAO.getUuid())
       .executeUpdate();
     }
 
     // Reset "modify" columns.  Setting the modifierUuid property to null is important to avoid foreign key issues.
-    hs.createQuery("update Hib3StemDAO as ns set ns.modifierUuid = :id, ns.modifyTime = :time, ns.modifySource = :source")
-      .setParameter("id", null, Hibernate.STRING)
-      .setParameter("time", new Long(0), Hibernate.LONG)
-      .setParameter("source", null, Hibernate.STRING)
+    hibernateSession.byHql().createQuery("update Hib3StemDAO as ns set ns.modifierUuid = :id, ns.modifyTime = :time, ns.modifySource = :source")
+      .setString("id", null)
+      .setLong("time", new Long(0))
+      .setString("source", null)
       .executeUpdate();
       ;
 

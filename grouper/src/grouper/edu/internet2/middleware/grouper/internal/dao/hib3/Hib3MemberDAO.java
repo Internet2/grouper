@@ -43,10 +43,10 @@ import edu.internet2.middleware.subject.Subject;
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.4.4.2 2008-06-09 05:52:52 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
+public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
 
   private static        HashMap<String, Boolean>    existsCache     = new HashMap<String, Boolean>();
@@ -263,26 +263,12 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
   } 
 
   // @since   @HEAD@
-  public void onLoad(Session hs, Serializable id) {
-    // nothing
-  }
-
-  // @since   @HEAD@
   public boolean onSave(Session hs) 
     throws  CallbackException
   {
     existsCache.put( this.getUuid(), true );
     return Lifecycle.NO_VETO;
   } 
-
-  // @since   @HEAD@
-  public boolean onUpdate(Session hs) 
-    throws  CallbackException
-  {
-    // nothing
-    return Lifecycle.NO_VETO;
-  } // public boolean onUpdate(hs)k
-
 
   /** 
    * @since   @HEAD@
@@ -338,11 +324,11 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3MemberDAO as m where m.subjectId != :subject")
-      .setParameter( "subject", "GrouperSystem" )
+    hibernateSession.byHql().createQuery("delete from Hib3MemberDAO as m where m.subjectId != :subject")
+      .setString( "subject", "GrouperSystem" )
       .executeUpdate()
       ;
     existsCache = new HashMap<String, Boolean>();

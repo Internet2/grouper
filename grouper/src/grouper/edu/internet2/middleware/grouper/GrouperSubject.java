@@ -32,7 +32,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.38 2007-10-18 11:20:01 isgwb Exp $
+ * @version $Id: GrouperSubject.java,v 1.38.6.1 2008-06-07 16:11:55 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -53,7 +53,7 @@ public class GrouperSubject implements Subject {
     throws  SourceUnavailableException
   {
     this.id       = g.getUuid();
-    this.name     = (String) g.getAttributes().get(GrouperConfig.ATTR_N);
+    this.name     = (String) g.getAttributes().get(GrouperConfig.ATTR_NAME);
     this.adapter  = (GrouperSourceAdapter) SubjectFinder.internal_getGSA();
   } // protected GrouperSubject(g, sa)
 
@@ -94,7 +94,7 @@ public Set getAttributeValues(String name) {
   } // public Set getAttributeValues(name)
 
   public String getDescription() {
-    return this.getAttributeValue(GrouperConfig.ATTR_D);
+    return this.getAttributeValue(GrouperConfig.ATTR_DESCRIPTION);
   } // public String getDescription()
 
   public String getId() {

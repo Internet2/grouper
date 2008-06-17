@@ -6,20 +6,12 @@
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jug-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jta-1.0.1B.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/i2mi-common-0.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/hsqldb-1.7.2.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="conf"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-math-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/subject-0.3.0-rc1-cvs.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/commons-beanutils.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/commons-dbcp.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/commons-digester.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/commons-logging.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/commons-pool.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/dom4j.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
-  <classpathentry exported="true" kind="lib" path="lib/odmg.jar"/>
 	<classpathentry kind="lib" path="lib/asm.jar"/>
 	<classpathentry kind="lib" path="lib/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="lib/asm-util.jar"/>

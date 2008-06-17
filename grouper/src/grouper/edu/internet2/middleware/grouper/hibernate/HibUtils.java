@@ -105,14 +105,13 @@ public class HibUtils {
    * "a different object with the same identifier value was already associated with the session"
    * </pre>
    * @param hibernateSession grouper hibernateSession, can be null if not known
-   * @param session from hibernate
    * @param object to evict that was just retrieved, can be list or array
    * @param onlyEvictIfNotNew true to only evict if this is a nested tx
    */
-  public static void evict(HibernateSession hibernateSession, Session session, 
+  public static void evict(HibernateSession hibernateSession,
       Object object, boolean onlyEvictIfNotNew) {
     if (object instanceof List) {
-      HibUtils.evict(hibernateSession, session, (List)object, onlyEvictIfNotNew);
+      HibUtils.evict(hibernateSession, (List)object, onlyEvictIfNotNew);
       return;
     }
     
@@ -124,14 +123,14 @@ public class HibUtils {
     //if array, loop through
     if (object != null && object.getClass().isArray()) {
       for (int i=0;i<Array.getLength(object);i++) {
-        HibUtils.evict(hibernateSession, session, Array.get(object, i), onlyEvictIfNotNew);
+        HibUtils.evict(hibernateSession, Array.get(object, i), onlyEvictIfNotNew);
       }
       return;
     }
     
     //not sure it could ever be null...
     if (object != null) {
-      session.evict(object);
+      hibernateSession.getSession().evict(object);
     }
   }
   
@@ -146,17 +145,16 @@ public class HibUtils {
    * "a different object with the same identifier value was already associated with the session"
    * </pre>
    * @param hibernateSession grouper hibernateSession
-   * @param session from hibernate
    * @param list of objects from hibernate to evict
    * @param onlyEvictIfNotNew true to only evict if this is a nested tx
    */
-  public static void evict(HibernateSession hibernateSession, Session session, 
+  public static void evict(HibernateSession hibernateSession,
       List<Object> list, boolean onlyEvictIfNotNew) {
     if (list == null) {
       return;
     }
     for (Object object : list) {
-      evict(hibernateSession, session, object, onlyEvictIfNotNew);
+      evict(hibernateSession, object, onlyEvictIfNotNew);
     }
   }
 
