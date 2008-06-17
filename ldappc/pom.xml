@@ -70,7 +70,9 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.0.2</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
@@ -80,6 +82,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-2</version>
         <configuration>
           <descriptors>
             <descriptor>src/assembly/bin.xml</descriptor>
@@ -98,16 +101,6 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>shibboleth.internet2.edu</id>
-      <name>Internet2</name>
-      <url>http://shibboleth.internet2.edu/downloads/maven2</url>
-    </repository>
-  </repositories>
   <dependencies>
     <dependency>
       <groupId>edu.internet2.middleware.grouper</groupId>
@@ -120,7 +113,7 @@
       <version>1.3.0-RC1</version>
     </dependency>
     <dependency>
-      <groupId>edu.internet2.middleware</groupId>
+      <groupId>edu.internet2.middleware.subject</groupId>
       <artifactId>subject</artifactId>
       <version>0.3.1</version>
     </dependency>
@@ -167,6 +160,7 @@
   <reporting>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links>
@@ -180,6 +174,7 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
         <configuration>
           <outputDirectory>${project.reporting.outputDirectory}/xref</outputDirectory>
@@ -189,6 +184,7 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <configLocation>checkstyle.xml</configLocation>
@@ -197,6 +193,7 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
         <configuration>
           <outputDirectory>${project.reporting.outputDirectory}/unitTest</outputDirectory>
@@ -204,6 +201,7 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
       </plugin>
       <plugin>
@@ -217,6 +215,7 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
         <configuration>
           <targetJdk>1.5</targetJdk>
@@ -238,6 +237,7 @@
         <version>2.0</version>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
         <configuration>
           <locales>en</locales>
