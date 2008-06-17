@@ -1,0 +1,22 @@
+<project name="Ldappc">
+  <bannerLeft>
+    <name>Ldappc</name>
+    <src>images/logo.jpg</src>
+  </bannerLeft>
+  <publishDate position="navigation-bottom" format="dd MMM yyyy"/>
+  <version position="left"/>
+  <body>
+    <menu name="Ldappc">
+      <item name="Overview" href="index.html"/>
+      <item name="Architecture" href="architecture.html"/>
+      <item name="Deployment Guide" href="deployment-guide.html"/>
+      <item name="Design" href="design.html"/>
+      <item name="LDAP Guide" href="ldap-guide.html"/>
+      <item name="Release Notes" href="release-notes.html"/>
+      <item name="User Manual" href="user-manual.html"/>
+    </menu>
+
+	<menu ref="reports" collapse="false"/>
+
+  </body>
+</project>
