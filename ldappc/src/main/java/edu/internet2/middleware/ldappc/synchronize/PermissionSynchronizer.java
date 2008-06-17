@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -169,7 +170,8 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
                     // See if at least one of the permission functions is listed
                     // in the function queries
                     //
-                    Set functions = permission.getFunctions();
+                    // FIXME Have the terms changed completely between 1.2 and 1.3? Is a function or permission called something else now?
+                    Set functions = new HashSet();//permission.getFunctions();
                     Iterator functionIterator = functions.iterator();
                     while(functionIterator.hasNext())
                     {

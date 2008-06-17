@@ -153,7 +153,8 @@ public abstract class SignetSynchronizer extends Synchronizer
         //
         if (lastModifyTime != null)
         {
-            Date createDateTime = permission.getCreateDatetime();
+            // FIXME Is there a way to determine the create time of a permission?
+            Date createDateTime = null; //permission.getCreateDatetime();
             if (createDateTime != null)
             {
                 //
