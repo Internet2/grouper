@@ -1,12 +1,15 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.4.2.1 2008-06-15 04:29:56 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.4.2.2 2008-06-17 17:00:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -31,40 +34,127 @@ public class GrouperUtilTest extends TestCase {
   /**
    * see if testing for equal maps work
    */
-  public void testEqualsMap() {
+  public void testMapEquals() {
     
     Map<String, String> first = null;
     Map<String, String> second = null;
     
-    assertTrue("nulls should be equal", GrouperUtil.equalsMap(first, second));
+    assertTrue("nulls should be equal", GrouperUtil.mapEquals(first, second));
     
     first = new HashMap<String, String>();
     
-    assertTrue("null is equal to empty", GrouperUtil.equalsMap(first, second));
+    assertTrue("null is equal to empty", GrouperUtil.mapEquals(first, second));
     
     first.put("key1", "value1");
     
-    assertFalse("null is not empty to map with size", GrouperUtil.equalsMap(first, second));
-    assertTrue("map is equal to self", GrouperUtil.equalsMap(first, first));
+    assertFalse("null is not empty to map with size", GrouperUtil.mapEquals(first, second));
+    assertTrue("map is equal to self", GrouperUtil.mapEquals(first, first));
     
     second = new HashMap<String, String>();
     second.put("key1", "value2");
     
-    assertFalse("not equal if same size, different values", GrouperUtil.equalsMap(first, second));
+    assertFalse("not equal if same size, different values", GrouperUtil.mapEquals(first, second));
     
     second.put("key1", "value1");
     
-    assertTrue("equal if same size, same keys/values", GrouperUtil.equalsMap(first, second));
+    assertTrue("equal if same size, same keys/values", GrouperUtil.mapEquals(first, second));
     
     first.put("key2", "value2");
-    assertFalse("not equal if different size", GrouperUtil.equalsMap(first, second));
+    assertFalse("not equal if different size", GrouperUtil.mapEquals(first, second));
+    assertFalse("not equal if different size", GrouperUtil.mapEquals(second, first));
     
     second.put("key2", "value2");
-    assertTrue("equal if same size, same keys/values", GrouperUtil.equalsMap(first, second));
+    assertTrue("equal if same size, same keys/values", GrouperUtil.mapEquals(first, second));
     
     second.put("key3", "value2");
     second.remove("key2");
-    assertFalse("not equal if same size, different keys", GrouperUtil.equalsMap(first, second));
+    assertFalse("not equal if same size, different keys", GrouperUtil.mapEquals(first, second));
+    assertFalse("not equal if same size, different keys(reversed)", GrouperUtil.mapEquals(second, first));
+  }
+  
+  /**
+   * see if testing for equal maps work
+   */
+  public void testMapDifferences() {
+    
+    Map<String, String> first = null;
+    Map<String, String> second = null;
+    Set<String> differences = new LinkedHashSet<String>();
+    
+    GrouperUtil.mapDifferences(first, second, differences, "attribute__");
+
+    assertTrue("nulls should be equal", differences.size() == 0);
+    
+    first = new LinkedHashMap<String, String>();
+    GrouperUtil.mapDifferences(first, second, differences, "attribute__");
+    
+    assertEquals("null is equal to empty", 0, differences.size());
+    
+    first.put("key1", "value1");
+    GrouperUtil.mapDifferences(first, second, differences, "attribute__");
+    
+    assertEquals("First should have a size of 1", 1, first.size());
+    
+    assertEquals("null is not equal to map with size", 1, differences.size());
+    assertEquals("null is not equal to map with size", (String)differences.toArray()[0],"attribute__key1");
+
+    differences.clear();
+    //try reversed
+    GrouperUtil.mapDifferences(second, first, differences, "attribute__");
+
+    assertEquals("null is not equal to map with size(reversed)", 1, differences.size());
+    assertEquals("null is not equal to map with size(reversed)", (String)differences.toArray()[0],"attribute__key1");
+    
+    differences.clear();
+    GrouperUtil.mapDifferences(first, first, differences, "attribute__");
+    assertEquals("map equal to self", 0, differences.size());
+    
+    GrouperUtil.mapDifferences(first, new HashMap<String, String>(first), differences, "attribute__");
+    assertEquals("map equal to clone self", 0, differences.size());
+    
+    second = new LinkedHashMap<String, String>();
+    second.put("key1", "value2");
+    
+    GrouperUtil.mapDifferences(first, second, differences, null);
+    
+    assertEquals("Second should still have size 1", 1, second.size());
+    
+    assertEquals("not equal if same size, different values", 1, differences.size());
+    assertEquals("not equal if same size, different values", "key1", (String)differences.toArray()[0]);
+    
+    second.put("key1", "value1");
+    differences.clear();
+    GrouperUtil.mapDifferences(first, first, differences, "attribute__");
+    
+    assertEquals("equal if same size, same keys/values", 0, differences.size());
+    
+    first.put("key2", "value2");
+    differences.clear();
+    GrouperUtil.mapDifferences(first, second, differences, "attribute__");
+    assertEquals("not equal if different size", 1, differences.size());
+    assertEquals("not equal if different size", "attribute__key2", (String)differences.toArray()[0]);
+    
+    second.put("key2", "value2");
+    differences.clear();
+    GrouperUtil.mapDifferences(first, second, differences, "attribute__");
+    assertEquals("equal if same size, same keys/values", 0, differences.size());
+    
+    second.put("key3", "value2");
+    second.remove("key2");
+    differences.clear();
+    GrouperUtil.mapDifferences(first, second, differences, "attribute__");
+    assertEquals("not equal if same size, different keys", 2, differences.size());
+    assertEquals("not equal if same size, different keys", "attribute__key2", (String)differences.toArray()[0]);
+    assertEquals("not equal if same size, different keys", "attribute__key3", (String)differences.toArray()[1]);
+
+    first.put("key4", "value4");
+    differences.clear();
+    GrouperUtil.mapDifferences(first, second, differences, "attribute__");
+    assertEquals("not equal if different size, different keys", 3, differences.size());
+    assertEquals("not equal if same size, different keys.  first map keys first", "attribute__key2", (String)differences.toArray()[0]);
+    assertEquals("not equal if same size, different keys.  first map keys first", "attribute__key4", (String)differences.toArray()[1]);
+    assertEquals("not equal if same size, different keys.  missing from first map keys second", "attribute__key3", (String)differences.toArray()[2]);
+    
   }
   
   /**

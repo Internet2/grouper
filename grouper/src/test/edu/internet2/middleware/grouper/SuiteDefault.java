@@ -20,15 +20,20 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
+import edu.internet2.middleware.grouper.internal.dao.hib3.AllHib3Tests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.32.2.1 2008-06-09 05:52:52 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.32.2.2 2008-06-17 17:00:23 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
+  /**
+   * 
+   * @return the suite
+   */
   static public Test suite() {
     TestSuite suite = new TestSuite();
 
@@ -72,9 +77,10 @@ public class SuiteDefault extends TestCase {
 
     suite.addTestSuite( Test_util_ParameterHelper.class );
 
-    suite.addTest( SuiteRefactor.suite() ); 
+    suite.addTest(SuiteRefactor.suite()); 
 
     suite.addTest(AllHooksTests.suite());
+    suite.addTest(AllHib3Tests.suite());
     suite.addTest(AllUtilTests.suite());
     
     return suite;

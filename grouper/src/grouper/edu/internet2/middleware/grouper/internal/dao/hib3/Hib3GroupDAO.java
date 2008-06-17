@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.annotations.GrouperIngoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -59,29 +61,95 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.12.2.6 2008-06-15 04:29:56 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.12.2.7 2008-06-17 17:00:23 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: attributes */
+  public static final String FIELD_ATTRIBUTES = "attributes";
+
+  /** constant for field name for: createSource */
+  public static final String FIELD_CREATE_SOURCE = "createSource";
+
+  /** constant for field name for: createTime */
+  public static final String FIELD_CREATE_TIME = "createTime";
+
+  /** constant for field name for: creatorUUID */
+  public static final String FIELD_CREATOR_UUID = "creatorUUID";
+
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: modifierUUID */
+  public static final String FIELD_MODIFIER_UUID = "modifierUUID";
+
+  /** constant for field name for: modifySource */
+  public static final String FIELD_MODIFY_SOURCE = "modifySource";
+
+  /** constant for field name for: modifyTime */
+  public static final String FIELD_MODIFY_TIME = "modifyTime";
+
+  /** constant for field name for: parentUUID */
+  public static final String FIELD_PARENT_UUID = "parentUUID";
+
+  /** constant for field name for: uuid */
+  public static final String FIELD_UUID = "uuid";
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+  
   /** save the state when retrieving from DB */
   private Hib3GroupDAO dbVersion = null;
 
-  private               Map<String, String>                       attributes = null;
-  private               String                    createSource;
-  private               long                      createTime;
-  private               String                    creatorUUID;
-  private static        HashMap<String, Boolean>  existsCache = new HashMap<String, Boolean>();
-  private static  final String                    KLASS                         = Hib3GroupDAO.class.getName();
-  private               String                    id;
-  private               String                    modifierUUID;
-  private               String                    modifySource;
-  private               long                      modifyTime;
-  private               String                    parentUUID;
-  private               String                    uuid;
+  /** constant for prefix of field diffs for attributes: attribute__ */
+  public static final String ATTRIBUTE_PREFIX = "attribute__";
+  
+  /** */
+  private Map<String, String> attributes = null;
 
+  /** */
+  private String createSource;
+
+  /** */
+  private long createTime;
+
+  /** */
+  private String creatorUUID;
+
+  /** */
+  private static HashMap<String, Boolean> existsCache = new HashMap<String, Boolean>();
+
+  /** */
+  private static final String KLASS = Hib3GroupDAO.class.getName();
+
+  /** */
+
+  /** */
+  private String id;
+
+  /** */
+  private String modifierUUID;
+
+  /** */
+  private String modifySource;
+
+  /** */
+  private long modifyTime;
+
+  /** */
+  private String parentUUID;
+
+  /** */
+  private String uuid;
+
+  /** group dto to pass data back */
+  private GroupDTO groupDTO;
 
   // PUBLIC INSTANCE METHODS //
 
@@ -595,43 +663,29 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#stateDifferentThanDb()
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#dbVersionDifferent()
    */
-  boolean stateDifferentThanDb() {
-    if (dbVersion == null) {
+  @Override
+  boolean dbVersionDifferent() {
+    Set<String> differentFields = dbVersionDifferentFields();
+    return differentFields.size() > 0;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#dbVersionDifferentFields()
+   */
+  @Override
+  Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
       throw new RuntimeException("State was never stored from db");
     }
-    if (!GrouperUtil.equalsMap(this.dbVersion.attributes, this.attributes)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.dbVersion.createSource, this.createSource)) {
-      return true;
-    }
-    if (this.dbVersion.createTime != this.createTime) {
-      return true;
-    }
-    if (!StringUtils.equals(this.dbVersion.creatorUUID, this.creatorUUID)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.dbVersion.id, this.id)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.dbVersion.modifierUUID, this.modifierUUID)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.dbVersion.modifySource, this.modifySource)) {
-      return true;
-    }
-    if (this.dbVersion.modifyTime != this.modifyTime) {
-      return true;
-    }
-    if (!StringUtils.equals(this.dbVersion.parentUUID, this.parentUUID)) {
-      return true;
-    }
-    if (!StringUtils.equals(this.dbVersion.uuid, this.uuid)) {
-      return true;
-    }
-    return false;
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        GrouperUtil.toSet(FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, 
+            FIELD_CREATOR_UUID, FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE,
+            FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID), ATTRIBUTE_PREFIX);
+    return result;
   }
 
   /**
@@ -651,7 +705,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     this.dbVersion.modifyTime = this.modifyTime;
     this.dbVersion.parentUUID = this.parentUUID;
     this.dbVersion.uuid = this.uuid;
-
   }
   
   // @since   @HEAD@
@@ -1031,6 +1084,13 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Hib3GroupDAO getDbVersion() {
     return this.dbVersion;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#setGroupDTO(edu.internet2.middleware.grouper.internal.dto.GroupDTO)
+   */
+  public void setGroupDTO(GroupDTO groupDTO1) {
+    this.groupDTO = groupDTO1;
   }
 
 } 

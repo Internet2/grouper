@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.1.2.4 2008-06-12 07:10:12 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.1.2.5 2008-06-17 17:00:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -148,28 +148,28 @@ public class HooksContext {
     }
   }
   
-  /**
-   * return the grouper session, or null if none in context
-   * @return the grouper session
-   */
-  public GrouperSession getGrouperSession() {
-    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
-      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-    if (sessions != null) {
-      //get the last non-null one, remove if not there
-      for (int i=sessions.size()-1;i>=0;i--) {
-        WeakReference<GrouperSession> reference = sessions.get(i);
-        GrouperSession session = reference.get();
-        if (session == null) {
-          sessions.remove(i);
-        } else {
-          return session;
-        }
-      }
-    }
-    //cant find
-    return null;
-  }
+//  /**
+//   * return the grouper session, or null if none in context
+//   * @return the grouper session
+//   */
+//  public GrouperSession getGrouperSession() {
+//    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
+//      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
+//    if (sessions != null) {
+//      //get the last non-null one, remove if not there
+//      for (int i=sessions.size()-1;i>=0;i--) {
+//        WeakReference<GrouperSession> reference = sessions.get(i);
+//        GrouperSession session = reference.get();
+//        if (session == null) {
+//          sessions.remove(i);
+//        } else {
+//          return session;
+//        }
+//      }
+//    }
+//    //cant find
+//    return null;
+//  }
   
   /**
    * constructor
@@ -263,78 +263,78 @@ public class HooksContext {
     threadLocalAttribute().clear();
   }
 
-  /**
-   * keep sessions in a list so they fall off when done
-   * @param grouperSession
-   */
-  public static void removeGrouperSessionThreadLocal(GrouperSession grouperSession) {
-    
-    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
-      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-    
-    if (sessions != null) {
-      //lets find and remove this one or removed ones
-      Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();
-      while (iterator.hasNext()) {
-        WeakReference<GrouperSession> currentReference = iterator.next();
-        
-        //if not there, or the one to remove, then remove
-        GrouperSession currentSession = currentReference.get();
-        if (currentSession == null || currentSession == grouperSession) {
-          iterator.remove();
-        }
-        
-      }
-      
-    }
-  }
+//  /**
+//   * keep sessions in a list so they fall off when done
+//   * @param grouperSession
+//   */
+//  public static void removeGrouperSessionThreadLocal(GrouperSession grouperSession) {
+//    
+//    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
+//      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
+//    
+//    if (sessions != null) {
+//      //lets find and remove this one or removed ones
+//      Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();
+//      while (iterator.hasNext()) {
+//        WeakReference<GrouperSession> currentReference = iterator.next();
+//        
+//        //if not there, or the one to remove, then remove
+//        GrouperSession currentSession = currentReference.get();
+//        if (currentSession == null || currentSession == grouperSession) {
+//          iterator.remove();
+//        }
+//        
+//      }
+//      
+//    }
+//  }
   
-  /**
-   * keep sessions in a list so they fall off when done
-   * @param grouperSession
-   */
-  public static void addGrouperSessionThreadLocal(GrouperSession grouperSession) {
-    
-     HooksAttribute hooksAttribute = threadLocalAttribute()
-      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-     
-    List<WeakReference<GrouperSession>> sessions;
-     
-    if (hooksAttribute == null) {
-      sessions = new ArrayList<WeakReference<GrouperSession>>();
-      setAttributeThreadLocal(HooksContext.HOOKS_KEY_GROUPER_SESSION, sessions, false);
-      hooksAttribute = threadLocalAttribute()
-        .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-    }
-    
-    sessions = (List<WeakReference<GrouperSession>>)hooksAttribute.getValue();
-    
-    //lets clear out removed ones
-    Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();
-    while (iterator.hasNext()) {
-      WeakReference<GrouperSession> currentReference = iterator.next();
-      
-      //if not there, remove
-      GrouperSession currentSession = currentReference.get();
-      if (currentSession == null) {
-        iterator.remove();
-      }
-      
-    }
-    
-    //add to end
-    sessions.add(new WeakReference<GrouperSession>(grouperSession));
-  }
+//  /**
+//   * keep sessions in a list so they fall off when done
+//   * @param grouperSession
+//   */
+//  public static void addGrouperSessionThreadLocal(GrouperSession grouperSession) {
+//    
+//     HooksAttribute hooksAttribute = threadLocalAttribute()
+//      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
+//     
+//    List<WeakReference<GrouperSession>> sessions;
+//     
+//    if (hooksAttribute == null) {
+//      sessions = new ArrayList<WeakReference<GrouperSession>>();
+//      setAttributeThreadLocal(HooksContext.HOOKS_KEY_GROUPER_SESSION, sessions, false);
+//      hooksAttribute = threadLocalAttribute()
+//        .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
+//    }
+//    
+//    sessions = (List<WeakReference<GrouperSession>>)hooksAttribute.getValue();
+//    
+//    //lets clear out removed ones
+//    Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();
+//    while (iterator.hasNext()) {
+//      WeakReference<GrouperSession> currentReference = iterator.next();
+//      
+//      //if not there, remove
+//      GrouperSession currentSession = currentReference.get();
+//      if (currentSession == null) {
+//        iterator.remove();
+//      }
+//      
+//    }
+//    
+//    //add to end
+//    sessions.add(new WeakReference<GrouperSession>(grouperSession));
+//  }
   
   /**
    * local attributes just for this context
    */
   private Map<String, HooksAttribute> attributeLocal = new HashMap<String, HooksAttribute>();
 
-  /**
-   * hooks internal attribute key for grouper session
-   */
-  public static final String HOOKS_KEY_GROUPER_SESSION = "_grouperSession";
+//  /**
+//   * hooks internal attribute key for grouper session
+//   */
+//  public static final String HOOKS_KEY_GROUPER_SESSION = "_grouperSession";
   
   /**
    * keys of attributes (all put together, global, threadlocal, local

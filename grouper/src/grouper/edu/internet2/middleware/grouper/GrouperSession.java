@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.76.2.1 2008-06-11 06:19:41 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.76.2.2 2008-06-17 17:00:23 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -118,8 +118,8 @@ public class GrouperSession extends GrouperAPI {
       sw.stop();
       EventLog.info( s.toString(), M.S_START, sw );
       
-      //add to hooks threadlocal
-      HooksContext.addGrouperSessionThreadLocal(s);
+      //add to hooks threadlocal TODO
+//      HooksContext.addGrouperSessionThreadLocal(s);
       
       return s;
     }
@@ -360,8 +360,8 @@ public class GrouperSession extends GrouperAPI {
       long      dur   = now.getTime() - start;
       EventLog.info( this.toString(), "session: stop duration=" + + dur + "ms", sw );
     }
-    //remove from hooks threadlocal
-    HooksContext.removeGrouperSessionThreadLocal(this);
+    //remove from hooks threadlocal TODO
+//    HooksContext.removeGrouperSessionThreadLocal(this);
 
     this.setDTO(null);
     this.cachedMember = null;

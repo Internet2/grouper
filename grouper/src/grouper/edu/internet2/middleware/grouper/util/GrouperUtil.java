@@ -30,10 +30,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,38 +67,139 @@ public class GrouperUtil {
   private static Set<MultiKey> dbChangeWhitelist = new HashSet<MultiKey>();
   
   /**
+   * return the suffix after a char.  If the char doesnt exist, just return the string
+   * @param input string
+   * @param theChar char
+   * @return new string
+   */
+  public static String suffixAfterChar(String input, char theChar) {
+    if (input == null) {
+      return null;
+    }
+    //get the real type off the end
+    int lastIndex = input.lastIndexOf(theChar);
+    if (lastIndex > -1) {
+      input = input.substring(lastIndex + 1, input.length());
+    }
+    return input;
+  }
+
+  /**
+   * get the oracle underscore name e.g. javaNameHere -> JAVA_NAME_HERE
+   *
+   * @param javaName
+   *          the java convention name
+   *
+   * @return the oracle underscore name based on the java name
+   */
+  public static String oracleStandardNameFromJava(String javaName) {
+  
+    StringBuilder result = new StringBuilder();
+  
+    if ((javaName == null) || (0 == "".compareTo(javaName))) {
+      return javaName;
+    }
+  
+    //if package is specified, only look at class name
+    javaName = suffixAfterChar(javaName, '.');
+  
+    //dont check the first char
+    result.append(javaName.charAt(0));
+  
+    char currChar;
+  
+    boolean previousCap = false;
+    
+    //loop through the string, looking for uppercase
+    for (int i = 1; i < javaName.length(); i++) {
+      currChar = javaName.charAt(i);
+  
+      //if uppcase append an underscore
+      if (!previousCap && (currChar >= 'A') && (currChar <= 'Z')) {
+        result.append("_");
+      }
+  
+      result.append(currChar);
+      if ((currChar >= 'A') && (currChar <= 'Z')) {
+        previousCap = true;
+      }
+    }
+  
+    //this is in upper-case
+    return result.toString().toUpperCase();
+  }
+
+  
+  /**
    * see if two maps are the equivalent (based on number of entries, 
    * and the equals() method of the keys and values)
+   * @param <K> 
+   * @param <V> 
    * @param first
    * @param second
    * @return true if equal
    */
-  public static boolean equalsMap(Map first, Map second) {
+  public static <K,V> boolean mapEquals(Map<K,V> first, Map<K,V> second) {
+    Set<K> keysMismatch = new HashSet<K>();
+    mapDifferences(first, second, keysMismatch, null);
+    //if any keys mismatch, then not equal
+    return keysMismatch.size() == 0;
+    
+  }
+  
+  /**
+   * empty map
+   */
+  private static final Map EMPTY_MAP = Collections.unmodifiableMap(new HashMap());
+  
+  /**
+   * see if two maps are the equivalent (based on number of entries, 
+   * and the equals() method of the keys and values)
+   * @param <K> 
+   * @param <V> 
+   * @param first map to check diffs
+   * @param second map to check diffs
+   * @param differences set of keys (with prefix) of the diffs
+   * @param prefix for the entries in the diffs (e.g. "attribute__"
+   */
+  public static <K,V> void mapDifferences(Map<K,V> first, Map<K,V> second, Set<K> differences, String prefix) {
     if (first == second) {
-      return true;
+      return;
+    }
+    //put the collections in new collections so we can remove and keep track
+    if (first == null) {
+      first = EMPTY_MAP;
+    }
+    if (second == null) {
+      second = EMPTY_MAP;
+    } else {
+      //make linked so the results are ordered
+      second = new LinkedHashMap<K,V>(second);
     }
     int firstSize = first == null ? 0 : first.size();
     int secondSize = second == null ? 0 : second.size();
-    if (firstSize != secondSize) {
-      return false;
-    }
     //if both empty then all good
-    if (firstSize == 0) {
-      return true;
+    if (firstSize == 0 && secondSize == 0) {
+      return;
     }
-    for (Object key : first.keySet()) {
-      
-      Object firstValue = first.get(key);
-      if (!second.containsKey(key)) {
-        return false;
+   
+    for (K key : first.keySet()) {
+
+      if (second.containsKey(key)) {
+        V firstValue = first.get(key);
+        V secondValue = second.get(key);
+        //keep track by removing from second
+        second.remove(key);
+        if (ObjectUtils.equals(firstValue, secondValue)) {
+          continue;
+        }
       }
-      Object secondValue = second.get(key);
-      if (!ObjectUtils.equals(firstValue, secondValue)) {
-        return false;
-      }
-      
+      differences.add(StringUtils.isNotBlank(prefix) ? (K)(prefix + key) : key);
     }
-    return true;
+    //add the ones left over in the second map which are not in the first map
+    for (K key : second.keySet()) {
+      differences.add(StringUtils.isNotBlank(prefix) ? (K)(prefix + key) : key);
+    }
   }
   
   /**
@@ -1610,6 +1713,72 @@ public class GrouperUtil {
 
   }
 
+  /**
+   * compare two objects, compare primitives, Strings, maps of string attributes.
+   * if both objects equal each others references, then return empty set.
+   * then, if not, then if either is null, return all fields
+   * @param first
+   * @param second
+   * @param fieldsToCompare
+   * @param mapPrefix is the prefix for maps which are compared (e.g. attribute__)
+   * @return the set of fields which are different.  never returns null
+   */
+  public static Set<String> compareObjectFields(Object first, Object second, 
+      Set<String> fieldsToCompare, String mapPrefix) {
+    
+    Set<String> differentFields = new LinkedHashSet<String>();
+    
+    if (first == second) {
+      return differentFields;
+    }
+    
+    //if either null, then all fields are different
+    if (first == null || second == null) {
+      differentFields.addAll(fieldsToCompare);
+    }
+
+    for (String fieldName : fieldsToCompare) {
+      try {
+        Object firstValue = fieldValue(first, fieldName);
+        Object secondValue = fieldValue(second, fieldName);
+        
+        if (firstValue == secondValue) {
+          continue;
+        }
+        if (firstValue instanceof Map || secondValue instanceof Map) {
+          mapDifferences((Map)firstValue, (Map)secondValue, differentFields, mapPrefix);
+          continue;
+        }
+        //compare things...
+        //for strings, null is equal to empty
+        if (firstValue instanceof String || secondValue instanceof String) {
+          if (!StringUtils.equals(StringUtils.defaultString((String)firstValue),
+              StringUtils.defaultString((String)secondValue))) {
+            differentFields.add(fieldName);
+          }
+          continue;
+        }
+        //if one is null, that is not good
+        if (firstValue == null || secondValue == null) {
+          differentFields.add(fieldName);
+          continue;
+        }
+        //everything (numbers, dates, etc) should work with equals method...
+        if (!firstValue.equals(secondValue)) {
+          differentFields.add(fieldName);
+          continue;
+        }
+        
+      } catch (RuntimeException re) {
+        throw new RuntimeException("Problem comparing field " + fieldName 
+            + " on objects: " + className(first) + ", " + className(second));
+      }
+      
+      
+    }
+    return differentFields;
+  }
+  
   /**
    * get all field names from a class, including superclasses (if specified)
    * 

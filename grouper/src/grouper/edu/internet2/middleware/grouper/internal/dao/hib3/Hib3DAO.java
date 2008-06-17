@@ -16,24 +16,29 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  edu.internet2.middleware.grouper.ErrorLog;
-import  edu.internet2.middleware.grouper.GrouperConfig;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Properties;
+import java.util.Set;
+
+import org.hibernate.CallbackException;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.classic.Lifecycle;
+
+import edu.internet2.middleware.grouper.ErrorLog;
+import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
-
-import  java.io.InputStream;
-import java.io.Serializable;
-import  java.util.Properties;
-import  org.hibernate.*;
-import  org.hibernate.cfg.*;
-import org.hibernate.classic.Lifecycle;
 
 /**
  * Base Hibernate DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.4.2.3 2008-06-15 04:29:56 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.4.2.4 2008-06-17 17:00:23 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO implements HibGrouperLifecycle, Lifecycle {
@@ -194,7 +199,16 @@ abstract class Hib3DAO implements HibGrouperLifecycle, Lifecycle {
    * see if the state of this object has changed compared to the DB state (last known)
    * @return true if changed, false if not
    */
-  boolean stateDifferentThanDb() {
+  boolean dbVersionDifferent() {
+    throw new RuntimeException("Not implemented");
+  }
+
+  /**
+   * see which fields have changed compared to the DB state (last known)
+   * note that attributes will print out: attribute__attributeName
+   * @return a set of attributes changed, or empty set if none
+   */
+  Set<String> dbVersionDifferentFields() {
     throw new RuntimeException("Not implemented");
   }
 } 
