@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.179 2008-05-07 18:02:52 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.181 2008-06-17 12:34:12 khuxtable Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -8,7 +8,7 @@
   <property name="app.name"     value="grouper"/>
   <property name="impl.url"     value="http://middleware.internet2.edu/dir/groups/grouper/"/>
   <property name="impl.vendor"  value="Internet2"/>
-  <property name="impl.version" value="1.2.0"/>
+  <property name="impl.version" value="1.3.0"/>
 
   <!-- Grouper Global Build Properties -->
   <property file="${basedir}/conf/buildGrouper.properties"/>
@@ -479,11 +479,13 @@
     <tstamp/>
     <mkdir dir="${build.dir.test}"/>
     <mkdir dir="${ext.dir.lib}"/> <!-- a bit of a hack -->
+    <mkdir dir="${ext.dir}/conf"/>
     <!-- only define our classpath once -->
     <path id="project.classpath">
       <pathelement path="${java.class.path}"/>
       <!-- for configuration files -->
       <pathelement location="${conf.dir}"/>
+      <pathelement location="${ext.dir}/conf"/>
       <fileset dir="${lib.dir}">
         <include name="**/*.jar"/>
       </fileset>
