@@ -33,6 +33,16 @@
       </roles>
       <timezone>-6</timezone>
     </developer>
+    <developer>
+      <id>mchyzer</id>
+      <name>Chris Hyzer</name>
+      <organization>University of Kansas</organization>
+      <organizationUrl>http://www.upenn.edu/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
   </developers>
   <licenses>
     <license>
