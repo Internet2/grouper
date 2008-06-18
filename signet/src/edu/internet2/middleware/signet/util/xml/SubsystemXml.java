@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubsystemXml.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubsystemXml.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -34,9 +34,9 @@ import edu.internet2.middleware.signet.util.xml.binder.SubsystemImplXb;
 
 /**
  * SubsystemXml - A class to export a Signet Subsystem to XML based on
- * Command parameters. <br>
+ * CommandArg parameters. <br>
  * Typical usage: new SubsystemXml(mySignet).exportSubsystem(myCommand);
- * @see Command
+ * @see CommandArg
  * @see SubsystemImpl
  * @see SubsystemImplXa
  * @see SubsystemImplXb
@@ -50,36 +50,37 @@ public class SubsystemXml extends XmlUtil
 
 	/**
 	 * Constructor - Initialize Log and Signet instance variables
-	 * @param signet A Signet instance
+	 * @param signetXmlAdapter A SignetXa instance
 	 * @see Signet
 	 */
-	public SubsystemXml(Signet signet)
+	public SubsystemXml(SignetXa signetXmlAdapter)
 	{
 		this();
 		log = LogFactory.getLog(SubsystemXml.class);
-		this.signet = signet;
+		this.signetXmlAdapter = signetXmlAdapter;
+		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
 	 * Constructor - Initialize Log and Signet instance variables, then
-	 * export Assignment based on parameters in Command
-	 * @param signet A Signet instance
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
-	 * @see Signet
+	 * export Assignment based on parameters in CommandArg
+	 * @param signetXmlAdapter A SignetXa instance
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
+	 * @see SignetXa
 	 */
-	public SubsystemXml(Signet signet, Command cmd)
+	public SubsystemXml(SignetXa signetXmlAdapter, CommandArg cmd)
 	{
-		this(signet);
-		exportSubsystem(cmd);
+		this(signetXmlAdapter);
+		buildXml(cmd);
 	}
 
 	/**
-	 * Perform the XML export of this Subsystem
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
+	 * Build the XML of this Subsystem
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
 	 */
-	public void exportSubsystem(Command cmd)
+	public void buildXml(CommandArg cmd)
 	{
 		Status status = null;
 		String[] names = null;
@@ -90,19 +91,19 @@ public class SubsystemXml extends XmlUtil
 		int argCount = 0;
 		for (String key : params.keySet())
 		{
-			if (key.equalsIgnoreCase(Command.PARAM_STATUS))
+			if (key.equalsIgnoreCase(CommandArg.PARAM_STATUS))
 				status = (Status)Status.getInstanceByName(params.get(key));
-			else if (key.equalsIgnoreCase(Command.PARAM_NAME))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_NAME))
 			{
 				names = parseList(params.get(key));
 				argCount++;
 			}
-			else if (key.equalsIgnoreCase(Command.PARAM_SCOPEID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_SCOPEID))
 			{
 				scopeIds = parseList(params.get(key));
 				argCount++;
 			}
-			else if (key.equalsIgnoreCase(Command.PARAM_SUBSYSID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_SUBSYSID))
 			{
 				subsysIds = parseList(params.get(key));
 				argCount++;
@@ -117,16 +118,15 @@ public class SubsystemXml extends XmlUtil
 		if (2 <= argCount)
 		{
 			log.error("Too many Subsystem parameters specified. May only be one of " +
-					Command.PARAM_NAME +
-					Command.PARAM_SCOPEID + ", " +
+					CommandArg.PARAM_NAME +
+					CommandArg.PARAM_SCOPEID + ", " +
 					", or " +
-					Command.PARAM_SUBSYSID +
+					CommandArg.PARAM_SUBSYSID +
 					", or no parameter for All records.");
 			return;
 		}
 
-		SignetXa adapter = new SignetXa(signet);
-		SignetXb xml = adapter.getXmlSignet();
+		SignetXb xml = signetXmlAdapter.getXmlSignet();
 		// collect all Signet Subsystems first
 		List<SubsystemImpl> signetSubsystemList = new Vector<SubsystemImpl>();
 
@@ -169,14 +169,12 @@ public class SubsystemXml extends XmlUtil
 		}
 
 		// after collecting all Signet Subsystems, create a binder for each
+		List<SubsystemImplXb> subsysList = xml.getSubsystemSet().getSubsystem();
 		for (SubsystemImpl subsys : signetSubsystemList)
 		{
 			SubsystemImplXb xmlSubsys = new SubsystemImplXa(subsys, signet).getXmlSubsystem();
-			xml.getSubsystem().add(xmlSubsys);
+			subsysList.add(xmlSubsys);
 		}
-
-		marshalXml(xml, cmd.getOutFile());
-
 	}
 
 }

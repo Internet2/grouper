@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/CommandOptions.java,v 1.1 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/CommandOptions.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -25,6 +25,7 @@ import java.io.FileInputStream;
  */
 public class CommandOptions
 {
+	protected String			xmlFilename;
 	protected String			cmdFilename;
 	protected FileInputStream	cmdFile;
 	protected int				nextArg;
@@ -33,11 +34,15 @@ public class CommandOptions
 
 	public CommandOptions()
 	{
+		setXmlFilename(null);
 		setCmdFile(null);
 		setNextArg(0);
 		setShowVersion(false);
 		setShowHelp(false);
 	}
+
+	public String getXmlFilename() { return (xmlFilename); }
+	public void setXmlFilename(String xmlFilename) { this.xmlFilename = xmlFilename; }
 
 	public void setNextArg(int nextArg) { this.nextArg = nextArg; }
 	public int getNextArg() { return (nextArg); }

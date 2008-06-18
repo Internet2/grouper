@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlImporter.java,v 1.1 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlImporter.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,6 +17,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Vector;
 import javax.xml.bind.JAXBContext;
@@ -38,11 +39,15 @@ import edu.internet2.middleware.signet.util.xml.adapter.ScopeTreeXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetSubjectXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SubsystemImplXa;
 import edu.internet2.middleware.signet.util.xml.binder.AssignmentImplXb;
+import edu.internet2.middleware.signet.util.xml.binder.AssignmentSetXb;
 import edu.internet2.middleware.signet.util.xml.binder.ProxyImplXb;
+import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeSetXb;
 import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeXb;
+import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectSetXb;
 import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectXb;
 import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 import edu.internet2.middleware.signet.util.xml.binder.SubsystemImplXb;
+import edu.internet2.middleware.signet.util.xml.binder.SubsystemSetXb;
 
 /**
  * XmlImporter 
@@ -50,45 +55,47 @@ import edu.internet2.middleware.signet.util.xml.binder.SubsystemImplXb;
  */
 public class XmlImporter
 {
-	protected Log		log;
-	protected Signet	signet;
+	protected Log			log;
+	protected Signet		signet;
+	protected InputStream	inFile;
 
 
 	private XmlImporter()
 	{
 	}
 
-	public XmlImporter(Signet signet, Log log)
+	public XmlImporter(Signet signet, Log log, InputStream inFile)
 	{
 		this.log = log;
 		this.signet = signet;
+		this.inFile = inFile;
 	}
 
 
-	public void importXml(Command cmd)
+	public void importXml(CommandArg cmd)
 	{
 		SignetXb signetXml = unmarshalSignet(cmd);
 		if (null == signetXml)
 			return;
 
 		String cmdType = cmd.getType();
-		if (cmdType.equals(Command.IM_ADD) || cmdType.equals(Command.IM_UPD))
+		if (cmdType.equals(CommandArg.IM_ADD) || cmdType.equals(CommandArg.IM_UPD))
 		{
 			updateXml(signetXml);
 		}
-		else if (cmdType.equals(Command.IM_DEACT))
+		else if (cmdType.equals(CommandArg.IM_DEACT))
 		{
 log.info("Import+deactivate not supported yet");
 		}
-		else if (cmdType.equals(Command.IM_DEL))
+		else if (cmdType.equals(CommandArg.IM_DEL))
 		{
 log.info("Import+delete not supported yet");
 		}
 		else
-			log.error("Unknown Command Type: \"" + cmdType + "\"");
+			log.error("Unknown CommandArg Type: \"" + cmdType + "\"");
 	}
 
-	protected SignetXb unmarshalSignet(Command cmd)
+	protected SignetXb unmarshalSignet(CommandArg cmd)
 	{
 		SignetXb signetXml = null;
 
@@ -97,7 +104,7 @@ log.info("Import+delete not supported yet");
 			JAXBContext jaxbContext = JAXBContext.newInstance(XmlUtil.JAXB_CONTEXT_PATH);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-			signetXml =((JAXBElement<SignetXb>)unmarshaller.unmarshal(cmd.getInFile())).getValue();
+			signetXml =((JAXBElement<SignetXb>)unmarshaller.unmarshal(inFile)).getValue();
 		}
 		catch (JAXBException ejax)
 		{
@@ -109,20 +116,20 @@ log.info("Import+delete not supported yet");
 
 	protected void updateXml(SignetXb signetXml)
 	{
-//		updateScopeTrees(signetXml.getScopeTree());
-//		updateSubsystems(signetXml.getSubsystems());
-//		updateSubjects(signetXml.getSubject());
+		updateScopeTrees(signetXml.getScopeTreeSet());
+		updateSubsystems(signetXml.getSubsystemSet());
+		updateSubjects(signetXml.getSubjectSet());
 //		updateProxies(signetXml.getProxy());
-		updateAssignments(signetXml.getAssignment());
+		updateAssignments(signetXml.getAssignmentSet());
 	}
 
-	protected void updateScopeTrees(List<ScopeTreeXb> scopeTrees)
+	protected void updateScopeTrees(ScopeTreeSetXb scopeTreeSet)
 	{
-		if (null == scopeTrees)
+		if (null == scopeTreeSet)
 			return;
 
 		List<TreeImpl> signetTrees = new Vector<TreeImpl>();
-		for (ScopeTreeXb xmlTree : scopeTrees)
+		for (ScopeTreeXb xmlTree : scopeTreeSet.getScopeTree())
 		{
 			TreeImpl signetTree = new ScopeTreeXa(xmlTree, signet).getSignetScopeTree();
 			signetTrees.add(signetTree);
@@ -132,13 +139,13 @@ System.out.println("SignetXml.updateScopeTrees: ScopeTree=" + signetTree);
 		updateSignetObjects(signetTrees);
 	}
 
-	protected void updateSubsystems(List<SubsystemImplXb> subsystems)
+	protected void updateSubsystems(SubsystemSetXb subsystemSet)
 	{
-		if (null == subsystems)
+		if (null == subsystemSet)
 			return;
 
 		List<SubsystemImpl> signetSubsystems = new Vector<SubsystemImpl>();
-		for (SubsystemImplXb xmlSubsys : subsystems)
+		for (SubsystemImplXb xmlSubsys : subsystemSet.getSubsystem())
 		{
 			SubsystemImpl sigSubsys = new SubsystemImplXa(xmlSubsys, signet).getSignetSubsystem();
 			signetSubsystems.add(sigSubsys);
@@ -148,13 +155,13 @@ System.out.println("SignetXml.updateSubsystems: Subsystem=" + sigSubsys);
 		updateSignetObjects(signetSubsystems);
 	}
 
-	protected void updateSubjects(List<SignetSubjectXb> subjects)
+	protected void updateSubjects(SignetSubjectSetXb subjectSet)
 	{
-		if (null == subjects)
+		if (null == subjectSet)
 			return;
 
 		List<SignetSubject> sigSubjects = new Vector<SignetSubject>();
-		for (SignetSubjectXb xmlSubject : subjects)
+		for (SignetSubjectXb xmlSubject : subjectSet.getSubject())
 		{
 			SignetSubject sigSubject = new SignetSubjectXa(xmlSubject, signet).getSignetSubject();
 			sigSubjects.add(sigSubject);
@@ -180,13 +187,13 @@ System.out.println("SignetXml.updateProxies: Proxy=" + sigProxy);
 		updateSignetObjects(sigProxies);
 	}
 
-	protected void updateAssignments(List<AssignmentImplXb> assigns)
+	protected void updateAssignments(AssignmentSetXb assignSet)
 	{
-		if (null == assigns)
+		if (null == assignSet)
 			return;
 
 		List<AssignmentImpl> signetAssigns = new Vector<AssignmentImpl>();
-		for (AssignmentImplXb xmlAssign : assigns)
+		for (AssignmentImplXb xmlAssign : assignSet.getAssignment())
 		{
 			AssignmentImpl signetAssign = 
 				new AssignmentImplXa(xmlAssign, signet).getSignetAssignment();
@@ -212,7 +219,11 @@ System.out.println("SignetXml.importAssignments: assignment=" + signetAssign);
 	 */
 	public void importSubjects(SignetXb signetXml, Signet signet)
 	{
-		for (SignetSubjectXb xmlSubj : signetXml.getSubject())
+		SignetSubjectSetXb subjSet = signetXml.getSubjectSet();
+		if (null == subjSet)
+			return;
+
+		for (SignetSubjectXb xmlSubj : subjSet.getSubject())
 		{
 			SignetSubjectXa adapter = new SignetSubjectXa(xmlSubj, signet);
 System.out.println("SignetXml.importSubjects: subject=" + adapter.getSignetSubject().toString());
@@ -227,9 +238,13 @@ System.out.println("  importSubjects not implemented yet");
 	 */
 	public void importAssignments(SignetXb signetXml, Signet signet)
 	{
+		AssignmentSetXb xmlAssignSet = signetXml.getAssignmentSet();
+		if (null == xmlAssignSet)
+			return;
+
 		List<AssignmentImpl> signetAssignments = new Vector<AssignmentImpl>();
 
-		for (AssignmentImplXb xmlAssign : signetXml.getAssignment())
+		for (AssignmentImplXb xmlAssign : xmlAssignSet.getAssignment())
 		{
 			AssignmentImpl signetAssignment = 
 				new AssignmentImplXa(xmlAssign, signet).getSignetAssignment();

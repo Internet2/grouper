@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubjectXml.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubjectXml.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -28,7 +28,6 @@ import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetSubjectXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
 import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectXb;
-import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 
 /**
  * SubjectXml 
@@ -43,36 +42,37 @@ public class SubjectXml extends XmlUtil
 
 	/**
 	 * Constructor - Initialize Log and Signet instance variables
-	 * @param signet A Signet instance
+	 * @param signetXmlAdapter A SignetXa instance
 	 * @see Signet
 	 */
-	public SubjectXml(Signet signet)
+	public SubjectXml(SignetXa signetXmlAdapter)
 	{
 		this();
 		log = LogFactory.getLog(SubjectXml.class);
-		this.signet = signet;
+		this.signetXmlAdapter = signetXmlAdapter;
+		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
 	 * Constructor - Initialize Log and Signet instance variables, then
-	 * export Subject(s) based on parameters in Command
-	 * @param signet A Signet instance
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
-	 * @see Signet
+	 * export Subject(s) based on parameters in CommandArg
+	 * @param signetXmlAdapter A SignetXa instance
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
+	 * @see SignetXa
 	 */
-	public SubjectXml(Signet signet, Command cmd)
+	public SubjectXml(SignetXa signetXmlAdapter, CommandArg cmd)
 	{
-		this(signet);
-		exportSubject(cmd);
+		this(signetXmlAdapter);
+		buildXml(cmd);
 	}
 
 	/**
-	 * Perform the XML export of this Subject(s)
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
+	 * Build the XML of this Subject(s)
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
 	 */
-	public void exportSubject(Command cmd)
+	public void buildXml(CommandArg cmd)
 	{
 		String[]					subjectIds = null;
 		String[]					sourceIds = null;
@@ -82,12 +82,12 @@ public class SubjectXml extends XmlUtil
 		int argCount = 0;
 		for (String key : params.keySet())
 		{
-			if (key.equalsIgnoreCase(Command.PARAM_SUBJID))
+			if (key.equalsIgnoreCase(CommandArg.PARAM_SUBJID))
 			{
 				subjectIds = parseList(params.get(key));
 				argCount++;
 			}
-			else if (key.equalsIgnoreCase(Command.PARAM_SOURCEID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_SOURCEID))
 			{
 				sourceIds = parseList(params.get(key));
 				argCount++;
@@ -99,9 +99,8 @@ public class SubjectXml extends XmlUtil
 			}
 		}
 
-		SignetXa adapter = new SignetXa(signet);
-		SignetXb xml = adapter.getXmlSignet();
-		List<SignetSubjectXb> xmlSubjectList = xml.getSubject();
+		List<SignetSubjectXb> xmlSubjectList =
+			signetXmlAdapter.getXmlSignet().getSubjectSet().getSubject();
 		HibernateDB hibr = signet.getPersistentDB();
 
 		if (null != subjectIds)
@@ -146,9 +145,6 @@ public class SubjectXml extends XmlUtil
 			for (SignetSubject subj : subjs)
 				xmlSubjectList.add(new SignetSubjectXa(subj, signet).getXmlSubject());
 		}
-
-		marshalXml(xml, cmd.getOutFile());
-
 	}
 
 

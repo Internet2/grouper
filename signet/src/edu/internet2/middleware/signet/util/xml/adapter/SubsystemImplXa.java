@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SubsystemImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SubsystemImplXa.java,v 1.4 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,8 +17,8 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml.adapter;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.hibernate.Session;
 import edu.internet2.middleware.signet.CategoryImpl;
@@ -150,14 +150,20 @@ public class SubsystemImplXa extends EntityImplXa
 		
 //  private Map     limits;
 		List<LimitImplXb> xmlLimits = xmlSubsys.getLimit();
-		for (LimitImpl signetLimit : (Collection<LimitImpl>)signetSubsystem.getLimits().values())
-			xmlLimits.add(new LimitImplXa(signetLimit, signet).getXmlLimitImpl());
-
+		Map<String, LimitImpl> limits = signetSubsystem.getLimits();
+		if (null != limits)
+		{
+			for (LimitImpl signetLimit : limits.values())
+				xmlLimits.add(new LimitImplXa(signetLimit, signet).getXmlLimitImpl());
+		}
 //  private Map     permissions;
 		List<PermissionImplXb> xmlPerms = xmlSubsys.getPermission();
-		for (PermissionImpl signetPerm : (Collection<PermissionImpl>)signetSubsystem.getPermissions().values())
-			xmlPerms.add(new PermissionImplXa(signetPerm, signet).getXmlPermission());
-
+		Map<String, PermissionImpl> permissions = signetSubsystem.getPermissions();
+		if (null != permissions)
+		{
+			for (PermissionImpl signetPerm : permissions.values())
+				xmlPerms.add(new PermissionImplXa(signetPerm, signet).getXmlPermission());
+		}
 	}
 
 

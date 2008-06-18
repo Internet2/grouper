@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/ScopeTreeXml.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/ScopeTreeXml.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -22,19 +22,18 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.TreeImpl;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.util.xml.adapter.ScopeTreeXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
+import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeSetXb;
 import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeXb;
-import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 
 /**
  * ScopeTreeXml - A class to export a Signet Tree to XML based on
- * Command parameters. <br>
+ * CommandArg parameters. <br>
  * Typical usage: new ScopeTreeXml(mySignet).exportScopeTree(myCommand);
- * @see Command
+ * @see CommandArg
  * @see TreeImpl
  * @see ScopeTreeXa
  * @see ScopeTreeXb
@@ -49,36 +48,37 @@ public class ScopeTreeXml extends XmlUtil
 
 	/**
 	 * Constructor - Initialize Log and Signet instance variables
-	 * @param signet A Signet instance
-	 * @see Signet
+	 * @param signetXmlAdapter A SignetXa instance
+	 * @see SignetXa
 	 */
-	public ScopeTreeXml(Signet signet)
+	public ScopeTreeXml(SignetXa signetXmlAdapter)
 	{
 		this();
 		log = LogFactory.getLog(ScopeTreeXml.class);
-		this.signet = signet;
+		this.signetXmlAdapter = signetXmlAdapter;
+		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
 	 * Constructor - Initialize Log and Signet instance variables, then
-	 * export ScopeTree based on parameters in Command
-	 * @param signet A Signet instance
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
-	 * @see Signet
+	 * add ScopeTree to SignetXa based on parameters in CommandArg
+	 * @param signetXmlAdapter An instance of SignetXa
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
+	 * @see SignetXa
 	 */
-	public ScopeTreeXml(Signet signet, Command cmd)
+	public ScopeTreeXml(SignetXa signetXmlAdapter, CommandArg cmd)
 	{
-		this(signet);
-		exportScopeTree(cmd);
+		this(signetXmlAdapter);
+		buildXml(cmd);
 	}
 
 	/**
 	 * Perform the XML export of this ScopeTree
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
 	 */
-	public void exportScopeTree(Command cmd)
+	public void buildXml(CommandArg cmd)
 	{
 //		Status status = null;
 //		String[] subjIds = null;
@@ -90,24 +90,24 @@ public class ScopeTreeXml extends XmlUtil
 		int argCount = 0;
 		for (String key : params.keySet())
 		{
-//			if (key.equalsIgnoreCase(Command.PARAM_STATUS))
+//			if (key.equalsIgnoreCase(CommandArg.PARAM_STATUS))
 //				status = (Status)Status.getInstanceByName(params.get(key));
-//			else if (key.equalsIgnoreCase(Command.PARAM_SUBJID))
+//			else if (key.equalsIgnoreCase(CommandArg.PARAM_SUBJID))
 //			{
 //				subjIds = parseList(params.get(key));
 //				argCount++;
 //			}
-//			else if (key.equalsIgnoreCase(Command.PARAM_FUNCID))
+//			else if (key.equalsIgnoreCase(CommandArg.PARAM_FUNCID))
 //			{
 //				functionIds = parseList(params.get(key));
 //				argCount++;
 //			}
-			if (key.equalsIgnoreCase(Command.PARAM_SCOPEID))
+			if (key.equalsIgnoreCase(CommandArg.PARAM_SCOPEID))
 			{
 				scopeIds = parseList(params.get(key));
 				argCount++;
 			}
-			else if (key.equalsIgnoreCase(Command.PARAM_SUBSYSID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_SUBSYSID))
 			{
 				subsysIds = parseList(params.get(key));
 				argCount++;
@@ -122,17 +122,18 @@ public class ScopeTreeXml extends XmlUtil
 		if (2 <= argCount)
 		{
 			log.error("Too many ScopeTree parameters specified. May only be one of " +
-//					Command.PARAM_FUNCID + ", " +
-					Command.PARAM_SCOPEID + ", " +
-//					Command.PARAM_SUBJID + ", or " +
-					Command.PARAM_SUBSYSID + ", " +
+//					CommandArg.PARAM_FUNCID + ", " +
+					CommandArg.PARAM_SCOPEID + ", " +
+//					CommandArg.PARAM_SUBJID + ", or " +
+					CommandArg.PARAM_SUBSYSID + ", " +
 					"or no parameter for All records.");
 			return;
 		}
 
-		SignetXa adapter = new SignetXa(signet);
-		SignetXb xml = adapter.getXmlSignet();
-		List<ScopeTreeXb> xmlScopeTreeList = xml.getScopeTree();
+		ScopeTreeSetXb xmlTreeSet = new ScopeTreeSetXb();
+		signetXmlAdapter.getXmlSignet().setScopeTreeSet(xmlTreeSet);
+		List<ScopeTreeXb> xmlScopeTreeList = xmlTreeSet.getScopeTree();
+
 		HibernateDB hibr = signet.getPersistentDB();
 		Session hs = hibr.openSession();
 
@@ -165,7 +166,7 @@ public class ScopeTreeXml extends XmlUtil
 				xmlScopeTreeList.add(new ScopeTreeXa(tree, signet).getXmlScopeTree());
 		}
 
-		marshalXml(xml, cmd.getOutFile());
+//		marshalXml(xml, cmd.getOutFile());
 
 		hibr.closeSession(hs);
 

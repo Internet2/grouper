@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.17 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.18 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -68,7 +68,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -616,6 +616,9 @@ protected Session stdSession = null;
 		{
 			Query query = createQuery(session, HibernateQry.Qry_treesAll);
 			retval.addAll(query.list());
+
+			for (Iterator iter = retval.iterator(); iter.hasNext(); )
+				((TreeImpl)iter.next()).setSignet(this.signet);
 		}
 		catch (HibernateException e)
 		{
@@ -673,6 +676,9 @@ protected Session stdSession = null;
 		retval.addAll(query.list());
 
 		closeSession(tmp_hs);
+
+		for (Iterator i = retval.iterator(); i.hasNext();)
+			((EntityImpl)i.next()).setSignet(signet);
 
 		return (retval);
 	}
@@ -1431,6 +1437,45 @@ protected Session stdSession = null;
 		return proxy;
 	}
 
+
+	/**
+	 * Get the set of all Proxies optionally filtered by status.
+	 * @param status The status of the proxy, if null or empty string, selects _all_
+	 * @return A Set of ProxyImpl objects.
+	 * May be an empty set but never null.
+	 */
+	public Set getProxies(String status)
+	{
+		Set retval = new HashSet();
+
+		Session hs = openSession();
+		Query qry;
+		if ((null == status) || (0 >= status.length()))
+			qry = createQuery(hs, HibernateQry.Qry_proxiesAll);
+		else
+		{
+			qry = createQuery(hs, HibernateQry.Qry_proxiesByStatus);
+			qry.setString("status", status); //$NON-NLS-1$
+		}
+
+		try
+		{
+			List list = qry.list();
+			retval.addAll(list);
+		}
+		catch (HibernateException e)
+		{
+			throw new SignetRuntimeException(e);
+		}
+		finally
+		{
+			closeSession(hs);
+		}
+
+		SignetApiUtil.setEntitysSignetValue(retval, signet);
+
+		return (retval);
+	}
 
 	/**
 	 * Get the set of Proxies granted by the grantor.

@@ -1,7 +1,7 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/AssignmentSetXb.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/ProxySetXb.java,v 1.1 2008-06-18 01:21:39 ddonn Exp $
 
-Copyright 2006 Internet2, Stanford University
+Copyright 2008 Internet2, Stanford University
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,17 +25,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * AssignmentSetXb 
+ * ProxySetXb 
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AssignmentSetXb",
+@XmlType(name = "ProxySetXb",
 		namespace="http://www.internet2.edu/signet",
-		propOrder = { "assignments" }
+		propOrder = { "proxies" }
 )
-public class AssignmentSetXb
+public class ProxySetXb
 {
-	@XmlElement(name="assignment", required=false)
-	protected Collection<AssignmentImplXb>	assignments;
+	@XmlElement(name="proxy", required=false)
+	protected Collection<ProxyImplXb>	proxies;
 
 }

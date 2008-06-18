@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateQry.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateQry.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -33,10 +33,20 @@ import edu.internet2.middleware.signet.subjsrc.SignetSubjectAttr;
  */
 public class HibernateQry
 {
+	/** All proxies */
+	static final String	Qry_proxiesAll =
+			"from " + ProxyImpl.class.getName() +		//$NON-NLS-1$
+			" as proxy "; 								//$NON-NLS-1$
+
+	/** All proxies by the given status */
+	static final String	Qry_proxiesByStatus =
+			Qry_proxiesAll +
+			" where " +									//$NON-NLS-1$
+			" status = :status ";						//$NON-NLS-1$
+
 	/** All proxies granted by the given grantor */
 	static final String	Qry_proxiesGrantedAll =
-			"from " + ProxyImpl.class.getName() +		//$NON-NLS-1$
-			" as proxy " + 								//$NON-NLS-1$
+			Qry_proxiesAll +
 			" where grantorKey = :grantorKey ";			//$NON-NLS-1$
 
 	/** All proxies granted by the given grantor and the given status */

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/AssignmentXml.java,v 1.1 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/AssignmentXml.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -18,25 +18,27 @@ limitations under the License.
 package edu.internet2.middleware.signet.util.xml;
 
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Set;
 import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.AssignmentImpl;
-import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.ProxyImpl;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.util.xml.adapter.AssignmentImplXa;
 import edu.internet2.middleware.signet.util.xml.adapter.AssignmentSetXa;
+import edu.internet2.middleware.signet.util.xml.adapter.ProxySetXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
 import edu.internet2.middleware.signet.util.xml.binder.AssignmentImplXb;
+import edu.internet2.middleware.signet.util.xml.binder.AssignmentSetXb;
+import edu.internet2.middleware.signet.util.xml.binder.ProxySetXb;
 import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 
 /**
  * AssignmentXml - A class to export a Signet Assignment to XML based on
- * Command parameters. <br>
+ * CommandArg parameters. <br>
  * Typical usage: new AssignmentXml(mySignet).exportAssignment(myCommand);
- * @see Command
+ * @see CommandArg
  * @see AssignmentImpl
  * @see AssignmentImplXa
  * @see AssignmentImplXb
@@ -48,39 +50,71 @@ public class AssignmentXml extends XmlUtil
 	{
 	}
 
+//	/**
+//	 * Constructor - Initialize Log and Signet instance variables
+//	 * @param signet A Signet instance
+//	 * @see Signet
+//	 */
+//	public AssignmentXml(Signet signet)
+//	{
+//		this();
+//		log = LogFactory.getLog(AssignmentXml.class);
+//		this.signet = signet;
+//	}
+//
 	/**
-	 * Constructor - Initialize Log and Signet instance variables
-	 * @param signet A Signet instance
-	 * @see Signet
+	 * Constructor - Initialize Log and SignetXmlAdapter instance variables
+	 * @param signetXmlAdapter A SignetXa instance
+	 * @see SignetXa
 	 */
-	public AssignmentXml(Signet signet)
+	public AssignmentXml(SignetXa signetXmlAdapter)
 	{
 		this();
 		log = LogFactory.getLog(AssignmentXml.class);
-		this.signet = signet;
+		this.signetXmlAdapter = signetXmlAdapter;
+		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
-	 * Constructor - Initialize Log and Signet instance variables, then
-	 * export Assignment based on parameters in Command
-	 * @param signet A Signet instance
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
-	 * @see Signet
+	 * Constructor - Initialize Log and SignetXmlAdapter instance variables,
+	 * then add Assignment export data to signetXmlAdapter, based on parameters
+	 * in CommandArg
+	 * @param signetXmlAdapter A SignetXa instance
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
+	 * @see SignetXa
 	 */
-	public AssignmentXml(Signet signet, Command cmd)
+	public AssignmentXml(SignetXa signetXmlAdapter, CommandArg cmd)
 	{
-		this(signet);
-		exportAssignment(cmd);
+		this(signetXmlAdapter);
+		buildXml(cmd);
+//		exportAssignment(cmd);
 	}
 
+//	/**
+//	 * Constructor - Initialize Log and Signet instance variables, then
+//	 * export Assignment based on parameters in CommandArg
+//	 * @param signet A Signet instance
+//	 * @param cmd A CommandArg object containing export parameters
+//	 * @see CommandArg
+//	 * @see Signet
+//	 */
+//	public AssignmentXml(Signet signet, CommandArg cmd)
+//	{
+//		this(signet);
+//		exportAssignment(cmd);
+//	}
+//
 	/**
-	 * Perform the XML export of this Assignment
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
+	 * Construct the XML binders for the given CommandArg
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
 	 */
-	public void exportAssignment(Command cmd)
+	public void buildXml(CommandArg cmd)
 	{
+		if ((null == signetXmlAdapter) || (null == cmd))
+			return;
+
 		Status status = null;
 		String[] subjIds = null;
 		String[] functionIds = null;
@@ -91,24 +125,24 @@ public class AssignmentXml extends XmlUtil
 		int argCount = 0;
 		for (String key : params.keySet())
 		{
-			if (key.equalsIgnoreCase(Command.PARAM_STATUS))
+			if (key.equalsIgnoreCase(CommandArg.PARAM_STATUS))
 				status = (Status)Status.getInstanceByName(params.get(key));
-			else if (key.equalsIgnoreCase(Command.PARAM_SUBJID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_SUBJID))
 			{
 				subjIds = parseList(params.get(key));
 				argCount++;
 			}
-			else if (key.equalsIgnoreCase(Command.PARAM_FUNCID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_FUNCID))
 			{
 				functionIds = parseList(params.get(key));
 				argCount++;
 			}
-			else if (key.equalsIgnoreCase(Command.PARAM_SCOPEID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_SCOPEID))
 			{
 				scopeIds = parseList(params.get(key));
 				argCount++;
 			}
-			else if (key.equalsIgnoreCase(Command.PARAM_SUBSYSID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_SUBSYSID))
 			{
 				subsysIds = parseList(params.get(key));
 				argCount++;
@@ -123,15 +157,16 @@ public class AssignmentXml extends XmlUtil
 		if (2 <= argCount)
 		{
 			log.error("Too many Assignment parameters specified. May only be one of " +
-					Command.PARAM_FUNCID + ", " + Command.PARAM_SCOPEID + ", " +
-					Command.PARAM_SUBJID + ", or " + Command.PARAM_SUBSYSID +
+					CommandArg.PARAM_FUNCID + ", " + CommandArg.PARAM_SCOPEID + ", " +
+					CommandArg.PARAM_SUBJID + ", or " + CommandArg.PARAM_SUBSYSID +
 					", or no parameter for All records.");
 			return;
 		}
 
-		SignetXa adapter = new SignetXa(signet);
-		SignetXb xml = adapter.getXmlSignet();
-		List<AssignmentImplXb> xmlAssignList = xml.getAssignment();
+		SignetXb xml = signetXmlAdapter.getXmlSignet();
+
+		AssignmentSetXb xmlAssignSet = xml.getAssignmentSet();
+		ProxySetXb xmlProxySet = xml.getProxieSet();
 
 		if ((null != subjIds) && (0 < subjIds.length))
 		{
@@ -140,18 +175,27 @@ public class AssignmentXml extends XmlUtil
 				SignetSubject subj = signet.getSubjectByIdentifier(subjId);
 				if (null != subj)
 				{
+					Set<ProxyImpl> proxies;
 					Set<AssignmentImpl> assigns;
 					if (null != status)
+					{
+						proxies = subj.getProxiesReceived(status.getName());
 						assigns = subj.getAssignmentsReceived(status.getName());
+					}
 					else
+					{
+						proxies = subj.getProxiesReceived();
 						assigns = subj.getAssignmentsReceived();
-					AssignmentSetXa set = new AssignmentSetXa(assigns, signet);
-					xmlAssignList.addAll(set.getXmlAssignments().getAssignments());
+					}
+					ProxySetXa pSet = new ProxySetXa(proxies, signet);
+					xmlProxySet.getProxy().addAll(pSet.getXmlProxies().getProxy());
+
+					AssignmentSetXa aSet = new AssignmentSetXa(assigns, signet);
+					xmlAssignSet.getAssignment().addAll(aSet.getXmlAssignments().getAssignment());
 				}
 				else
 					log.error("No Subject found during export with ID=" + subjId);
 			}
-			marshalXml(xml, cmd.getOutFile());
 		}
 		else if ((null != functionIds) && (0 < functionIds.length))
 		{
@@ -163,9 +207,8 @@ public class AssignmentXml extends XmlUtil
 				Set<AssignmentImpl> assigns =
 						hibr.getAssignmentsByFunction(subfunc, statusStr);
 				AssignmentSetXa set = new AssignmentSetXa(assigns, signet);
-				xmlAssignList.addAll(set.getXmlAssignments().getAssignments());
+				xmlAssignSet.getAssignment().addAll(set.getXmlAssignments().getAssignment());
 			}
-			marshalXml(xml, cmd.getOutFile());
 		}
 		else if ((null != scopeIds) && (0 < scopeIds.length))
 		{
@@ -177,9 +220,8 @@ public class AssignmentXml extends XmlUtil
 				Set<AssignmentImpl> assigns =
 						hibr.getAssignmentsByScope(scopeAndNode, statusStr);
 				AssignmentSetXa set = new AssignmentSetXa(assigns, signet);
-				xmlAssignList.addAll(set.getXmlAssignments().getAssignments());
+				xmlAssignSet.getAssignment().addAll(set.getXmlAssignments().getAssignment());
 			}
-			marshalXml(xml, cmd.getOutFile());
 		}
 		else if ((null != subsysIds) && (0 < subsysIds.length))
 		{
@@ -189,18 +231,21 @@ public class AssignmentXml extends XmlUtil
 			{
 				Set<AssignmentImpl> assigns = hibr.getAssignmentsBySubsystem(subsysId, statusStr);
 				AssignmentSetXa set = new AssignmentSetXa(assigns, signet);
-				xmlAssignList.addAll(set.getXmlAssignments().getAssignments());
+				xmlAssignSet.getAssignment().addAll(set.getXmlAssignments().getAssignment());
 			}
-			marshalXml(xml, cmd.getOutFile());
 		}
 		else // export ALL assignments
 		{
 			HibernateDB hibr = signet.getPersistentDB();
 			String statusStr = (null != status) ? status.toString() : null;
+
+			Set<ProxyImpl> proxies = hibr.getProxies(statusStr);
+			ProxySetXa pSet = new ProxySetXa(proxies, signet);
+			xmlProxySet.getProxy().addAll(pSet.getXmlProxies().getProxy());
+
 			Set<AssignmentImpl> assigns = hibr.getAssignments(statusStr);
-			AssignmentSetXa set = new AssignmentSetXa(assigns, signet);
-			xmlAssignList.addAll(set.getXmlAssignments().getAssignments());
-			marshalXml(xml, cmd.getOutFile());
+			AssignmentSetXa aSet = new AssignmentSetXa(assigns, signet);
+			xmlAssignSet.getAssignment().addAll(aSet.getXmlAssignments().getAssignment());
 		}
 	}
 

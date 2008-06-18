@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetXa.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -56,6 +56,13 @@ public class SignetXa
 	public void setValues(Signet signet)
 	{
 		xmlSignet.setVersion(Signet.getVersion());
+		ObjectFactory of = new ObjectFactory();
+		xmlSignet.setAssignmentSet(of.createAssignmentSetXb());
+		xmlSignet.setProxieSet(of.createProxySetXb());
+		xmlSignet.setScopeTreeSet(of.createScopeTreeSetXb());
+		xmlSignet.setSubjectSet(of.createSignetSubjectSetXb());
+		xmlSignet.setSubsystemSet(of.createSubsystemSetXb());
+//		xmlSignet.setPermissions(...) // initialized by auto-generated code in SignetXb.java
 	}
 
 	public void setValues(SignetXb xmlSignet)

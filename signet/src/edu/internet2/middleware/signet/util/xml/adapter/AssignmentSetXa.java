@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentSetXa.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentSetXa.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -78,7 +78,7 @@ public class AssignmentSetXa
 		ObjectFactory of = new ObjectFactory();
 		xbAssignments = of.createAssignmentSetXb();
 
-		List<AssignmentImplXb> list = xbAssignments.getAssignments();
+		List<AssignmentImplXb> list = xbAssignments.getAssignment();
 		for (AssignmentImpl assign : signetAssignments)
 		{
 //log.info("AssignmentSetXa.setValues(Collection<AssignmentImpl>): signetAssignment = " + assign.toString());
@@ -96,7 +96,7 @@ public class AssignmentSetXa
 	{
 		this.xbAssignments = xbAssignments;
 		signetAssignments = new HashSet<AssignmentImpl>();
-		for (Iterator<AssignmentImplXb> xmlAssigns = xbAssignments.getAssignments().iterator();
+		for (Iterator<AssignmentImplXb> xmlAssigns = xbAssignments.getAssignment().iterator();
 				xmlAssigns.hasNext(); )
 		{
 			AssignmentImplXb assign = xmlAssigns.next();

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/PermissionsDocXb.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/PermissionsDocXb.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -32,8 +32,8 @@ import javax.xml.bind.annotation.XmlType;
 		namespace="http://www.internet2.edu/signet",
 		propOrder = {
 			"subject",
-			"permission",
-			"proxy"
+			"proxy",
+			"permission"
 		}
 )
 public class PermissionsDocXb

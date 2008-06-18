@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetXb.java,v 1.2 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetXb.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -35,12 +35,12 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name="SignetXb",
 		namespace="http://www.internet2.edu/signet",
 		propOrder = {
-			"scopeTree",
-			"subsystem",
-			"subject",
-			"proxy",
-			"assignment",
-			"permission"
+			"scopeTreeSet",
+			"subsystemSet",
+			"subjectSet",
+			"proxieSet",
+			"assignmentSet",
+			"permissions"
 		}
 )
 public class SignetXb
@@ -52,30 +52,30 @@ public class SignetXb
 	//  Signet Metadata
 	///////////////////////////////
 
-	@XmlElement(name="ScopeTree", required=false)
-	protected List<ScopeTreeXb>			scopeTree;
+	@XmlElement(name="ScopeTreeSet", required=false)
+	protected ScopeTreeSetXb		scopeTreeSet;
 
-	@XmlElement(name="Subject", required=false)
-	protected List<SignetSubjectXb>		subject;
+	@XmlElement(name="SubjectSet", required=false)
+	protected SignetSubjectSetXb	subjectSet;
 
-	@XmlElement(name="Subsystem", required=false)
-	protected List<SubsystemImplXb>		subsystem;
+	@XmlElement(name="SubsystemSet", required=false)
+	protected SubsystemSetXb		subsystemSet;
 
 	///////////////////////////////
 	//  Privilege Data
 	///////////////////////////////
 
-	@XmlElement(name="Assignment", required=false)
-	protected List<AssignmentImplXb>	assignment;
+	@XmlElement(name="AssignmentSet", required=false)
+	protected AssignmentSetXb		assignmentSet;
 
-	@XmlElement(name="Proxy", required=false)
-	protected List<ProxyImplXb>			proxy;
+	@XmlElement(name="ProxieSet", required=false)
+	protected ProxySetXb			proxieSet;
 
 	///////////////////////////////
-	//  Permissions Doc
+	//  Provisioning only, not a true export
 	///////////////////////////////
 
-	@XmlElement(name="PermissionsDoc", required=false)
-	protected List<PermissionsDocXb>	permission;
+	@XmlElement(name="Permissions", required=false)
+	protected List<PermissionsDocXb>	permissions;
 
 }

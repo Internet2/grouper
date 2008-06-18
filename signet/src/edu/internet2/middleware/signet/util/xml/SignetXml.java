@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.4 2008-05-18 23:05:22 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.5 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -24,121 +24,185 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
 
 /**
  * SignetXml - A command-line utility for using the Signet XML API.
  */
-public class SignetXml
+public class SignetXml extends XmlUtil
 {
 	public static final String STDIN_FILENAME = "stdin";
 	public static final String STDOUT_FILENAME = "stdout";
 
-	protected Log		log;
-	protected Signet	signet;
 
-
-	public SignetXml(Vector<Command> commands)
+	/**
+	 * Constructor
+	 * @param command The command to execute (e.g. import, export)
+	 * @param commandArgs Arguments and Filters for the command
+	 * @param xmlFilename The filename for input or output
+	 */
+	public SignetXml(String command, Vector<CommandArg> commandArgs, String xmlFilename)
 	{
 		log = LogFactory.getLog(SignetXml.class);
-		signet = new Signet();
-		for (Command cmd : commands)
-			processCommand(cmd);
+
+		Signet signet = new Signet();
+		signetXmlAdapter = new SignetXa(signet);
+
+		if (command.equals(CommandArg.CMD_EXPORT))
+			processExportCmd(commandArgs, signetXmlAdapter, xmlFilename);
+		else if (command.equals(CommandArg.CMD_IMPORT))
+			processImportCmd(commandArgs, signetXmlAdapter, xmlFilename);
+
 	}
 
-	public void processCommand(Command cmd)
+	/**
+	 * Top-level method to process an export command
+	 * @param commandArgs Arguments and Filters for the command
+	 * @param signetXmlAdapter An instance of SignetXa
+	 * @param xmlFilename  The filename for output
+	 */
+	public void processExportCmd(Vector<CommandArg> commandArgs, SignetXa signetXmlAdapter, String xmlFilename)
 	{
-		if (cmd.getCommand().equals(Command.CMD_EXPORT) ||
-			cmd.getCommand().equals(Command.CMD_APPEND))
-		{
-			if (cmd.getFilename().equals(STDOUT_FILENAME))
-				cmd.setOutFile(System.out);
-			else
-				setupOutfile(cmd);
+		OutputStream outFile = setupOutfile(xmlFilename);
 
-			exportXml(cmd);
+		for (CommandArg arg : commandArgs)
+			buildXml(arg, signetXmlAdapter);
 
-			try
-			{
-				cmd.getOutFile().flush();
-				if ( !cmd.getOutFile().equals(System.out))
-					cmd.getOutFile().close();
-			}
-			catch (IOException e) { e.printStackTrace(); }
-		}
+		marshalXml(signetXmlAdapter.getXmlSignet(), outFile);
 
-		else if (cmd.getCommand().equals(Command.CMD_IMPORT))
-		{
-			if (cmd.getFilename().equals(STDIN_FILENAME))
-				cmd.setInFile(System.in);
-			else
-			{
-				File infile = new File(cmd.getFilename());
-				try { cmd.setInFile(new FileInputStream(infile)); }
-				catch (FileNotFoundException e)
-				{
-					log.error("Input XML file \"" + cmd.getFilename() + "\" not found.");
-				}
-			}
-
-			log.info("Reading XML file \"" + cmd.getFilename() + "\"");
-
-			new XmlImporter(signet, log).importXml(cmd);
-
-			try
-			{
-				if ( !cmd.getInFile().equals(System.in))
-					cmd.getInFile().close();
-			}
-			catch (IOException e) { e.printStackTrace(); }
-		}
-
-		else
-			log.error("Unknown command: " + cmd.getCommand());
-	}
-
-	protected void setupOutfile(Command cmd)
-	{
 		try
 		{
-			File outFile = new File(cmd.getFilename());
-			StringBuffer buf = new StringBuffer();
-			if (outFile.exists())
-			{
-				if (cmd.getCommand().equals(Command.CMD_EXPORT))
-					buf.append("Overwriting");
-				else
-					buf.append("Appending to");
-			}
-			else
-				buf.append("Creating");
-			buf.append(" XML file " + outFile.getCanonicalPath());
-			log.info(buf.toString());
-			cmd.setOutFile(new FileOutputStream(outFile,
-							cmd.getCommand().equals(Command.CMD_APPEND)));
+			outFile.flush();
+			if ( !outFile.equals(System.out))
+				outFile.close();
 		}
-		catch (FileNotFoundException e) { e.printStackTrace(); }
+		catch (IOException e) { e.printStackTrace(); }
+	}
+
+	/**
+	 * Top-level method to process an export
+	 * @param commandArgs Arguments and Filters for the command
+	 * @param signetXmlAdapter An instance of SignetXa
+	 * @param xmlFilename The filename for input
+	 */
+	public void processImportCmd(Vector<CommandArg> commandArgs, SignetXa signetXmlAdapter, String xmlFilename)
+	{
+		InputStream inFile = setupInfile(xmlFilename);
+
+		XmlImporter importer = new XmlImporter(signet, log, inFile);
+		for (CommandArg arg : commandArgs)
+			importer.importXml(arg);
+
+		try
+		{
+			if ( !inFile.equals(System.in))
+				inFile.close();
+		}
 		catch (IOException e) { e.printStackTrace(); }
 
 	}
 
-	public void exportXml(Command cmd)
+	/**
+	 * Create an output stream for the given filename
+	 * @param xmlFilename The filename for output
+	 * @return An OutputStream
+	 */
+	protected OutputStream setupOutfile(String xmlFilename)
 	{
-		if (cmd.getType().equals(Command.EX_ASSGN))
-			new AssignmentXml(signet).exportAssignment(cmd);
-		else if (cmd.getType().equals(Command.EX_PERM))
-			new PermissionXml(signet).exportPermission(cmd);
-//		else if (cmd.getType().equals(Command.EX_PROXY))
+		OutputStream retval = null;
+
+		if (null == xmlFilename ||
+				(0 >= xmlFilename.length()) ||
+				(STDOUT_FILENAME.equals(xmlFilename)))
+		{
+			retval = System.out;
+// don't muddy the stdout output in case it's redirected to a file
+//			log.info("Writing XML to " + STDOUT_FILENAME);
+		}
+		else
+		{
+			try
+			{
+				StringBuilder buf = new StringBuilder();
+				File outFile = new File(xmlFilename);
+				if (outFile.exists())
+					buf.append("Overwriting");
+				else
+					buf.append("Creating");
+				buf.append(" XML file " + outFile.getCanonicalPath());
+				retval = new FileOutputStream(outFile);
+				log.info(buf);
+			}
+			catch (FileNotFoundException e) { e.printStackTrace(); }
+			catch (IOException e) { e.printStackTrace(); }
+		}
+
+		return (retval);
+	}
+
+	/**
+	 * Create an input stream for the given filename
+	 * @param xmlFilename The filename for input
+	 * @return An InputStream
+	 */
+	public InputStream setupInfile(String xmlFilename)
+	{
+		InputStream retval = null;
+		StringBuffer buf = new StringBuffer("Reading XML from ");
+
+		if (null == xmlFilename ||
+				(0 >= xmlFilename.length()) ||
+				(STDIN_FILENAME.equals(xmlFilename)))
+		{
+			retval = System.in;
+			buf.append(STDIN_FILENAME);
+		}
+		else
+		{
+			try
+			{
+				File inFile = new File(xmlFilename);
+				if (inFile.exists())
+				{
+					buf.append(inFile.getCanonicalPath());
+					retval = new FileInputStream(inFile);
+				}
+				else
+					buf = new StringBuffer("XML file \"" + xmlFilename + "\" not found.");
+			}
+			catch (IOException e) { e.printStackTrace(); }
+		}
+
+		log.info(buf.toString());
+		return (retval);
+	}
+
+	/**
+	 * Create instances of the binder classes (*Xb.java) based on the given
+	 * command and filters
+	 * @param cmd The command args and filters
+	 * @param signetXmlAdapter An instance of SignetXa
+	 */
+	public void buildXml(CommandArg cmd, SignetXa signetXmlAdapter)
+	{
+		if (cmd.getType().equals(CommandArg.EX_ASSGN))
+			new AssignmentXml(signetXmlAdapter).buildXml(cmd);
+		else if (cmd.getType().equals(CommandArg.EX_PERM))
+			new PermissionXml(signetXmlAdapter).buildXml(cmd);
+//		else if (cmd.getType().equals(CommandArg.EX_PROXY))
 //			exportProxy(cmd);
-		else if (cmd.getType().equals(Command.EX_SCOPE))
-			new ScopeTreeXml(signet).exportScopeTree(cmd);
-		else if (cmd.getType().equals(Command.EX_SUBJ))
-			new SubjectXml(signet).exportSubject(cmd);
-		else if (cmd.getType().equals(Command.EX_SUBSYS))
-			new SubsystemXml(signet).exportSubsystem(cmd);
+		else if (cmd.getType().equals(CommandArg.EX_SCOPE))
+			new ScopeTreeXml(signetXmlAdapter).buildXml(cmd);
+		else if (cmd.getType().equals(CommandArg.EX_SUBJ))
+			new SubjectXml(signetXmlAdapter).buildXml(cmd);
+		else if (cmd.getType().equals(CommandArg.EX_SUBSYS))
+			new SubsystemXml(signetXmlAdapter).buildXml(cmd);
 		else
 			log.error("Invalid command: " + cmd.toString());
 	}
@@ -150,10 +214,16 @@ public class SignetXml
 	/////////////////////////////////////
 
 	protected static CommandOptions		options;
-	protected static Vector<Command>	commands;
-	protected static String				version = "$Revision: 1.4 $";
+	protected static String				command;
+	protected static Vector<CommandArg>	commandArgs;
+	protected static String				xmlFile;
+	protected static String				version = "$Revision: 1.5 $";
 	protected static Log				mainLog;
 
+
+	/////////////////////////////////////
+	// static methods
+	/////////////////////////////////////
 
 	/**
 	 * Main
@@ -163,13 +233,9 @@ public class SignetXml
 	{
 		mainLog = LogFactory.getLog(SignetXml.class);
 		if (parseArgs(args))
-			new SignetXml(commands);
+			new SignetXml(command, commandArgs, options.getXmlFilename());
 	}
 
-
-	/////////////////////////////////////
-	// static methods
-	/////////////////////////////////////
 
 	/**
 	 * Top-level command-line parsing
@@ -193,9 +259,9 @@ public class SignetXml
 				retval = false;
 			}
 			else if (null != options.getCmdFilename())
-				retval = (null != (commands = parseCommands(options.getCmdFilename())));
+				retval = (null != (commandArgs = parseCommands(options.getCmdFilename())));
 			else
-				retval = (null != (commands = parseCommands(args, options.getNextArg())));
+				retval = (null != (commandArgs = parseCommands(args, options.getNextArg())));
 		}
 		
 		return (retval);
@@ -215,18 +281,21 @@ public class SignetXml
 		boolean done = false;
 		for (int i = 0; i < args.length && !done; i++)
 		{
-			if (args[i].equals(Command.VERSION_FLAG))
+			if (args[i].equals(CommandArg.VERSION_FLAG))
 				retval.setShowVersion(true);
 
-			else if (args[i].equals(Command.HELP_1_FLAG) || args[i].equals(Command.HELP_2_FLAG))
+			else if (args[i].equals(CommandArg.HELP_1_FLAG) || args[i].equals(CommandArg.HELP_2_FLAG))
 				retval.setShowHelp(true);
 
-			else if (args[i].equals(Command.CMD_INFILE))
-			{
-				String[] cmds = XmlUtil.expandCommand(args[i], STDIN_FILENAME);
-				retval.setCmdFilename(cmds[i]);
-			}
-				
+//			else if (args[i].equals(CommandArg.CMD_INFILE))
+//			{
+//				String[] cmds = XmlUtil.expandCommand(args[i], STDIN_FILENAME);
+//				retval.setCmdFilename(cmds[i]);
+//			}
+
+			else if (args[i].equals(CommandArg.XML_FILE_FLAG))
+				retval.setXmlFilename(args[++i]);
+
 			else
 			{
 				retval.setNextArg(i);
@@ -244,37 +313,36 @@ public class SignetXml
 	/**
 	 * Parse the Commands from the command-line
 	 * @param args Raw command-line
-	 * @return A Vector of Command objects
+	 * @return A Vector of CommandArg objects
 	 */
-	protected static Vector<Command> parseCommands(String[] args, int start)
+	protected static Vector<CommandArg> parseCommands(String[] args, int start)
 	{
-		Vector<Command> retval = null;
-
 		if ((null == args) || (args.length <= start))
-			return (retval);
+			return (null);
 
-		retval = new Vector<Command>();
+		Vector<CommandArg> retval = new Vector<CommandArg>();
 		boolean done = false;
 		int i = start;
-		Command tmpCmd;
+		CommandArg tmpCmd;
 		while ((i < args.length) && !done)
 		{
-			String tmpStr = args[i].toLowerCase();
-			if (tmpStr.startsWith(Command.CMD_EXPORT) ||
-					tmpStr.startsWith(Command.CMD_APPEND))
+			String tmpStr = args[i].toLowerCase().trim();
+			if (tmpStr.startsWith(CommandArg.CMD_EXPORT) /* || tmpStr.startsWith(CommandArg.CMD_APPEND) */ )
 			{
+				command = CommandArg.CMD_EXPORT;
 				tmpCmd = parseExportCmd(args, i);
 				if (null != tmpCmd)
 					retval.add(tmpCmd);
 			}
-			else if (tmpStr.startsWith(Command.CMD_IMPORT))
+			else if (tmpStr.startsWith(CommandArg.CMD_IMPORT))
 			{
+				command = CommandArg.CMD_IMPORT;
 				tmpCmd = parseImportCmd(args, i);
 				if (null != tmpCmd)
 					retval.add(tmpCmd);
 			}
 			else
-				mainLog.error("Unknown or invalid Command: " + args[i]);
+				mainLog.error("Unknown or invalid CommandArg: " + args[i]);
 
 			done = true;
 		}
@@ -285,11 +353,11 @@ public class SignetXml
 	/**
 	 * Parse the Options from a command file
 	 * @param cmdFilename The file containing the commands
-	 * @return A Vector of Command objects
+	 * @return A Vector of CommandArg objects
 	 */
-	protected static Vector<Command> parseCommands(String cmdFilename)
+	protected static Vector<CommandArg> parseCommands(String cmdFilename)
 	{
-		Vector<Command> retval = new Vector();
+		Vector<CommandArg> retval = new Vector();
 
 		try
 		{
@@ -303,7 +371,7 @@ public class SignetXml
 		}
 		catch (FileNotFoundException e)
 		{
-			mainLog.error("Command file \"" + cmdFilename + "\" not found.");
+			mainLog.error("CommandArg file \"" + cmdFilename + "\" not found.");
 		}
 		catch (IOException e) { e.printStackTrace(); }
 
@@ -314,26 +382,23 @@ public class SignetXml
 	 * Parse an Export command
 	 * @param args Raw command-line
 	 * @param start The starting position within the args array
-	 * @return A Command object with the export details
+	 * @return A CommandArg object with the export details
 	 */
-	protected static Command parseExportCmd(String[] args, int start)
+	protected static CommandArg parseExportCmd(String[] args, int start)
 	{
-		Command tmpCmd = new Command();
-		String[] expandedCmd = XmlUtil.expandCommand(args[start], STDOUT_FILENAME);
-		tmpCmd.setCommand(expandedCmd[0]);
-		tmpCmd.setFilename(expandedCmd[1]);
-//		tmpCmd.setCommand(args[start].trim().toLowerCase());
+		CommandArg tmpCmd = new CommandArg();
 		int i = start + 1;
 		boolean done = false;
 		while ((i < args.length) && !done)
 		{
 //        assignment | permission | proxy | scopeTree | subject | subsystem
-			if (args[i].equals(Command.EX_ASSGN) ||
-					args[i].equals(Command.EX_PERM) ||
-					args[i].equals(Command.EX_PROXY) ||
-					args[i].equals(Command.EX_SCOPE) ||
-					args[i].equals(Command.EX_SUBJ) ||
-					args[i].equals(Command.EX_SUBSYS))
+			String arg = args[i].toLowerCase().trim();
+			if (arg.equalsIgnoreCase(CommandArg.EX_ASSGN) ||
+					arg.equalsIgnoreCase(CommandArg.EX_PERM) ||
+//					arg.equalsIgnoreCase(CommandArg.EX_PROXY) ||
+					arg.equalsIgnoreCase(CommandArg.EX_SCOPE) ||
+					arg.equalsIgnoreCase(CommandArg.EX_SUBJ) ||
+					arg.equalsIgnoreCase(CommandArg.EX_SUBSYS))
 			{
 				tmpCmd.setType(args[i]);
 				parseParams(args, i, tmpCmd);
@@ -341,7 +406,7 @@ public class SignetXml
 			}
 			else
 			{
-				System.out.println("SignetXml.parseExportCmd: Invalid argument found for Export command - \"" + args[i] + "\"");
+				mainLog.error("SignetXml.parseExportCmd: Invalid argument found for Export command: \"" + arg + "\".");
 				done = true;
 			}
 		}
@@ -353,23 +418,22 @@ public class SignetXml
 	 * Parse an Export command's parameters
 	 * @param args Raw command-line
 	 * @param start The starting position within the args array
-	 * @param cmd The Command object to be filled in
-	 * @return A Command object with the export details
+	 * @param cmd The CommandArg object to be filled in
 	 */
-	protected static void parseParams(String[] args, int start, Command cmd)
+	protected static void parseParams(String[] args, int start, CommandArg cmd)
 	{
 		int i = start + 1;
-		boolean done = false;
-		while ((i < args.length) && !done)
+		while (i < args.length)
 		{
-			String[] vals = args[i].split(Command.EQUALS);
-			if ((null != vals) && (2 == vals.length))
+			String arg = args[i].toLowerCase().trim();
+			if (arg.startsWith(CommandArg.PARAM_FLAG))
 			{
-				cmd.getParams().put(vals[0], vals[1]);
+				if (args.length > (i + 1))
+					cmd.getParams().put(arg, args[++i]);
+				else
+					mainLog.error("Missing value for command filter \"" + arg + "\". Filter ignored.");
 				i++;
 			}
-			else
-				done = true;
 		}
 
 		cmd.setNextArg(i);
@@ -379,21 +443,17 @@ public class SignetXml
 	 * Parse an Import command
 	 * @param args Raw command-line
 	 * @param start The starting position within the args array
-	 * @return A Command object with the import details
+	 * @return A CommandArg object with the import details
 	 */
-	protected static Command parseImportCmd(String[] args, int start)
+	protected static CommandArg parseImportCmd(String[] args, int start)
 	{
-		Command tmpCmd = new Command();
-		String[] expandedCmd = XmlUtil.expandCommand(args[start], STDIN_FILENAME);
-		tmpCmd.setCommand(expandedCmd[0]);
-		tmpCmd.setFilename(expandedCmd[1]);
-//		tmpCmd.setCommand(args[start].trim().toLowerCase());
+		CommandArg tmpCmd = new CommandArg();
 		int i = start + 1;
 //        add | update | deactivate | delete
-		if (args[i].equals(Command.IM_ADD) ||
-				args[i].equals(Command.IM_DEACT) ||
-				args[i].equals(Command.IM_DEL) ||
-				args[i].equals(Command.IM_UPD))
+		if (args[i].equals(CommandArg.IM_ADD) ||
+				args[i].equals(CommandArg.IM_DEACT) ||
+				args[i].equals(CommandArg.IM_DEL) ||
+				args[i].equals(CommandArg.IM_UPD))
 		{
 			tmpCmd.setType(args[i]);
 			tmpCmd.setNextArg(++i);
@@ -410,7 +470,7 @@ public class SignetXml
 		showVersion();
 		try
 		{
-			BufferedReader br = new BufferedReader(new FileReader(Command.HELP_FILE));
+			BufferedReader br = new BufferedReader(new FileReader(CommandArg.HELP_FILE));
 			String str;
 			while (null != (str = br.readLine()))
 				System.out.println(str);

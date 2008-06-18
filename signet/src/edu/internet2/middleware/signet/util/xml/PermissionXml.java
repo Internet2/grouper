@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/PermissionXml.java,v 1.2 2008-05-22 19:35:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/PermissionXml.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -41,9 +41,9 @@ import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 
 /**
  * PermissionXml - A class to export a Signet Permission to XML based on
- * Command parameters. <br>
+ * CommandArg parameters. <br>
  * Typical usage: new PermissionXml(mySignet).exportPermission(myCommand);
- * @see Command
+ * @see CommandArg
  * @see PermissionImpl
  * @see PermissionImplXa
  * @see PermissionImplXb
@@ -57,36 +57,37 @@ public class PermissionXml extends XmlUtil
 
 	/**
 	 * Constructor - Initialize Log and Signet instance variables
-	 * @param signet A Signet instance
-	 * @see Signet
+	 * @param signetXmlAdapter A SignetXa instance
+	 * @see SignetXa
 	 */
-	public PermissionXml(Signet signet)
+	public PermissionXml(SignetXa signetXmlAdapter)
 	{
 		this();
 		log = LogFactory.getLog(PermissionXml.class);
-		this.signet = signet;
+		this.signetXmlAdapter = signetXmlAdapter;
+		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
 	 * Constructor - Initialize Log and Signet instance variables, then
-	 * export Permission based on parameters in Command
-	 * @param signet A Signet instance
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
+	 * export Permission based on parameters in CommandArg
+	 * @param signetXmlAdapter A SignetXa instance
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
 	 * @see Signet
 	 */
-	public PermissionXml(Signet signet, Command cmd)
+	public PermissionXml(SignetXa signetXmlAdapter, CommandArg cmd)
 	{
-		this(signet);
-		exportPermission(cmd);
+		this(signetXmlAdapter);
+		buildXml(cmd);
 	}
 
 	/**
-	 * Perform the XML export of this Permission
-	 * @param cmd A Command object containing export parameters
-	 * @see Command
+	 * Build the XML of this Permission
+	 * @param cmd A CommandArg object containing export parameters
+	 * @see CommandArg
 	 */
-	public void exportPermission(Command cmd)
+	public void buildXml(CommandArg cmd)
 	{
 		Status status = null;
 		String[] subjIds = null;
@@ -95,9 +96,9 @@ public class PermissionXml extends XmlUtil
 		int argCount = 0;
 		for (String key : params.keySet())
 		{
-			if (key.equalsIgnoreCase(Command.PARAM_STATUS))
+			if (key.equalsIgnoreCase(CommandArg.PARAM_STATUS))
 				status = (Status)Status.getInstanceByName(params.get(key));
-			else if (key.equalsIgnoreCase(Command.PARAM_SUBJID))
+			else if (key.equalsIgnoreCase(CommandArg.PARAM_SUBJID))
 			{
 				subjIds = parseList(params.get(key));
 				argCount++;
@@ -112,13 +113,11 @@ public class PermissionXml extends XmlUtil
 		if (2 <= argCount)
 		{
 			log.error("Too many Permission parameters specified. May only be one of " +
-					Command.PARAM_SUBJID);
+					CommandArg.PARAM_SUBJID);
 			return;
 		}
 
-		SignetXa adapter = new SignetXa(signet);
-		SignetXb xml = adapter.getXmlSignet();
-		List<PermissionsDocXb> xmlPermDocs = xml.getPermissionsDoc(); // get the empty list
+		List<PermissionsDocXb> xmlPermDocs = signetXmlAdapter.getXmlSignet().getPermissions();
 
 		if ((null != subjIds) && (0 < subjIds.length))
 		{
@@ -165,14 +164,15 @@ public class PermissionXml extends XmlUtil
 				else
 					log.error("No Subject with ID=" + subjId + " found during export");
 			}
-			marshalXml(xml, cmd.getOutFile());
+//			marshalXml(xml, cmd.getOutFile());
 		}
 		else
 			log.error("At least one subjId is required");
 	}
 
 	/**
-	 * Perform the XML export of this Subject's Permissions
+	 * Perform the XML export of this Subject's Permissions. Note that this
+	 * method is for support of the PermissionsXMLServlet in Signet UI.
 	 * @param subj Export the Subject's permissions
 	 * @param status Filter the output for one of ACTIVE, INACTIVE, PENDING.
 	 * If null, no filtering occurs.
@@ -187,7 +187,7 @@ public class PermissionXml extends XmlUtil
 
 		SignetXa adapter = new SignetXa(signet);
 		SignetXb xml = adapter.getXmlSignet();
-		List<PermissionsDocXb> xmlPermDocs = xml.getPermissionsDoc(); // get the empty list
+		List<PermissionsDocXb> xmlPermDocs = xml.getPermissions(); // get the empty list
 
 		String statusStr = (null == status) ? null : status.getName();
 

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxyImplXa.java,v 1.4 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet.util.xml.adapter;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.ProxyImpl;
 import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.ProxyImplXb;
@@ -73,7 +74,11 @@ public class ProxyImplXa extends GrantableImplXa
 
 		xmlProxy.setCanExtend(signetProxyImpl.canExtend());
 		xmlProxy.setCanUse(signetProxyImpl.canUse());
-		xmlProxy.setSubsystemId(signetProxyImpl.getSubsystem().getId());
+		Subsystem subsys = signetProxyImpl.getSubsystem();
+		if (null != subsys)
+			xmlProxy.setSubsystemId(subsys.getId());
+		else
+			xmlProxy.setSubsystemId(null);
 	}
 
 

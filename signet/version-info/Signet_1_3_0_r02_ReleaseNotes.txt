@@ -1,0 +1,35 @@
+Release Notes for CVS-tagged version Signet_1_3_0rc02
+
+1. Bug fixes:
+    SIG-32 : NullPointerException from "View XML" link
+    SIG-33 : Proxy data not in Assignment XML
+    SIG-34 : Assignment XML should support container structure
+    SIG-35 : NullPointerException throw on export scopeTree
+    SIG-36 : Scope Tree XML should support container structure
+    SIG-38 : A command-arg that contains multiple colon delimiters fails to be processed
+    SIG-39 : SignetXML creates an output file called 'stdout.xml' when no xmlFilename is provided
+
+2. Added new method:
+        HibernateDB.getProxies(String status)
+   Added new members:
+        HibernateQry.Qry_proxiesAll
+        HibernateQry.Qry_proxiesByStatus
+
+3. Made the command-line command parser case-insensitive
+
+4. Removed Command.java and split it into CommandArg.java and CommandOptions.java
+
+5. The various XML processors (e.g. AssignmentXml, PermissionXml, ScopeTreeXml,
+   SubjectXml, SubsystemXml) now require a SignetXa instance instead of a
+   Signet instance.
+
+6. Changed the way SignetXml processes commands. The marshalling of XML used to
+   occur in the various XML processors (see item 5, above). This prevented the
+   ability to process multiple commands for a single output file. Now the
+   marshalling occurs in SignetXml after all commands have been processed.
+
+7. Updated commandHelp.txt to reflect the new command-line syntax.
+
+8. The JavaDocs now contain references to classes in package
+    edu.internet2.middleware.signet.util.xml
+

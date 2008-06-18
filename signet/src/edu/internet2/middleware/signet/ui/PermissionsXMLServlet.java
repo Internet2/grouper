@@ -1,6 +1,6 @@
 /*--
-$Id: PermissionsXMLServlet.java,v 1.6 2008-05-22 19:35:32 ddonn Exp $
-$Date: 2008-05-22 19:35:32 $
+$Id: PermissionsXMLServlet.java,v 1.7 2008-06-18 01:21:39 ddonn Exp $
+$Date: 2008-06-18 01:21:39 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -19,7 +19,6 @@ limitations under the License.
 package edu.internet2.middleware.signet.ui;
 
 import java.io.IOException;
-import java.util.Hashtable;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -28,12 +27,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import edu.internet2.middleware.signet.PermissionsXML;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
-import edu.internet2.middleware.signet.util.xml.Command;
 import edu.internet2.middleware.signet.util.xml.PermissionXml;
+import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
 
 /**
  * @author Andy Cohen
@@ -73,7 +71,8 @@ public class PermissionsXMLServlet implements Servlet {
 		response.setContentType("text/xml");
 		ServletOutputStream sos = response.getOutputStream();
 
-		PermissionXml pXml = new PermissionXml(signet);
+		SignetXa signetXmlAdapter = new SignetXa(signet);
+		PermissionXml pXml = new PermissionXml(signetXmlAdapter);
 		pXml.exportPermission(grantee, Status.ACTIVE, sos);
 
 		sos.flush();

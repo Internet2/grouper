@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/Command.java,v 1.4 2008-05-22 19:35:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/CommandArg.java,v 1.1 2008-06-18 01:21:39 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -17,16 +17,13 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Hashtable;
 
 /**
- * Command 
+ * CommandArg 
  * 
  */
-public class Command
+public class CommandArg
 {
 	////////////////////////////////
 	// statics
@@ -40,21 +37,23 @@ public class Command
 	public static final String VERSION_FLAG		= "-v";
 	public static final String EQUALS			= ":"; // DOS treats "=" as a separator
 //	public static final String EQUALS			= "="; // a bit overboard, I know
+	public static final String XML_FILE_FLAG	= "-f";
 	public static final String XML_EXTENSION	= ".xml";
 
 	// parameters
-	public static final String PARAM_SUBJID		= "subjId";
-	public static final String PARAM_SCOPEID	= "scopeId";
-	public static final String PARAM_STATUS		= "status";
-	public static final String PARAM_FUNCID		= "functionId";
-	public static final String PARAM_SUBSYSID	= "subsysId";
-	public static final String PARAM_PERMID		= "permId";
-	public static final String PARAM_SOURCEID	= "source";
-	public static final String PARAM_NAME		= "name";
+	public static final String PARAM_FLAG		= "-";
+	public static final String PARAM_SUBJID		= PARAM_FLAG + "subjId";
+	public static final String PARAM_SCOPEID	= PARAM_FLAG + "scopeId";
+	public static final String PARAM_STATUS		= PARAM_FLAG + "status";
+	public static final String PARAM_FUNCID		= PARAM_FLAG + "functionId";
+	public static final String PARAM_SUBSYSID	= PARAM_FLAG + "subsysId";
+	public static final String PARAM_PERMID		= PARAM_FLAG + "permId";
+	public static final String PARAM_SOURCEID	= PARAM_FLAG + "source";
+	public static final String PARAM_NAME		= PARAM_FLAG + "name";
 
 	// commands
 	public static final String CMD_IMPORT		= "import";
-	public static final String CMD_APPEND		= "append";
+//	public static final String CMD_APPEND		= "append";
 	public static final String CMD_EXPORT		= "export";
 
 	// import command types: add | update | deactivate | delete
@@ -66,7 +65,7 @@ public class Command
 	// export command types: assignment | permission | proxy | scopeTree | subject | subsystem
 	public static final String EX_ASSGN			= "assignment";
 	public static final String EX_PERM			= "permission";
-	public static final String EX_PROXY			= "proxy";
+//	public static final String EX_PROXY			= "proxy";
 	public static final String EX_SCOPE			= "scopeTree";
 	public static final String EX_SUBJ			= "subject";
 	public static final String EX_SUBSYS		= "subsystem";
@@ -76,28 +75,28 @@ public class Command
 	// class variables
 	//////////////////////////
 
-	protected String			command;		// import or export or append
+//	protected String			command;		// import or export
 	protected String			type;			// assignment, scopetree, etc.
 	protected Hashtable<String, String>	params;	// param / value pairs
 	protected int				nextArg;		// next command-line arg
-	protected String			filename;		// the file to use for this cmd
-	protected InputStream		inFile;			// import file stream
-	protected OutputStream		outFile;		// export/append file stream
+//	protected String			filename;		// the file to use for this cmd
+//	protected InputStream		inFile;			// import file stream
+//	protected OutputStream		outFile;		// export/append file stream
 
 
-	public Command()
+	public CommandArg()
 	{
-		setCommand("");
+//		setCommand("");
 		setNextArg(0);
 		setType("");
 		setParams(new Hashtable<String, String>());
-		setFilename(null);
-		setInFile(null);
-		setOutFile(null);
+//		setFilename(null);
+//		setInFile(null);
+//		setOutFile(null);
 	}
 
-	public String getCommand() { return command; }
-	public void setCommand(String command) { this.command = command; }
+//	public String getCommand() { return command; }
+//	public void setCommand(String command) { this.command = command; }
 
 	public void setNextArg(int nextArg) { this.nextArg = nextArg; }
 	public int getNextArg() { return (nextArg); }
@@ -108,23 +107,23 @@ public class Command
 	public String getType() { return type; }
 	public void setType(String type) { this.type = type; }
 
-	public void setFilename(String filename)
-	{
-		this.filename = filename;
-		if ((null != this.filename) && (0 < this.filename.length()))
-		{
-			File f = new File(this.filename);
-			if ( !f.getAbsolutePath().trim().toLowerCase().endsWith(XML_EXTENSION))
-				this.filename = this.filename + XML_EXTENSION;
-		}
-	}
-	public String getFilename() { return (filename); }
-
-	public InputStream getInFile() { return inFile; }
-	public void setInFile(InputStream inFile) { this.inFile = inFile; }
-
-	public OutputStream getOutFile() { return outFile; }
-	public void setOutFile(OutputStream outFile) { this.outFile = outFile; }
+//	public void setFilename(String filename)
+//	{
+//		this.filename = filename;
+//		if ((null != this.filename) && (0 < this.filename.length()))
+//		{
+//			File f = new File(this.filename);
+//			if ( !f.getAbsolutePath().trim().toLowerCase().endsWith(XML_EXTENSION))
+//				this.filename = this.filename + XML_EXTENSION;
+//		}
+//	}
+//	public String getFilename() { return (filename); }
+//
+//	public InputStream getInFile() { return inFile; }
+//	public void setInFile(InputStream inFile) { this.inFile = inFile; }
+//
+//	public OutputStream getOutFile() { return outFile; }
+//	public void setOutFile(OutputStream outFile) { this.outFile = outFile; }
 
 	/////////////////////////////
 	// overrides Object
@@ -133,8 +132,8 @@ public class Command
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer();
-		buf.append("[Command:");
-		buf.append(" command=" + getCommand());
+		buf.append("[CommandArg:");
+//		buf.append(" command=" + getCommand());
 		buf.append(" type=" + getType());
 		buf.append(" nextArg=" + getNextArg());
 		buf.append(" params=[");

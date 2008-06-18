@@ -1,6 +1,6 @@
 /*--
-$Id: TreeImpl.java,v 1.15 2008-05-17 20:54:09 ddonn Exp $
-$Date: 2008-05-17 20:54:09 $
+$Id: TreeImpl.java,v 1.16 2008-06-18 01:21:39 ddonn Exp $
+$Date: 2008-06-18 01:21:39 $
 
 Copyright 2007 Internet2, Stanford University
 
@@ -105,7 +105,9 @@ public class TreeImpl extends EntityImpl implements Tree
 
   public void setSignet(Signet signet)
   {
-    super.setSignet(signet);
+	super.setSignet(signet);
+	for (TreeNodeImpl node : nodes)
+		node.setSignet(signet);
 
     if (this.adapter instanceof TreeAdapterImpl)
     {
