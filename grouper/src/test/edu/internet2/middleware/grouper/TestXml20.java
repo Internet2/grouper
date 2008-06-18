@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml20.java,v 1.5 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestXml20.java,v 1.5.6.1 2008-06-07 16:11:55 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXml20 extends GrouperTest {
@@ -51,6 +51,7 @@ public class TestXml20 extends GrouperTest {
       String  nameA = gA.getName();
       String  orig  = gA.getDescription();
       gA.setDescription(nameA);
+      gA.store();
       assertGroupDescription(gA, nameA);
       r.rs.stop();
 

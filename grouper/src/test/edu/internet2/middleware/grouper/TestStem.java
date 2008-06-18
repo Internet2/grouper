@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.14 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.14.4.1 2008-06-08 07:21:24 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -40,8 +40,8 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    //junit.textui.TestRunner.run(new TestStem("testRoot"));
-    TestRunner.run(TestStem.class);
+    TestRunner.run(new TestStem("testRoot"));
+    //TestRunner.run(TestStem.class);
   }
 
   public TestStem(String name) {

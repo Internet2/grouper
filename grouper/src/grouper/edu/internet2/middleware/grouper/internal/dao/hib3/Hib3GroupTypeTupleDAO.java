@@ -16,9 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
@@ -26,128 +23,50 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeTupleDTO;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.2.4.1 2008-06-18 09:22:21 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupTypeTupleDAO extends Hib3DAO {
-  // TODO 20070418 public until i refactor "Test_Integration_Hib3GroupDAO_delete#testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset()"
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3GroupTypeTupleDAO.class.getName();
 
 
-  // PRIVATE INSTANCE VARIABLES //
-  private String  groupUUID;
-  private String  id;
-  private String  typeUUID;
-
-
-  // PUBLIC CLASS METHODS //
-
   // @since   @HEAD@
   // TODO 20070418 public until i refactor "Test_Integration_Hib3GroupDAO_delete#testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset()"
-  public static Hib3GroupTypeTupleDAO findByGroupAndType(GroupDTO g, GroupTypeDTO type)
+  public static GroupTypeTupleDTO findByGroupAndType(GroupDTO g, GroupTypeDTO type)
     throws  GrouperDAOException
   {
-    Hib3GroupTypeTupleDAO dao = HibernateSession.byHqlStatic()
+    GroupTypeTupleDTO dto = HibernateSession.byHqlStatic()
       .createQuery(
-        "from Hib3GroupTypeTupleDAO as gtt where"
+        "from GroupTypeTupleDTO as gtt where"
         + " gtt.groupUuid    = :group"
         + " and gtt.typeUuid = :type")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByGroupAndType")
         .setString( "group", g.getUuid()        )
         .setString( "type",  type.getUuid() )
-        .uniqueResult(Hib3GroupTypeTupleDAO.class);
-    if (dao == null) {
-      throw new GrouperDAOException("Hib3GroupTypeTupleDAO not found");       
+        .uniqueResult(GroupTypeTupleDTO.class);
+    if (dto == null) {
+      throw new GrouperDAOException("GroupTypeTupleDTO not found");       
     }
-    return dao;
+    return dto;
   }
 
 
   // PUBLIC INSTANCE METHODS //
 
-  /**
-   * @since   @HEAD@
-   */
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof Hib3GroupTypeTupleDAO)) {
-      return false;
-    }
-    Hib3GroupTypeTupleDAO that = (Hib3GroupTypeTupleDAO) other;
-    return new EqualsBuilder()
-      .append( this.getGroupUuid(), that.getGroupUuid() )
-      .append( this.getTypeUuid(),  that.getTypeUuid()  )
-      .isEquals();
-  }
-  
-  /**
-   * @since   @HEAD@
-   */
-  public int hashCode() {
-    return new HashCodeBuilder()
-      .append( this.getGroupUuid() )
-      .append( this.getTypeUuid()  )
-      .toHashCode();
-  }
-  
-  /**
-   * @since   @HEAD@
-   */
-  public String toString() {
-    return new ToStringBuilder(this)
-      .append( "groupUuid", this.getGroupUuid() )
-      .append( "typeUuid",  this.getTypeUuid()  )
-      .toString();
-  }
-
-
-  // PROTECTED CLASS METHODS //
-
   // @since   @HEAD@
   protected static void reset(Session hs) 
     throws  HibernateException
   {
-    hs.delete("from Hib3GroupTypeTupleDAO");
+    hs.delete("from GroupTypeTupleDTO");
   } // protected static void reset(hs)
-
-
-  // GETTERS //
-
-  protected String getGroupUuid() {
-    return this.groupUUID;
-  }
-  public String getId() {
-    return this.id;
-  }
-  protected String getTypeUuid() {
-    return this.typeUUID;
-  }
-
-
-  // SETTERS //
-
-  protected Hib3GroupTypeTupleDAO setGroupUuid(String groupUUID) {
-    this.groupUUID = groupUUID;
-    return this;
-  }
-  protected Hib3GroupTypeTupleDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-  protected Hib3GroupTypeTupleDAO setTypeUuid(String typeUUID) {
-    this.typeUUID = typeUUID;
-    return this;
-  }
 
 } 
 

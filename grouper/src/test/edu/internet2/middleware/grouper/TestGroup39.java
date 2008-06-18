@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup39.java,v 1.2 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroup39.java,v 1.2.6.1 2008-06-07 16:11:55 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGroup39 extends TestCase {
@@ -48,6 +48,7 @@ public class TestGroup39 extends TestCase {
       R         r       = R.populateRegistry(1, 1, 1);
       Group     gA      = r.getGroup("a", "a");
       gA.setDescription(gA.getDisplayName());
+      gA.store();
       Subject   subjA   = r.getSubject("a");
 
       GrouperSession  s = GrouperSession.start(subjA);

@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.54 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: GroupType.java,v 1.54.6.1 2008-06-18 09:22:21 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -371,7 +371,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       .setUuid( GrouperUuid.getUuid() )
       ;
     try {
-      _gt.setId( dao.create(_gt) );
+      dao.create(_gt) ;
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
@@ -414,7 +414,7 @@ public class GroupType extends GrouperAPI implements Serializable {
         .setUuid( GrouperUuid.getUuid() )
         .setWritePrivilege(write)
         ;
-      _f.setId( GrouperDAOFactory.getFactory().getGroupType().createField(_f) );
+      GrouperDAOFactory.getFactory().getGroupType().createField(_f);
 
       Field f = new Field();
       f.setDTO(_f);

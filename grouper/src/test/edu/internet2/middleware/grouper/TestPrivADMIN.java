@@ -18,15 +18,33 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.11 2007-12-05 11:25:10 isgwb Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.11.6.2 2008-06-07 17:01:43 mchyzer Exp $
  */
 public class TestPrivADMIN extends TestCase {
+
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    TestRunner.run(new TestPrivADMIN("testRenameGroupWithADMIN"));
+  }
+  
+  /**
+   * 
+   */
+  public TestPrivADMIN() {
+    super();
+  }
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestPrivADMIN.class);
@@ -475,6 +493,7 @@ public class TestPrivADMIN extends TestCase {
     String orig = a.getExtension();
     try {
       a.setExtension("foo");
+      a.store();
       Assert.fail("set extension");
     }
     catch (Exception e) {
@@ -484,6 +503,7 @@ public class TestPrivADMIN extends TestCase {
     orig = a.getDisplayExtension();
     try {
       a.setDisplayExtension("foo");
+      a.store();
       Assert.fail("set displayExtension");
     }
     catch (Exception e) {
@@ -499,6 +519,7 @@ public class TestPrivADMIN extends TestCase {
     String  val   = "foo";
     try {
       a.setExtension(val);
+      a.store();
       Assert.assertTrue("set extension", true);
       Assert.assertTrue("extension", a.getExtension().equals(val));
     }
@@ -507,6 +528,7 @@ public class TestPrivADMIN extends TestCase {
     } 
     try {
       a.setDisplayExtension("foo");
+      a.store();
       Assert.assertTrue("set displayExtension", true);
       Assert.assertTrue("displayExtension", a.getDisplayExtension().equals(val));
     }
@@ -522,6 +544,7 @@ public class TestPrivADMIN extends TestCase {
     String  val   = "foo";
     try {
       a.setExtension("foo");
+      a.store();
       Assert.assertTrue("set extension", true);
       Assert.assertTrue("extension", a.getExtension().equals(val));
     }
@@ -530,6 +553,7 @@ public class TestPrivADMIN extends TestCase {
     } 
     try {
       a.setDisplayExtension("foo");
+      a.store();
       Assert.assertTrue("set displayExtension", true);
       Assert.assertTrue("displayExtension", a.getDisplayExtension().equals(val));
     }

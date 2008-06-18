@@ -23,27 +23,27 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.7.6.1 2008-06-09 19:26:05 mchyzer Exp $
  */
- class SubjectTestHelper {
+ public class SubjectTestHelper {
 
   // Protected Class Constants
-  protected static final Subject  SUBJA;
-  protected static final Subject  SUBJR;
-  protected static final Subject  SUBJ0;
-  protected static final Subject  SUBJ1;
-  protected static final Subject  SUBJ2;
-  protected static final String   SUBJ0_ID    = "test.subject.0";
-  protected static final String   SUBJ0_NAME  = "my name is test.subject.0";
-  protected static final String   SUBJ0_TYPE  = "person";
-  protected static final String   SUBJ1_ID    = "test.subject.1";
-  protected static final String   SUBJ1_NAME  = "my name is test.subject.1";
-  protected static final String   SUBJ1_TYPE  = "person";
-  protected static final String   SUBJ2_ID    = "test.subject.2";
-  protected static final String   SUBJ2_NAME  = "my name is test.subject.2";
-  protected static final String   SUBJ2_TYPE  = "person";
-  protected static final String   SUBJ_ALL    = "GrouperAll";
-  protected static final String   SUBJ_ROOT   = "GrouperSystem";
+  public static final Subject  SUBJA;
+  public static final Subject  SUBJR;
+  public static final Subject  SUBJ0;
+  public static final Subject  SUBJ1;
+  public static final Subject  SUBJ2;
+  public static final String   SUBJ0_ID    = "test.subject.0";
+  public static final String   SUBJ0_NAME  = "my name is test.subject.0";
+  public static final String   SUBJ0_TYPE  = "person";
+  public static final String   SUBJ1_ID    = "test.subject.1";
+  public static final String   SUBJ1_NAME  = "my name is test.subject.1";
+  public static final String   SUBJ1_TYPE  = "person";
+  public static final String   SUBJ2_ID    = "test.subject.2";
+  public static final String   SUBJ2_NAME  = "my name is test.subject.2";
+  public static final String   SUBJ2_TYPE  = "person";
+  public static final String   SUBJ_ALL    = "GrouperAll";
+  public static final String   SUBJ_ROOT   = "GrouperSystem";
 
   static {
     try {

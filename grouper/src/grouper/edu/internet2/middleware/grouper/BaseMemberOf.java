@@ -16,17 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import  java.util.Collection;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
+import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import edu.internet2.middleware.grouper.internal.dto.StemDTO;
 
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.7 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: BaseMemberOf.java,v 1.7.6.2 2008-06-11 06:19:41 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
@@ -41,8 +44,8 @@ public abstract class BaseMemberOf implements MemberOf {
   private GrouperSession  s;
   private MemberDTO       _m;
   private MembershipDTO   _ms;
-  private Set             modifiedGroups  = new LinkedHashSet();
-  private Set             modifiedStems   = new LinkedHashSet();
+  private Set<GroupDTO>             modifiedGroups  = new LinkedHashSet();
+  private Set<StemDTO>             modifiedStems   = new LinkedHashSet();
   private Stem            ns;
   private String          ownerUUID;  
   private Set<GrouperDTO> saves           = new LinkedHashSet<GrouperDTO>();
@@ -68,14 +71,14 @@ public abstract class BaseMemberOf implements MemberOf {
   /**
    * @since   1.2.0
    */
-  public Set getModifiedGroups() {
+  public Set<GroupDTO> getModifiedGroups() {
     return this.modifiedGroups;
   }
 
   /**
    * @since   1.2.0
    */
-  public Set getModifiedStems() {
+  public Set<StemDTO> getModifiedStems() {
     return this.modifiedStems;
   }
 
@@ -120,7 +123,7 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.saves;
   }
   // @since   1.2.0
-  protected Composite getComposite() {
+  public Composite getComposite() {
     return this.c;
   }  
   // @since   1.2.0
@@ -132,11 +135,11 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.effSaves;
   }
   // @since   1.2.0
-  protected Field getField() {
+  public Field getField() {
     return this.f;
   }
   // @since   1.2.0
-  protected Group getGroup() {
+  public Group getGroup() {
     return this.g;
   }
   // @since   1.2.0
@@ -144,11 +147,11 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.s;
   }
   // @since   1.2.0
-  protected MemberDTO getMemberDTO() {
+  public MemberDTO getMemberDTO() {
     return this._m;
   }
   // @since   1.2.0
-  protected MembershipDTO getMembershipDTO() {
+  public MembershipDTO getMembershipDTO() {
     return this._ms;
   }
   // @since   1.2.0
@@ -156,7 +159,7 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.ownerUUID;
   }
   // @since   1.2.0
-  protected Stem getStem() {
+  public Stem getStem() {
     return this.ns;
   }
   // @since   1.2.0
@@ -191,12 +194,12 @@ public abstract class BaseMemberOf implements MemberOf {
     return this;
   }
   // @since   1.2.0
-  protected MemberOf setModifiedGroups(Set modifiedGroups) {
+  protected MemberOf setModifiedGroups(Set<GroupDTO> modifiedGroups) {
     this.modifiedGroups = modifiedGroups;
     return this;
   }
   // @since   1.2.0
-  protected MemberOf setModifiedStems(Set modifiedStems) {
+  protected MemberOf setModifiedStems(Set<StemDTO> modifiedStems) {
     this.modifiedStems = modifiedStems;
     return this;
   }

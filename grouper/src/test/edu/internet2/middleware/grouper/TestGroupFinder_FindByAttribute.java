@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupFinder_FindByAttribute.java,v 1.4 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestGroupFinder_FindByAttribute.java,v 1.4.6.1 2008-06-07 16:11:55 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupFinder_FindByAttribute extends GrouperTest {
@@ -104,6 +104,7 @@ public class TestGroupFinder_FindByAttribute extends GrouperTest {
       Group   gA  = r.getGroup("a", "a");
       String  val = "a unique value";
       gA.setDescription(val);
+      gA.store();
       gA = assertFindGroupByAttribute(r.rs, "description", val);
       assertTrue( gA.getDescription().equals(val) );
       r.rs.stop();

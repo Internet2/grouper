@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.Stem;
  * but the 4 name columns).
  * <p/>
  * @author mchyzer
- * @version $Id: StemAttributeFilter.java,v 1.1 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: StemAttributeFilter.java,v 1.1.2.1 2008-06-07 16:11:55 mchyzer Exp $
  */
 public class StemAttributeFilter extends BaseQueryFilter {
   
@@ -74,18 +74,18 @@ public class StemAttributeFilter extends BaseQueryFilter {
     Set candidates = null;
 
     //manually find the attribute and filter
-    if (StringUtils.equals(attr, GrouperConfig.ATTR_DE)) {
+    if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_EXTENSION)) {
       candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension(this.val); 
-    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_DN)) {
+    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_NAME)) {
       candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayName(this.val); 
-    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_E)) {
+    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_EXTENSION)) {
       candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateExtension(this.val); 
-    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_N)) {
+    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_NAME)) {
       candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateName(this.val); 
     } else {
       throw new QueryException("Illegal attribute to query stems: '" + attr + "', must be in (" + 
-          GrouperConfig.ATTR_DE + ", " + GrouperConfig.ATTR_DN + ", " + GrouperConfig.ATTR_E
-          + ", " + GrouperConfig.ATTR_N + ")");
+          GrouperConfig.ATTR_DISPLAY_EXTENSION + ", " + GrouperConfig.ATTR_DISPLAY_NAME + ", " + GrouperConfig.ATTR_EXTENSION
+          + ", " + GrouperConfig.ATTR_NAME + ")");
     }
 
     Set results     = this.filterByScope(this.ns, candidates);

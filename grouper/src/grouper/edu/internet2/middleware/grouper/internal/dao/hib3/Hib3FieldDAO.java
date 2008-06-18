@@ -34,9 +34,8 @@ import edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.3 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.3.4.1 2008-06-18 09:22:21 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -44,19 +43,6 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3FieldDAO.class.getName();
 
-
-  // PRIVATE INSTANCE VARIABLES //
-  private String  groupTypeUUID;
-  private String  id;
-  private boolean isNullable;
-  private String  name;
-  private String  readPrivilege;
-  private String  type;
-  private String  uuid;
-  private String  writePrivilege;
-
-
-  // PUBliC INSTANCE METHODS //
 
   /**
    * @since   @HEAD@
@@ -68,13 +54,13 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
     
     try {
       id = HibernateSession.byHqlStatic()
-      .createQuery("select f.id from Hib3FieldDAO f where f.name = :name")
+      .createQuery("select f.id from FieldDTO f where f.name = :name")
       .setString("name", name).uniqueResult(Object.class);
     } catch (GrouperDAOException gde) {
       Throwable throwable = gde.getCause();
       //CH 20080218 this was legacy error handling
       if (throwable instanceof HibernateException) {
-        ErrorLog.fatal( Hib3FieldDAO.class, throwable.getMessage() );
+        ErrorLog.fatal( FieldDTO.class, throwable.getMessage() );
       }
       throw gde;
     }
@@ -88,113 +74,40 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAll() 
+  public Set<FieldDTO> findAll() 
     throws  GrouperRuntimeException
   {
-    Set fields = new LinkedHashSet();
-    List<FieldDAO> fieldDAOs = HibernateSession.byHqlStatic()
-      .createQuery("from Hib3FieldDAO order by name asc")
+    return HibernateSession.byHqlStatic()
+      .createQuery("from FieldDTO order by name asc")
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAll").list(FieldDAO.class);
-    for (FieldDAO fieldDAO : fieldDAOs) {
-      
-      fields.add( (FieldDTO) FieldDTO.getDTO( fieldDAO ) );
-    }
-    return fields;
+      .setCacheRegion(KLASS + ".FindAll").listSet(FieldDTO.class);
   } // public Set findAll()
 
   /** 
    * @since   @HEAD@
    */
-  public Set findAllFieldsByGroupType(String uuid)
+  public Set<FieldDTO> findAllFieldsByGroupType(String uuid)
     throws  GrouperDAOException
   {
-    Set fields = new LinkedHashSet();
-    List<FieldDAO> fieldDAOs = HibernateSession.byHqlStatic()
-      .createQuery("from Hib3FieldDAO as f where f.groupTypeUuid = :uuid order by f.name asc")
+    return HibernateSession.byHqlStatic()
+      .createQuery("from FieldDTO as f where f.groupTypeUuid = :uuid order by f.name asc")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllFieldsByGroupType")
-      .setString("uuid", uuid).list(FieldDAO.class);
-    for (FieldDAO fieldDAO : fieldDAOs) {
-      fields.add( (FieldDTO) FieldDTO.getDTO( fieldDAO ) );
-    }
-    return fields;
+      .setString("uuid", uuid).listSet(FieldDTO.class);
   } 
 
   /**
    * @since   @HEAD@
    */
-  public Set findAllByType(FieldType type) 
+  public Set<FieldDTO> findAllByType(FieldType type) 
     throws  GrouperDAOException
   {
-    Set fields = new LinkedHashSet();
-    List<FieldDAO> fieldDAOs = HibernateSession.byHqlStatic()
-       .createQuery("from Hib3FieldDAO where type = :type order by name asc")
+    return HibernateSession.byHqlStatic()
+       .createQuery("from FieldDTO where type = :type order by name asc")
        .setCacheable(false)
        .setCacheRegion(KLASS + ".FindAllByType")
-       .setString( "type", type.toString() ).list(FieldDAO.class);
-   for (FieldDAO fieldDAO : fieldDAOs) {
-     
-     fields.add( FieldDTO.getDTO( fieldDAO ) );
-   }
-    return fields;
+       .setString( "type", type.toString() ).listSet(FieldDTO.class);
   } // public Set fieldAllByType(type)
-
-  /** 
-   * @since   @HEAD@
-   */
-  public String getGroupTypeUuid() {
-    return this.groupTypeUUID;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public boolean getIsNullable() {
-    return this.isNullable;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getName() {
-    return this.name;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getReadPrivilege() {
-    return this.readPrivilege;
-  }
-
-  /** 
-   * @since   @HEAD@
-   */
-  public String getType() {
-    return this.type;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getUuid() {
-    return this.uuid;
-  }
-
-  /** 
-   * @since   @HEAD@
-   */
-  public String getWritePrivilege() {
-    return this.writePrivilege;
-  }
 
   /**
    * @since   @HEAD@
@@ -205,10 +118,10 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   {
     ByHqlStatic qry = HibernateSession.byHqlStatic();
     if      ( f.getType().equals(FieldType.ATTRIBUTE) ) {
-      qry.createQuery("from Hib3AttributeDAO as a where a.attrName = :name");
+      qry.createQuery("from AttributeDTO as a where a.attrName = :name");
     }
     else if ( f.getType().equals(FieldType.LIST) )      {
-      qry.createQuery("from Hib3MembershipDAO as ms where ms.listName = :name");
+      qry.createQuery("from MembershipDTO as ms where ms.listName = :name");
     } else {
       throw new SchemaException( f.getType().toString() );
     }
@@ -219,70 +132,6 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
     }
     return false;
   } // public boolean isInUse(f)
-
-  /** 
-   * @since   @HEAD@
-   */
-  public FieldDAO setGroupTypeUuid(String groupTypeUUID) {
-    this.groupTypeUUID = groupTypeUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public FieldDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public FieldDAO setIsNullable(boolean isNullable) {
-    this.isNullable = isNullable;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public FieldDAO setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /** 
-   * @since   @HEAD@
-   */
-  public FieldDAO setReadPrivilege(String readPrivilege) {
-    this.readPrivilege = readPrivilege;
-    return this;
-  }
-
-  /** 
-   * @since   @HEAD@
-   */
-  public FieldDAO setType(String type) {
-    this.type = type;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public FieldDAO setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
-  }
-
-  /** 
-   * @since   @HEAD@
-   */
-  public FieldDAO setWritePrivilege(String writePrivilege) {
-    this.writePrivilege = writePrivilege;
-    return this;
-  }
 
 } 
 

@@ -24,18 +24,15 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
-
 import org.apache.commons.dbcp.BasicDataSource;
-
+import org.apache.ddlutils.Platform;
+import org.apache.ddlutils.PlatformFactory;
 import org.apache.ddlutils.io.DatabaseIO;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 import org.apache.ddlutils.platform.SqlBuilder;
-import org.apache.ddlutils.Platform;
-import org.apache.ddlutils.PlatformFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -46,9 +43,8 @@ import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.4 2008-05-08 19:41:15 shilen Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.4.2.2 2008-06-18 09:22:21 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {
@@ -122,16 +118,15 @@ class Hib3RegistryDAO implements RegistryDAO {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session     hs  = hibernateSession.getSession();
 
-            Hib3MembershipDAO.reset(hs);
-            Hib3GrouperSessionDAO.reset(hs);
-            Hib3CompositeDAO.reset(hs);
-            Hib3GroupDAO.reset(hs);
-            Hib3StemDAO.reset(hs);
-            Hib3MemberDAO.reset(hs);
-            Hib3GroupTypeDAO.reset(hs);
-            Hib3RegistrySubjectDAO.reset(hs);
+            Hib3MembershipDAO.reset(hibernateSession);
+            Hib3GrouperSessionDAO.reset(hibernateSession);
+            Hib3CompositeDAO.reset(hibernateSession);
+            Hib3GroupDAO.reset(hibernateSession);
+            Hib3StemDAO.reset(hibernateSession);
+            Hib3MemberDAO.reset(hibernateSession);
+            Hib3GroupTypeDAO.reset(hibernateSession);
+            Hib3RegistrySubjectDAO.reset(hibernateSession);
 
             return null;
           }

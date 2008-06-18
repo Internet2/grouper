@@ -16,21 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.FieldType;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.FieldType;
+import edu.internet2.middleware.grouper.Privilege;
 
 /** 
  * Basic <code>Field</code> DTO.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: FieldDTO.java,v 1.5 2007-04-19 14:39:29 blair Exp $    
+ * @version $Id: FieldDTO.java,v 1.5.6.1 2008-06-18 09:22:21 mchyzer Exp $    
  * @since   1.2.0
  */
-public class FieldDTO implements GrouperDTO {
+public class FieldDTO extends GrouperDefaultDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String    groupTypeUUID;
@@ -61,22 +60,6 @@ public class FieldDTO implements GrouperDTO {
      .isEquals();
   } // public boolean equals(other)
 
-  /**
-   * @since   1.2.0
-   */
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getField()
-      .setGroupTypeUuid( this.getGroupTypeUuid() )
-      .setId( this.getId() )
-      .setIsNullable( this.getIsNullable() )
-      .setName( this.getName() )
-      .setReadPrivilege( this.getReadPrivilege() )
-      .setType( this.getType() )
-      .setUuid( this.getUuid() )
-      .setWritePrivilege( this.getWritePrivilege() )
-      ;
-  }
-  
   /**
    * @since   1.2.0
    */
@@ -244,23 +227,6 @@ public class FieldDTO implements GrouperDTO {
       .append( "writePrivilege", this.getWritePrivilege() )
       .toString();
   } // public String toString()
-
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  public static FieldDTO getDTO(FieldDAO dao) {
-    return new FieldDTO()
-      .setGroupTypeUuid( dao.getGroupTypeUuid() )
-      .setId( dao.getId() )
-      .setIsNullable( dao.getIsNullable() )
-      .setName( dao.getName() )
-      .setReadPrivilege( dao.getReadPrivilege() )
-      .setType( dao.getType() )
-      .setUuid( dao.getUuid() )
-      .setWritePrivilege( dao.getWritePrivilege() )
-      ;
-  } 
 
 } 
 

@@ -22,25 +22,23 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateMisc;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.util.Rosetta;
+import edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
 
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.3 2008-03-19 20:43:24 mchyzer Exp $
- * @since   @HEAD@
+ * @version $Id: Hib3CompositeDAO.java,v 1.3.2.3 2008-06-18 09:22:21 mchyzer Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
@@ -48,39 +46,21 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   private static final String KLASS = Hib3CompositeDAO.class.getName();
 
 
-  // PRIVATE INSTANCE VARIABLES //
-  private long    createTime;
-  private String  creatorUUID;
-  private String  factorOwnerUUID;
-  private String  id;
-  private String  leftFactorUUID;
-  private String  rightFactorUUID;
-  private String  type;
-  private String  uuid;
-
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * @since   @HEAD@
    */
-  public Set findAsFactor(GroupDTO _g) 
+  public Set<CompositeDTO> findAsFactor(GroupDTO _g) 
     throws  GrouperDAOException
   {
-    Set composites = new LinkedHashSet();
-    List<CompositeDAO> compositeDAOs = HibernateSession.byHqlStatic()
-      .createQuery("from Hib3CompositeDAO as c where (" 
+    return HibernateSession.byHqlStatic()
+      .createQuery("from CompositeDTO as c where (" 
           + " c.leftFactorUuid = :left or c.rightFactorUuid = :right "
           + ")")
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindAsFactor")
           .setString( "left",  _g.getUuid() )
           .setString( "right", _g.getUuid() )
-          .list(CompositeDAO.class);
-    for (CompositeDAO compositeDAO : compositeDAOs) {
-        composites.add( CompositeDTO.getDTO( compositeDAO ) );
-    }
-    return composites;
+          .listSet(CompositeDTO.class);
   } // public Set findAsFactor(_g)
 
   /**
@@ -89,15 +69,15 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   public CompositeDTO findAsOwner(GroupDTO _g) 
     throws  CompositeNotFoundException,
             GrouperDAOException {
-    Hib3CompositeDAO dao = HibernateSession.byHqlStatic()
-      .createQuery("from Hib3CompositeDAO as c where c.factorOwnerUuid = :uuid")
+    CompositeDTO dto = HibernateSession.byHqlStatic()
+      .createQuery("from CompositeDTO as c where c.factorOwnerUuid = :uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAsOwner")
-      .setString( "uuid", _g.getUuid() ).uniqueResult(Hib3CompositeDAO.class);
-    if (dao == null) {
+      .setString( "uuid", _g.getUuid() ).uniqueResult(CompositeDTO.class);
+    if (dto == null) {
       throw new CompositeNotFoundException();
     }
-    return CompositeDTO.getDTO(dao);
+    return dto;
   } // public CompositeDTO findAsOwner(_g)
 
   /**
@@ -106,137 +86,17 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   public CompositeDTO findByUuid(String uuid) 
     throws  CompositeNotFoundException,
             GrouperDAOException {
-    Hib3CompositeDAO dao = HibernateSession.byHqlStatic()
-    .createQuery("from Hib3CompositeDAO as c where c.uuid = :uuid")
+    CompositeDTO dto = HibernateSession.byHqlStatic()
+    .createQuery("from CompositeDTO as c where c.uuid = :uuid")
     .setCacheable(false)
     .setCacheRegion(KLASS + ".FindByUuid")
-    .setString( "uuid", uuid ).uniqueResult(Hib3CompositeDAO.class);
+    .setString( "uuid", uuid ).uniqueResult(CompositeDTO.class);
 
-    if (dao == null) {
+    if (dto == null) {
       throw new CompositeNotFoundException();
     }
-    return CompositeDTO.getDTO(dao);
+    return dto;
   } // public CompositeDTO findByUuid(uuid)
-
-  /**
-   * @since   @HEAD@
-   */
-  public long getCreateTime() {
-    return this.createTime;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getCreatorUuid() {
-    return this.creatorUUID;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getFactorOwnerUuid() {
-    return this.factorOwnerUUID;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getLeftFactorUuid() {
-    return this.leftFactorUUID;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getRightFactorUuid() {
-    return this.rightFactorUUID;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getType() {
-    return this.type;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getUuid() {
-    return this.uuid;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public CompositeDAO setCreateTime(long createTime) {
-    this.createTime = createTime;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public CompositeDAO setCreatorUuid(String creatorUUID) {
-    this.creatorUUID = creatorUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public CompositeDAO setFactorOwnerUuid(String factorOwnerUUID) {
-    this.factorOwnerUUID = factorOwnerUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public CompositeDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public CompositeDAO setLeftFactorUuid(String leftFactorUUID) {
-    this.leftFactorUUID = leftFactorUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public CompositeDAO setRightFactorUuid(String rightFactorUUID) {
-    this.rightFactorUUID = rightFactorUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public CompositeDAO setType(String type) {
-    this.type = type;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public CompositeDAO setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
-  }
 
   /**
    * @since   @HEAD@
@@ -248,35 +108,20 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-
-            Session     hs  = hibernateSession.getSession();
             
-            Iterator it = toDelete.iterator();
-            while (it.hasNext()) {
-              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.delete( grouperDAO );
-            } 
-            hs.flush();
+            ByObject byObject = hibernateSession.byObject();
+            HibernateMisc misc = hibernateSession.misc();
+
+            byObject.delete(toDelete);
+            misc.flush();
             
-            it = toAdd.iterator();
-            while (it.hasNext()) {
-              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.save( grouperDAO );
-            }
-            hs.flush();
+            byObject.save(toAdd);
+            misc.flush();
 
-            it = modGroups.iterator();
-            while (it.hasNext()) {
-              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.update( grouperDAO );
-            }
-            hs.flush();
+            byObject.update(modGroups);
+            misc.flush();
 
-            it = modStems.iterator();
-            while (it.hasNext()) {
-              GrouperDAO grouperDAO = Rosetta.getDAO( it.next() );
-              hs.update( grouperDAO );
-            }
+            byObject.update(modStems);
             return null;
           }
       
@@ -287,10 +132,10 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3CompositeDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from CompositeDTO").executeUpdate();
   } 
 
 } 

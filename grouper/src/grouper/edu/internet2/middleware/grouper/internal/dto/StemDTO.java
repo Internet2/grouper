@@ -16,18 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /** 
  * Basic <code>Stem</code> DTO.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: StemDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: StemDTO.java,v 1.4.6.1 2008-06-18 09:22:21 mchyzer Exp $
  */
-public class StemDTO implements GrouperDTO {
+public class StemDTO extends GrouperDefaultDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  createSource;
@@ -44,7 +42,7 @@ public class StemDTO implements GrouperDTO {
   private String  name;
   private String  parentUUID;
   private String  uuid;
-
+  private StemDTO dbVersion;
 
   // PUBLIC INSTANCE METHODS //
 
@@ -71,6 +69,29 @@ public class StemDTO implements GrouperDTO {
   }
 
   /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new StemDTO();
+    this.dbVersion.createSource = this.createSource;
+    this.dbVersion.createTime = this.createTime;
+    this.dbVersion.creatorUUID = this.creatorUUID;
+    this.dbVersion.description = this.description;
+    this.dbVersion.displayExtension = this.displayExtension;
+    this.dbVersion.extension = this.extension;
+    this.dbVersion.id = this.id;
+    this.dbVersion.modifierUUID = this.modifierUUID;
+    this.dbVersion.modifySource = this.modifySource;
+    this.dbVersion.modifyTime = this.modifyTime;
+    this.dbVersion.name = this.name;
+    this.dbVersion.parentUUID = this.parentUUID;
+    this.dbVersion.uuid = this.uuid;
+
+  }
+
+  /**
    * @since   1.2.0
    */
   public long getCreateTime() {
@@ -82,28 +103,6 @@ public class StemDTO implements GrouperDTO {
    */
   public String getCreatorUuid() {
     return this.creatorUUID;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getStem()
-      .setCreateSource( this.getCreateSource() )
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setDescription( this.getDescription() )
-      .setDisplayExtension( this.getDisplayExtension() )
-      .setDisplayName( this.getDisplayName() )
-      .setExtension( this.getExtension() )
-      .setId( this.getId() )
-      .setModifierUuid( this.getModifierUuid() )
-      .setModifySource( this.getModifySource() )
-      .setModifyTime( this.getModifyTime() )
-      .setName( this.getName() )
-      .setUuid( this.getUuid() )
-      .setParentUuid( this.getParentUuid() )
-      ;
   }
 
   /**
@@ -324,31 +323,6 @@ public class StemDTO implements GrouperDTO {
       .append( "parentUuid",       this.getParentUuid()       )
       .toString();
   } // public String toString()
-
-
-  // PUBLIC CLASS METHODS //
- 
-  /**
-   * @since   1.2.0
-   */
-  public static StemDTO getDTO(StemDAO dao) {
-    return new StemDTO()
-      .setCreateSource( dao.getCreateSource() )
-      .setCreateTime( dao.getCreateTime() )
-      .setCreatorUuid( dao.getCreatorUuid() )
-      .setDescription( dao.getDescription() )
-      .setDisplayExtension( dao.getDisplayExtension() )
-      .setDisplayName( dao.getDisplayName() )
-      .setExtension( dao.getExtension() )
-      .setId( dao.getId() )
-      .setModifierUuid( dao.getModifierUuid() )
-      .setModifySource( dao.getModifySource() )
-      .setModifyTime( dao.getModifyTime() )
-      .setName( dao.getName() )
-      .setUuid( dao.getUuid() )
-      .setParentUuid( dao.getParentUuid() )
-      ;
-  }
 
 } 
 

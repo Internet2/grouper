@@ -16,20 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
-import  edu.internet2.middleware.grouper.Field;
-import  edu.internet2.middleware.grouper.DefaultMemberOf;
-import edu.internet2.middleware.grouper.Member;
-import  edu.internet2.middleware.grouper.MembershipNotFoundException;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import  java.util.Date;
-import  java.util.Set;
+import java.util.Date;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.DefaultMemberOf;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
  * Basic <code>Membership</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.9 2008-01-09 14:07:01 isgwb Exp $
+ * @version $Id: MembershipDAO.java,v 1.9.4.2 2008-06-18 09:22:21 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -43,49 +42,49 @@ public interface MembershipDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set findAllByCreatedAfter(Date d, Field f) 
+  Set<MembershipDTO> findAllByCreatedAfter(Date d, Field f) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllByCreatedBefore(Date d, Field f) 
+  Set<MembershipDTO> findAllByCreatedBefore(Date d, Field f) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllByMember(String memberUUID) 
+  Set<MembershipDTO> findAllByMember(String memberUUID) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllByMemberAndVia(String memberUUID, String viaUUID) 
+  Set<MembershipDTO> findAllByMemberAndVia(String memberUUID, String viaUUID) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllByOwnerAndField(String ownerUUID, Field f) 
+  Set<MembershipDTO> findAllByOwnerAndField(String ownerUUID, Field f) 
     throws  GrouperDAOException;
   
   /**
    * @since   1.2.1
    */
-  Set findAllByOwnerAndMember(String ownerUUID, String memberUUID) 
+  Set<MembershipDTO> findAllByOwnerAndMember(String ownerUUID, String memberUUID) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllByOwnerAndFieldAndType(String ownerUUID, Field f, String type) 
+  Set<MembershipDTO> findAllByOwnerAndFieldAndType(String ownerUUID, Field f, String type) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f) 
+  Set<MembershipDTO> findAllByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f) 
     throws  GrouperDAOException;
 
   /**
@@ -108,31 +107,31 @@ public interface MembershipDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set findAllChildMemberships(MembershipDTO _ms) 
+  Set<MembershipDTO> findAllChildMemberships(MembershipDTO _ms) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllEffective(String ownerUUID, String memberUUID, Field f, String viaUUID, int depth) 
+  Set<MembershipDTO> findAllEffective(String ownerUUID, String memberUUID, Field f, String viaUUID, int depth) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllEffectiveByMemberAndField(String memberUUID, Field f) 
+  Set<MembershipDTO> findAllEffectiveByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllEffectiveByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f)
+  Set<MembershipDTO> findAllEffectiveByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set findAllImmediateByMemberAndField(String memberUUID, Field f) 
+  Set<MembershipDTO> findAllImmediateByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException;
 
   /**
@@ -148,136 +147,6 @@ public interface MembershipDAO extends GrouperDAO {
    */
   Set findMembershipsByMemberAndField(String memberUUID, Field f)
     throws  GrouperDAOException;
-
-  /**
-   * @since   1.2.0
-   */ 
-  long getCreateTime();
-
-  /**
-   * @since   1.2.0
-   */
-  String getCreatorUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  int getDepth();
-
-  /**
-   * @since   1.2.0
-   */
-  String getId();
-
-  /**
-   * @since   1.2.0
-   */
-  String getListName();
-
-  /**
-   * @since   1.2.0
-   */
-  String getListType();
-
-  /**
-   * @since   1.2.0
-   */
-  String getMemberUuid();
-  
-  /**
-   * @since   1.3.0
-   */
-  MemberDAO getMemberDAO();
-
-  /**
-   * @since   1.2.0
-   */
-  String getOwnerUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  String getParentUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  String getType();
-
-  /**
-   * @since   1.2.0
-   */
-  String getUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  String getViaUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setCreateTime(long createTime);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setCreatorUuid(String creatorUUID);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setDepth(int depth);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setId(String id);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setListName(String listName);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setListType(String listType);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setMemberUuid(String memberUUID);
-  
-  /**
-   * @since   1.3.0
-   */
-  MembershipDAO setMemberDAO(MemberDAO memberDAO);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setOwnerUuid(String ownerUUID);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setParentUuid(String parentUUID);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setType(String type);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setUuid(String uuid);
-
-  /**
-   * @since   1.2.0
-   */
-  MembershipDAO setViaUuid(String viaUUID);
 
   /**
    * @since   1.2.0

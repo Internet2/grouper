@@ -16,20 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
 
 /** 
  * Basic <code>GroupType</code> DTO.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupTypeDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: GroupTypeDTO.java,v 1.4.6.1 2008-06-18 09:22:21 mchyzer Exp $
  * @since   1.2.0
  */
-public class GroupTypeDTO implements GrouperDTO {
+public class GroupTypeDTO extends GrouperDefaultDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  creatorUUID;
@@ -79,24 +80,11 @@ public class GroupTypeDTO implements GrouperDTO {
 
   /**
    * @since   1.2.0
-   */
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getGroupType()
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setFields( this.getFields() )
-      .setId( this.getId() )
-      .setIsAssignable( this.getIsAssignable() )
-      .setIsInternal( this.getIsInternal() )
-      .setName( this.getName() )
-      .setUuid( this.getUuid() )
-      ;
-  }
-  
-  /**
-   * @since   1.2.0
    */ 
-  public Set getFields() {
+  public Set<FieldDTO> getFields() {
+    if (this.fields == null) {
+      this.fields = GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( this.getUuid() );
+    }
     return this.fields;
   }
  
@@ -222,23 +210,6 @@ public class GroupTypeDTO implements GrouperDTO {
       .append( "uuid",         this.getUuid()         )
       .toString();
   } // public String toString()
-
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  public static GroupTypeDTO getDTO(GroupTypeDAO dao) {
-    return new GroupTypeDTO()
-      .setCreateTime( dao.getCreateTime() )
-      .setCreatorUuid( dao.getCreatorUuid() )
-      .setFields( dao.getFields() )
-      .setId( dao.getId() )
-      .setIsAssignable( dao.getIsAssignable() )
-      .setIsInternal( dao.getIsInternal() )
-      .setName( dao.getName() )
-      .setUuid( dao.getUuid() )
-      ;
-  }
 
 } 
 

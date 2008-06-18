@@ -18,15 +18,16 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
+import edu.internet2.middleware.grouper.internal.dto.GrouperDefaultDTO;
 
 
 /**
  * Mock {@link GrouperDTO}.
  * @author  blair christensen.
- * @version $Id: MockGrouperDTO.java,v 1.3 2008-03-24 20:15:36 mchyzer Exp $
+ * @version $Id: MockGrouperDTO.java,v 1.3.2.1 2008-06-18 09:22:21 mchyzer Exp $
  * @since   1.2.1
  */
-public class MockGrouperDTO implements GrouperDTO {
+public class MockGrouperDTO extends GrouperDefaultDTO {
 
   /**
    * Not implemented.

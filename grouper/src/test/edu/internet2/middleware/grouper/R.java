@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.20 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: R.java,v 1.20.6.1 2008-06-17 17:00:23 mchyzer Exp $
  * @since   1.2.0
  */
 public class R {
@@ -309,7 +309,7 @@ public class R {
 
 
   // PROTECTED CLASS METHODS //
-  protected static R populateRegistry(int nStems, int nGroups, int nSubjects) 
+  public static R populateRegistry(int nStems, int nGroups, int nSubjects) 
     throws  Exception
   {
     LOG.info("populateRegistry");   
@@ -336,7 +336,7 @@ public class R {
   } // protected static R populateRegistry(nStems, nGroups, nSubjects)
 
   // PROTECTED INSTANCE METHODS //
-  protected Group getGroup(String stem, String group) 
+  public Group getGroup(String stem, String group) 
     throws  Exception
   {
     String key = U.constructName(stem, group);
