@@ -15,18 +15,19 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  java.io.Serializable;
-import  org.apache.commons.lang.builder.*;
+package edu.internet2.middleware.grouper.internal.dto;
+import java.io.Serializable;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /** 
  * Hibernate representation of the JDBC <code>SubjectAttribute</code> table.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectAttributeDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: RegistrySubjectAttributeDTO.java,v 1.1.2.1 2008-06-18 09:22:21 mchyzer Exp $
  * @since   @HEAD@
  */
-class Hib3RegistrySubjectAttributeDAO implements Serializable {
+public class RegistrySubjectAttributeDTO implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = -4979920855853791786L;
@@ -45,12 +46,12 @@ class Hib3RegistrySubjectAttributeDAO implements Serializable {
    * For Hibernate.
    * @since   @HEAD@
    */
-  public Hib3RegistrySubjectAttributeDAO() {
+  public RegistrySubjectAttributeDTO() {
     super();
   }
 
   // @since   @HEAD@
-  protected Hib3RegistrySubjectAttributeDAO(
+  protected RegistrySubjectAttributeDTO(
     String id, String name, String value, String searchVal
   )
   {
@@ -68,8 +69,8 @@ class Hib3RegistrySubjectAttributeDAO implements Serializable {
    */
   public boolean equals(Object other) {
     if ( (this == other ) ) return true;
-    if ( !(other instanceof Hib3RegistrySubjectAttributeDAO) ) return false;
-    Hib3RegistrySubjectAttributeDAO castOther = (Hib3RegistrySubjectAttributeDAO) other;
+    if ( !(other instanceof RegistrySubjectAttributeDTO) ) return false;
+    RegistrySubjectAttributeDTO castOther = (RegistrySubjectAttributeDTO) other;
     return new EqualsBuilder()
       .append(this.getSubjectId() , castOther.getSubjectId()  )
       .append(this.getName()      , castOther.getName()       )
@@ -108,22 +109,22 @@ class Hib3RegistrySubjectAttributeDAO implements Serializable {
     return this.value;
   }
   // @since   @HEAD@
-  private Hib3RegistrySubjectAttributeDAO setName(String name) {
+  private RegistrySubjectAttributeDTO setName(String name) {
     this.name = name;
     return this;
   }
   // @since   @HEAD@
-  private Hib3RegistrySubjectAttributeDAO setSearchValue(String value) {
+  private RegistrySubjectAttributeDTO setSearchValue(String value) {
     this.searchValue = value;
     return this;
   }
   // @since   @HEAD@
-  private Hib3RegistrySubjectAttributeDAO setSubjectId(String subjectId) {
+  private RegistrySubjectAttributeDTO setSubjectId(String subjectId) {
     this.subjectId = subjectId;
     return this;
   }
   // @since   @HEAD@
-  private Hib3RegistrySubjectAttributeDAO setValue(String value) {
+  private RegistrySubjectAttributeDTO setValue(String value) {
     this.value = value;
     return this;
   }

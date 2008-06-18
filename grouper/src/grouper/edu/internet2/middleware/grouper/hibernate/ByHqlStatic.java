@@ -4,7 +4,9 @@
 package edu.internet2.middleware.grouper.hibernate;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
@@ -181,17 +183,17 @@ public class ByHqlStatic {
    * 
    * </pre>
    * @param returnType type of the result (in future can use this for typecasting)
-   * @param <T> is the template
+   * @param <Q> is the template
    * @return the object or null if none found
    * @throws GrouperDAOException
    */
-  public <T> T uniqueResult(final Class<T> returnType) throws GrouperDAOException {
+  public <Q> Q uniqueResult(final Class<Q> returnType) throws GrouperDAOException {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      Q result = (Q)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
           new HibernateHandler() {
   
             public Object callback(HibernateSession hibernateSession) {
@@ -215,7 +217,7 @@ public class ByHqlStatic {
   
   /**
    * <pre>
-   * call hql unique result (returns one or null)
+   * call hql list result 
    * 
    * e.g.
    * 
@@ -225,23 +227,23 @@ public class ByHqlStatic {
    *    .setCacheable(false).setString("group", uuid).list(Hib3GroupTypeTupleDAO.class);
    * </pre>
    * @param returnType type of the result (can typecast)
-   * @param <T> is the template
+   * @param <R> is the template
    * @return the list or the empty list if not found (never null)
    * @throws GrouperDAOException
    */
-  public <T> List<T> list(final Class<T> returnType) throws GrouperDAOException {
+  public <R> List<R> list(final Class<R> returnType) throws GrouperDAOException {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      List<T> result = (List<T>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      List<R> result = (List<R>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
           new HibernateHandler() {
   
             public Object callback(HibernateSession hibernateSession) {
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              List<T> list = byHql.list(returnType);
+              List<R> list = byHql.list(returnType);
               return list;
             }
         
@@ -256,6 +258,27 @@ public class ByHqlStatic {
       throw e;
     }
     
+  }
+
+  /**
+   * <pre>
+   * call hql list result, and put the results in an ordered set
+   * 
+   * e.g.
+   * 
+   * Set<GroupTypeTupleDTO> groupTypeTupleDTOs = 
+   *  HibernateSession.byHqlStatic()
+   *    .createQuery("from Hib3GroupTypeTupleDAO as gtt where gtt.groupUuid = :group")
+   *    .setCacheable(false).setString("group", uuid).listSet(Hib3GroupTypeTupleDAO.class);
+   * </pre>
+   * @param returnType type of the result (can typecast)
+   * @param <S> is the template
+   * @return the ordered set or the empty set if not found (never null)
+   * @throws GrouperDAOException
+   */
+  public <S> Set<S> listSet(final Class<S> returnType) throws GrouperDAOException {
+    Set<S> result = new LinkedHashSet<S>(this.list(returnType));
+    return result;
   }
 
   /**

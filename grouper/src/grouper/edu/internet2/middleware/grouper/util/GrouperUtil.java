@@ -1320,7 +1320,7 @@ public class GrouperUtil {
   }
 
   /**
-   * null safe classname method
+   * null safe classname method, max out at 20
    * 
    * @param object
    * @return the classname
@@ -1332,7 +1332,7 @@ public class GrouperUtil {
     Iterator iterator = iterator(object);
     int length = length(object);
     StringBuffer result = new StringBuffer();
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < length && i < 20; i++) {
       result.append(className(next(object, iterator, i)));
       if (i != length - 1) {
         result.append(", ");

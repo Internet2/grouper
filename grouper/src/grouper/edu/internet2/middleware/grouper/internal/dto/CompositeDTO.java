@@ -16,18 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /** 
  * Basic <code>Composite</code> DTO.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: CompositeDTO.java,v 1.4 2007-04-19 14:31:21 blair Exp $
+ * @version $Id: CompositeDTO.java,v 1.4.6.1 2008-06-18 09:22:21 mchyzer Exp $
  */
-public class CompositeDTO implements GrouperDTO {
+public class CompositeDTO extends GrouperDefaultDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private long    createTime;
@@ -70,22 +68,6 @@ public class CompositeDTO implements GrouperDTO {
   public String getCreatorUuid() {
     return this.creatorUUID;
   }
-
-  /**
-   * @since   1.2.0
-   */
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getComposite()
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setFactorOwnerUuid( this.getFactorOwnerUuid() )
-      .setId( this.getId() )
-      .setLeftFactorUuid( this.getLeftFactorUuid() )
-      .setUuid( this.getUuid() )
-      .setRightFactorUuid( this.getRightFactorUuid() )
-      .setType( this.getType() )
-      ;
-  } 
 
   /**
    * @since   1.2.0
@@ -218,22 +200,6 @@ public class CompositeDTO implements GrouperDTO {
       .toString();
   }
 
-
-  // PUBLIC CLASS METHODS //
-
-  // @since   1.2.0
-  public static CompositeDTO getDTO(CompositeDAO dao) {
-    return new CompositeDTO()
-      .setCreateTime( dao.getCreateTime() )
-      .setCreatorUuid( dao.getCreatorUuid() )
-      .setFactorOwnerUuid( dao.getFactorOwnerUuid() )
-      .setId( dao.getId() )
-      .setLeftFactorUuid( dao.getLeftFactorUuid() )
-      .setUuid( dao.getUuid() )
-      .setRightFactorUuid( dao.getRightFactorUuid() )
-      .setType( dao.getType() )
-      ;
-  } 
 
 } 
 

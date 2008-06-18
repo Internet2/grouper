@@ -1,35 +1,34 @@
 /*
  * @author mchyzer
- * $Id: Hib3GroupDAOTest.java,v 1.1.2.1 2008-06-17 17:00:23 mchyzer Exp $
+ * $Id: GroupDTOTest.java,v 1.1.2.1 2008-06-18 09:22:21 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.internal.dao.hib3;
+package edu.internet2.middleware.grouper.internal.dto;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperTest;
-import edu.internet2.middleware.grouper.R;
 import edu.internet2.middleware.grouper.RegistryReset;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO;
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 
 
 /**
  *
  */
-public class Hib3GroupDAOTest extends GrouperTest {
+public class GroupDTOTest extends GrouperTest {
   
   /**
    * main
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Hib3GroupDAOTest("testDbRetrieve"));
+    TestRunner.run(new GroupDTOTest("testDbRetrieve"));
     //TestRunner.run(Hib3GroupDAOTest.class);
   }
   
   /**
    * @param name
    */
-  public Hib3GroupDAOTest(String name) {
+  public GroupDTOTest(String name) {
     super(name);
   }
 
@@ -46,13 +45,13 @@ public class Hib3GroupDAOTest extends GrouperTest {
    * Test method for {@link edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO#dbVersionDifferent()}.
    */
   public void testDbVersionDifferent() {
-    Hib3GroupDAO group1 = new Hib3GroupDAO();
+    GroupDTO group1 = new GroupDTO();
     group1.dbVersionReset();
     assertFalse("Nothing should not be different", group1.dbVersionDifferent());
     group1.setCreateSource("a");
     assertTrue(group1.dbVersionDifferent());
     assertEquals("Only one field changed", 1, group1.dbVersionDifferentFields().size());
-    assertEquals("Only one field changed", Hib3GroupDAO.FIELD_CREATE_SOURCE, (String)group1.dbVersionDifferentFields().toArray()[0]);
+    assertEquals("Only one field changed", GroupDTO.FIELD_CREATE_SOURCE, (String)group1.dbVersionDifferentFields().toArray()[0]);
     group1.setCreateSource(null);
     assertFalse("Nothing should not be different", group1.dbVersionDifferent());
     assertEquals("No fields changed", 0, group1.dbVersionDifferentFields().size());

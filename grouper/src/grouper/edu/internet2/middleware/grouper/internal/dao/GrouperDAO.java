@@ -19,9 +19,8 @@ package edu.internet2.middleware.grouper.internal.dao;
 
 /** 
  * Base Grouper DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperDAO.java,v 1.2 2007-04-19 14:31:20 blair Exp $
+ * @version $Id: GrouperDAO.java,v 1.2.6.1 2008-06-18 09:22:21 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GrouperDAO {

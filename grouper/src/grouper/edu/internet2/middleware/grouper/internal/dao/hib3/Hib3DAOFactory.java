@@ -34,9 +34,8 @@ import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
 
 /** 
  * Basic Hibernate DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.3.4.1 2008-06-08 07:21:24 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.3.4.2 2008-06-18 09:22:21 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {

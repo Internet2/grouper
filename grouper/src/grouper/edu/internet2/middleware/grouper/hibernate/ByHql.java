@@ -4,7 +4,9 @@
 package edu.internet2.middleware.grouper.hibernate;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -223,7 +225,7 @@ public class ByHql extends HibernateDelegate {
   
   /**
    * <pre>
-   * call hql unique result (returns one or null)
+   * call hql list result
    * 
    * e.g.
    * 
@@ -248,6 +250,29 @@ public class ByHql extends HibernateDelegate {
     return list;
     
   }
+  
+  /**
+   * <pre>
+   * call hql list result, and put the results in an ordered set
+   * 
+   * e.g.
+   * 
+   * Set<GroupTypeTupleDTO> groupTypeTupleDTOs = 
+   *  HibernateSession.byHqlStatic()
+   *    .createQuery("from Hib3GroupTypeTupleDAO as gtt where gtt.groupUuid = :group")
+   *    .setCacheable(false).setString("group", uuid).listSet(Hib3GroupTypeTupleDAO.class);
+   * </pre>
+   * @param returnType type of the result (can typecast)
+   * @param <S> is the template
+   * @return the ordered set or the empty set if not found (never null)
+   * @throws GrouperDAOException
+   */
+  public <S> Set<S> listSet(final Class<S> returnType) throws GrouperDAOException {
+    Set<S> result = new LinkedHashSet<S>(this.list(returnType));
+    return result;
+  }
+
+
 
   /**
    * prepare query based on hql

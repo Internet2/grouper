@@ -91,11 +91,58 @@ public class ByObjectStatic {
   }
 
   /**
+   * <pre>
+   * call hibernate method "update" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().update(collection);
+   * 
+   * </pre>
+   * @param collection is collection of objects to update in one transaction.  If null or empty just ignore
+   * @throws GrouperDAOException
+   */
+  public void update(final Collection<?> collection) throws GrouperDAOException {
+    if (collection == null) {
+      return;
+    }
+    try {
+      GrouperTransactionType grouperTransactionTypeToUse = 
+        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+          new HibernateHandler() {
+  
+            public Object callback(HibernateSession hibernateSession) {
+              
+              GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
+              GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
+              
+              hibernateSession.byObject().update(collection);
+              return null;
+            }
+        
+      });
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    }
+    
+  }
+
+  /**
    * call hibernate "update" method on an object
    * @param object to update
    * @throws GrouperDAOException
    */
   public void update(final Object object) throws GrouperDAOException {
+    //dont fail if collection in there
+    if (object instanceof Collection) {
+      update((Collection)object);
+      return;
+    }
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
@@ -163,11 +210,58 @@ public class ByObjectStatic {
   }
   
   /**
+   * <pre>
+   * call hibernate method "saveOrUpdate" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().saveOrUpdate(collection);
+   * 
+   * </pre>
+   * @param collection is collection of objects to saveOrUpdate in one transaction.  If null or empty just ignore
+   * @throws GrouperDAOException
+   */
+  public void saveOrUpdate(final Collection<?> collection) throws GrouperDAOException {
+    if (collection == null) {
+      return;
+    }
+    try {
+      GrouperTransactionType grouperTransactionTypeToUse = 
+        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+          new HibernateHandler() {
+  
+            public Object callback(HibernateSession hibernateSession) {
+              
+              GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
+              GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
+              
+              hibernateSession.byObject().saveOrUpdate(collection);
+              return null;
+            }
+        
+      });
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    }
+    
+  }
+
+  /**
    * call hibernate "saveOrUpdate" method on an object
    * @param object to update
    * @throws GrouperDAOException
    */
   public void saveOrUpdate(final Object object) throws GrouperDAOException {
+    //dont fail if collection in there
+    if (object instanceof Collection) {
+      saveOrUpdate((Collection)object);
+      return;
+    }
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
@@ -200,6 +294,49 @@ public class ByObjectStatic {
   
   /**
    * <pre>
+   * call hibernate method "save" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().save(collection);
+   * 
+   * </pre>
+   * @param collection is collection of objects to save in one transaction.  If null or empty just ignore
+   * @throws GrouperDAOException
+   */
+  public void save(final Collection<?> collection) throws GrouperDAOException {
+    if (collection == null) {
+      return;
+    }
+    try {
+      GrouperTransactionType grouperTransactionTypeToUse = 
+        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
+      
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+          new HibernateHandler() {
+  
+            public Object callback(HibernateSession hibernateSession) {
+              
+              GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
+              GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
+              
+              hibernateSession.byObject().save(collection);
+              return null;
+            }
+        
+      });
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    }
+    
+  }
+  
+
+  /**
+   * <pre>
    * call hibernate method "save" on an object
    * 
    * HibernateSession.byObjectStatic().save(dao);
@@ -210,6 +347,11 @@ public class ByObjectStatic {
    * @throws GrouperDAOException
    */
   public Serializable save(final Object object) throws GrouperDAOException {
+    //dont fail if collection in there
+    if (object instanceof Collection) {
+      save((Collection)object);
+      return null;
+    }
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 

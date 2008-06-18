@@ -1,10 +1,10 @@
 /*
  * @author mchyzer
- * $Id: HooksMembershipPreInsertBean.java,v 1.1.2.1 2008-06-09 19:26:05 mchyzer Exp $
+ * $Id: HooksMembershipPreInsertBean.java,v 1.1.2.2 2008-06-18 09:22:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
-import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 
 /**
@@ -13,23 +13,23 @@ import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 public class HooksMembershipPreInsertBean extends HooksBean {
 
   /** object being inserted */
-  private MembershipDAO membershipDao = null;
+  private MembershipDTO membershipDto = null;
   
   /**
    * @param theHooksContext
-   * @param theMembershipDao 
+   * @param theMembershipDto 
    */
-  public HooksMembershipPreInsertBean(HooksContext theHooksContext, MembershipDAO theMembershipDao) {
+  public HooksMembershipPreInsertBean(HooksContext theHooksContext, MembershipDTO theMembershipDto) {
     super(theHooksContext);
-    this.membershipDao = theMembershipDao;
+    this.membershipDto = theMembershipDto;
   }
   
   /**
    * object being inserted
    * @return the MembershipDAO
    */
-  public MembershipDAO getMembershipDao() {
-    return this.membershipDao;
+  public MembershipDTO getMembershipDto() {
+    return this.membershipDto;
   }
 
   

@@ -21,9 +21,8 @@ import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 
 /** 
  * Basic <code>RegistrySubject</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDAO.java,v 1.4 2007-05-31 17:57:45 blair Exp $
+ * @version $Id: RegistrySubjectDAO.java,v 1.4.6.1 2008-06-18 09:22:21 mchyzer Exp $
  * @since   1.2.0
  */
 public interface RegistrySubjectDAO extends GrouperDAO {
@@ -31,7 +30,7 @@ public interface RegistrySubjectDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String create(RegistrySubjectDTO _subj)
+  void create(RegistrySubjectDTO _subj)
     throws  GrouperDAOException;
 
   /**
@@ -43,39 +42,9 @@ public interface RegistrySubjectDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  RegistrySubjectDAO find(String id, String type) 
+  RegistrySubjectDTO find(String id, String type) 
     throws  GrouperDAOException,
             SubjectNotFoundException;
-
-  /**
-   * @since   1.2.0
-   */
-  String getId();
-
-  /**
-   * @since   1.2.0
-   */
-  String getName();
-
-  /**
-   * @since   1.2.0
-   */
-  String getType();
-
-  /**
-   * @since   1.2.0
-   */
-  RegistrySubjectDAO setId(String id);
-
-  /**
-   * @since   1.2.0
-   */
-  RegistrySubjectDAO setName(String name);
-
-  /**
-   * @since   1.2.0
-   */
-  RegistrySubjectDAO setType(String type);
 
 } 
 

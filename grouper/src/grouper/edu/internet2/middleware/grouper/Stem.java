@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.149.2.1 2008-06-07 16:11:55 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.149.2.2 2008-06-18 09:22:21 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -1038,7 +1038,7 @@ public class Stem extends GrouperAPI implements Owner {
         .setName(ROOT_INT)
         .setUuid( GrouperUuid.getUuid() )
         ;
-      _ns.setId( GrouperDAOFactory.getFactory().getStem().createRootStem(_ns) );
+      GrouperDAOFactory.getFactory().getStem().createRootStem(_ns) ;
       Stem root = new Stem();
       root.setDTO(_ns);
       root.setSession(s);
@@ -1132,9 +1132,8 @@ public class Stem extends GrouperAPI implements Owner {
 
       Group child = new Group();
       //CH 20080220: this will start saving the stem
-      child.setDTO( 
-        _g.setId( GrouperDAOFactory.getFactory().getStem().createChildGroup( this._getDTO(), _g, _m ) ) 
-      );
+      GrouperDAOFactory.getFactory().getStem().createChildGroup( this._getDTO(), _g, _m );
+      child.setDTO( _g );
       child.setSession( this.getSession() );
         
       sw.stop();
@@ -1194,7 +1193,7 @@ public class Stem extends GrouperAPI implements Owner {
       else {
         _ns.setUuid(uuid);
       }
-      _ns.setId( GrouperDAOFactory.getFactory().getStem().createChildStem( this._getDTO(), _ns ) );
+      GrouperDAOFactory.getFactory().getStem().createChildStem( this._getDTO(), _ns ) ;
 
       Stem child = new Stem();
       child.setDTO(_ns);

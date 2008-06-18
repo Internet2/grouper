@@ -25,9 +25,8 @@ import  edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Member</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
+ * @version $Id: MemberDAO.java,v 1.4.4.1 2008-06-18 09:22:21 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MemberDAO extends GrouperDAO {
@@ -35,7 +34,7 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String create(MemberDTO _m) 
+  void create(MemberDTO _m) 
     throws  GrouperDAOException;
 
   /**
@@ -47,13 +46,13 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.3.0
    */
-  Set findAll() 
+  Set<MemberDTO> findAll() 
     throws  GrouperDAOException;
   
   /**
    * @since   1.3.0
    */
-  Set findAll(Source source) 
+  Set<MemberDTO> findAll(Source source) 
     throws  GrouperDAOException;
   
   /**
@@ -83,58 +82,21 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String getId();
-
-  /**
-   * @since   1.2.0
-   */
-  String getSubjectId();
-
-  /**
-   * @since   1.2.0
-   */
-  String getSubjectSourceId();
-
-  /**
-   * @since   1.2.0
-   */
-  String getSubjectTypeId();
-
-  /**
-   * @since   1.2.0
-   */
-  String getUuid();
-
-  /**
-   * @since   1.2.0
-   */
-  MemberDAO setId(String id);
-
-  /**
-   * @since   1.2.0
-   */
-  MemberDAO setSubjectId(String subjectID);
-
-  /**
-   * @since   1.2.0
-   */
-  MemberDAO setSubjectSourceId(String subjectSourceID);
-
-  /**
-   * @since   1.2.0
-   */
-  MemberDAO setSubjectTypeId(String subjectTypeID);
-
-  /**
-   * @since   1.2.0
-   */
-  MemberDAO setUuid(String uuid);
-
-  /**
-   * @since   1.2.0
-   */
   void update(MemberDTO _m) 
     throws  GrouperDAOException;
+
+  /**
+   * update the exists cache
+   * @param uuid
+   * @param exists
+   */
+  public void existsCachePut(String uuid, boolean exists);
+
+  /**
+   * remove from cache
+   * @param uuid
+   */
+  public void uuid2dtoCacheRemove(String uuid);
 
 } 
 

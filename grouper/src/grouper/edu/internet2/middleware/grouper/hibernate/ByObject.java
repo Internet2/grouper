@@ -14,7 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.1.2.4 2008-06-12 05:44:59 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.1.2.5 2008-06-18 09:22:21 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -44,10 +44,8 @@ public class ByObject extends HibernateDelegate {
       return;
     }
     try {
-      Session session  = this.getHibernateSession().getSession();
-      
       for (Object object : collection) {
-        session.delete(object);
+        delete(object);
       }
     } catch (GrouperDAOException e) {
       LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
@@ -56,7 +54,6 @@ public class ByObject extends HibernateDelegate {
       LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
     }
-    
   }
 
   /**
@@ -91,6 +88,34 @@ public class ByObject extends HibernateDelegate {
 
   /**
    * <pre>
+   * call hibernate method "save" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().save(collection);
+   * 
+   * </pre>
+   * @param collection is collection of objects to save in one transaction.  If null or empty just ignore
+   * @throws GrouperDAOException
+   */
+  public void save(final Collection<?> collection) throws GrouperDAOException {
+    if (collection == null) {
+      return;
+    }
+    try {
+      for (Object object : collection) {
+        save(object);
+      }
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    }
+  }
+
+
+  /**
+   * <pre>
    * call hibernate method "save" on an object
    * 
    * HibernateSession.byObjectStatic().save(dao);
@@ -101,6 +126,11 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public Serializable save(final Object object) throws GrouperDAOException {
+    //dont fail if collection in there
+    if (object instanceof Collection) {
+      save((Collection)object);
+      return null;
+    }
     try {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
@@ -130,6 +160,34 @@ public class ByObject extends HibernateDelegate {
 
   /**
    * <pre>
+   * call hibernate method "saveOrUpdate" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().saveOrUpdate(collection);
+   * 
+   * </pre>
+   * @param collection is collection of objects to saveOrUpdate in one transaction.  If null or empty just ignore
+   * @throws GrouperDAOException
+   */
+  public void saveOrUpdate(final Collection<?> collection) throws GrouperDAOException {
+    if (collection == null) {
+      return;
+    }
+    try {
+      for (Object object : collection) {
+        saveOrUpdate(object);
+      }
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    }
+  }
+
+
+  /**
+   * <pre>
    * call hibernate method "save" on an object
    * 
    * HibernateSession.byObjectStatic().save(dao);
@@ -139,6 +197,11 @@ public class ByObject extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public void saveOrUpdate(final Object object) throws GrouperDAOException {
+    //dont fail if collection in there
+    if (object instanceof Collection) {
+      saveOrUpdate((Collection)object);
+      return;
+    }
     try {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
@@ -200,6 +263,34 @@ public class ByObject extends HibernateDelegate {
       throw e;
     }
   }
+
+  /**
+   * <pre>
+   * call hibernate method "update" on a list of objects
+   * 
+   * HibernateSession.byObjectStatic().update(collection);
+   * 
+   * </pre>
+   * @param collection is collection of objects to update in one transaction.  If null or empty just ignore
+   * @throws GrouperDAOException
+   */
+  public void update(final Collection<?> collection) throws GrouperDAOException {
+    if (collection == null) {
+      return;
+    }
+    try {
+      for (Object object : collection) {
+        update(object);
+      }
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
+      throw e;
+    }
+  }
+
 
   /**
    * call hibernate "update" method on an object
