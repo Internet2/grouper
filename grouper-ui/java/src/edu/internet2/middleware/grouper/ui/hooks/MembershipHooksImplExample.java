@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.1.2.4 2008-06-12 05:45:02 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.1.2.5 2008-06-21 04:05:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ui.hooks;
 
@@ -27,6 +27,7 @@ public class MembershipHooksImplExample extends MembershipHooks {
   @Override
   public void membershipPreAddMember(HooksMembershipPreAddMemberBean preAddMemberBean) {
     HooksContext hooksContext = preAddMemberBean.getHooksContext();
+    //TODO make this unknown if not known
     GrouperContextType grouperContextType = hooksContext.getGrouperContextType();
     
     //only care about this if not grouper loader
