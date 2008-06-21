@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -27,29 +26,18 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Basic Hibernate <code>RegistrySubject</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3RegistrySubjectDAO.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDAO {
   
-  // PRIVATE INSTANCE VARIABLES //
-  private String id;
-  private String name;
-  private String type;
-
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * @since   @HEAD@
    */
-  public String create(RegistrySubjectDTO _subj)
+  public void create(RegistrySubjectDTO _subj)
     throws  GrouperDAOException {
-    Hib3DAO  dao = (Hib3DAO) _subj.getDAO(); 
-    HibernateSession.byObjectStatic().save(dao);
-    return dao.getId();
+    HibernateSession.byObjectStatic().save(_subj);
   } 
 
   /**
@@ -57,86 +45,37 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
    */
   public void delete(RegistrySubjectDTO _subj)
     throws  GrouperDAOException {
-    Hib3DAO  dao = (Hib3DAO) _subj.getDAO();
-    HibernateSession.byObjectStatic().delete(dao);
+    HibernateSession.byObjectStatic().delete(_subj);
   }
 
   /**
    * @since   @HEAD@
    */
-  public RegistrySubjectDAO find(String id, String type) 
+  public RegistrySubjectDTO find(String id, String type) 
     throws  GrouperDAOException,
             SubjectNotFoundException
   {
-    Hib3RegistrySubjectDAO subj = HibernateSession.byHqlStatic()
+    RegistrySubjectDTO subj = HibernateSession.byHqlStatic()
       .createQuery(
-        "from Hib3RegistrySubjectDAO as rs where " 
+        "from RegistrySubjectDTO as rs where " 
         + "     rs.id   = :id    "
         + " and rs.type = :type  ")
       .setCacheable(false) 
       .setString( "id",   id   )
       .setString( "type", type )
-      .uniqueResult(Hib3RegistrySubjectDAO.class);
+      .uniqueResult(RegistrySubjectDTO.class);
     if (subj == null) {
       throw new SubjectNotFoundException("subject not found"); 
     }
     return subj;
   } // public Hib3RegistrySubjectDAO find(id, type)
 
-  /**
-   * @since   @HEAD@
-   */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getName() {
-    return this.name;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getType() {
-    return this.type;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public RegistrySubjectDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public RegistrySubjectDAO setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public RegistrySubjectDAO setType(String type) {
-    this.type = type;
-    return this;
-  }
-   
- 
-  // PROTECTED CLASS METHODS //
-
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3RegistrySubjectAttributeDAO").executeUpdate();
-    hs.createQuery("delete from Hib3RegistrySubjectDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from RegistrySubjectAttributeDTO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from RegistrySubjectDTO").executeUpdate();
   } 
 
 } 

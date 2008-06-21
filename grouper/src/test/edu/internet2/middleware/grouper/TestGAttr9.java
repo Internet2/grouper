@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr9.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGAttr9.java,v 1.4 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr9 extends TestCase {
@@ -50,6 +50,7 @@ public class TestGAttr9 extends TestCase {
       String  k = "description";
       String  v = "foo";
       gA.setAttribute("description", v);
+      gA.store();
       T.ok("set attr value");
       T.string(
         "updated attr value",

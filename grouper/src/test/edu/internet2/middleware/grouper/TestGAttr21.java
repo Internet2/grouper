@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr21.java,v 1.6 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestGAttr21.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr21 extends GrouperTest {
@@ -52,6 +52,7 @@ public class TestGAttr21 extends GrouperTest {
       gA.setSession( GrouperSession.start(subjA) );
       String k = "description";
       gA.setAttribute(k, k);
+      gA.store();
       gA.deleteAttribute(k);
       T.string(
         "fetch deleted attribute",

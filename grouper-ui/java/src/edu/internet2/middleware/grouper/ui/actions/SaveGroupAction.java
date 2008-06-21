@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -46,8 +47,10 @@ import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.hooks.HookVeto;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -138,7 +141,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.15 2008-04-07 07:54:15 mchyzer Exp $
+ * @version $Id: SaveGroupAction.java,v 1.16 2008-06-21 04:16:21 mchyzer Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -208,6 +211,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 			doTypes(group,request);
 			group.setDisplayExtension(displayExtension);
 			group.setExtension(extension);
+			group.store();
 			Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll));
 			assignedPrivs=new HashMap();
 			Map.Entry entry;
@@ -228,6 +232,13 @@ public class SaveGroupAction extends GrouperCapableAction {
 			}
 			try{
 				group = parent.addChildGroup(extension,displayExtension );
+
+			}catch(HookVeto hookVeto) {
+			  
+			  //this action was vetoed, put explanation on screen, and go back
+			  Message.addVetoMessageToScreen(request, hookVeto);
+		    return mapping.findForward(FORWARD_CreateAgain);
+			  
 			}catch(GroupAddException e) {
 				String name = parent.getName() + GrouperHelper.HIER_DELIM + extension;
 				request.setAttribute("message", new Message(
@@ -275,7 +286,10 @@ public class SaveGroupAction extends GrouperCapableAction {
 		String val  =(String) groupForm.get("groupDescription");
 		if("".equals(val)) val=null;
 
-		if(val!=null)group.setDescription(val);	
+		if(val!=null) {
+		  group.setDescription(val);
+		  group.store();
+		}
 
 		request.setAttribute("message", new Message(
 				"groups.message.group-saved", (String) groupForm

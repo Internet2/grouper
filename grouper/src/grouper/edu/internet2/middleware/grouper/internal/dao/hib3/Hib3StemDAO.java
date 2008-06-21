@@ -20,36 +20,32 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
+import edu.internet2.middleware.grouper.internal.dto.GroupTypeTupleDTO;
 import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import edu.internet2.middleware.grouper.internal.util.Rosetta;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.6 2008-04-03 18:09:43 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -59,85 +55,41 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   private static final String KLASS = Hib3StemDAO.class.getName();
 
 
-  // PRIVATE INSTANCE VARIABLES //
-  /** */
-  private String  createSource;
-  /** */
-  private long    createTime;
-  /** */
-  private String  creatorUUID;
-  /** */
-  private String  description;
-  /** */
-  private String  displayExtension;
-  /** */
-  private String  displayName;
-  /** */
-  private String  extension;
-  /** */
-  private String  id;
-  /** */
-  private String  name;
-  /** */
-  private String  modifierUUID;
-  /** */
-  private String  modifySource;
-  /** */
-  private long    modifyTime;
-  /** */
-  private String  parentUUID;
-  /** */
-  private String  uuid;
-
   /**
    * @since   @HEAD@
    */
-  public String createChildGroup(final StemDTO _parent, final GroupDTO _child, final MemberDTO _m)
+  public void createChildGroup(final StemDTO _stemDto, final GroupDTO _groupDto, final MemberDTO _memberDto)
     throws  GrouperDAOException {
     
     try {
-      String id = (String)HibernateSession.callbackHibernateSession(
+      HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session       hs  = hibernateSession.getSession();
-              Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_child);
-              hs.save(dao);
-
-              // add attributes
-              Map.Entry kv;
-              Iterator attrIter = _child.getAttributes().entrySet().iterator();
-              while (attrIter.hasNext()) {
-                kv = (Map.Entry) attrIter.next();
-                Hib3AttributeDAO attrDao = new Hib3AttributeDAO();
-                attrDao.setAttrName( (String) kv.getKey() );
-                attrDao.setGroupUuid( _child.getUuid() );
-                attrDao.setValue( (String) kv.getValue() );
-                hs.save(attrDao);
-              }
+              ByObject byObject = hibernateSession.byObject();
+              byObject.save(_groupDto);
 
               // add group-type tuples
-              Hib3GroupTypeTupleDAO  tuple = new Hib3GroupTypeTupleDAO();
-              Iterator                    it    = _child.getTypes().iterator();
+              GroupTypeTupleDTO  tuple = new GroupTypeTupleDTO();
+              Iterator                    it    = _groupDto.getTypes().iterator();
               while (it.hasNext()) {
-                tuple.setGroupUuid( _child.getUuid() );
+                tuple.setGroupUuid( _groupDto.getUuid() );
                 tuple.setTypeUuid( ( (GroupTypeDTO) it.next() ).getUuid() );
-                hs.save(tuple); // new group-type tuple
+                byObject.save(tuple); // new group-type tuple
               }
-              hs.update( Rosetta.getDAO(_parent) );
-              if ( !GrouperDAOFactory.getFactory().getMember().exists( _m.getUuid() ) ) {
-                hs.save( Rosetta.getDAO(_m) );
+              hibernateSession.byObject().update( _stemDto );
+              if ( !GrouperDAOFactory.getFactory().getMember().exists( _memberDto.getUuid() ) ) {
+                byObject.save( _memberDto );
               }
-              return dao.getId();
+              return null;
             }
         
       });
-      return id;
     } catch (GrouperDAOException e) {
-      String error = "Problem create child stem: " + GrouperUtil.toStringSafe(_parent)
-        + ", child: " + GrouperUtil.toStringSafe(_child) + ", memberDto: " 
-        + GrouperUtil.toStringSafe(_m) + ", " + e.getMessage();
+      String error = "Problem create child stem: " + GrouperUtil.toStringSafe(_stemDto)
+        + ", child: " + GrouperUtil.toStringSafe(_groupDto) + ", memberDto: " 
+        + GrouperUtil.toStringSafe(_memberDto) + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
   } 
@@ -145,23 +97,20 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public String createChildStem(final StemDTO _parent, final StemDTO _child)
+  public void createChildStem(final StemDTO _parent, final StemDTO _child)
     throws  GrouperDAOException {
     try {
-      String id = (String)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
 
-              Session       hs  = hibernateSession.getSession();
-              Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_child);
-              hs.save(dao);
-              hs.update( Rosetta.getDAO(_parent) );
-              return dao.getId();
+              hibernateSession.byObject().save(_child);
+              hibernateSession.byObject().update( _parent );
+              return null;
             }
         
       });
-      return id;
     }
     catch (GrouperDAOException e) {
       String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(_parent)
@@ -170,15 +119,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
   } 
 
+
   /**
    * @since   @HEAD@
    */
-  public String createRootStem(StemDTO _root)
+  public void createRootStem(StemDTO _root)
     throws  GrouperDAOException {
     try {
-      Hib3StemDAO  dao = (Hib3StemDAO) _root.getDAO();
-      HibernateSession.byObjectStatic().save(dao);
-      return dao.getId();
+      HibernateSession.byObjectStatic().save(_root);
     }
     catch (GrouperDAOException e) {
       String error = "Problem creating root stem: " + GrouperUtil.toStringSafe(_root)
@@ -193,7 +141,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public void delete(StemDTO _ns)
     throws  GrouperDAOException {
     try {
-      HibernateSession.byObjectStatic().delete(_ns.getDAO());
+      HibernateSession.byObjectStatic().delete(_ns);
     } catch (GrouperDAOException e) {
       String error = "Problem deleting: " + GrouperUtil.toStringSafe(_ns)
         + ", " + e.getMessage();
@@ -208,7 +156,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException {
     try {
       Object id = HibernateSession.byHqlStatic()
-        .createQuery("select ns.id from Hib3StemDAO ns where ns.uuid = :uuid")
+        .createQuery("select ns.id from StemDTO ns where ns.uuid = :uuid")
         .setString("uuid", uuid).uniqueResult(Object.class);
       
       boolean rv  = false;
@@ -227,109 +175,88 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAllByApproximateDisplayExtension(String val) 
+  public Set<StemDTO> findAllByApproximateDisplayExtension(String val) 
     throws  GrouperDAOException {
-    Set stems = new LinkedHashSet();
     try {
-      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where lower(ns.displayExtension) like lower(:value)")
+      return HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where lower(ns.displayExtension) like lower(:value)")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByApproximateDisplayExtension")
         .setString(  "value" , "%" + val.toLowerCase() + "%" )
-        .list(Hib3StemDAO.class);
-      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-        stems.add( StemDTO.getDTO( hib3StemDAO ) );
-      }
+        .listSet(StemDTO.class);
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all stem by approximate display extension: '" + val + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
-    return stems;
   } 
 
   /**
    * @since   @HEAD@
    */
-  public Set findAllByApproximateDisplayName(String val) 
+  public Set<StemDTO> findAllByApproximateDisplayName(String val) 
     throws  GrouperDAOException
   {
-    Set stems = new LinkedHashSet();
     try {
-      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where lower(ns.displayName) like lower(:value)")
+      return HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where lower(ns.displayName) like lower(:value)")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByApproximateDisplayName")
-        .setString(  "value" , "%" + val.toLowerCase() + "%" ).list(Hib3StemDAO.class);
-      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-        stems.add( StemDTO.getDTO( hib3StemDAO ) );
-      }
+        .setString(  "value" , "%" + val.toLowerCase() + "%" ).listSet(StemDTO.class);
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all stem by approximate display name: '" + val + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
-    return stems;
   } 
 
   /**
    * @since   @HEAD@
    */
-  public Set findAllByApproximateExtension(String val) 
+  public Set<StemDTO> findAllByApproximateExtension(String val) 
     throws  GrouperDAOException {
-    Set stems = new LinkedHashSet();
     try {
-      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where lower(ns.extension) like lower(:value)")
+      return HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where lower(ns.extension) like lower(:value)")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByApproximateExtension")
         .setString(  "value" , "%" + val.toLowerCase() + "%" )
-        .list(Hib3StemDAO.class);
-      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-        stems.add( StemDTO.getDTO( hib3StemDAO ) );
-      }
+        .listSet(StemDTO.class);
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all stem by approximate extension: '" + val + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
-    return stems;
   } 
 
   /**
    * @since   @HEAD@
    */
-  public Set findAllByApproximateName(String val) 
+  public Set<StemDTO> findAllByApproximateName(String val) 
     throws  GrouperDAOException {
-    Set stems = new LinkedHashSet();
     try {
-      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where lower(ns.name) like lower(:value)")
+      return HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where lower(ns.name) like lower(:value)")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByApproximateName")
         .setString(  "value" , "%" + val.toLowerCase() + "%" )
-        .list(Hib3StemDAO.class);
-      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-        stems.add( StemDTO.getDTO( hib3StemDAO ) );
-      }
+        .listSet(StemDTO.class);
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all stem by approximate name: '" + val + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
-    return stems;
   } 
 
   /**
    * @since   @HEAD@
    */
-  public Set findAllByApproximateNameAny(String name) 
+  public Set<StemDTO> findAllByApproximateNameAny(String name) 
     throws  GrouperDAOException {
-    Set stems = new LinkedHashSet();
     try {
-      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
+      return HibernateSession.byHqlStatic()
         .createQuery(
-        "from Hib3StemDAO as ns where "
+        "from StemDTO as ns where "
         + "   lower(ns.name)              like :name "
         + "or lower(ns.displayName)       like :name "
         + "or lower(ns.extension)         like :name "
@@ -337,64 +264,50 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByApproximateNameAny")
         .setString("name", "%" + name.toLowerCase() + "%")
-        .list(Hib3StemDAO.class);
-      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-        stems.add( StemDTO.getDTO( hib3StemDAO ) );
-      }
+        .listSet(StemDTO.class);
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all stem by approximate any: '" + name + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
-    return stems;
   } 
 
   /**
    * @since   @HEAD@
    */
-  public Set findAllByCreatedAfter(Date d) 
+  public Set<StemDTO> findAllByCreatedAfter(Date d) 
     throws  GrouperDAOException {
-    Set stems = new LinkedHashSet();
     try {
-      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where ns.createTime > :time")
+     return HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where ns.createTime > :time")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByCreatedAfter")
         .setLong( "time", d.getTime() )
-        .list(Hib3StemDAO.class);
-      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-        stems.add( StemDTO.getDTO( hib3StemDAO ) );
-      }
+        .listSet(StemDTO.class);
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all stem by created after: '" + d + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
-    return stems;
   } 
 
   /**
    * @since   @HEAD@
    */
-  public Set findAllByCreatedBefore(Date d) 
+  public Set<StemDTO> findAllByCreatedBefore(Date d) 
     throws  GrouperDAOException {
-    Set stems = new LinkedHashSet();
     try {
-      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where ns.createTime < :time")
+      return HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where ns.createTime < :time")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByCreatedBefore")
         .setLong( "time", d.getTime() )
-        .list(Hib3StemDAO.class);
-      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-        stems.add( StemDTO.getDTO( hib3StemDAO ) );
-      }
+        .listSet(StemDTO.class);
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all stem by created before: '" + d + "', " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
-    return stems;
   } 
   
   /**
@@ -423,15 +336,13 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
     Set<GroupDTO> groups = new LinkedHashSet();
     try {
-      List<Hib3GroupDAO> hib3GroupDAOs = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3GroupDAO as g where g.parentUuid = :parent")
+      List<GroupDTO> groupDTOs = HibernateSession.byHqlStatic()
+        .createQuery("from GroupDTO as g where g.parentUuid = :parent")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindChildGroups")
         .setString( "parent", ns.getUuid() )
-        .list(Hib3GroupDAO.class);
-      for (Hib3GroupDAO hib3GroupDAO : hib3GroupDAOs) {
-        groups.add( GroupDTO.getDTO( hib3GroupDAO ) );
-      }
+        .list(GroupDTO.class);
+      groups.addAll(groupDTOs);
       if (Stem.Scope.SUB == scope) { // recurse through child stems looking for child groups
         for ( StemDTO childStem : this.findAllChildStems(ns, Stem.Scope.SUB) ) {
           groups.addAll( this.findAllChildGroups(childStem, scope) ); 
@@ -457,22 +368,20 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
             IllegalStateException {
     Set<StemDTO> stems = new LinkedHashSet();
     try {
-      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where ns.parentUuid = :parent")
+      List<StemDTO> stemDTOs = HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where ns.parentUuid = :parent")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindChildStems")
         .setString( "parent", ns.getUuid() )
-        .list(Hib3StemDAO.class);
+        .list(StemDTO.class);
 
-      StemDTO           child;
-      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-        child = StemDTO.getDTO( hib3StemDAO );
-        stems.add(child);
+      for (StemDTO stemDTO : stemDTOs) {
+        stems.add(stemDTO);
         if      (Stem.Scope.ONE == scope) {
           continue;
         }
         else if (Stem.Scope.SUB == scope) {
-          stems.addAll( this.findAllChildStems(child, scope) ); // recurse and find children-of-child
+          stems.addAll( this.findAllChildStems(stemDTO, scope) ); // recurse and find children-of-child
         }
         else {
           throw new IllegalStateException("unknown search scope: " + scope);
@@ -495,16 +404,16 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException,
             StemNotFoundException {
     try {
-      Hib3StemDAO dao = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where ns.name = :name")
+      StemDTO stemDto = HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where ns.name = :name")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByName")
         .setString("name", name)
-        .uniqueResult(Hib3StemDAO.class);
-      if (dao == null) {
+        .uniqueResult(StemDTO.class);
+      if (stemDto == null) {
         throw new StemNotFoundException("Can't find stem by name: '" + name + "'");
       }
-      return StemDTO.getDTO(dao);
+      return stemDto;
     }
     catch (GrouperDAOException e) {
       String error = "Problem find stem by name: '" 
@@ -520,16 +429,16 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException,
             StemNotFoundException {
     try {
-      Hib3StemDAO dao = HibernateSession.byHqlStatic()
-        .createQuery("from Hib3StemDAO as ns where ns.uuid = :uuid")
+      StemDTO stemDto = HibernateSession.byHqlStatic()
+        .createQuery("from StemDTO as ns where ns.uuid = :uuid")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByUuid")
         .setString("uuid", uuid)
-        .uniqueResult(Hib3StemDAO.class);
-      if (dao == null) {
+        .uniqueResult(StemDTO.class);
+      if (stemDto == null) {
         throw new StemNotFoundException("Can't find stem by uuid: '" + uuid + "'");
       }
-      return StemDTO.getDTO(dao);
+      return stemDto;
     }
     catch (GrouperDAOException e) {
       String error = "Problem find stem by uuid: '" 
@@ -537,104 +446,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throw new GrouperDAOException( error, e );
     }
   } 
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getCreateSource() {
-    return this.createSource;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public long getCreateTime() {
-    return this.createTime;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getCreatorUuid() {
-    return this.creatorUUID;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getDescription() {
-    return this.description;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getDisplayExtension() {
-    return this.displayExtension;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getDisplayName() {
-    return this.displayName;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getExtension() {
-    return this.extension;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getModifierUuid() {
-    return this.modifierUUID;
-  }
-  
-  /**
-   * @since   @HEAD@
-   */
-  public String getModifySource() {
-    return this.modifySource;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public long getModifyTime() {
-    return this.modifyTime;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getName() {
-    return this.name;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getParentUuid() {
-    return this.parentUUID;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getUuid() {
-    return this.uuid;
-  }
 
   /** 
    * @since   @HEAD@
@@ -646,21 +457,15 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session     hs  = hibernateSession.getSession();
-              Iterator it = mof.getDeletes().iterator();
-              while (it.hasNext()) {
-                GrouperDAO grouperDAO = Rosetta.getDAO( it.next());
-                hs.delete(  grouperDAO );
-              }
-              hs.flush();
+
+              ByObject byObject = hibernateSession.byObject();
+              byObject.delete(mof.getDeletes());
+              hibernateSession.misc().flush();
               
-              it = mof.getSaves().iterator();
-              while (it.hasNext()) {
-                hs.saveOrUpdate( it.next() );
-              }
-              hs.flush();
+              byObject.saveOrUpdate(mof.getSaves());
+              hibernateSession.misc().flush();
               
-              hs.update( _ns.getDAO() );
+              byObject.update( _ns );
               return null;
             }
         
@@ -684,12 +489,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session     hs  = hibernateSession.getSession();
-              Iterator it = children.iterator();
-              while (it.hasNext()) {
-                hs.update( Rosetta.getDAO( it.next() ) );
-              }
-              hs.update( Rosetta.getDAO(_ns) );
+              ByObject byObject = hibernateSession.byObject();
+              byObject.update(children);
+              byObject.update( _ns );
               return null;
             }
         
@@ -713,12 +515,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           new HibernateHandler() {
 
             public Object callback(HibernateSession hibernateSession) {
-              Session     hs  = hibernateSession.getSession();
-              Iterator it = toDelete.iterator();
-              while (it.hasNext()) {
-                hs.delete( Rosetta.getDAO( it.next() ) );
-              }
-              hs.update( Rosetta.getDAO(_ns) );
+
+              ByObject byObject = hibernateSession.byObject();
+              byObject.delete(toDelete);
+              byObject.update( _ns );
               return null;
             }
         
@@ -734,123 +534,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public StemDAO setCreateSource(String createSource) {
-    this.createSource = createSource;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setCreateTime(long createTime) {
-    this.createTime = createTime;
-    return this;
-  }
-  
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setCreatorUuid(String creatorUUID) {
-    this.creatorUUID = creatorUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setDisplayExtension(String displayExtension) {
-    this.displayExtension = displayExtension;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setDisplayName(String displayName) {
-    this.displayName = displayName;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setExtension(String extension) {
-    this.extension = extension;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setModifierUuid(String modifierUUID) {
-    this.modifierUUID = modifierUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setModifySource(String modifySource) {
-    this.modifySource = modifySource;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setModifyTime(long modifyTime) {
-    this.modifyTime = modifyTime;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setParentUuid(String parentUUID) {
-    this.parentUUID = parentUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public StemDAO setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
   public void update(StemDTO _ns)
     throws  GrouperDAOException {
 
     try {
-      HibernateSession.byObjectStatic().update(_ns.getDAO());
+      HibernateSession.byObjectStatic().update(_ns);
     }
     catch (GrouperDAOException e) {
       String error = "Problem with hib update: " + GrouperUtil.toStringSafe(_ns)
@@ -863,34 +551,33 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   // PROTECTED CLASS METHODS //
 
   /**
-   * @param hs 
+   * @param hibernateSession 
    * @throws HibernateException 
    * 
    */
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
     // To appease Oracle the root stem is named ":" internally.
-    List<Hib3StemDAO> hib3StemDAOs = 
-      hs.createQuery("from Hib3StemDAO as ns where ns.name not like :stem order by name desc")
-      .setParameter("stem", Stem.DELIM)
-      .list()
-      ;
+    List<StemDTO> stemDTOs = 
+      hibernateSession.byHql().createQuery("from StemDTO as ns where ns.name not like :stem order by name desc")
+      .setString("stem", Stem.DELIM)
+      .list(StemDTO.class);
 
     // Deleting each stem from the time created in descending order. This is necessary to prevent
     // deleting parent stems before child stems which causes integrity constraint violations  on some
     // databases.
-    for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
-      hs.createQuery("delete from Hib3StemDAO ns where ns.uuid=:uuid")
-      .setString("uuid", hib3StemDAO.getUuid())
+    for (StemDTO stemDTO : stemDTOs) {
+      hibernateSession.byHql().createQuery("delete from StemDTO ns where ns.uuid=:uuid")
+      .setString("uuid", stemDTO.getUuid())
       .executeUpdate();
     }
 
     // Reset "modify" columns.  Setting the modifierUuid property to null is important to avoid foreign key issues.
-    hs.createQuery("update Hib3StemDAO as ns set ns.modifierUuid = :id, ns.modifyTime = :time, ns.modifySource = :source")
-      .setParameter("id", null, Hibernate.STRING)
-      .setParameter("time", new Long(0), Hibernate.LONG)
-      .setParameter("source", null, Hibernate.STRING)
+    hibernateSession.byHql().createQuery("update StemDTO as ns set ns.modifierUuid = :id, ns.modifyTime = :time, ns.modifySource = :source")
+      .setString("id", null)
+      .setLong("time", new Long(0))
+      .setString("source", null)
       .executeUpdate();
       ;
 

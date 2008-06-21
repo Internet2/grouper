@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -27,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.52 2008-05-06 21:30:50 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.53 2008-06-21 04:16:12 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -97,7 +99,7 @@ public class RegistryReset {
   }
 
   // @since   1.2.0
-  protected static void internal_resetRegistryAndAddTestSubjects() { 
+  public static void internal_resetRegistryAndAddTestSubjects() { 
     RegistryReset rr = new RegistryReset();
     try {
       MemberFinder.clearInternalMembers();
@@ -105,8 +107,7 @@ public class RegistryReset {
       rr._addSubjects();
     }
     catch (Exception e) {
-      e.printStackTrace();
-      rr._abort(e.getMessage());
+      rr._abort(ExceptionUtils.getFullStackTrace(e));
     }
   } 
 

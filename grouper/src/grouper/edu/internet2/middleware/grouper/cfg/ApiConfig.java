@@ -16,13 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
+import org.apache.commons.lang.StringUtils;
+
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 
 /** 
- * Grouper API configuration.
+ * Grouper API configuration.  If you are accessing a property from grouper.properties,
+ * you should probably use G
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.4 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: ApiConfig.java,v 1.5 2008-06-21 04:16:13 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -39,9 +42,14 @@ public class ApiConfig implements Configuration {
    */ 
   public static final String NAMING_PRIVILEGE_INTERFACE = "privileges.naming.interface";
 
-  private                   boolean                 useLocal;
-  private                   PropertiesConfiguration defaultCfg, localCfg;
+  /** if use local.grouper.properties */
+  private boolean useLocal;
 
+  /** default config */
+  private PropertiesConfiguration defaultCfg;
+
+  /** local config */
+  private PropertiesConfiguration localCfg;
 
   /**
    * Access Grouper API configuration.
@@ -74,13 +82,12 @@ public class ApiConfig implements Configuration {
    * @since   1.2.1
    */
   private void initializeConfiguration() {
-    this.useLocal   = true;
+    this.useLocal = true;
     this.defaultCfg = new PropertiesConfiguration("/grouper.properties");
-    this.localCfg   = new PropertiesConfiguration("/local.grouper.properties");
+    this.localCfg = new PropertiesConfiguration("/local.grouper.properties");
     try {
       this.localCfg.getProperty("dao.factory");
-    }
-    catch (GrouperRuntimeException eInvalidLocalConfig) {
+    } catch (GrouperRuntimeException eInvalidLocalConfig) {
       // TODO 20070802 add "isValid()" (or whatever) check to "PropertiesConfiguration" to avoid this hack
       this.useLocal = false; // invalid local configuration.  don't try again.
     }
@@ -96,6 +103,5 @@ public class ApiConfig implements Configuration {
     }
     return this.defaultCfg.setProperty(property, value);
   }
-
 }
 

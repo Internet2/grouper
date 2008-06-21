@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr6.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGAttr6.java,v 1.4 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr6 extends TestCase {
@@ -49,6 +49,7 @@ public class TestGAttr6 extends TestCase {
 
       try {
         gA.setAttribute("", "foo");
+        gA.store();
         T.fail("set blank attribute");
       }
       catch (AttributeNotFoundException eANF) {

@@ -34,7 +34,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.8 2008-04-03 18:09:43 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.9 2008-06-21 04:16:13 mchyzer Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -196,13 +196,13 @@ public class DefaultMemberOf extends BaseMemberOf {
 
   // Add m's hasMembers to o
   // @since   1.2.0
-  private Set _addHasMembersToOwner(Set hasMembers) 
+  private Set _addHasMembersToOwner(Set<MembershipDTO> hasMembers) 
     throws  IllegalStateException
   {
     Set           mships      = new LinkedHashSet();
     MembershipDTO hasMS;
     MembershipDTO _ms;
-    Iterator      it          = hasMembers.iterator();
+    Iterator<MembershipDTO>      it          = hasMembers.iterator();
     // cache values outside of iterator
     int           depth       = this.getMembershipDTO().getDepth();
     String        listName    = this.getMembershipDTO().getListName();
@@ -211,7 +211,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     String        msUUID      = this.getMembershipDTO().getUuid();
     String        ownerUUID   = this.getMembershipDTO().getOwnerUuid();
     while (it.hasNext()) {
-      hasMS = (MembershipDTO) it.next();
+      hasMS = it.next();
 
       _ms = new MembershipDTO();
       _ms.setCreatorUuid(memberUUID);
@@ -328,6 +328,7 @@ public class DefaultMemberOf extends BaseMemberOf {
           .setDepth( isMS.getDepth() + this.getMembershipDTO().getDepth() + 1 )
           .setListName( isMS.getListName() )
           .setListType( isMS.getListType() )
+          .setMemberDTO(this.getMemberDTO())
           .setMemberUuid( this.getMembershipDTO().getMemberUuid() )
           .setOwnerUuid( isMS.getOwnerUuid() )
           .setType(Membership.EFFECTIVE)
@@ -485,7 +486,7 @@ public class DefaultMemberOf extends BaseMemberOf {
       isMember = GrouperDAOFactory.getFactory().getMembership().findAllByMember( this.getGroup().toMember().getUuid() );
     }
     // Members of _m if owner is a group
-    Set hasMembers = this._findMembersOfMember();
+    Set<MembershipDTO> hasMembers = this._findMembersOfMember();
     // Add _m to where owner is member if f == "members"
     results.addAll( this._addMemberToWhereGroupIsMember(isMember) );
     // Add members of _m to owner
@@ -563,8 +564,8 @@ public class DefaultMemberOf extends BaseMemberOf {
   } // private void _evaluateDeleteImmediateMembership(s, _ms, _m)
 
   // Find m's hasMembers
-  private Set _findMembersOfMember() {
-    Set hasMembers = new LinkedHashSet();
+  private Set<MembershipDTO> _findMembersOfMember() {
+    Set<MembershipDTO> hasMembers = new LinkedHashSet();
     if (this.getMemberDTO().getSubjectTypeId().equals("group")) {
       hasMembers = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField(
         this.getMemberDTO().getSubjectId(), Group.getDefaultList()

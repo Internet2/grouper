@@ -20,7 +20,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup42.java,v 1.2 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: TestGroup42.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGroup42 extends GrouperTest {
@@ -49,6 +49,7 @@ public class TestGroup42 extends GrouperTest {
       String  dn    = gA.getParentStem().getDisplayName() + ":" + de;
       String  uuid  = gA.getUuid();
       gA.setDisplayExtension(de);
+      gA.store();
       assertTrue( "group has new de", gA.getDisplayExtension().equals(de) );
       assertTrue( "group has new dn", gA.getDisplayName().equals(dn) );
       r.rs.stop();

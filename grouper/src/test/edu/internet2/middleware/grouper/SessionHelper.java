@@ -23,14 +23,14 @@ import  junit.framework.*;
  * {@link GrouperSession} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SessionHelper.java,v 1.6 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SessionHelper.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
  */
-class SessionHelper {
+public class SessionHelper {
 
   // PROTECTED CLASS METHODS //
 
   // @return  A root {@link GrouperSession}
-  protected static GrouperSession getRootSession() {
+  public static GrouperSession getRootSession() {
     return SessionHelper.getSession(GrouperConfig.ROOT);
   } // protected static GrouperSession getRootSession()
 

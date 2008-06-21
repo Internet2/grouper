@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.149 2008-03-31 07:19:48 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.150 2008-06-21 04:16:12 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -865,7 +865,7 @@ public class Stem extends GrouperAPI implements Owner {
       this.internal_setModified();
       GrouperDAOFactory.getFactory().getStem().update( this._getDTO() );
       sw.stop();
-      EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_D, value, sw);
+      EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_DESCRIPTION, value, sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set description: " + eDAO.getMessage(), eDAO );
@@ -925,7 +925,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this._getDTO(), this._renameChildren(GrouperConfig.ATTR_DE) );
+      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this._getDTO(), this._renameChildren(GrouperConfig.ATTR_DISPLAY_EXTENSION) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -935,7 +935,7 @@ public class Stem extends GrouperAPI implements Owner {
     if (value.equals(ROOT_INT)) {
       value = ROOT_NAME;
     }
-    EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_DE, value, sw);
+    EL.stemSetAttr(this.getSession(), this.getName(), GrouperConfig.ATTR_DISPLAY_EXTENSION, value, sw);
   } // public void setDisplayExtension(value)
 
   /**
@@ -992,7 +992,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this._getDTO(), this._renameChildren(GrouperConfig.ATTR_E) );
+      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this._getDTO(), this._renameChildren(GrouperConfig.ATTR_EXTENSION) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set extension: " + eDAO.getMessage(), eDAO );
@@ -1002,13 +1002,13 @@ public class Stem extends GrouperAPI implements Owner {
     if (value.equals(ROOT_INT)) {
       value = ROOT_NAME;
     }
-    EL.stemSetAttr( this.getSession(), this.getName(), GrouperConfig.ATTR_E, value, sw );
+    EL.stemSetAttr( this.getSession(), this.getName(), GrouperConfig.ATTR_EXTENSION, value, sw );
   } // public void setExtension(value)
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append( GrouperConfig.ATTR_DN, this._getDTO().getDisplayName()  )
-      .append( GrouperConfig.ATTR_N,  this._getDTO().getName()         )
+      .append( GrouperConfig.ATTR_DISPLAY_NAME, this._getDTO().getDisplayName()  )
+      .append( GrouperConfig.ATTR_NAME,  this._getDTO().getName()         )
       .append( "uuid",                this._getDTO().getUuid()         )
       .append( "creator",             this._getDTO().getCreatorUuid()  )
       .append( "modifier",            this._getDTO().getModifierUuid() )
@@ -1038,7 +1038,7 @@ public class Stem extends GrouperAPI implements Owner {
         .setName(ROOT_INT)
         .setUuid( GrouperUuid.getUuid() )
         ;
-      _ns.setId( GrouperDAOFactory.getFactory().getStem().createRootStem(_ns) );
+      GrouperDAOFactory.getFactory().getStem().createRootStem(_ns) ;
       Stem root = new Stem();
       root.setDTO(_ns);
       root.setSession(s);
@@ -1088,10 +1088,10 @@ public class Stem extends GrouperAPI implements Owner {
     }
     try {
       Map<String, String> attrs = new HashMap<String, String>();
-      attrs.put( GrouperConfig.ATTR_DE, dExtn );
-      attrs.put( GrouperConfig.ATTR_DN, U.constructName( this.getDisplayName(), dExtn ) );
-      attrs.put( GrouperConfig.ATTR_E,  extn );
-      attrs.put( GrouperConfig.ATTR_N,  U.constructName( this.getName(), extn ) );
+      attrs.put( GrouperConfig.ATTR_DISPLAY_EXTENSION, dExtn );
+      attrs.put( GrouperConfig.ATTR_DISPLAY_NAME, U.constructName( this.getDisplayName(), dExtn ) );
+      attrs.put( GrouperConfig.ATTR_EXTENSION,  extn );
+      attrs.put( GrouperConfig.ATTR_NAME,  U.constructName( this.getName(), extn ) );
       Set types = new LinkedHashSet();
       types.add( GroupTypeFinder.find("base").getDTO() ); 
       GroupDTO _g = new GroupDTO()
@@ -1132,9 +1132,8 @@ public class Stem extends GrouperAPI implements Owner {
 
       Group child = new Group();
       //CH 20080220: this will start saving the stem
-      child.setDTO( 
-        _g.setId( GrouperDAOFactory.getFactory().getStem().createChildGroup( this._getDTO(), _g, _m ) ) 
-      );
+      GrouperDAOFactory.getFactory().getStem().createChildGroup( this._getDTO(), _g, _m );
+      child.setDTO( _g );
       child.setSession( this.getSession() );
         
       sw.stop();
@@ -1194,7 +1193,7 @@ public class Stem extends GrouperAPI implements Owner {
       else {
         _ns.setUuid(uuid);
       }
-      _ns.setId( GrouperDAOFactory.getFactory().getStem().createChildStem( this._getDTO(), _ns ) );
+      GrouperDAOFactory.getFactory().getStem().createChildStem( this._getDTO(), _ns ) ;
 
       Stem child = new Stem();
       child.setDTO(_ns);
@@ -1363,16 +1362,16 @@ public class Stem extends GrouperAPI implements Owner {
     while (it.hasNext()) {
       _g = (GroupDTO) it.next();
       attrs = _g.getAttributes();
-      if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
+      if      ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
         attrs.put( 
-          GrouperConfig.ATTR_DN, 
-          U.constructName( this.getDisplayName(), (String) attrs.get(GrouperConfig.ATTR_DE) ) 
+          GrouperConfig.ATTR_DISPLAY_NAME, 
+          U.constructName( this.getDisplayName(), (String) attrs.get(GrouperConfig.ATTR_DISPLAY_EXTENSION) ) 
         );
       }
-      else if ( attr.equals(GrouperConfig.ATTR_E) )   {
+      else if ( attr.equals(GrouperConfig.ATTR_EXTENSION) )   {
         attrs.put(  
-          GrouperConfig.ATTR_N, 
-          U.constructName( this.getName(), (String) attrs.get(GrouperConfig.ATTR_E) ) 
+          GrouperConfig.ATTR_NAME, 
+          U.constructName( this.getName(), (String) attrs.get(GrouperConfig.ATTR_EXTENSION) ) 
         );
       }
       else {
@@ -1419,12 +1418,12 @@ public class Stem extends GrouperAPI implements Owner {
       child = new Stem();
       child.setDTO( (StemDTO) it.next() );
       child.setSession( this.getSession() );
-      if      ( attr.equals(GrouperConfig.ATTR_DE) )  {
+      if      ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
         child._getDTO().setDisplayName(
           U.constructName( this._getDTO().getDisplayName(), child._getDTO().getDisplayExtension() ) 
         );
       }
-      else if ( attr.equals(GrouperConfig.ATTR_E) )   {
+      else if ( attr.equals(GrouperConfig.ATTR_EXTENSION) )   {
         child._getDTO().setName(
           U.constructName( this._getDTO().getName(), child._getDTO().getExtension() ) 
         );

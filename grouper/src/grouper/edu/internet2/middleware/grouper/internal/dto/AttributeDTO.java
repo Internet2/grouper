@@ -15,17 +15,18 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper.internal.dao.hib3;
-import  org.apache.commons.lang.builder.*;
+package edu.internet2.middleware.grouper.internal.dto;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Basic Hibernate <code>Attribute</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
+ * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Hib3AttributeDAO.java,v 1.1 2007-08-30 15:52:22 blair Exp $
+ * @version $Id: AttributeDTO.java,v 1.2 2008-06-21 04:16:12 mchyzer Exp $
  * @since   @HEAD@
  */
-class Hib3AttributeDAO extends Hib3DAO {
+public class AttributeDTO extends GrouperDefaultDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  attrName;
@@ -43,10 +44,10 @@ class Hib3AttributeDAO extends Hib3DAO {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof Hib3AttributeDAO)) {
+    if (!(other instanceof AttributeDTO)) {
       return false;
     }
-    Hib3AttributeDAO that = (Hib3AttributeDAO) other;
+    AttributeDTO that = (AttributeDTO) other;
     return new EqualsBuilder()
       .append( this.getAttrName(),  that.getAttrName()  )
       .append( this.getGroupUuid(), that.getGroupUuid() )
@@ -81,38 +82,38 @@ class Hib3AttributeDAO extends Hib3DAO {
   // PROTECTED INSTANCE METHODS //
 
   // @since   @HEAD@
-  protected String getAttrName() {
+  public String getAttrName() {
     return this.attrName;
   }
   // @since   @HEAD@
-  protected String getGroupUuid() {
+  public String getGroupUuid() {
     return this.groupUUID;
   }
   // @since   @HEAD@
-  protected String getId() {
+  public String getId() {
     return this.id;
   }
   // @since   @HEAD@
-  protected String getValue() {
+  public String getValue() {
     return this.value;
   }
   // @since   @HEAD@
-  protected Hib3AttributeDAO setAttrName(String attrName) {
+  public AttributeDTO setAttrName(String attrName) {
     this.attrName = attrName;
     return this;
   }
   // @since   @HEAD@
-  protected Hib3AttributeDAO setGroupUuid(String groupUUID) {
+  public AttributeDTO setGroupUuid(String groupUUID) {
     this.groupUUID = groupUUID;
     return this;
   }
   // @since   @HEAD@
-  protected Hib3AttributeDAO setId(String id) {
+  public AttributeDTO setId(String id) {
     this.id = id;
     return this;
   }
   // @since   @HEAD@
-  protected Hib3AttributeDAO setValue(String value) {
+  public AttributeDTO setValue(String value) {
     this.value = value;
     return this;
   }

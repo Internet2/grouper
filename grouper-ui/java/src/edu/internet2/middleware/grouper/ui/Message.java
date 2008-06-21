@@ -17,13 +17,20 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.hooks.HookVeto;
+import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
+
 /**
  * A simple message Class which is created for display in the message area of
  * the UI. It is used in conjnction with <fmt:message tags
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: Message.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: Message.java,v 1.5 2008-06-21 04:16:22 mchyzer Exp $
  */
 public class Message {
 	private String message = "";
@@ -164,4 +171,29 @@ public class Message {
 	public void setError(boolean isError) {
 		this.isError = isError;
 	}
+	
+	/**
+	 * add a veto message to screen.  Use the key in the veto if available, else
+	 * use the error message
+	 * @param request
+	 * @param hookVeto
+	 */
+	public static void addVetoMessageToScreen(HttpServletRequest request, HookVeto hookVeto) {
+    MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)request.getSession().getAttribute("navNullMap");
+    
+    String hookReasonKeyValue = (String)mapBundleWrapper.get(hookVeto.getReasonKey());
+
+    //make sure the key is in there
+    if (!StringUtils.isEmpty(hookReasonKeyValue)) {
+      
+      request.setAttribute("message", new Message(
+          hookVeto.getReasonKey(),true));
+    } else {
+    
+      request.setAttribute("message", new Message("error.hook.veto",
+          new String[] {hookVeto.getReason()}, true));
+    }
+
+	}
+	
 }

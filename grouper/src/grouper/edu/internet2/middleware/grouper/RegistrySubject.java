@@ -30,7 +30,7 @@ import  java.util.Set;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.8 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: RegistrySubject.java,v 1.9 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -77,7 +77,8 @@ public class RegistrySubject extends GrouperAPI implements Subject {
         .setId(id)
         .setName(name)
         .setType(type);
-      subj.setDTO( _subj.setId( GrouperDAOFactory.getFactory().getRegistrySubject().create(_subj) ) );
+      GrouperDAOFactory.getFactory().getRegistrySubject().create(_subj);
+      subj.setDTO( _subj);
       return subj;
     }
   } // public static RegistrySubject add(s, id, type, name)

@@ -16,22 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.Membership;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  java.util.Date;
-import  org.apache.commons.lang.builder.*;
+import java.util.Date;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.MembershipHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /** 
  * Basic <code>Membership</code> DTO.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.6 2008-01-09 14:07:01 isgwb Exp $
+ * @version $Id: MembershipDTO.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.2.0
  */
-public class MembershipDTO implements GrouperDTO {
+public class MembershipDTO extends GrouperDefaultDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private long    createTime  = new Date().getTime();           // reasonable default
@@ -47,6 +52,25 @@ public class MembershipDTO implements GrouperDTO {
   private String  type        = Membership.IMMEDIATE;           // reasonable default
   private String  uuid        = GrouperUuid.getUuid(); // reasonable default
   private String  viaUUID     = null;                           // reasonable default
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    //see if there is a hook class
+    MembershipHooks membershipHooks = (MembershipHooks)GrouperHookType.MEMBERSHIP.hooksInstance();
+    
+    if (membershipHooks != null) {
+      HooksMembershipPreInsertBean hooksMembershipPreInsertBean = 
+        new HooksMembershipPreInsertBean(new HooksContext(), this);
+            
+      membershipHooks.membershipPreInsert(hooksMembershipPreInsertBean);
+    }
+  }
+
 
 
   // PUBLIC INSTANCE METHODS //
@@ -87,26 +111,6 @@ public class MembershipDTO implements GrouperDTO {
     return this.creatorUUID;
   }
 
-  /**
-   * @since   1.20
-   */
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getMembership()
-      .setCreateTime( this.getCreateTime() )
-      .setCreatorUuid( this.getCreatorUuid() )
-      .setDepth( this.getDepth() )
-      .setId( this.getId() )
-      .setListName( this.getListName() )
-      .setListType( this.getListType() )
-      .setMemberUuid( this.getMemberUuid() )
-      .setOwnerUuid( this.getOwnerUuid() )
-      .setParentUuid( this.getParentUuid() )
-      .setType( this.getType() )
-      .setUuid( this.getUuid() )
-      .setViaUuid( this.getViaUuid() )
-      ;
-  }
-  
   /**
    * @since   1.2.0
    */
@@ -324,31 +328,6 @@ public class MembershipDTO implements GrouperDTO {
       .append( "viaUuid",     this.getViaUuid()     )
       .toString();
   } // public String toString()
-  
-  
-  // PUBLIC CLASS METHODS //
-  
-  // @since   1.2.0
-  public static MembershipDTO getDTO(MembershipDAO dao) {
-    MembershipDTO membershipDTO= new MembershipDTO()
-      .setCreateTime( dao.getCreateTime() )
-      .setCreatorUuid( dao.getCreatorUuid() )
-      .setDepth( dao.getDepth() )
-      .setId( dao.getId() )
-      .setListName( dao.getListName() )
-      .setListType( dao.getListType() )
-      .setMemberUuid( dao.getMemberUuid() )
-      .setOwnerUuid( dao.getOwnerUuid() )
-      .setParentUuid( dao.getParentUuid() )
-      .setType( dao.getType() )
-      .setUuid( dao.getUuid() )
-      .setViaUuid( dao.getViaUuid() )
-      ;
-    if(dao.getMemberDAO() !=null) {
-    	membershipDTO.setMemberDTO( MemberDTO.getDTO(dao.getMemberDAO()) );
-    }
-    return membershipDTO;
-  }
   
 } 
 
