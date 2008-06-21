@@ -16,16 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.CallbackException;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.classic.Lifecycle;
 
 import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.MemberNotFoundException;
@@ -34,42 +30,30 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import edu.internet2.middleware.grouper.internal.util.Rosetta;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
  * @since   @HEAD@
  */
-public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
+public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
 
   private static        HashMap<String, Boolean>    existsCache     = new HashMap<String, Boolean>();
-  private               String                      id;
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
+  //TODO, move this to ehcache?
   private static        HashMap<String, MemberDTO>  uuid2dtoCache   = new HashMap<String, MemberDTO>();
-  private               String                      subjectID;
-  private               String                      subjectSourceID;
-  private               String                      subjectTypeID;
-  private               String                      uuid;
-
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * @since   @HEAD@
    */
-  public String create(MemberDTO _m) 
+  public void create(MemberDTO _m) 
     throws  GrouperDAOException {
 
-    Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_m);
-    HibernateSession.byObjectStatic().save(dao);
-    return dao.getId();
+    HibernateSession.byObjectStatic().save(_m);
   } 
 
   /**
@@ -84,7 +68,7 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
     Object id = null;
     try {
       id = HibernateSession.byHqlStatic()
-        .createQuery("select m.id from Hib3MemberDAO as m where m.uuid = :uuid")
+        .createQuery("select m.id from MemberDTO as m where m.uuid = :uuid")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".Exists")
         .setString("uuid", uuid).uniqueResult(Object.class);
@@ -116,27 +100,17 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
   /**
    * @since   @HEAD@
    */
-  public Set findAll(Source source) 
+  public Set<MemberDTO> findAll(Source source) 
     throws  GrouperDAOException
   {
-    Set members = new LinkedHashSet();   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     if (source == null) {
-      byHqlStatic.createQuery("from Hib3MemberDAO");
+      byHqlStatic.createQuery("from MemberDTO");
     } else {
-      byHqlStatic.createQuery("from Hib3MemberDAO as m where m.subjectSourceId=:sourceId");
+      byHqlStatic.createQuery("from MemberDTO as m where m.subjectSourceId=:sourceId");
       byHqlStatic.setString("sourceId", source.getId());
     }
-    List<Hib3MemberDAO> memberDAOs = byHqlStatic.list(Hib3MemberDAO.class);  
-    for(Hib3MemberDAO memberDAO : memberDAOs) {
-      members.add(new MemberDTO()
-        .setId(memberDAO.getId())
-        .setUuid(memberDAO.getUuid())
-        .setSubjectId(memberDAO.getSubjectId())
-        .setSubjectSourceId(memberDAO.getSubjectSourceId())
-        .setSubjectTypeId(memberDAO.getSubjectTypeId()));
-    }     
-    return members;
+    return byHqlStatic.listSet(MemberDTO.class);  
   } // public findAll(Source source)
 
   /**
@@ -155,8 +129,8 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
   public MemberDTO findBySubject(String id, String src, String type) 
     throws  GrouperDAOException,
             MemberNotFoundException {
-    Hib3MemberDAO dao = HibernateSession.byHqlStatic()
-      .createQuery("from Hib3MemberDAO as m where "
+    MemberDTO memberDto = HibernateSession.byHqlStatic()
+      .createQuery("from MemberDTO as m where "
         + "     m.subjectId       = :sid    "  
         + "and  m.subjectSourceId = :source "
         + "and  m.subjectTypeId   = :type")
@@ -165,18 +139,12 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
         .setString( "sid",    id   )
         .setString( "type",   type )
         .setString( "source", src  )
-        .uniqueResult(Hib3MemberDAO.class);
-    if (dao == null) {
+        .uniqueResult(MemberDTO.class);
+    if (memberDto == null) {
       throw new MemberNotFoundException();
     }
-    MemberDTO _m = new MemberDTO()
-      .setId( dao.getId() )
-      .setUuid( dao.getUuid() )
-      .setSubjectId( dao.getSubjectId() )
-      .setSubjectSourceId( dao.getSubjectSourceId() )
-      .setSubjectTypeId( dao.getSubjectTypeId() );
-    uuid2dtoCache.put( _m.getUuid(), _m );
-    return _m;
+    uuid2dtoCache.put( memberDto.getUuid(), memberDto );
+    return memberDto;
   } 
 
   /**
@@ -189,14 +157,14 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
     if ( uuid2dtoCache.containsKey(uuid) ) {
       return uuid2dtoCache.get(uuid);
     }
-    Hib3MemberDAO dao = null;
+    MemberDTO memberDto = null;
     
     try {
-      dao = HibernateSession.byHqlStatic()
-      .createQuery("from Hib3MemberDAO as m where m.uuid = :uuid")
+      memberDto = HibernateSession.byHqlStatic()
+      .createQuery("from MemberDTO as m where m.uuid = :uuid")
       .setCacheable(false) // but i probably should - or at least permit it
       //.setCacheRegion(KLASS + ".FindByUuid")
-      .setString("uuid", uuid).uniqueResult(Hib3MemberDAO.class);
+      .setString("uuid", uuid).uniqueResult(MemberDTO.class);
     } catch (GrouperDAOException gde) {
       Throwable throwable = gde.getCause();
       //CH 20080218 this was legacy error handling
@@ -205,132 +173,37 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
       }
       throw gde;
     }
-    if (dao == null) {
+    if (memberDto == null) {
       throw new MemberNotFoundException();
     }
-    MemberDTO _m = new MemberDTO()
-      .setId( dao.getId() )
-      .setUuid( dao.getUuid() )
-      .setSubjectId( dao.getSubjectId() )
-      .setSubjectSourceId( dao.getSubjectSourceId() )
-      .setSubjectTypeId( dao.getSubjectTypeId() );
-    uuid2dtoCache.put(uuid, _m);
-    return _m;
+    uuid2dtoCache.put(uuid, memberDto);
+    return memberDto;
   } 
 
-  /** 
-   * @since   @HEAD@
-   */
-  public String getId() {
-    return this.id;
-  } 
-
-  /** 
-   * @since   @HEAD@
-   */
-  public String getSubjectId() {
-    return this.subjectID;
-  }
-
   /**
-   * @since   @HEAD@
+   * update the exists cache
+   * @param uuid
+   * @param exists
    */
-  public String getSubjectSourceId() {
-    return this.subjectSourceID;
+  public void existsCachePut(String uuid, boolean exists) {
+    existsCache.put( uuid, exists );
   }
-
+  
   /**
-   * @since   @HEAD@
+   * remove from cache
+   * @param uuid
    */
-  public String getSubjectTypeId() {
-    return this.subjectTypeID;
+  public void uuid2dtoCacheRemove(String uuid) {
+    uuid2dtoCache.remove(uuid);
   }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getUuid() {
-    return this.uuid;
-  }
-
-  // @since   @HEAD@ 
-  public boolean onDelete(Session hs) 
-    throws  CallbackException
-  {
-    existsCache.put( this.getUuid(), false );
-    uuid2dtoCache.remove( this.getUuid() );
-    return Lifecycle.NO_VETO;
-  } 
-
-  // @since   @HEAD@
-  public void onLoad(Session hs, Serializable id) {
-    // nothing
-  }
-
-  // @since   @HEAD@
-  public boolean onSave(Session hs) 
-    throws  CallbackException
-  {
-    existsCache.put( this.getUuid(), true );
-    return Lifecycle.NO_VETO;
-  } 
-
-  // @since   @HEAD@
-  public boolean onUpdate(Session hs) 
-    throws  CallbackException
-  {
-    // nothing
-    return Lifecycle.NO_VETO;
-  } // public boolean onUpdate(hs)k
-
-
-  /** 
-   * @since   @HEAD@
-   */
-  public MemberDAO setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public MemberDAO setSubjectId(String subjectID) {
-    this.subjectID = subjectID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public MemberDAO setSubjectSourceId(String subjectSourceID) {
-    this.subjectSourceID = subjectSourceID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public MemberDAO setSubjectTypeId(String subjectTypeID) {
-    this.subjectTypeID = subjectTypeID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public MemberDAO setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
-  }
-
+  
   /**
    * @since   @HEAD@
    */
   public void update(MemberDTO _m) 
     throws  GrouperDAOException {
     
-    HibernateSession.byObjectStatic().update(_m.getDAO());
+    HibernateSession.byObjectStatic().update(_m);
     
   } 
 
@@ -338,11 +211,11 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3MemberDAO as m where m.subjectId != :subject")
-      .setParameter( "subject", "GrouperSystem" )
+    hibernateSession.byHql().createQuery("delete from MemberDTO as m where m.subjectId != :subject")
+      .setString( "subject", "GrouperSystem" )
       .executeUpdate()
       ;
     existsCache = new HashMap<String, Boolean>();

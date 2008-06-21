@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.8 2007-03-14 19:10:00 blair Exp $
+ * @version $Id: TestGroupTypes.java,v 1.9 2008-06-21 04:16:12 mchyzer Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 
@@ -454,6 +454,7 @@ public class TestGroupTypes extends GrouperTest {
       Assert.assertTrue("custom type", g.hasType(custom));
 
       g.setAttribute(name, name);
+      g.store();
       Assert.assertTrue( "has attribute", g.getAttribute(name).equals(name) );
 
       g.deleteAttribute(name);
@@ -463,6 +464,7 @@ public class TestGroupTypes extends GrouperTest {
 
       try {
         g.setAttribute(name, name);
+        g.store();
         fail("added field without type");
       }
       catch (AttributeNotFoundException eExpected) { 
@@ -500,6 +502,7 @@ public class TestGroupTypes extends GrouperTest {
         Assert.assertTrue("custom type", g.hasType(custom));
 
         g.setAttribute(name, name);
+        g.store();
         Assert.assertTrue(
           "has attribute", 
           g.getAttribute(name).equals(name)
@@ -740,6 +743,7 @@ public class TestGroupTypes extends GrouperTest {
       Group g     = ns.addChildGroup("g", "g");
       g.addType(custom);
       g.setAttribute(name, name);
+      g.store();
       try {
         custom.deleteField(s, name);  
         Assert.fail("deleted in-use ATTRIBUTE");

@@ -19,30 +19,37 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem6.java,v 1.6 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestStem6.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
  */
 public class TestStem6 extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestStem6.class);
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestStem6("testGetCreateAttrs"));
+  }
 
   public TestStem6(String name) {
     super(name);
   }
 
   protected void setUp () {
+    super.setUp();
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 
   protected void tearDown () {
+    super.tearDown();
     LOG.debug("tearDown");
   }
 

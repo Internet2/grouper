@@ -21,9 +21,8 @@ import  java.io.Writer;
 
 /** 
  * Basic <code>Registry</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistryDAO.java,v 1.5 2008-05-08 19:41:15 shilen Exp $
+ * @version $Id: RegistryDAO.java,v 1.6 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.2.0
  */
 public interface RegistryDAO extends GrouperDAO {

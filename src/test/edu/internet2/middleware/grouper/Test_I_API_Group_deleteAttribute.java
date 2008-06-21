@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper;
 /**
  * Test <code>Group.deleteAttribute()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.2 2007-05-31 18:16:22 blair Exp $
+ * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteAttribute extends GrouperTest {
@@ -89,6 +89,7 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
     // SETUP //
     String attr = "description";
     gA.setDescription(attr);
+    gA.store();
 
     // TEST //
     gA.deleteAttribute(attr);
@@ -107,6 +108,7 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
     // SETUP //
     String attr = "description";
     gA.setDescription(attr);
+    gA.store();
 
     // TEST //
     gA.deleteAttribute(attr);

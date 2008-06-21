@@ -18,12 +18,36 @@
 package edu.internet2.middleware.grouper;
 import  java.util.regex.Pattern;
 
+import junit.textui.TestRunner;
+
 /**
  * @author  blair christensen.
- * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.2 2007-05-31 19:01:11 blair Exp $
+ * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
+
+  /**
+   * main
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_U_API_XmlExporter_internal_groupToXML("test_internal_groupToXML_escapeDisplayName"));
+  }
+  
+  /**
+   * 
+   */
+  public Test_U_API_XmlExporter_internal_groupToXML() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_U_API_XmlExporter_internal_groupToXML(String name) {
+    super(name);
+  }
 
   // PRIVATE CLASS VARIABLES //
   private Group           child;
@@ -77,7 +101,7 @@ public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
   public void test_internal_groupToXML_escapeDisplayName() {
     String xml = export.internal_groupToXML(child, false);
     String pat = "^(?s).*\\sdisplayName='parent:parent &gt; child'.*$";
-    assertTrue( "displayName escaped", Pattern.matches(pat, xml) );
+    assertTrue( "displayName escaped: '" + xml + "'", Pattern.matches(pat, xml) );
   }
 
 } 

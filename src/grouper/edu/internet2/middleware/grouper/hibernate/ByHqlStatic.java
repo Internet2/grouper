@@ -4,16 +4,15 @@
 package edu.internet2.middleware.grouper.hibernate;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
-import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 
@@ -184,26 +183,23 @@ public class ByHqlStatic {
    * 
    * </pre>
    * @param returnType type of the result (in future can use this for typecasting)
-   * @param <T> is the template
+   * @param <Q> is the template
    * @return the object or null if none found
    * @throws GrouperDAOException
    */
-  public <T> T uniqueResult(Class<T> returnType) throws GrouperDAOException {
+  public <Q> Q uniqueResult(final Class<Q> returnType) throws GrouperDAOException {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      Q result = (Q)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
           new HibernateHandler() {
   
             public Object callback(HibernateSession hibernateSession) {
               
-              Session session  = hibernateSession.getSession();
-              Query query = ByHqlStatic.this.attachQueryInfo(session);
-              Object object = query.uniqueResult();
-              HibUtils.evict(hibernateSession, session, object, true);
-              return object;
+              ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
+              return byHql.uniqueResult(returnType);
             }
         
       });
@@ -221,7 +217,7 @@ public class ByHqlStatic {
   
   /**
    * <pre>
-   * call hql unique result (returns one or null)
+   * call hql list result 
    * 
    * e.g.
    * 
@@ -231,26 +227,23 @@ public class ByHqlStatic {
    *    .setCacheable(false).setString("group", uuid).list(Hib3GroupTypeTupleDAO.class);
    * </pre>
    * @param returnType type of the result (can typecast)
-   * @param <T> is the template
+   * @param <R> is the template
    * @return the list or the empty list if not found (never null)
    * @throws GrouperDAOException
    */
-  public <T> List<T> list(Class<T> returnType) throws GrouperDAOException {
+  public <R> List<R> list(final Class<R> returnType) throws GrouperDAOException {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      List<T> result = (List<T>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      List<R> result = (List<R>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
           new HibernateHandler() {
   
             public Object callback(HibernateSession hibernateSession) {
               
-              Session session  = hibernateSession.getSession();
-              Query query = ByHqlStatic.this.attachQueryInfo(session);
-              //not sure this can ever be null, but make sure not to make iterating results easier
-              List<Object> list = GrouperUtil.nonNull(query.list());
-              HibUtils.evict(hibernateSession, session, list, true);
+              ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
+              List<R> list = byHql.list(returnType);
               return list;
             }
         
@@ -268,35 +261,75 @@ public class ByHqlStatic {
   }
 
   /**
-   * prepare query based on hql
-   * @param session hib session
-   * @return the query
+   * <pre>
+   * call hql list result, and put the results in an ordered set
+   * 
+   * e.g.
+   * 
+   * Set<GroupTypeTupleDTO> groupTypeTupleDTOs = 
+   *  HibernateSession.byHqlStatic()
+   *    .createQuery("from Hib3GroupTypeTupleDAO as gtt where gtt.groupUuid = :group")
+   *    .setCacheable(false).setString("group", uuid).listSet(Hib3GroupTypeTupleDAO.class);
+   * </pre>
+   * @param returnType type of the result (can typecast)
+   * @param <S> is the template
+   * @return the ordered set or the empty set if not found (never null)
+   * @throws GrouperDAOException
    */
-  private Query attachQueryInfo(Session session) {
-    Query   query = session.createQuery(this.query);
-    if (this.cacheable != null) {
-      query.setCacheable(this.cacheable);
-    }
-    if (this.cacheRegion != null) {
-      query.setCacheRegion(this.cacheRegion);
-    }
-    //note, dont call the method bindVarNameParams() so it doesnt lazyload...
-    if (this.bindVarNameParams != null) {
-      for (HibernateParam hibernateParam : this.bindVarNameParams()) {
+  public <S> Set<S> listSet(final Class<S> returnType) throws GrouperDAOException {
+    Set<S> result = new LinkedHashSet<S>(this.list(returnType));
+    return result;
+  }
+
+  /**
+   * <pre>
+   * call hql executeUpdate
+   * 
+   * </pre>
+   * @throws GrouperDAOException
+   */
+  public void executeUpdate() throws GrouperDAOException {
+    try {
+      GrouperTransactionType grouperTransactionTypeToUse = 
+        (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
+            GrouperTransactionType.READONLY_OR_USE_EXISTING);
+      
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+          new HibernateHandler() {
+  
+            public Object callback(HibernateSession hibernateSession) {
+              
+              ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
+              byHql.executeUpdate();
+              return null;
+            }
         
-        if (String.class.equals(hibernateParam.getType())) {
-          query.setString(hibernateParam.getName(), (String)hibernateParam.getValue());
-        } else if (Long.class.equals(hibernateParam.getType())) {
-          query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
-        } else if (Integer.class.equals(hibernateParam.getType())) {
-          query.setInteger(hibernateParam.getName(), (Integer)hibernateParam.getValue());
-        } else {
-          throw new RuntimeException("Invalid bind var type: " 
-              + hibernateParam );
-        }
-      }
+      });
+      
+    } catch (GrouperDAOException e) {
+      LOG.error("Exception in executeUpdate: " + this, e);
+      throw e;
+    } catch (RuntimeException e) {
+      LOG.error("Exception in executeUpdate: " + this, e);
+      throw e;
     }
-    return query;
+    
+  }
+
+  /**
+   * create a byhql
+   * @param hibernateSession
+   * @return the byhql
+   */
+  private ByHql byHql(HibernateSession hibernateSession) {
+    
+    ByHql byHql = new ByHql(hibernateSession);
+    //transfer all data over
+    byHql.setBindVarNameParams(ByHqlStatic.this.bindVarNameParams);
+    byHql.setCacheable(ByHqlStatic.this.cacheable);
+    byHql.setCacheRegion(ByHqlStatic.this.cacheRegion);
+    byHql.setQuery(ByHqlStatic.this.query);
+    return byHql;
     
   }
   

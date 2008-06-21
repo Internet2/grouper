@@ -19,11 +19,13 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.hooks.HookVeto;
+
 /**
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.6 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
  */
 public class StemHelper {
 
@@ -35,7 +37,7 @@ public class StemHelper {
 
   // Add and test a child group
   // @return  Created {@link Group}
-  protected static Group addChildGroup(Stem ns, String extn, String displayExtn) {
+  public static Group addChildGroup(Stem ns, String extn, String displayExtn) {
     try {
       LOG.debug("addChildGroup.0 " + extn);
       Group child = ns.addChildGroup(extn, displayExtn);
@@ -76,8 +78,9 @@ public class StemHelper {
       );
       LOG.debug("addChildGroup.11 " + extn);
       return child;
-    }
-    catch (Exception e) {
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
+    } catch (Exception e) {
       T.e(e); 
     }
     throw new GrouperRuntimeException();
@@ -98,7 +101,7 @@ public class StemHelper {
 
   // Add and test a child stem
   // @return  Created {@link Stem}
-  protected static Stem addChildStem(Stem ns, String extn, String displayExtn) {
+  public static Stem addChildStem(Stem ns, String extn, String displayExtn) {
     try {
       Stem child = ns.addChildStem(extn, displayExtn);
       Assert.assertNotNull("child !null", child);
@@ -149,7 +152,7 @@ public class StemHelper {
 
   // Get the root stem
   // @return  The root {@link Stem}
-  protected static Stem findRootStem(GrouperSession s) {
+  public static Stem findRootStem(GrouperSession s) {
     Stem root = StemFinder.findRootStem(s);
     Assert.assertNotNull("root !null", root);
     Assert.assertTrue("found root stem", true);

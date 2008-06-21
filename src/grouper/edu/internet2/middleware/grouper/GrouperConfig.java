@@ -28,7 +28,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.55 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.56 2008-06-21 04:16:12 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -90,11 +90,11 @@ public class GrouperConfig {
   protected static final String ALL           = "GrouperAll";
   protected static final String ATTR_C        = "createSubject";
   protected static final String ATTR_CT       = "createTime";
-  protected static final String ATTR_D        = "description";
-  public static final String ATTR_DE       = "displayExtension";
-  public static final String ATTR_DN       = "displayName";
-  public static final String ATTR_E        = "extension";
-  public static final String ATTR_N        = "name";
+  public static final String ATTR_DESCRIPTION        = "description";
+  public static final String ATTR_DISPLAY_EXTENSION       = "displayExtension";
+  public static final String ATTR_DISPLAY_NAME       = "displayName";
+  public static final String ATTR_EXTENSION        = "extension";
+  public static final String ATTR_NAME        = "name";
   protected static final String BT            = "true";
   protected static final String GCGAA         = "groups.create.grant.all.admin";
   protected static final String GCGAOI        = "groups.create.grant.all.optin";
@@ -217,5 +217,26 @@ public class GrouperConfig {
     throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
   }
   
-} 
+  /**
+   * @param property 
+   * @param defaultValue 
+   * @return the property value, or the default value if the property value is blank
+   * @throws IllegalArgumentException 
+   */
+  public String getProperty(String property, String defaultValue) 
+      throws  IllegalArgumentException {
 
+    String val = getProperty(property);
+
+    //if no val, then return the default value
+    if (StringUtils.isBlank(property)) {
+      return defaultValue;
+    }
+    return val;
+  }
+
+  /** property setters dont cause queries */
+  public static final String PROP_SETTERS_DONT_CAUSE_QUERIES 
+    = "grouper.setters.dont.cause.queries";
+  
+} 

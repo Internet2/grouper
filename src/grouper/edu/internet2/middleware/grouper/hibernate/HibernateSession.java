@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.hooks.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -35,6 +36,14 @@ public class HibernateSession {
   /** logger */
   private static final Log LOG = LogFactory.getLog(HibernateSession.class);
 
+  /**
+   * 
+   * @return the class
+   */
+  public ByObject byObject(){
+    return new ByObject(this);
+  }
+  
   /**
    * construct a hibernate session based on existing hibernate session (if
    * applicable), and a transaction type. If these conflict, then throw grouper
@@ -262,6 +271,9 @@ public class HibernateSession {
       if (e instanceof HibernateException) {
         throw new GrouperDAOException(errorString, e);
       }
+      if (e instanceof HookVeto) {
+        throw (HookVeto)e;
+      }
       // if runtime, then rethrow
       if (e instanceof RuntimeException) {
         if (!GrouperUtil.injectInException(e, errorString)) {
@@ -356,6 +368,22 @@ public class HibernateSession {
    */
   public Session getSession() {
     return this.activeHibernateSession().immediateSession;
+  }
+
+  /**
+   * misc actions for hibernate session
+   * @return the class
+   */
+  public HibernateMisc misc(){
+    return new HibernateMisc(this);
+  }
+
+  /**
+   * hql action for hibernate
+   * @return the byhql
+   */
+  public ByHql byHql(){
+    return new ByHql(this);
   }
 
   /**

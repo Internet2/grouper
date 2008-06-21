@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
  * Test using the wrong field type in various operations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWrongFieldType.java,v 1.7 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: TestWrongFieldType.java,v 1.8 2008-06-21 04:16:12 mchyzer Exp $
  */
 public class TestWrongFieldType extends TestCase {
 
@@ -65,6 +65,7 @@ public class TestWrongFieldType extends TestCase {
     LOG.info("testGroupAttrs");
     try {
       i2.setAttribute("members", "members");
+      i2.store();
       Assert.fail("set list-as-attribute");
     }
     catch (AttributeNotFoundException eANF) {

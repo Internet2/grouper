@@ -139,7 +139,7 @@ public class ByCriteriaStatic {
               Session session  = hibernateSession.getSession();
               Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
               Object object = criteria.uniqueResult();
-              HibUtils.evict(hibernateSession, session, object, true);
+              HibUtils.evict(hibernateSession, object, true);
               return object;
             }
         
@@ -190,7 +190,7 @@ public class ByCriteriaStatic {
               Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
               //not sure this can ever be null, but make sure not to make iterating results easier
               List<Object> list = GrouperUtil.nonNull(criteria.list());
-              HibUtils.evict(hibernateSession, session, list, true);
+              HibUtils.evict(hibernateSession, list, true);
               return list;
             }
         

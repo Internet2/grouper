@@ -20,11 +20,11 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.5 2008-04-06 17:22:26 shilen Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.6 2008-06-21 04:16:12 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dao.hib3" default-lazy="false">
+<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dto" default-lazy="false">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
-  <class name="Hib3MembershipDAO" table="grouper_memberships" batch-size="5">
+  <class name="MembershipDTO" table="grouper_memberships" batch-size="5">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>

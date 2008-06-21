@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.181 2008-05-07 20:04:16 mchyzer Exp $
+ * @version $Id: Group.java,v 1.182 2008-06-21 04:16:12 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -198,9 +198,11 @@ public class Group extends GrouperAPI implements Owner {
               //check if different so it doesnt make unneeded queries
               if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
                 theGroup.setExtension(extensionNew);
+                theGroup.store();
               }
               if (!StringUtils.equals(theGroup.getDisplayExtension(), displayExtension)) {
                 theGroup.setDisplayExtension(displayExtension);
+                theGroup.store();
               }
             }
             
@@ -209,6 +211,7 @@ public class Group extends GrouperAPI implements Owner {
               //null throws exception... hmmm
               if (!StringUtils.isBlank(description)) {
                 theGroup.setDescription(description);
+                theGroup.store();
               }
             }
             
@@ -258,7 +261,7 @@ public class Group extends GrouperAPI implements Owner {
   }
   
   /** */
-  private static final  EventLog                  EL            = new EventLog();
+  private static final  EventLog                  EVENT_LOG            = new EventLog();
   /** */
   private static final  String                    KEY_CREATOR   = "creator";  // for state caching 
   /** */
@@ -271,8 +274,8 @@ public class Group extends GrouperAPI implements Owner {
   private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
   /** known built-in attributes */
   private static final  Set<String>               ALLOWED_ATTRS = GrouperUtil.toSet(
-    GrouperConfig.ATTR_DN, GrouperConfig.ATTR_D, GrouperConfig.ATTR_DE,
-    GrouperConfig.ATTR_E, GrouperConfig.ATTR_N);
+    GrouperConfig.ATTR_DISPLAY_NAME, GrouperConfig.ATTR_DESCRIPTION, GrouperConfig.ATTR_DISPLAY_EXTENSION,
+    GrouperConfig.ATTR_EXTENSION, GrouperConfig.ATTR_NAME);
 
   
   // PUBLIC CLASS METHODS //
@@ -538,7 +541,7 @@ public class Group extends GrouperAPI implements Owner {
       return;
     }
     Membership.internal_addImmediateMembership( this.getSession(), this, subj, f );
-    EL.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
+    EVENT_LOG.groupAddMember(this.getSession(), this.getName(), subj, f, sw);
     Composite.internal_update(this);
     sw.stop();
   } // public void addMember(subj, f)
@@ -824,7 +827,7 @@ public class Group extends GrouperAPI implements Owner {
         this.internal_setModified();
         GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
         sw.stop();
-        EL.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
+        EVENT_LOG.groupDelAttr(this.getSession(), this.getName(), attr, val, sw);
       }
       else {
         throw new AttributeNotFoundException();
@@ -990,8 +993,8 @@ public class Group extends GrouperAPI implements Owner {
       throw new MemberDeleteException( eDAO.getMessage(), eDAO );
     }
     sw.stop();
-    EL.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
-    EL.delEffMembers(this.getSession(), this, subj, f, mof.getEffectiveDeletes());
+    EVENT_LOG.groupDelMember(this.getSession(), this.getName(), subj, f, sw);
+    EVENT_LOG.delEffMembers(this.getSession(), this, subj, f, mof.getEffectiveDeletes());
     Composite.internal_update(this);
   } // public void deleteMember(subj, f)
 
@@ -1270,7 +1273,7 @@ public class Group extends GrouperAPI implements Owner {
    */
   public String getDescription() {
     try {
-      return (String) this.getAttribute(GrouperConfig.ATTR_D);
+      return (String) this.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
     }
     catch (AttributeNotFoundException eANF) {
       return GrouperConfig.EMPTY_STRING; // Lack of a description is acceptable
@@ -1290,7 +1293,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_DE);
+    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_DISPLAY_EXTENSION);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODE);
@@ -1312,7 +1315,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_DN);
+    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_DISPLAY_NAME);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODN);
@@ -1453,7 +1456,7 @@ public class Group extends GrouperAPI implements Owner {
   public String getExtension() {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_E);
+    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_EXTENSION);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NOE);
@@ -1629,7 +1632,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  A set of {@link Membership} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set getMemberships() 
+  public Set<Membership> getMemberships() 
     throws  GrouperRuntimeException
   {
     try {
@@ -1657,10 +1660,10 @@ public class Group extends GrouperAPI implements Owner {
    * @return  A set of {@link Membership} objects.
    * @throws  SchemaException
    */
-  public Set getMemberships(Field f) 
+  public Set<Membership> getMemberships(Field f) 
     throws  SchemaException
   {
-    return new LinkedHashSet( 
+    return new LinkedHashSet<Membership>( 
       PrivilegeHelper.canViewMemberships( 
         this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( this.getUuid(), f )
       )
@@ -1743,7 +1746,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_N);
+    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_NAME);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NON);
@@ -1948,7 +1951,7 @@ public class Group extends GrouperAPI implements Owner {
       throw new GrantPrivilegeException( eUTP.getMessage(), eUTP );
     }
     sw.stop();
-    EL.groupGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
+    EVENT_LOG.groupGrantPriv(this.getSession(), this.getName(), subj, priv, sw);
   } 
 
   /**
@@ -2359,7 +2362,7 @@ public class Group extends GrouperAPI implements Owner {
       throw new RevokePrivilegeException( eUTP.getMessage(), eUTP );
     }
     sw.stop();
-    EL.groupRevokePriv(this.getSession(), this.getName(), priv, sw);
+    EVENT_LOG.groupRevokePriv(this.getSession(), this.getName(), priv, sw);
   } 
 
   /**
@@ -2398,11 +2401,13 @@ public class Group extends GrouperAPI implements Owner {
       throw new RevokePrivilegeException( eUTP.getMessage(), eUTP );
     }
     sw.stop();
-    EL.groupRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
+    EVENT_LOG.groupRevokePriv(this.getSession(), this.getName(), subj, priv, sw);
   } 
 
   /**
    * Set an attribute value.
+   * Note, you have to call store() at some point to 
+   * make the kick off the sql
    * <pre class="eg">
    * try {
    *   g.attribute(attribute, value);
@@ -2428,6 +2433,56 @@ public class Group extends GrouperAPI implements Owner {
             GroupModifyException, 
             InsufficientPrivilegeException
   {
+    this.setAttributeHelper(attr, value);
+
+  }
+  
+  /**
+   * store this object to the DB.  If
+   * grouper.setters.dont.cause.queries is false, then this is a no-op
+   */
+  public void store() {
+    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+    }
+  }
+  
+  /**
+   * store this object to the DB
+   */
+  private void storeIfConfiguredToStore() {
+    if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+    }
+  }
+  
+  /**
+   * Set an attribute value.
+   * <pre class="eg">
+   * try {
+   *   g.attribute(attribute, value);
+   * } 
+   * catch (AttributeNotFoundException e0) {
+   *   // Attribute doesn't exist
+   * }
+   * catch (GroupModifyException e1) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e2) {
+   *   // Not privileged to modify this attribute
+   * }
+   * </pre>
+   * @param   attr  Set this attribute.
+   * @param   value Set to this value.
+   * @throws  AttributeNotFoundException
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  private void setAttributeHelper(String attr, String value) 
+    throws  AttributeNotFoundException, 
+            GroupModifyException, 
+            InsufficientPrivilegeException
+  {
     try {
       StopWatch sw = new StopWatch();
       sw.start();
@@ -2446,9 +2501,9 @@ public class Group extends GrouperAPI implements Owner {
         throw new GroupModifyException(E.INVALID_ATTR_VALUE + value);
       }
       if (
-            attr.equals(GrouperConfig.ATTR_DE)
-        ||  attr.equals(GrouperConfig.ATTR_DN)
-        ||  attr.equals(GrouperConfig.ATTR_E)
+            attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION)
+        ||  attr.equals(GrouperConfig.ATTR_DISPLAY_NAME)
+        ||  attr.equals(GrouperConfig.ATTR_EXTENSION)
       )
       {
         v = NamingValidator.validate(value);
@@ -2462,17 +2517,17 @@ public class Group extends GrouperAPI implements Owner {
 
       Map attrs = this._getDTO().getAttributes();
       attrs.put(attr, value);
-      if      ( attr.equals(GrouperConfig.ATTR_E) )   {
-        attrs.put( GrouperConfig.ATTR_N, U.constructName( this.getParentStem().getName(), value ) );
+      if      ( attr.equals(GrouperConfig.ATTR_EXTENSION) )   {
+        attrs.put( GrouperConfig.ATTR_NAME, U.constructName( this.getParentStem().getName(), value ) );
       }
-      else if ( attr.equals(GrouperConfig.ATTR_DE) )  {
-        attrs.put( GrouperConfig.ATTR_DN, U.constructName( this.getParentStem().getDisplayName(), value ) );
+      else if ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
+        attrs.put( GrouperConfig.ATTR_DISPLAY_NAME, U.constructName( this.getParentStem().getDisplayName(), value ) );
       }
       this._getDTO().setAttributes(attrs);
       this.internal_setModified();
-      GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+      this.storeIfConfiguredToStore();
       sw.stop();
-      EL.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
+      EVENT_LOG.groupSetAttr(this.getSession(), this.getName(), attr, value, sw);
     }
     catch (GrouperDAOException eDAO) {
       throw new GroupModifyException( eDAO.getMessage(), eDAO );
@@ -2486,7 +2541,9 @@ public class Group extends GrouperAPI implements Owner {
   } // public void setAttribute(attr, value)
 
   /**
-   * Set group description.
+   * Set group description.  
+   * Note, you have to call store() at some point to 
+   * make the kick off the sql
    * <pre class="eg">
    * try {
    *   g.setDescription(value);
@@ -2507,7 +2564,7 @@ public class Group extends GrouperAPI implements Owner {
             InsufficientPrivilegeException
   {
     try {
-      this.setAttribute(GrouperConfig.ATTR_D, value);
+      this.setAttributeHelper(GrouperConfig.ATTR_DESCRIPTION, value);
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
@@ -2518,6 +2575,8 @@ public class Group extends GrouperAPI implements Owner {
  
   /**
    * Set group <i>extension</i>.
+   * Note, you have to call store() at some point to 
+   * make the kick off the sql
    * <pre class="eg">
    * try {
    *   g.setExtension(value);
@@ -2538,7 +2597,7 @@ public class Group extends GrouperAPI implements Owner {
             InsufficientPrivilegeException
   {
     try {
-      this.setAttribute(GrouperConfig.ATTR_E, value);
+      this.setAttributeHelper(GrouperConfig.ATTR_EXTENSION, value);
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
@@ -2549,6 +2608,8 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * Set group displayExtension.
+   * Note, you have to call store() at some point to 
+   * make the kick off the sql
    * <pre class="eg">
    * try {
    *   g.setDisplayExtension(value);
@@ -2569,7 +2630,7 @@ public class Group extends GrouperAPI implements Owner {
             InsufficientPrivilegeException
   {
     try {
-      this.setAttribute(GrouperConfig.ATTR_DE, value);
+      this.setAttributeHelper(GrouperConfig.ATTR_DISPLAY_EXTENSION, value);
     }
     catch (AttributeNotFoundException eANF) {
       throw new GroupModifyException(
@@ -2651,7 +2712,7 @@ public class Group extends GrouperAPI implements Owner {
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append( GrouperConfig.ATTR_N, (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_N) )
+      .append( GrouperConfig.ATTR_NAME, (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_NAME) )
       .append( "uuid", this.getUuid() )
       .toString();
   } // public String toString()
@@ -2729,10 +2790,10 @@ public class Group extends GrouperAPI implements Owner {
 
   // @since   1.2.0
   /**
-   * @return 
+   * @return the dto
    * 
    */
-  private GroupDTO _getDTO() {
+  public GroupDTO _getDTO() {
     return (GroupDTO) super.getDTO();
   }
   

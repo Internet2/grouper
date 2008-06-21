@@ -17,33 +17,22 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.HibernateException;
-import org.hibernate.Session;
 
+import edu.internet2.middleware.grouper.hibernate.ByObject;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
 import edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import edu.internet2.middleware.grouper.internal.util.Rosetta;
 
 /**
  * Basic Hibernate <code>GrouperSession</code> DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3GrouperSessionDAO.java,v 1.2 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Hib3GrouperSessionDAO.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO {
-
-  // HIBERNATE PROPERTIES //
-  private String  id;
-  private String  memberUUID;
-  private long    startTime;
-  private String  uuid;
-
-
-  // PUBLIC INSTANCE METHODS //
 
   /**
    * @since   @HEAD@
@@ -51,9 +40,8 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
   public String create(GrouperSessionDTO _s)
     throws  GrouperDAOException {
     
-    Hib3DAO  dao = (Hib3DAO) Rosetta.getDAO(_s);
-    HibernateSession.byObjectStatic().save(dao);
-    return dao.getId();
+    HibernateSession.byObjectStatic().save(_s);
+    return _s.getId();
   } // public String create(_s)
 
   /** 
@@ -66,82 +54,19 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
-            Session     hs  = hibernateSession.getSession();
-            hs.delete( hs.load( Hib3GrouperSessionDAO.class, _s.getId() ) );
+            ByObject byObject = hibernateSession.byObject();
+            byObject.delete( byObject.load( GrouperSessionDTO.class, _s.getId() ) );
             return null;
           }
       
     });
   } 
 
-  /**
-   * @since   @HEAD@
-   */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public String getMemberUuid() {
-    return this.memberUUID;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public long getStartTime() {
-    return this.startTime;
-  }
-
-  /**
-   * @since   @HEAD@
-   */ 
-  public String getUuid() {
-    return this.uuid;
-  }
-
-  /** 
-   * @since   @HEAD@
-   */
-  public GrouperSessionDAO setId(String id) {
-    this.id = id;
-    return this;
-  } 
-
-  /**
-   * @since   @HEAD@
-   */
-  public GrouperSessionDAO  setMemberUuid(String memberUUID) {
-    this.memberUUID = memberUUID;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public GrouperSessionDAO setStartTime(long startTime) {
-    this.startTime = startTime;
-    return this;
-  }
-
-  /**
-   * @since   @HEAD@
-   */
-  public GrouperSessionDAO setUuid(String uuid) {
-    this.uuid = uuid;
-    return this;
-  }
-
-
-  // PROTECTED CLASS METHODS //
-
   // @since   @HEAD@
-  protected static void reset(Session hs) 
+  protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hs.createQuery("delete from Hib3GrouperSessionDAO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from GrouperSessionDTO").executeUpdate();
   } 
 
 } 

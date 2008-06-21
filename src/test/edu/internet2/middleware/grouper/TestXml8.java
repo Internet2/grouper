@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml8.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestXml8.java,v 1.6 2008-06-21 04:16:12 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXml8 extends GrouperTest {
@@ -55,6 +55,7 @@ public class TestXml8 extends GrouperTest {
       Field     list  = type.addList(r.rs, "custom list", AccessPrivilege.READ, AccessPrivilege.UPDATE);
       gA.addType( type );
       gA.setAttribute( attr.getName(), attr.getName() );
+      gA.store();
       gA.addMember( subjA, list );
       r.rs.stop();
 

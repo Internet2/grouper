@@ -16,18 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dto;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.CallbackException;
+import org.hibernate.Session;
+import org.hibernate.classic.Lifecycle;
+
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
 
 /** 
  * Basic <code>Member</code> DTO.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MemberDTO.java,v 1.6 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: MemberDTO.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
  */
-public class MemberDTO implements GrouperDTO {
+public class MemberDTO extends GrouperDefaultDTO {
 
   // PRIVATE INSTANCE VARIABLES //
   private String  id;
@@ -58,33 +61,6 @@ public class MemberDTO implements GrouperDTO {
       .isEquals();
   } // public boolean equals(other)
 
-  /**
-   * @since   1.2.0
-   */
-  public GrouperDAO getDAO() {
-    return GrouperDAOFactory.getFactory().getMember()
-      .setId( this.getId() )
-      .setSubjectId( this.getSubjectId() )
-      .setSubjectSourceId( this.getSubjectSourceId() )
-      .setSubjectTypeId( this.getSubjectTypeId() )
-      .setUuid( this.getUuid() )
-      ;
-  }
- 
-  /**
-   * @return  <code>MemberDTO</code> from passed <i>dao</i>.
-   * @since   1.2.1
-   */ 
-  public static MemberDTO getDTO(MemberDAO dao) {
-    return new MemberDTO()
-      .setId( dao.getId() )
-      .setSubjectId( dao.getSubjectId() )
-      .setSubjectSourceId( dao.getSubjectSourceId() )
-      .setSubjectTypeId( dao.getSubjectTypeId() )
-      .setUuid( dao.getUuid() )
-      ;
-  }
-  
   /**
    * @since   1.2.0
    */
@@ -182,6 +158,31 @@ public class MemberDTO implements GrouperDTO {
       .append( "subjectTypeId",   this.getSubjectTypeId()   )
       .append( "uuid",            this.getUuid()            )
       .toString();
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefaultDTO#onDelete(org.hibernate.Session)
+   */
+  @Override
+  public boolean onDelete(Session hs) 
+    throws  CallbackException
+  {
+    GrouperDAOFactory.getFactory().getMember().existsCachePut( this.getUuid(), false );
+    GrouperDAOFactory.getFactory().getMember().uuid2dtoCacheRemove( this.getUuid() );
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefaultDTO#onSave(org.hibernate.Session)
+   */
+  @Override
+  public boolean onSave(Session hs) 
+    throws  CallbackException
+  {
+    GrouperDAOFactory.getFactory().getMember().existsCachePut( this.getUuid(), true );
+    return Lifecycle.NO_VETO;
   }
 
 } 

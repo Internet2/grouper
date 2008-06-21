@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.Session;
+import org.hibernate.cfg.Configuration;
 
 import  edu.internet2.middleware.grouper.GrouperDAOFactory;
 import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
@@ -33,9 +34,8 @@ import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
 
 /** 
  * Basic Hibernate DAO interface.
- * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.3 2008-02-20 08:41:45 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.4 2008-06-21 04:16:12 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -110,6 +110,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public TransactionDAO getTransaction() {
     return new Hib3TransactionDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperDAOFactory#getConfiguration()
+   */
+  @Override
+  public Configuration getConfiguration() {
+    return Hib3DAO.getConfiguration();
   }
 
 } 
