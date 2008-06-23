@@ -112,7 +112,7 @@ public class AllJUnitTests extends TestCase
     /**
      * The distinguished name for the base context used for testing.
      */ 
-    public static String DN_TEST_BASE = "dc=example,dc=edu";
+    public static String DN_TEST_BASE;
     
     /**
      * A convenience setting to allow easy switching between running all tests
@@ -135,22 +135,20 @@ public class AllJUnitTests extends TestCase
      */
     public static Test suite()
     {
-        // e.g.: DN_TEST_BASE = "dc=my-domain,dc=com";
-        DN_TEST_BASE = ResourceBundleUtil.getString(TEST_CONTEXT_BASE);
         DN_TEST_BASE = "dc=example,dc=edu";
 
         TestSuite suite = null;
         if (ALL)
         {    
             suite = new TestSuite(SkeletonTest.class);
-//            suite.addTest(AllJUnitQuickStartTests.suite());
+            suite.addTest(AllJUnitQuickStartTests.suite());
             // Clean up the database before rerunning the tests.
-            //suite.addTest(new TestSuite(DatabaseCleanerTest.class));
+//            suite.addTest(new TestSuite(DatabaseCleanerTest.class));
             suite.addTest(AllJUnitBaseDirTests.suite());
-//            suite.addTest(AllJUnitUtilTests.suite());
-//            suite.addTest(AllJUnitConfigurationTests.suite());
-//            suite.addTest(AllJUnitSynchronizerTests.suite());
-//            suite.addTest(AllJUnitBuilderTests.suite());
+            suite.addTest(AllJUnitUtilTests.suite());
+            suite.addTest(AllJUnitConfigurationTests.suite());
+            suite.addTest(AllJUnitSynchronizerTests.suite());
+            suite.addTest(AllJUnitBuilderTests.suite());
         }
         else
         {    
@@ -168,6 +166,5 @@ public class AllJUnitTests extends TestCase
             suite.addTest(new TestSuite(QuickStartTestU.class));
         }
         return new TestServerWrapperSetup(suite);
-//        return suite;
    }
 }
