@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubjectXml.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubjectXml.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -27,6 +27,8 @@ import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetSubjectXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
+import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
+import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectSetXb;
 import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectXb;
 
 /**
@@ -99,8 +101,15 @@ public class SubjectXml extends XmlUtil
 			}
 		}
 
-		List<SignetSubjectXb> xmlSubjectList =
-			signetXmlAdapter.getXmlSignet().getSubjectSet().getSubject();
+		// get the SignetSubjectSetXb and Subject list
+		SignetSubjectSetXb subjSet;
+		if (null == (subjSet = signetXmlAdapter.getXmlSignet().getSubjectSet()))
+		{
+			subjSet = new ObjectFactory().createSignetSubjectSetXb();
+			signetXmlAdapter.getXmlSignet().setSubjectSet(subjSet);
+		}
+		List<SignetSubjectXb> xmlSubjectList = subjSet.getSubject();
+
 		HibernateDB hibr = signet.getPersistentDB();
 
 		if (null != subjectIds)

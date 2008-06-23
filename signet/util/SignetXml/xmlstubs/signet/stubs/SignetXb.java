@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetXb.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/util/SignetXml/xmlstubs/signet/stubs/SignetXb.java,v 1.4 2008-06-23 22:27:44 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -38,15 +38,18 @@ import javax.xml.bind.annotation.XmlType;
 			"scopeTreeSet",
 			"subsystemSet",
 			"subjectSet",
-			"proxieSet",
+			"proxySet",
 			"assignmentSet",
 			"permissions"
 		}
 )
 public class SignetXb
 {
-	@XmlAttribute(name="version", required=true)
-	protected String					version;
+	@XmlAttribute(name="SignetVersion", required=true)
+	protected String					signetVersion;
+
+	@XmlAttribute(name="XmlCreateDate", required=false)
+	protected String					xmlCreateDate;
 
 	///////////////////////////////
 	//  Signet Metadata
@@ -68,11 +71,11 @@ public class SignetXb
 	@XmlElement(name="AssignmentSet", required=false)
 	protected AssignmentSetXb		assignmentSet;
 
-	@XmlElement(name="ProxieSet", required=false)
-	protected ProxySetXb			proxieSet;
+	@XmlElement(name="ProxySet", required=false)
+	protected ProxySetXb			proxySet;
 
 	///////////////////////////////
-	//  Provisioning only, not a true export
+	//  Provisioning and/or Information only, not a true export
 	///////////////////////////////
 
 	@XmlElement(name="Permissions", required=false)

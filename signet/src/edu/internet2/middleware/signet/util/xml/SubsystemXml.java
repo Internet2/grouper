@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubsystemXml.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubsystemXml.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -29,8 +29,10 @@ import edu.internet2.middleware.signet.SubsystemImpl;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SubsystemImplXa;
+import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 import edu.internet2.middleware.signet.util.xml.binder.SubsystemImplXb;
+import edu.internet2.middleware.signet.util.xml.binder.SubsystemSetXb;
 
 /**
  * SubsystemXml - A class to export a Signet Subsystem to XML based on
@@ -168,8 +170,16 @@ public class SubsystemXml extends XmlUtil
 			hibr.closeSession(hs);
 		}
 
+		// get the SubsystemSetXb
+		SubsystemSetXb subsysSet;
+		if (null == (subsysSet = xml.getSubsystemSet()))
+		{
+			subsysSet = new ObjectFactory().createSubsystemSetXb();
+			xml.setSubsystemSet(subsysSet);
+		}
+
 		// after collecting all Signet Subsystems, create a binder for each
-		List<SubsystemImplXb> subsysList = xml.getSubsystemSet().getSubsystem();
+		List<SubsystemImplXb> subsysList = subsysSet.getSubsystem();
 		for (SubsystemImpl subsys : signetSubsystemList)
 		{
 			SubsystemImplXb xmlSubsys = new SubsystemImplXa(subsys, signet).getXmlSubsystem();

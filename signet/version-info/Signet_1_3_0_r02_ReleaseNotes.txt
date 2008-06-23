@@ -33,3 +33,23 @@ Release Notes for CVS-tagged version Signet_1_3_0rc02
 8. The JavaDocs now contain references to classes in package
     edu.internet2.middleware.signet.util.xml
 
+9. Do not create empty Elements in the XML output.
+
+10. Include the XML creation date as a SignetXml attribute.
+
+11. In class XmlImporter
+    - Added JavaDoc comments
+    - Added new constructor: XmlImporter(Signet signet, Log log). This, in
+      conjunction with the new method importXml(InputStream inFile, CommandArg cmd)
+      allows one instance of XmlImporter to process multiple input streams
+      consecutively.
+    - Removed unused methods: importSubjects, importAssignments, importProxies
+
+12. Bug (not reported in Jira): XmlImporter was not importing Proxies.
+
+13. In class edu.internet2.middleware.signet.util.xml.adapter.Util
+    - Removed unused methods: convertTimeToCal, convertCalToTime
+    - Added JavaDoc comments
+
+
+

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.5 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.6 2008-06-23 22:27:44 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -26,11 +26,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
+import edu.internet2.middleware.signet.util.xml.adapter.Util;
 
 /**
  * SignetXml - A command-line utility for using the Signet XML API.
@@ -73,6 +75,8 @@ public class SignetXml extends XmlUtil
 
 		for (CommandArg arg : commandArgs)
 			buildXml(arg, signetXmlAdapter);
+
+		signetXmlAdapter.getXmlSignet().setXmlCreateDate(Util.convertDateToString(new Date()));
 
 		marshalXml(signetXmlAdapter.getXmlSignet(), outFile);
 
@@ -217,7 +221,7 @@ public class SignetXml extends XmlUtil
 	protected static String				command;
 	protected static Vector<CommandArg>	commandArgs;
 	protected static String				xmlFile;
-	protected static String				version = "$Revision: 1.5 $";
+	protected static String				version = "$Revision: 1.6 $";
 	protected static Log				mainLog;
 
 

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/Util.java,v 1.2 2007-10-19 23:27:11 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/Util.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -20,10 +20,6 @@ package edu.internet2.middleware.signet.util.xml.adapter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.SignetFactory;
@@ -40,36 +36,41 @@ public class Util
 	protected static Log log = LogFactory.getLog(Util.class);
 
 
-	public static XMLGregorianCalendar convertTimeToCal(Date time)
-	{
-		XMLGregorianCalendar retval = null;
-		if (null == time)
-			return (retval);
-		try
-		{
-			DatatypeFactory dtf = DatatypeFactory.newInstance();
-			GregorianCalendar cal = new GregorianCalendar();
-			cal.setTime(time);
-			retval = dtf.newXMLGregorianCalendar(cal);
-		}
-		catch (DatatypeConfigurationException e)
-		{
-			e.printStackTrace();
-		}
-	
-		return (retval);
-	}
-
-	public static Date convertCalToTime(XMLGregorianCalendar cal)
-	{
-		Date retval = null;
-		if (null != cal)
-			retval = (cal.toGregorianCalendar().getTime());
-	
-		return (retval);
-	}
-
-
+//	public static XMLGregorianCalendar convertTimeToCal(Date time)
+//	{
+//		XMLGregorianCalendar retval = null;
+//		if (null == time)
+//			return (retval);
+//		try
+//		{
+//			DatatypeFactory dtf = DatatypeFactory.newInstance();
+//			GregorianCalendar cal = new GregorianCalendar();
+//			cal.setTime(time);
+//			retval = dtf.newXMLGregorianCalendar(cal);
+//		}
+//		catch (DatatypeConfigurationException e)
+//		{
+//			e.printStackTrace();
+//		}
+//	
+//		return (retval);
+//	}
+//
+//	public static Date convertCalToTime(XMLGregorianCalendar cal)
+//	{
+//		Date retval = null;
+//		if (null != cal)
+//			retval = (cal.toGregorianCalendar().getTime());
+//	
+//		return (retval);
+//	}
+//
+//
+	/**
+	 * Routine to standardize Signet's conversion from a Java Date to a String
+	 * @param date The Date to convert to a String
+	 * @return The Date in the form of a String
+	 */
 	public static String convertDateToString(Date date)
 	{
 		String retval;
@@ -81,6 +82,11 @@ public class Util
 		return (retval);
 	}
 
+	/**
+	 * Routine to standardize Signet's conversion from a String to a Java Date
+	 * @param dateStr The String to convert to a Date
+	 * @return A Date object
+	 */
 	public static Date convertStringToDate(String dateStr)
 	{
 //		Date retval = new Date(0L);
@@ -99,9 +105,14 @@ public class Util
 	}
 
 
+	/**
+	 * Routine to concatenate a TreeNode's Scope and ID
+	 * @param treeNode 
+	 * @return A colon-separated String containing the Scope and ID
+	 */
 	public static String getScopePath(TreeNodeImpl treeNode)
 	{
-		StringBuffer retval = new StringBuffer();
+		StringBuilder retval = new StringBuilder();
 
 		if (null != treeNode)
 		{
@@ -113,6 +124,11 @@ public class Util
 		return (retval.toString());
 	}
 
+	/**
+	 * Routine to split a TreeNode's colon-separated Scope and ID
+	 * @param scopePath A colon-separated String
+	 * @return A String[2]
+	 */
 	public static String[] parseScopePath(String scopePath)
 	{
 		String[] retval;

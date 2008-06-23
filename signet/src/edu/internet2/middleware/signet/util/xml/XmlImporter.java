@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlImporter.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlImporter.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -41,6 +41,7 @@ import edu.internet2.middleware.signet.util.xml.adapter.SubsystemImplXa;
 import edu.internet2.middleware.signet.util.xml.binder.AssignmentImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.AssignmentSetXb;
 import edu.internet2.middleware.signet.util.xml.binder.ProxyImplXb;
+import edu.internet2.middleware.signet.util.xml.binder.ProxySetXb;
 import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeSetXb;
 import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeXb;
 import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectSetXb;
@@ -50,31 +51,87 @@ import edu.internet2.middleware.signet.util.xml.binder.SubsystemImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.SubsystemSetXb;
 
 /**
- * XmlImporter 
+ * XmlImporter - Imports XML data into Signet. <p/>
+ * Use the constructor XmlImporter(Signet, Log, InputStream, CommandArg)
+ * to process a single input stream and command. Use the constructor
+ * XmlImporter(Signet, Log) in combination with the importXml(CommandArg) method
+ * to process multiple input streams and commands.
  * 
  */
 public class XmlImporter
 {
+	/** logging */
 	protected Log			log;
+	/** An instance of Signet */
 	protected Signet		signet;
+	/** The current InputStream to process */
 	protected InputStream	inFile;
 
 
+	/** Private constructor */
 	private XmlImporter()
 	{
 	}
 
-	public XmlImporter(Signet signet, Log log, InputStream inFile)
+	/**
+	 * Constructor - Initialize the XmlImporter. Use this constructor if you
+	 * intend to process multiple input streams and commands in counjunction 
+	 * with the importXml(CommandArg) method.
+	 * @param signet An instance of Signet
+	 * @param log A log to use
+	 */
+	public XmlImporter(Signet signet, Log log)
 	{
+		this();
 		this.log = log;
 		this.signet = signet;
+	}
+
+	/**
+	 * Constructor - Initialize the XmlImporter
+	 * @param signet An instance of Signet
+	 * @param log A log to use
+	 * @param inFile The input file stream
+	 */
+	public XmlImporter(Signet signet, Log log, InputStream inFile)
+	{
+		this(signet, log);
 		this.inFile = inFile;
 	}
 
+	/**
+	 * Constructor - Initialize the XmlImporter and import the xml based on
+	 * the CommandArg
+	 * @param signet An instance of Signet
+	 * @param log A log to use
+	 * @param inFile The input file stream
+	 * @param cmd The command to execute (e.g. add | update | deactivate | delete)
+	 */
+	public XmlImporter(Signet signet, Log log, InputStream inFile, CommandArg cmd)
+	{
+		this(signet, log, inFile);
+		importXml(cmd);
+	}
 
+
+	/**
+	 * Import the XML using the input stream
+	 * @param inFile A new input stream to be processed
+	 * @param cmd The command to execute (e.g. add | update | deactivate | delete)
+	 */
+	public void importXml(InputStream inFile, CommandArg cmd)
+	{
+		setInFile(inFile);
+		importXml(cmd);
+	}
+
+	/**
+	 * Import the XML from the previously initialized input stream
+	 * @param cmd The command to execute (e.g. add | update | deactivate | delete)
+	 */
 	public void importXml(CommandArg cmd)
 	{
-		SignetXb signetXml = unmarshalSignet(cmd);
+		SignetXb signetXml = unmarshalSignet();
 		if (null == signetXml)
 			return;
 
@@ -95,7 +152,11 @@ log.info("Import+delete not supported yet");
 			log.error("Unknown CommandArg Type: \"" + cmdType + "\"");
 	}
 
-	protected SignetXb unmarshalSignet(CommandArg cmd)
+	/**
+	 * Unmarshal (create an in-memory object hierarchy from an input stream) 
+	 * @return A Signet XML binder oubject
+	 */
+	protected SignetXb unmarshalSignet()
 	{
 		SignetXb signetXml = null;
 
@@ -114,15 +175,25 @@ log.info("Import+delete not supported yet");
 		return (signetXml);
 	}
 
+	/**
+	 * The top-level method to update the Signet persistent store (DB) with the
+	 * contents of the contained binder classes
+	 * @param signetXml A SignetXb instance
+	 */
 	protected void updateXml(SignetXb signetXml)
 	{
 		updateScopeTrees(signetXml.getScopeTreeSet());
 		updateSubsystems(signetXml.getSubsystemSet());
 		updateSubjects(signetXml.getSubjectSet());
-//		updateProxies(signetXml.getProxy());
+		updateProxies(signetXml.getProxySet());
 		updateAssignments(signetXml.getAssignmentSet());
 	}
 
+	/**
+	 * Update the Signet persistent store (DB) with the contents of the
+	 * contained binder classes
+	 * @param scopeTreeSet One or more scope trees
+	 */
 	protected void updateScopeTrees(ScopeTreeSetXb scopeTreeSet)
 	{
 		if (null == scopeTreeSet)
@@ -139,6 +210,11 @@ System.out.println("SignetXml.updateScopeTrees: ScopeTree=" + signetTree);
 		updateSignetObjects(signetTrees);
 	}
 
+	/**
+	 * Update the Signet persistent store (DB) with the contents of the
+	 * contained binder classes
+	 * @param subsystemSet One or more subsystems
+	 */
 	protected void updateSubsystems(SubsystemSetXb subsystemSet)
 	{
 		if (null == subsystemSet)
@@ -155,6 +231,11 @@ System.out.println("SignetXml.updateSubsystems: Subsystem=" + sigSubsys);
 		updateSignetObjects(signetSubsystems);
 	}
 
+	/**
+	 * Update the Signet persistent store (DB) with the contents of the
+	 * contained binder classes
+	 * @param subjectSet One or more subjects
+	 */
 	protected void updateSubjects(SignetSubjectSetXb subjectSet)
 	{
 		if (null == subjectSet)
@@ -171,13 +252,18 @@ System.out.println("SignetXml.updateSubjects: Subject=" + sigSubject);
 		updateSignetObjects(sigSubjects);
 	}
 
-	protected void updateProxies(List<ProxyImplXb> proxies)
+	/**
+	 * Update the Signet persistent store (DB) with the contents of the
+	 * contained binder classes
+	 * @param proxySet One or more proxies
+	 */
+	protected void updateProxies(ProxySetXb proxySet)
 	{
-		if (null == proxies)
+		if (null == proxySet)
 			return;
 
 		List<ProxyImpl> sigProxies = new Vector<ProxyImpl>();
-		for (ProxyImplXb xmlProxy : proxies)
+		for (ProxyImplXb xmlProxy : proxySet.getProxy())
 		{
 			ProxyImpl sigProxy = new ProxyImplXa(xmlProxy, signet).getSignetProxy();
 			sigProxies.add(sigProxy);
@@ -187,6 +273,11 @@ System.out.println("SignetXml.updateProxies: Proxy=" + sigProxy);
 		updateSignetObjects(sigProxies);
 	}
 
+	/**
+	 * Update the Signet persistent store (DB) with the contents of the
+	 * contained binder classes
+	 * @param assignSet One or more assignments
+	 */
 	protected void updateAssignments(AssignmentSetXb assignSet)
 	{
 		if (null == assignSet)
@@ -204,6 +295,11 @@ System.out.println("SignetXml.importAssignments: assignment=" + signetAssign);
 		updateSignetObjects(signetAssigns);
 	}
 
+	/**
+	 * Low-level method that invokes Hibernate to update the Signet persistent
+	 * store (DB)
+	 * @param signetObjects A list of hibernate-mapped Signet classes
+	 */
 	protected void updateSignetObjects(List signetObjects)
 	{
 		HibernateDB hibr = signet.getPersistentDB();
@@ -214,63 +310,82 @@ System.out.println("SignetXml.importAssignments: assignment=" + signetAssign);
 
 
 	/**
-	 * @param signetXml
-	 * @param signet
+	 * Get the current input stream
+	 * @return the current input stream
 	 */
-	public void importSubjects(SignetXb signetXml, Signet signet)
+	public InputStream getInFile()
 	{
-		SignetSubjectSetXb subjSet = signetXml.getSubjectSet();
-		if (null == subjSet)
-			return;
+		return inFile;
+	}
 
-		for (SignetSubjectXb xmlSubj : subjSet.getSubject())
-		{
-			SignetSubjectXa adapter = new SignetSubjectXa(xmlSubj, signet);
-System.out.println("SignetXml.importSubjects: subject=" + adapter.getSignetSubject().toString());
-System.out.println("  importSubjects not implemented yet");
-		}
+	/**
+	 * Set a new input stream
+	 * @param inFile an input stream
+	 */
+	public void setInFile(InputStream inFile)
+	{
+		this.inFile = inFile;
 	}
 
 
-	/**
-	 * @param signetXml
-	 * @param signet
-	 */
-	public void importAssignments(SignetXb signetXml, Signet signet)
-	{
-		AssignmentSetXb xmlAssignSet = signetXml.getAssignmentSet();
-		if (null == xmlAssignSet)
-			return;
-
-		List<AssignmentImpl> signetAssignments = new Vector<AssignmentImpl>();
-
-		for (AssignmentImplXb xmlAssign : xmlAssignSet.getAssignment())
-		{
-			AssignmentImpl signetAssignment = 
-				new AssignmentImplXa(xmlAssign, signet).getSignetAssignment();
-			signetAssignments.add(signetAssignment);
-System.out.println("SignetXml.importAssignments: assignment=" + signetAssignment);
-		}
-
-		HibernateDB hibr = signet.getPersistentDB();
-		Session hs = hibr.openSession();
-		hibr.save(hs, signetAssignments);
-		hibr.closeSession(hs);
-	}
-
-
-	/**
-	 * @param signetXml
-	 */
-	public void importProxies(SignetXb signetXml)
-	{
-System.out.println("SignetXml.importProxies: not implemented yet.");
-//TODO Import proxies
-//		for (ProxyImplXb xmlProxy : signetXml.getProxy())
+//	/**
+//	 * @param signetXml
+//	 * @param signet
+//	 */
+//	public void importSubjects(SignetXb signetXml, Signet signet)
+//	{
+//		SignetSubjectSetXb subjSet = signetXml.getSubjectSet();
+//		if (null == subjSet)
+//			return;
+//
+//		for (SignetSubjectXb xmlSubj : subjSet.getSubject())
 //		{
-//			ProxyImplXa adapter = new ProxyImplXa(xmlProxy);
-//System.out.println("SignetXml.importProxies: proxy=" + adapter.getSignetProxy());
+//			SignetSubjectXa adapter = new SignetSubjectXa(xmlSubj, signet);
+//System.out.println("SignetXml.importSubjects: subject=" + adapter.getSignetSubject().toString());
+//System.out.println("  importSubjects not implemented yet");
 //		}
-	}
+//	}
+//
+//
+//	/**
+//	 * @param signetXml
+//	 * @param signet
+//	 */
+//	public void importAssignments(SignetXb signetXml, Signet signet)
+//	{
+//		AssignmentSetXb xmlAssignSet = signetXml.getAssignmentSet();
+//		if (null == xmlAssignSet)
+//			return;
+//
+//		List<AssignmentImpl> signetAssignments = new Vector<AssignmentImpl>();
+//
+//		for (AssignmentImplXb xmlAssign : xmlAssignSet.getAssignment())
+//		{
+//			AssignmentImpl signetAssignment = 
+//				new AssignmentImplXa(xmlAssign, signet).getSignetAssignment();
+//			signetAssignments.add(signetAssignment);
+//System.out.println("SignetXml.importAssignments: assignment=" + signetAssignment);
+//		}
+//
+//		HibernateDB hibr = signet.getPersistentDB();
+//		Session hs = hibr.openSession();
+//		hibr.save(hs, signetAssignments);
+//		hibr.closeSession(hs);
+//	}
+//
+//
+//	/**
+//	 * @param signetXml
+//	 */
+//	public void importProxies(SignetXb signetXml)
+//	{
+//System.out.println("SignetXml.importProxies: not implemented yet.");
+////TODO Import proxies
+////		for (ProxyImplXb xmlProxy : signetXml.getProxy())
+////		{
+////			ProxyImplXa adapter = new ProxyImplXa(xmlProxy);
+////System.out.println("SignetXml.importProxies: proxy=" + adapter.getSignetProxy());
+////		}
+//	}
 
 }

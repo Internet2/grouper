@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/ScopeTreeXml.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/ScopeTreeXml.java,v 1.4 2008-06-23 22:27:44 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -26,6 +26,7 @@ import edu.internet2.middleware.signet.TreeImpl;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.util.xml.adapter.ScopeTreeXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
+import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeSetXb;
 import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeXb;
 
@@ -130,8 +131,14 @@ public class ScopeTreeXml extends XmlUtil
 			return;
 		}
 
-		ScopeTreeSetXb xmlTreeSet = new ScopeTreeSetXb();
-		signetXmlAdapter.getXmlSignet().setScopeTreeSet(xmlTreeSet);
+		
+		ScopeTreeSetXb xmlTreeSet;
+		if (null == (xmlTreeSet = signetXmlAdapter.getXmlSignet().getScopeTreeSet()))
+		{
+			xmlTreeSet = new ObjectFactory().createScopeTreeSetXb();
+			signetXmlAdapter.getXmlSignet().setScopeTreeSet(xmlTreeSet);
+		}
+
 		List<ScopeTreeXb> xmlScopeTreeList = xmlTreeSet.getScopeTree();
 
 		HibernateDB hibr = signet.getPersistentDB();

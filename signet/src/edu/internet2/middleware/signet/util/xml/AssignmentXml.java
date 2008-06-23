@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/AssignmentXml.java,v 1.2 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/AssignmentXml.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -31,6 +31,7 @@ import edu.internet2.middleware.signet.util.xml.adapter.ProxySetXa;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
 import edu.internet2.middleware.signet.util.xml.binder.AssignmentImplXb;
 import edu.internet2.middleware.signet.util.xml.binder.AssignmentSetXb;
+import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.ProxySetXb;
 import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
 
@@ -165,8 +166,19 @@ public class AssignmentXml extends XmlUtil
 
 		SignetXb xml = signetXmlAdapter.getXmlSignet();
 
-		AssignmentSetXb xmlAssignSet = xml.getAssignmentSet();
-		ProxySetXb xmlProxySet = xml.getProxieSet();
+		AssignmentSetXb xmlAssignSet;
+		if (null == (xmlAssignSet = xml.getAssignmentSet()))
+		{
+			xmlAssignSet = new ObjectFactory().createAssignmentSetXb();
+			xml.setAssignmentSet(xmlAssignSet);
+		}
+
+		ProxySetXb xmlProxySet;
+		if (null == (xmlProxySet = xml.getProxySet()))
+		{
+			xmlProxySet = new ObjectFactory().createProxySetXb();
+			xml.setProxySet(xmlProxySet);
+		}
 
 		if ((null != subjIds) && (0 < subjIds.length))
 		{
