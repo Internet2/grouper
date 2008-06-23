@@ -54,12 +54,12 @@ public class ConfigManager
     /**
      * Default configuration file resource name
      */
-    public static final String            CONFIG_FILE_RESOURCE                 = "ldappc.xml";
+    public static final String            CONFIG_FILE_RESOURCE                 = "/ldappc.xml";
 
     /**
      * Configuration Schema file resource name
      */
-    public static final String            SCHEMA_FILE_RESOURCE                 = "edu/internet2/middleware/ldappc/schema/ldappcConfig.xsd";
+    public static final String            SCHEMA_FILE_RESOURCE                 = "/edu/internet2/middleware/ldappc/schema/ldappcConfig.xsd";
 
     /**
      * JAXP schema language property name
@@ -351,7 +351,8 @@ public class ConfigManager
      */
     public static ConfigManager getInstance() throws LdappcConfigurationException
     {
-        loadSingleton(getSystemResourceURL(CONFIG_FILE_RESOURCE, true).toString());
+//        loadSingleton(getSystemResourceURL(CONFIG_FILE_RESOURCE, true).toString());
+        loadSingleton(CONFIG_FILE_RESOURCE);
         return instance;
     }
 
@@ -593,7 +594,8 @@ public class ConfigManager
             //
             // Parse the config file
             //
-            digester.parse(uri);
+//            digester.parse(uri);
+            digester.parse(this.getClass().getResourceAsStream(uri));
         }
         catch (SAXException se)
         {
