@@ -21,14 +21,11 @@ package edu.internet2.middleware.ldappcTest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 import edu.internet2.middleware.ldappcTest.configuration.AllJUnitConfigurationTests;
 import edu.internet2.middleware.ldappcTest.dbBuilder.AllJUnitBuilderTests;
-import edu.internet2.middleware.ldappcTest.dbBuilder.DatabaseCleanerTest;
-import edu.internet2.middleware.ldappcTest.synchronize.AllJUnitSynchronizerTests;
 import edu.internet2.middleware.ldappcTest.qs.AllJUnitQuickStartTests;
 import edu.internet2.middleware.ldappcTest.qs.QuickStartTestU;
+import edu.internet2.middleware.ldappcTest.synchronize.AllJUnitSynchronizerTests;
 
 /**
  * This class builds a master TestSuite out of the individual test suites.
@@ -165,6 +162,6 @@ public class AllJUnitTests extends TestCase
             //suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
             suite.addTest(new TestSuite(QuickStartTestU.class));
         }
-        return new DatabaseWrapperTestSetup(suite);
+        return new LdapWrapperTestSetup(new DatabaseWrapperTestSetup(suite));
    }
 }
