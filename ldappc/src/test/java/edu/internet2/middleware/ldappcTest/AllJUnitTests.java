@@ -165,6 +165,6 @@ public class AllJUnitTests extends TestCase
             //suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
             suite.addTest(new TestSuite(QuickStartTestU.class));
         }
-        return new TestServerWrapperSetup(suite);
+        return new DatabaseWrapperTestSetup(suite);
    }
 }
