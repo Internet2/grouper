@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.12 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.13 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -36,7 +36,8 @@ public class TestPrivADMIN extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new TestPrivADMIN("testRenameGroupWithADMIN"));
+    TestRunner.run(new TestPrivADMIN("testGrantedToCreator"));
+    //TestRunner.run(TestPrivADMIN.class);
   }
   
   /**
@@ -67,17 +68,19 @@ public class TestPrivADMIN extends TestCase {
     super(name);
   }
 
-  protected void setUp () {
+  protected void setUp () throws Exception {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    //do the root session last
     s     = SessionHelper.getRootSession();
-    nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     subj0 = SubjectTestHelper.SUBJ0;
+    
     subj1 = SubjectTestHelper.SUBJ1;
+    nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
     m     = MemberHelper.getMemberBySubject(nrs, subj1);
   }
 
@@ -89,16 +92,33 @@ public class TestPrivADMIN extends TestCase {
   // Tests
 
   public void testGrantedToCreator() {
-    LOG.info("testGrantedToCreator");
-    PrivHelper.grantPriv(s, edu, subj0, NamingPrivilege.CREATE);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    LOG.info("testGrantedToCreator.0");
-    Stem  stem  = StemHelper.findByName(nrs, edu.getName());
-    LOG.info("testGrantedToCreator.1");
-    Group group = StemHelper.addChildGroup(stem, "group", "a group");
-    LOG.info("testGrantedToCreator.2");
-    PrivHelper.hasPriv(nrs, group, nrs.getSubject(), AccessPrivilege.ADMIN, true);
-    LOG.info("testGrantedToCreator.3");
+    final Group[] groups = new Group[1];
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        LOG.info("testGrantedToCreator");
+        PrivHelper.grantPriv(s, edu, subj0, NamingPrivilege.CREATE);
+        a = GroupHelper.findByName(nrs, i2.getName());
+        return null;
+      }
+      
+    });
+    GrouperSession.callbackGrouperSession(nrs, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        LOG.info("testGrantedToCreator.0");
+        Stem  stem  = StemHelper.findByName(nrs, edu.getName());
+        LOG.info("testGrantedToCreator.1");
+        groups[0] = StemHelper.addChildGroup(stem, "group", "a group");
+        LOG.info("testGrantedToCreator.2");
+        PrivHelper.hasPriv(nrs, groups[0], nrs.getSubject(), AccessPrivilege.ADMIN, true);
+        LOG.info("testGrantedToCreator.3");
+        return null;
+      }
+      
+    });
   } // public void testGrantedToCreator()
 
   public void testGrantAdminWithoutADMIN() {
@@ -366,62 +386,129 @@ public class TestPrivADMIN extends TestCase {
   } // public void testDeleteGroupWithADMIN()
 
   public void testDeleteGroupWithAllADMIN() {
-    LOG.info("testDeleteGroupWithAllADMIN");
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delete(nrs, a, i2.getName());
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        LOG.info("testDeleteGroupWithAllADMIN");
+        PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+        a = GroupHelper.findByName(nrs, i2.getName());
+        GroupHelper.delete(nrs, a, i2.getName());
+        return null;
+      }
+    });
   } // public void testDeleteGroupWithAllADMIN()
 
   public void testDeleteGroupWithMemberWithoutADMIN() {
-    LOG.info("testDeleteGroupWithMemberWithoutADMIN");
-    GroupHelper.addMember(i2, subj1, m);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.deleteFail(a);
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+    
+        LOG.info("testDeleteGroupWithMemberWithoutADMIN");
+        GroupHelper.addMember(i2, subj1, m);
+        return null;
+      }
+    });
+    GrouperSession.callbackGrouperSession(nrs, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        a = GroupHelper.findByName(nrs, i2.getName());
+        GroupHelper.deleteFail(a);
+        return null;
+      }
+    });
   } // public void testDeleteGroupWithMemberWithoutADMIN()
 
   public void testDeleteGroupWithMemberWithADMIN() {
-    LOG.info("testDeleteGroupWithMemberWithADMIN");
-    GroupHelper.addMember(i2, subj1, m);
-    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    try {
-    	Thread.currentThread().sleep(3000);
-    }catch(InterruptedException e){}
-    GroupHelper.delete(nrs, a, i2.getName());
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        LOG.info("testDeleteGroupWithMemberWithADMIN");
+        GroupHelper.addMember(i2, subj1, m);
+        PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+        a = GroupHelper.findByName(nrs, i2.getName());
+        try {
+        	Thread.currentThread().sleep(3000);
+        }catch(InterruptedException e){}
+        GroupHelper.delete(nrs, a, i2.getName());
+        return null;
+      }
+    });
   } // public void testDeleteGroupWithMemberWithADMIN()
 
   public void testDeleteGroupWithMemberWithAllADMIN() {
-    LOG.info("testDeleteGroupWithMemberWithAllADMIN");
-    GroupHelper.addMember(i2, subj1, m);
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    try {
-    	Thread.currentThread().sleep(3000);
-    }catch(InterruptedException e){}
-    GroupHelper.delete(nrs, a, i2.getName());
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+
+        LOG.info("testDeleteGroupWithMemberWithAllADMIN");
+        GroupHelper.addMember(i2, subj1, m);
+        PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+        a = GroupHelper.findByName(nrs, i2.getName());
+        try {
+        	Thread.currentThread().sleep(3000);
+        }catch(InterruptedException e){}
+        GroupHelper.delete(nrs, a, i2.getName());
+        return null;
+      }
+    });
   } // public void testDeleteGroupWithMemberWithAllADMIN()
 
   public void testDeleteGroupIsMemberWithoutADMIN() {
-    LOG.info("testDeleteGroupIsMemberWithoutADMIN");
-    GroupHelper.addMember(uofc, i2);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.deleteFail(a);
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        LOG.info("testDeleteGroupIsMemberWithoutADMIN");
+        GroupHelper.addMember(uofc, i2);
+        return null;
+      }
+    });
+    GrouperSession.callbackGrouperSession(nrs, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        a = GroupHelper.findByName(nrs, i2.getName());
+        GroupHelper.deleteFail(a);
+        return null;
+      }
+    });
   } // public void testDeleteGroupIsMemberWithoutADMIN()
 
   public void testDeleteGroupIsMemberWithADMIN() {
-    LOG.info("testDeleteGroupIsMemberWithADMIN");
-    GroupHelper.addMember(uofc, i2);
-    PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delete(nrs, a, i2.getName());
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        LOG.info("testDeleteGroupIsMemberWithADMIN");
+        GroupHelper.addMember(uofc, i2);
+        PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
+        a = GroupHelper.findByName(nrs, i2.getName());
+        GroupHelper.delete(nrs, a, i2.getName());
+        return null;
+      }
+    });
+    
   } // public void testDeleteGroupIsMemberWithADMIN()
 
   public void testDeleteGroupIsMemberWithAllADMIN() {
-    LOG.info("testDeleteGroupIsMemberWithAllADMIN");
-    GroupHelper.addMember(uofc, i2);
-    PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
-    a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delete(nrs, a, i2.getName());
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+
+        LOG.info("testDeleteGroupIsMemberWithAllADMIN");
+        GroupHelper.addMember(uofc, i2);
+        PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
+        a = GroupHelper.findByName(nrs, i2.getName());
+        GroupHelper.delete(nrs, a, i2.getName());
+        return null;
+      }
+    });
   } // public void testDeleteGroupIsMemberWithAllADMIN()
 
   public void testSetAttrsWithoutADMIN() {

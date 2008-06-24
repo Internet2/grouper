@@ -16,9 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.Element;
@@ -38,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.6 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.7 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -107,19 +106,19 @@ public class CachingAccessResolver extends AccessResolverDecorator {
     //Needs to return actual privileges but also
     //cache true/false for each possible Privilege
 	Set<AccessPrivilege> privs = super.getDecoratedResolver().getPrivileges(group, subject);
-	Map<String, Object> privsMap = new HashMap<String, Object>();
+	Set<String> privsSet = new HashSet<String>();
 	AccessPrivilege ap = null;
 	Iterator it = privs.iterator();
 	while(it.hasNext()) {
 		ap = (AccessPrivilege) it.next();
-		privsMap.put(ap.getName(), null);
+		privsSet.add(ap.getName());
 	}
 	Set<Privilege> accessPrivs = Privilege.getAccessPrivs();
 	Iterator<Privilege> accessPrivsIterator = accessPrivs.iterator();
 	Privilege p=null;
 	while(accessPrivsIterator.hasNext()) {
 		p=accessPrivsIterator.next();
-		putInHasPrivilegeCache(group, subject, p, new Boolean(privsMap.containsKey(p.getName())));
+		putInHasPrivilegeCache(group, subject, p, new Boolean(privsSet.contains(p.getName())));
 	}
     return privs;
   }

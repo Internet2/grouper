@@ -30,7 +30,7 @@ import  java.util.Set;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.9 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.10 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -64,6 +64,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       throws  GrouperException,
               InsufficientPrivilegeException
   {
+    //note, no need for GrouperSession inverse of control
     if ( !PrivilegeHelper.isRoot(s) ) {
       throw new InsufficientPrivilegeException(E.ROOTLIKE_TO_ADD_HSUBJ);
     }    
@@ -111,6 +112,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
             IllegalStateException,
             InsufficientPrivilegeException
   {
+    //note, no need for GrouperSession inverse of control
     if (s == null) {
       throw new IllegalStateException("null session");
     }

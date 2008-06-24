@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr16.java,v 1.6 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestGAttr16.java,v 1.7 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr16 extends GrouperTest {
@@ -49,7 +49,7 @@ public class TestGAttr16 extends GrouperTest {
       Subject subjA = r.getSubject("a");
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
       r.rs.stop();  
-      gA.setSession( GrouperSession.start(subjA) );
+      GrouperSession.start(subjA);
       try {
         gA.deleteAttribute("description");
         fail("deleted unset attribute");

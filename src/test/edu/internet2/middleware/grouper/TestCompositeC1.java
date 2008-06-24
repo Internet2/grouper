@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC1.java,v 1.8 2007-03-05 20:04:17 blair Exp $
+ * @version $Id: TestCompositeC1.java,v 1.9 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.0
  */
 public class TestCompositeC1 extends TestCase {
@@ -50,7 +50,6 @@ public class TestCompositeC1 extends TestCase {
       a.addCompositeMember(
         CompositeType.COMPLEMENT, r.getGroup("a", "b"), r.getGroup("a", "c")
       );
-      a.setSession(nrs);
       a.deleteCompositeMember();
       r.rs.stop();
       nrs.stop();

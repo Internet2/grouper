@@ -23,7 +23,7 @@ import  java.util.Set;
  * Query filter that retrieves child groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ChildGroupFilter.java,v 1.4 2007-08-27 15:58:24 blair Exp $
+ * @version $Id: ChildGroupFilter.java,v 1.5 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.1
  */
 public class ChildGroupFilter extends BaseQueryFilter {
@@ -51,15 +51,19 @@ public class ChildGroupFilter extends BaseQueryFilter {
    * @see     BaseQueryFilter#getResults(GrouperSession)
    * @since   1.2.1
    */
-  public Set getResults(GrouperSession s) 
+  public Set<Group> getResults(GrouperSession s) 
     throws QueryException
   {
-    GrouperSession.validate(s);
-    GrouperSession orig = ns.getSession();
-    this.ns.setSession(s);
-    Set results = ns.getChildGroups(Stem.Scope.SUB);
-    this.ns.setSession(orig);
-    return results;
+    return (Set<Group>)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        GrouperSession.validate(grouperSession);
+        Set<Group> results = ns.getChildGroups(Stem.Scope.SUB);
+        return results;
+      }
+      
+    });
   } 
 
 }

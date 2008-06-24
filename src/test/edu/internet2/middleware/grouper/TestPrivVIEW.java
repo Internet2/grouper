@@ -19,13 +19,15 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test use of the VIEW {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivVIEW.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestPrivVIEW.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestPrivVIEW extends TestCase {
 
@@ -51,8 +53,8 @@ public class TestPrivVIEW extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    s       = SessionHelper.getRootSession();
     nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+    s       = SessionHelper.getRootSession();
     root    = StemHelper.findRootStem(s);
     edu     = StemHelper.addChildStem(root, "edu", "educational");
     i2      = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -65,6 +67,16 @@ public class TestPrivVIEW extends TestCase {
   protected void tearDown () {
     LOG.debug("tearDown");
     // Nothing 
+  }
+
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new TestPrivVIEW("testGrantedToCreator"));
+    TestRunner.run(TestPrivVIEW.class);
   }
 
   // Tests
@@ -162,12 +174,20 @@ public class TestPrivVIEW extends TestCase {
     PrivHelper.revokePriv(s, uofc,  SubjectFinder.findAllSubject(), AccessPrivilege.READ);
     PrivHelper.revokePriv(s, uofc,  SubjectFinder.findAllSubject(), AccessPrivilege.VIEW);
     // Now get parent stem
-    Stem  parent    = StemHelper.findByName(nrs, edu.getName());
-    Set   children  = parent.getChildGroups();
-    Assert.assertTrue(
-      "children == " + children.size() + " (exp 0)",
-      children.size() == 0
-    );
+    final Stem  parent    = StemHelper.findByName(nrs, edu.getName());
+    GrouperSession.callbackGrouperSession(nrs, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        Set   children  = parent.getChildGroups();
+        Assert.assertTrue(
+          "children == " + children.size() + " (exp 0)",
+          children.size() == 0
+        );
+        return null;
+      }
+      
+    });
   } // public void testFindGroupWithoutVIEW()
 
   public void testFindChildGroupWithVIEW() {

@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.StemNotFoundException;
  * Query by stem uuid.
  * <p/>
  * @author  mchyzer.
- * @version $Id: StemUuidFilter.java,v 1.1 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: StemUuidFilter.java,v 1.2 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class StemUuidFilter extends BaseQueryFilter {
 
@@ -59,6 +59,7 @@ public class StemUuidFilter extends BaseQueryFilter {
    */
   public Set<Stem> getResults(GrouperSession s) 
       throws QueryException {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set<Stem> stems  = new HashSet<Stem>();
     Stem stem = null;

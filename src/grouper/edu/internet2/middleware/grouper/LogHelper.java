@@ -22,7 +22,7 @@ import  org.apache.commons.lang.time.*;
  * Grouper log helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: LogHelper.java,v 1.5 2007-01-08 18:04:06 blair Exp $
+ * @version $Id: LogHelper.java,v 1.6 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.0
  */
 class LogHelper {
@@ -43,11 +43,13 @@ class LogHelper {
 
   // @since   1.2.0
   protected static String internal_formatMsg(GrouperSession s, String msg) {
+    //note, no need for GrouperSession inverse of control
     return internal_formatSession(s) + msg;
   } // protected static String internal_formatMsg(s, msg)
 
   // @since   1.2.0
   protected static String internal_formatSession(GrouperSession s) {
+    //note, no need for GrouperSession inverse of control
     return internal_formatSession(s.toString());
   } // protected static String internal_formatSession(s)
 

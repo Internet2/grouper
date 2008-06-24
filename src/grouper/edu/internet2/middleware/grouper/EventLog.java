@@ -31,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.52 2007-08-27 17:49:26 blair Exp $
+ * @version $Id: EventLog.java,v 1.53 2008-06-24 06:07:03 mchyzer Exp $
  */
 class EventLog {
 
@@ -69,7 +69,7 @@ class EventLog {
     Composite c, Set saves, Set deletes, StopWatch sw
   )
   {
-    EventLog.groupAddAndDelCompositeMembers( c.getSession(), c, saves, deletes, sw );
+    EventLog.groupAddAndDelCompositeMembers( GrouperSession.staticGrouperSession(), c, saves, deletes, sw );
   } // protected static void compositeUpdate(c, saves, deletes)
 
   // @since 1.0
@@ -77,6 +77,7 @@ class EventLog {
     GrouperSession s, Composite c, Set saves, Set deletes, StopWatch sw
   )
   {
+    //note, no need for GrouperSession inverse of control
     Object      obj;
     Membership  ms;
     Iterator    it  = saves.iterator();
@@ -102,6 +103,7 @@ class EventLog {
     GrouperSession s, Composite c, DefaultMemberOf mof, StopWatch sw
   )
   {
+    //note, no need for GrouperSession inverse of control
     EventLog.info(
       s
       , 
@@ -285,6 +287,7 @@ class EventLog {
     GrouperSession s, String msg, String where, Membership ms, StopWatch sw
   )
   {
+    //note, no need for GrouperSession inverse of control
     String subject = GrouperConfig.EMPTY_STRING;
     try {
       subject = SubjectHelper.getPretty(ms.getMember().getSubject());
@@ -308,6 +311,7 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
+    //note, no need for GrouperSession inverse of control
     MembershipDTO   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
@@ -328,6 +332,7 @@ class EventLog {
     GrouperSession s, String name, Subject subj, Field f, Set effs
   )
   {
+    //note, no need for GrouperSession inverse of control
     MembershipDTO   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
@@ -348,6 +353,7 @@ class EventLog {
     GrouperSession s, String msg, String name, Subject subj, Field f, MembershipDTO eff, String field
   )
   {
+    //note, no need for GrouperSession inverse of control
     msg += this._getEffOwnerMsg(eff);
     // Get eff field
     msg += " " + field + Quote.single( eff.getListName() );
@@ -431,6 +437,7 @@ class EventLog {
     GrouperSession s, String msg, String name, Subject subj, Privilege p, StopWatch sw
   )
   {
+    //note, no need for GrouperSession inverse of control
     EventLog.info(
       s,
       msg + Quote.single(name) + " priv=" + Quote.single( p.getName() ) + " subject=" 
@@ -443,6 +450,7 @@ class EventLog {
     GrouperSession s, String msg, String group, Subject subj, Field f, StopWatch sw
   )
   {
+    //note, no need for GrouperSession inverse of control
     EventLog.info(
       s,
       msg + Quote.single(group) + " list=" + Quote.single( f.getName() ) + " subject=" 
@@ -455,6 +463,7 @@ class EventLog {
     GrouperSession s, String msg, String name, Privilege p, StopWatch sw
   )
   {
+    //note, no need for GrouperSession inverse of control
     EventLog.info(
       s, msg + Quote.single(name) + " priv=" + Quote.single( p.getName() ), sw
     );
@@ -464,6 +473,7 @@ class EventLog {
     GrouperSession s, String msg, String name, Subject subj, Privilege p, StopWatch sw
   )
   {
+    //note, no need for GrouperSession inverse of control
     EventLog.info(
       s,
       msg + Quote.single(name) + " priv=" + Quote.single( p.getName() ) + " subject=" 

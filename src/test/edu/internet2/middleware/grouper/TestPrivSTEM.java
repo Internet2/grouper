@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.10 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.11 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestPrivSTEM extends GrouperTest {
 
@@ -43,6 +45,16 @@ public class TestPrivSTEM extends GrouperTest {
   protected void tearDown () {
     LOG.debug("tearDown");
     // Nothing 
+  }
+
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new TestPrivSTEM("testGrantedToCreator"));
+    TestRunner.run(TestPrivSTEM.class);
   }
 
   // Tests
@@ -183,8 +195,8 @@ public class TestPrivSTEM extends GrouperTest {
   public void testCreateChildStem() {
     LOG.info("testCreateChildStem");
     // Get root and !root sessions
-    GrouperSession  s       = SessionHelper.getRootSession();
     GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+    GrouperSession  s       = SessionHelper.getRootSession();
     // Get root stem and grant STEM on it to !root subject
     Stem            root    = StemHelper.findRootStem(s);
     PrivHelper.grantPriv(s, root, nrs.getSubject(), PRIV);
@@ -212,8 +224,8 @@ public class TestPrivSTEM extends GrouperTest {
     try {
       LOG.info("testModifyAttrs");
       // Get root and !root sessions
-      GrouperSession  s       = SessionHelper.getRootSession();
       GrouperSession  nrs     = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+      GrouperSession  s       = SessionHelper.getRootSession();
       // Get root stem and grant STEM on it to !root subject
       Stem            root    = StemHelper.findRootStem(s);
       PrivHelper.grantPriv(s, root, nrs.getSubject(), PRIV);

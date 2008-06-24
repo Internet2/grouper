@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MemberModifyValidator.java,v 1.3 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: MemberModifyValidator.java,v 1.4 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.0
  */
 class MemberModifyValidator extends GrouperValidator {
@@ -32,7 +32,7 @@ class MemberModifyValidator extends GrouperValidator {
     if      ( InternalSourceAdapter.ID.equals( m.getSubjectSourceId() ) ) {
       v.setErrorMessage("cannot modify internal subjects");
     }
-    else if ( !PrivilegeHelper.isRoot( m.getSession() ) )  {
+    else if ( !PrivilegeHelper.isRoot( GrouperSession.staticGrouperSession() ) )  {
       v.setErrorMessage("subject cannot modify member attributes");
     }
     else {

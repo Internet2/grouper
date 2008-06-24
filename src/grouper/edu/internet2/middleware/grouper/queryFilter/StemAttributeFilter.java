@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.BaseQueryFilter;
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSessionException;
+import edu.internet2.middleware.grouper.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.QueryException;
 import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
@@ -35,7 +37,7 @@ import edu.internet2.middleware.grouper.Stem;
  * but the 4 name columns).
  * <p/>
  * @author mchyzer
- * @version $Id: StemAttributeFilter.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * @version $Id: StemAttributeFilter.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class StemAttributeFilter extends BaseQueryFilter {
   
@@ -70,26 +72,40 @@ public class StemAttributeFilter extends BaseQueryFilter {
    * @see edu.internet2.middleware.grouper.BaseQueryFilter#getResults(edu.internet2.middleware.grouper.GrouperSession)
    */
   public Set getResults(GrouperSession s) throws QueryException {
-    GrouperSession.validate(s);
-    Set candidates = null;
-
-    //manually find the attribute and filter
-    if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_EXTENSION)) {
-      candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension(this.val); 
-    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_NAME)) {
-      candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayName(this.val); 
-    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_EXTENSION)) {
-      candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateExtension(this.val); 
-    } else if (StringUtils.equals(attr, GrouperConfig.ATTR_NAME)) {
-      candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateName(this.val); 
-    } else {
-      throw new QueryException("Illegal attribute to query stems: '" + attr + "', must be in (" + 
-          GrouperConfig.ATTR_DISPLAY_EXTENSION + ", " + GrouperConfig.ATTR_DISPLAY_NAME + ", " + GrouperConfig.ATTR_EXTENSION
-          + ", " + GrouperConfig.ATTR_NAME + ")");
+    try {
+      return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          GrouperSession.validate(grouperSession);
+          Set candidates = null;
+  
+          //manually find the attribute and filter
+          if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_EXTENSION)) {
+            candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension(StemAttributeFilter.this.val); 
+          } else if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_NAME)) {
+            candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayName(StemAttributeFilter.this.val); 
+          } else if (StringUtils.equals(attr, GrouperConfig.ATTR_EXTENSION)) {
+            candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateExtension(StemAttributeFilter.this.val); 
+          } else if (StringUtils.equals(attr, GrouperConfig.ATTR_NAME)) {
+            candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateName(StemAttributeFilter.this.val); 
+          } else {
+            throw new GrouperSessionException(new QueryException("Illegal attribute to query stems: '" + attr + "', must be in (" + 
+                GrouperConfig.ATTR_DISPLAY_EXTENSION + ", " + GrouperConfig.ATTR_DISPLAY_NAME + ", " + GrouperConfig.ATTR_EXTENSION
+                + ", " + GrouperConfig.ATTR_NAME + ")"));
+          }
+  
+          Set results     = StemAttributeFilter.this.filterByScope(StemAttributeFilter.this.ns, candidates);
+          return results;
+        }
+        
+      });
+    } catch (GrouperSessionException gse) {
+      if (gse.getCause() instanceof QueryException) {
+        throw (QueryException)gse.getCause();
+      }
+      throw gse;
     }
-
-    Set results     = this.filterByScope(this.ns, candidates);
-    return results;
   } // public Set getResults(s)
 
 }

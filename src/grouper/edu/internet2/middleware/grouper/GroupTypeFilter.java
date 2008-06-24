@@ -26,7 +26,7 @@ import  java.util.Set;
  * Query by {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFilter.java,v 1.11 2007-04-18 14:03:11 blair Exp $
+ * @version $Id: GroupTypeFilter.java,v 1.12 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.0
  */
 public class GroupTypeFilter extends BaseQueryFilter {
@@ -56,13 +56,13 @@ public class GroupTypeFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set       groups  = new LinkedHashSet();
     Group     g;  
     Iterator  it      = GrouperDAOFactory.getFactory().getGroup().findAllByType( (GroupTypeDTO) this.type.getDTO() ).iterator();
     while (it.hasNext()) {
       g = (Group) new Group().setDTO( (GroupDTO) it.next() );
-      g.setSession(s);
       groups.add(g);
     }
     return this.filterByScope(this.ns, groups);

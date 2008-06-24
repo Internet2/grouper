@@ -28,7 +28,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.50 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.51 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -51,6 +51,7 @@ public class MemberFinder {
   public static Set findAll(GrouperSession s)
     throws  GrouperRuntimeException
   {
+    //note, no need for GrouperSession inverse of control
     return findAll(s, null);
   } // public static Set findAll(GrouperSession s)
   
@@ -67,13 +68,13 @@ public class MemberFinder {
   public static Set findAll(GrouperSession s, Source source)
     throws  GrouperRuntimeException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set members = new LinkedHashSet();
     Iterator it = GrouperDAOFactory.getFactory().getMember().findAll(source).iterator();
     while (it.hasNext()) {
       Member m = new Member();
       m.setDTO((MemberDTO) it.next());
-      m.setSession(s);
       members.add(m);
     }
     return members;
@@ -98,9 +99,9 @@ public class MemberFinder {
   public static Member findBySubject(GrouperSession s, Subject subj)
     throws  MemberNotFoundException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Member m = internal_findBySubject(subj);
-    m.setSession(s);
     return m;
   } // public static Member findBySubject(s, subj)
 
@@ -124,9 +125,9 @@ public class MemberFinder {
     throws MemberNotFoundException
   {
     GrouperSession.validate(s);
+    //note, no need for GrouperSession inverse of control
     Member m = new Member();
     m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) );
-    m.setSession(s);
     return m;
   } // public static Member findByUuid(s, uuid)
 
@@ -200,6 +201,7 @@ public class MemberFinder {
     throws  InsufficientPrivilegeException,
             MemberNotFoundException
   {
+    //note, no need for GrouperSession inverse of control
     Member m = findBySubject(s, subj);
     if ( SubjectFinder.internal_getGSA().getId().equals( ( (MemberDTO) m.getDTO() ).getSubjectSourceId() ) ) {
       // subject is a group.  is it VIEWable?

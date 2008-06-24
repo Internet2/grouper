@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -17,7 +17,10 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSessionException;
+import edu.internet2.middleware.grouper.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperCache;
 import edu.internet2.middleware.subject.Subject;
@@ -105,14 +108,14 @@ public class HooksContext {
    * @param groupName
    * @return true if in group, false if not in group, or if the subject is not available
    */
-  public boolean isSubjectActAsInGroup(String groupName) {
-    Subject subject = this.getSubjectActAs();
+  public boolean isSubjectActAsInGroup(final String groupName) {
+    final Subject subject = this.getSubjectActAs();
     if (subject == null) {
       return false;
     }
     
     //see if answer is cached
-    MultiKey multiKey = new MultiKey(groupName, subject.getId(), subject.getSource());
+    final MultiKey multiKey = new MultiKey(groupName, subject.getId(), subject.getSource());
     Boolean result = subjectInGroupCache.get(multiKey);
     if (Boolean.TRUE.equals(result)) {
       return true;
@@ -124,25 +127,42 @@ public class HooksContext {
     Subject rootSubject = SubjectFinder.findRootSubject();
     GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(rootSubject);
+      grouperSession = GrouperSession.start(rootSubject, false);
 
-      //see if group cached
-      Group group = groupNameToGroupCache.get(groupName);
-      
-      if (group == null) {
-        group = GroupFinder.findByName(grouperSession, groupName);
-        groupNameToGroupCache.put(groupName, group);
-      }
-      
-      boolean isMember = group.hasMember(subject);
-      
-      //put it in cache either way
-      subjectInGroupCache.put(multiKey, isMember);
+      boolean isMember = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          //see if group cached
+          Group group = groupNameToGroupCache.get(groupName);
+          
+          if (group == null) {
+            try {
+              group = GroupFinder.findByName(grouperSession, groupName);
+            } catch (GroupNotFoundException gnfe) {
+              //wrap in groupersessionexception to get through inverse of control
+              throw new GrouperSessionException(gnfe);
+            }
+            groupNameToGroupCache.put(groupName, group);
+          }
+          
+          boolean isMember = group.hasMember(subject);
+          
+          //put it in cache either way
+          subjectInGroupCache.put(multiKey, isMember);
+          return isMember;
+        }
+        
+      });
       
       return isMember;
-    } catch (Exception e) {
+    } catch (Throwable throwable) {
+      //unwrap grouper sesion exception
+      if (throwable instanceof GrouperSessionException && throwable.getCause() != null) {
+        throwable = throwable.getCause();
+      }
       throw new RuntimeException("Problem seeing if subject: " + subject.getId() + ", " 
-          + subject.getSource() + ", is in group: " + groupName);
+          + subject.getSource() + ", is in group: " + groupName, throwable);
     } finally { 
       GrouperSession.stopQuietly(grouperSession);
     }

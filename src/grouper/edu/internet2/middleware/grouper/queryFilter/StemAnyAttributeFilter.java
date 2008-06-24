@@ -22,6 +22,8 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.BaseQueryFilter;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSessionException;
+import edu.internet2.middleware.grouper.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.QueryException;
 import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
@@ -31,7 +33,7 @@ import edu.internet2.middleware.grouper.Stem;
  * Query by all stem attributes.
  * <p/>
  * @author  mchyzer
- * @version $Id: StemAnyAttributeFilter.java,v 1.1 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: StemAnyAttributeFilter.java,v 1.2 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class StemAnyAttributeFilter extends BaseQueryFilter {
   
@@ -63,8 +65,16 @@ public class StemAnyAttributeFilter extends BaseQueryFilter {
    */
   public Set getResults(GrouperSession s) throws QueryException {
     GrouperSession.validate(s);
-    Set candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(this.val);
-    Set results     = this.filterByScope(this.ns, candidates);
+    Set results = (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        Set candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(StemAnyAttributeFilter.this.val);
+        Set results     = StemAnyAttributeFilter.this.filterByScope(StemAnyAttributeFilter.this.ns, candidates);
+        return results;
+      }
+      
+    });
     return results;
   } // public Set getResults(s)
 

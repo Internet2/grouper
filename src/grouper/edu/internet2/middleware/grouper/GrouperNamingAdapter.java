@@ -34,7 +34,7 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.64 2007-11-06 16:52:15 isgwb Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.65 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -70,6 +70,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
     throws  SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     return MembershipFinder.internal_findSubjectsNoPriv(
       s, ns, GrouperPrivilegeAdapter.internal_getField(priv2list, priv)
@@ -99,6 +100,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   ) 
     throws  SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set<Stem> stems = new LinkedHashSet<Stem>();
     try {
@@ -137,6 +139,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @return  Set of {@link NamingPrivilege} objects.
    */
   public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
@@ -190,23 +193,47 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @throws  SchemaException
    */
   public void grantPriv(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
+    GrouperSession s, final Stem ns, final Subject subj, final Privilege priv
   )
     throws  GrantPrivilegeException, 
             InsufficientPrivilegeException,
             SchemaException
   {
+    GrouperSession.validate(s);
     try {
-      GrouperSession.validate(s);
-      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-      PrivilegeHelper.dispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
-      if (!f.getType().equals(FieldType.NAMING)) {
-        throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
-      }  
-      Membership.internal_addImmediateMembership(s, ns, subj, f);
-    }
-    catch (MemberAddException eMA) {
-      throw new GrantPrivilegeException(eMA.getMessage(), eMA);
+      GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+            PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), ns, grouperSession.getSubject(), f.getWritePriv() );
+            if (!f.getType().equals(FieldType.NAMING)) {
+              throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
+            }  
+            Membership.internal_addImmediateMembership(grouperSession, ns, subj, f);
+          } catch (SchemaException se) {
+            throw new GrouperSessionException(se);
+          } catch (InsufficientPrivilegeException ipe) {
+            throw new GrouperSessionException(ipe);
+          } catch (MemberAddException eMA) {
+            throw new GrouperSessionException(new GrantPrivilegeException(eMA.getMessage(), eMA));
+          }
+          return null;
+        }
+        
+      });
+    } catch (GrouperSessionException gse) {
+      if (gse.getCause() instanceof GrantPrivilegeException) {
+        throw (GrantPrivilegeException)gse.getCause();
+      }
+      if (gse.getCause() instanceof SchemaException) {
+        throw (SchemaException)gse.getCause();
+      }
+      if (gse.getCause() instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)gse.getCause();
+      }
+      throw gse;
     }
   } // public void grantPriv(s, ns, subj, priv)
 
@@ -229,6 +256,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
     throws  SchemaException 
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     boolean rv = false;
     try {
@@ -267,9 +295,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    PrivilegeHelper.dispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
+    PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), ns, s.getSubject(), f.getWritePriv() );
     if (!f.getType().equals(FieldType.NAMING)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
@@ -310,9 +339,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
             RevokePrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    PrivilegeHelper.dispatch( ns.getSession(), ns, s.getSubject(), f.getWritePriv() );
+    PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), ns, s.getSubject(), f.getWritePriv() );
     if (!f.getType().equals(FieldType.NAMING)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  

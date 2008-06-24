@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.QueryFilter;
  * Query by exact group name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupNameExactFilter.java,v 1.1 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: GroupNameExactFilter.java,v 1.2 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GroupNameExactFilter extends BaseQueryFilter {
 
@@ -58,6 +58,8 @@ public class GroupNameExactFilter extends BaseQueryFilter {
   @Override
   public Set<Group> getResults(GrouperSession s) 
     throws QueryException  {
+
+    //note, no need for GrouperSession inverse of control
 
     GrouperSession.validate(s);
     Set candidates  = new HashSet<Group>();

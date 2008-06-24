@@ -29,7 +29,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingAccessResolver.java,v 1.4 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: ValidatingAccessResolver.java,v 1.5 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingAccessResolver extends AccessResolverDecorator {
@@ -113,7 +113,8 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
     throws  IllegalArgumentException
   {
     this.param.notNullGroup(group).notNullSubject(subject).notNullPrivilege(privilege);
-    return super.getDecoratedResolver().hasPrivilege(group, subject, privilege);
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.hasPrivilege(group, subject, privilege);
   }
 
   /**

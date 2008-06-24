@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.internal.dto.StemDTO;
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.8 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: BaseMemberOf.java,v 1.9 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
@@ -41,7 +41,6 @@ public abstract class BaseMemberOf implements MemberOf {
   private Set<GrouperDTO> effSaves        = new LinkedHashSet<GrouperDTO>();
   private Field           f               = Group.getDefaultList();
   private Group           g;
-  private GrouperSession  s;
   private MemberDTO       _m;
   private MembershipDTO   _ms;
   private Set<GroupDTO>             modifiedGroups  = new LinkedHashSet();
@@ -143,10 +142,6 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.g;
   }
   // @since   1.2.0
-  protected GrouperSession getSession() {
-    return this.s;
-  }
-  // @since   1.2.0
   public MemberDTO getMemberDTO() {
     return this._m;
   }
@@ -176,11 +171,6 @@ public abstract class BaseMemberOf implements MemberOf {
   protected MemberOf setGroup(Group g) {
     this.g = g;
     this.setOwnerUuid( g.getUuid() );
-    return this;
-  }
-  // @since   1.2.0
-  protected MemberOf setSession(GrouperSession s) {
-    this.s = s;
     return this;
   }
   // @since   1.2.0

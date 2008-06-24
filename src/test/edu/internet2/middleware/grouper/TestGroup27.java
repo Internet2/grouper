@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup27.java,v 1.5 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroup27.java,v 1.6 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestGroup27 extends TestCase {
 
@@ -52,7 +52,6 @@ public class TestGroup27 extends TestCase {
       a.grantPriv(subjA, AccessPrivilege.UPDATE);
 
       GrouperSession s = GrouperSession.start(subjA);
-      a.setSession(s);
       Assert.assertTrue("can write", a.canWriteField(Group.getDefaultList()));
       s.stop();
 

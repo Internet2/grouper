@@ -34,7 +34,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.9 2008-06-21 04:16:13 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.10 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -44,28 +44,41 @@ public class DefaultMemberOf extends BaseMemberOf {
   /**
    * @since   1.2.0
    */
-  public void addComposite(GrouperSession s, Group g, Composite c)
+  public void addComposite(GrouperSession s, final Group g, final Composite c)
     throws  IllegalStateException
   {
-    this.setComposite(c);
-    g.setSession(s); // TODO 20070522 in theory i shouldn't need to explicity set this but...
-    this.setGroup(g);
-    this.setSession(s);
-    this._evaluateAddCompositeMembership();
-    this.addSave( c.getDTO() );
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        DefaultMemberOf.this.setComposite(c);
+        DefaultMemberOf.this.setGroup(g);
+        DefaultMemberOf.this._evaluateAddCompositeMembership();
+        DefaultMemberOf.this.addSave( c.getDTO() );
+        return null;
+      }
+      
+    });
   } 
 
   /**
    * @since   1.2.0
    */
-  public void deleteComposite(GrouperSession s, Group g, Composite c)
+  public void deleteComposite(GrouperSession s, final Group g, final Composite c)
     throws  IllegalStateException
   {
-    this.setComposite(c);
-    this.setGroup(g);
-    this.setSession(s);
-    this._evaluateDeleteCompositeMembership();
-    this.addDelete( c.getDTO() );
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        DefaultMemberOf.this.setComposite(c);
+        DefaultMemberOf.this.setGroup(g);
+        DefaultMemberOf.this._evaluateDeleteCompositeMembership();
+        DefaultMemberOf.this.addDelete( c.getDTO() );
+        return null;
+      }
+      
+    });
   }
 
   /**
@@ -74,6 +87,7 @@ public class DefaultMemberOf extends BaseMemberOf {
   public void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
     throws  IllegalStateException 
   {
+    //note, no need for GrouperSession inverse of control
     this.setGroup(g);
     this._evaluateAddImmediateMembership(s, f, _m);
   } 
@@ -84,6 +98,7 @@ public class DefaultMemberOf extends BaseMemberOf {
   public void addImmediate(GrouperSession s, Stem ns, Field f, MemberDTO _m)
     throws  IllegalStateException
   {
+    //note, no need for GrouperSession inverse of control
     this.setStem(ns);
     this._evaluateAddImmediateMembership(s, f, _m);
   }
@@ -94,6 +109,7 @@ public class DefaultMemberOf extends BaseMemberOf {
   public void deleteImmediate(GrouperSession s, Group g, MembershipDTO _ms, MemberDTO _m)
     throws  IllegalStateException
   {
+    //note, no need for GrouperSession inverse of control
     this.setGroup(g);
     this._evaluateDeleteImmediateMembership(s, _ms, _m);
   }
@@ -104,6 +120,7 @@ public class DefaultMemberOf extends BaseMemberOf {
   public void deleteImmediate(GrouperSession s, Stem ns, MembershipDTO _ms, MemberDTO _m)
     throws  IllegalStateException
   {
+    //note, no need for GrouperSession inverse of control
     this.setStem(ns);
     this._evaluateDeleteImmediateMembership(s, _ms, _m);
   } 
@@ -119,7 +136,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     // This method is still a lot bigger and more hackish than I'd like but...
 
     // So that everything has the same modify time within here
-    String        modifierUuid  = this.getSession().getMember().getUuid();
+    String        modifierUuid  = GrouperSession.staticGrouperSession().getMember().getUuid();
     long          modifyTime    = new java.util.Date().getTime();
 
     // TODO 20070531 this is horribly ugly.
@@ -207,7 +224,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     int           depth       = this.getMembershipDTO().getDepth();
     String        listName    = this.getMembershipDTO().getListName();
     String        listType    = this.getMembershipDTO().getListType();
-    String        memberUUID  = this.getSession().getMember().getUuid();
+    String        memberUUID  = GrouperSession.staticGrouperSession().getMember().getUuid();
     String        msUUID      = this.getMembershipDTO().getUuid();
     String        ownerUUID   = this.getMembershipDTO().getOwnerUuid();
     while (it.hasNext()) {
@@ -269,7 +286,7 @@ public class DefaultMemberOf extends BaseMemberOf {
           hasMS = (MembershipDTO) itHM.next();
 
           _ms = new MembershipDTO()
-            .setCreatorUuid( this.getSession().getMember().getUuid() )
+            .setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() )
             .setDepth( isMS.getDepth() + hasMS.getDepth() + 2 )
             .setListName( isMS.getListName() )
             .setListType( isMS.getListType() )
@@ -324,7 +341,7 @@ public class DefaultMemberOf extends BaseMemberOf {
         isMS = (MembershipDTO) itIM.next();
 
         _ms = new MembershipDTO()
-          .setCreatorUuid( this.getSession().getMember().getUuid() )
+          .setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() )
           .setDepth( isMS.getDepth() + this.getMembershipDTO().getDepth() + 1 )
           .setListName( isMS.getListName() )
           .setListType( isMS.getListType() )
@@ -369,7 +386,7 @@ public class DefaultMemberOf extends BaseMemberOf {
     Iterator          it      = memberUUIDs.iterator();
     while (it.hasNext()) {
       _ms = new MembershipDTO();
-      _ms.setCreatorUuid( this.getSession().getMember().getUuid() );
+      _ms.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
       _ms.setDepth(0);
       _ms.setListName( this.getField().getName() );
       _ms.setListType( this.getField().getType().toString() );
@@ -453,52 +470,59 @@ public class DefaultMemberOf extends BaseMemberOf {
 
   // @since   1.2.0
   // TODO 20070531 split; this method has gotten too large
-  private void _evaluateAddImmediateMembership(GrouperSession s, Field f, MemberDTO _m) 
+  private void _evaluateAddImmediateMembership(GrouperSession s, final Field f, final MemberDTO _m) 
     throws  IllegalStateException
   {
-    MembershipDTO _ms = new MembershipDTO();
-    _ms.setCreatorUuid( s.getMember().getUuid() );
-    _ms.setListName( f.getName() );
-    _ms.setListType( f.getType().toString() );
-    _ms.setMemberUuid( _m.getUuid() );
-    _ms.setOwnerUuid( this.getOwnerUuid() );
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
-    GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
-    if (v.isInvalid()) {
-      throw new IllegalStateException( v.getErrorMessage() );
-    }
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        MembershipDTO _ms = new MembershipDTO();
+        _ms.setCreatorUuid( grouperSession.getMember().getUuid() );
+        _ms.setListName( f.getName() );
+        _ms.setListType( f.getType().toString() );
+        _ms.setMemberUuid( _m.getUuid() );
+        _ms.setOwnerUuid( DefaultMemberOf.this.getOwnerUuid() );
 
-    try {
-      // TODO 20070531 look into finding a way to avoid SchemaExceptions here
-      this.setField( FieldFinder.find( _ms.getListName() ) );
-    }
-    catch (SchemaException eS) {
-      throw new IllegalStateException( eS.getMessage(), eS );
-    }
-    this.setMemberDTO(_m);
-    this.setMembershipDTO(_ms);
-    this.setSession(s);
+        GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
+        if (v.isInvalid()) {
+          throw new IllegalStateException( v.getErrorMessage() );
+        }
 
-    Set results = new LinkedHashSet();
-    // If we are working on a group, where is it a member
-    Set isMember = new LinkedHashSet();
-    if ( this.getGroup() != null ) {
-      isMember = GrouperDAOFactory.getFactory().getMembership().findAllByMember( this.getGroup().toMember().getUuid() );
-    }
-    // Members of _m if owner is a group
-    Set<MembershipDTO> hasMembers = this._findMembersOfMember();
-    // Add _m to where owner is member if f == "members"
-    results.addAll( this._addMemberToWhereGroupIsMember(isMember) );
-    // Add members of _m to owner
-    results.addAll( this._addHasMembersToOwner(hasMembers) );
-    // Add members of _m to where owner is member if f == "members"
-    results.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
+        try {
+          // TODO 20070531 look into finding a way to avoid SchemaExceptions here
+          DefaultMemberOf.this.setField( FieldFinder.find( _ms.getListName() ) );
+        }
+        catch (SchemaException eS) {
+          throw new IllegalStateException( eS.getMessage(), eS );
+        }
+        DefaultMemberOf.this.setMemberDTO(_m);
+        DefaultMemberOf.this.setMembershipDTO(_ms);
 
-    this.addEffectiveSaves(results);
+        Set results = new LinkedHashSet();
+        // If we are working on a group, where is it a member
+        Set isMember = new LinkedHashSet();
+        if ( DefaultMemberOf.this.getGroup() != null ) {
+          isMember = GrouperDAOFactory.getFactory().getMembership().findAllByMember( DefaultMemberOf.this.getGroup().toMember().getUuid() );
+        }
+        // Members of _m if owner is a group
+        Set<MembershipDTO> hasMembers = DefaultMemberOf.this._findMembersOfMember();
+        // Add _m to where owner is member if f == "members"
+        results.addAll( DefaultMemberOf.this._addMemberToWhereGroupIsMember(isMember) );
+        // Add members of _m to owner
+        results.addAll( DefaultMemberOf.this._addHasMembersToOwner(hasMembers) );
+        // Add members of _m to where owner is member if f == "members"
+        results.addAll( DefaultMemberOf.this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
 
-    this.addSave(_ms); // Save the immediate
-    this.addSaves( this.getEffectiveSaves() );
-    this._identifyGroupsAndStemsToMarkAsModified();
+        DefaultMemberOf.this.addEffectiveSaves(results);
+
+        DefaultMemberOf.this.addSave(_ms); // Save the immediate
+        DefaultMemberOf.this.addSaves( DefaultMemberOf.this.getEffectiveSaves() );
+        DefaultMemberOf.this._identifyGroupsAndStemsToMarkAsModified();
+        return null;
+      }
+      
+    });
   } // private void _evaluateAddImmediateMembership(s, f, _m)
 
   // @since   1.2.0
@@ -516,7 +540,7 @@ public class DefaultMemberOf extends BaseMemberOf {
         _ms = (MembershipDTO) it.next();
         mof = new DefaultMemberOf();
         mof.deleteImmediate( 
-          this.getSession(), this.getGroup(), _ms, dao.findByUuid( _ms.getMemberUuid() ) 
+          GrouperSession.staticGrouperSession(), this.getGroup(), _ms, dao.findByUuid( _ms.getMemberUuid() ) 
         );
         this.addDeletes( mof.getDeletes() );
       }
@@ -527,40 +551,49 @@ public class DefaultMemberOf extends BaseMemberOf {
     this._identifyGroupsAndStemsToMarkAsModified();
   } // private void _evalulateDeleteCompositeMembership()
 
-  // @since   1.2.0
-  private void _evaluateDeleteImmediateMembership(GrouperSession s, MembershipDTO _ms, MemberDTO _m) 
+  /**
+   * @since   1.2.0
+   */
+  private void _evaluateDeleteImmediateMembership(GrouperSession s, final MembershipDTO _ms, final MemberDTO _m) 
     throws  IllegalStateException
   {
-    try {
-      this.setField( FieldFinder.find( _ms.getListName() ) );
-    }
-    catch (SchemaException eS) {
-      throw new IllegalStateException( eS.getMessage(), eS );
-    }
-    this.setMemberDTO(_m);
-    this.setMembershipDTO(_ms);
-    this.setSession(s);
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
-    // Find child memberships that need deletion
-    Set       children  = new LinkedHashSet();
-    Iterator  it        = MembershipFinder.internal_findAllChildrenNoPriv(_ms).iterator();
-    while (it.hasNext()) {
-      children.add( (MembershipDTO) it.next() );
-    }
-    this.addEffectiveDeletes(children);
-    // Find all effective memberships that need deletion
-    try {
-      this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(_ms, children) );
-    }
-    catch (SchemaException eS) {
-      throw new IllegalStateException( eS.getMessage(), eS );
-    }
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          DefaultMemberOf.this.setField( FieldFinder.find( _ms.getListName() ) );
+        }
+        catch (SchemaException eS) {
+          throw new IllegalStateException( eS.getMessage(), eS );
+        }
+        DefaultMemberOf.this.setMemberDTO(_m);
+        DefaultMemberOf.this.setMembershipDTO(_ms);
 
-    // And now set everything else
-    this.addDeletes( this.getEffectiveDeletes() );
-    this._identifyGroupsAndStemsToMarkAsModified();
+        // Find child memberships that need deletion
+        Set       children  = new LinkedHashSet();
+        Iterator  it        = MembershipFinder.internal_findAllChildrenNoPriv(_ms).iterator();
+        while (it.hasNext()) {
+          children.add( (MembershipDTO) it.next() );
+        }
+        DefaultMemberOf.this.addEffectiveDeletes(children);
+        // Find all effective memberships that need deletion
+        try {
+          DefaultMemberOf.this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(_ms, children) );
+        }
+        catch (SchemaException eS) {
+          throw new IllegalStateException( eS.getMessage(), eS );
+        }
 
-    this.addDelete(_ms); // Delete the immediate
+        // And now set everything else
+        DefaultMemberOf.this.addDeletes( DefaultMemberOf.this.getEffectiveDeletes() );
+        DefaultMemberOf.this._identifyGroupsAndStemsToMarkAsModified();
+
+        DefaultMemberOf.this.addDelete(_ms); // Delete the immediate
+        return null;
+      }
+      
+    });
   } // private void _evaluateDeleteImmediateMembership(s, _ms, _m)
 
   // Find m's hasMembers

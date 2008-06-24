@@ -52,8 +52,8 @@ public class GroupMemberFilter extends BaseQueryFilter {
   // Public Instance Methods
 
   public Set getResults(GrouperSession s) 
-    throws QueryException
-  {
+    throws QueryException {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
 
     Member member = null;

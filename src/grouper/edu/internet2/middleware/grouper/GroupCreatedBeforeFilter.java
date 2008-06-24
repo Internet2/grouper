@@ -24,7 +24,7 @@ import  java.util.*;
  * Query by groups created before the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupCreatedBeforeFilter.java,v 1.14 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: GroupCreatedBeforeFilter.java,v 1.15 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GroupCreatedBeforeFilter extends BaseQueryFilter {
 
@@ -53,6 +53,7 @@ public class GroupCreatedBeforeFilter extends BaseQueryFilter {
   public Set getResults(GrouperSession s) 
     throws QueryException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set candidates  = PrivilegeHelper.canViewGroups(
       s, GrouperDAOFactory.getFactory().getGroup().findAllByCreatedBefore(this.d) 

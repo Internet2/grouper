@@ -23,7 +23,7 @@ import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
  * Test {@link GrouperAPI}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperAPI.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_api_GrouperAPI.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperAPI extends GrouperTest {
@@ -64,7 +64,8 @@ public class Test_api_GrouperAPI extends GrouperTest {
 
   public void test_getSession_nullSession() {
     try {
-      this.mockAPI.getSession();
+      GrouperSession.clearGrouperSession();
+      GrouperSession.staticGrouperSession();
       fail("failed to throw expected IllegalStateException");
     }
     catch (IllegalStateException eExpected) {
@@ -75,9 +76,60 @@ public class Test_api_GrouperAPI extends GrouperTest {
   public void test_getSession_equalsSetSession() 
     throws  SessionException
   {
+    GrouperSession.clearGrouperSession();
+    
     GrouperSession s = GrouperSession.start( SubjectFinder.findAllSubject() );
-    this.mockAPI.setSession(s);
-    assertEquals( s, this.mockAPI.getSession() );   
+    assertEquals( s, GrouperSession.staticGrouperSession() );  
+    s.stop();
+    
+    assertEquals(null, GrouperSession.staticGrouperSession(false));
+    
+    //do callback and see
+    final GrouperSession SESSION = GrouperSession.start(SubjectFinder.findAllSubject(), false);
+    final GrouperSession SESSION2 = GrouperSession.start(SubjectFinder.findAllSubject(), false);
+    
+    assertFalse(SESSION == SESSION2);
+    
+    GrouperSession.callbackGrouperSession(SESSION, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        assertTrue (SESSION == grouperSession);
+        
+        //try to nest with same
+        GrouperSession.callbackGrouperSession(SESSION, new GrouperSessionHandler() {
+
+          public Object callback(GrouperSession grouperSession)
+              throws GrouperSessionException {
+            assertTrue (SESSION == grouperSession);
+
+            //nest with different
+            GrouperSession.callbackGrouperSession(SESSION2, new GrouperSessionHandler() {
+
+              public Object callback(GrouperSession grouperSession)
+                  throws GrouperSessionException {
+
+                assertTrue (SESSION2 == grouperSession);
+                return null;
+                
+              }
+              
+            });
+            
+            assertTrue (SESSION == grouperSession);
+            return null;
+          }
+          
+        });
+        
+        
+        assertTrue (SESSION == grouperSession);
+
+        return null;
+      }
+      
+    });
   }
 
 

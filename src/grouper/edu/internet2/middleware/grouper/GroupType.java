@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.55 2008-06-21 04:16:13 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.56 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -71,6 +71,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     StopWatch sw = new StopWatch();
     sw.start();
     GroupType type = internal_createType(s, name, true, false);
@@ -110,6 +111,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, this);
     if (v.isInvalid()) {
       throw new InsufficientPrivilegeException( v.getErrorMessage() );
@@ -150,6 +152,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, this);
     if (v.isInvalid()) {
       throw new InsufficientPrivilegeException( v.getErrorMessage() );
@@ -186,6 +189,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     StopWatch sw = new StopWatch();
     sw.start();
     if ( this.isSystemType() ) {
@@ -248,6 +252,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     StopWatch sw  = new StopWatch();
     sw.start();
     Field     f   = FieldFinder.find(name);  
@@ -350,6 +355,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       throws  InsufficientPrivilegeException,
               SchemaException
   { 
+    //note, no need for GrouperSession inverse of control
     if (!PrivilegeHelper.isRoot(s)) {
       String msg = E.GROUPTYPE_NOADD;
       ErrorLog.error(GroupType.class, msg);
@@ -393,6 +399,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     StopWatch sw  = new StopWatch();
     sw.start();
     AddFieldToGroupTypeValidator v = AddFieldToGroupTypeValidator.validate(name);

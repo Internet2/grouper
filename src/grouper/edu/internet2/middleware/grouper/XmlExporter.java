@@ -16,16 +16,36 @@
  */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.U;
-import  edu.internet2.middleware.grouper.internal.util.XML;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.io.*;
-import  java.util.*;
-import  org.apache.commons.logging.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
+import java.util.StringTokenizer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.grouper.internal.util.XML;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Utility class for exporting data from the Groups Registry in XML format.
@@ -41,7 +61,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.100 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.101 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -217,10 +237,8 @@ public class XmlExporter {
     try {
       exporter = new XmlExporter(
         GrouperSession.start(
-          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) )
-        ),
-        XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS) )
-      );
+          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) ), false),
+        XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS)));
       _handleArgs(exporter, rc);
       LOG.debug("Finished export to [" + rc.getProperty(XmlArgs.RC_EFILE) + "]");
     }
@@ -311,11 +329,30 @@ public class XmlExporter {
    * @throws  GrouperException
    * @since   1.1.0
    */
-  public void export(Writer writer, Collection items, String msg) 
+  public void export(Writer writer, final Collection items, final String msg) 
     throws  GrouperException 
   {
     this.xml = new XmlWriter(writer);
-    this._exportCollection(items, msg);
+    try {
+      GrouperSession.callbackGrouperSession(this.s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            XmlExporter.this._exportCollection(items, msg);
+          } catch (GrouperException grouperException) {
+            throw new GrouperSessionException(grouperException);
+          }
+          return null;
+        }
+        
+      });
+    } catch (GrouperSessionException grouperSessionException) {
+      if (grouperSessionException.getCause() instanceof GrouperException) {
+        throw (GrouperException)grouperSessionException.getCause();
+      }
+      throw grouperSessionException;
+    }
   } // public void _export(items, msg)
 
 
@@ -558,45 +595,71 @@ public class XmlExporter {
 
   // PRIVATE INSTANCE METHODS //
 
-  // @since   1.1.0
-  private void _export(Owner o)
+  /**
+   * @since   1.1.0
+   * @param o
+   * @throws GrouperException
+   */
+  private void _export(final Owner o)
     throws  GrouperException
   {
     try {
-      this._setFromStem(o);
-      this._writeHeader();
-      this._writeMetaData();
-      this._writeData(o);
-      this._writeExportParams(o);
-      this._writeFooter();
-    }
-    catch (CompositeNotFoundException eCNF) {
-      throw new GrouperException(eCNF.getMessage(), eCNF);
-    }
-    catch (GroupNotFoundException eGNF)     {
-      throw new GrouperException(eGNF.getMessage(), eGNF);
-    }
-    catch (IOException eIO) {
-      throw new GrouperException(eIO.getMessage(), eIO);
-    }
-    catch (MemberNotFoundException eMNF)    {
-      throw new GrouperException(eMNF.getMessage(), eMNF);
-    }
-    catch (SchemaException eS)              {
-      throw new GrouperException(eS.getMessage(), eS);
-    }
-    catch (StemNotFoundException eNSNF)     {
-      throw new GrouperException(eNSNF.getMessage(), eNSNF);
-    }
-    catch (SubjectNotFoundException eSNF)   {
-      throw new GrouperException(eSNF.getMessage(), eSNF);
+      GrouperSession.callbackGrouperSession(this.s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            XmlExporter.this._setFromStem(o);
+            XmlExporter.this._writeHeader();
+            XmlExporter.this._writeMetaData();
+            XmlExporter.this._writeData(o);
+            XmlExporter.this._writeExportParams(o);
+            XmlExporter.this._writeFooter();
+          }
+          catch (GrouperException ge) {
+            throw new GrouperSessionException(ge);
+          }
+          catch (CompositeNotFoundException eCNF) {
+            throw new GrouperSessionException(new GrouperException(eCNF.getMessage(), eCNF));
+          }
+          catch (GroupNotFoundException eGNF)     {
+            throw new GrouperSessionException(new GrouperException(eGNF.getMessage(), eGNF));
+          }
+          catch (IOException eIO) {
+            throw new GrouperSessionException(new GrouperException(eIO.getMessage(), eIO));
+          }
+          catch (MemberNotFoundException eMNF)    {
+            throw new GrouperSessionException(new GrouperException(eMNF.getMessage(), eMNF));
+          }
+          catch (SchemaException eS)              {
+            throw new GrouperSessionException(new GrouperException(eS.getMessage(), eS));
+          }
+          catch (StemNotFoundException eNSNF)     {
+            throw new GrouperSessionException(new GrouperException(eNSNF.getMessage(), eNSNF));
+          }
+          catch (SubjectNotFoundException eSNF)   {
+            throw new GrouperSessionException(new GrouperException(eSNF.getMessage(), eSNF));
+          }
+          return null;
+        }
+        
+      });
+    } catch (GrouperSessionException grouperSessionException) {
+      if (grouperSessionException.getCause() instanceof GrouperException) {
+        throw (GrouperException)grouperSessionException.getCause();
+      }
+      throw grouperSessionException;
     }
   } // private void _export(o)
 
-  // @since   1.1.0
+  /**
+   * @since   1.1.0
+   * @param c
+   * @param msg
+   * @throws GrouperException
+   */
   private void _exportCollection(Collection c, String msg) 
-    throws  GrouperException
-  {
+    throws  GrouperException {
     try {
       // TODO 20070531 this is atrocious
       this.fromStem         = "_Z";

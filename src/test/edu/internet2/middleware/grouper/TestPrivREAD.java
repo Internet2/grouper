@@ -18,13 +18,15 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test use of the READ {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivREAD.java,v 1.7 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestPrivREAD.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestPrivREAD extends TestCase {
 
@@ -49,8 +51,8 @@ public class TestPrivREAD extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+    s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -65,6 +67,15 @@ public class TestPrivREAD extends TestCase {
     LOG.debug("tearDown");
   }
 
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new TestPrivREAD("testGrantedToCreator"));
+    TestRunner.run(TestPrivREAD.class);
+  }
 
   // Tests
 

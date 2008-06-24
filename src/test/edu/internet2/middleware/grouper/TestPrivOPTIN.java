@@ -18,13 +18,15 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test use of the OPTIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivOPTIN.java,v 1.7 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: TestPrivOPTIN.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestPrivOPTIN extends TestCase {
 
@@ -47,8 +49,8 @@ public class TestPrivOPTIN extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+    s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -60,13 +62,21 @@ public class TestPrivOPTIN extends TestCase {
     // Nothing 
   }
 
-  // Tests
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new TestPrivOPTIN("testGrantedToCreator"));
+    TestRunner.run(TestPrivOPTIN.class);
+  }
 
   public void testAddSelfAsMemberWithoutADMIN() {
     LOG.info("testAddSelfAsMemberWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0);
+    final Group a = GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.addMemberUpdateFail(nrs, a, subj0);
   } // public void testAddSelfAsMemberWithoutADMIN
 
   public void testAddSelfAsMemberWithADMIN() {
@@ -86,8 +96,9 @@ public class TestPrivOPTIN extends TestCase {
   public void testAddSelfAsMemberWithoutOPTIN() {
     LOG.info("testAddSelfAsMemberWithoutOPTIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0);
+    final Group a = GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.addMemberUpdateFail(nrs, a, subj0);
+    
   } // public void testAddSelfAsMemberWithoutOPTIN
  
   public void testAddSelfAsMemberWithOPTIN() {
@@ -107,8 +118,8 @@ public class TestPrivOPTIN extends TestCase {
   public void testAddSelfAsMemberWithoutUPDATE() {
     LOG.info("testAddSelfAsMemberWithoutUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.addMemberUpdateFail(a, subj0);
+    final Group a = GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.addMemberUpdateFail(nrs, a, subj0);
   } // public void testAddSelfAsMemberWithoutUPDATE
  
   public void testAddSelfAsMemberWithUPDATE() {

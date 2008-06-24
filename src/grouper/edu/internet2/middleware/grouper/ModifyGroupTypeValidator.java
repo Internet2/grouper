@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: ModifyGroupTypeValidator.java,v 1.3 2007-08-24 14:18:15 blair Exp $
+ * @version $Id: ModifyGroupTypeValidator.java,v 1.4 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.0
  */
 class ModifyGroupTypeValidator extends GrouperValidator {
@@ -28,6 +28,7 @@ class ModifyGroupTypeValidator extends GrouperValidator {
 
   // @since   1.2.0
   protected static ModifyGroupTypeValidator validate(GrouperSession s, GroupType type) {
+    //note, no need for GrouperSession inverse of control
     ModifyGroupTypeValidator v = new ModifyGroupTypeValidator();
     if      ( !PrivilegeHelper.isRoot(s) )  {
       v.setErrorMessage(E.GROUPTYPE_CANNOT_MODIFY_TYPE);
