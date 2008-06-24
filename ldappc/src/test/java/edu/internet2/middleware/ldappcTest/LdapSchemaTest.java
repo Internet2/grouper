@@ -108,7 +108,7 @@ public class LdapSchemaTest extends TestCase
      * ready to be used.
      */
     public void testSchemaPresence() throws NamingException {
-        Attributes attrs = ctx.getAttributes("cn=schema", new String[] { "attributeTypes", "objectClasses" });
+        Attributes attrs = ctx.getAttributes("cn=schema,ou=system", new String[] { "attributeTypes", "objectClasses" });
 
         // -------------------------------------------------------------------
         // Check that our 3 attributeTypes are present in cn=schema,ou=system
