@@ -5,12 +5,14 @@
 # are found under ou=uob,dc=example,dc=edu
 #
 
-dn: dc=example,dc=edu
-objectclass: top
-objectclass: dcObject
-objectclass: organization
-o: Example University
-dc: example
+# Uncomment this if you need the top element created.
+# We create it manually in the ApacheDS test suite.
+#dn: dc=example,dc=edu
+#objectclass: top
+#objectclass: dcObject
+#objectclass: organization
+#o: Example University
+#dc: example
 
 dn: ou=kitn,dc=example,dc=edu
 objectclass: top
