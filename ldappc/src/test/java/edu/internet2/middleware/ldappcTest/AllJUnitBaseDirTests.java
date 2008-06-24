@@ -51,18 +51,18 @@ public class AllJUnitBaseDirTests extends TestCase
     public static Test suite() 
     {
         TestSuite suite = new TestSuite(LdappcTest.class);
-//        suite.addTest(new TestSuite(InputOptionsTest.class));
-//        suite.addTest(new TestSuite(RootProcessorTest.class));
+        suite.addTest(new TestSuite(InputOptionsTest.class));
+        suite.addTest(new TestSuite(RootProcessorTest.class));
         suite.addTest(new TestSuite(SimpleLdapSearchTest.class));
-//        suite.addTest(new TestSuite(GrouperSubjectRetrieverTest.class));
-//        suite.addTest(new TestSuite(HsqlConnectionTest.class));
-//        suite.addTest(new TestSuite(SignetSubjectRetrieverTest.class));
-//        suite.addTest(new TestSuite(GrouperSessionControlTest.class));
-//        suite.addTest(new TestSuite(LdapNewEntryTest.class));
-//        suite.addTest(new TestSuite(StemProcessorTest.class));
-//        suite.addTest(new TestSuite(GroupProcessorTest.class));
-//        suite.addTest(new TestSuite(GrouperProvisionerTest.class));
-//        suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
+        suite.addTest(new TestSuite(GrouperSubjectRetrieverTest.class));
+        suite.addTest(new TestSuite(HsqlConnectionTest.class));
+        suite.addTest(new TestSuite(SignetSubjectRetrieverTest.class));
+        suite.addTest(new TestSuite(GrouperSessionControlTest.class));
+        suite.addTest(new TestSuite(LdapNewEntryTest.class));
+        suite.addTest(new TestSuite(StemProcessorTest.class));
+        suite.addTest(new TestSuite(GroupProcessorTest.class));
+        suite.addTest(new TestSuite(GrouperProvisionerTest.class));
+        suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
 
         //suite.addTest(new TestSuite(SchemaTest.class));
         return suite;
