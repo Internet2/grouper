@@ -16,15 +16,6 @@
   </dependencySets>
 
   <fileSets>
-    <!-- Copy the ldappc jar to the /lib directory -->
-    <fileSet>
-      <directory>target</directory>
-      <outputDirectory>/lib</outputDirectory>
-      <includes>
-        <include>ldappc-*.jar</include>
-      </includes>
-    </fileSet>
-
     <!-- Copy conf directory -->
     <fileSet>
       <directory>conf</directory>
