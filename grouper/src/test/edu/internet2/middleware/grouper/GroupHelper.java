@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.16 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: GroupHelper.java,v 1.17 2008-06-24 06:07:03 mchyzer Exp $
  */
 class GroupHelper {
 
@@ -60,7 +60,7 @@ class GroupHelper {
       MembershipTestHelper.testEff(g, gm, m);
     }
     catch (Exception e) {
-      Assert.fail(e.getMessage());
+      throw new RuntimeException(e);
     }
   } // protected static void addMember(g, gm)
 
@@ -72,7 +72,7 @@ class GroupHelper {
       MembershipTestHelper.testImm(g, subj, m);
     }
     catch (InsufficientPrivilegeException e0) {
-      Assert.fail("not privileged to add member: " + e0.getMessage());
+      throw new RuntimeException("not privileged to add member: " + e0.getMessage(), e0);
     }
     catch (MemberAddException e1) {
       Assert.fail("failed to add member: " + e1.getMessage());
@@ -104,17 +104,26 @@ class GroupHelper {
    * TODO 20070813 deprecate
    * @since  1.2.1
    */
-  protected static void addMemberUpdateFail(Group g, Subject subj) {
-    try {
-      g.addMember(subj);
-      Assert.fail("added member");
-    }
-    catch (InsufficientPrivilegeException e0) {
-      Assert.assertTrue("failed to add member", true);
-    }
-    catch (MemberAddException e1) {
-      Assert.assertTrue("failed to add member", true);
-    }
+  protected static void addMemberUpdateFail(GrouperSession grouperSession, 
+      final Group g, final Subject subj) {
+    GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          g.addMember(subj);
+          Assert.fail("added member");
+        }
+        catch (InsufficientPrivilegeException e0) {
+          Assert.assertTrue("failed to add member", true);
+        }
+        catch (MemberAddException e1) {
+          Assert.assertTrue("failed to add member", true);
+        }
+        return null;
+      }
+      
+    });
   }
 
   // fail to delete a group attribute
@@ -215,17 +224,26 @@ class GroupHelper {
    * TODO 20070813 deprecate
    * @since  1.2.1
    */
-  protected static void delMemberUpdateFail(Group g, Subject subj) {
-    try {
-      g.deleteMember(subj);
-      Assert.fail("deleted member");
-    }
-    catch (InsufficientPrivilegeException e0) {
-      Assert.assertTrue("did not delete member (IP)", true);
-    }
-    catch (MemberDeleteException e1) {
-      Assert.assertTrue("did not delete member (MD)", true);
-    }
+  protected static void delMemberUpdateFail(GrouperSession grouperSession, 
+      final Group g, final Subject subj) {
+    GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          g.deleteMember(subj);
+          Assert.fail("deleted member");
+        }
+        catch (InsufficientPrivilegeException e0) {
+          Assert.assertTrue("did not delete member (IP)", true);
+        }
+        catch (MemberDeleteException e1) {
+          Assert.assertTrue("did not delete member (MD)", true);
+        }
+        return null;
+      }
+      
+    });
   }
 
   protected static Group findByName(GrouperSession s, String name) {

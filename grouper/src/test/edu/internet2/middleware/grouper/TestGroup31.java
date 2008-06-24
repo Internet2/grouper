@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup31.java,v 1.5 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroup31.java,v 1.6 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestGroup31 extends TestCase {
 
@@ -51,7 +51,6 @@ public class TestGroup31 extends TestCase {
       Subject subjA = r.getSubject("a");
 
       GrouperSession s = GrouperSession.start(subjA);
-      a.setSession(s);
       Assert.assertFalse(
         "cannot write", 
         a.canWriteField(subjA, FieldFinder.find("admins"))

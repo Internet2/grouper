@@ -34,7 +34,7 @@ import  java.util.Set;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.91 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.92 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -65,6 +65,7 @@ public class MembershipFinder {
     throws  MembershipNotFoundException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
      // @filtered  true
      // @session   true
     GrouperSession.validate(s);
@@ -77,7 +78,6 @@ public class MembershipFinder {
           g.getUuid(), m.getUuid(), f, Membership.COMPOSITE
         ) 
       );
-      ms.setSession(s);
       PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     }
@@ -121,6 +121,7 @@ public class MembershipFinder {
     throws  MembershipNotFoundException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
      // @filtered  true
      // @session   true
     GrouperSession.validate(s);
@@ -136,7 +137,6 @@ public class MembershipFinder {
         while (it.hasNext()) {
           eff = new Membership();
           eff.setDTO( (MembershipDTO) it.next() );
-          eff.setSession(s);
           mships.add(eff);
         }
       }
@@ -173,10 +173,8 @@ public class MembershipFinder {
    */
   public static Membership findImmediateMembership(
     GrouperSession s, Group g, Subject subj, Field f
-  )
-    throws  MembershipNotFoundException,
-            SchemaException
-  {
+  ) throws  MembershipNotFoundException, SchemaException {
+    //note, no need for GrouperSession inverse of control
     // @filtered  true
     // @session   true
     GrouperSession.validate(s);
@@ -188,7 +186,6 @@ public class MembershipFinder {
           g.getUuid(), m.getUuid(), f, Membership.IMMEDIATE 
         ) 
       );
-      ms.setSession(s);
       PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     }
@@ -258,6 +255,7 @@ public class MembershipFinder {
   protected static Set<Member> findMembers(Group group, Field field)
     throws  IllegalArgumentException
   {
+    //note, no need for GrouperSession inverse of control
     if (group == null) { // TODO 20070814 ParameterHelper
       throw new IllegalArgumentException("null Group");
     }
@@ -267,11 +265,10 @@ public class MembershipFinder {
     Set<Member> members = new LinkedHashSet();
     try {
       Member          m;
-      GrouperSession  s   = group.getSession();
+      GrouperSession  s   = GrouperSession.staticGrouperSession();
       PrivilegeHelper.dispatch( s, group, s.getSubject(), field.getReadPriv() );
       for ( MemberDTO dto : GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndField( group.getUuid(), field ) ) {
         m = new Member();
-        m.setSession(s);
         m.setDTO(dto);
         members.add(m);
       }
@@ -374,6 +371,7 @@ public class MembershipFinder {
   protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d, Field f) 
     throws QueryException 
   {
+    //note, no need for GrouperSession inverse of control
     // @filtered  false
     // @session   true
     Set         mships  = new LinkedHashSet();
@@ -382,7 +380,6 @@ public class MembershipFinder {
     while (it.hasNext()) {
       ms = new Membership();
       ms.setDTO( (MembershipDTO) it.next() );
-      ms.setSession(s);
       mships.add(ms);
     }
     return mships;
@@ -390,8 +387,8 @@ public class MembershipFinder {
 
   // @since   1.2.0
   protected static Set internal_findAllByCreatedBefore(GrouperSession s, Date d, Field f) 
-    throws QueryException 
-  {
+    throws QueryException {
+    //note, no need for GrouperSession inverse of control
     // @filtered  false
     // @session   true
     Set         mships  = new LinkedHashSet();
@@ -400,7 +397,6 @@ public class MembershipFinder {
     while (it.hasNext()) {
       ms = new Membership();
       ms.setDTO( (MembershipDTO) it.next() );
-      ms.setSession(s);
       mships.add(ms);
     }
     return mships;

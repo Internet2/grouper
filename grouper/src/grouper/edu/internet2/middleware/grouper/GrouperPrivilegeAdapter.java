@@ -23,7 +23,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.17 2007-11-06 16:52:15 isgwb Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.18 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -63,92 +63,148 @@ class GrouperPrivilegeAdapter {
   //Added Owner to signature so we don't need to compute it 
   //consequently all Memberships must be of the same Owner
   protected static Set internal_getPrivs(
-    GrouperSession s, Owner ownerGroupOrStem,Subject subj, Member m, Privilege p, Iterator it
+    GrouperSession s, final Owner ownerGroupOrStem,final Subject subj, final Member m, final Privilege p, final Iterator it
   )
     throws  SchemaException
   {
-    // TODO 20070531 split and test
-    Membership  ms;
-    Subject     owner   = subj;
-    Set         privs   = new LinkedHashSet();
-    boolean     revoke  = true;
-    Privilege localP = null;
-    while (it.hasNext()) {
-      ms = new Membership();
-      ms.setDTO( (MembershipDTO) it.next() );
-      ms.setSession(s);
-      if(p!=null) {
-    	  localP=p;
-      }else{
-    	  localP=list2priv.get(ms.getList().getName());
-      }
-      
-      //Since we are getting everything, could get members or custom lists which do not correspond to privileges
-      if(localP==null) continue;
-      try {
-        if (!SubjectHelper.eq(m.getSubject(), subj)) {
-          owner   = m.getSubject();
-          revoke  = false;
-        }
-      }
-      catch (SubjectNotFoundException eSNF) {
-        ErrorLog.error(GrouperPrivilegeAdapter.class, eSNF.getMessage());
-      }
-      if ( ( (MembershipDTO) ms.getDTO() ).getViaUuid() != null ) {
-        try {
-          owner   = ms.getViaGroup().toSubject();
-          revoke  = false;
-        }
-        catch (GroupNotFoundException eGNF) {
-          ErrorLog.error( GrouperPrivilegeAdapter.class, eGNF.getMessage() );
-        }
-      }
-      
-        if (Privilege.isAccess(localP))  {
-          privs.add(
-            new AccessPrivilege((Group)ownerGroupOrStem, subj, owner, localP, s.getAccessClass(), revoke)
-          );
-        }
-        else{
-          privs.add(
-            new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, s.getNamingClass(), revoke )
-          );
-        }
+    return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
-    }
-    return privs;
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        // TODO 20070531 split and test
+        Membership  ms;
+        Subject     owner   = subj;
+        Set         privs   = new LinkedHashSet();
+        boolean     revoke  = true;
+        Privilege localP = null;
+        while (it.hasNext()) {
+          ms = new Membership();
+          ms.setDTO( (MembershipDTO) it.next() );
+          if(p!=null) {
+            localP=p;
+          }else{
+            localP=list2priv.get(ms.getList().getName());
+          }
+          
+          //Since we are getting everything, could get members or custom lists which do not correspond to privileges
+          if(localP==null) continue;
+          try {
+            if (!SubjectHelper.eq(m.getSubject(), subj)) {
+              owner   = m.getSubject();
+              revoke  = false;
+            }
+          }
+          catch (SubjectNotFoundException eSNF) {
+            ErrorLog.error(GrouperPrivilegeAdapter.class, eSNF.getMessage());
+          }
+          if ( ( (MembershipDTO) ms.getDTO() ).getViaUuid() != null ) {
+            try {
+              owner   = ms.getViaGroup().toSubject();
+              revoke  = false;
+            }
+            catch (GroupNotFoundException eGNF) {
+              ErrorLog.error( GrouperPrivilegeAdapter.class, eGNF.getMessage() );
+            }
+          }
+          
+            if (Privilege.isAccess(localP))  {
+              privs.add(
+                new AccessPrivilege((Group)ownerGroupOrStem, subj, owner, localP, grouperSession.getAccessClass(), revoke)
+              );
+            }
+            else{
+              privs.add(
+                new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, grouperSession.getNamingClass(), revoke )
+              );
+            }
+
+        }
+        return privs;
+      }
+      
+    });
   } // protected Set internal_getPrivs(s, subj, m, p, it)
 
-  // @since   1.2.0
-  protected static Set internal_getGroupsWhereSubjectHasPriv(GrouperSession s, Member m, Field f)
+  /**
+   * @since   1.2.0
+   * @param s
+   * @param m
+   * @param f
+   * @return the set
+   * @throws GroupNotFoundException
+   */
+  protected static Set internal_getGroupsWhereSubjectHasPriv(GrouperSession s, final Member m, final Field f)
     throws  GroupNotFoundException
   {
-    Set         mships  = new LinkedHashSet();
-    Membership  ms;
-    // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.internal_findMemberships( s.internal_getRootSession(), m, f ).iterator();
-    while (it.hasNext()) {
-      ms = (Membership) it.next();
-      ms.setSession(s);
-      mships.add( ms.getGroup() );
+    try {
+      return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          Set         mships  = new LinkedHashSet();
+          Membership  ms;
+          // Perform query as ROOT to prevent privilege constraints getting in the way
+          Iterator    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), m, f ).iterator();
+          while (it.hasNext()) {
+            ms = (Membership) it.next();
+            try {
+              mships.add( ms.getGroup() );
+            } catch (GroupNotFoundException gnfe) {
+              throw new GrouperSessionException(gnfe);
+            }
+          }
+          return mships;
+        }
+        
+      });
+    } catch (GrouperSessionException gse) {
+      if (gse.getCause() instanceof GroupNotFoundException) {
+        throw (GroupNotFoundException)gse.getCause();
+      }
+      throw gse;
     }
-    return mships;
   } // protected static Set internal_getGroupsWhereSubjectHasPriv(s, m, f)
 
-  // @since   1.2.0
-  protected static Set internal_getStemsWhereSubjectHasPriv(GrouperSession s, Member m, Field f)
+  /**
+   * @since   1.2.0
+   * @param s
+   * @param m
+   * @param f
+   * @return the set
+   * @throws StemNotFoundException
+   */
+  protected static Set internal_getStemsWhereSubjectHasPriv(GrouperSession s, final Member m, final Field f)
     throws  StemNotFoundException
   {
-    Set         mships  = new LinkedHashSet();
-    Membership  ms;
-    // Perform query as ROOT to prevent privilege constraints getting in the way
-    Iterator    it      = MembershipFinder.internal_findMemberships( s.internal_getRootSession(), m, f ).iterator();
-    while (it.hasNext()) {
-      ms = (Membership) it.next();
-      ms.setSession(s);
-      mships.add( ms.getStem() );
+    try {
+      return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          Set         mships  = new LinkedHashSet();
+          Membership  ms;
+          // Perform query as ROOT to prevent privilege constraints getting in the way
+          Iterator    it      = MembershipFinder.internal_findMemberships( grouperSession.internal_getRootSession(), 
+              m, f ).iterator();
+          while (it.hasNext()) {
+            ms = (Membership) it.next();
+            try {
+              mships.add( ms.getStem() );
+            } catch (StemNotFoundException snfe) {
+              throw new GrouperSessionException(snfe);
+            }
+          }
+          return mships;
+        }
+        
+      });
+    } catch (GrouperSessionException gse) {
+      if (gse.getCause() instanceof StemNotFoundException) {
+        throw (StemNotFoundException)gse.getCause();
+      }
+      throw gse;
+      
     }
-    return mships;
   } // protected static Set internal_getStemsWhereSubjectHasPriv(s, m, f)
 
 } // class GrouperPrivilegeAdapter

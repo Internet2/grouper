@@ -23,7 +23,7 @@ import  java.util.Set;
  * Query filter that retrieves child stems.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ChildStemFilter.java,v 1.4 2007-08-27 15:58:24 blair Exp $
+ * @version $Id: ChildStemFilter.java,v 1.5 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.1
  */
 public class ChildStemFilter extends BaseQueryFilter {
@@ -51,15 +51,18 @@ public class ChildStemFilter extends BaseQueryFilter {
    * @see     BaseQueryFilter#getResults(GrouperSession)
    * @since   1.2.1
    */
-  public Set getResults(GrouperSession s) 
-    throws QueryException
-  {
-    GrouperSession.validate(s);
-    GrouperSession orig = ns.getSession();
-    this.ns.setSession(s);
-    Set results = ns.getChildStems(Stem.Scope.SUB);
-    this.ns.setSession(orig);
-    return results;
+  public Set<Stem> getResults(GrouperSession s) 
+    throws QueryException {
+    return (Set<Stem>)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        GrouperSession.validate(grouperSession);
+        Set results = ns.getChildStems(Stem.Scope.SUB);
+        return results;
+      }
+      
+    });
   } 
 
 }

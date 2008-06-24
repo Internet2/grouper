@@ -18,13 +18,15 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test use of the OPTOUT {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivOPTOUT.java,v 1.7 2007-08-13 16:07:04 blair Exp $
+ * @version $Id: TestPrivOPTOUT.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestPrivOPTOUT extends TestCase {
 
@@ -47,8 +49,8 @@ public class TestPrivOPTOUT extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    s     = SessionHelper.getRootSession();
     nrs   = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+    s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "educational");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
@@ -61,13 +63,23 @@ public class TestPrivOPTOUT extends TestCase {
     // Nothing 
   }
 
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    //TestRunner.run(new TestPrivOPTOUT("testGrantedToCreator"));
+    TestRunner.run(TestPrivOPTOUT.class);
+  }
+
   // Tests
 
   public void testDelSelfAsMemberWithoutADMIN() {
     LOG.info("testDelSelfAsMemberWithoutADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdateFail(a, subj0);
+    final Group a = GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.delMemberUpdateFail(nrs, a, subj0);
   } // public void testDelSelfAsMemberWithoutADMIN
  
   public void testDelSelfAsMemberWithADMIN() {
@@ -87,8 +99,8 @@ public class TestPrivOPTOUT extends TestCase {
   public void testDelSelfAsMemberWithoutOPTOUT() {
     LOG.info("testDelSelfAsMemberWithoutOPTOUT");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdateFail(a, subj0);
+    final Group a = GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.delMemberUpdateFail(nrs, a, subj0);
   } // public void testDelSelfAsMemberWithoutOPTOUT
  
   public void testDelSelfAsMemberWithOPTOUT() {
@@ -108,8 +120,8 @@ public class TestPrivOPTOUT extends TestCase {
   public void testDelSelfAsMemberWithoutUPDATE() {
     LOG.info("testDelSelfAsMemberWithoutUPDATE");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.VIEW);
-    Group a = GroupHelper.findByName(nrs, i2.getName());
-    GroupHelper.delMemberUpdateFail(a, subj0);
+    final Group a = GroupHelper.findByName(nrs, i2.getName());
+    GroupHelper.delMemberUpdateFail(nrs, a, subj0);
   } // public void testDelSelfAsMemberWithoutUPDATE
  
   public void testDelSelfAsMemberWithUPDATE() {

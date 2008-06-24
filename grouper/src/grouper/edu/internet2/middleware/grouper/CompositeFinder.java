@@ -24,7 +24,7 @@ import  java.util.Set;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.19 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: CompositeFinder.java,v 1.20 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -50,14 +50,13 @@ public class CompositeFinder {
    */
   public static Set findAsFactor(Group g) {
     Set             where = new LinkedHashSet();
-    GrouperSession  s     = g.getSession();
+    GrouperSession  s     = GrouperSession.staticGrouperSession();
     Member          m     = s.getMember();
     Composite       c;
     Iterator        it    = GrouperDAOFactory.getFactory().getComposite().findAsFactor( (GroupDTO) g.getDTO() ).iterator();
     while (it.hasNext()) {
       c = new Composite();
       c.setDTO( (CompositeDTO) it.next() );
-      c.setSession(s);
       try {
         if ( m.canView( c.getOwnerGroup() ) ) {
           where.add(c);
@@ -83,11 +82,10 @@ public class CompositeFinder {
   public static Composite findAsOwner(Group g) 
     throws  CompositeNotFoundException
   {
-    GrouperSession  s = g.getSession();
+    GrouperSession  s = GrouperSession.staticGrouperSession();
     Member          m = s.getMember();
     Composite       c = new Composite();
     c.setDTO( GrouperDAOFactory.getFactory().getComposite().findAsOwner( (GroupDTO) g.getDTO() ));
-    c.setSession(s);
     try {
       if ( m.canView( c.getOwnerGroup() ) ) {
         return c;

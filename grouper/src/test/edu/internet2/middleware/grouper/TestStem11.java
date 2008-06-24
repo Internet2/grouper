@@ -18,11 +18,13 @@
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem11.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestStem11.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.0.1
  */
 public class TestStem11 extends TestCase {
@@ -43,23 +45,41 @@ public class TestStem11 extends TestCase {
     LOG.debug("tearDown");
   }
 
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(new TestStem11("testDelMembersWithADMIN"));
+    TestRunner.run(TestStem11.class);
+  }
+
   // BUGFIX:GCODE:10
   public void testGetPrivsStemmersAndCreatorsAsNonRoot() {
     LOG.info("testGetPrivsStemmersAndCreatorsAsNonRoot");
     try {
-      R               r     = R.populateRegistry(0, 0, 1);
-      Subject         subjA = r.getSubject("a");
-      GrouperSession  s     = GrouperSession.start(subjA);
+      final R r = R.populateRegistry(0, 0, 1);
+      final Subject subjA = r.getSubject("a");
+      GrouperSession s = GrouperSession.start(subjA);
 
-      r.ns.setSession(s);
 
       T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
       T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
       T.amount("creators before grant", 0, r.ns.getCreators().size()  );
 
-      r.ns.setSession(r.rs);
-      r.ns.grantPriv(subjA, NamingPrivilege.STEM);
-      r.ns.setSession(s);
+      GrouperSession.callbackGrouperSession(r.rs, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            r.ns.grantPriv(subjA, NamingPrivilege.STEM);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+          return null;
+        }
+        
+      });
 
       T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
       T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );

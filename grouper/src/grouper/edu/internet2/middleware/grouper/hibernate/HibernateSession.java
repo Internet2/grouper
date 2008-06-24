@@ -125,8 +125,7 @@ public class HibernateSession {
   private GrouperTransactionType immediateGrouperTransactionTypeDeclared = null;
 
   /**
-   * store the hib2 connection in thread local so other classes can get it, e.g.
-   * for blobs
+   * store the hib2 connection in thread local so other classes can get it
    */
   private static ThreadLocal<Set<HibernateSession>> staticSessions = new ThreadLocal<Set<HibernateSession>>();
 
@@ -171,11 +170,11 @@ public class HibernateSession {
   private static void addStaticHibernateSession(HibernateSession hibernateSession) {
     Set<HibernateSession> hibSet = getHibernateSessionSet();
     hibSet.add(hibernateSession);
-    // cant have more than 15, something is wrong
-    if (hibSet.size() > 15) {
+    // cant have more than 20, something is wrong
+    if (hibSet.size() > 20) {
       hibSet.clear();
       throw new RuntimeException(
-          "There is probably a problem that there are 10 nested new HibernateSessions called!");
+          "There is probably a problem that there are 20 nested new HibernateSessions called!");
     }
   }
 

@@ -26,7 +26,7 @@ import  java.util.Set;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.45 2007-08-24 19:42:50 blair Exp $
+ * @version $Id: StemFinder.java,v 1.46 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class StemFinder {
 
@@ -50,6 +50,7 @@ public class StemFinder {
   public static Stem findByName(GrouperSession s, String name) 
     throws StemNotFoundException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     // TODO 20070314 bah.  should be in dao if it exists at all.
     if ( name.equals(Stem.ROOT_NAME) ) {
@@ -57,7 +58,6 @@ public class StemFinder {
     }
     Stem ns = new Stem();
     ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByName(name) );
-    ns.setSession(s);
     return ns;
   } // public static Stem findByName(s, name)
 
@@ -104,10 +104,10 @@ public class StemFinder {
   public static Stem findByUuid(GrouperSession s, String uuid) 
     throws StemNotFoundException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Stem ns = new Stem();
     ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
-    ns.setSession(s);
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
@@ -118,6 +118,7 @@ public class StemFinder {
   protected static Set internal_findAllByApproximateDisplayExtension(GrouperSession s, String val) 
     throws  QueryException
   {
+    //note, no need for GrouperSession inverse of control
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
@@ -125,7 +126,6 @@ public class StemFinder {
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
-      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -135,6 +135,7 @@ public class StemFinder {
   protected static Set internal_findAllByApproximateDisplayName(GrouperSession s, String val) 
     throws  QueryException
   {
+    //note, no need for GrouperSession inverse of control
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
@@ -142,7 +143,6 @@ public class StemFinder {
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
-      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -152,6 +152,7 @@ public class StemFinder {
   protected static Set internal_findAllByApproximateExtension(GrouperSession s, String val) 
     throws  QueryException
   {
+    //note, no need for GrouperSession inverse of control
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
@@ -159,7 +160,6 @@ public class StemFinder {
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
-      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -169,6 +169,7 @@ public class StemFinder {
   protected static Set internal_findAllByApproximateName(GrouperSession s, String val) 
     throws  QueryException
   {
+    //note, no need for GrouperSession inverse of control
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
@@ -176,7 +177,6 @@ public class StemFinder {
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
-      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -186,6 +186,7 @@ public class StemFinder {
   protected static Set internal_findAllByApproximateNameAny(GrouperSession s, String val) 
     throws  QueryException
   {
+    //note, no need for GrouperSession inverse of control
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
@@ -193,7 +194,6 @@ public class StemFinder {
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
-      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -203,6 +203,7 @@ public class StemFinder {
   protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d) 
     throws  QueryException
   {
+    //note, no need for GrouperSession inverse of control
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
@@ -210,7 +211,6 @@ public class StemFinder {
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
-      ns.setSession(s);
       stems.add(ns);
     }
     return stems;
@@ -220,6 +220,7 @@ public class StemFinder {
   protected static Set internal_findAllByCreatedBefore(GrouperSession s, Date d) 
     throws  QueryException
   {
+    //note, no need for GrouperSession inverse of control
     // @session true
     Set       stems = new LinkedHashSet();
     Stem      ns;
@@ -227,7 +228,6 @@ public class StemFinder {
     while (it.hasNext()) {
       ns = new Stem();
       ns.setDTO( (StemDTO) it.next() );
-      ns.setSession(s);
       stems.add(ns);
     }
     return stems;

@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.QueryFilter;
  * Query by group uuid.
  * <p/>
  * @author  mchyzer.
- * @version $Id: GroupUuidFilter.java,v 1.1 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: GroupUuidFilter.java,v 1.2 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GroupUuidFilter extends BaseQueryFilter {
 
@@ -60,6 +60,8 @@ public class GroupUuidFilter extends BaseQueryFilter {
    */
   public Set<Group> getResults(GrouperSession s) 
     throws QueryException {
+
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set<Group> groups  = new HashSet<Group>();
     Group group = null;

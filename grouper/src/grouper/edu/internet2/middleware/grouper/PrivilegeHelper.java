@@ -29,7 +29,7 @@ import  java.util.Set;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.9 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.10 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -120,7 +120,7 @@ public class PrivilegeHelper {
   protected static boolean canStem(Stem ns, Subject subj) {
     // TODO 20070820 deprecate
     // TODO 20070820 perform query for all privs and compare internally
-    return ns.getSession().getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM);
+    return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(ns, subj, NamingPrivilege.STEM);
   } 
 
   /**
@@ -148,6 +148,7 @@ public class PrivilegeHelper {
   protected static boolean canView(GrouperSession s, Group g, Subject subj) {
     // TODO 20070816 deprecate
     // TODO 20070816 perform query for all privs and compare internally
+    //note, no need for GrouperSession inverse of control
     if (
       s.getAccessResolver().hasPrivilege(g, subj, AccessPrivilege.VIEW)
       ||
@@ -172,6 +173,7 @@ public class PrivilegeHelper {
    * @since   1.2.1
    */
   public static Set canViewGroups(GrouperSession s, Set candidates) {
+    //note, no need for GrouperSession inverse of control
     Set       groups  = new LinkedHashSet();
     Group     g;
     Iterator  it      = candidates.iterator();
@@ -183,7 +185,6 @@ public class PrivilegeHelper {
       else {
         g = (Group) obj;
       }
-      g.setSession(s);
       if ( canView( s, g, s.getSubject() ) ) {
         groups.add(g);
       }
@@ -199,13 +200,13 @@ public class PrivilegeHelper {
    * @SINCE   1.2.1
    */
   protected static Set<Membership> canViewMemberships(GrouperSession s, Collection c) {
+    //note, no need for GrouperSession inverse of control
     Set<Membership>         mships  = new LinkedHashSet<Membership>();
     Membership  ms;
     Iterator    it      = c.iterator();
     while ( it.hasNext() ) {
       ms = new Membership();
       ms.setDTO( (MembershipDTO) it.next() );
-      ms.setSession(s);
       try {
     	//2007-10-17: Gary Brown
     	//https://bugs.internet2.edu/jira/browse/GRP-38

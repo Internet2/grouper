@@ -16,15 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import junit.framework.Assert;
+import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.7 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestPrivCREATE extends GrouperTest {
 
@@ -49,17 +53,26 @@ public class TestPrivCREATE extends GrouperTest {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     a     = null;
+    subj0 = SubjectTestHelper.SUBJ0;
+    nrs   = SessionHelper.getSession(subj0.getId());
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");
     i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    subj0 = SubjectTestHelper.SUBJ0;
-    nrs   = SessionHelper.getSession(subj0.getId());
     GroupHelper.addMember(i2, subj0, "members");
   }
 
   protected void tearDown () {
     LOG.debug("tearDown");
+  }
+
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(new TestPrivCREATE("testDelMembersWithADMIN"));
+    TestRunner.run(TestPrivCREATE.class);
   }
 
 
@@ -68,7 +81,15 @@ public class TestPrivCREATE extends GrouperTest {
   public void testCreateChildGroupWithoutCREATE() {
     LOG.info("testCreateChildGroupWithoutCREATE");
     a = StemHelper.findByName(nrs, edu.getName());
-    StemHelper.addChildGroupFail(a, "uofc", "uchicago");
+    GrouperSession.callbackGrouperSession(nrs, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        StemHelper.addChildGroupFail(a, "uofc", "uchicago");
+        return null;
+      }
+      
+    });
   } // public void testCreateChildGroupWithoutCREATE()
 
   public void testCreateChildGroupWithCREATE() {

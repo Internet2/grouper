@@ -25,14 +25,13 @@ import  java.io.StringWriter;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.10 2007-08-13 19:39:39 blair Exp $
+ * @version $Id: GrouperAPI.java,v 1.11 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.0
  */
 abstract class GrouperAPI {
 
   // PROTECTED INSTANCE VARIABLES //
   protected GrouperDTO      dto;
-  protected GrouperSession  s;
 
 
   // CONSTRUCTORS //
@@ -63,36 +62,11 @@ abstract class GrouperAPI {
     return this.dto;
   } 
 
-  /**
-   * @return  This object's <code>GrouperSession</code>
-   * @throws  IllegalStateException if session is null.
-   * @since   1.2.0
-   */
-  protected GrouperSession getSession() 
-    throws  IllegalStateException
-  {
-    if (this.s == null) {
-      NullPointerException  e   = new NullPointerException();
-      StringWriter          sw  = new StringWriter(); 
-      e.printStackTrace( new PrintWriter(sw) );
-      throw new IllegalStateException( "null session in class " + this.getClass().getName() + ": " + sw, e );
-    }
-    return this.s;
-  } 
-
   // @since   1.2.0
   protected GrouperAPI setDTO(GrouperDTO dto) {
     this.dto = dto;
     return this;
   } 
-
-  // @since   1.2.0
-  protected void setSession(GrouperSession s) {
-    if (s == null) {
-      throw new IllegalStateException( "null session in class " + this.getClass().getName() );
-    }
-    this.s = s;
-  } // protected void setSession(s)
 
 } 
 

@@ -21,7 +21,7 @@ package edu.internet2.middleware.grouper;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.36 2007-05-14 16:12:56 blair Exp $    
+ * @version $Id: RegistryInstall.java,v 1.37 2008-06-24 06:07:03 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -30,15 +30,33 @@ public class RegistryInstall {
   public static void main(String[] args) {
     // Install group types, fields and privileges
     try {
-      GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      _installFieldsAndTypes(s);
-      _installGroupsAndStems(s);
+      GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject(), false );
+      
+      GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            _installFieldsAndTypes(grouperSession);
+            _installGroupsAndStems(grouperSession);
+          } catch (Exception e) {
+            throw new GrouperSessionException(e);
+          }
+          return null;
+        }
+        
+      });
+      
       s.stop();
     }
-    catch (Exception e) {
-      String msg = "unable to initialize registry: " + e.getMessage();
+    catch (Throwable throwable) {
+      //unwrap exception
+      if (throwable instanceof GrouperSessionException && throwable.getCause() != null) {
+        throwable = throwable.getCause();
+      }
+      String msg = "unable to initialize registry: " + throwable.getMessage();
       ErrorLog.fatal(RegistryInstall.class, msg);
-      throw new GrouperRuntimeException(msg, e);
+      throw new GrouperRuntimeException(msg, throwable);
     }
   }
 
@@ -48,6 +66,7 @@ public class RegistryInstall {
     throws  InsufficientPrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GroupType base    = GroupType.internal_createType(s, "base", false, false);
     // base attributes
     base.internal_addField( s, "description",      FieldType.ATTRIBUTE, AccessPrivilege.READ, AccessPrivilege.ADMIN,  false );
@@ -75,6 +94,7 @@ public class RegistryInstall {
   private static void _installGroupsAndStems(GrouperSession s) 
     throws  GrouperRuntimeException
   {
+    //note, no need for GrouperSession inverse of control
     Stem.internal_addRootStem(s);
   } // private static void _installGroupsAndStems(s)
 

@@ -52,7 +52,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.108 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.109 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -176,7 +176,7 @@ public class XmlImporter {
     try {
       importer  = new XmlImporter(
         GrouperSession.start(
-          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) )
+          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) ), false
         ),
         XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
       );
@@ -218,12 +218,12 @@ public class XmlImporter {
    * @throws  IllegalArgumentException if <tt>doc</tt> is null
    * @since   1.1.0
    */
-  public void load(Document doc)
+  public void load(final Document doc)
     throws  GrouperException,
             IllegalArgumentException
   {
     LOG.info("starting load at root stem");
-    this._load( StemFinder.findRootStem(this.s), doc );
+    XmlImporter.this._load( StemFinder.findRootStem(this.s), doc );
     LOG.info("finished load");
   } // public void load(xml)
 
@@ -361,42 +361,65 @@ public class XmlImporter {
             ;
   } // private static String _getUsage()
 
-  // @since   1.1.0
-  private static void _handleArgs(XmlImporter importer, Properties rc) 
-    throws  GrouperException
-  {
-    Document doc = XmlReader.getDocumentFromFile( rc.getProperty(XmlArgs.RC_IFILE) );
-    if (Boolean.getBoolean( rc.getProperty(XmlArgs.RC_UPDATELIST) )) {
-      importer.update(doc);
-    } 
-    else {
-      if (rc.getProperty(XmlArgs.RC_UUID) == null && rc.getProperty(XmlArgs.RC_NAME) == null) {
-        importer.load(doc);
-      } 
-      else {
-        Stem    ns    = null;
-        String  uuid  = rc.getProperty(XmlArgs.RC_UUID);
-        String  name  = rc.getProperty(XmlArgs.RC_NAME);
-        if      (uuid != null) {
+  /**
+   * @since   1.1.0
+   * @param importer
+   * @param rc
+   * @throws GrouperException
+   */
+  private static void _handleArgs(final XmlImporter importer, final Properties rc) 
+    throws  GrouperException {
+    try {
+      GrouperSession.callbackGrouperSession(importer.s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
           try {
-            ns = StemFinder.findByUuid(importer.s, uuid);
-          } catch (StemNotFoundException e) {
-            throw new IllegalArgumentException(E.NO_STEM_UUID + Quote.single(uuid));
+            Document doc = XmlReader.getDocumentFromFile( rc.getProperty(XmlArgs.RC_IFILE) );
+            if (Boolean.getBoolean( rc.getProperty(XmlArgs.RC_UPDATELIST) )) {
+              importer.update(doc);
+            } 
+            else {
+              if (rc.getProperty(XmlArgs.RC_UUID) == null && rc.getProperty(XmlArgs.RC_NAME) == null) {
+                importer.load(doc);
+              } 
+              else {
+                Stem    ns    = null;
+                String  uuid  = rc.getProperty(XmlArgs.RC_UUID);
+                String  name  = rc.getProperty(XmlArgs.RC_NAME);
+                if      (uuid != null) {
+                  try {
+                    ns = StemFinder.findByUuid(importer.s, uuid);
+                  } catch (StemNotFoundException e) {
+                    throw new IllegalArgumentException(E.NO_STEM_UUID + Quote.single(uuid));
+                  }
+                } 
+                else if (name != null) {
+                  try {
+                    ns = StemFinder.findByName(importer.s, name);
+                  } catch (StemNotFoundException e) {
+                    throw new IllegalArgumentException(E.NO_STEM_NAME + Quote.single(name));
+                  }
+                }
+                if (ns == null) {
+                  throw new IllegalArgumentException(E.NO_STEM);
+                }
+                importer.load(ns, doc);
+              }
+            } 
+          } catch (GrouperException grouperException) {
+            throw new GrouperSessionException(grouperException);
           }
-        } 
-        else if (name != null) {
-          try {
-            ns = StemFinder.findByName(importer.s, name);
-          } catch (StemNotFoundException e) {
-            throw new IllegalArgumentException(E.NO_STEM_NAME + Quote.single(name));
-          }
+          return null;
         }
-        if (ns == null) {
-          throw new IllegalArgumentException(E.NO_STEM);
-        }
-        importer.load(ns, doc);
+        
+      });
+    } catch (GrouperSessionException grouperSessionException) {
+      if (grouperSessionException.getCause() instanceof GrouperException) {
+        throw (GrouperException)grouperSessionException.getCause();
       }
-    } 
+      throw grouperSessionException;
+    }
   } // private static void _handleArgs(importer, rc);
 
 
@@ -606,73 +629,95 @@ public class XmlImporter {
   } // private boolean _isUpdatingAttributes()
 
   // @since   1.1.0
-  private void _load(Stem ns, Document doc) 
+  private void _load(final Stem ns, final Document doc) 
     throws  GrouperException,
             IllegalArgumentException
   {
-    this._setDocument(doc);
+    
     try {
-      this.importRoot = ns.getName();
-      if (ns.isRootStem()) {
-        this.importRoot = GrouperConfig.EMPTY_STRING;
-      }
-      this._processProperties();
-      Element root = this._getDocument().getDocumentElement();
+      GrouperSession.callbackGrouperSession(this.s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            XmlImporter.this._setDocument(doc);
+            try {
+              XmlImporter.this.importRoot = ns.getName();
+              if (ns.isRootStem()) {
+                XmlImporter.this.importRoot = GrouperConfig.EMPTY_STRING;
+              }
+              XmlImporter.this._processProperties();
+              Element root = XmlImporter.this._getDocument().getDocumentElement();
 
-      this._processMetadata(this._getImmediateElement(root, "metadata"));
-      this._process( this._getImmediateElement(root, "data"), this.importRoot );
-      this._processMembershipLists();
-      this._processNamingPrivLists();
-      this._processAccessPrivLists();
+              XmlImporter.this._processMetadata(XmlImporter.this._getImmediateElement(root, "metadata"));
+              XmlImporter.this._process( XmlImporter.this._getImmediateElement(root, "data"), XmlImporter.this.importRoot );
+              XmlImporter.this._processMembershipLists();
+              XmlImporter.this._processNamingPrivLists();
+              XmlImporter.this._processAccessPrivLists();
+            }
+            catch (AttributeNotFoundException eANF)     {
+              throw new GrouperException(eANF.getMessage(), eANF);
+            }
+            catch (GrantPrivilegeException eGP)         {
+              throw new GrouperException(eGP.getMessage(), eGP);
+            }
+            catch (GroupAddException eGA)               {
+              throw new GrouperException(eGA.getMessage(), eGA);
+            }
+            catch (GrouperDAOException eDAO)             {
+              throw new GrouperException( eDAO.getMessage(), eDAO );
+            }
+            catch (GroupModifyException eGM)            {
+              throw new GrouperException(eGM.getMessage(), eGM);
+            }
+            catch (GroupNotFoundException eGNF)         {
+              throw new GrouperException(eGNF.getMessage(), eGNF);
+            }
+            catch (InsufficientPrivilegeException eIP)  {
+              throw new GrouperException(eIP.getMessage(), eIP);
+            }
+            catch (MemberAddException eMA)              {
+              throw new GrouperException(eMA.getMessage(), eMA);
+            }
+            catch (MemberDeleteException eMD)           {
+              throw new GrouperException(eMD.getMessage(), eMD);
+            }
+            catch (RevokePrivilegeException eRP)        {
+              throw new GrouperException(eRP.getMessage(), eRP);
+            }
+            catch (SchemaException eS)                  {
+              throw new GrouperException(eS.getMessage(), eS);
+            }
+            catch (StemAddException eNSA)               {
+              throw new GrouperException(eNSA.getMessage(), eNSA);
+            }
+            catch (StemModifyException eNSM)            {
+              throw new GrouperException(eNSM.getMessage(), eNSM);
+            }
+            catch (StemNotFoundException eNSNF)         {
+              throw new GrouperException(eNSNF.getMessage(), eNSNF);
+            }
+            catch (SubjectNotFoundException eSNF)       {
+              throw new GrouperException(eSNF.getMessage(), eSNF);
+            }
+            catch (SubjectNotUniqueException eSNU)      {
+              throw new GrouperException( eSNU.getMessage(), eSNU );
+            }
+          } catch (GrouperException grouperException) {
+            throw new GrouperSessionException(grouperException);
+          }
+          return null;
+        }
+        
+      });
+    } catch (GrouperSessionException grouperSessionException) {
+      if (grouperSessionException.getCause() instanceof GrouperException) {
+        throw (GrouperException)grouperSessionException.getCause();
+      }
+      throw grouperSessionException;
     }
-    catch (AttributeNotFoundException eANF)     {
-      throw new GrouperException(eANF.getMessage(), eANF);
-    }
-    catch (GrantPrivilegeException eGP)         {
-      throw new GrouperException(eGP.getMessage(), eGP);
-    }
-    catch (GroupAddException eGA)               {
-      throw new GrouperException(eGA.getMessage(), eGA);
-    }
-    catch (GrouperDAOException eDAO)             {
-      throw new GrouperException( eDAO.getMessage(), eDAO );
-    }
-    catch (GroupModifyException eGM)            {
-      throw new GrouperException(eGM.getMessage(), eGM);
-    }
-    catch (GroupNotFoundException eGNF)         {
-      throw new GrouperException(eGNF.getMessage(), eGNF);
-    }
-    catch (InsufficientPrivilegeException eIP)  {
-      throw new GrouperException(eIP.getMessage(), eIP);
-    }
-    catch (MemberAddException eMA)              {
-      throw new GrouperException(eMA.getMessage(), eMA);
-    }
-    catch (MemberDeleteException eMD)           {
-      throw new GrouperException(eMD.getMessage(), eMD);
-    }
-    catch (RevokePrivilegeException eRP)        {
-      throw new GrouperException(eRP.getMessage(), eRP);
-    }
-    catch (SchemaException eS)                  {
-      throw new GrouperException(eS.getMessage(), eS);
-    }
-    catch (StemAddException eNSA)               {
-      throw new GrouperException(eNSA.getMessage(), eNSA);
-    }
-    catch (StemModifyException eNSM)            {
-      throw new GrouperException(eNSM.getMessage(), eNSM);
-    }
-    catch (StemNotFoundException eNSNF)         {
-      throw new GrouperException(eNSNF.getMessage(), eNSNF);
-    }
-    catch (SubjectNotFoundException eSNF)       {
-      throw new GrouperException(eSNF.getMessage(), eSNF);
-    }
-    catch (SubjectNotUniqueException eSNU)      {
-      throw new GrouperException( eSNU.getMessage(), eSNU );
-    }
+
+    
   } // private void _load(ns, doc)
 
   // @since   1.0

@@ -22,7 +22,7 @@ import  java.util.*;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.26 2007-08-10 20:26:33 blair Exp $
+ * @version $Id: GrouperQuery.java,v 1.27 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GrouperQuery {
 
@@ -96,6 +96,7 @@ public class GrouperQuery {
   public Set getGroups() 
     throws QueryException
   {
+    //note, no need for GrouperSession inverse of control
     Set       groups      = new LinkedHashSet();
     Set       candidates  = this.filter.getResults(this.s);
     Object    o;
@@ -160,6 +161,7 @@ public class GrouperQuery {
   public Set getMemberships() 
     throws QueryException
   {
+    //note, no need for GrouperSession inverse of control
     Set<Membership>       mships      = new LinkedHashSet<Membership>();
     Set       candidates  = this.filter.getResults(this.s);
     Object    o;
@@ -194,6 +196,7 @@ public class GrouperQuery {
   public Set getStems() 
     throws QueryException
   {
+    //note, no need for GrouperSession inverse of control
     Set       stems       = new LinkedHashSet();
     Set       candidates  = this.filter.getResults(this.s);
     Object    o;

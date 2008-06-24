@@ -34,7 +34,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.64 2007-11-06 16:52:15 isgwb Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.65 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -74,6 +74,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
     throws  SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     return MembershipFinder.internal_findSubjects(
       s, g, FieldFinder.find( (String) priv2list.get(priv) )
@@ -103,6 +104,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   ) 
     throws  SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set groups = new LinkedHashSet();
     try {
@@ -140,6 +142,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @return  Set of privileges.
    */
   public Set getPrivs(GrouperSession s, Group g, Subject subj) {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
@@ -195,25 +198,43 @@ public class GrouperAccessAdapter implements AccessAdapter {
    * @throws  SchemaException
    */
   public void grantPriv(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  GrantPrivilegeException, 
-            InsufficientPrivilegeException,
-            SchemaException
-  {
+    GrouperSession s, final Group g, final Subject subj, final Privilege priv)
+    throws  GrantPrivilegeException, InsufficientPrivilegeException, SchemaException {
     try {
-      GrouperSession.validate(s);
-      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-      if ( !FieldType.ACCESS.equals( f.getType() ) ) {
-        throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+      GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            GrouperSession.validate(grouperSession);
+            Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+            if ( !FieldType.ACCESS.equals( f.getType() ) ) {
+              throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+            }
+            if ( !g.internal_canWriteField( grouperSession.getSubject(), f ) ) {
+              throw new GrouperSessionException(new InsufficientPrivilegeException());
+            }
+            Membership.internal_addImmediateMembership(grouperSession, g, subj, f);
+          } catch (MemberAddException eMA) {
+            throw new GrouperSessionException(new GrantPrivilegeException(eMA.getMessage(), eMA));
+          } catch (SchemaException se) {
+            throw new GrouperSessionException(se);
+          }
+          return null;
+        }
+        
+      });
+    } catch (GrouperSessionException gse) {
+      if (gse.getCause() instanceof GrantPrivilegeException) {
+        throw (GrantPrivilegeException)gse.getCause();
       }
-      if ( !g.internal_canWriteField( s.getSubject(), f ) ) {
-        throw new InsufficientPrivilegeException();
+      if (gse.getCause() instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)gse.getCause();
       }
-      Membership.internal_addImmediateMembership(s, g, subj, f);
-    }
-    catch (MemberAddException eMA) {
-      throw new GrantPrivilegeException(eMA.getMessage(), eMA);
+      if (gse.getCause() instanceof SchemaException) {
+        throw (SchemaException)gse.getCause();
+      }
+      throw gse;
     }
   } // public void grantPriv(s, g, subj, priv)
 
@@ -236,6 +257,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     boolean rv = false;
     try {
@@ -274,6 +296,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
     if ( !FieldType.ACCESS.equals( f.getType() ) ) {
@@ -319,6 +342,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
             RevokePrivilegeException,
             SchemaException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
     if ( !FieldType.ACCESS.equals( f.getType() ) ) {

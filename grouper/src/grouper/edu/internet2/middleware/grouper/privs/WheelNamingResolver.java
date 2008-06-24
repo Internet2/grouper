@@ -16,36 +16,41 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.ErrorLog;
-import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.GrouperConfig;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
-import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.GroupFinder;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.Stem;
-import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSessionException;
+import edu.internet2.middleware.grouper.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.5 2007-12-05 11:20:54 isgwb Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.6 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
   // TODO 20070820 DRY w/ access resolution
 
-
+  /** if use wheel group */
   private boolean useWheel    = false;
-  private Group   wheelGroup;
-
-
   
+  /** wheel group */
+  private Group   wheelGroup;
+  
+  /** wheel session */
+  private GrouperSession wheelSession = null;
+
   /**
    * @since   1.2.1
    */
@@ -56,8 +61,10 @@ public class WheelNamingResolver extends NamingResolverDecorator {
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
       try {
+        this.wheelSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
         this.wheelGroup = GroupFinder.findByName(
-                            GrouperSession.start( SubjectFinder.findRootSubject() ),
+                            //dont replace the current grouper session
+                            this.wheelSession,
                             this.getConfig( GrouperConfig.PROP_WHEEL_GROUP )
                           );
       }
@@ -68,8 +75,6 @@ public class WheelNamingResolver extends NamingResolverDecorator {
       }
     }
   }
-
-
 
   /**
    * @see     NamingResolver#getConfig(String)
@@ -126,11 +131,21 @@ public class WheelNamingResolver extends NamingResolverDecorator {
    * @see     NamingResolver#hasPrivilege(Stem, Subject, Privilege)
    * @since   1.2.1
    */
-  public boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
+  public boolean hasPrivilege(Stem stem, final Subject subject, Privilege privilege)
     throws  IllegalArgumentException
   {
     if (this.useWheel) {
-      if ( this.wheelGroup.hasMember(subject) ) {
+      if ((Boolean)GrouperSession.callbackGrouperSession(this.wheelSession, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          if ( WheelNamingResolver.this.wheelGroup.hasMember(subject) ) {
+            return true;
+          }
+          return false;
+        }
+        
+      })) {
         return true;
       }
     }

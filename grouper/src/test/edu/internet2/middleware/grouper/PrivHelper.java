@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.11 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: PrivHelper.java,v 1.12 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class PrivHelper {
 
@@ -76,105 +76,128 @@ public class PrivHelper {
     _compareCollections(msg, subjs, subjects);
   } // protected static void getSubjsWithPriv(ns, subjs, priv)
 
-  protected static void grantPriv(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-  {
-    try {
-      Member m = MemberFinder.findBySubject(s, subj);
-      g.grantPriv(subj, priv);  
-      hasPriv(g, subj, m, priv, true);
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
+  protected static void grantPriv(GrouperSession s, final Group g, final Subject subj, final Privilege priv) {
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          Member m = MemberFinder.findBySubject(grouperSession, subj);
+          g.grantPriv(subj, priv);  
+          hasPriv(g, subj, m, priv, true);
+        }
+        catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        return null;
+      }
+      
+    });
   } // protected static void grantPriv(s, g, subj, priv)
 
-  protected static void grantPrivFail(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-  {
-    try {
-      LOG.debug("grantPrivFail.0 " + priv.getName());
-      MemberFinder.findBySubject(s, subj);
-      LOG.debug("grantPrivFail.1 " + priv.getName());
-      try {
-        g.grantPriv(subj, priv);  
-        LOG.debug("grantPrivFail.2 " + priv.getName());
-        Assert.fail("granted " + priv);
-        LOG.debug("grantPrivFail.3 " + priv.getName());
+  protected static void grantPrivFail(GrouperSession s, 
+      final Group g, final Subject subj, final Privilege priv) {
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          LOG.debug("grantPrivFail.0 " + priv.getName());
+          MemberFinder.findBySubject(grouperSession, subj);
+          LOG.debug("grantPrivFail.1 " + priv.getName());
+          try {
+            g.grantPriv(subj, priv);  
+            LOG.debug("grantPrivFail.2 " + priv.getName());
+            Assert.fail("granted " + priv);
+            LOG.debug("grantPrivFail.3 " + priv.getName());
+          }
+          catch (GrantPrivilegeException eGP) {
+            LOG.debug("grantPrivFail.4 " + priv.getName());
+            Assert.assertTrue("failed to grant " + priv + " (exists)", true);
+            LOG.debug("grantPrivFail.5 " + priv.getName());
+          }
+          catch (InsufficientPrivilegeException eIP) {
+            LOG.debug("grantPrivFail.7 " + priv.getName());
+            Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+            LOG.debug("grantPrivFail.8 " + priv.getName());
+          }
+          catch (SchemaException eS) {
+            LOG.debug("grantPrivFail.10 " + priv.getName());
+            Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+            LOG.debug("grantPrivFail.11 " + priv.getName());
+          }
+        }
+        catch (MemberNotFoundException eMNF) {
+          LOG.debug("grantPrivFail.13 " + priv.getName());
+          Assert.fail(eMNF.getMessage());
+        }
+        return null;
       }
-      catch (GrantPrivilegeException eGP) {
-        LOG.debug("grantPrivFail.4 " + priv.getName());
-        Assert.assertTrue("failed to grant " + priv + " (exists)", true);
-        LOG.debug("grantPrivFail.5 " + priv.getName());
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        LOG.debug("grantPrivFail.7 " + priv.getName());
-        Assert.assertTrue("failed to grant " + priv + " (privs)", true);
-        LOG.debug("grantPrivFail.8 " + priv.getName());
-      }
-      catch (SchemaException eS) {
-        LOG.debug("grantPrivFail.10 " + priv.getName());
-        Assert.assertTrue("failed to grant " + priv + " (privs)", true);
-        LOG.debug("grantPrivFail.11 " + priv.getName());
-      }
-    }
-    catch (MemberNotFoundException eMNF) {
-      LOG.debug("grantPrivFail.13 " + priv.getName());
-      Assert.fail(eMNF.getMessage());
-    }
+      
+    });
   } // protected static void grantPrivFail(s, g, subj, priv)
 
-  protected static void grantPriv(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
+  protected static void grantPriv(GrouperSession s, final Stem ns, final Subject subj, final Privilege priv)
   {
-    try {
-      Member m = MemberFinder.findBySubject(s, subj);
-      ns.grantPriv(subj, priv);  
-      hasPriv(ns, subj, m, priv, true);
-    }
-    catch (GrantPrivilegeException eGP) {
-      Assert.fail(eGP.getMessage());
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail(eIP.getMessage());
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
-    catch (SchemaException eS) {
-      Assert.fail(eS.getMessage());
-    }
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          Member m = MemberFinder.findBySubject(grouperSession, subj);
+          ns.grantPriv(subj, priv);  
+          hasPriv(ns, subj, m, priv, true);
+        }
+        catch (GrantPrivilegeException eGP) {
+          Assert.fail(eGP.getMessage());
+        }
+        catch (InsufficientPrivilegeException eIP) {
+          Assert.fail(eIP.getMessage());
+        }
+        catch (MemberNotFoundException eMNF) {
+          Assert.fail(eMNF.getMessage());
+        }
+        catch (SchemaException eS) {
+          Assert.fail(eS.getMessage());
+        }
+        return null;
+      }
+      
+    });
   } // protected static void grantPriv(s, ns, subj, priv)
 
-  protected static void grantPrivFail(
-    GrouperSession s, Stem ns, Subject subj, Privilege priv
-  )
+  protected static void grantPrivFail(GrouperSession s, final Stem ns, final Subject subj, final Privilege priv)
   {
-    try {
-      Member m = MemberFinder.findBySubject(s, subj);
-      try {
-        ns.grantPriv(subj, priv);  
-        Assert.fail("granted " + priv);
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          Member m = MemberFinder.findBySubject(grouperSession, subj);
+          try {
+            ns.grantPriv(subj, priv);  
+            Assert.fail("granted " + priv);
+          }
+          catch (GrantPrivilegeException eGP) {
+            Assert.assertTrue("failed to grant " + priv + " (exists)", true);
+            hasPriv(ns, subj, m, priv, true);
+          }
+          catch (InsufficientPrivilegeException eIP) {
+            Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+            hasPriv(ns, subj, m, priv, false);
+          }
+          catch (SchemaException eS) {
+            Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+            hasPriv(ns, subj, m, priv, false);
+          }
+        }
+        catch (MemberNotFoundException eMNF) {
+          Assert.fail(eMNF.getMessage());
+        }
+        return null;
       }
-      catch (GrantPrivilegeException eGP) {
-        Assert.assertTrue("failed to grant " + priv + " (exists)", true);
-        hasPriv(ns, subj, m, priv, true);
-      }
-      catch (InsufficientPrivilegeException eIP) {
-        Assert.assertTrue("failed to grant " + priv + " (privs)", true);
-        hasPriv(ns, subj, m, priv, false);
-      }
-      catch (SchemaException eS) {
-        Assert.assertTrue("failed to grant " + priv + " (privs)", true);
-        hasPriv(ns, subj, m, priv, false);
-      }
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
+      
+    });
   } // protected static void grantPrivFail(s, ns, subj, priv)
 
   protected static void hasPriv(
@@ -328,21 +351,27 @@ public class PrivHelper {
   } // protected static void revokePrivAllHasPriv(s, g, subj, priv)
 
   protected static void revokePrivFail(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-  {
-    LOG.debug("revokePrivFail.0");
-    try {
-      MemberFinder.findBySubject(s, subj);
-      LOG.debug("revokePrivFail.1");
-      g.revokePriv(subj, priv);  
-      LOG.debug("revokePrivFail.2");
-      Assert.fail("revoked privilege");
-    }
-    catch (Exception e) {
-      Assert.assertTrue("failed to revoke privilege", true);
-      LOG.debug("revokePrivFail.3");
-    }
+    GrouperSession s, final Group g, final Subject subj, final Privilege priv) {
+    GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        LOG.debug("revokePrivFail.0");
+        try {
+          MemberFinder.findBySubject(grouperSession, subj);
+          LOG.debug("revokePrivFail.1");
+          g.revokePriv(subj, priv);  
+          LOG.debug("revokePrivFail.2");
+          Assert.fail("revoked privilege");
+        }
+        catch (Exception e) {
+          Assert.assertTrue("failed to revoke privilege", true);
+          LOG.debug("revokePrivFail.3");
+        }
+        return null;
+      }
+      
+    });
   } // protected static void revokePrivFail(s, g, subj, priv)
 
   protected static void revokePriv(

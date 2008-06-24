@@ -22,6 +22,8 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.BaseQueryFilter;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSessionException;
+import edu.internet2.middleware.grouper.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.QueryException;
 import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
@@ -34,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Query by stem name exact, and get all children, or just immediate
  * <p/>
  * @author  mchyzer
- * @version $Id: GroupsInStemFilter.java,v 1.1 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: GroupsInStemFilter.java,v 1.2 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GroupsInStemFilter extends BaseQueryFilter {
   
@@ -74,7 +76,7 @@ public class GroupsInStemFilter extends BaseQueryFilter {
     GrouperSession.validate(s);
     Set<Group> groups = null;
     //first find the stem.
-    Stem stem = null;
+    final Stem stem;
     try {
       stem = StemFinder.findByName(s, this.stemName);
     } catch (StemNotFoundException stfe) {
@@ -84,8 +86,16 @@ public class GroupsInStemFilter extends BaseQueryFilter {
       //if not found, and not supposed to fail, then just return
       return new HashSet<Group>();
     }
-    //based on which children, find them
-    groups = stem.getChildGroups(this.scope);
+    groups = (Set<Group>)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        //based on which children, find them
+        Set<Group> groups = stem.getChildGroups(GroupsInStemFilter.this.scope);
+        return groups;
+      }
+      
+    });
     
     return groups;
   }

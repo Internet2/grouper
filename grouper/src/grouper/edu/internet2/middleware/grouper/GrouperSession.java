@@ -16,7 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -26,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -42,13 +43,27 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.77 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.78 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperSession.class);
 
+  /**
+   * store the grouper connection in thread local so other classes can get it.
+   * this is only for inverse of control.  This has priority over the 
+   * static session set from start()
+   */
+  private static ThreadLocal<List<GrouperSession>> staticSessions = new ThreadLocal<List<GrouperSession>>();
+
+  /**
+   * holds a thread local of the current grouper session.
+   * this is set from a GrouperSesssion.start().  Note the 
+   * inverse of control sessions have priority
+   */
+  private static ThreadLocal<GrouperSession> staticGrouperSession = new ThreadLocal<GrouperSession>();
+  
   private AccessAdapter   access;         // TODO 20070816 eliminate
   private AccessResolver  accessResolver;
   private Member          cachedMember;
@@ -88,6 +103,9 @@ public class GrouperSession extends GrouperAPI {
 
   /**
    * Start a session for interacting with the Grouper API.
+   * This adds the session to the threadlocal.    This has 
+   * threadlocal implications, so start and stop these hierarchically,
+   * do not alternate.  If you need to, use the callback inverse of control.
    * <pre class="eg">
    * // Start a Grouper API session.
    * GrouperSession s = GrouperSession.start(subject);
@@ -97,6 +115,26 @@ public class GrouperSession extends GrouperAPI {
    * @throws  SessionException
    */
   public static GrouperSession start(Subject subject) 
+    throws SessionException {
+    
+    return start(subject, true);
+  }
+
+  /**
+   * Start a session for interacting with the Grouper API.  This has 
+   * threadlocal implications, so start and stop these hierarchically,
+   * do not alternate.  If you need to, use the callback inverse of control.
+   * <pre class="eg">
+   * // Start a Grouper API session.
+   * GrouperSession s = GrouperSession.start(subject);
+   * </pre>
+   * @param   subject   Start session as this {@link Subject}.
+   * @param addToThreadLocal true to add this to the grouper session
+   * threadlocal which replaces the current one
+   * @return  A Grouper API session.
+   * @throws  SessionException
+   */
+  public static GrouperSession start(Subject subject, boolean addToThreadLocal) 
     throws SessionException
   {
     Member            m = null;
@@ -117,9 +155,10 @@ public class GrouperSession extends GrouperAPI {
 
       sw.stop();
       EventLog.info( s.toString(), M.S_START, sw );
-      
-      //add to hooks threadlocal TODO
-//      HooksContext.addGrouperSessionThreadLocal(s);
+      if (addToThreadLocal) {
+        //add to threadlocal
+        staticGrouperSession.set(s);
+      }
       
       return s;
     }
@@ -236,7 +275,6 @@ public class GrouperSession extends GrouperAPI {
     try {
       Member m = new Member();
       m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getMemberUuid() ) );
-      m.setSession(this);
       this.cachedMember = m;
       return this.cachedMember;
     }
@@ -360,8 +398,11 @@ public class GrouperSession extends GrouperAPI {
       long      dur   = now.getTime() - start;
       EventLog.info( this.toString(), "session: stop duration=" + + dur + "ms", sw );
     }
-    //remove from hooks threadlocal TODO
-//    HooksContext.removeGrouperSessionThreadLocal(this);
+    //remove from threadlocal if this is the one on threadlocal (might not be due
+    //to nesting)
+    if (this == staticGrouperSession.get()) {
+      staticGrouperSession.remove();
+    }
 
     this.setDTO(null);
     this.cachedMember = null;
@@ -421,6 +462,147 @@ public class GrouperSession extends GrouperAPI {
   // @since   1.2.0
   private GrouperSessionDTO _getDTO() {
     return (GrouperSessionDTO) super.getDTO();
+  }
+
+  /**
+   * call this to send a callback for the hibernate session object. cant use
+   * inverse of control for this since it runs it.  Any method in the inverse of
+   * control can access the grouper session in a threadlocal
+   * 
+   * @param grouperSession is the session to do an inverse of control on
+   * 
+   * @param grouperSessionHandler
+   *          will get the callback
+   * @return the object returned from the callback
+   * @throws GrouperSessionException
+   *           if there is a problem, will preserve runtime exceptions so they are
+   *           thrown to the caller.  The GrouperSessionException wraps the underlying exception
+   */
+  public static Object callbackGrouperSession(GrouperSession grouperSession, GrouperSessionHandler grouperSessionHandler)
+      throws GrouperSessionException {
+    Object ret = null;
+    boolean needsToBeRemoved = false;
+    try {
+      //add to threadlocal
+      needsToBeRemoved = addStaticHibernateSession(grouperSession);
+      ret = grouperSessionHandler.callback(grouperSession);
+  
+    } finally {
+      //remove from threadlocal
+      if (needsToBeRemoved) {
+        removeLastStaticGrouperSession(grouperSession);
+      }
+    }
+    return ret;
+  
+  }
+
+  /**
+   * set the threadlocal hibernate session
+   * 
+   * @param grouperSession
+   * @return if it was added (if already last one, dont add again)
+   */
+  private static boolean addStaticHibernateSession(GrouperSession grouperSession) {
+    List<GrouperSession> grouperSessionList = grouperSessionList();
+    GrouperSession lastOne = grouperSessionList.size() == 0 ? null : grouperSessionList.get(grouperSessionList.size()-1);
+    if (lastOne == grouperSession) {
+      return false;
+    }
+    grouperSessionList.add(grouperSession);
+    // cant have more than 60, something is wrong
+    if (grouperSessionList.size() > 60) {
+      grouperSessionList.clear();
+      throw new RuntimeException(
+          "There is probably a problem that there are 60 nested new GrouperSessions called!");
+    }
+    return true;
+  }
+
+  /**
+   * get the threadlocal list of hibernate sessions (or create)
+   * 
+   * @return the set
+   */
+  private static List<GrouperSession> grouperSessionList() {
+    List<GrouperSession> grouperSessionSet = staticSessions.get();
+    if (grouperSessionSet == null) {
+      // note the sessions are in order
+      grouperSessionSet = new ArrayList<GrouperSession>();
+      staticSessions.set(grouperSessionSet);
+    }
+    return grouperSessionSet;
+  }
+
+  /**
+   * this should remove the last grouper session which should be the same as
+   * the one passed in
+   * 
+   * @param grouperSession should match the last group session
+   */
+  private static void removeLastStaticGrouperSession(GrouperSession grouperSession) {
+    //this one better be at the end of the list
+    List<GrouperSession> grouperSessionList = grouperSessionList();
+    int size = grouperSessionList.size();
+    if (size == 0) {
+      throw new RuntimeException("Supposed to remove a session from stack, but stack is empty");
+    }
+    GrouperSession lastOne = grouperSessionList.get(size-1);
+    //the reference must be the same
+    if (lastOne != grouperSession) {
+      //i guess just clear it out
+      grouperSessionList.clear();
+      throw new RuntimeException("Illegal state, the grouperSession threadlocal stack is out of sync!");
+    }
+    grouperSessionList.remove(grouperSession);
+  }
+
+  /**
+   * get the threadlocal grouper session. access this through inverse of
+   * control.  this should be called by internal grouper methods which need the
+   * grouper session
+   * 
+   * @return the grouper session or null if none there
+   */
+  public static GrouperSession staticGrouperSession() {
+    return staticGrouperSession(true);
+  }
+  
+  /**
+   * clear the threadlocal grouper session (dont really need to call this, just
+   * stop the session, but this is here for testing)
+   */
+  static void clearGrouperSession() {
+    staticGrouperSession.remove();
+  }
+  
+  /**
+   * get the threadlocal grouper session. access this through inverse of
+   * control.  this should be called by internal grouper methods which need the
+   * grouper session
+   * @param exceptionOnNull true if exception when there is none there
+   * 
+   * @return the grouper session or null if none there
+   * @throws IllegalStateException if no sessions available
+   */
+  public static GrouperSession staticGrouperSession(boolean exceptionOnNull) 
+      throws IllegalStateException {
+
+    //first look at the list of threadlocals
+    List<GrouperSession> grouperSessionList = grouperSessionList();
+    int size = grouperSessionList.size();
+    if (size == 0) {
+      //if nothing in the threadlocal list, then use the last one
+      //started (and added)
+      GrouperSession grouperSession = staticGrouperSession.get();
+      if (grouperSession == null && exceptionOnNull) {
+        throw new IllegalStateException("There is no open GrouperSession detected.  Make sure " +
+        		"to start a grouper session (e.g. GrouperSession.start() ) before calling this method");
+      }
+      return grouperSession;
+    }
+    // get the last index
+    return grouperSessionList.get(size-1);
   } 
   
 }

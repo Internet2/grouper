@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup34.java,v 1.5 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroup34.java,v 1.6 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestGroup34 extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestGroup34 extends TestCase {
       GroupType custom  = GroupType.createType(r.rs, "custom");
       Group     gA      = r.getGroup("a", "a");
       gA.addType(custom);
-      gA.setSession( GrouperSession.start( r.getSubject("a") ) );
+      GrouperSession.start( r.getSubject("a") );
       T.amount("types", 2, gA.getTypes().size());
       T.amount("removable types", 0, gA.getRemovableTypes().size());
       r.rs.stop();

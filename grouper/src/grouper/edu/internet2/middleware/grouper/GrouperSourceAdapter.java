@@ -38,13 +38,15 @@ import  java.util.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.23 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.24 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
-  // PRIVATE INSTANCE VARIABLES //
-  private Set             _types  = new LinkedHashSet();
-  private GrouperSession  rs      = null;
+  /** types */
+  private Set _types  = new LinkedHashSet();
+  
+  /** root grouper session */
+  private GrouperSession  rootSession      = null;
 
 
   // CONSTRUCTORS //
@@ -186,29 +188,39 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * </pre>
    * @throws  IllegalArgumentException if <i>searchValue</i> is null.
    */
-  public Set search(String searchValue) 
+  public Set<Subject> search(final String searchValue) 
     throws  IllegalArgumentException
   {
-    GrouperValidator v = NotNullValidator.validate(searchValue);
-    if (v.isInvalid()) {
-      throw new IllegalArgumentException( v.getErrorMessage() );
-    }
-    Set   subjs  = new LinkedHashSet();
-    Stem  root   = StemFinder.findRootStem(this._getSession());
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        this._getSession(), new GroupNameFilter(searchValue, root)
-      );
-      Group     g;
-      Iterator  iter  = gq.getGroups().iterator();
-      while (iter.hasNext()){
-        g = (Group) iter.next();
-        subjs.add(g.toSubject()); 
+    final Set<Subject>   subjs  = new LinkedHashSet();
+    GrouperSession.callbackGrouperSession(this._getSession(), new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        GrouperValidator v = NotNullValidator.validate(searchValue);
+        if (v.isInvalid()) {
+          throw new IllegalArgumentException( v.getErrorMessage() );
+        }
+        
+        Stem  root   = StemFinder.findRootStem(grouperSession);
+        try {
+          GrouperQuery gq = GrouperQuery.createQuery(
+            grouperSession, new GroupNameFilter(searchValue, root)
+          );
+          Group     g;
+          Iterator  iter  = gq.getGroups().iterator();
+          while (iter.hasNext()){
+            g = (Group) iter.next();
+            subjs.add(g.toSubject()); 
+          }
+        }
+        catch (QueryException eQ) {
+          ErrorLog.error(GrouperSourceAdapter.class, E.GSA_SEARCH + eQ.getMessage());
+        } 
+        return null;
       }
-    }
-    catch (QueryException eQ) {
-      ErrorLog.error(GrouperSourceAdapter.class, E.GSA_SEARCH + eQ.getMessage());
-    } 
+      
+    });
+    
     return subjs;
   } // public Set search(searchValue)
 
@@ -217,15 +229,16 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   // @since   1.1.0
   private GrouperSession _getSession() {
-    if (this.rs == null) {
+    if (this.rootSession == null) {
       try {
-        this.rs = GrouperSession.start( SubjectFinder.findRootSubject() );
+        //dont replace the currently active session
+        this.rootSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
       }
       catch (SessionException eS) {
         throw new GrouperRuntimeException(E.S_NOSTARTROOT + eS.getMessage());
       }
     }
-    return this.rs;
+    return this.rootSession;
   } // private GrouperSession _getSession()
 
 }

@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup37.java,v 1.5 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroup37.java,v 1.6 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestGroup37 extends TestCase {
 
@@ -50,7 +50,7 @@ public class TestGroup37 extends TestCase {
       gA.addType(custom);
       Subject   subjA   = r.getSubject("a");
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
-      gA.setSession( GrouperSession.start( subjA ) );
+      GrouperSession.start( subjA );
       T.amount("types", 2, gA.getTypes().size());
       T.amount("removable types", 1, gA.getRemovableTypes().size());
       r.rs.stop();

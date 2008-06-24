@@ -16,64 +16,71 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import edu.internet2.middleware.grouper.AccessPrivilege;
-import edu.internet2.middleware.grouper.ErrorLog;
-import  edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
-import  edu.internet2.middleware.grouper.GrouperConfig;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
-import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.GroupFinder;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
-import edu.internet2.middleware.grouper.cache.EhcacheController;
-import  edu.internet2.middleware.subject.Subject;
-
-import java.util.HashSet;
-import  java.util.Set;
+import java.util.Set;
 
 import net.sf.ehcache.Element;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.exception.ExceptionUtils;
+
+import edu.internet2.middleware.grouper.AccessPrivilege;
+import edu.internet2.middleware.grouper.ErrorLog;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSessionException;
+import edu.internet2.middleware.grouper.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.Privilege;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.10 2008-02-17 08:44:42 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.11 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
 
-
+  /** if use wheel group */
   private boolean useWheel    = false;
+  
+  /** wheel group */
   private Group   wheelGroup;
-  //2007-11-02 Gary Brown
-  //Provide cache for wheel group members
-  //Profiling showed lots of time rechecking memberships
+  
+  /** 2007-11-02 Gary Brown
+   * Provide cache for wheel group members
+   * Profiling showed lots of time rechecking memberships */
   public  static final  String            CACHE_IS_WHEEL_MEMBER = WheelAccessResolver.class.getName() + ".isWheelMember";
-  private               EhcacheController cc;
+  
+  /** cache controller */
+  private EhcacheController cc;
 
-
+  /** wheel session */
+  private GrouperSession wheelSession = null;
   
   /**
+   * @param resolver resolver
    * @since   1.2.1
    */
   public WheelAccessResolver(AccessResolver resolver) {
     super(resolver);
     this.cc = new EhcacheController();
     // TODO 20070816 this is ugly
-    this.useWheel = Boolean.valueOf( this.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue();
+    String useWheelString = this.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP );
+    this.useWheel = Boolean.valueOf( useWheelString ).booleanValue();
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
       String wheelName = null;
       try {
         wheelName = this.getConfig( GrouperConfig.PROP_WHEEL_GROUP );
+        this.wheelSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
         this.wheelGroup = GroupFinder.findByName(
-                            GrouperSession.start( SubjectFinder.findRootSubject() ),
+                            this.wheelSession,
                             wheelName
                           );
       }
@@ -175,7 +182,8 @@ public class WheelAccessResolver extends AccessResolverDecorator {
     	  }
       }
     }
-    return super.getDecoratedResolver().hasPrivilege(group, subject, privilege);
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.hasPrivilege(group, subject, privilege);
   }
 
   /**
@@ -202,6 +210,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   
   /**
    * Retrieve boolean from cache for <code>isWheelMember(...)</code>.
+   * @param subj 
    * @return  Cached return value or null.
    * @since   1.2.1
    */
@@ -215,6 +224,8 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   
   /**
    * Put boolean into cache for <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @param rv 
    * @since   1.2.1
    */
   private void putInHasPrivilegeCache(Subject subj,  Boolean rv) {
@@ -223,12 +234,22 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   
   /**
    * Put boolean into cache for <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return  if wheel member
    * @since   1.2.1
    */
-  private boolean isWheelMember(Subject subj) {
+  private boolean isWheelMember(final Subject subj) {
 	  Boolean rv = getFromIsWheelMemberCache(subj);
 	  if(rv==null) {
-		  rv = this.wheelGroup.hasMember(subj);
+	    
+	    rv = (Boolean)GrouperSession.callbackGrouperSession(this.wheelSession, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          return WheelAccessResolver.this.wheelGroup.hasMember(subj);
+        }
+	    });
+		  
 		  putInHasPrivilegeCache(subj, rv);
 	  }
 	  return rv;

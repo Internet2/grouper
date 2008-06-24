@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem3.java,v 1.6 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestStem3.java,v 1.7 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class TestStem3 extends TestCase {
 
@@ -48,7 +48,6 @@ public class TestStem3 extends TestCase {
       R               r     = R.populateRegistry(1, 0, 1);
       Subject         subj  = r.getSubject("a");
       GrouperSession  s     = GrouperSession.start(subj);
-      r.ns.setSession(s);
       r.ns.delete();
       s.stop();
       r.rs.stop();

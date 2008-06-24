@@ -33,7 +33,7 @@ import  org.apache.commons.lang.time.*;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.98 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: Member.java,v 1.99 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -65,7 +65,7 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeHelper.canAdmin( this.getSession(), g, this.getSubject() );
+      return PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 
@@ -89,7 +89,7 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.STEM_NULL);
     }
     try {
-      return PrivilegeHelper.canCreate( this.getSession(), ns, this.getSubject() );
+      return PrivilegeHelper.canCreate( GrouperSession.staticGrouperSession(), ns, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 
@@ -113,7 +113,7 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeHelper.canOptin( this.getSession(), g, this.getSubject() );
+      return PrivilegeHelper.canOptin( GrouperSession.staticGrouperSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -137,7 +137,7 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeHelper.canOptout( this.getSession(), g, this.getSubject() );
+      return PrivilegeHelper.canOptout( GrouperSession.staticGrouperSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -161,7 +161,7 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeHelper.canRead( this.getSession(), g, this.getSubject() );
+      return PrivilegeHelper.canRead( GrouperSession.staticGrouperSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -209,7 +209,7 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeHelper.canUpdate( this.getSession(), g, this.getSubject() );
+      return PrivilegeHelper.canUpdate( GrouperSession.staticGrouperSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false;
@@ -233,7 +233,7 @@ public class Member extends GrouperAPI implements Serializable {
       throw new IllegalArgumentException(E.GROUP_NULL);
     }
     try {
-      return PrivilegeHelper.canView( this.getSession(), g, this.getSubject() );
+      return PrivilegeHelper.canView( GrouperSession.staticGrouperSession(), g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       return false; 
@@ -328,7 +328,7 @@ public class Member extends GrouperAPI implements Serializable {
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllEffectiveByMemberAndField(
-      this.getSession(), this, f
+      GrouperSession.staticGrouperSession(), this, f
     );
   } // public Set getEffectiveMemberships(f)
 
@@ -422,7 +422,7 @@ public class Member extends GrouperAPI implements Serializable {
   public Set getImmediateMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.internal_findAllImmediateByMemberAndField( this.getSession(), this, f );
+    return MembershipFinder.internal_findAllImmediateByMemberAndField( GrouperSession.staticGrouperSession(), this, f );
   } // public Set getImmediateMemberships(f)
 
   /**
@@ -474,7 +474,7 @@ public class Member extends GrouperAPI implements Serializable {
     if (!f.getType().equals(FieldType.LIST)) {
       throw new SchemaException(f + " is not type " + FieldType.LIST);
     }
-    return MembershipFinder.internal_findMemberships( this.getSession(), this, f );
+    return MembershipFinder.internal_findMemberships( GrouperSession.staticGrouperSession(), this, f );
   } // public Set getMemberships(f)
 
   /**
@@ -488,7 +488,7 @@ public class Member extends GrouperAPI implements Serializable {
   public Set getPrivs(Group g) {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getAccessResolver().getPrivileges( g, this.getSubject() );
+      privs = GrouperSession.staticGrouperSession().getAccessResolver().getPrivileges( g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -507,7 +507,7 @@ public class Member extends GrouperAPI implements Serializable {
   public Set getPrivs(Stem ns) {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getNamingResolver().getPrivileges( ns, this.getSubject() );
+      privs = GrouperSession.staticGrouperSession().getNamingResolver().getPrivileges( ns, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
@@ -641,7 +641,7 @@ public class Member extends GrouperAPI implements Serializable {
 {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+      privs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
                 this.getSubject(), AccessPrivilege.ADMIN
               );
     }
@@ -679,7 +679,7 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.CREATE );
+      privs = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.CREATE );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
@@ -715,7 +715,7 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+      privs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
                 this.getSubject(), AccessPrivilege.OPTIN
               );
     }
@@ -755,7 +755,7 @@ public class Member extends GrouperAPI implements Serializable {
 /*
     try {
       privs = PrivilegeResolver.internal_getGroupsWhereSubjectHasPriv(
-        this.getSession(), this.getSubject(), AccessPrivilege.OPTOUT
+        GrouperSession.staticGrouperSession(), this.getSubject(), AccessPrivilege.OPTOUT
       );
     }
     catch (SchemaException eS) { 
@@ -765,7 +765,7 @@ public class Member extends GrouperAPI implements Serializable {
     }
 */
     try {
-      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+      privs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
                 this.getSubject(), AccessPrivilege.OPTOUT
               );
     }
@@ -803,7 +803,7 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+      privs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
                 this.getSubject(), AccessPrivilege.READ
               );
     }
@@ -841,7 +841,7 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.STEM );
+      privs = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.STEM );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
@@ -876,7 +876,7 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+      privs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
                 this.getSubject(), AccessPrivilege.UPDATE
               );
     }
@@ -914,7 +914,7 @@ public class Member extends GrouperAPI implements Serializable {
   {
     Set privs = new LinkedHashSet();
     try {
-      privs = this.getSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
+      privs = GrouperSession.staticGrouperSession().getAccessResolver().getGroupsWhereSubjectHasPrivilege(
                 this.getSubject(), AccessPrivilege.VIEW
               );
     }
@@ -1077,7 +1077,7 @@ public class Member extends GrouperAPI implements Serializable {
     try {
       Subject subj = this.getSubject();
       try {
-        MembershipFinder.findImmediateMembership(this.getSession(), g, subj, f);
+        MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), g, subj, f);
         rv = true;
       }
       catch (MembershipNotFoundException eMNF) {
@@ -1188,7 +1188,7 @@ public class Member extends GrouperAPI implements Serializable {
     GrouperDAOFactory.getFactory().getMember().update( this._getDTO() );
     sw.stop();
     EventLog.info(
-      this.getSession(),
+      GrouperSession.staticGrouperSession(),
       M.MEMBER_CHANGESID + Quote.single(this.getUuid()) + " old=" + Quote.single(orig) + " new=" + Quote.single(id),
       sw
     );
@@ -1231,7 +1231,7 @@ public class Member extends GrouperAPI implements Serializable {
     GrouperDAOFactory.getFactory().getMember().update( this._getDTO() );
     sw.stop();
     EventLog.info(
-      this.getSession(),
+      GrouperSession.staticGrouperSession(),
       M.MEMBER_CHANGE_SSID + Quote.single(this.getUuid()) + " old=" + Quote.single(orig) + " new=" + Quote.single(id),
       sw
     );
@@ -1269,9 +1269,8 @@ public class Member extends GrouperAPI implements Serializable {
   {
     if ( SubjectFinder.internal_getGSA().getId().equals( this._getDTO().getSubjectSourceId() ) ) {
       if (this.g == null) {
-        this.g = GroupFinder.findByUuid( this.getSession(), this._getDTO().getSubjectId() );
+        this.g = GroupFinder.findByUuid( GrouperSession.staticGrouperSession(), this._getDTO().getSubjectId() );
       }
-      this.g.setSession( this.getSession() ); // in case we are using cached group
       return this.g;
     }
     throw new GroupNotFoundException("member is not a group");
@@ -1325,7 +1324,6 @@ public class Member extends GrouperAPI implements Serializable {
       ms = (Membership) it.next();
       try {
         g = ms.getGroup();
-        g.setSession( this.getSession() );
         groups.add(g);  
       }
       catch (GroupNotFoundException eGNF) {
@@ -1344,7 +1342,7 @@ public class Member extends GrouperAPI implements Serializable {
   private boolean _hasPriv(Group g, Privilege priv) {
     boolean rv = false;
     try {
-      rv = this.getSession().getAccessResolver().hasPrivilege( g, this.getSubject(), priv );
+      rv = GrouperSession.staticGrouperSession().getAccessResolver().hasPrivilege( g, this.getSubject(), priv );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
@@ -1358,7 +1356,7 @@ public class Member extends GrouperAPI implements Serializable {
   private boolean _hasPriv(Stem ns, Privilege priv) {
     boolean rv = false;
     try {
-      rv = this.getSession().getNamingResolver().hasPrivilege( ns, this.getSubject(), priv );
+      rv = GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege( ns, this.getSubject(), priv );
     }
     catch (SubjectNotFoundException eSNF) {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());

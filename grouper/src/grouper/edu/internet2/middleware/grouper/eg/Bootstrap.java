@@ -169,7 +169,7 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
  * }
  * </pre>
  * @author  blair christensen.
- * @version $Id: Bootstrap.java,v 1.2 2008-05-07 20:04:16 mchyzer Exp $
+ * @version $Id: Bootstrap.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/Bootstrap.java?root=I2MI&view=markup">Source</a>
  * @since   1.2.0
  */
@@ -194,14 +194,22 @@ public class Bootstrap {
     int exitValue = 1; // indicate failure by default
 
     try {
-      Bootstrap bs = new Bootstrap();
+      final Bootstrap bs = new Bootstrap();
       bs.findGrouperSystem();
       bs.startSession();
-      bs.findRootStem();
-      bs.findOrAddTopLevelStem();
-      bs.findOrAddWheelGroup();
-      bs.findGrouperAll();
-      bs.addGrouperAllToWheelGroupIfNotAlreadyAMember();
+      GrouperSession.callbackGrouperSession(bs.s, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          bs.findRootStem();
+          bs.findOrAddTopLevelStem();
+          bs.findOrAddWheelGroup();
+          bs.findGrouperAll();
+          bs.addGrouperAllToWheelGroupIfNotAlreadyAMember();
+          return null;
+        }
+        
+      });
       bs.stopSession();
       exitValue = 0;
     }
@@ -318,7 +326,7 @@ public class Bootstrap {
 
   private void startSession() {
     try {
-      this.s = GrouperSession.start(this.grouperSystem);  
+      this.s = GrouperSession.start(this.grouperSystem, false);  
       System.err.println("started session: " + this.s);
     }
     catch (SessionException eS) {

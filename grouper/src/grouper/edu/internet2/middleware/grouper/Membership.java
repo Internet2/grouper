@@ -38,7 +38,7 @@ import net.sf.ehcache.Element;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.90 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.91 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -109,7 +109,7 @@ public class Membership extends GrouperAPI {
     //   * It wasn't working and I didn't have time to debug it at the time.
     //   * I still need to filter
     return PrivilegeHelper.canViewMemberships(
-      this.getSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this._getDTO() )
+      GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this._getDTO() )
     );
   } // public Set getChildMemberships()
 
@@ -129,7 +129,6 @@ public class Membership extends GrouperAPI {
     try {
       Member m = new Member();
       m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getCreatorUuid() ) );
-      m.setSession( this.getSession() );
       return m;
     }
     catch (GrouperDAOException eDAO) {
@@ -162,7 +161,6 @@ public class Membership extends GrouperAPI {
     
     g = new Group();
     g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
-    g.setSession( this.getSession() );
     putGroupInCache(g);
     return g;
   } // public Group getGroup()
@@ -203,7 +201,6 @@ public class Membership extends GrouperAPI {
 	if(mDTO != null) {
 		member=new Member();
 		member.setDTO(mDTO);
-		member.setSession(this.getSession());
 		return member;
 	}
 
@@ -213,7 +210,6 @@ public class Membership extends GrouperAPI {
     }
     Member m = new Member();
     m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) );
-    m.setSession( this.getSession() );
     member=m;
     return m;
   } // public Member getMember()
@@ -245,7 +241,6 @@ public class Membership extends GrouperAPI {
     }
     Membership parent = new Membership();
     parent.setDTO( GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid) );
-    parent.setSession( this.getSession() );
     return parent;
   } // public Membership getParentMembership()
 
@@ -264,7 +259,6 @@ public class Membership extends GrouperAPI {
     
      ns = new Stem();
     ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
-    ns.setSession( this.getSession() );
     putStemInCache(ns);
     return ns;
   } // public Stem getStem()
@@ -300,7 +294,6 @@ public class Membership extends GrouperAPI {
     }
     Composite via = new Composite();
     via.setDTO( GrouperDAOFactory.getFactory().getComposite().findByUuid(uuid) );
-    via.setSession( this.getSession() );
     return via;
   } // public Composite getViaComposite()
 
@@ -328,7 +321,6 @@ public class Membership extends GrouperAPI {
     }
     Group via = new Group();
     via.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
-    via.setSession( this.getSession() );
     return via;
   } // public Group getViaGroup()
 
@@ -451,103 +443,137 @@ public class Membership extends GrouperAPI {
     }
   } // protected static void internal_delImmediateMembership(s, ns, subj, f)
 
-  // @since   1.2.0
-  protected static Set internal_deleteAllField(GrouperSession s, Group g, Field f)
+  /**
+   * @since   1.2.0
+   * @param s
+   * @param g
+   * @param f
+   * @return the set
+   * @throws MemberDeleteException
+   * @throws SchemaException
+   */
+  protected static Set internal_deleteAllField(GrouperSession s, final Group g, final Field f)
     throws  MemberDeleteException,
             SchemaException
   {
+    GrouperSession.validate(s);
     try {
-      GrouperSession.validate(s);
-
-      Set           deletes = new LinkedHashSet();
-      DefaultMemberOf      mof;
-      Membership    ms;
-      MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
-
-      // Deal with where group is a member
-      Iterator itIs = g.toMember().getImmediateMemberships(f).iterator();
-      while (itIs.hasNext()) {
-        ms   = (Membership) itIs.next();
-        ms.setSession(s);
-        mof  = new DefaultMemberOf();
-        mof.deleteImmediate(
-          s, ms.getGroup(),
-          dao.findByOwnerAndMemberAndFieldAndType( 
-            ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
-          ),
-          (MemberDTO) ms.getMember().getDTO()
-        );
-        deletes.addAll( mof.getDeletes() );
+      return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+  
+            Set           deletes = new LinkedHashSet();
+            DefaultMemberOf      mof;
+            Membership    ms;
+            MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
+  
+            // Deal with where group is a member
+            Iterator itIs = g.toMember().getImmediateMemberships(f).iterator();
+            while (itIs.hasNext()) {
+              ms   = (Membership) itIs.next();
+              mof  = new DefaultMemberOf();
+              mof.deleteImmediate(
+                grouperSession, ms.getGroup(),
+                dao.findByOwnerAndMemberAndFieldAndType( 
+                  ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+                ),
+                (MemberDTO) ms.getMember().getDTO()
+              );
+              deletes.addAll( mof.getDeletes() );
+            }
+  
+            // Deal with group's members
+            Iterator itHas = dao.findAllByOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
+            while (itHas.hasNext()) {
+              ms = new Membership();
+              ms.setDTO( (MembershipDTO) itHas.next() );
+              mof = new DefaultMemberOf();
+              mof.deleteImmediate(
+                grouperSession, g,
+                dao.findByOwnerAndMemberAndFieldAndType(
+                  g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+                ),
+                (MemberDTO) ms.getMember().getDTO()
+              );
+              deletes.addAll( mof.getDeletes() );
+            }
+  
+            return deletes;
+          } catch (SchemaException se) {
+            throw new GrouperSessionException(se);
+          } catch (GroupNotFoundException eGNF) {
+            throw new GrouperSessionException(new MemberDeleteException( eGNF.getMessage(), eGNF ));
+          } catch (MemberNotFoundException eMNF) {
+            throw new GrouperSessionException(new MemberDeleteException(eMNF));
+          } catch (MembershipNotFoundException eMSNF) {
+            throw new GrouperSessionException(new MemberDeleteException( eMSNF.getMessage(), eMSNF ));
+          }
+        }
+        
+      });
+    } catch (GrouperSessionException gse) {
+      if (gse.getCause()  instanceof MemberDeleteException) {
+        throw (MemberDeleteException)gse.getCause();
       }
-
-      // Deal with group's members
-      Iterator itHas = dao.findAllByOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
-      while (itHas.hasNext()) {
-        ms = new Membership();
-        ms.setSession(s);
-        ms.setDTO( (MembershipDTO) itHas.next() );
-        mof = new DefaultMemberOf();
-        mof.deleteImmediate(
-          s, g,
-          dao.findByOwnerAndMemberAndFieldAndType(
-            g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
-          ),
-          (MemberDTO) ms.getMember().getDTO()
-        );
-        deletes.addAll( mof.getDeletes() );
+      if (gse.getCause()  instanceof SchemaException) {
+        throw (SchemaException)gse.getCause();
       }
-
-      return deletes;
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new MemberDeleteException( eGNF.getMessage(), eGNF );
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new MemberDeleteException(eMNF);
-    }
-    catch (MembershipNotFoundException eMSNF) {
-      throw new MemberDeleteException( eMSNF.getMessage(), eMSNF );
+      throw gse;
     }
   } // protected static Set internal_deleteAllField(s, g, f)
 
-  // @since   1.2.0
-  protected static Set internal_deleteAllField(GrouperSession s, Stem ns, Field f)
-    throws  MemberDeleteException,
-            SchemaException
+  /**
+   * @since   1.2.0
+   * @param s
+   * @param ns
+   * @param f
+   * @return the set
+   * @throws MemberDeleteException
+   */
+  protected static Set internal_deleteAllField(GrouperSession s, final Stem ns, final Field f)
+    throws  MemberDeleteException
   {
-    try {
-      GrouperSession.validate(s);
+    GrouperSession.validate(s);
+    return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
-      Set           deletes = new LinkedHashSet();
-      DefaultMemberOf      mof;
-      Membership    ms;
-      MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
 
-      // Deal with stem's members
-      Iterator itHas = dao.findAllByOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
-      while (itHas.hasNext()) {
-        ms = new Membership();
-        ms.setSession(s);
-        ms.setDTO( (MembershipDTO) itHas.next() );
-        mof = new DefaultMemberOf();
-        mof.deleteImmediate(
-          s, ns,
-          dao.findByOwnerAndMemberAndFieldAndType(
-            ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
-          ),
-          (MemberDTO) ms.getMember().getDTO()
-        );
-        deletes.addAll( mof.getDeletes() );
+          Set           deletes = new LinkedHashSet();
+          DefaultMemberOf      mof;
+          Membership    ms;
+          MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
+
+          // Deal with stem's members
+          Iterator itHas = dao.findAllByOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
+          while (itHas.hasNext()) {
+            ms = new Membership();
+            ms.setDTO( (MembershipDTO) itHas.next() );
+            mof = new DefaultMemberOf();
+            mof.deleteImmediate(
+              grouperSession, ns,
+              dao.findByOwnerAndMemberAndFieldAndType(
+                ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+              ),
+              (MemberDTO) ms.getMember().getDTO()
+            );
+            deletes.addAll( mof.getDeletes() );
+          }
+
+          return deletes;
+        }
+        catch (MemberNotFoundException eMNF) {
+          throw new GrouperSessionException(new MemberDeleteException( eMNF.getMessage(), eMNF ));
+        }
+        catch (MembershipNotFoundException eMSNF) {
+          throw new GrouperSessionException(new MemberDeleteException( eMSNF.getMessage(), eMSNF ));
+        }
       }
-
-      return deletes;
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new MemberDeleteException( eMNF.getMessage(), eMNF );
-    }
-    catch (MembershipNotFoundException eMSNF) {
-      throw new MemberDeleteException( eMSNF.getMessage(), eMSNF );
-    }
+      
+    });
   } // protected static Set internal_deleteAllField(s, ns, f)
 
   // @since   1.2.0

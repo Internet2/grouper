@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.50 2008-04-28 14:59:06 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.51 2008-06-24 06:07:03 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -64,6 +64,7 @@ public class GroupFinder {
     throws  GroupNotFoundException,
             IllegalArgumentException
   {
+    //note, no need for GrouperSession inverse of control
     NotNullValidator v = NotNullValidator.validate(s);
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null session");
@@ -80,7 +81,6 @@ public class GroupFinder {
     if (dto != null) {
       Group g = new Group();
       g.setDTO(dto);
-      g.setSession(s);
       if ( s.getMember().canView(g) ) {
         return g;
       }
@@ -102,6 +102,7 @@ public class GroupFinder {
    */
   public static Set<Group> findAllByAttribute(GrouperSession s, String attr, String val)
       throws  IllegalArgumentException {
+    //note, no need for GrouperSession inverse of control
     NotNullValidator v = NotNullValidator.validate(s);
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null session");
@@ -120,7 +121,6 @@ public class GroupFinder {
       for (GroupDTO groupDTO : dtos) {
         Group g = new Group();
         g.setDTO(groupDTO);
-        g.setSession(s);
         if ( s.getMember().canView(g) ) {
           groups.add(g);
         }
@@ -147,10 +147,10 @@ public class GroupFinder {
   public static Group findByName(GrouperSession s, String name) 
     throws GroupNotFoundException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Group g = new Group();
     g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByName(name) );
-    g.setSession(s);
     //2007-10-16: Gary Brown
     //https://bugs.internet2.edu/jira/browse/GRP-36
     //Ugly... and probably breaks the abstraction but quick and easy to 
@@ -185,6 +185,7 @@ public class GroupFinder {
     throws  GroupNotFoundException,
             IllegalArgumentException
   {
+    //note, no need for GrouperSession inverse of control
     NotNullValidator v = NotNullValidator.validate(s);
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null session");
@@ -213,6 +214,7 @@ public class GroupFinder {
    * @throws  IllegalArgumentException
    */
   public static Set<Group> findAllByType(GrouperSession s, GroupType type) throws IllegalArgumentException {
+    //note, no need for GrouperSession inverse of control
     NotNullValidator v = NotNullValidator.validate(s);
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null session");
@@ -245,10 +247,10 @@ public class GroupFinder {
   public static Group findByUuid(GrouperSession s, String uuid) 
     throws GroupNotFoundException
   {
+    //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Group g = new Group();
     g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
-    g.setSession(s);
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }

@@ -22,7 +22,7 @@ import  java.util.Date;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteComposite.java,v 1.2 2007-05-24 19:34:59 blair Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteComposite.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
@@ -58,7 +58,6 @@ public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
           .setType( CompositeType.UNION.toString() )
           .setUuid( GrouperUuid.getUuid() )
       );
-      c.setSession(s);
     }
     catch (Exception eShouldNotHappen) {
       throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
