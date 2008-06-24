@@ -26,6 +26,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 
+import javax.naming.directory.Attribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.Attributes;
@@ -109,7 +110,6 @@ public class SimpleLdapSearchTest extends TestCase
     {
          junit.textui.TestRunner.run(SimpleLdapSearchTest.class);
     }
-    
 
     /**
      * A test of LDAP search capability.
