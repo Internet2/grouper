@@ -25,11 +25,14 @@
     <fileSet>
       <directory>logs</directory>
       <outputDirectory>/logs</outputDirectory>
+      <excludes>
+        <exclude>*.log</exclude>
+      </excludes>
     </fileSet>
     <!-- Copy scripts directory -->
     <fileSet>
-      <directory>scripts</directory>
-      <outputDirectory>/scripts</outputDirectory>
+      <directory>src/scripts</directory>
+      <outputDirectory>/bin</outputDirectory>
     </fileSet>
 
     <!-- Documentation -->
