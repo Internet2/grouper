@@ -1,17 +1,16 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImplExample.java,v 1.2 2008-06-21 04:16:21 mchyzer Exp $
+ * $Id: GroupHooksImplExample.java,v 1.3 2008-06-25 05:46:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ui.hooks;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.HookVeto;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
-import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 
 
 /**
@@ -25,8 +24,8 @@ public class GroupHooksImplExample extends GroupHooks {
   @Override
   public void groupPreInsert(HooksGroupPreInsertBean preInsertBean) {
     
-    GroupDTO groupDTO = preInsertBean.getGroupDto();
-    String name = StringUtils.defaultString((String)groupDTO.getAttributes().get(GrouperConfig.ATTR_NAME));
+    Group group = preInsertBean.getGroup();
+    String name = StringUtils.defaultString(group.getName());
     if (!name.startsWith("penn:")) {
       throw new HookVeto("hook.veto.group.name.prefix", "group must be in the 'penn' top level folder");
     }

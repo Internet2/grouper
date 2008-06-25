@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.hooks.HookVeto;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.8 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class StemHelper {
 
@@ -81,9 +81,8 @@ public class StemHelper {
     } catch (HookVeto hookVeto) {
       throw hookVeto;
     } catch (Exception e) {
-      T.e(e); 
+      throw new RuntimeException(e);
     }
-    throw new GrouperRuntimeException();
   } // protected static Group addChildGroup(ns, extn, displayExtn)
 
   protected static void addChildGroupFail(Stem ns, String extn, String displayExtn) {

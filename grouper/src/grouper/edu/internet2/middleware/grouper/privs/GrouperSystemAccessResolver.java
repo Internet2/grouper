@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemAccessResolver.java,v 1.6 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: GrouperSystemAccessResolver.java,v 1.7 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperSystemAccessResolver extends AccessResolverDecorator {
@@ -160,7 +160,16 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
             UnableToPerformException
   {
     super.getDecoratedResolver().revokePrivilege(group, subject, privilege);
-  }            
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
 
 }
 

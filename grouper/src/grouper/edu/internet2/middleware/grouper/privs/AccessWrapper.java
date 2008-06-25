@@ -36,7 +36,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.5 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
@@ -201,6 +201,14 @@ public class AccessWrapper implements AccessResolver {
     catch (SchemaException eSchema) {
       throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
     }
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   */
+  public void flushCache() {
   }            
 
 }

@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.13 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.14 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -88,9 +88,7 @@ public class TestPrivADMIN extends TestCase {
     LOG.debug("tearDown");
     // Nothing 
   }
-
-  // Tests
-
+  
   public void testGrantedToCreator() {
     final Group[] groups = new Group[1];
     GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {

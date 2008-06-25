@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  java.util.Date;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteComposite.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteComposite.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
@@ -48,16 +47,14 @@ public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
       gC      = parent.addChildGroup("child group c", "child group c");
       // TODO 20070523 this *screams* for an easier way
       c       = new Composite();
-      c.setDTO(
-        new CompositeDTO()
-          .setCreateTime( new Date().getTime() )
-          .setCreatorUuid( s.getMember().getUuid() )
-          .setFactorOwnerUuid( gA.getUuid() )
-          .setLeftFactorUuid( gB.getUuid() )
-          .setRightFactorUuid( gB.getUuid() )
-          .setType( CompositeType.UNION.toString() )
-          .setUuid( GrouperUuid.getUuid() )
-      );
+      
+      c.setCreateTime( new Date().getTime() );
+      c.setCreatorUuid( s.getMember().getUuid() );
+      c.setFactorOwnerUuid( gA.getUuid() );
+      c.setLeftFactorUuid( gB.getUuid() );
+      c.setRightFactorUuid( gB.getUuid() );
+      c.setTypeDb( CompositeType.UNION.toString() );
+      c.setUuid( GrouperUuid.getUuid() );
     }
     catch (Exception eShouldNotHappen) {
       throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );

@@ -1,10 +1,10 @@
 /*
  * @author mchyzer
- * $Id: HooksGroupPreInsertBean.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: HooksGroupPreInsertBean.java,v 1.3 2008-06-25 05:46:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import edu.internet2.middleware.grouper.Group;
 
 
 /**
@@ -13,22 +13,22 @@ import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 public class HooksGroupPreInsertBean extends HooksBean {
 
   /** object being inserted */
-  private GroupDTO groupDto = null;
+  private Group group = null;
   
   /**
    * @param theHooksContext
-   * @param theGroupDto 
+   * @param theGroup
    */
-  public HooksGroupPreInsertBean(HooksContext theHooksContext, GroupDTO theGroupDto) {
+  public HooksGroupPreInsertBean(HooksContext theHooksContext, Group theGroup) {
     super(theHooksContext);
-    this.groupDto = theGroupDto;
+    this.group = theGroup;
   }
   
   /**
    * object being inserted
-   * @return the GroupDTO
+   * @return the Group
    */
-  public GroupDTO getGroupDto() {
-    return this.groupDto;
+  public Group getGroup() {
+    return this.group;
   }
 }

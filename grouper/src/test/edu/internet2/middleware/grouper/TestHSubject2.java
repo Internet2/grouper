@@ -16,11 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestHSubject2.java,v 1.5 2007-03-06 17:02:43 blair Exp $
+ * @version $Id: TestHSubject2.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestHSubject2 extends GrouperTest {
@@ -39,6 +41,10 @@ public class TestHSubject2 extends GrouperTest {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+  }
+
+  public static void main(String[] args) {
+    TestRunner.run(TestHSubject2.class);
   }
 
   public void testFailToAddAlreadyExistingSubject() {

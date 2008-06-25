@@ -16,12 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_addImmediate.java,v 1.3 2007-05-24 19:34:59 blair Exp $
+ * @version $Id: Test_I_API_MemberOf_addImmediate.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
@@ -29,7 +28,6 @@ public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
   // PRIVATE INSTANCE VARIABLES //
   private Group           gA, gB, gC, gD;
   private Member          mX;
-  private MemberDTO       _mX;
   private Stem            parent;
   private GrouperSession  s;
   private Subject         subjX, subjY;
@@ -51,7 +49,6 @@ public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
       subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
       subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
       mX      = MemberFinder.findBySubject(s, subjX);
-      _mX     = (MemberDTO) mX.getDTO();
     }
     catch (Exception eShouldNotHappen) {
       throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
@@ -77,7 +74,7 @@ public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
    */
   public void test_addImmediate_addSubjectToIsolatedGroup() {
     MemberOf mof = new DefaultMemberOf(); // TODO 20070523 should use a factory or equiv
-    mof.addImmediate( s, gA, Group.getDefaultList(), _mX );
+    mof.addImmediate( s, gA, Group.getDefaultList(), mX );
 
     assertEquals( "mof deletes",        0, mof.getDeletes().size() );
     assertEquals( "mof saves",          1, mof.getSaves().size() );
@@ -105,7 +102,7 @@ public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
     }
 
     MemberOf mof = new DefaultMemberOf(); // TODO 20070524 should use a factory or equiv
-    mof.addImmediate( s, gD, Group.getDefaultList(), (MemberDTO) gA.toMember().getDTO() );
+    mof.addImmediate( s, gD, Group.getDefaultList(), gA.toMember() );
 
     assertEquals( "mof deletes",        0, mof.getDeletes().size() );
     // immediate membership in gD (1), effectives in gD from composite gA (2)

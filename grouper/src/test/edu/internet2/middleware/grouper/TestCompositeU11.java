@@ -16,14 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import junit.framework.Assert;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.10 2007-04-17 14:17:30 blair Exp $
+ * @version $Id: TestCompositeU11.java,v 1.11 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestCompositeU11 extends GrouperTest {
 
@@ -71,10 +73,9 @@ public class TestCompositeU11 extends GrouperTest {
       Assert.assertNotNull( "ms via !null"      , via );
       Assert.assertTrue(    "ms via Composite"  , via instanceof Composite  );
       Composite     u   = (Composite) via;
-      CompositeDTO  _c  = (CompositeDTO) u.getDTO();
-      Assert.assertEquals(  "u owner" , _c.getFactorOwnerUuid(),  a.getUuid() );
-      Assert.assertEquals(  "u left"  , _c.getLeftFactorUuid(),   b.getUuid() );
-      Assert.assertEquals(  "u right" , _c.getRightFactorUuid(),  c.getUuid() );
+      Assert.assertEquals(  "u owner" , u.getFactorOwnerUuid(),  a.getUuid() );
+      Assert.assertEquals(  "u left"  , u.getLeftFactorUuid(),   b.getUuid() );
+      Assert.assertEquals(  "u right" , u.getRightFactorUuid(),  c.getUuid() );
       Assert.assertEquals(  "u type"  , CompositeType.UNION , u.getType() );
       r.rs.stop();
     }

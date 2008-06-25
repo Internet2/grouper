@@ -18,26 +18,25 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 
 
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -48,7 +47,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   /**
    * @since   @HEAD@
    */
-  public void create(GroupTypeDTO _gt)
+  public void create(GroupType _gt)
     throws  GrouperDAOException {
     HibernateSession.byObjectStatic().save(_gt);
   } 
@@ -56,7 +55,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   /**
    * @since   @HEAD@
    */
-  public void createField(FieldDTO _f)
+  public void createField(Field _f)
     throws  GrouperDAOException {
     HibernateSession.byObjectStatic().save(_f);
   } 
@@ -64,7 +63,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   /**
    * @since   @HEAD@
    */
-  public void delete(GroupTypeDTO _gt, Set fields)
+  public void delete(GroupType _gt, Set fields)
     throws  GrouperDAOException {
     List<Object> list = new ArrayList<Object>();
     for (Object field: fields) {
@@ -77,7 +76,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   /**
    * @since   @HEAD@
    */
-  public void deleteField(FieldDTO _f) throws  GrouperDAOException {
+  public void deleteField(Field _f) throws  GrouperDAOException {
     HibernateSession.byObjectStatic().delete(_f);
   } 
 
@@ -88,7 +87,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
     throws  GrouperDAOException {
 
     Object id = HibernateSession.byHqlStatic()
-      .createQuery("select gt.id from GroupTypeDTO gt where gt.name = :name")
+      .createQuery("select gt.id from GroupType gt where gt.name = :name")
       .setString("name", name).uniqueResult(Object.class);
     boolean rv  = false;
     if ( id != null ) {
@@ -100,44 +99,44 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   /**
    * @since   @HEAD@
    */
-  public Set<GroupTypeDTO> findAll() 
+  public Set<GroupType> findAll() 
     throws  GrouperDAOException {
 
     return HibernateSession.byHqlStatic()
-      .createQuery("from GroupTypeDTO order by name asc")
+      .createQuery("from GroupType order by name asc")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAll")
-      .listSet(GroupTypeDTO.class);
+      .listSet(GroupType.class);
   } 
 
   /**
    * @since   @HEAD@
    */
-  public GroupTypeDTO findByUuid(String uuid)
+  public GroupType findByUuid(String uuid)
     throws  GrouperDAOException,
             SchemaException
   {
-    GroupTypeDTO groupTypeDTO = HibernateSession.byHqlStatic()
-      .createQuery("from GroupTypeDTO as gt where gt.uuid = :uuid")
+    GroupType groupType = HibernateSession.byHqlStatic()
+      .createQuery("from GroupType as gt where gt.uuid = :uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("uuid", uuid)
-      .uniqueResult(GroupTypeDTO.class);
-    if (groupTypeDTO == null) {
+      .uniqueResult(GroupType.class);
+    if (groupType == null) {
       throw new SchemaException();
     }
-    return groupTypeDTO;
+    return groupType;
   } 
 
   // @since   @HEAD@
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    GroupTypeDTO  _type;
+    GroupType  _type;
     Iterator      it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
     ByObject byObject = hibernateSession.byObject();
     while (it.hasNext()) {
-      _type = (GroupTypeDTO) it.next();
+      _type = (GroupType) it.next();
       if ( ! ( _type.getName().equals("base") || _type.getName().equals("naming") ) ) {
         byObject.delete(_type.getFields());
         byObject.delete( _type );

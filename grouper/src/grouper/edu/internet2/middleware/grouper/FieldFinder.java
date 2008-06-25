@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -28,7 +27,7 @@ import  java.util.Set;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.36 2007-08-27 17:49:26 blair Exp $
+ * @version $Id: FieldFinder.java,v 1.37 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -73,7 +72,7 @@ public class FieldFinder {
     Set       fields  = new LinkedHashSet();
     Iterator  it      = GrouperDAOFactory.getFactory().getField().findAll().iterator();
     while (it.hasNext()) {
-      fields.add( new Field().setDTO( (FieldDTO) it.next() ) );
+      fields.add( (Field) it.next() ) ;
     }
     return fields;
   }
@@ -90,7 +89,7 @@ public class FieldFinder {
     Set       fields  = new LinkedHashSet();
     Iterator  it      = GrouperDAOFactory.getFactory().getField().findAllByType(type).iterator();
     while (it.hasNext()) {
-      fields.add( new Field().setDTO( (FieldDTO) it.next() ) );
+      fields.add( (Field) it.next() ) ;
     }
     return fields;
   }

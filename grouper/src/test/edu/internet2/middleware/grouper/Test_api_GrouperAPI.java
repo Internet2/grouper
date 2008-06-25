@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
 
 
 /**
  * Test {@link GrouperAPI}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperAPI.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Test_api_GrouperAPI.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperAPI extends GrouperTest {
@@ -40,24 +39,6 @@ public class Test_api_GrouperAPI extends GrouperTest {
 
   public void tearDown() {
     super.tearDown();
-  }
-
-
-
-  public void test_getDTO_nullDTO() {
-    try {
-      this.mockAPI.getDTO();
-      fail("failed to throw expected IllegalStateException");
-    }
-    catch (IllegalStateException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-  
-  public void test_getDTO_equalsSetDTO() {
-    GrouperDTO mockDTO = new MockGrouperDTO();
-    this.mockAPI.setDTO(mockDTO);
-    assertEquals( mockDTO, this.mockAPI.getDTO() );
   }
 
 
@@ -133,16 +114,6 @@ public class Test_api_GrouperAPI extends GrouperTest {
   }
 
 
-
-  public void test_setDTO_nullDTO() {
-    this.mockAPI.equals( this.mockAPI.setDTO(null) );  
-  }
-
-
-
-  public void test_setSession_nullSession() {
-    this.mockAPI.equals( this.mockAPI.setDTO(null) );  
-  }
 
 }
 

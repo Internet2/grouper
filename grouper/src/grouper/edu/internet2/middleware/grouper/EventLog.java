@@ -16,9 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.subject.*;
 import  java.util.HashMap;
@@ -31,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.53 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: EventLog.java,v 1.54 2008-06-25 05:46:05 mchyzer Exp $
  */
 class EventLog {
 
@@ -312,10 +309,10 @@ class EventLog {
   )
   {
     //note, no need for GrouperSession inverse of control
-    MembershipDTO   eff;
+    Membership   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
-      eff = (MembershipDTO) iter.next();
+      eff = (Membership) iter.next();
       if      ( eff.getListType().equals(FieldType.ACCESS.toString()) )  {
         this._eff(s, M.G_GP_E, name, subj, f, eff, "priv="); 
       }
@@ -333,10 +330,10 @@ class EventLog {
   )
   {
     //note, no need for GrouperSession inverse of control
-    MembershipDTO   eff;
+    Membership   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
-      eff = (MembershipDTO) iter.next();
+      eff = (Membership) iter.next();
       if      ( eff.getListType().equals(FieldType.ACCESS.toString()) )  {
         this._eff(s, M.G_RP_E, name, subj, f, eff, "priv="); 
       }
@@ -350,7 +347,7 @@ class EventLog {
   } 
 
   private void _eff(
-    GrouperSession s, String msg, String name, Subject subj, Field f, MembershipDTO eff, String field
+    GrouperSession s, String msg, String name, Subject subj, Field f, Membership eff, String field
   )
   {
     //note, no need for GrouperSession inverse of control
@@ -378,7 +375,7 @@ class EventLog {
 
   // @since   1.2.0
   // TODO 20070531 i need to make this all go away
-  private String _getEffOwnerMsg(MembershipDTO _eff) {
+  private String _getEffOwnerMsg(Membership _eff) {
     String  msg   = GrouperConfig.EMPTY_STRING;
     String  uuid  = _eff.getOwnerUuid();
 
@@ -392,16 +389,12 @@ class EventLog {
     }
     else {
       try {
-        GroupDTO _g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
-        g           = new Group();
-        g.setDTO(_g);
+        Group _g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
         this.groupCache.put(uuid, g);
       }
       catch (GroupNotFoundException eGNF) {
         try {
-          StemDTO _ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
-          ns          = new Stem();
-          ns.setDTO(_ns);
+          Stem _ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
           this.stemCache.put(uuid, ns);
         }
         catch (StemNotFoundException eSNF) {
@@ -422,7 +415,7 @@ class EventLog {
   } // private String _getEffOwnerMsg(_eff)
 
   // @since   1.2.0
-  private String _getEffSubjectMsg(MembershipDTO _eff) {
+  private String _getEffSubjectMsg(Membership _eff) {
     try {
       return " subject=" + SubjectHelper.getPretty( GrouperDAOFactory.getFactory().getMember().findByUuid( _eff.getMemberUuid() ) );
     }

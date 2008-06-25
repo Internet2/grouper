@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  java.util.Date;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_CompositeValidator_validate.java,v 1.2 2007-04-17 14:17:30 blair Exp $
+ * @version $Id: Test_Integration_CompositeValidator_validate.java,v 1.3 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_CompositeValidator_validate extends GrouperTest {
@@ -36,11 +35,11 @@ public class Test_Integration_CompositeValidator_validate extends GrouperTest {
   public void testValidate_OwnerDoesNotExist() {
     try {
       LOG.info("testValidate_OwnerDoesNotExist");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid("factorOwnerUuid");
       _c.setLeftFactorUuid("leftFactorUuid");
       _c.setRightFactorUuid("rightFactorUuid");
@@ -58,11 +57,11 @@ public class Test_Integration_CompositeValidator_validate extends GrouperTest {
       LOG.info("testValidate_LeftFactorDoesNotExist");
       R r = R.getContext("grouper");
 
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid( r.getGroup("i2mi:grouper", "grouper-dev").getUuid() );
       _c.setLeftFactorUuid("leftFactorUuid");
       _c.setRightFactorUuid("rightFactorUuid");
@@ -80,11 +79,11 @@ public class Test_Integration_CompositeValidator_validate extends GrouperTest {
       LOG.info("testValidate_RightFactorDoesNotExist");
       R r = R.getContext("grouper");
 
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid( r.getGroup("i2mi:grouper", "grouper-dev").getUuid() );
       _c.setLeftFactorUuid( r.getGroup("i2mi:grouper", "grouper-users").getUuid() );
       _c.setRightFactorUuid("rightFactorUuid");

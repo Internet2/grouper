@@ -16,12 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
+
+import edu.internet2.middleware.grouper.GrouperSession;
 
 /** 
  * Basic <code>GrouperSession</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GrouperSessionDAO.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: GrouperSessionDAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GrouperSessionDAO extends GrouperDAO {
@@ -29,13 +30,13 @@ public interface GrouperSessionDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String create(GrouperSessionDTO _s)
+  String create(GrouperSession _s)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void delete(GrouperSessionDTO _s)
+  void delete(GrouperSession _s)
     throws  GrouperDAOException;
 
 } 

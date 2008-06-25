@@ -25,26 +25,26 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.Attribute;
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.ErrorLog;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperConfig;
-import edu.internet2.middleware.grouper.internal.dto.AttributeDTO;
-import edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupTypeTupleDTO;
-import edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
-import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import edu.internet2.middleware.grouper.internal.dto.RegistrySubjectAttributeDTO;
-import edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
-import edu.internet2.middleware.grouper.internal.dto.StemDTO;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {
@@ -67,18 +67,18 @@ abstract class Hib3DAO {
       // And now load all configuration information
       CFG = new Configuration()
         .addProperties(p)
-        .addResource(resourceNameFromClassName(AttributeDTO.class))
-        .addResource(resourceNameFromClassName(CompositeDTO.class))
-        .addResource(resourceNameFromClassName(FieldDTO.class))
-        .addResource(resourceNameFromClassName(GroupDTO.class))
-        .addResource(resourceNameFromClassName(GroupTypeDTO.class))
-        .addResource(resourceNameFromClassName(GroupTypeTupleDTO.class))
-        .addResource(resourceNameFromClassName(GrouperSessionDTO.class))
-        .addResource(resourceNameFromClassName(MemberDTO.class))
-        .addResource(resourceNameFromClassName(MembershipDTO.class))
-        .addResource(resourceNameFromClassName(RegistrySubjectDTO.class))
-        .addResource(resourceNameFromClassName(RegistrySubjectAttributeDTO.class))
-        .addResource(resourceNameFromClassName(StemDTO.class));
+        .addResource(resourceNameFromClassName(Attribute.class))
+        .addResource(resourceNameFromClassName(Composite.class))
+        .addResource(resourceNameFromClassName(Field.class))
+        .addResource(resourceNameFromClassName(Group.class))
+        .addResource(resourceNameFromClassName(GroupType.class))
+        .addResource(resourceNameFromClassName(GroupTypeTuple.class))
+        .addResource(resourceNameFromClassName(GrouperSession.class))
+        .addResource(resourceNameFromClassName(Member.class))
+        .addResource(resourceNameFromClassName(Membership.class))
+        .addResource(resourceNameFromClassName(RegistrySubject.class))
+        .addResource(resourceNameFromClassName(RegistrySubjectAttribute.class))
+        .addResource(resourceNameFromClassName(Stem.class));
       
       // And finally create our session factory
       FACTORY = CFG.buildSessionFactory();
@@ -92,18 +92,16 @@ abstract class Hib3DAO {
 
 
   /**
-   * class is e.g. edu.internet2.middleware.grouper.internal.dto.AttributeDTO,
+   * class is e.g. edu.internet2.middleware.grouper.internal.dto.Attribute,
    * must return e.g. edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDAO
    * @param theClass
    * @return the string of resource
    */
   private static String resourceNameFromClassName(Class theClass) {
     String simpleName = theClass.getSimpleName();
-    //get before DTO
-    String beforeDto = GrouperUtil.prefixOrSuffix(simpleName, "DTO", true);
     String daoPackage = Hib3GroupDAO.class.getPackage().getName();
     //replace with slashes
-    String result = StringUtils.replace(daoPackage, ".", "/") + "/Hib3" + beforeDto + "DAO.hbm.xml";
+    String result = StringUtils.replace(daoPackage, ".", "/") + "/Hib3" + simpleName + "DAO.hbm.xml";
     return result;
   }
   

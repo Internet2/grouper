@@ -16,56 +16,126 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
-import  java.io.PrintWriter;
-import  java.io.StringWriter;
+import java.io.Serializable;
+import java.util.Set;
+
+import org.hibernate.CallbackException;
+import org.hibernate.Session;
+import org.hibernate.classic.Lifecycle;
+
+import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 
 /** 
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.11 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.12 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
-abstract class GrouperAPI {
-
-  // PROTECTED INSTANCE VARIABLES //
-  protected GrouperDTO      dto;
-
-
-  // CONSTRUCTORS //
-
-  // @since   1.2.0
-  protected GrouperAPI() {
-    super();
-  } // protected GrouperAPI() 
-
-
-  // PROTECTED INSTANCE METHODS //
+abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
 
   /**
-   * @return  This object's DTO.
-   * @throws  IllegalStateException if DTO is null.
-   * @since   1.2.0
+   * see if the state of this object has changed compared to the DB state (last known)
+   * @return true if changed, false if not
    */
-  protected GrouperDTO getDTO() 
-    throws  IllegalStateException
-  {
-    if (this.dto == null) {
-      // TODO 20070813 trying to throw a better error message to help resolve GRP-14
-      NullPointerException  e   = new NullPointerException();
-      StringWriter          sw  = new StringWriter(); 
-      e.printStackTrace( new PrintWriter(sw) );
-      throw new IllegalStateException( "null dto in class " + this.getClass().getName() + ": " + sw, e );
-    }
-    return this.dto;
-  } 
+  boolean dbVersionDifferent() {
+    throw new RuntimeException("Not implemented");
+  }
 
-  // @since   1.2.0
-  protected GrouperAPI setDTO(GrouperDTO dto) {
-    this.dto = dto;
-    return this;
+
+  /**
+   * see which fields have changed compared to the DB state (last known)
+   * note that attributes will print out: attribute__attributeName
+   * @return a set of attributes changed, or empty set if none
+   */
+  Set<String> dbVersionDifferentFields() {
+    throw new RuntimeException("Not implemented");
+  }
+
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  void dbVersionReset() {
+  }
+
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onDelete(org.hibernate.Session)
+   */
+  public boolean onDelete(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
+  }
+
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onLoad(org.hibernate.Session, java.io.Serializable)
+   */
+  public void onLoad(Session s, Serializable id) {
+    this.dbVersionReset();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostDelete(HibernateSession hibernateSession) {
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostSave(HibernateSession hibernateSession) {
+    this.dbVersionReset();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    this.dbVersionReset();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreDelete(HibernateSession hibernateSession) {
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreSave(HibernateSession hibernateSession) {
+    
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreUpdate(HibernateSession hibernateSession) {
+  }
+
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onSave(org.hibernate.Session)
+   */
+  public boolean onSave(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
+  }
+
+
+  /**
+   * @see org.hibernate.classic.Lifecycle#onUpdate(org.hibernate.Session)
+   */
+  public boolean onUpdate(Session s) throws CallbackException {
+    return Lifecycle.NO_VETO;
   } 
 
 } 

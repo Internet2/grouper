@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.5 2008-06-21 04:16:12 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.6 2008-06-25 05:46:05 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dto" default-lazy="false">
-  <class name="GroupDTO" table="grouper_groups">
+<hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+  <class name="Group" table="grouper_groups">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -81,7 +81,7 @@
     <!-- creatorUuid -->
 
     <!-- createTime -->
-    <property name="createTime"
+    <property name="createTimeLong"
               type="long"
               update="true" 
     >
@@ -105,7 +105,7 @@
     <!-- modifierUuid -->
 
     <!-- modifyTime -->
-    <property name="modifyTime"
+    <property name="modifyTimeLong"
               type="long"
     >
       <column name="modify_time"
@@ -115,7 +115,7 @@
     <!-- modifyTime -->
 
     <!-- createSource -->
-    <property name="createSource"
+    <property name="createSourceDb"
               type="string"
     >
       <column name="create_source"/>
@@ -123,7 +123,7 @@
     <!-- createSource -->
 
     <!-- modifySource -->
-    <property name="modifySource"
+    <property name="modifySourceDb"
               type="string"
     >
       <column name="modify_source"/>

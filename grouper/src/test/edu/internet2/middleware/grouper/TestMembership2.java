@@ -19,11 +19,13 @@ package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership2.java,v 1.7 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: TestMembership2.java,v 1.8 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestMembership2 extends GrouperTest {
 
@@ -42,6 +44,14 @@ public class TestMembership2 extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestMembership2("testCreationTimesAndCreators"));
+  }
+  
   public void testCreationTimesAndCreators() {
     LOG.info("testCreationTimesAndCreators");
     try {

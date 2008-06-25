@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject10.java,v 1.7 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: TestSubject10.java,v 1.8 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestSubject10 extends TestCase {
 
@@ -50,7 +49,7 @@ public class TestSubject10 extends TestCase {
       Group           gA      = r.getGroup("a", "a");
       Group           gB      = r.getGroup("a", "b");
       Subject         subjA   = r.getSubject("a");
-      GrouperSubject  subjGA  = new GrouperSubject( (GroupDTO) gA.getDTO() );
+      GrouperSubject  subjGA  = new GrouperSubject( gA);
       Assert.assertTrue(
         "gA == gA"    , subjGA.equals(gA.toSubject())
       );

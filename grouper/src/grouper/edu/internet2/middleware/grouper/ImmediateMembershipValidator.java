@@ -16,9 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
  * An immediate member is directly assigned to a group.
@@ -29,7 +26,7 @@ import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
  * memberships
  * 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.10 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.11 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 class ImmediateMembershipValidator extends MembershipValidator {
@@ -46,7 +43,7 @@ class ImmediateMembershipValidator extends MembershipValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static MembershipValidator validate(MembershipDTO _ms) {
+  protected static MembershipValidator validate(Membership _ms) {
     ImmediateMembershipValidator  v     = new ImmediateMembershipValidator();
     NotNullValidator              vNull = NotNullValidator.validate(_ms);
     if (vNull.isInvalid()) {
@@ -94,13 +91,13 @@ class ImmediateMembershipValidator extends MembershipValidator {
 
   // @since   1.2.0
   // TODO 20070531 it would be nice if i could avoid exceptions here
-  private boolean _isCircular(MembershipDTO _ms) 
+  private boolean _isCircular(Membership _ms) 
     throws  IllegalStateException
   {
     if ( GrouperConfig.LIST.equals( _ms.getListName() ) ) {
       try {
-        GroupDTO  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() );
-        MemberDTO _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
+        Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() );
+        Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
         if ( _g.getUuid().equals( _m.getSubjectId() ) ) {
           return true;
         }

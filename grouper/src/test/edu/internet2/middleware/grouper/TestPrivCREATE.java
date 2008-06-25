@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.9 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestPrivCREATE extends GrouperTest {
 
@@ -71,8 +71,8 @@ public class TestPrivCREATE extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestPrivCREATE("testDelMembersWithADMIN"));
-    TestRunner.run(TestPrivCREATE.class);
+    TestRunner.run(new TestPrivCREATE("testCreateChildGroupWithoutCREATE"));
+    //TestRunner.run(TestPrivCREATE.class);
   }
 
 

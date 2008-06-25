@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3StemDAO.hbm.xml,v 1.5 2008-06-21 04:16:12 mchyzer Exp $ -->
+<!-- $Id: Hib3StemDAO.hbm.xml,v 1.6 2008-06-25 05:46:05 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dto" default-lazy="false">
-  <class name="StemDTO" table="grouper_stems">
+<hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+  <class name="Stem" table="grouper_stems">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -68,7 +68,7 @@
 
     <!-- name -->
     <property
-      name="name"
+      name="nameDb"
       type="string"
     >
       <column name="name"
@@ -79,7 +79,7 @@
     <!-- name -->
 
     <!-- displayName -->
-    <property name="displayName"
+    <property name="displayNameDb"
               type="string"
     >
       <column name="display_name"
@@ -104,7 +104,7 @@
     <!-- creatorUuid -->
 
     <!-- createTime -->
-    <property name="createTime"
+    <property name="createTimeLong"
               type="long"
               update="true" 
     >
@@ -128,7 +128,7 @@
     <!-- modifierUuid -->
 
     <!-- modifyTime -->
-    <property name="modifyTime"
+    <property name="modifyTimeLong"
               type="long"
     >
       <column name="modify_time"
@@ -138,7 +138,7 @@
     <!-- modifyTime -->
 
     <!-- displayExtension -->
-    <property name="displayExtension"
+    <property name="displayExtensionDb"
               type="string"
     >
       <column name="display_extension"
@@ -149,7 +149,7 @@
     <!-- displayExtension -->
 
     <!-- extension -->
-    <property name="extension"
+    <property name="extensionDb"
               type="string"
     >
       <column name="extension"
@@ -160,14 +160,15 @@
     <!-- extension -->
 
     <!-- description -->
-    <property name="description"
+    <property name="descriptionDb"
               type="string"
-              length="1024"
-    />
+              length="1024">
+      <column name="description" />
+    </property>
     <!-- description -->
 
     <!-- createSource -->
-    <property name="createSource"
+    <property name="createSourceDb"
               type="string"
     >
       <column name="create_source"/>
@@ -175,7 +176,7 @@
     <!-- createSource -->
 
     <!-- modifySource -->
-    <property name="modifySource"
+    <property name="modifySourceDb"
               type="string"
     >
       <column name="modify_source"/>

@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
@@ -26,7 +24,7 @@ import  java.util.Set;
  * Query by {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFilter.java,v 1.12 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GroupTypeFilter.java,v 1.13 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class GroupTypeFilter extends BaseQueryFilter {
@@ -60,9 +58,9 @@ public class GroupTypeFilter extends BaseQueryFilter {
     GrouperSession.validate(s);
     Set       groups  = new LinkedHashSet();
     Group     g;  
-    Iterator  it      = GrouperDAOFactory.getFactory().getGroup().findAllByType( (GroupTypeDTO) this.type.getDTO() ).iterator();
+    Iterator  it      = GrouperDAOFactory.getFactory().getGroup().findAllByType( this.type ).iterator();
     while (it.hasNext()) {
-      g = (Group) new Group().setDTO( (GroupDTO) it.next() );
+      g = (Group) it.next();
       groups.add(g);
     }
     return this.filterByScope(this.ns, groups);

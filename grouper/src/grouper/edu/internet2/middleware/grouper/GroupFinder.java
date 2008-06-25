@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -29,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.51 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.52 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -77,10 +75,8 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null value");
     }
-    GroupDTO dto = GrouperDAOFactory.getFactory().getGroup().findByAttribute(attr, val);
-    if (dto != null) {
-      Group g = new Group();
-      g.setDTO(dto);
+    Group g = GrouperDAOFactory.getFactory().getGroup().findByAttribute(attr, val);
+    if (g != null) {
       if ( s.getMember().canView(g) ) {
         return g;
       }
@@ -115,14 +111,12 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null value");
     }
-    Set<GroupDTO> dtos = GrouperDAOFactory.getFactory().getGroup().findAllByAttr(attr, val);
+    Set<Group> groupsDb = GrouperDAOFactory.getFactory().getGroup().findAllByAttr(attr, val);
     Set<Group> groups= new LinkedHashSet<Group>();
-    if (dtos != null && dtos.size() > 0) {
-      for (GroupDTO groupDTO : dtos) {
-        Group g = new Group();
-        g.setDTO(groupDTO);
-        if ( s.getMember().canView(g) ) {
-          groups.add(g);
+    if (groupsDb != null && groupsDb.size() > 0) {
+      for (Group group : groupsDb) {
+        if ( s.getMember().canView(group) ) {
+          groups.add(group);
         }
       }
     }
@@ -149,8 +143,7 @@ public class GroupFinder {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Group g = new Group();
-    g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByName(name) );
+    Group g = GrouperDAOFactory.getFactory().getGroup().findByName(name) ;
     //2007-10-16: Gary Brown
     //https://bugs.internet2.edu/jira/browse/GRP-36
     //Ugly... and probably breaks the abstraction but quick and easy to 
@@ -195,7 +188,7 @@ public class GroupFinder {
       throw new IllegalArgumentException("null type");
     }
     Set groups = PrivilegeHelper.canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByType( (GroupTypeDTO) type.getDTO() )
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByType( type )
     );
     if (groups.size() == 1) {
       return (Group) new ArrayList(groups).get(0);
@@ -224,7 +217,7 @@ public class GroupFinder {
       throw new IllegalArgumentException("null type");
     }
     Set<Group> groups = PrivilegeHelper.canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByType( (GroupTypeDTO) type.getDTO() )
+      s, GrouperDAOFactory.getFactory().getGroup().findAllByType( type)
     );
     return GrouperUtil.nonNull(groups);
   } 
@@ -249,8 +242,7 @@ public class GroupFinder {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Group g = new Group();
-    g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
+    Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }

@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
 
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -31,14 +30,11 @@ import edu.internet2.middleware.grouper.hibernate.HibernateMisc;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
 
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.4 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
@@ -49,54 +45,54 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   /**
    * @since   @HEAD@
    */
-  public Set<CompositeDTO> findAsFactor(GroupDTO _g) 
+  public Set<Composite> findAsFactor(Group _g) 
     throws  GrouperDAOException
   {
     return HibernateSession.byHqlStatic()
-      .createQuery("from CompositeDTO as c where (" 
+      .createQuery("from Composite as c where (" 
           + " c.leftFactorUuid = :left or c.rightFactorUuid = :right "
           + ")")
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindAsFactor")
           .setString( "left",  _g.getUuid() )
           .setString( "right", _g.getUuid() )
-          .listSet(CompositeDTO.class);
+          .listSet(Composite.class);
   } // public Set findAsFactor(_g)
 
   /**
    * @since   @HEAD@
    */
-  public CompositeDTO findAsOwner(GroupDTO _g) 
+  public Composite findAsOwner(Group _g) 
     throws  CompositeNotFoundException,
             GrouperDAOException {
-    CompositeDTO dto = HibernateSession.byHqlStatic()
-      .createQuery("from CompositeDTO as c where c.factorOwnerUuid = :uuid")
+    Composite dto = HibernateSession.byHqlStatic()
+      .createQuery("from Composite as c where c.factorOwnerUuid = :uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAsOwner")
-      .setString( "uuid", _g.getUuid() ).uniqueResult(CompositeDTO.class);
+      .setString( "uuid", _g.getUuid() ).uniqueResult(Composite.class);
     if (dto == null) {
       throw new CompositeNotFoundException();
     }
     return dto;
-  } // public CompositeDTO findAsOwner(_g)
+  } // public Composite findAsOwner(_g)
 
   /**
    * @since   @HEAD@
    */
-  public CompositeDTO findByUuid(String uuid) 
+  public Composite findByUuid(String uuid) 
     throws  CompositeNotFoundException,
             GrouperDAOException {
-    CompositeDTO dto = HibernateSession.byHqlStatic()
-    .createQuery("from CompositeDTO as c where c.uuid = :uuid")
+    Composite dto = HibernateSession.byHqlStatic()
+    .createQuery("from Composite as c where c.uuid = :uuid")
     .setCacheable(false)
     .setCacheRegion(KLASS + ".FindByUuid")
-    .setString( "uuid", uuid ).uniqueResult(CompositeDTO.class);
+    .setString( "uuid", uuid ).uniqueResult(Composite.class);
 
     if (dto == null) {
       throw new CompositeNotFoundException();
     }
     return dto;
-  } // public CompositeDTO findByUuid(uuid)
+  } // public Composite findByUuid(uuid)
 
   /**
    * @since   @HEAD@
@@ -135,7 +131,7 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hibernateSession.byHql().createQuery("delete from CompositeDTO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from Composite").executeUpdate();
   } 
 
 } 

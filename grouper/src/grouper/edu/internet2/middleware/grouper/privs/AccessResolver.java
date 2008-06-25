@@ -30,11 +30,16 @@ import  java.util.Set;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.4 2008-03-24 20:15:35 mchyzer Exp $
+ * @version $Id: AccessResolver.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public interface AccessResolver {
 
+  /**
+   * flush cache if caching resolver
+   */
+  public void flushCache();
+  
   /**
    * @param key 
    * @return  Configuration value.

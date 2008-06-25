@@ -21,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
@@ -28,7 +30,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.Realize;
@@ -43,10 +44,20 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.78 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.79 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
+  /**
+   * throw illegal state if stopped
+   */
+  private void internal_ThrowIllegalStateIfStopped() {
+    if (this.subject == null) {
+      throw new IllegalStateException("Grouper session subject is null, probably since it is stopped.  " +
+      		"Dont use it anymore, start another");
+    }
+  }
+  
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperSession.class);
 
@@ -71,6 +82,17 @@ public class GrouperSession extends GrouperAPI {
   private NamingAdapter   naming;         // TODO 20070816 eliminate
   private NamingResolver  namingResolver;
   private GrouperSession  rootSession;
+
+  // PRIVATE INSTANCE VARIABLES //
+  private String          id;
+
+  private String          memberUUID;
+
+  private long            startTimeLong;
+
+  private Subject         subject;
+
+  private String          uuid;
 
 
   /**
@@ -144,14 +166,12 @@ public class GrouperSession extends GrouperAPI {
 
       //  this will create the member if it doesn't already exist
       m   = MemberFinder.internal_findBySubject(subject); 
-      GrouperSession    s   = new GrouperSession();
-      GrouperSessionDTO _s  = new GrouperSessionDTO()
-        .setMemberUuid( m.getUuid() )
-        .setStartTime( new Date().getTime() )
-        .setSubject(subject)
-        .setUuid( GrouperUuid.getUuid() )
-        ;
-      s.setDTO( _s.setId( GrouperDAOFactory.getFactory().getGrouperSession().create(_s) ) );
+      GrouperSession    s   =  new GrouperSession();
+        s.setMemberUuid( m.getUuid() );
+        s.setStartTimeLong( new Date().getTime() );
+        s.setSubject(subject);
+        s.setUuid( GrouperUuid.getUuid() );
+        GrouperDAOFactory.getFactory().getGrouperSession().create(s);
 
       sw.stop();
       EventLog.info( s.toString(), M.S_START, sw );
@@ -195,16 +215,6 @@ public class GrouperSession extends GrouperAPI {
 
   // PUBLIC INSTANCE METHODS //
 
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if ( !(other instanceof GrouperSession) ) {
-      return false;
-    }
-    return this.getDTO().equals( ( (GrouperSession) other ).getDTO() );
-  } // public boolean equals(other)
-
   /**
    * Get name of class implenting {@link AccessAdapter} privilege interface.
    * <pre class="eg">
@@ -234,7 +244,8 @@ public class GrouperSession extends GrouperAPI {
    * @return  <code>AccessResolver</code> used by this session.
    * @since   1.2.1
    */
-  protected AccessResolver getAccessResolver() {
+  public AccessResolver getAccessResolver() {
+    this.internal_ThrowIllegalStateIfStopped();
     if (this.accessResolver == null) {
       this.accessResolver = AccessResolverFactory.getInstance(this);
     }
@@ -269,12 +280,12 @@ public class GrouperSession extends GrouperAPI {
   public Member getMember() 
     throws  IllegalStateException
   {
+    this.internal_ThrowIllegalStateIfStopped();
     if ( this.cachedMember != null ) {
       return this.cachedMember;
     }
     try {
-      Member m = new Member();
-      m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getMemberUuid() ) );
+      Member m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getMemberUuid() );
       this.cachedMember = m;
       return this.cachedMember;
     }
@@ -329,7 +340,7 @@ public class GrouperSession extends GrouperAPI {
    * @return  The session id.
    */
   public String getSessionId() {
-    return this._getDTO().getUuid();
+    return this.getUuid();
   } // public String getSessionId()
 
   /**
@@ -340,7 +351,8 @@ public class GrouperSession extends GrouperAPI {
    * @return  This session's start time.
    */
   public Date getStartTime() {
-    return new Date( this._getDTO().getStartTime() );
+    this.internal_ThrowIllegalStateIfStopped();
+    return new Date( this.getStartTimeLong() );
   } // public Date getStartTime()
 
   /**
@@ -354,17 +366,9 @@ public class GrouperSession extends GrouperAPI {
   public Subject getSubject() 
     throws  GrouperRuntimeException
   {
-    if ( this._getDTO().getSubject() == null ) {
-      String msg = "unable to get subject associated with session";
-      ErrorLog.fatal(GrouperSession.class, msg);
-      throw new GrouperRuntimeException(msg);
-    }
-    return this._getDTO().getSubject();
+    this.internal_ThrowIllegalStateIfStopped();
+    return this.subject;
   } // public Subject getSubject()
-
-  public int hashCode() {
-    return this.getDTO().hashCode();
-  } // public int hashCode()
 
   /**
    * Currently just a testing hack.
@@ -388,11 +392,11 @@ public class GrouperSession extends GrouperAPI {
   public void stop() 
     throws  SessionException
   {
-    if ( this._getDTO().getId() != null ) { // We have a persistent session
+    if ( this.getId() != null ) { // We have a persistent session
       StopWatch sw    = new StopWatch();
       sw.start();
       long      start = this.getStartTime().getTime();
-      GrouperDAOFactory.getFactory().getGrouperSession().delete( this._getDTO() );
+      GrouperDAOFactory.getFactory().getGrouperSession().delete( this );
       sw.stop();
       Date      now   = new Date();
       long      dur   = now.getTime() - start;
@@ -403,16 +407,25 @@ public class GrouperSession extends GrouperAPI {
     if (this == staticGrouperSession.get()) {
       staticGrouperSession.remove();
     }
-
-    this.setDTO(null);
+    
+    //set some fields to null
+    this.subject = null;
+    this.access = null;
+    this.accessResolver = null;
     this.cachedMember = null;
+    this.memberUUID = null;
+    this.naming = null;
+    this.namingResolver = null;
+    this.rootSession = null;
+    this.uuid = null;
+    
   } 
 
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
-      .append( "session_id",   this._getDTO().getUuid()                                        )
-      .append( "subject_id",   Quote.single( this._getDTO().getSubject().getId() )             )
-      .append( "subject_type", Quote.single( this._getDTO().getSubject().getType().getName() ) )
+      .append( "session_id",   this.getUuid()                                        )
+      .append( "subject_id",   Quote.single( this.getSubject().getId() )             )
+      .append( "subject_type", Quote.single( this.getSubject().getType().getName() ) )
       .toString();
   } 
 
@@ -423,11 +436,11 @@ public class GrouperSession extends GrouperAPI {
   public void validate() 
     throws  IllegalStateException
   {
-    GrouperValidator v = NotNullValidator.validate( this._getDTO().getMemberUuid() );
+    GrouperValidator v = NotNullValidator.validate( this.getMemberUuid() );
     if (v.isInvalid()) {
       throw new IllegalStateException(E.SV_M);
     }
-    v = NotNullValidator.validate( this._getDTO().getUuid() );  
+    v = NotNullValidator.validate( this.getUuid() );  
     if (v.isInvalid()) {
       throw new IllegalStateException(E.SV_I);
     }
@@ -444,24 +457,124 @@ public class GrouperSession extends GrouperAPI {
     if (this.rootSession == null) {
       GrouperSession rs = new GrouperSession();
       rs.cfg = this.cfg;
-      rs.setDTO(
-        new GrouperSessionDTO()
-          .setMemberUuid( MemberFinder.internal_findRootMember().getUuid() )
-          .setStartTime( new Date().getTime() )
-          .setSubject( SubjectFinder.findRootSubject() )
-          .setUuid( GrouperUuid.getUuid() )
-      );
+      rs.setMemberUuid( MemberFinder.internal_findRootMember().getUuid() );
+      rs.setStartTimeLong( new Date().getTime() );
+      rs.setSubject( SubjectFinder.findRootSubject() );
+      rs.setUuid( GrouperUuid.getUuid() );
       this.rootSession = rs;
     }
     return this.rootSession;
   } 
 
 
-  // PRIVATE INSTANCE METHODS //
+  // PUBLIC INSTANCE METHODS //
+  /**
+   * @since   1.2.0
+   */  
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GrouperSession)) {
+      return false;
+    }
+    GrouperSession that = (GrouperSession) other;
+    return new EqualsBuilder()
+      .append( this.getMemberUuid(), that.getMemberUuid() )
+      .append( this.getStartTime(),  that.getStartTime()  )
+      .append( this.getUuid(),       that.getUuid()       )
+      .isEquals();
+  }
 
-  // @since   1.2.0
-  private GrouperSessionDTO _getDTO() {
-    return (GrouperSessionDTO) super.getDTO();
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getMemberUuid() {
+    return this.memberUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getStartTimeLong() {
+    return this.startTimeLong;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getMemberUuid() )
+      .append( this.getStartTime()  )
+      .append( this.getUuid()       )
+      .toHashCode();
+  } // public int hashCode()
+
+  /**
+   * @since   1.2.0
+   */
+  public void setId(String id) {
+    this.id = id;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setMemberUuid(String memberUUID) {
+    this.memberUUID = memberUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setStartTimeLong(long startTime) {
+    this.startTimeLong = startTime;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setSubject(Subject subject) {
+    this.subject = subject;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  
+  }
+
+  /**
+   * @return the string
+   * @since   1.2.0
+   */
+  public String toStringDto() {
+    return new ToStringBuilder(this)
+      .append( "memberUuid", this.getMemberUuid()  )
+      .append( "startTime",  this.getStartTime()   )
+      .append( "uuid",       this.getUuid() )
+      .toString();
   }
 
   /**

@@ -15,27 +15,26 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper.internal.dto;
+package edu.internet2.middleware.grouper;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * Basic Hibernate <code>Attribute</code> DTO interface.
+ * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: AttributeDTO.java,v 1.2 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.1 2008-06-25 05:46:05 mchyzer Exp $
  * @since   @HEAD@
  */
-public class AttributeDTO extends GrouperDefaultDTO {
+public class GroupTypeTuple extends GrouperAPI {
 
   // PRIVATE INSTANCE VARIABLES //
-  private String  attrName;
   private String  groupUUID;
   private String  id;
-  private String  value;
+  private String  typeUUID;
 
 
-  // PUBLIC INSTANCE METHODS //
+  // PUBLIC CLASS METHODS //
 
   /**
    * @since   @HEAD@
@@ -44,77 +43,62 @@ public class AttributeDTO extends GrouperDefaultDTO {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof AttributeDTO)) {
+    if (!(other instanceof GroupTypeTuple)) {
       return false;
     }
-    AttributeDTO that = (AttributeDTO) other;
+    GroupTypeTuple that = (GroupTypeTuple) other;
     return new EqualsBuilder()
-      .append( this.getAttrName(),  that.getAttrName()  )
       .append( this.getGroupUuid(), that.getGroupUuid() )
-      .append( this.getValue(),     that.getValue()     )
+      .append( this.getTypeUuid(),  that.getTypeUuid()  )
       .isEquals();
-  } // public boolean equals(other)
+  }
   
   /**
    * @since   @HEAD@
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getAttrName()  )
       .append( this.getGroupUuid() )
-      .append( this.getValue()     )
+      .append( this.getTypeUuid()  )
       .toHashCode();
-  } // public int hashCode()
-
+  }
+  
   /**
    * @since   @HEAD@
    */
   public String toString() {
     return new ToStringBuilder(this)
-      .append( "attrName",  this.getAttrName()  )
       .append( "groupUuid", this.getGroupUuid() )
-      .append( "id",        this.getId()        )
-      .append( "value",     this.getValue()     )
+      .append( "typeUuid",  this.getTypeUuid()  )
       .toString();
-  } // public String toString()
-
-
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   @HEAD@
-  public String getAttrName() {
-    return this.attrName;
   }
-  // @since   @HEAD@
+
+
+  // PROTECTED CLASS METHODS //
+
   public String getGroupUuid() {
     return this.groupUUID;
   }
-  // @since   @HEAD@
   public String getId() {
     return this.id;
   }
-  // @since   @HEAD@
-  public String getValue() {
-    return this.value;
+  public String getTypeUuid() {
+    return this.typeUUID;
   }
-  // @since   @HEAD@
-  public AttributeDTO setAttrName(String attrName) {
-    this.attrName = attrName;
-    return this;
-  }
-  // @since   @HEAD@
-  public AttributeDTO setGroupUuid(String groupUUID) {
+
+
+  // SETTERS //
+
+  public GroupTypeTuple setGroupUuid(String groupUUID) {
     this.groupUUID = groupUUID;
     return this;
   }
-  // @since   @HEAD@
-  public AttributeDTO setId(String id) {
+  public GroupTypeTuple setId(String id) {
     this.id = id;
     return this;
   }
-  // @since   @HEAD@
-  public AttributeDTO setValue(String value) {
-    this.value = value;
+  public GroupTypeTuple setTypeUuid(String typeUUID) {
+    this.typeUUID = typeUUID;
     return this;
   }
 

@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.17 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GroupHelper.java,v 1.18 2008-06-25 05:46:05 mchyzer Exp $
  */
 class GroupHelper {
 
@@ -258,10 +258,8 @@ class GroupHelper {
       return g;
     }
     catch (GroupNotFoundException eGNF) {
-      LOG.debug("findByName.4 " + name);
-      Assert.fail("failed to find group by name: " + eGNF.getMessage());
+      throw new RuntimeException(eGNF);
     }
-    throw new RuntimeException("failed to find group by name");
   } // protected static Group findByName(s, name)
 
   protected static void findByNameFail(GrouperSession s, String name) {

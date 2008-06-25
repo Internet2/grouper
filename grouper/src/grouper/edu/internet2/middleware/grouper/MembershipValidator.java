@@ -16,11 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.31 2007-05-31 18:52:26 blair Exp $
+ * @version $Id: MembershipValidator.java,v 1.32 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.0
  */
 class MembershipValidator extends GrouperValidator {
@@ -28,9 +27,9 @@ class MembershipValidator extends GrouperValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static MembershipValidator validate(MembershipDTO _ms) {
+  protected static MembershipValidator validate(Membership _ms) {
     MembershipValidator v = new MembershipValidator();
-    if ( _ms.getCreateTime() == GrouperConfig.EPOCH ) {
+    if ( _ms.getCreateTimeLong() == GrouperConfig.EPOCH ) {
       v.setErrorMessage("creation time is set to epoch");
     }
     else if ( _ms.getCreatorUuid() == null ) {

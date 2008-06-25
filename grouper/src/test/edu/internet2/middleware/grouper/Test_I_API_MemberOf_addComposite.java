@@ -16,14 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Date;
+import java.util.Date;
+
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_addComposite.java,v 1.5 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_addComposite.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_addComposite extends GrouperTest {
@@ -51,17 +51,14 @@ public class Test_I_API_MemberOf_addComposite extends GrouperTest {
       subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
       subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
       // TODO 20070523 this *screams* for an easier way
-      c       = new Composite();
-      c.setDTO(
-        new CompositeDTO()
-          .setCreateTime( new Date().getTime() )
-          .setCreatorUuid( s.getMember().getUuid() )
-          .setFactorOwnerUuid( gA.getUuid() )
-          .setLeftFactorUuid( gB.getUuid() )
-          .setRightFactorUuid( gC.getUuid() )
-          .setType( CompositeType.UNION.toString() )
-          .setUuid( GrouperUuid.getUuid() )
-      );
+      c = new Composite();
+      c.setCreateTime( new Date().getTime() );
+      c.setCreatorUuid( s.getMember().getUuid() );
+      c.setFactorOwnerUuid( gA.getUuid() );
+      c.setLeftFactorUuid( gB.getUuid() );
+      c.setRightFactorUuid( gC.getUuid() );
+      c.setTypeDb( CompositeType.UNION.toString() );
+      c.setUuid( GrouperUuid.getUuid() );
     }
     catch (Exception eShouldNotHappen) {
       throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );

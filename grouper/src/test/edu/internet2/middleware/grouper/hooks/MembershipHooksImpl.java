@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: MembershipHooksImpl.java,v 1.3 2008-06-25 05:46:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -32,7 +32,7 @@ public class MembershipHooksImpl extends MembershipHooks {
   @Override
   public void membershipPreAddMember(
       HooksMembershipPreAddMemberBean preAddMemberBean) {
-    String subjectId = preAddMemberBean.getMemberDTO().getSubjectId();
+    String subjectId = preAddMemberBean.getMember().getSubjectId();
     mostRecentInsertMemberSubjectId = subjectId;
     if (StringUtils.equals(SubjectTestHelper.SUBJ1.getId(), subjectId)) {
       throw new HookVeto("hook.veto.subjectId.not.subj1", "subject cannot be subj1");

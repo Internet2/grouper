@@ -17,8 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.HashMap;
 import  java.util.Iterator;
@@ -34,7 +32,7 @@ import  java.util.Set;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.65 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.66 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -153,10 +151,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
       while (iterP.hasNext()) {
         p   = (Privilege) iterP.next();
         f   = GrouperPrivilegeAdapter.internal_getField(priv2list, p);   
-        it  = dao.findAllByOwnerAndMemberAndField( ns.getUuid(), ( (MemberDTO) m.getDTO() ).getUuid(), f ).iterator();
+        it  = dao.findAllByOwnerAndMemberAndField( ns.getUuid(), m.getUuid(), f ).iterator();
         privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, m, p, it) );
         if (!m.equals(all)) {
-          it = dao.findAllByOwnerAndMemberAndField( ns.getUuid(), ( (MemberDTO) all.getDTO() ).getUuid(), f ).iterator();
+          it = dao.findAllByOwnerAndMemberAndField( ns.getUuid(), all.getUuid(), f ).iterator();
           privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, all, p, it) );
         }
       }
@@ -304,7 +302,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     }  
     ns.internal_setModified();
     try {
-      GrouperDAOFactory.getFactory().getStem().revokePriv( (StemDTO) ns.getDTO(), Membership.internal_deleteAllField(s, ns, f) );
+      GrouperDAOFactory.getFactory().getStem().revokePriv( ns, Membership.internal_deleteAllField(s, ns, f) );
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
@@ -349,7 +347,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     try {
       DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
       ns.internal_setModified();
-      GrouperDAOFactory.getFactory().getStem().revokePriv( (StemDTO) ns.getDTO(), mof );
+      GrouperDAOFactory.getFactory().getStem().revokePriv( ns, mof );
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );

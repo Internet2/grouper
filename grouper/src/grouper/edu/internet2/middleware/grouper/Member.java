@@ -16,16 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.io.Serializable;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
-import  org.apache.commons.lang.time.*;
+import java.io.Serializable;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.time.StopWatch;
+import org.hibernate.CallbackException;
+import org.hibernate.Session;
+import org.hibernate.classic.Lifecycle;
+
+import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
  * A member within the Groups Registry.
@@ -33,7 +45,7 @@ import  org.apache.commons.lang.time.*;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.99 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Member.java,v 1.100 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -44,6 +56,22 @@ public class Member extends GrouperAPI implements Serializable {
   // PRIVATE TRANSIENT INSTANCE PROPERTIES //
   private transient Group   g     = null;
   private transient Subject subj  = null;
+
+
+  // PRIVATE INSTANCE VARIABLES //
+  private String  id;
+
+
+  private String  memberUUID;
+
+
+  private String  subjectID;
+
+
+  private String  subjectSourceID;
+
+
+  private String  subjectTypeID;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -535,7 +563,7 @@ public class Member extends GrouperAPI implements Serializable {
     if (this.subj == null) {
       try {
         this.subj = SubjectFinder.findById(
-          this._getDTO().getSubjectId(), this._getDTO().getSubjectTypeId(), this._getDTO().getSubjectSourceId()
+          this.getSubjectId(), this.getSubjectTypeId(), this.getSubjectSourceId()
         );
       }
       catch (SourceUnavailableException eSU) {
@@ -547,18 +575,6 @@ public class Member extends GrouperAPI implements Serializable {
     }
     return this.subj;
   } // public Subject getSubject()
-
-  /**
-   * Get the subject id of the subject that maps to this member.
-   * <pre class="eg">
-   * // Get this member's subject id.
-   * String id = m.getSubjectId();
-   * </pre>
-   * @return  Subject id
-   */ 
-  public String getSubjectId() {
-    return this._getDTO().getSubjectId();
-  }
 
   /**
    * Get the {@link Source} of the subject that maps to this member.
@@ -589,9 +605,17 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Subject's {@link Source} id
    */
   public String getSubjectSourceId() {
-    return this._getDTO().getSubjectSourceId();
+    return this.subjectSourceID;
   } 
 
+  /**
+   * simple get subject source id
+   * @return subject source id
+   */
+  public String getSubjectSourceIdDb() {
+    return this.subjectSourceID;
+  }
+  
   /**
    * Get the {@link SubjectType} of the subject that maps to this member.
    * <pre class="eg">
@@ -601,7 +625,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Subject's {@link SubjectType}
    */ 
   public SubjectType getSubjectType() {
-    return SubjectTypeEnum.valueOf( this._getDTO().getSubjectTypeId() );
+    return SubjectTypeEnum.valueOf( this.getSubjectTypeId() );
   } // public SubjectType getSubjectType()
 
   /**
@@ -613,7 +637,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Subject's type id.
    */ 
   public String getSubjectTypeId() {
-    return this._getDTO().getSubjectTypeId();
+    return this.subjectTypeID;
   }
 
   /**
@@ -625,7 +649,7 @@ public class Member extends GrouperAPI implements Serializable {
    * @return  Member's UUID.
    */
   public String getUuid() {
-    return this._getDTO().getUuid();
+    return this.memberUUID;
   }
 
   /**
@@ -1153,6 +1177,14 @@ public class Member extends GrouperAPI implements Serializable {
   } // public boolean isMember(g, f)
 
   /**
+   * simple set subject id
+   * @param id
+   */
+  public void setSubjectIdDb(String id) {
+    this.subjectID = id;
+  }
+  
+  /**
    * Change subject id associated with member.
    * <p>
    * You must be a root-like {@link Subject} to use this method.
@@ -1183,9 +1215,10 @@ public class Member extends GrouperAPI implements Serializable {
     if (v.isInvalid()) {
       throw new InsufficientPrivilegeException( v.getErrorMessage() );
     }
-    String    orig  = this._getDTO().getSubjectId(); // preserve original for logging purposes
-    this._getDTO().setSubjectId(id);
-    GrouperDAOFactory.getFactory().getMember().update( this._getDTO() );
+    String    orig  = this.getSubjectId(); // preserve original for logging purposes
+    this.subjectID = id;
+    //TODO dont save on setter
+    GrouperDAOFactory.getFactory().getMember().update( this );
     sw.stop();
     EventLog.info(
       GrouperSession.staticGrouperSession(),
@@ -1194,6 +1227,14 @@ public class Member extends GrouperAPI implements Serializable {
     );
   } // public void setSubjectId(id)
 
+  /**
+   * simple set subject source id
+   * @param id
+   */
+  public void setSubjectSourceIdDb(String id) {
+    this.subjectSourceID = id;
+  }
+  
   /**
    * Change subject source id associated with member.
    * <p>
@@ -1226,9 +1267,10 @@ public class Member extends GrouperAPI implements Serializable {
     if (v.isInvalid()) {
       throw new InsufficientPrivilegeException( v.getErrorMessage() );
     }
-    String    orig  = this._getDTO().getSubjectSourceId();
-    this._getDTO().setSubjectSourceId(id);
-    GrouperDAOFactory.getFactory().getMember().update( this._getDTO() );
+    String    orig  = this.getSubjectSourceId();
+    this.subjectSourceID = id;
+    //TODO dont save on setter
+    GrouperDAOFactory.getFactory().getMember().update( this );
     sw.stop();
     EventLog.info(
       GrouperSession.staticGrouperSession(),
@@ -1236,20 +1278,6 @@ public class Member extends GrouperAPI implements Serializable {
       sw
     );
   } // public void setSubjectSourceId(id)
-
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof Member)) {
-      return false;
-    }
-    return this.getDTO().equals( ( (Member) other ).getDTO() );
-  } // public boolean equals(other)
-
-  public int hashCode() {
-    return this.getDTO().hashCode();
-  } // public int hashCode()
 
   /**
    * Convert this member back to a {@link Group} object.
@@ -1267,9 +1295,9 @@ public class Member extends GrouperAPI implements Serializable {
   public Group toGroup() 
     throws GroupNotFoundException 
   {
-    if ( SubjectFinder.internal_getGSA().getId().equals( this._getDTO().getSubjectSourceId() ) ) {
+    if ( SubjectFinder.internal_getGSA().getId().equals( this.getSubjectSourceId() ) ) {
       if (this.g == null) {
-        this.g = GroupFinder.findByUuid( GrouperSession.staticGrouperSession(), this._getDTO().getSubjectId() );
+        this.g = GroupFinder.findByUuid( GrouperSession.staticGrouperSession(), this.getSubjectId() );
       }
       return this.g;
     }
@@ -1277,7 +1305,7 @@ public class Member extends GrouperAPI implements Serializable {
   }
 
   public String toString() {
-    return SubjectHelper.getPretty( this._getDTO() );
+    return SubjectHelper.getPretty( this );
   } // public String toString()
 
 
@@ -1287,18 +1315,14 @@ public class Member extends GrouperAPI implements Serializable {
   protected boolean isMember(String ownerUUID, Field f) {
     boolean       rv      = false;
     MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
-    Set           mships  = dao.findAllByOwnerAndMemberAndField(
-      ownerUUID, ( (MemberDTO) this.getDTO() ).getUuid(), f
-    );
+    Set           mships  = dao.findAllByOwnerAndMemberAndField(ownerUUID, this.getUuid(), f);
     if (mships.size() > 0) {
       rv = true;
     }
     else {
       Member all = MemberFinder.internal_findAllMember();
       if ( !this.equals(all) ) {
-        mships = dao.findAllByOwnerAndMemberAndField(
-          ownerUUID, ( (MemberDTO) all.getDTO() ).getUuid(), f
-        );
+        mships = dao.findAllByOwnerAndMemberAndField( ownerUUID, all.getUuid(), f);
         if (mships.size() > 0) {
           rv = true;
         }
@@ -1308,13 +1332,6 @@ public class Member extends GrouperAPI implements Serializable {
   } // protected boolean isMember(ownerUUID, f);
 
 
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   1.2.0
-  private MemberDTO _getDTO() {
-    return (MemberDTO) super.getDTO();
-  }
-  
   // @since   1.1.0
   private Set _getGroups(Iterator it) {
     Group       g;
@@ -1362,6 +1379,118 @@ public class Member extends GrouperAPI implements Serializable {
       ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
+  }
+
+  // PUBLIC INSTANCE METHODS //
+  
+  /**
+   * @since   1.2.0
+   */  
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Member)) {
+      return false;
+    }
+    Member that = (Member) other;
+    return new EqualsBuilder()
+      .append( this.getSubjectId(),       that.getSubjectId()       )
+      .append( this.getSubjectSourceId(), that.getSubjectSourceId() )
+      .append( this.getSubjectTypeId(),   that.getSubjectTypeId()   )
+      .append( this.getUuid(),            that.getUuid()            )
+      .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getSubjectId() {
+    return this.subjectID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getSubjectIdDb() {
+    return this.subjectID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getSubjectId()       )
+      .append( this.getSubjectSourceId() )
+      .append( this.getSubjectTypeId()   )
+      .append( this.getUuid()            )
+      .toHashCode();
+  } // public int hashCode()
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefault#onDelete(org.hibernate.Session)
+   */
+  @Override
+  public boolean onDelete(Session hs) 
+    throws  CallbackException
+  {
+    GrouperDAOFactory.getFactory().getMember().existsCachePut( this.getUuid(), false );
+    GrouperDAOFactory.getFactory().getMember().uuid2dtoCacheRemove( this.getUuid() );
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefault#onSave(org.hibernate.Session)
+   */
+  @Override
+  public boolean onSave(Session hs) 
+    throws  CallbackException
+  {
+    GrouperDAOFactory.getFactory().getMember().existsCachePut( this.getUuid(), true );
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setSubjectTypeId(String subjectTypeID) {
+    this.subjectTypeID = subjectTypeID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setUuid(String memberUUID) {
+    this.memberUUID = memberUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String toStringDto() {
+    return new ToStringBuilder(this)
+      .append( "subjectId",       this.getSubjectId()       )
+      .append( "subjectSourceId", this.getSubjectSourceId() )
+      .append( "subjectTypeId",   this.getSubjectTypeId()   )
+      .append( "uuid",            this.getUuid()            )
+      .toString();
   }
 
 } 

@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3FieldDAO.hbm.xml,v 1.4 2008-06-21 04:16:12 mchyzer Exp $ -->
+<!-- $Id: Hib3FieldDAO.hbm.xml,v 1.5 2008-06-25 05:46:05 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dto" default-lazy="false">
-  <class name="FieldDTO" table="grouper_fields">
+<hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+  <class name="Field" table="grouper_fields">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -99,7 +99,7 @@
     <!-- readPrivilege -->
 
     <!-- type -->
-    <property name="type"
+    <property name="typeString"
               type="string"
     >
       <column name="type"
