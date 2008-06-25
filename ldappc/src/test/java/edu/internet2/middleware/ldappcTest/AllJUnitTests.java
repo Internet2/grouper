@@ -26,6 +26,8 @@ import edu.internet2.middleware.ldappcTest.dbBuilder.AllJUnitBuilderTests;
 import edu.internet2.middleware.ldappcTest.qs.AllJUnitQuickStartTests;
 import edu.internet2.middleware.ldappcTest.qs.QuickStartTestU;
 import edu.internet2.middleware.ldappcTest.synchronize.AllJUnitSynchronizerTests;
+import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
+import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 
 /**
  * This class builds a master TestSuite out of the individual test suites.

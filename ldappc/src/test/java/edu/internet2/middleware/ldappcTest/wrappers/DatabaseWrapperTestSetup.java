@@ -16,7 +16,7 @@
     limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest;
+package edu.internet2.middleware.ldappcTest.wrappers;
 
 import java.io.File;
 

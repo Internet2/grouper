@@ -17,15 +17,14 @@
  *  under the License. 
  *  
  */
-package edu.internet2.middleware.ldappcTest;
+package edu.internet2.middleware.ldappcTest.wrappers;
 
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.InputStream;
+import java.io.FileInputStream;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -35,15 +34,12 @@ import javax.naming.directory.DirContext;
 import junit.framework.Test;
 
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
-import org.apache.directory.shared.ldap.exception.LdapConfigurationException;
-import org.apache.directory.shared.ldap.ldif.Entry;
-import org.apache.directory.shared.ldap.ldif.LdifReader;
-import org.apache.directory.shared.ldap.name.LdapDN;
 
 import edu.internet2.middleware.ldappc.apachedsSchema.EduMemberSchema;
 import edu.internet2.middleware.ldappc.apachedsSchema.EduPermissionSchema;
 import edu.internet2.middleware.ldappc.apachedsSchema.EduPersonSchema;
 import edu.internet2.middleware.ldappc.apachedsSchema.KitnEduPersonSchema;
+import edu.internet2.middleware.ldappcTest.AbstractServerTestSetup;
 
 /**
  * Wrap a suite of tests with an embedded instance of Apache Directory Server.
@@ -124,7 +120,7 @@ public class LdapWrapperTestSetup extends AbstractServerTestSetup {
 
         // Import the test data into the server.
         System.out.println("Importing data into directory");
-        importLdif(this.getClass().getResourceAsStream("/ldappcSubject.ldif"));
+        importLdif(new BufferedInputStream(new FileInputStream(new File("testDb/ldap/ldappcSubject.ldif"))));
         System.out.println("Embedded directory setup complete");
     }
 
