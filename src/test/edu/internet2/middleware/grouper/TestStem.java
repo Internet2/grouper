@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -28,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.15 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.16 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -40,7 +39,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testRoot"));
+    TestRunner.run(new TestStem("testPropagateDisplayExtensionChangeAsNonRoot"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -245,9 +244,9 @@ public class TestStem extends GrouperTest {
 
     // Now reset root's displayExtension
     // hack! hack! hack!
-    ( (StemDTO) root.getDTO() ).setDisplayExtension(Stem.ROOT_INT);
-    ( (StemDTO) root.getDTO() ).setDisplayName(Stem.ROOT_INT);
-    GrouperDAOFactory.getFactory().getStem().update( (StemDTO) root.getDTO() );
+    root.setDisplayExtensionDb(Stem.ROOT_INT);
+    root.setDisplayNameDb(Stem.ROOT_INT);
+    GrouperDAOFactory.getFactory().getStem().update(root);
   } // public void testPropagateExtensionChangeRootAsRoot()
 
   public void testPropagateDisplayExtensionChangeAsRoot() {

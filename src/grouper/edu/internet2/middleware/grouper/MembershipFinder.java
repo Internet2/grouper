@@ -16,15 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
-import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import  edu.internet2.middleware.subject.*;
-import  java.util.Date;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
+import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Find memberships within the Groups Registry.
@@ -34,7 +34,7 @@ import  java.util.Set;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.92 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.93 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -72,12 +72,8 @@ public class MembershipFinder {
     try {
       Field       f   = Group.getDefaultList();
       Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = new Membership();
-      ms.setDTO( 
-        GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
-          g.getUuid(), m.getUuid(), f, Membership.COMPOSITE
-        ) 
-      );
+      Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
+          g.getUuid(), m.getUuid(), f, Membership.COMPOSITE);
       PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     }
@@ -135,8 +131,7 @@ public class MembershipFinder {
         ).iterator();
         Membership eff;
         while (it.hasNext()) {
-          eff = new Membership();
-          eff.setDTO( (MembershipDTO) it.next() );
+          eff = (Membership) it.next();
           mships.add(eff);
         }
       }
@@ -180,12 +175,8 @@ public class MembershipFinder {
     GrouperSession.validate(s);
     try {
       Member      m   = MemberFinder.findBySubject(s, subj);
-      Membership  ms  = new Membership();
-      ms.setDTO( 
-        GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
-          g.getUuid(), m.getUuid(), f, Membership.IMMEDIATE 
-        ) 
-      );
+      Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
+          g.getUuid(), m.getUuid(), f, Membership.IMMEDIATE );
       PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
     }
@@ -205,12 +196,12 @@ public class MembershipFinder {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static Set internal_findAllChildrenNoPriv(MembershipDTO dto) {
+  protected static Set internal_findAllChildrenNoPriv(Membership dto) {
     Set           children  = new LinkedHashSet();
-    MembershipDTO child;
+    Membership child;
     Iterator      it        = GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships(dto).iterator();
     while (it.hasNext()) {
-      child = (MembershipDTO) it.next();
+      child = (Membership) it.next();
       children.addAll( internal_findAllChildrenNoPriv(child) );
       children.add(child);
     }
@@ -221,20 +212,20 @@ public class MembershipFinder {
    * TODO 20070813 i really need to figure out what this method does and replace it with something cleaner.              
    * @since  1.2.1
    */
-  protected static Set internal_findAllForwardMembershipsNoPriv(MembershipDTO dto, Set children)  
+  protected static Set internal_findAllForwardMembershipsNoPriv(Membership dto, Set children)  
     throws  SchemaException 
   {
     MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
     Set           mships  = new LinkedHashSet();
     Iterator      it      = dao.findAllByMemberAndVia( dto.getMemberUuid(), dto.getOwnerUuid() ).iterator();
     Iterator      childIt;
-    MembershipDTO _eff;
-    MembershipDTO _child;
+    Membership _eff;
+    Membership _child;
     while (it.hasNext()) {
-      _eff    = (MembershipDTO) it.next();
+      _eff    = (Membership) it.next();
       childIt = children.iterator();
       while (childIt.hasNext()) {
-        _child = (MembershipDTO) childIt.next();
+        _child = (Membership) childIt.next();
         mships.addAll(
           dao.findAllEffective(
             _eff.getOwnerUuid(), _child.getMemberUuid(), FieldFinder.find( _eff.getListName() ), 
@@ -264,12 +255,10 @@ public class MembershipFinder {
     }
     Set<Member> members = new LinkedHashSet();
     try {
-      Member          m;
       GrouperSession  s   = GrouperSession.staticGrouperSession();
       PrivilegeHelper.dispatch( s, group, s.getSubject(), field.getReadPriv() );
-      for ( MemberDTO dto : GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndField( group.getUuid(), field ) ) {
-        m = new Member();
-        m.setDTO(dto);
+      for ( Member m : GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndField( group.getUuid(), field ) ) {
+       
         members.add(m);
       }
     }
@@ -330,12 +319,12 @@ public class MembershipFinder {
      // @session   true 
     GrouperSession.validate(s);
     MemberDAO     dao   = GrouperDAOFactory.getFactory().getMember();
-    MemberDTO     _m;
-    MembershipDTO ms;
+    Member     _m;
+    Membership ms;
     Set           subjs = new LinkedHashSet();
     Iterator      it    = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( o.getUuid(), f ).iterator();
     while (it.hasNext()) {
-      ms = (MembershipDTO) it.next();
+      ms = (Membership) it.next();
       try {
         _m = dao.findByUuid( ms.getMemberUuid() );
         subjs.add( SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() ) );
@@ -378,8 +367,7 @@ public class MembershipFinder {
     Membership  ms;
     Iterator    it      = GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(d, f).iterator();
     while (it.hasNext()) {
-      ms = new Membership();
-      ms.setDTO( (MembershipDTO) it.next() );
+      ms = (Membership) it.next();
       mships.add(ms);
     }
     return mships;
@@ -395,8 +383,7 @@ public class MembershipFinder {
     Membership  ms;
     Iterator    it      = GrouperDAOFactory.getFactory().getMembership().findAllByCreatedBefore(d, f).iterator();
     while (it.hasNext()) {
-      ms = new Membership();
-      ms.setDTO( (MembershipDTO) it.next() );
+      ms = (Membership) it.next();
       mships.add(ms);
     }
     return mships;

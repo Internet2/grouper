@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  java.util.Date;
-import  org.apache.commons.logging.*;
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_CompositeValidator_validate.java,v 1.2 2007-04-17 14:17:30 blair Exp $
+ * @version $Id: Test_Unit_API_CompositeValidator_validate.java,v 1.3 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
@@ -33,9 +34,9 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
 
   // TESTS //  
 
-  public void testValidate_NullCompositeDTO() {
+  public void testValidate_NullComposite() {
     try {
-      LOG.info("testValidate_NullCompositeDTO");
+      LOG.info("testValidate_NullComposite");
       CompositeValidator v = CompositeValidator.validate(null);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", NotNullValidator.INVALID, v.getErrorMessage() );
@@ -43,12 +44,12 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
     catch (Exception e) {
       unexpectedException(e);
     }
-  } // public void testValidate_NullCompositeDTO()
+  } // public void testValidate_NullComposite()
     
   public void testValidate_InvalidCreateTime() {
     try {
       LOG.info("testValidate_InvalidCreateTime");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime(-1);
       CompositeValidator  v   = CompositeValidator.validate(_c);
       assertTrue( "v is invalid", v.isInvalid() );
@@ -62,7 +63,7 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidCreatorUuid() {
     try {
       LOG.info("testValidate_InvalidCreatorUuid");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid(null);
       CompositeValidator  v   = CompositeValidator.validate(_c);
@@ -77,7 +78,7 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidUuid() {
     try {
       LOG.info("testValidate_InvalidUuid");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid(null);
@@ -93,11 +94,11 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidType() {
     try {
       LOG.info("testValidate_InvalidType");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType(null);
+      _c.setTypeDb(null);
       CompositeValidator  v   = CompositeValidator.validate(_c);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", CompositeValidator.INVALID_TYPE, v.getErrorMessage() );
@@ -110,11 +111,11 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidFactorOwnerUuid() {
     try {
       LOG.info("testValidate_InvalidFactorOwnerUuid");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid(null);
       CompositeValidator  v   = CompositeValidator.validate(_c);
       assertTrue( "v is invalid", v.isInvalid() );
@@ -128,11 +129,11 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidLeftFactorUuid() {
     try {
       LOG.info("testValidate_InvalidLeftFactorUuid");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid("factorOwnerUuid");
       _c.setLeftFactorUuid(null);
       CompositeValidator  v   = CompositeValidator.validate(_c);
@@ -147,11 +148,11 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidRightFactorUuid() {
     try {
       LOG.info("testValidate_InvalidRightFactorUuid");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid("factorOwnerUuid");
       _c.setLeftFactorUuid("leftFactorUuid");
       _c.setRightFactorUuid(null);
@@ -167,11 +168,11 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidLeftAndRightCycle() {
     try {
       LOG.info("testValidate_InvalidLeftAndRightCycle");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid("factorOwnerUuid");
       _c.setLeftFactorUuid("leftFactorUuid");
       _c.setRightFactorUuid("leftFactorUuid");
@@ -187,11 +188,11 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidOwnerAndLeftCycle() {
     try {
       LOG.info("testValidate_InvalidOwnerAndLeftCycle");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid("factorOwnerUuid");
       _c.setLeftFactorUuid("factorOwnerUuid");
       _c.setRightFactorUuid("rightFactorUuid");
@@ -207,11 +208,11 @@ public class Test_Unit_API_CompositeValidator_validate extends GrouperTest {
   public void testValidate_InvalidOwnerAndRightCycle() {
     try {
       LOG.info("testValidate_InvalidOwnerAndRightCycle");
-      CompositeDTO        _c  = new CompositeDTO();
+      Composite        _c  = new Composite();
       _c.setCreateTime( new Date().getTime() );
       _c.setCreatorUuid("creatorUuid");
       _c.setUuid("uuid");
-      _c.setType("type");
+      _c.setTypeDb("type");
       _c.setFactorOwnerUuid("factorOwnerUuid");
       _c.setLeftFactorUuid("leftFactorUuid");
       _c.setRightFactorUuid("factorOwnerUuid");

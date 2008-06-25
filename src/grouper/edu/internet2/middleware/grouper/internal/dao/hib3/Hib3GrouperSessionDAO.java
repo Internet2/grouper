@@ -18,18 +18,18 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.HibernateException;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
-import edu.internet2.middleware.grouper.internal.dto.GrouperSessionDTO;
 
 /**
  * Basic Hibernate <code>GrouperSession</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GrouperSessionDAO.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Hib3GrouperSessionDAO.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO {
@@ -37,7 +37,7 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
   /**
    * @since   @HEAD@
    */
-  public String create(GrouperSessionDTO _s)
+  public String create(GrouperSession _s)
     throws  GrouperDAOException {
     
     HibernateSession.byObjectStatic().save(_s);
@@ -47,7 +47,7 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
   /** 
    * @since   @HEAD@
    */
-  public void delete(final GrouperSessionDTO _s)
+  public void delete(final GrouperSession _s)
     throws  GrouperDAOException
   {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
@@ -55,7 +55,7 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
 
           public Object callback(HibernateSession hibernateSession) {
             ByObject byObject = hibernateSession.byObject();
-            byObject.delete( byObject.load( GrouperSessionDTO.class, _s.getId() ) );
+            byObject.delete( byObject.load( GrouperSession.class, _s.getId() ) );
             return null;
           }
       
@@ -66,7 +66,7 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hibernateSession.byHql().createQuery("delete from GrouperSessionDTO").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from GrouperSession").executeUpdate();
   } 
 
 } 

@@ -17,8 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
 import  edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -52,7 +50,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.109 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.110 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1474,7 +1472,7 @@ public class XmlImporter {
   // @since   1.2.0
   private void _setCreateSubject(Group g, Element e) {
     Element elSubj = this._getImmediateElement(e, "subject");
-    ( (GroupDTO) g.getDTO() ).setCreatorUuid(
+    g.setCreatorUuid(
       MemberFinder.internal_findOrCreateBySubject(
         elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
       ).getUuid()
@@ -1484,7 +1482,7 @@ public class XmlImporter {
   // @since   1.2.0
   private void _setCreateSubject(Stem ns, Element e) {
     Element elSubj = this._getImmediateElement(e, "subject");
-    ( (StemDTO) ns.getDTO() ).setCreatorUuid(
+    ns.setCreatorUuid(
       MemberFinder.internal_findOrCreateBySubject(
         elSubj.getAttribute("id"), elSubj.getAttribute("source"), elSubj.getAttribute("type")
       ).getUuid()
@@ -1495,7 +1493,7 @@ public class XmlImporter {
   private boolean _setCreateTime(Group g, Element e) {
     String msg = "error setting createTime: ";
     try {
-      ( (GroupDTO) g.getDTO() ).setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      g.setCreateTimeLong( this._parseTime( XmlImporter._getText(e) ).getTime() );
       return true;
     } catch (GrouperException eG) {
        msg += eG.getMessage();
@@ -1510,7 +1508,7 @@ public class XmlImporter {
   private boolean _setCreateTime(Stem ns, Element e) {
     String msg = "error setting createTime: ";
     try {
-      ( (StemDTO) ns.getDTO() ).setCreateTime( this._parseTime( XmlImporter._getText(e) ).getTime() );
+      ns.setCreateTimeLong( this._parseTime( XmlImporter._getText(e) ).getTime() );
       return true;
     } catch (GrouperException eG) {
        msg += eG.getMessage();
@@ -1543,7 +1541,7 @@ public class XmlImporter {
       }
     }
     if (modified) {
-      GrouperDAOFactory.getFactory().getGroup().update( (GroupDTO) g.getDTO() );
+      GrouperDAOFactory.getFactory().getGroup().update( g);
     }
   } // private void _setInternalAttributesAttributes(g, e)
   
@@ -1569,7 +1567,7 @@ public class XmlImporter {
       }
     }
     if (modified) {
-      GrouperDAOFactory.getFactory().getStem().update( (StemDTO) ns.getDTO() );
+      GrouperDAOFactory.getFactory().getStem().update( ns);
     }
   } // private void _setInternalAttributesAttributes(ns, e)
 

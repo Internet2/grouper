@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  java.util.Set;
 
 /**
@@ -28,13 +26,11 @@ import  java.util.Set;
  * <b>THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b> 
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.62 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: MemberOf.java,v 1.63 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 interface MemberOf {
 
-  // TODO 20070419 just pass in DTOs?
-  
   /**
    * 
    * A composite group is composed of two groups and a set operator 
@@ -59,7 +55,7 @@ interface MemberOf {
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  void addImmediate(GrouperSession s, Group g, Field f, MemberDTO _m)
+  void addImmediate(GrouperSession s, Group g, Field f, Member _m)
     throws  IllegalStateException;  
 
   /**
@@ -73,7 +69,7 @@ interface MemberOf {
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  void addImmediate(GrouperSession s, Stem ns, Field f, MemberDTO _m)
+  void addImmediate(GrouperSession s, Stem ns, Field f, Member _m)
     throws  IllegalStateException; 
 
   /**
@@ -99,7 +95,7 @@ interface MemberOf {
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  void deleteImmediate(GrouperSession s, Group g, MembershipDTO _ms, MemberDTO _m)
+  void deleteImmediate(GrouperSession s, Group g, Membership _ms, Member _m)
     throws  IllegalStateException;
 
   /**
@@ -113,7 +109,7 @@ interface MemberOf {
    * @since   1.2.0
    * @throws IllegalStateException
    */
-  void deleteImmediate(GrouperSession s, Stem ns, MembershipDTO _ms, MemberDTO _m)
+  void deleteImmediate(GrouperSession s, Stem ns, Membership _ms, Member _m)
     throws  IllegalStateException;
 
   /**

@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GrouperSessionDAO.hbm.xml,v 1.5 2008-06-21 04:16:12 mchyzer Exp $ -->
+<!-- $Id: Hib3GrouperSessionDAO.hbm.xml,v 1.6 2008-06-25 05:46:05 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dto" default-lazy="false">
-  <class name="GrouperSessionDTO" table="grouper_sessions">
+<hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+  <class name="GrouperSession" table="grouper_sessions">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -57,12 +57,13 @@
 
     <!-- startTime -->
     <!-- TODO 20070430 rename column to "start_time" -->
-    <property name="startTime"
+    <property name="startTimeLong"
               type="long"
               not-null="true"
-              update="false"
-    />
-    <!-- startTime -->
+              update="false">
+      <column name="startTime"
+      />
+    </property>    <!-- startTime -->
 
     <!-- uuid -->
     <property name="uuid"

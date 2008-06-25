@@ -16,12 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_Stem_setExtension.java,v 1.3 2007-05-31 18:52:25 blair Exp $
+ * @version $Id: Test_Unit_API_Stem_setExtension.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_Stem_setExtension extends GrouperTest {
@@ -36,7 +36,6 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
     try {
       LOG.info("testSetExtension_NullValue");
       Stem ns = new Stem();
-      ns.setDTO( new StemDTO() );
       ns.setExtension(null);
       fail("should have thrown StemModifyException");
     }
@@ -53,7 +52,6 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
     try {
       LOG.info("testSetExtension_EmptyValue");
       Stem ns = new Stem();
-      ns.setDTO( new StemDTO() );
       ns.setExtension(GrouperConfig.EMPTY_STRING);
       fail("should have thrown StemModifyException");
     }
@@ -70,7 +68,6 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
     try {
       LOG.info("testSetExtension_ValueContainsColon");
       Stem ns = new Stem();
-      ns.setDTO( new StemDTO() );
       ns.setExtension("co:on");
       fail("should have thrown StemModifyException");
     }
@@ -87,7 +84,6 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
     try {
       LOG.info("testSetExtension_WhitespaceOnlyValue");
       Stem ns = new Stem();
-      ns.setDTO( new StemDTO() );
       ns.setExtension(" ");
       fail("should have thrown StemModifyException");
     }

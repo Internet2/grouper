@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
@@ -27,7 +26,7 @@ import  java.util.Set;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.27 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.28 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class GroupTypeFinder {
   
@@ -100,7 +99,7 @@ public class GroupTypeFinder {
     Iterator  iter    = types.values().iterator();
     while (iter.hasNext()) {
       t = (GroupType) iter.next();
-      if ( !( (GroupTypeDTO) t.getDTO() ).getIsInternal() ) {
+      if ( !t .getIsInternal() ) {
         values.add(t); // We only want !internal group types
       }
     }
@@ -120,7 +119,7 @@ public class GroupTypeFinder {
     Iterator  iter  = findAll().iterator();
     while (iter.hasNext()) {
       t = (GroupType) iter.next();
-      if ( ( (GroupTypeDTO) t.getDTO() ).getIsAssignable() ) {
+      if ( t.getIsAssignable() ) {
         types.add(t);
       }
     }
@@ -170,8 +169,7 @@ public class GroupTypeFinder {
       Set       types = new LinkedHashSet();
       Iterator  it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
       while (it.hasNext()) {
-        GroupType type = new GroupType();
-        type.setDTO( (GroupTypeDTO) it.next() );
+        GroupType type = (GroupType)it.next() ;
         types.add(type);
       }
       DebugLog.info( GroupTypeFinder.class, "found group types: " + types.size() );

@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: HooksMembershipPreAddMemberBean.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: HooksMembershipPreAddMemberBean.java,v 1.3 2008-06-25 05:46:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -8,9 +8,9 @@ import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 
 
 /**
@@ -33,10 +33,10 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
   private Group group;
   
   /** member being assigned */
-  private MemberDTO memberDTO;
+  private Member member;
   
   /** membership dto */
-  private MembershipDTO membershipDTO;
+  private Membership membership;
   
   /** stem */
   private Stem stem;
@@ -52,8 +52,8 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
     this.composite = theDefaultMemberOf.getComposite();
     this.field = theDefaultMemberOf.getField();
     this.group = theDefaultMemberOf.getGroup();
-    this.memberDTO = theDefaultMemberOf.getMemberDTO();
-    this.membershipDTO = theDefaultMemberOf.getMembershipDTO();
+    this.member = theDefaultMemberOf.getMember();
+    this.membership = theDefaultMemberOf.getMembership();
     this.stem = theDefaultMemberOf.getStem();
   }
   
@@ -94,19 +94,19 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
   
   /**
    * member being assigned
-   * @return the memberDTO
+   * @return the member
    */
-  public MemberDTO getMemberDTO() {
-    return this.memberDTO;
+  public Member getMember() {
+    return this.member;
   }
 
   
   /**
    * membership dto
-   * @return the membershipDTO
+   * @return the membership
    */
-  public MembershipDTO getMembershipDTO() {
-    return this.membershipDTO;
+  public Membership getMembership() {
+    return this.membership;
   }
 
   

@@ -17,12 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 
+import junit.textui.TestRunner;
+
 
 /**
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.9 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_api_Stem.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -32,8 +34,32 @@ public class Test_api_Stem extends GrouperTest {
   private GrouperSession  s;
   private Stem            child, root, top;
 
+  /**
+   * 
+   */
+  public Test_api_Stem() {
+    super();
+  }
 
+  /**
+   * @param name
+   */
+  public Test_api_Stem(String name) {
+    super(name);
+  }
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_api_Stem("test_isChildGroup_rootAsPotentialParent"));
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   */
   public void setUp() {
     super.setUp();
     try {
@@ -49,6 +75,10 @@ public class Test_api_Stem extends GrouperTest {
     }
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   */
   public void tearDown() {
     super.tearDown();
   }

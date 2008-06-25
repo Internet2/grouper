@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup33.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestGroup33.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestGroup33 extends TestCase {
 
@@ -47,7 +47,7 @@ public class TestGroup33 extends TestCase {
       GroupType custom  = GroupType.createType(r.rs, "custom");
       Group     gA      = r.getGroup("a", "a");
       gA.addType(custom);
-      T.amount("types", 2, gA.getTypes().size());
+      T.amount("types", 2, gA.getTypesDb().size());
       T.amount("removable types", 1, gA.getRemovableTypes().size());
       r.rs.stop();
     }

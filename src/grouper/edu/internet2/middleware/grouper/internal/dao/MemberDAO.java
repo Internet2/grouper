@@ -18,15 +18,15 @@
 package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Set;
 
-import  edu.internet2.middleware.grouper.MemberNotFoundException;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberNotFoundException;
 import edu.internet2.middleware.subject.Source;
-import  edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MemberDAO.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: MemberDAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MemberDAO extends GrouperDAO {
@@ -34,7 +34,7 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void create(MemberDTO _m) 
+  void create(Member _m) 
     throws  GrouperDAOException;
 
   /**
@@ -46,19 +46,19 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.3.0
    */
-  Set<MemberDTO> findAll() 
+  Set<Member> findAll() 
     throws  GrouperDAOException;
   
   /**
    * @since   1.3.0
    */
-  Set<MemberDTO> findAll(Source source) 
+  Set<Member> findAll(Source source) 
     throws  GrouperDAOException;
   
   /**
    * @since   1.2.0
    */
-  MemberDTO findBySubject(Subject subj)
+  Member findBySubject(Subject subj)
     throws  GrouperDAOException,
             MemberNotFoundException
             ;
@@ -66,7 +66,7 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  MemberDTO findBySubject(String id, String src, String type) 
+  Member findBySubject(String id, String src, String type) 
     throws  GrouperDAOException,
             MemberNotFoundException
             ;
@@ -74,7 +74,7 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  MemberDTO findByUuid(String uuid) 
+  Member findByUuid(String uuid) 
     throws  GrouperDAOException,
             MemberNotFoundException
             ;
@@ -82,7 +82,7 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void update(MemberDTO _m) 
+  void update(Member _m) 
     throws  GrouperDAOException;
 
   /**

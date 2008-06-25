@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import  edu.internet2.middleware.subject.*;
 
@@ -28,7 +27,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.51 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.52 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -73,8 +72,7 @@ public class MemberFinder {
     Set members = new LinkedHashSet();
     Iterator it = GrouperDAOFactory.getFactory().getMember().findAll(source).iterator();
     while (it.hasNext()) {
-      Member m = new Member();
-      m.setDTO((MemberDTO) it.next());
+      Member m = (Member)it.next();
       members.add(m);
     }
     return members;
@@ -126,8 +124,7 @@ public class MemberFinder {
   {
     GrouperSession.validate(s);
     //note, no need for GrouperSession inverse of control
-    Member m = new Member();
-    m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) );
+    Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(uuid);
     return m;
   } // public static Member findByUuid(s, uuid)
 
@@ -173,28 +170,26 @@ public class MemberFinder {
     if (subj == null) {
       throw new MemberNotFoundException();
     }
-    Member m = new Member();
-    m.setDTO( internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) );
+    Member m = internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) ;
     return m;
   } // protected static Member internal_findBySubject(subj)
 
   // @since   1.2.0
-  protected static MemberDTO internal_findOrCreateBySubject(String id, String src, String type) {
+  protected static Member internal_findOrCreateBySubject(String id, String src, String type) {
     try {
       return GrouperDAOFactory.getFactory().getMember().findBySubject(id, src, type);
     }
     catch (MemberNotFoundException eMNF) {
-      MemberDTO _m = new MemberDTO()
-        .setSubjectId(id)
-        .setSubjectSourceId(src)
-        .setSubjectTypeId(type)
-        .setUuid( GrouperUuid.getUuid() )
-        ;
+      Member _m = new Member();
+      _m.setSubjectIdDb(id);
+      _m.setSubjectSourceIdDb(src);
+      _m.setSubjectTypeId(type);
+      _m.setUuid( GrouperUuid.getUuid() );
       
       GrouperDAOFactory.getFactory().getMember().create(_m);
       return _m;
     }
-  } // protected static MemberDTO internal_findOrCreateBySubject(id, src, type)
+  } // protected static Member internal_findOrCreateBySubject(id, src, type)
 
   // @since   1.2.0
   protected static Member internal_findViewableMemberBySubject(GrouperSession s, Subject subj)
@@ -203,7 +198,7 @@ public class MemberFinder {
   {
     //note, no need for GrouperSession inverse of control
     Member m = findBySubject(s, subj);
-    if ( SubjectFinder.internal_getGSA().getId().equals( ( (MemberDTO) m.getDTO() ).getSubjectSourceId() ) ) {
+    if ( SubjectFinder.internal_getGSA().getId().equals( m.getSubjectSourceId() )) {
       // subject is a group.  is it VIEWable?
       try {
         GroupFinder.findByUuid( s, m.getSubjectId() ); // TODO 20070328 this is rather heavy

@@ -16,19 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Map;
-import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
-import  org.apache.commons.lang.time.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.time.StopWatch;
+
+import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.util.Quote;
 
 /** 
  * A composite membership definition within the Groups Registry.
@@ -40,24 +41,20 @@ import  org.apache.commons.lang.time.*;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.50 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.51 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
 
-  // PUBLIC INSTANCE METHODS //
-  /**
-   * @since 1.0
-   */
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof Composite)) {
-      return false;
-    }
-    return this.getDTO().equals( ( (Composite) other ).getDTO() );
-  } // public boolean equals(other)
+  // PRIVATE INSTANCE VARIABLES //
+  private long    createTime;
+  private String  creatorUUID;
+  private String  factorOwnerUUID;
+  private String  id;
+  private String  leftFactorUUID;
+  private String  rightFactorUUID;
+  private String  type;
+  private String  uuid;
 
   /**
    * Return this {@link Composite}'s left factor.
@@ -76,7 +73,7 @@ public class Composite extends GrouperAPI {
   public Group getLeftGroup() 
     throws  GroupNotFoundException
   {
-    return this._getGroup( this._getDTO().getLeftFactorUuid() );
+    return this._getGroup( this.getLeftFactorUuid() );
   } // public Group getLeftGroup()
 
   /**
@@ -96,7 +93,7 @@ public class Composite extends GrouperAPI {
   public Group getOwnerGroup() 
     throws  GroupNotFoundException
   {
-    return this._getGroup( this._getDTO().getFactorOwnerUuid() );
+    return this._getGroup( this.getFactorOwnerUuid() );
   } // public Group getOwnerGroup()
 
   /**
@@ -116,7 +113,7 @@ public class Composite extends GrouperAPI {
   public Group getRightGroup() 
     throws  GroupNotFoundException
   {
-    return this._getGroup( this._getDTO().getRightFactorUuid() );
+    return this._getGroup( this.getRightFactorUuid() );
   } // public Group getLeftGroup()
 
   /**
@@ -128,22 +125,17 @@ public class Composite extends GrouperAPI {
    * @since   1.0
    */
   public CompositeType getType() {
-    return CompositeType.getInstance( this._getDTO().getType() );
+    return CompositeType.getInstance( this.type );
   } // public CompositeType getType()
 
   /**
+   * simple getter for type for db
+   * @return
    */
-  public String getUuid() {
-    return this._getDTO().getUuid();
-  } // public String getUuid()
-
-  /**
-   * @since   1.0
-   */
-  public int hashCode() {
-    return this.getDTO().hashCode();
-  } // public int hashCode()
-
+  public String getTypeDb() {
+    return this.type;
+  }
+  
   /**
    * @since   1.0
    */
@@ -183,17 +175,17 @@ public class Composite extends GrouperAPI {
 
   // @since   1.2.0
   protected String internal_getLeftName() {
-    return this._getName( this._getDTO().getLeftFactorUuid(), E.COMP_NULL_LEFT_GROUP );
+    return this._getName( this.getLeftFactorUuid(), E.COMP_NULL_LEFT_GROUP );
   } 
 
   // @since   1.2.0
   protected String internal_getOwnerName() {
-    return this._getName( this._getDTO().getFactorOwnerUuid(), E.COMP_NULL_OWNER_GROUP );
+    return this._getName( this.getFactorOwnerUuid(), E.COMP_NULL_OWNER_GROUP );
   }
 
   // @since   1.2.0
   protected String internal_getRightName() {
-    return this._getName( this._getDTO().getRightFactorUuid(), E.COMP_NULL_RIGHT_GROUP );
+    return this._getName( this.getRightFactorUuid(), E.COMP_NULL_RIGHT_GROUP );
   }
 
   // @since   1.2.0
@@ -218,10 +210,10 @@ public class Composite extends GrouperAPI {
             throws GrouperSessionException {
           Set groupsToUpdate  = new LinkedHashSet();
           // first find the owning group uuid for each membership
-          MembershipDTO _ms;
+          Membership _ms;
           Iterator      it  = mships.iterator();
           while (it.hasNext()) {
-            _ms = (MembershipDTO) it.next();
+            _ms = (Membership) it.next();
             try {
               groupsToUpdate.add( GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) );
             } catch (GroupNotFoundException gnfe) {
@@ -229,16 +221,15 @@ public class Composite extends GrouperAPI {
             }
           }
           // and then find where each group is a factor and update 
-          Composite     c;
-          CompositeDAO  dao       = GrouperDAOFactory.getFactory().getComposite();
+          CompositeDAO     compositeDAO = GrouperDAOFactory.getFactory().getComposite();
           Iterator      itFactor;
+          Composite composite = null;
           it = groupsToUpdate.iterator();
           while (it.hasNext()) {
-            itFactor = dao.findAsFactor( (GroupDTO) it.next() ).iterator();
+            itFactor = compositeDAO.findAsFactor( (Group) it.next() ).iterator();
             while (itFactor.hasNext()) {
-              c = new Composite();
-              c.setDTO( (CompositeDTO) itFactor.next() );
-              c._update();
+              composite = (Composite) itFactor.next() ;
+              composite._update();
             }
           }
           return null;
@@ -270,8 +261,7 @@ public class Composite extends GrouperAPI {
     Iterator it = factorOwners.iterator();
       while (it.hasNext()) {
         factorOwnerUuid = (String) it.next();
-        factorOwner     = new Group();
-        factorOwner.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(factorOwnerUuid) );
+        factorOwner     = GrouperDAOFactory.getFactory().getGroup().findByUuid(factorOwnerUuid) ;
         _updateWhereFactorOwnerIsImmediateMember(factorOwner);
       }
   }
@@ -284,9 +274,9 @@ public class Composite extends GrouperAPI {
   private static void _updateWhereFactorOwnerIsImmediateMember(Group factorOwner)
     throws  GroupNotFoundException
   {
-    MemberDTO       _m        = (MemberDTO) factorOwner.toMember().getDTO();
+    Member       _m        = (Member) factorOwner.toMember();
     DefaultMemberOf mof;
-    MembershipDTO   _ms;
+    Membership   _ms;
     Group           msOwner;
 
     // Find everywhere where the factor owner is an immediate member, delete the
@@ -295,9 +285,8 @@ public class Composite extends GrouperAPI {
       factorOwner.toMember().getUuid(), Group.getDefaultList()
     ).iterator();
     while (it.hasNext()) {
-      _ms     = (MembershipDTO) it.next();
-      msOwner = new Group();
-      msOwner.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) );
+      _ms     = (Membership) it.next();
+      msOwner =  GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) ;
 
       // TODO 20070524 ideally i wouldn't delete and then re-add the membership.  bad programmer.  
       //               i *should* identify where there have been changes and then only
@@ -323,11 +312,10 @@ public class Composite extends GrouperAPI {
   private static Set _updateWhereGroupIsFactor(Group g) {
     Composite c;
     Set       factorOwners  = new LinkedHashSet();
-    Iterator  it            = GrouperDAOFactory.getFactory().getComposite().findAsFactor( (GroupDTO) g.getDTO() ).iterator();
+    Iterator  it            = GrouperDAOFactory.getFactory().getComposite().findAsFactor( g ).iterator();
     while (it.hasNext()) {
-      c = new Composite();
-      c.setDTO( (CompositeDTO) it.next() );
-      factorOwners.add( c._getDTO().getFactorOwnerUuid() );
+      c =  (Composite)it.next() ;
+      factorOwners.add( c.getFactorOwnerUuid() );
       c._update();
     }
     return factorOwners; // TODO 20070524 aesthetically this is inappropriate
@@ -337,16 +325,10 @@ public class Composite extends GrouperAPI {
   // PRIVATE INSTANCE METHODS //
 
   // @since   1.2.0
-  private CompositeDTO _getDTO() {
-    return (CompositeDTO) super.getDTO();
-  } 
-  
-  // @since   1.2.0
   private Group _getGroup(String uuid) 
     throws  GroupNotFoundException
   {
-    Group g = new Group();
-    g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
+    Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) ;
     GrouperSession.staticGrouperSession().getMember().canView(g);
     return g;
   } 
@@ -354,8 +336,7 @@ public class Composite extends GrouperAPI {
   // @since   1.2.0
   private String _getName(String uuid, String msg) {
     try {
-      Group g = new Group();
-      g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
+      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) ;
       return g.getName();
     }
     catch (GroupNotFoundException eGNF) {
@@ -374,13 +355,12 @@ public class Composite extends GrouperAPI {
       StopWatch sw  = new StopWatch();
       sw.start();
 
-      Group     g   = new Group();
+      Group     g   = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getFactorOwnerUuid() ) ;
       DefaultMemberOf  mof = new DefaultMemberOf();
-      g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this._getDTO().getFactorOwnerUuid() ) ); 
       mof.addComposite( GrouperSession.staticGrouperSession(), g, this );
   
       Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
-        ( (GroupDTO) g.getDTO() ).getUuid(), Group.getDefaultList()  // current mships
+        g.getUuid(), Group.getDefaultList()  // current mships
       );
       Set should    = mof.getEffectiveSaves();    // What mships should be
       Set deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
@@ -409,6 +389,153 @@ public class Composite extends GrouperAPI {
       String msg = E.COMP_UPDATE + eIS.getMessage();
       ErrorLog.error(Composite.class, msg);
     }
+  }
+
+  // PUBLIC INSTANCE METHODS //
+  
+  /**
+   * @since   1.2.0
+   */  
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Composite)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.getUuid(), ( (Composite) other ).getUuid() )
+      .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @since   1.2.0
+   */
+  public long getCreateTime() {
+    return this.createTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getFactorOwnerUuid() {
+    return this.factorOwnerUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getLeftFactorUuid() {
+    return this.leftFactorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getRightFactorUuid() {
+    return this.rightFactorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getUuid() )
+      .toHashCode();
+  } // public int hashCode()
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreateTime(long createTime) {
+    this.createTime = createTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setFactorOwnerUuid(String factorOwnerUUID) {
+    this.factorOwnerUUID = factorOwnerUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setLeftFactorUuid(String leftFactorUUID) {
+    this.leftFactorUUID = leftFactorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setRightFactorUuid(String rightFactorUUID) {
+    this.rightFactorUUID = rightFactorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setTypeDb(String type) {
+    this.type = type;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
+
+  /**
+   * @return string
+   * @since   1.2.0
+   */
+  public String toStringDto() {
+    return new ToStringBuilder(this)
+      .append( "createTime",      this.getCreateTime()        )
+      .append( "creatorUuid",     this.getCreatorUuid()       )
+      .append( "factorUuid",      this.getFactorOwnerUuid()   )
+      .append( "leftFactorUuid",  this.getLeftFactorUuid()    )
+      .append( "ownerUuid",       this.getUuid()              )
+      .append( "rightFactorUuid", this.getRightFactorUuid()   )
+      .append( "type",            this.getType()              )
+      .toString();
   } 
 
 } 

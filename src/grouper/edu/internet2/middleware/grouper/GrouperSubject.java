@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 import  edu.internet2.middleware.subject.*;
 import  edu.internet2.middleware.subject.provider.*;
 
@@ -32,7 +31,7 @@ import  org.apache.commons.lang.builder.*;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.39 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.40 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -49,7 +48,7 @@ public class GrouperSubject implements Subject {
 
 
   // CONSTRUCTORS //
-  protected GrouperSubject(GroupDTO g) 
+  protected GrouperSubject(Group g) 
     throws  SourceUnavailableException
   {
     this.id       = g.getUuid();
@@ -132,8 +131,7 @@ public Set getAttributeValues(String name) {
   private Map _getAttributes() {
     if ( this.attrs.size() == 0 ) {
       try {
-        Group g = new Group();
-        g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId() ) );
+        Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId() ) ;
         this._populateAttributes(g); // populate `this.attrs`
       }
       catch (GroupNotFoundException eGNF) {
@@ -168,7 +166,7 @@ public Set getAttributeValues(String name) {
       // No modifier
     }
     Map.Entry kv;
-    Iterator  it  = ( (GroupDTO) g.getDTO() ).getAttributes().entrySet().iterator();
+    Iterator  it  = g.getAttributes().entrySet().iterator();
     while (it.hasNext()) {
       kv = (Map.Entry) it.next();
       this.attrs.put( (String) kv.getKey(), (String) kv.getValue() );

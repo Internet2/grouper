@@ -36,8 +36,6 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.internal.util.XML;
@@ -61,7 +59,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.101 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.102 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1285,11 +1283,10 @@ public class XmlExporter {
       this.xml.internal_indent();
       this.xml.internal_puts("<internalAttributes>");
       this._writeInternalAttribute( "parentStem",     this._getParentStemName(g)   );
-      GroupDTO _g = (GroupDTO) g.getDTO();
-      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, _g.getCreatorUuid() ) );
-      this._writeInternalAttribute( "createTime",     _g.getCreateTime() );
-      this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, _g.getModifierUuid() ) );
-      this._writeInternalAttribute( "modifyTime",     _g.getModifyTime() );
+      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, g.getCreatorUuid() ) );
+      this._writeInternalAttribute( "createTime",     g.getCreateTimeLong() );
+      this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, g.getModifierUuid() ) );
+      this._writeInternalAttribute( "modifyTime",     g.getModifyTimeLong() );
       this.xml.internal_puts("</internalAttributes>");
       this.xml.internal_undent();
       this.xml.internal_puts();
@@ -1307,11 +1304,10 @@ public class XmlExporter {
       this.xml.internal_indent();
       this.xml.internal_puts("<internalAttributes>");
       this._writeInternalAttribute( "parentStem",     this._getParentStemName(ns)   );
-      StemDTO _ns = (StemDTO) ns.getDTO();
-      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, _ns.getCreatorUuid() ) );
-      this._writeInternalAttribute( "createTime",     _ns.getCreateTime() );
-      this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, _ns.getModifierUuid() ) );
-      this._writeInternalAttribute( "modifyTime",     _ns.getModifyTime() );
+      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, ns.getCreatorUuid() ) );
+      this._writeInternalAttribute( "createTime",     ns.getCreateTimeLong() );
+      this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, ns.getModifierUuid() ) );
+      this._writeInternalAttribute( "modifyTime",     ns.getModifyTimeLong() );
       this.xml.internal_puts("</internalAttributes>");
       this.xml.internal_undent();
       this.xml.internal_puts();

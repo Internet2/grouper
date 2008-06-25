@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
-import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 import  edu.internet2.middleware.grouper.internal.util.U;
 import  edu.internet2.middleware.subject.*;
 import  java.util.HashMap;
@@ -28,7 +27,7 @@ import  org.apache.commons.logging.*;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.21 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: R.java,v 1.22 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class R {
@@ -68,22 +67,18 @@ public class R {
    * @since   1.2.1
    */
   protected void addSubjects(int number) {
-    RegistrySubject     subj;
     RegistrySubjectDAO  dao   = GrouperDAOFactory.getFactory().getRegistrySubject();
-    RegistrySubjectDTO  _subj;
+    RegistrySubject  _subj;
     for (int i=0; i<number; i++) {
       String  id    = _getSuffix(i);
       String  name  = "subject " + id;
-      _subj = new RegistrySubjectDTO()
-                .setId(id)
-                .setName(name)
-                .setType("person")
-                ;
+      _subj = new RegistrySubject();
+      _subj.setId(id);
+      _subj.setName(name);
+      _subj.setTypeString("person");
       dao.create(_subj);
-      subj = new RegistrySubject();
-      subj.setDTO(_subj);
-      this.subjects.put(id, subj);  
-      LOG.debug("created subject: " + subj);
+      this.subjects.put(id, _subj);  
+      LOG.debug("created subject: " + _subj);
     }
   }
 

@@ -16,15 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
-import  edu.internet2.middleware.grouper.CompositeNotFoundException;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  java.util.Set;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.Group;
 
 /** 
  * Basic <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: CompositeDAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
@@ -32,13 +33,13 @@ public interface CompositeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set<CompositeDTO> findAsFactor(GroupDTO _g)
+  Set<Composite> findAsFactor(Group _g)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  CompositeDTO findAsOwner(GroupDTO _g) 
+  Composite findAsOwner(Group _g) 
     throws  CompositeNotFoundException,
             GrouperDAOException
             ;
@@ -46,7 +47,7 @@ public interface CompositeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  CompositeDTO findByUuid(String uuid) 
+  Composite findByUuid(String uuid) 
     throws  CompositeNotFoundException,
             GrouperDAOException
             ;

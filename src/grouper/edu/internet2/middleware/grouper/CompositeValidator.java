@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
+import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: CompositeValidator.java,v 1.14 2007-04-17 14:17:29 blair Exp $
+ * @version $Id: CompositeValidator.java,v 1.15 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.0
  */
 class CompositeValidator extends GrouperValidator {
@@ -45,7 +44,7 @@ class CompositeValidator extends GrouperValidator {
   // PROTECTED CLASS METHODS //
 
   //  @since 1.2.0
-  protected static CompositeValidator validate(CompositeDTO _c) {
+  protected static CompositeValidator validate(Composite _c) {
     CompositeValidator  v     = new CompositeValidator();
     NotNullValidator    vNull = NotNullValidator.validate(_c);
     if (vNull.isInvalid()) {
@@ -61,7 +60,7 @@ class CompositeValidator extends GrouperValidator {
     else if ( _c.getUuid() == null )                      {
       v.setErrorMessage(INVALID_UUID);
     }
-    else if ( _c.getType() == null )                      {
+    else if ( _c.getTypeDb() == null )                      {
       v.setErrorMessage(INVALID_TYPE);
     }
     else if ( _c.getFactorOwnerUuid() == null )           {

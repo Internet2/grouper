@@ -16,19 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
-import  edu.internet2.middleware.grouper.GrouperDAOFactory;
-import  edu.internet2.middleware.grouper.GroupNotFoundException;
-import  edu.internet2.middleware.grouper.MemberNotFoundException;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberNotFoundException;
+import edu.internet2.middleware.grouper.Membership;
 
 /**
  * Utility class for pretty printing objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrettyPrint.java,v 1.2 2007-05-24 19:22:47 blair Exp $
+ * @version $Id: PrettyPrint.java,v 1.3 2008-06-25 05:46:06 mchyzer Exp $
  * @since   1.2.0
  */
 public class PrettyPrint {
@@ -46,11 +46,11 @@ public class PrettyPrint {
    * @since   1.2.0
    */
   public static String pp(Object obj) {
-    if      (obj instanceof CompositeDTO)  {
-      return _pp( (CompositeDTO) obj );
+    if      (obj instanceof Composite)  {
+      return _pp( (Composite) obj );
     } 
-    else if (obj instanceof MembershipDTO) {
-      return _pp( (MembershipDTO) obj );
+    else if (obj instanceof Membership) {
+      return _pp( (Membership) obj );
     }
     return obj.toString();
   }
@@ -59,22 +59,22 @@ public class PrettyPrint {
   // PRIVATE CLASS METHODS //
 
   /**
-   * Return a pretty printed <i>CompositeDTO</i>.
+   * Return a pretty printed <i>Composite</i>.
    */
-  private static String _pp(CompositeDTO _c) {
+  private static String _pp(Composite _c) {
     try {
-      GroupDTO  _gOwner = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getFactorOwnerUuid() );
-      GroupDTO  _gLeft  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getLeftFactorUuid() );
-      GroupDTO  _gRight = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getRightFactorUuid() );
+      Group  _gOwner = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getFactorOwnerUuid() );
+      Group  _gLeft  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getLeftFactorUuid() );
+      Group  _gRight = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getRightFactorUuid() );
       return _c.getClass().getName() 
         + OPEN
-        + "owner="  + _gOwner.getAttributes().get("name")
+        + "owner="  + _gOwner.getAttributesDb().get("name")
         + DELIM
-        + "left="   + _gLeft.getAttributes().get("name")
+        + "left="   + _gLeft.getAttributesDb().get("name")
         + DELIM
-        + "right="  + _gRight.getAttributes().get("name")
+        + "right="  + _gRight.getAttributesDb().get("name")
         + DELIM
-        + "type="   + _c.getType()
+        + "type="   + _c.getTypeDb()
         + DELIM
         + "uuid="   + _c.getUuid()
         + CLOSE
@@ -86,18 +86,18 @@ public class PrettyPrint {
   }
 
   /**
-   * Return a pretty printed <i>MembershipDTO</i>.
+   * Return a pretty printed <i>Membership</i>.
    * @since   1.2.0
    */
-  private static String _pp(MembershipDTO _ms) {
+  private static String _pp(Membership _ms) {
     try {
-      GroupDTO  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() );
-      MemberDTO _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
+      Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() );
+      Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
       return _ms.getClass().getName()
         + OPEN 
-        + "group="    + _g.getAttributes().get("name")
+        + "group="    + _g.getAttributesDb().get("name")
         + DELIM
-        + "member="   + _m.getSubjectId() + "@" + _m.getSubjectSourceId()
+        + "member="   + _m.getSubjectIdDb() + "@" + _m.getSubjectSourceIdDb()
         + DELIM
         + "listName=" + _ms.getListName()
         + DELIM

@@ -16,36 +16,36 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import  java.io.Serializable;
+import java.io.Serializable;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /** 
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.25 2007-08-27 17:49:26 blair Exp $    
+ * @version $Id: Field.java,v 1.26 2008-06-25 05:46:05 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 
 
-  private               GroupType cachedGroupType   = null;
+  private GroupType cachedGroupType   = null;
+  // PRIVATE INSTANCE VARIABLES //
+  private String    groupTypeUUID;
+  private String    id;
+  private boolean   isNullable;
+  private String    name;
+  private String    readPrivilege;
+  private String    type;
+  private String    uuid;
+  private String    writePrivilege;
   public  static final  long      serialVersionUID  = 2072790175332537149L;
 
 
   // PUBLIC INSTANCE METHODS //
-
-  /**
-   */
-  public boolean equals(Object other) {
-    if (this == other) { 
-      return true;
-    }
-    if (!(other instanceof Field)) {
-      return false;
-    }
-    return this.getDTO().equals( ( (Field) other ).getDTO() );
-  } // public boolean equals(other)
 
   /**
    */
@@ -54,8 +54,7 @@ public class Field extends GrouperAPI implements Serializable {
   {
     if ( this.cachedGroupType == null ) {
       try {
-        GroupType type = new GroupType();
-        type.setDTO( GrouperDAOFactory.getFactory().getGroupType().findByUuid( this._getDTO().getGroupTypeUuid() ) );
+        GroupType type = GrouperDAOFactory.getFactory().getGroupType().findByUuid( this.getGroupTypeUuid() ) ;
         this.cachedGroupType = type;
       }
       catch (SchemaException eS) {
@@ -68,52 +67,207 @@ public class Field extends GrouperAPI implements Serializable {
   /**
    */
   public FieldType getType() {
-    return FieldType.getInstance( this._getDTO().getType() );
+    return FieldType.getInstance( this.getTypeString() );
   } // public FieldType getType()
 
   /**
    */
-  public String getName() {
-    return this._getDTO().getName();
-  } // public String getName()
-
-  /**
-   */
   public Privilege getReadPriv() {
-    return Privilege.getInstance( this._getDTO().getReadPrivilege() ); 
+    return Privilege.getInstance( this.getReadPrivilege() ); 
   } // public Privilege getReadPriv()
 
   /**
    */
   public boolean getRequired() {
-    return !this._getDTO().getIsNullable();
+    return !this.getIsNullable();
   } // public boolean isRequired()
 
   /**
    */
   public Privilege getWritePriv() {
-    return Privilege.getInstance( this._getDTO().getWritePrivilege() );
+    return Privilege.getInstance( this.getWritePrivilege() );
   } // public Privilege getWritePriv()
 
   /**
+   * @since   1.2.0
+   */
+  public boolean equals(Object other) {
+    if (this == other) { 
+      return true;
+    }
+    if ( !(other instanceof Field) ) {
+      return false;
+    }
+    Field that = (Field) other;
+    return new EqualsBuilder()
+      .append( this.getUuid(), that.getUuid() )
+     .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @since   1.2.0
+   */
+  public String getGroupTypeUuid() {
+    return this.groupTypeUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public boolean getIsNullable() {
+    return this.isNullable;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getName() {
+    return this.name;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getReadPrivilege() {
+    return this.readPrivilege;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getTypeString() {
+    return this.type;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getWritePrivilege() {
+    return this.writePrivilege;
+  }
+
+  /**
+   * @since   1.2.0
    */
   public int hashCode() {
-    return this.getDTO().hashCode();
+    return new HashCodeBuilder()
+      .append( this.getUuid() )
+      .toHashCode();
   } // public int hashCode()
 
   /**
+   * @since   1.2.0
+   */
+  public void setGroupTypeUuid(String groupTypeUUID) {
+    this.groupTypeUUID = groupTypeUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setIsNullable(boolean isNullable) {
+    this.isNullable = isNullable;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setName(String name) {
+    this.name = name;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setReadPrivilege(Privilege readPrivilege) {
+    this.setReadPrivilege( readPrivilege.getName() );
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setReadPrivilege(String readPrivilege) {
+    this.readPrivilege = readPrivilege;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setType(FieldType type) {
+    this.setTypeString( type.toString() );
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setTypeString(String type) {
+    this.type = type;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setWritePrivilege(Privilege writePrivilege) {
+    this.setWritePrivilege( writePrivilege.getName() );
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setWritePrivilege(String writePrivilege) {
+    this.writePrivilege = writePrivilege;
+  
+  }
+
+  /**
+   * @since   1.2.0
    */
   public String toString() {
-    return this.getDTO().toString();
+    return new ToStringBuilder(this)
+      .append( "groupTypeUuid",  this.getGroupTypeUuid()  )
+      .append( "isNullable",     this.getIsNullable()     )
+      .append( "name",           this.getName()           )
+      .append( "readPrivilege",  this.getReadPrivilege()  )
+      .append( "type",           this.getType()           )
+      .append( "uuid",           this.getUuid()           )
+      .append( "writePrivilege", this.getWritePrivilege() )
+      .toString();
   } // public String toString()
-
-
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   1.2.0
-  private FieldDTO _getDTO() {
-    return (FieldDTO) super.getDTO();
-  }
 
 } // public class Field extends GrouperAPI implements Serializable
 

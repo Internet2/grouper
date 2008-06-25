@@ -16,21 +16,29 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import  java.util.HashMap;
-import  java.util.LinkedHashSet;
-import  java.util.Map;
-import  java.util.Set;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
  * A {@link Subject} local to the Groups Registry.
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.10 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.11 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -73,16 +81,20 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       throw new GrouperException(E.SUBJ_ALREADY_EXISTS + id + "/" + type + "/" + name);
     }
     catch (SubjectNotFoundException eSNF) {
-      RegistrySubject     subj  = new RegistrySubject();
-      RegistrySubjectDTO  _subj = new RegistrySubjectDTO()
-        .setId(id)
-        .setName(name)
-        .setType(type);
-      GrouperDAOFactory.getFactory().getRegistrySubject().create(_subj);
-      subj.setDTO( _subj);
+      RegistrySubject subj  = new RegistrySubject();
+      subj.setId(id);
+      subj.setName(name);
+      subj.setTypeString(type);
+      GrouperDAOFactory.getFactory().getRegistrySubject().create(subj);
       return subj;
     }
   } // public static RegistrySubject add(s, id, type, name)
+
+
+  // PRIVATE INSTANCE VARIABLES //
+  private String  id;
+  private String  name;
+  private String  typeString;
 
 
 
@@ -120,7 +132,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       throw new InsufficientPrivilegeException("must be root-like to delete RegistrySubjects");
     }    
     try {
-      GrouperDAOFactory.getFactory().getRegistrySubject().delete( this._getDTO() );
+      GrouperDAOFactory.getFactory().getRegistrySubject().delete( this );
     }
     catch (GrouperDAOException eDAO) {
       throw new GrouperException( eDAO.getMessage(), eDAO );
@@ -172,7 +184,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public String getId() {
-    return this._getDTO().getId();
+    return this.id;
   } // public String getId()
 
   /**
@@ -181,8 +193,8 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public String getName() {
-    return this._getDTO().getName();
-  } // public String getName()
+    return this.name;
+  } 
 
   /**
    * Return the source.
@@ -196,7 +208,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     throws  IllegalStateException
   {
     try {
-      return SubjectFinder.findById( this._getDTO().getId(), this._getDTO().getType()).getSource();
+      return SubjectFinder.findById( this.getId(), this.getTypeString()).getSource();
     }
     catch (SubjectNotFoundException eSNF)   {
       throw new IllegalStateException( eSNF.getMessage(), eSNF );
@@ -212,15 +224,87 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public SubjectType getType() {
-    return SubjectTypeEnum.valueOf( this._getDTO().getType() );
+    return SubjectTypeEnum.valueOf( this.getTypeString() );
   } // public SubjectType getType()
 
 
-  // PRIVATE INSTANCE METHODS //
+  /**
+   * @since   1.2.0
+   */  
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof RegistrySubject)) {
+      return false;
+    }
+    RegistrySubject that = (RegistrySubject) other;
+    return new EqualsBuilder()
+      .append( this.getName(), that.getName() )
+      .append( this.getId(),   that.getId()   )
+      .append( this.getType(), that.getType() )
+      .isEquals();
+  }
 
-  // @since   1.2.0
-  private RegistrySubjectDTO _getDTO() {
-    return (RegistrySubjectDTO) super.getDTO();
+
+  /**
+   * @since   1.2.0
+   */
+  public String getTypeString() {
+    return this.typeString;
+  }
+
+
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getName() )
+      .append( this.getId()   )
+      .append( this.getType() )
+      .toHashCode();
+  } // public int hashCode()
+
+
+
+  /**
+   * @since   1.2.0
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
+
+
+
+  /**
+   * @since   1.2.0
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
+
+
+
+  /**
+   * @since   1.2.0
+   */
+  public void setTypeString(String type) {
+    this.typeString = type;
+  }
+
+
+
+  /**
+   * @since   1.2.0
+   */
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append( "name",        this.getName() )
+      .append( "subjectId",   this.getId()   )
+      .append( "subjectType", this.getType() )
+      .toString();
   } 
   
 }

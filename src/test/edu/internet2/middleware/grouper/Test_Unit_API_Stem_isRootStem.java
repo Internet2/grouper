@@ -16,12 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_Stem_isRootStem.java,v 1.2 2007-04-17 14:17:30 blair Exp $
+ * @version $Id: Test_Unit_API_Stem_isRootStem.java,v 1.3 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_Stem_isRootStem extends GrouperTest {
@@ -36,7 +36,6 @@ public class Test_Unit_API_Stem_isRootStem extends GrouperTest {
     try {
       LOG.info("testIsRootStem_DoNotThrowNullPointerException");
       Stem ns = new Stem();
-      ns.setDTO( new StemDTO() );
       assertFalse( ns.isRootStem() );
     }
     catch (NullPointerException eNP) {

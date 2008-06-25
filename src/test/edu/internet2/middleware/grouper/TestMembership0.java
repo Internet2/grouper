@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership0.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: TestMembership0.java,v 1.9 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestMembership0 extends GrouperTest {
 
@@ -63,8 +63,7 @@ public class TestMembership0 extends GrouperTest {
         expMS   = ms;
         expUUID = ms.getUuid();
       }
-      Membership ms0 = new Membership();
-      ms0.setDTO( GrouperDAOFactory.getFactory().getMembership().findByUuid(expUUID) );
+      Membership ms0 = GrouperDAOFactory.getFactory().getMembership().findByUuid(expUUID);
       Assert.assertEquals("ms0", expMS, ms0);
 
       gA.deleteMember(subjA);

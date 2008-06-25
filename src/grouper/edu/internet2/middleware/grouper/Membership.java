@@ -16,18 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
-import edu.internet2.middleware.grouper.cache.EhcacheController;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import  edu.internet2.middleware.subject.*;
-import  java.util.Date;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import net.sf.ehcache.Element;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.MembershipHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * A list membership in the Groups Registry.
@@ -38,7 +47,7 @@ import net.sf.ehcache.Element;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.91 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.92 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -79,18 +88,31 @@ public class Membership extends GrouperAPI {
   public  static final  String            CACHE_GET_STEM = Membership.class.getName() + ".getStem";
  
   
-  private Member member;
-  // PUBLIC INSTANCE METHODS //
+  private long    createTimeLong  = new Date().getTime();           // reasonable default
 
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof Membership)) {
-      return false;
-    }
-    return this.getDTO().equals( ( (Membership) other ).getDTO() );
-  } // public boolean equals(other)
+  private String  creatorUUID;
+
+  private int     depth       = 0;                              // reasonable default
+
+  private String  id;
+
+  private String  listName;
+
+  private String  listType;
+
+  private Member  member;
+
+  private String  memberUUID;
+
+  private String  ownerUUID;
+
+  private String  parentUUID  = null;                           // reasonable default
+
+  private String  type        = Membership.IMMEDIATE;           // reasonable default
+
+  private String  uuid        = GrouperUuid.getUuid(); // reasonable default
+
+  private String  viaUUID     = null;                           // reasonable default
 
   /** 
    * Get child memberships of this membership. 
@@ -109,7 +131,7 @@ public class Membership extends GrouperAPI {
     //   * It wasn't working and I didn't have time to debug it at the time.
     //   * I still need to filter
     return PrivilegeHelper.canViewMemberships(
-      GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this._getDTO() )
+      GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this )
     );
   } // public Set getChildMemberships()
 
@@ -117,7 +139,7 @@ public class Membership extends GrouperAPI {
    * @since   1.2.0
    */
   public Date getCreateTime() {
-    return new Date( this._getDTO().getCreateTime() );
+    return new Date( this.getCreateTimeLong() );
   } // public Date getCreateTime()
 
   /**
@@ -127,8 +149,7 @@ public class Membership extends GrouperAPI {
     throws  MemberNotFoundException
   {
     try {
-      Member m = new Member();
-      m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getCreatorUuid() ) );
+      Member m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getCreatorUuid() );
       return m;
     }
     catch (GrouperDAOException eDAO) {
@@ -139,7 +160,7 @@ public class Membership extends GrouperAPI {
   /**
    */
   public int getDepth() {
-    return this._getDTO().getDepth();
+    return this.depth;
   } // public int getDepth()
    
   /**
@@ -152,15 +173,14 @@ public class Membership extends GrouperAPI {
   public Group getGroup() 
     throws  GroupNotFoundException
   {
-    String uuid = this._getDTO().getOwnerUuid();
+    String uuid = this.getOwnerUuid();
     if (uuid == null) {
       throw new GroupNotFoundException();
     }
 	Group g = getGroupFromCache(uuid);
 	if(g !=null) return g;
     
-    g = new Group();
-    g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
+    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) ;
     putGroupInCache(g);
     return g;
   } // public Group getGroup()
@@ -174,7 +194,7 @@ public class Membership extends GrouperAPI {
    */
   public Field getList() {
     try {
-      return FieldFinder.find( this._getDTO().getListName() );
+      return FieldFinder.find( this.getListName() );
     }
     catch (SchemaException eS) {
       throw new GrouperRuntimeException( eS.getMessage(), eS );
@@ -196,22 +216,16 @@ public class Membership extends GrouperAPI {
   public Member getMember() 
     throws MemberNotFoundException
   {
-	if(member !=null) return member;
-	MemberDTO mDTO=this._getDTO().getMemberDTO();
-	if(mDTO != null) {
-		member=new Member();
-		member.setDTO(mDTO);
-		return member;
+	if(member !=null) {
+	  return member;
 	}
 
-    String uuid = this._getDTO().getMemberUuid();
+    String uuid = this.getMemberUuid();
     if (uuid == null) {
       throw new MemberNotFoundException("membership does not have a member!");
     }
-    Member m = new Member();
-    m.setDTO( GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) );
-    member=m;
-    return m;
+    member = GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) ;
+    return member;
   } // public Member getMember()
 
   /**
@@ -235,12 +249,11 @@ public class Membership extends GrouperAPI {
   public Membership getParentMembership() 
     throws MembershipNotFoundException
   {
-    String uuid = this._getDTO().getParentUuid();
+    String uuid = this.getParentUuid();
     if (uuid == null) {
       throw new MembershipNotFoundException("no parent");
     }
-    Membership parent = new Membership();
-    parent.setDTO( GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid) );
+    Membership parent = GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid) ;
     return parent;
   } // public Membership getParentMembership()
 
@@ -250,15 +263,14 @@ public class Membership extends GrouperAPI {
   public Stem getStem() 
     throws StemNotFoundException
   {
-    String uuid = this._getDTO().getOwnerUuid();
+    String uuid = this.getOwnerUuid();
     if (uuid == null) {
       throw new StemNotFoundException("membership stem not found");
     }
     Stem ns = getStemFromCache(uuid);
 	if(ns != null) return ns;
     
-     ns = new Stem();
-    ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
+     ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) ;
     putStemInCache(ns);
     return ns;
   } // public Stem getStem()
@@ -267,14 +279,14 @@ public class Membership extends GrouperAPI {
    * @since   1.2.0
    */
   public String getType() {
-    return this._getDTO().getType();
-  } // public String getType()
+    return this.type;
+  } 
 
   /**
    */
   public String getUuid() {
-    return this._getDTO().getUuid();
-  } // public String getUuid()
+    return this.uuid;
+  } 
 
   /**
    * 
@@ -288,12 +300,11 @@ public class Membership extends GrouperAPI {
   public Composite getViaComposite() 
     throws  CompositeNotFoundException
   {
-    String uuid = this._getDTO().getViaUuid();
+    String uuid = this.getViaUuid();
     if (uuid == null) {
       throw new CompositeNotFoundException();
     }
-    Composite via = new Composite();
-    via.setDTO( GrouperDAOFactory.getFactory().getComposite().findByUuid(uuid) );
+    Composite via = GrouperDAOFactory.getFactory().getComposite().findByUuid(uuid) ;
     return via;
   } // public Composite getViaComposite()
 
@@ -315,25 +326,13 @@ public class Membership extends GrouperAPI {
   public Group getViaGroup() 
     throws GroupNotFoundException
   {
-    String uuid = this._getDTO().getViaUuid();
+    String uuid = this.getViaUuid();
     if (uuid == null) {
       throw new GroupNotFoundException();
     }
-    Group via = new Group();
-    via.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) );
+    Group via = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
     return via;
   } // public Group getViaGroup()
-
-  public int hashCode() {
-    return this.getDTO().hashCode();
-  } // public int hashCode()
-
-  public String toString() {
-    return this.getDTO().toString();
-  } // public String toString()
-
-
-  // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
   protected static void internal_addImmediateMembership(
@@ -345,7 +344,7 @@ public class Membership extends GrouperAPI {
       GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       DefaultMemberOf  mof = new DefaultMemberOf();
-      mof.addImmediate( s, g, f, (MemberDTO) m.getDTO() );
+      mof.addImmediate( s, g, f, m );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EL.addEffMembers( s, g, subj, f, mof.getEffectiveSaves() );
     }
@@ -370,7 +369,7 @@ public class Membership extends GrouperAPI {
       GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       DefaultMemberOf  mof = new DefaultMemberOf();
-      mof.addImmediate( s, ns, f, (MemberDTO) m.getDTO() );
+      mof.addImmediate( s, ns, f, m );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EL.addEffMembers( s, ns, subj, f, mof.getEffectiveSaves() );
     }
@@ -398,7 +397,7 @@ public class Membership extends GrouperAPI {
         GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
           g.getUuid(), m.getUuid(), f, IMMEDIATE
         ), 
-        (MemberDTO) m.getDTO()
+        m
       );
       return mof;
     }
@@ -428,7 +427,7 @@ public class Membership extends GrouperAPI {
         GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
           ns.getUuid(), m.getUuid(), f, IMMEDIATE 
         ), 
-        (MemberDTO) m.getDTO()
+        m
       );
       return mof;
     }
@@ -479,7 +478,7 @@ public class Membership extends GrouperAPI {
                 dao.findByOwnerAndMemberAndFieldAndType( 
                   ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
                 ),
-                (MemberDTO) ms.getMember().getDTO()
+                 ms.getMember()
               );
               deletes.addAll( mof.getDeletes() );
             }
@@ -487,15 +486,13 @@ public class Membership extends GrouperAPI {
             // Deal with group's members
             Iterator itHas = dao.findAllByOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
             while (itHas.hasNext()) {
-              ms = new Membership();
-              ms.setDTO( (MembershipDTO) itHas.next() );
+              ms = (Membership)itHas.next() ;
               mof = new DefaultMemberOf();
               mof.deleteImmediate(
                 grouperSession, g,
                 dao.findByOwnerAndMemberAndFieldAndType(
                   g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
-                ),
-                (MemberDTO) ms.getMember().getDTO()
+                ), ms.getMember()
               );
               deletes.addAll( mof.getDeletes() );
             }
@@ -550,16 +547,13 @@ public class Membership extends GrouperAPI {
           // Deal with stem's members
           Iterator itHas = dao.findAllByOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
           while (itHas.hasNext()) {
-            ms = new Membership();
-            ms.setDTO( (MembershipDTO) itHas.next() );
+            ms = (Membership) itHas.next() ;
             mof = new DefaultMemberOf();
             mof.deleteImmediate(
               grouperSession, ns,
               dao.findByOwnerAndMemberAndFieldAndType(
                 ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
-              ),
-              (MemberDTO) ms.getMember().getDTO()
-            );
+              ), ms.getMember());
             deletes.addAll( mof.getDeletes() );
           }
 
@@ -608,18 +602,6 @@ public class Membership extends GrouperAPI {
     return deletes;
   } // protected static Set internal_deleteAllFieldType(s, ns, f)
 
-//@since   1.2.1
-  protected String getMemberUuid() {
-	  return this._getDTO().getMemberUuid();  
-  }
-
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   1.2.0
-  private MembershipDTO _getDTO() {
-    return (MembershipDTO) super.getDTO();
-  } 
-  
   //@since   1.3.0
   private Group getGroupFromCache(String uuid) {
 	  Element el = this.cc.getCache(CACHE_GET_GROUP).get(uuid);
@@ -647,5 +629,253 @@ public class Membership extends GrouperAPI {
   private void putStemInCache(Stem stem) {
 	  this.cc.getCache(CACHE_GET_STEM).put( new Element( stem.getUuid(),stem) );
   }
+
+  // PUBLIC INSTANCE METHODS //
+  
+  /**
+   * @since   1.2.0
+   */  
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Membership)) {
+      return false;
+    }
+    Membership that = (Membership) other;
+    return new EqualsBuilder()
+      .append( this.getDepth(),      that.getDepth()      )
+      .append( this.getListName(),   that.getListName()   )
+      .append( this.getListType(),   that.getListType()   )
+      .append( this.getMemberUuid(), that.getMemberUuid() )
+      .append( this.getUuid(),       that.getUuid()       )
+      .append( this.getOwnerUuid(),  that.getOwnerUuid()  )
+      .append( this.getViaUuid(),    that.getViaUuid()    )
+      .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @since   1.2.0
+   */
+  public long getCreateTimeLong() {
+    return this.createTimeLong;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getListName() {
+    return this.listName;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getListType() {
+    return this.listType;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getMemberUuid() {
+    return this.memberUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  
+  public String getOwnerUuid() {
+    return this.ownerUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getParentUuid() {
+    return this.parentUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getViaUuid() {
+    return this.viaUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getDepth()      )
+      .append( this.getListName()   )
+      .append( this.getListType()   )
+      .append( this.getMemberUuid() )
+      .append( this.getUuid()       )
+      .append( this.getOwnerUuid()  )
+      .append( this.getViaUuid()    )
+      .toHashCode();
+  } // public int hashCode()
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    //see if there is a hook class
+    MembershipHooks membershipHooks = (MembershipHooks)GrouperHookType.MEMBERSHIP.hooksInstance();
+    
+    if (membershipHooks != null) {
+      HooksMembershipPreInsertBean hooksMembershipPreInsertBean = 
+        new HooksMembershipPreInsertBean(new HooksContext(), this);
+            
+      membershipHooks.membershipPreInsert(hooksMembershipPreInsertBean);
+    }
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreateTimeLong(long createTime) {
+    this.createTimeLong = createTime;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setDepth(int depth) {
+    this.depth = depth;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setId(String id) {
+    this.id = id;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setListName(String listName) {
+    this.listName = listName;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setListType(String listType) {
+    this.listType = listType;
+  
+  
+  /**
+   * @since   1.2.0
+   */
+  }
+
+  /**
+   * @since   1.3.0
+   */
+  
+  public void setMember(Member member) {
+    this.member = member;
+  
+  }
+
+  public void setMemberUuid(String memberUUID) {
+    this.memberUUID = memberUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setOwnerUuid(String ownerUUID) {
+    this.ownerUUID = ownerUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setParentUuid(String parentUUID) {
+    this.parentUUID = parentUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setType(String type) {
+    this.type = type;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setViaUuid(String viaUUID) {
+    this.viaUUID = viaUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append( "createTime",  this.getCreateTimeLong()  )
+      .append( "creatorUuid", this.getCreatorUuid() )
+      .append( "depth",       this.getDepth()       )
+      .append( "id",          this.getId()          )
+      .append( "listName",    this.getListName()    )
+      .append( "listType",    this.getListType()    )
+      .append( "memberUuid",  this.getMemberUuid()  )
+      .append( "ownerUuid",   this.getOwnerUuid()   )
+      .append( "parentUuid",  this.getParentUuid()  )
+      .append( "type",        this.getType()        )
+      .append( "uuid",        this.getUuid()        )
+      .append( "viaUuid",     this.getViaUuid()     )
+      .toString();
+  } // public String toString()
   
 }

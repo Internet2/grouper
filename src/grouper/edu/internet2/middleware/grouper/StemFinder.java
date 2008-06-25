@@ -16,17 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  java.util.Date;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.46 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: StemFinder.java,v 1.47 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class StemFinder {
 
@@ -56,8 +55,7 @@ public class StemFinder {
     if ( name.equals(Stem.ROOT_NAME) ) {
       name = Stem.ROOT_INT;
     }
-    Stem ns = new Stem();
-    ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByName(name) );
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByName(name) ;
     return ns;
   } // public static Stem findByName(s, name)
 
@@ -106,8 +104,7 @@ public class StemFinder {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Stem ns = new Stem();
-    ns.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) ;
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
@@ -124,8 +121,7 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension(val).iterator();
     while (it.hasNext()) {
-      ns = new Stem();
-      ns.setDTO( (StemDTO) it.next() );
+      ns = (Stem) it.next() ;
       stems.add(ns);
     }
     return stems;
@@ -141,8 +137,7 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayName(val).iterator();
     while (it.hasNext()) {
-      ns = new Stem();
-      ns.setDTO( (StemDTO) it.next() );
+      ns = (Stem) it.next() ;
       stems.add(ns);
     }
     return stems;
@@ -158,8 +153,7 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateExtension(val).iterator();
     while (it.hasNext()) {
-      ns = new Stem();
-      ns.setDTO( (StemDTO) it.next() );
+      ns = (Stem) it.next() ;
       stems.add(ns);
     }
     return stems;
@@ -175,8 +169,7 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateName(val).iterator();
     while (it.hasNext()) {
-      ns = new Stem();
-      ns.setDTO( (StemDTO) it.next() );
+      ns = (Stem) it.next() ;
       stems.add(ns);
     }
     return stems;
@@ -192,8 +185,7 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(val).iterator();
     while (it.hasNext()) {
-      ns = new Stem();
-      ns.setDTO( (StemDTO) it.next() );
+      ns = (Stem) it.next() ;
       stems.add(ns);
     }
     return stems;
@@ -209,8 +201,7 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByCreatedAfter(d).iterator();
     while (it.hasNext()) {
-      ns = new Stem();
-      ns.setDTO( (StemDTO) it.next() );
+      ns = (Stem) it.next() ;
       stems.add(ns);
     }
     return stems;
@@ -226,15 +217,14 @@ public class StemFinder {
     Stem      ns;
     Iterator  it    = GrouperDAOFactory.getFactory().getStem().findAllByCreatedBefore(d).iterator();
     while (it.hasNext()) {
-      ns = new Stem();
-      ns.setDTO( (StemDTO) it.next() );
+      ns = (Stem) it.next() ;
       stems.add(ns);
     }
     return stems;
   } // protected static Set internal_findAllByCreatedBefore(s, d)
 
   // @since   1.2.0
-  protected static StemDTO internal_findByName(String name) 
+  protected static Stem internal_findByName(String name) 
     throws  StemNotFoundException
   {
     // @session false

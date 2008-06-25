@@ -19,16 +19,16 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupTypeTupleDTO;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupTypeTupleDAO extends Hib3DAO {
@@ -39,21 +39,21 @@ public class Hib3GroupTypeTupleDAO extends Hib3DAO {
 
   // @since   @HEAD@
   // TODO 20070418 public until i refactor "Test_Integration_Hib3GroupDAO_delete#testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset()"
-  public static GroupTypeTupleDTO findByGroupAndType(GroupDTO g, GroupTypeDTO type)
+  public static GroupTypeTuple findByGroupAndType(Group g, GroupType type)
     throws  GrouperDAOException
   {
-    GroupTypeTupleDTO dto = HibernateSession.byHqlStatic()
+    GroupTypeTuple dto = HibernateSession.byHqlStatic()
       .createQuery(
-        "from GroupTypeTupleDTO as gtt where"
+        "from GroupTypeTuple as gtt where"
         + " gtt.groupUuid    = :group"
         + " and gtt.typeUuid = :type")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindByGroupAndType")
         .setString( "group", g.getUuid()        )
         .setString( "type",  type.getUuid() )
-        .uniqueResult(GroupTypeTupleDTO.class);
+        .uniqueResult(GroupTypeTuple.class);
     if (dto == null) {
-      throw new GrouperDAOException("GroupTypeTupleDTO not found");       
+      throw new GrouperDAOException("GroupTypeTuple not found");       
     }
     return dto;
   }
@@ -65,7 +65,7 @@ public class Hib3GroupTypeTupleDAO extends Hib3DAO {
   protected static void reset(Session hs) 
     throws  HibernateException
   {
-    hs.delete("from GroupTypeTupleDTO");
+    hs.delete("from GroupTypeTuple");
   } // protected static void reset(hs)
 
 } 

@@ -22,12 +22,11 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.SchemaException;
-import edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 
 /** 
  * Basic <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: FieldDAO.java,v 1.4 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: FieldDAO.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public interface FieldDAO extends GrouperDAO {
@@ -41,19 +40,19 @@ public interface FieldDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set<FieldDTO> findAll() 
+  Set<Field> findAll() 
     throws  GrouperRuntimeException;
 
   /**
    * @since   1.2.0
    */
-  Set<FieldDTO> findAllFieldsByGroupType(String uuid)
+  Set<Field> findAllFieldsByGroupType(String uuid)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<FieldDTO> findAllByType(FieldType type) 
+  Set<Field> findAllByType(FieldType type) 
     throws  GrouperDAOException;
 
   /**

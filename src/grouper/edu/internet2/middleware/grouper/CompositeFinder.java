@@ -16,15 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  java.util.Iterator;
 import  java.util.LinkedHashSet;
 import  java.util.Set;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.20 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: CompositeFinder.java,v 1.21 2008-06-25 05:46:06 mchyzer Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -53,10 +51,9 @@ public class CompositeFinder {
     GrouperSession  s     = GrouperSession.staticGrouperSession();
     Member          m     = s.getMember();
     Composite       c;
-    Iterator        it    = GrouperDAOFactory.getFactory().getComposite().findAsFactor( (GroupDTO) g.getDTO() ).iterator();
+    Iterator        it    = GrouperDAOFactory.getFactory().getComposite().findAsFactor( g ).iterator();
     while (it.hasNext()) {
-      c = new Composite();
-      c.setDTO( (CompositeDTO) it.next() );
+      c = (Composite) it.next();
       try {
         if ( m.canView( c.getOwnerGroup() ) ) {
           where.add(c);
@@ -84,8 +81,7 @@ public class CompositeFinder {
   {
     GrouperSession  s = GrouperSession.staticGrouperSession();
     Member          m = s.getMember();
-    Composite       c = new Composite();
-    c.setDTO( GrouperDAOFactory.getFactory().getComposite().findAsOwner( (GroupDTO) g.getDTO() ));
+    Composite       c = GrouperDAOFactory.getFactory().getComposite().findAsOwner( g);
     try {
       if ( m.canView( c.getOwnerGroup() ) ) {
         return c;

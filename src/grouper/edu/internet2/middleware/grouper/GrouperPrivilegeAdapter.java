@@ -16,14 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.18 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.19 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -78,8 +77,7 @@ class GrouperPrivilegeAdapter {
         boolean     revoke  = true;
         Privilege localP = null;
         while (it.hasNext()) {
-          ms = new Membership();
-          ms.setDTO( (MembershipDTO) it.next() );
+          ms = (Membership) it.next() ;
           if(p!=null) {
             localP=p;
           }else{
@@ -97,7 +95,7 @@ class GrouperPrivilegeAdapter {
           catch (SubjectNotFoundException eSNF) {
             ErrorLog.error(GrouperPrivilegeAdapter.class, eSNF.getMessage());
           }
-          if ( ( (MembershipDTO) ms.getDTO() ).getViaUuid() != null ) {
+          if ( ms.getViaUuid() != null ) {
             try {
               owner   = ms.getViaGroup().toSubject();
               revoke  = false;

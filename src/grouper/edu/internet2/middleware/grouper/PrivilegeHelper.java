@@ -16,8 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
+import edu.internet2.middleware.grouper.privs.AccessResolver;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Collection;
 import  java.util.Iterator;
@@ -29,7 +28,7 @@ import  java.util.Set;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.10 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.11 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -42,7 +41,10 @@ public class PrivilegeHelper {
   protected static boolean canAdmin(GrouperSession s, Group g, Subject subj) {
     // TODO 20070816 deprecate
     // TODO 20070816 perform query for all privs and compare internally
-    return s.getAccessResolver().hasPrivilege(g, subj, AccessPrivilege.ADMIN);
+    AccessResolver accessResolver = s.getAccessResolver();
+    //System.out.println(accessResolver.getClass().getName());
+    //validatingAccessResolver
+    return accessResolver.hasPrivilege(g, subj, AccessPrivilege.ADMIN);
   } 
 
   /**
@@ -179,12 +181,7 @@ public class PrivilegeHelper {
     Iterator  it      = candidates.iterator();
     while (it.hasNext()) {
       Object obj = it.next();
-      if (obj instanceof GroupDTO) {
-        g = (Group) new Group().setDTO( (GroupDTO) obj );
-      }
-      else {
-        g = (Group) obj;
-      }
+      g = (Group)obj;
       if ( canView( s, g, s.getSubject() ) ) {
         groups.add(g);
       }
@@ -205,8 +202,7 @@ public class PrivilegeHelper {
     Membership  ms;
     Iterator    it      = c.iterator();
     while ( it.hasNext() ) {
-      ms = new Membership();
-      ms.setDTO( (MembershipDTO) it.next() );
+      ms = (Membership)it.next() ;
       try {
     	//2007-10-17: Gary Brown
     	//https://bugs.internet2.edu/jira/browse/GRP-38

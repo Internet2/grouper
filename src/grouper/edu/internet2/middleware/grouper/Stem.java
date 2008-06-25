@@ -25,15 +25,14 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import edu.internet2.middleware.grouper.internal.dto.StemDTO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -47,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.151 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.152 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -94,6 +93,22 @@ public class Stem extends GrouperAPI implements Owner {
   private Subject creator;
   /** modifier of stem */
   private Subject modifier;
+  // PRIVATE INSTANCE VARIABLES //
+  private String  createSource;
+  private long    createTimeLong;
+  private String  creatorUUID;
+  private Stem dbVersion;
+  private String  description;
+  private String  displayExtension;
+  private String  displayName;
+  private String  extension;
+  private String  id;
+  private String  modifierUUID;
+  private String  modifySource;
+  private long    modifyTimeLong;
+  private String  name;
+  private String  parentUUID;
+  private String  uuid;
 
 
   // PUBLIC INSTANCE METHODS //
@@ -182,7 +197,7 @@ public class Stem extends GrouperAPI implements Owner {
     try {
       String name = this.getName(); // Preserve name for logging
       this._revokeAllNamingPrivs();
-      GrouperDAOFactory.getFactory().getStem().delete( this._getDTO() );
+      GrouperDAOFactory.getFactory().getStem().delete( this );
       sw.stop();
       EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_DEL + Quote.single(name), sw);
     }
@@ -196,16 +211,6 @@ public class Stem extends GrouperAPI implements Owner {
       throw new StemDeleteException(eS.getMessage(), eS);
     }
   } // public void delete()
-
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof Stem)) {
-      return false;
-    }
-    return this.getDTO().equals( ( (Stem) other ).getDTO() );
-  } // public boolean equals(other)
 
   /**
    * Get groups that are immediate children of this stem.
@@ -230,11 +235,8 @@ public class Stem extends GrouperAPI implements Owner {
       throw new IllegalArgumentException("null Scope");
     }
     Subject     subj    = GrouperSession.staticGrouperSession().getSubject();
-    Group       child;
     Set<Group>  groups  = new LinkedHashSet();
-    for ( GroupDTO dto : GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this._getDTO(), scope ) ) {
-      child = new Group();
-      child.setDTO(dto);
+    for ( Group child : GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this, scope ) ) {
       
       if ( PrivilegeHelper.canView( GrouperSession.staticGrouperSession().internal_getRootSession(), child, subj ) ) {
         groups.add(child);
@@ -298,11 +300,8 @@ public class Stem extends GrouperAPI implements Owner {
     if (scope == null) { // TODO 20070815 ParameterHelper
       throw new IllegalArgumentException("null Scope");
     }
-    Stem      child;
     Set<Stem> stems = new LinkedHashSet();
-    for ( StemDTO dto : GrouperDAOFactory.getFactory().getStem().findAllChildStems( this._getDTO(), scope ) ) {
-      child = new Stem();
-      child.setDTO(dto);
+    for ( Stem child : GrouperDAOFactory.getFactory().getStem().findAllChildStems( this, scope ) ) {
       stems.add(child);
     }
     return stems;
@@ -359,10 +358,22 @@ public class Stem extends GrouperAPI implements Owner {
    * </pre>
    * @return  Create source for this stem.
    */
+  public String getCreateSourceDb() {
+    return this.createSource;
+  } 
+  
+  /**
+   * Get (optional and questionable) create source for this stem.
+   * <pre class="eg">
+   * // Get create source
+`  * String source = ns.getCreateSource();
+   * </pre>
+   * @return  Create source for this stem.
+   */
   public String getCreateSource() {
     return GrouperConfig.EMPTY_STRING;
-  } // public String getCreateSource()
-  
+  } 
+
   /**
    * Get subject that created this stem.
    * <pre class="eg">
@@ -383,7 +394,7 @@ public class Stem extends GrouperAPI implements Owner {
     if (this.creator == null) {
       try {
         this.creator = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
-            this._getDTO().getCreatorUuid() ).getSubject();
+            this.getCreatorUuid() ).getSubject();
       }
       catch (MemberNotFoundException eMNF) {
         throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
@@ -401,7 +412,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  {@link Date} that this stem was created.
    */
   public Date getCreateTime() {
-    return new Date( this._getDTO().getCreateTime() );
+    return new Date( this.getCreateTimeLong() );
   } // public Date getCreateTime()
 
   /**
@@ -427,12 +438,12 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem description.
    */
   public String getDescription() {
-    String desc = this._getDTO().getDescription();
+    String desc = this.description;
     if (desc == null) {
       desc = GrouperConfig.EMPTY_STRING;
     }
     return desc;
-  } // public String getDescription()
+  } 
  
   /**
    * Get stem displayExtension.
@@ -443,7 +454,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem displayExtension.
    */
   public String getDisplayExtension() {
-    String val = this._getDTO().getDisplayExtension();
+    String val = this.getDisplayExtensionDb();
     if (val.equals(ROOT_INT)) {
       return ROOT_NAME;
     }
@@ -459,7 +470,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem displayName.
    */
   public String getDisplayName() {
-    String val = this._getDTO().getDisplayName();
+    String val = this.getDisplayNameDb();
     if (val.equals(ROOT_INT)) {
       return ROOT_NAME;
     }
@@ -475,7 +486,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem extension.
    */
   public String getExtension() {
-    String val = this._getDTO().getExtension();
+    String val = this.getExtensionDb();
     if (val.equals(ROOT_INT)) {
       return ROOT_NAME;
     }
@@ -490,10 +501,22 @@ public class Stem extends GrouperAPI implements Owner {
    * </pre>
    * @return  Modify source for this stem.
    */
+  public String getModifySourceDb() {
+    return this.modifySource;
+  } // public String getModifySource()
+  
+  /**
+   * Get (optional and questionable) modify source for this stem.
+   * <pre class="eg">
+   * // Get modify source
+`  * String source = ns.getModifySource();
+   * </pre>
+   * @return  Modify source for this stem.
+   */
   public String getModifySource() {
     return GrouperConfig.EMPTY_STRING;
   } // public String getModifySource()
-  
+
   /**
    * Get subject that last modified this stem.
    * <pre class="eg">
@@ -512,12 +535,12 @@ public class Stem extends GrouperAPI implements Owner {
     throws  SubjectNotFoundException
   {
     if (this.modifier == null) {
-      if ( this._getDTO().getModifierUuid() == null) {
+      if ( this.getModifierUuid() == null) {
         throw new SubjectNotFoundException("stem has not been modified");
       }
       try {
         this.modifier = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
-            this._getDTO().getModifierUuid() ).getSubject();
+            this.getModifierUuid() ).getSubject();
       }
       catch (MemberNotFoundException eMNF) {
         throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
@@ -535,7 +558,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  {@link Date} that this stem was last modified.
    */
   public Date getModifyTime() {
-    return new Date( this._getDTO().getModifyTime() );
+    return new Date( this.getModifyTimeLong() );
   } // public Date getModifyTime()
 
   /**
@@ -547,7 +570,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return  Stem name.
    */ 
   public String getName() {
-    String val = this._getDTO().getName();
+    String val = this.getNameDb();
     if (val.equals(ROOT_INT)) {
       return ROOT_NAME;
     }
@@ -566,12 +589,11 @@ public class Stem extends GrouperAPI implements Owner {
   public Stem getParentStem() 
     throws StemNotFoundException
   {
-    String uuid = this._getDTO().getParentUuid();
+    String uuid = this.getParentUuid();
     if (uuid == null) {
       throw new StemNotFoundException();
     }
-    Stem parent = new Stem();
-    parent.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
+    Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
     return parent;
   } // public Stem getParentStem()
 
@@ -604,7 +626,7 @@ public class Stem extends GrouperAPI implements Owner {
   /**
    */
   public String getUuid() {
-    return this._getDTO().getUuid();
+    return this.uuid;
   } // public String getUuid()
 
   /**
@@ -672,10 +694,6 @@ public class Stem extends GrouperAPI implements Owner {
     return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.STEM);
   } 
  
-  public int hashCode() {
-    return this.getDTO().hashCode();
-  } // public int hashCode()
-
   /**
    * TODO 20070813 make public?
    * @param group group
@@ -753,7 +771,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @since   1.2.0
    */
   public boolean isRootStem() {
-    return ROOT_INT.equals( this._getDTO().getName() );
+    return ROOT_INT.equals( this.getNameDb() );
   } 
 
   /**
@@ -861,9 +879,9 @@ public class Stem extends GrouperAPI implements Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
-      this._getDTO().setDescription(value);
+      this.setDescriptionDb(value);
       this.internal_setModified();
-      GrouperDAOFactory.getFactory().getStem().update( this._getDTO() );
+      GrouperDAOFactory.getFactory().getStem().update( this );
       sw.stop();
       EL.stemSetAttr(GrouperSession.staticGrouperSession(), this.getName(), GrouperConfig.ATTR_DESCRIPTION, value, sw);
     }
@@ -909,14 +927,14 @@ public class Stem extends GrouperAPI implements Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
-      this._getDTO().setDisplayExtension(value);
+      this.setDisplayExtensionDb(value);
       this.internal_setModified();
       if (this.isRootStem()) {
-        this._getDTO().setDisplayName(value);
+        this.setDisplayNameDb(value);
       }
       else {
         try {
-          this._getDTO().setDisplayName( U.constructName( this.getParentStem().getDisplayName(), value ) );
+          this.setDisplayNameDb( U.constructName( this.getParentStem().getDisplayName(), value ) );
         }
         catch (StemNotFoundException eShouldNeverHappen) {
           throw new IllegalStateException( 
@@ -925,7 +943,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this._getDTO(), this._renameChildren(GrouperConfig.ATTR_DISPLAY_EXTENSION) );
+      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_DISPLAY_EXTENSION) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -976,14 +994,14 @@ public class Stem extends GrouperAPI implements Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_STEM);
     }
     try {
-      this._getDTO().setExtension(value);
+      this.setExtensionDb(value);
       this.internal_setModified();
       if (this.isRootStem()) {
-        this._getDTO().setName(value);
+        this.setNameDb(value);
       }
       else {
         try {
-          this._getDTO().setName( U.constructName( this.getParentStem().getName(), value ) );
+          this.setNameDb( U.constructName( this.getParentStem().getName(), value ) );
         }
         catch (StemNotFoundException eShouldNeverHappen) {
           throw new IllegalStateException( 
@@ -992,7 +1010,7 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
       // Now iterate through all child groups and stems, renaming each.
-      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this._getDTO(), this._renameChildren(GrouperConfig.ATTR_EXTENSION) );
+      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_EXTENSION) );
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set extension: " + eDAO.getMessage(), eDAO );
@@ -1007,11 +1025,11 @@ public class Stem extends GrouperAPI implements Owner {
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append( GrouperConfig.ATTR_DISPLAY_NAME, this._getDTO().getDisplayName()  )
-      .append( GrouperConfig.ATTR_NAME,  this._getDTO().getName()         )
-      .append( "uuid",                this._getDTO().getUuid()         )
-      .append( "creator",             this._getDTO().getCreatorUuid()  )
-      .append( "modifier",            this._getDTO().getModifierUuid() )
+      .append( GrouperConfig.ATTR_DISPLAY_NAME, this.getDisplayName()  )
+      .append( GrouperConfig.ATTR_NAME,  this.getName()         )
+      .append( "uuid",                this.getUuid()         )
+      .append( "creator",             this.getCreatorUuid()  )
+      .append( "modifier",            this.getModifierUuid() )
       .toString();
   } // public String toString()
 
@@ -1030,18 +1048,15 @@ public class Stem extends GrouperAPI implements Owner {
   {
     //note, no need for GrouperSession inverse of control
     try {
-      StemDTO _ns = new StemDTO()
-        .setCreatorUuid( s.getMember().getUuid() )
-        .setCreateTime( new Date().getTime() )
-        .setDisplayExtension(ROOT_INT)
-        .setDisplayName(ROOT_INT)
-        .setExtension(ROOT_INT)
-        .setName(ROOT_INT)
-        .setUuid( GrouperUuid.getUuid() )
-        ;
-      GrouperDAOFactory.getFactory().getStem().createRootStem(_ns) ;
       Stem root = new Stem();
-      root.setDTO(_ns);
+      root.setCreatorUuid( s.getMember().getUuid() );
+      root.setCreateTimeLong( new Date().getTime() );
+      root.setDisplayExtensionDb(ROOT_INT);
+      root.setDisplayNameDb(ROOT_INT);
+      root.setExtensionDb(ROOT_INT);
+      root.setNameDb(ROOT_INT);
+      root.setUuid( GrouperUuid.getUuid() );
+      GrouperDAOFactory.getFactory().getStem().createRootStem(root) ;
       return root;
     }
     catch (GrouperDAOException eDAO) {
@@ -1056,8 +1071,8 @@ public class Stem extends GrouperAPI implements Owner {
    * @since   1.2.0
    */
   protected void internal_setModified() {
-    this._getDTO().setModifierUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
-    this._getDTO().setModifyTime(  new Date().getTime()    );
+    this.setModifierUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+    this.setModifyTimeLong(  new Date().getTime()    );
   } // protected void internal_setModified()
 
 
@@ -1094,14 +1109,13 @@ public class Stem extends GrouperAPI implements Owner {
       attrs.put( GrouperConfig.ATTR_EXTENSION,  extn );
       attrs.put( GrouperConfig.ATTR_NAME,  U.constructName( this.getName(), extn ) );
       Set types = new LinkedHashSet();
-      types.add( GroupTypeFinder.find("base").getDTO() ); 
-      GroupDTO _g = new GroupDTO()
-        .setAttributes(attrs)
-        .setCreateTime( new Date().getTime() )
-        .setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() )
-        .setParentUuid( this._getDTO().getUuid() )
-        .setTypes(types)
-        ;
+      types.add( GroupTypeFinder.find("base") ); 
+      Group _g = new Group();
+      _g.setAttributes(attrs);
+      _g.setCreateTimeLong( new Date().getTime() );
+      _g.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+      _g.setParentUuid( this.getUuid() );
+      _g.setTypes(types);
       v = NotNullOrEmptyValidator.validate(uuid);
       if (v.isInvalid()) {
         _g.setUuid( GrouperUuid.getUuid() );
@@ -1111,10 +1125,10 @@ public class Stem extends GrouperAPI implements Owner {
       }
 
       GrouperSubject  subj  = new GrouperSubject(_g);
-      MemberDTO       _m    = new MemberDTO()
-        .setSubjectId( subj.getId() )
-        .setSubjectSourceId( subj.getSource().getId() )
-        .setSubjectTypeId( subj.getType().getName() );
+      Member _m = new Member();
+      _m.setSubjectIdDb( subj.getId() );
+      _m.setSubjectSourceIdDb( subj.getSource().getId() );
+      _m.setSubjectTypeId( subj.getType().getName() );
       // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
       //               for existence in the dao as well.
       if (uuid == null) {
@@ -1131,15 +1145,13 @@ public class Stem extends GrouperAPI implements Owner {
         }
       }
 
-      Group child = new Group();
       //CH 20080220: this will start saving the stem
-      GrouperDAOFactory.getFactory().getStem().createChildGroup( this._getDTO(), _g, _m );
-      child.setDTO( _g );
+      GrouperDAOFactory.getFactory().getStem().createChildGroup( this, _g, _m );
         
       sw.stop();
-      EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ADD + Quote.single(child.getName()), sw);
-      _grantDefaultPrivsUponCreate(child);
-      return child;
+      EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ADD + Quote.single(_g.getName()), sw);
+      _grantDefaultPrivsUponCreate(_g);
+      return _g;
     }
     catch (GrouperDAOException eDAO)        {
       throw new GroupAddException( E.CANNOT_CREATE_GROUP + eDAO.getMessage(), eDAO );
@@ -1177,15 +1189,15 @@ public class Stem extends GrouperAPI implements Owner {
           + "', displayExtension: '" + dExtn + "', " + v.getErrorMessage() );
     }
     try {
-      StemDTO _ns = new StemDTO()
-        .setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() )
-        .setCreateTime( new Date().getTime() )
-        .setDisplayExtension(dExtn)
-        .setDisplayName( U.constructName( this.getDisplayName(), dExtn ) )
-        .setExtension(extn)
-        .setName( U.constructName( this.getName(), extn ) )
-        .setParentUuid( this._getDTO().getUuid() )
-        ;
+      Stem _ns = new Stem();
+      _ns.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+      _ns.setCreateTimeLong( new Date().getTime() );
+      _ns.setDisplayExtensionDb(dExtn);
+      _ns.setDisplayNameDb( U.constructName( this.getDisplayName(), dExtn ) );
+      _ns.setExtensionDb(extn);
+      _ns.setNameDb( U.constructName( this.getName(), extn ) );
+      _ns.setParentUuid( this.getUuid() );
+      
       v = NotNullOrEmptyValidator.validate(uuid);
       if (v.isInvalid()) {
         _ns.setUuid( GrouperUuid.getUuid() );
@@ -1193,33 +1205,18 @@ public class Stem extends GrouperAPI implements Owner {
       else {
         _ns.setUuid(uuid);
       }
-      GrouperDAOFactory.getFactory().getStem().createChildStem( this._getDTO(), _ns ) ;
-
-      Stem child = new Stem();
-      child.setDTO(_ns);
+      GrouperDAOFactory.getFactory().getStem().createChildStem( this, _ns ) ;
 
       sw.stop();
-      EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_ADD + Quote.single( child.getName() ), sw);
-      _grantDefaultPrivsUponCreate(child);
-      return child;
+      EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_ADD + Quote.single( _ns.getName() ), sw);
+      _grantDefaultPrivsUponCreate(_ns);
+      return _ns;
     }
     catch (GrouperDAOException eDAO) {
       throw new StemAddException( E.CANNOT_CREATE_STEM + eDAO.getMessage(), eDAO );
     }
   }
 
-
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   1.2.0
-  /**
-   * get data transfer object
-   * @return the dto
-   */
-  private StemDTO _getDTO() {
-    return (StemDTO) super.getDTO();
-  }
-  
   /**
    * <pre>
    * Now grant ADMIN (as root) to the creator of the child group.
@@ -1351,16 +1348,16 @@ public class Stem extends GrouperAPI implements Owner {
    * @param attr
    * @param modifier
    * @param modifyTime
-   * @return the set of GroupDTO's
+   * @return the set of Group's
    */
   private Set _renameChildGroups(String attr, String modifier, long modifyTime) {
     Map<String, String> attrs;
-    GroupDTO            _g;
+    Group            _g;
     Set                 groups  = new LinkedHashSet();
-    Iterator            it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this._getDTO(), Stem.Scope.ONE ).iterator();
+    Iterator            it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this, Stem.Scope.ONE ).iterator();
     while (it.hasNext()) {
-      _g = (GroupDTO) it.next();
-      attrs = _g.getAttributes();
+      _g = (Group) it.next();
+      attrs = _g.getAttributesDb();
       if      ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
         attrs.put( 
           GrouperConfig.ATTR_DISPLAY_NAME, 
@@ -1376,7 +1373,11 @@ public class Stem extends GrouperAPI implements Owner {
       else {
         throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
       }
-      groups.add( _g.setModifierUuid(modifier).setModifyTime(modifyTime).setAttributes(attrs) );
+      _g.setModifierUuid(modifier);
+      _g.setModifyTimeLong(modifyTime);
+      _g.setAttributes(attrs);
+      
+      groups.add(_g);
     }
     return groups;
   } 
@@ -1385,7 +1386,7 @@ public class Stem extends GrouperAPI implements Owner {
    * rename children.
    * @since   1.2.0
    * @param attr attr
-   * @return the set of StemDTO
+   * @return the set of Stems
    * @throws StemModifyException if problem
    */
   private Set _renameChildren(String attr) 
@@ -1404,7 +1405,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @param attr sttr
    * @param modifier modifier
    * @param modifyTime modify time
-   * @return the set of StemDTO's
+   * @return the set of Stem's
    * @throws IllegalStateException if problem
    */
   private Set _renameChildStemsAndGroups(String attr, String modifier, long modifyTime) 
@@ -1412,19 +1413,18 @@ public class Stem extends GrouperAPI implements Owner {
   {
     Set       children  = new LinkedHashSet();
     Stem      child;
-    Iterator  it        = GrouperDAOFactory.getFactory().getStem().findAllChildStems( this._getDTO(), Scope.ONE ).iterator();
+    Iterator  it        = GrouperDAOFactory.getFactory().getStem().findAllChildStems( this, Scope.ONE ).iterator();
     while (it.hasNext()) {
-      child = new Stem();
-      child.setDTO( (StemDTO) it.next() );
+      child = (Stem) it.next() ;
       
       if      ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
-        child._getDTO().setDisplayName(
-          U.constructName( this._getDTO().getDisplayName(), child._getDTO().getDisplayExtension() ) 
+        child.setDisplayNameDb(
+          U.constructName( this.getDisplayNameDb(), child.getDisplayExtensionDb() ) 
         );
       }
       else if ( attr.equals(GrouperConfig.ATTR_EXTENSION) )   {
-        child._getDTO().setName(
-          U.constructName( this._getDTO().getName(), child._getDTO().getExtension() ) 
+        child.setNameDb(
+          U.constructName( this.getNameDb(), child.getExtensionDb() ) 
         );
       }
       else {
@@ -1432,8 +1432,9 @@ public class Stem extends GrouperAPI implements Owner {
       }
 
       children.addAll( child._renameChildGroups(attr, modifier, modifyTime) );
-
-      children.add( child._getDTO().setModifierUuid(modifier).setModifyTime(modifyTime) );
+      child.setModifierUuid(modifier);
+      child.setModifyTimeLong(modifyTime);
+      children.add(child);
       children.addAll( child._renameChildStemsAndGroups(attr, modifier, modifyTime) );
     }
     return children;
@@ -1484,6 +1485,282 @@ public class Stem extends GrouperAPI implements Owner {
       throw gse;
     }
   } // private void _revokeAllNamingPrivs()
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Stem();
+    this.dbVersion.createSource = this.createSource;
+    this.dbVersion.createTimeLong = this.createTimeLong;
+    this.dbVersion.creatorUUID = this.creatorUUID;
+    this.dbVersion.description = this.description;
+    this.dbVersion.displayExtension = this.displayExtension;
+    this.dbVersion.extension = this.extension;
+    this.dbVersion.id = this.id;
+    this.dbVersion.modifierUUID = this.modifierUUID;
+    this.dbVersion.modifySource = this.modifySource;
+    this.dbVersion.modifyTimeLong = this.modifyTimeLong;
+    this.dbVersion.name = this.name;
+    this.dbVersion.parentUUID = this.parentUUID;
+    this.dbVersion.uuid = this.uuid;
+  
+  }
+
+  // PUBLIC INSTANCE METHODS //
+  
+  /**
+   * @since   1.2.0
+   */  
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Stem)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.getUuid(), ( (Stem) other ).getUuid() )
+      .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @since   1.2.0
+   */
+  public long getCreateTimeLong() {
+    return this.createTimeLong;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getDescriptionDb() {
+    return this.description;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getDisplayExtensionDb() {
+    return this.displayExtension;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getDisplayNameDb() {
+    return this.displayName;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getExtensionDb() {
+    return this.extension;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getModifierUuid() {
+    return this.modifierUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getModifyTimeLong() {
+    return this.modifyTimeLong;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getNameDb() {
+    return this.name;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getParentUuid() {
+    return this.parentUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getUuid() )
+      .toHashCode();
+  } // public int hashCode()
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreateSourceDb(String createSource) {
+    this.createSource = createSource;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreateTimeLong(long createTime) {
+    this.createTimeLong = createTime;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setDescriptionDb(String description) {
+    this.description = description;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setDisplayExtensionDb(String displayExtension) {
+    this.displayExtension = displayExtension;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setDisplayNameDb(String displayName) {
+    this.displayName = displayName;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setExtensionDb(String extension) {
+    this.extension = extension;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setId(String id) {
+    this.id = id;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setModifierUuid(String modifierUUID) {
+    this.modifierUUID = modifierUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setModifySourceDb(String modifySource) {
+    this.modifySource = modifySource;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setModifyTimeLong(long modifyTime) {
+    this.modifyTimeLong = modifyTime;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setName(String name) {
+    this.name = name;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setNameDb(String name) {
+    this.name = name;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setParentUuid(String parentUUID) {
+    this.parentUUID = parentUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  
+  }
+
+  /**
+   * @return string
+   * @since   1.2.0
+   */
+  public String toStringDb() {
+    return new ToStringBuilder(this)
+      .append( "createSource",     this.getCreateSource()     )
+      .append( "createTime",       this.getCreateTime()       )
+      .append( "creatorUuid",      this.getCreatorUuid()      )
+      .append( "description",      this.getDescription()      )
+      .append( "displayExtension", this.getDisplayExtension() )
+      .append( "displayName",      this.getDisplayName()      )
+      .append( "extension",        this.getExtension()        )
+      .append( "modifierUuid",     this.getModifierUuid()     )
+      .append( "modifySource",     this.getModifySource()     )
+      .append( "modifyTime",       this.getModifyTime()       )
+      .append( "name",             this.getName()             )
+      .append( "ownerUuid",        this.getUuid()             )
+      .append( "parentUuid",       this.getParentUuid()       )
+      .toString();
+  } // public String toString()
 
   /**
    * create stems and parents if not exist.

@@ -16,13 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.subject.Subject;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.5 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -66,7 +65,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       R     r = R.getContext("grouper");
       Group g = r.getGroup("i2mi:grouper", "grouper-dev");
 
-      MembershipDTO _ms = new MembershipDTO();
+      Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
       _ms.setViaUuid(null);
@@ -93,7 +92,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       R     r = R.getContext("grouper");
       Group g = r.getGroup("i2mi:grouper", "grouper-dev");
 
-      MembershipDTO _ms = new MembershipDTO();
+      Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
       _ms.setViaUuid(null);
@@ -120,7 +119,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       R     r = R.getContext("grouper");
       Group g = r.getGroup("i2mi:grouper", "grouper-dev");
 
-      MembershipDTO _ms = new MembershipDTO();
+      Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
       _ms.setViaUuid(null);
@@ -146,7 +145,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Subject subj  = r.getGroup("i2mi:grouper", "grouper-users").toSubject();
       g.addMember(subj);
 
-      MembershipDTO _ms = new MembershipDTO();
+      Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
       _ms.setViaUuid(null);
@@ -170,7 +169,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Group   g = r.getGroup("i2mi:grouper", "grouper-dev");
       Member  m = r.getGroup("i2mi:grouper", "grouper-users").toMember();
 
-      MembershipDTO _ms = new MembershipDTO();
+      Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
       _ms.setViaUuid(null);

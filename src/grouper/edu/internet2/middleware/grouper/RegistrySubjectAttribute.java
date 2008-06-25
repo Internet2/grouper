@@ -15,7 +15,7 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper.internal.dto;
+package edu.internet2.middleware.grouper;
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -24,10 +24,10 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 /** 
  * Hibernate representation of the JDBC <code>SubjectAttribute</code> table.
  * @author  blair christensen.
- * @version $Id: RegistrySubjectAttributeDTO.java,v 1.2 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: RegistrySubjectAttribute.java,v 1.1 2008-06-25 05:46:05 mchyzer Exp $
  * @since   @HEAD@
  */
-public class RegistrySubjectAttributeDTO implements Serializable {
+public class RegistrySubjectAttribute implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = -4979920855853791786L;
@@ -46,12 +46,12 @@ public class RegistrySubjectAttributeDTO implements Serializable {
    * For Hibernate.
    * @since   @HEAD@
    */
-  public RegistrySubjectAttributeDTO() {
+  public RegistrySubjectAttribute() {
     super();
   }
 
   // @since   @HEAD@
-  protected RegistrySubjectAttributeDTO(
+  protected RegistrySubjectAttribute(
     String id, String name, String value, String searchVal
   )
   {
@@ -69,8 +69,8 @@ public class RegistrySubjectAttributeDTO implements Serializable {
    */
   public boolean equals(Object other) {
     if ( (this == other ) ) return true;
-    if ( !(other instanceof RegistrySubjectAttributeDTO) ) return false;
-    RegistrySubjectAttributeDTO castOther = (RegistrySubjectAttributeDTO) other;
+    if ( !(other instanceof RegistrySubjectAttribute) ) return false;
+    RegistrySubjectAttribute castOther = (RegistrySubjectAttribute) other;
     return new EqualsBuilder()
       .append(this.getSubjectId() , castOther.getSubjectId()  )
       .append(this.getName()      , castOther.getName()       )
@@ -109,22 +109,22 @@ public class RegistrySubjectAttributeDTO implements Serializable {
     return this.value;
   }
   // @since   @HEAD@
-  private RegistrySubjectAttributeDTO setName(String name) {
+  private RegistrySubjectAttribute setName(String name) {
     this.name = name;
     return this;
   }
   // @since   @HEAD@
-  private RegistrySubjectAttributeDTO setSearchValue(String value) {
+  private RegistrySubjectAttribute setSearchValue(String value) {
     this.searchValue = value;
     return this;
   }
   // @since   @HEAD@
-  private RegistrySubjectAttributeDTO setSubjectId(String subjectId) {
+  private RegistrySubjectAttribute setSubjectId(String subjectId) {
     this.subjectId = subjectId;
     return this;
   }
   // @since   @HEAD@
-  private RegistrySubjectAttributeDTO setValue(String value) {
+  private RegistrySubjectAttribute setValue(String value) {
     this.value = value;
     return this;
   }

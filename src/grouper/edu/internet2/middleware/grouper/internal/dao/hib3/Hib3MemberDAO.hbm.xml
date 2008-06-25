@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.4 2008-06-21 04:16:12 mchyzer Exp $ -->
+<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.5 2008-06-25 05:46:05 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.internal.dto" default-lazy="false">
-  <class name="MemberDTO" table="grouper_members">
+<hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+  <class name="Member" table="grouper_members">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -55,7 +55,7 @@
 
     <!-- subjectId -->
     <property 
-      name="subjectId"
+      name="subjectIdDb"
       type="string"
     >
       <column name="subject_id" 
@@ -68,7 +68,7 @@
 
     <!-- subjectSourceId -->
     <property 
-      name="subjectSourceId"
+      name="subjectSourceIdDb"
       type="string"
     >
       <column name="subject_source" 

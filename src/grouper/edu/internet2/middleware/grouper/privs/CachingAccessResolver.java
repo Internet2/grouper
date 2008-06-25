@@ -26,6 +26,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.AccessPrivilege;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.UnableToPerformException;
 import edu.internet2.middleware.grouper.cache.CacheStats;
@@ -37,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.7 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.8 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -153,7 +154,12 @@ public class CachingAccessResolver extends AccessResolverDecorator {
     // TODO 20070816 add caching
     super.getDecoratedResolver().grantPrivilege(group, subject, privilege);
     this.cc.flushCache();
+    //there is a problem where if this action happens in root session, the
+    //normal session doesnt get flushed
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    grouperSession.getAccessResolver().flushCache();
     this.putInHasPrivilegeCache(group, subject, privilege, Boolean.TRUE);
+    //System.out.println(this.toString() + ", Add to cache: " + true + ", " + group.getName() + ", " + subject.getId() + ", " + privilege.getName());
   }
 
   /**
@@ -172,6 +178,8 @@ public class CachingAccessResolver extends AccessResolverDecorator {
       getPrivileges(group, subject);
       //must be in the cache now
       rv = this.getFromHasPrivilegeCache(group, subject, privilege);
+    } else {
+      //System.out.println(this.toString() + ", From cache: " + rv + ", " + group.getName() + ", " + subject.getId() + ", " + privilege.getName());
     }
     //Hopefully redundant
     if (rv == null) {
@@ -200,6 +208,10 @@ public class CachingAccessResolver extends AccessResolverDecorator {
     // TODO 20070816 add caching
     super.getDecoratedResolver().revokePrivilege(group, privilege);
     this.cc.flushCache();
+    //there is a problem where if this action happens in root session, the
+    //normal session doesnt get flushed
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    grouperSession.getAccessResolver().flushCache();
   }
             
 
@@ -213,6 +225,17 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   {
     // TODO 20070816 add caching
     super.getDecoratedResolver().revokePrivilege(group, subject, privilege);
+    this.cc.flushCache();
+    //there is a problem where if this action happens in root session, the
+    //normal session doesnt get flushed
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    grouperSession.getAccessResolver().flushCache();
+  }            
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   */
+  public void flushCache() {
     this.cc.flushCache();
   }            
 

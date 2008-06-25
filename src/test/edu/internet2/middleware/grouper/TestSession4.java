@@ -17,13 +17,15 @@
 
 package edu.internet2.middleware.grouper;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
 import  org.apache.commons.logging.*;
 
 /**
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession4.java,v 1.8 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestSession4.java,v 1.9 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class TestSession4 extends TestCase {
 
@@ -41,6 +43,10 @@ public class TestSession4 extends TestCase {
 
   protected void tearDown () {
     LOG.debug("tearDown");
+  }
+
+  public static void main(String[] args) {
+    TestRunner.run(new TestSession4("testUseStoppedSession"));
   }
 
   public void testUseStoppedSession() {

@@ -16,8 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import  edu.internet2.middleware.subject.*;
 import  java.util.HashMap;
@@ -34,7 +32,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.65 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.66 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -156,7 +154,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
 	   //Avoid doing 6 queries - get everything at once
 	   //Also don't add GropuperAll privs - do that in 
 	   //GrouperAllAccessResolver
-        it  = dao.findAllByOwnerAndMember( g.getUuid(), ( (MemberDTO) m.getDTO() ).getUuid()).iterator(); 
+        it  = dao.findAllByOwnerAndMember( g.getUuid(), m.getUuid()).iterator(); 
         privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, g,subj, m, null, it) );
         /*
          * Done through GrouperAllAccessAdapter
@@ -307,7 +305,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     g.internal_setModified();
     try {
-      GrouperDAOFactory.getFactory().getGroup().revokePriv( (GroupDTO) g.getDTO(), Membership.internal_deleteAllField(s, g, f) );
+      GrouperDAOFactory.getFactory().getGroup().revokePriv( g, Membership.internal_deleteAllField(s, g, f) );
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
@@ -354,7 +352,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     try {
       DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
       g.internal_setModified();
-      GrouperDAOFactory.getFactory().getGroup().revokePriv( (GroupDTO) g.getDTO(), mof);
+      GrouperDAOFactory.getFactory().getGroup().revokePriv( g, mof);
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );

@@ -16,19 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
-import  edu.internet2.middleware.grouper.GroupNotFoundException;
-import  edu.internet2.middleware.grouper.DefaultMemberOf;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.DefaultMemberOf;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  java.util.Date;
-import  java.util.Map;
-import  java.util.Set;
 
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.9 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -38,14 +39,14 @@ public interface GroupDAO extends GrouperDAO {
    * @param uuid
    * @return the types
    */
-  public Set<GroupTypeDTO> _findAllTypesByGroup(final String uuid);
+  public Set<GroupType> _findAllTypesByGroup(final String uuid);
   
   /**
    * update the attributes for a group
    * @param hibernateSession 
    * @param checkExisting true if an update, false if insert
    */
-  public void _updateAttributes(HibernateSession hibernateSession, boolean checkExisting, GroupDTO groupDTO);
+  public void _updateAttributes(HibernateSession hibernateSession, boolean checkExisting, Group group);
 
   /**
    * put in cache
@@ -57,19 +58,19 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void addType(GroupDTO _g, GroupTypeDTO _gt) 
+  void addType(Group _g, GroupType _gt) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void delete(GroupDTO _g, Set mships)
+  void delete(Group _g, Set mships)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void deleteType(GroupDTO _g, GroupTypeDTO _gt) 
+  void deleteType(Group _g, GroupType _gt) 
     throws  GrouperDAOException;
 
   /**
@@ -87,7 +88,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set<GroupDTO> findAllByAnyApproximateAttr(String val) 
+  Set<Group> findAllByAnyApproximateAttr(String val) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -95,7 +96,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set<GroupDTO> findAllByApproximateAttr(String attr, String val) 
+  Set<Group> findAllByApproximateAttr(String attr, String val) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -103,7 +104,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.3
    */
-  Set<GroupDTO> findAllByAttr(String attr, String val) 
+  Set<Group> findAllByAttr(String attr, String val) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -111,7 +112,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set<GroupDTO> findAllByApproximateName(String name) 
+  Set<Group> findAllByApproximateName(String name) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -119,37 +120,37 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set<GroupDTO> findAllByCreatedAfter(Date d) 
+  Set<Group> findAllByCreatedAfter(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<GroupDTO> findAllByCreatedBefore(Date d) 
+  Set<Group> findAllByCreatedBefore(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<GroupDTO> findAllByModifiedAfter(Date d) 
+  Set<Group> findAllByModifiedAfter(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<GroupDTO> findAllByModifiedBefore(Date d) 
+  Set<Group> findAllByModifiedBefore(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<GroupDTO> findAllByType(GroupTypeDTO _gt)
+  Set<Group> findAllByType(GroupType _gt)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  GroupDTO findByAttribute(String attr, String val) 
+  Group findByAttribute(String attr, String val) 
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
@@ -157,7 +158,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  GroupDTO findByName(String name) 
+  Group findByName(String name) 
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
@@ -165,7 +166,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  GroupDTO findByUuid(String uuid) 
+  Group findByUuid(String uuid) 
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
@@ -173,19 +174,19 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void revokePriv(GroupDTO _g, DefaultMemberOf mof)
+  void revokePriv(Group _g, DefaultMemberOf mof)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void revokePriv(GroupDTO _g, Set toDelete)
+  void revokePriv(Group _g, Set toDelete)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void update(GroupDTO _g)
+  void update(Group _g)
     throws  GrouperDAOException;
 
 } 

@@ -32,7 +32,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.6 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: GrouperAllAccessResolver.java,v 1.7 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
@@ -172,6 +172,15 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
 		fixed.add(newPriv);
 	}
 	return fixed;
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
   }
 
 }

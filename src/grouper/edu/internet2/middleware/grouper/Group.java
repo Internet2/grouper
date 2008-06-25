@@ -25,16 +25,24 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
+import org.hibernate.CallbackException;
+import org.hibernate.Session;
+import org.hibernate.classic.Lifecycle;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.HookVeto;
+import edu.internet2.middleware.grouper.hooks.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
@@ -50,7 +58,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.183 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Group.java,v 1.184 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -281,6 +289,50 @@ public class Group extends GrouperAPI implements Owner {
   private               Member                    cachedMember  = null;
   /** */
   private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
+  // TODO 20070531 review lazy-loading to improve consistency + performance
+  
+  // PRIVATE INSTANCE VARIABLES //
+  private Map       attributes;
+  private String    createSource;
+  private long      createTime      = 0; // default to the epoch
+  private String    creatorUUID;
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+  
+  /** save the state when retrieving from DB */
+  private Group dbVersion = null;
+  private String    id;
+  private String    modifierUUID;
+  private String    modifySource;
+  private long      modifyTime      = 0; // default to the epoch
+  private String    parentUUID;
+  private Set       types;
+  private String    uuid;
+  /** constant for prefix of field diffs for attributes: attribute__ */
+  public static final String ATTRIBUTE_PREFIX = "attribute__";
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+  
+  /** constant for field name for: attributes */
+  public static final String FIELD_ATTRIBUTES = "attributes";
+  /** constant for field name for: createSource */
+  public static final String FIELD_CREATE_SOURCE = "createSource";
+  /** constant for field name for: createTime */
+  public static final String FIELD_CREATE_TIME = "createTime";
+  /** constant for field name for: creatorUUID */
+  public static final String FIELD_CREATOR_UUID = "creatorUUID";
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+  /** constant for field name for: modifierUUID */
+  public static final String FIELD_MODIFIER_UUID = "modifierUUID";
+  /** constant for field name for: modifySource */
+  public static final String FIELD_MODIFY_SOURCE = "modifySource";
+  /** constant for field name for: modifyTime */
+  public static final String FIELD_MODIFY_TIME = "modifyTime";
+  /** constant for field name for: parentUUID */
+  public static final String FIELD_PARENT_UUID = "parentUUID";
+  /** constant for field name for: uuid */
+  public static final String FIELD_UUID = "uuid";
   /** known built-in attributes */
   private static final  Set<String>               ALLOWED_ATTRS = GrouperUtil.toSet(
     GrouperConfig.ATTR_DISPLAY_NAME, GrouperConfig.ATTR_DESCRIPTION, GrouperConfig.ATTR_DISPLAY_EXTENSION,
@@ -346,20 +398,17 @@ public class Group extends GrouperAPI implements Owner {
           GrouperSession.staticGrouperSession().getSubject(), Group.getDefaultList().getWritePriv() );
 
       Composite     c   = new Composite();
-      CompositeDTO  _c  = new CompositeDTO()
-        .setCreateTime( new Date().getTime() )
-        .setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() )
-        .setFactorOwnerUuid( this._getDTO().getUuid() )
-        .setLeftFactorUuid( left._getDTO().getUuid() )
-        .setRightFactorUuid( right._getDTO().getUuid() )
-        .setType( type.toString() )
-        .setUuid( GrouperUuid.getUuid() )
-        ;
-      CompositeValidator vComp = CompositeValidator.validate(_c);
+      c.setCreateTime( new Date().getTime() );
+      c.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+      c.setFactorOwnerUuid( this.getUuid() );
+      c.setLeftFactorUuid( left.getUuid() );
+      c.setRightFactorUuid( right.getUuid() );
+      c.setTypeDb( type.toString() );
+      c.setUuid( GrouperUuid.getUuid() );
+      CompositeValidator vComp = CompositeValidator.validate(c);
       if (vComp.isInvalid()) {
         throw new MemberAddException( vComp.getErrorMessage() );
       }
-      c.setDTO(_c);
 
       AddCompositeMemberValidator vAdd = AddCompositeMemberValidator.validate(this);
       if (vAdd.isInvalid()) {
@@ -596,13 +645,12 @@ public class Group extends GrouperAPI implements Owner {
       throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
     }
     try {
-      Set types = this._getDTO().getTypes();
-      types.add( type.getDTO() );
-      this._getDTO().setTypes(types);
+      Set types = this.getTypesDb();
+      types.add( type );
 
       this.internal_setModified();
 
-      GrouperDAOFactory.getFactory().getGroup().addType( this._getDTO(), (GroupTypeDTO) type.getDTO() );
+      GrouperDAOFactory.getFactory().getGroup().addType( this, type);
       sw.stop();
       EventLog.info(
           GrouperSession.staticGrouperSession(),
@@ -775,7 +823,7 @@ public class Group extends GrouperAPI implements Owner {
       );
       //deletes.add(this);            // ... And add the group last for good luck    
       String name = this.getName(); // Preserve name for logging
-      GrouperDAOFactory.getFactory().getGroup().delete( this._getDTO(), deletes );
+      GrouperDAOFactory.getFactory().getGroup().delete( this, deletes );
       sw.stop();
       EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_DEL + Quote.single(name), sw);
     }
@@ -831,13 +879,13 @@ public class Group extends GrouperAPI implements Owner {
         throw new InsufficientPrivilegeException();
       }
 
-      Map attrs = this._getDTO().getAttributes();
+      Map attrs = this.getAttributesDb();
       if (attrs.containsKey(attr)) {
         String val = (String) attrs.get(attr); // for logging
         attrs.remove(attr);
-        this._getDTO().setAttributes(attrs);
+        this.setAttributes(attrs);
         this.internal_setModified();
-        GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+        GrouperDAOFactory.getFactory().getGroup().update( this );
         sw.stop();
         EVENT_LOG.groupDelAttr(GrouperSession.staticGrouperSession(), this.getName(), attr, val, sw);
       }
@@ -892,8 +940,7 @@ public class Group extends GrouperAPI implements Owner {
       if ( !this.hasComposite() ) {
         throw new MemberDeleteException(E.GROUP_DCFC); 
       }
-      Composite c   = new Composite();
-      c.setDTO( GrouperDAOFactory.getFactory().getComposite().findAsOwner( this._getDTO() ) );
+      Composite c   = GrouperDAOFactory.getFactory().getComposite().findAsOwner( this ) ;
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteComposite( GrouperSession.staticGrouperSession(), this, c );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
@@ -1051,13 +1098,12 @@ public class Group extends GrouperAPI implements Owner {
         throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
       }
 
-      Set types = this._getDTO().getTypes();
-      types.remove( type.getDTO() );
-      this._getDTO().setTypes(types);
+      Set types = this.getTypesDb();
+      types.remove( type );
 
       this.internal_setModified();
 
-      GrouperDAOFactory.getFactory().getGroup().deleteType( this._getDTO(), (GroupTypeDTO) type.getDTO() );
+      GrouperDAOFactory.getFactory().getGroup().deleteType( this, type );
       sw.stop();
       EventLog.info(
         GrouperSession.staticGrouperSession(),
@@ -1071,16 +1117,6 @@ public class Group extends GrouperAPI implements Owner {
       throw new GroupModifyException(msg, eDAO);
     }
   } 
-
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof Group)) {
-      return false;
-    }
-    return this.getDTO().equals( ( (Group) other ).getDTO() );
-  } // public boolean equals(other)
 
   /**
    * Get subjects with the ADMIN privilege on this group.
@@ -1116,7 +1152,7 @@ public class Group extends GrouperAPI implements Owner {
     String emptyString = GrouperConfig.EMPTY_STRING;
 
     // check to see if attribute exists in Map returned by getAttributes()
-    Map attrs = this._getDTO().getAttributes();
+    Map attrs = this.getAttributesDb();
     if (attrs.containsKey(attr)) {
       String val = (String) attrs.get(attr);
       if (val == null) {
@@ -1159,7 +1195,7 @@ public class Group extends GrouperAPI implements Owner {
   public Map getAttributes() {
     Map       filtered  = new HashMap();
     Map.Entry kv;
-    Iterator  it        = this._getDTO().getAttributes().entrySet().iterator();
+    Iterator  it        = this.getAttributesDb().entrySet().iterator();
     while (it.hasNext()) {
       kv = (Map.Entry) it.next();
       if ( this._canReadField( (String) kv.getKey() ) ) {
@@ -1221,10 +1257,22 @@ public class Group extends GrouperAPI implements Owner {
    * </pre>
    * @return  Create source for this group.
    */
+  public String getCreateSourceDb() {
+    return this.createSource;
+  } // public String getCreateSource()
+  
+  /**
+   * Get (optional and questionable) create source for this group.
+   * <pre class="eg">
+   * // Get create source
+`  * String source = g.getCreateSource();
+   * </pre>
+   * @return  Create source for this group.
+   */
   public String getCreateSource() {
     return GrouperConfig.EMPTY_STRING;
   } // public String getCreateSource()
-  
+
   /**
    * Get subject that created this group.
    * <pre class="eg">
@@ -1247,7 +1295,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     try {
       // when called from "GrouperSubject" there is no attached session
-      MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getCreatorUuid() );
+      Member _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getCreatorUuid() );
       this.subjectCache.put( 
         KEY_CREATOR, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() ) 
       );
@@ -1273,7 +1321,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  {@link Date} that this group was created.
    */
   public Date getCreateTime() {
-    return new Date(this._getDTO().getCreateTime());
+    return new Date(this.getCreateTimeLong());
   } // public Date getCreateTime()
 
   /**
@@ -1305,7 +1353,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_DISPLAY_EXTENSION);
+    String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_DISPLAY_EXTENSION);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODE);
@@ -1327,7 +1375,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_DISPLAY_NAME);
+    String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_DISPLAY_NAME);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.fatal(Group.class, E.GROUP_NODN);
@@ -1468,7 +1516,7 @@ public class Group extends GrouperAPI implements Owner {
   public String getExtension() {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_EXTENSION);
+    String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NOE);
@@ -1689,10 +1737,21 @@ public class Group extends GrouperAPI implements Owner {
    * </pre>
    * @return  Modify source for this group.
    */
+  public String getModifySourceDb() {
+    return this.modifySource;
+  } // public String getModifySource()
+  
+  /**
+   * Get (optional and questionable) modify source for this group.
+   * <pre class="eg">
+`  * String source = g.getModifySource();
+   * </pre>
+   * @return  Modify source for this group.
+   */
   public String getModifySource() {
     return GrouperConfig.EMPTY_STRING;
   } // public String getModifySource()
-  
+
   /**
    * Get subject that last modified this group.
    * <pre class="eg">
@@ -1712,12 +1771,12 @@ public class Group extends GrouperAPI implements Owner {
     if ( this.subjectCache.containsKey(KEY_MODIFIER) ) {
       return this.subjectCache.get(KEY_MODIFIER);
     }
-    if ( this._getDTO().getModifierUuid() == null ) {
+    if ( this.getModifierUuid() == null ) {
       throw new SubjectNotFoundException("group has not been modified");
     }
     try {
       // when called from "GrouperSubject" there is no attached session
-      MemberDTO _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this._getDTO().getModifierUuid() );
+      Member _m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getModifierUuid() );
       this.subjectCache.put(
         KEY_MODIFIER, SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() )
       );
@@ -1742,7 +1801,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  {@link Date} that this group was last modified.
    */
   public Date getModifyTime() {
-    return new Date( this._getDTO().getModifyTime() );
+    return new Date( this.getModifyTimeLong() );
   }
 
   /**
@@ -1758,7 +1817,7 @@ public class Group extends GrouperAPI implements Owner {
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_NAME);
+    String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_NAME);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       ErrorLog.error(Group.class, E.GROUP_NON);
@@ -1806,13 +1865,12 @@ public class Group extends GrouperAPI implements Owner {
   public Stem getParentStem() 
     throws  IllegalStateException
   {
-    String uuid = this._getDTO().getParentUuid();
+    String uuid = this.getParentUuid();
     if (uuid == null) {
       throw new IllegalStateException("group has no parent stem");
     }
     try {
-      Stem parent = new Stem();
-      parent.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) );
+      Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) ;
       return parent;
     }
     catch (StemNotFoundException eShouldNeverHappen) {
@@ -1866,7 +1924,7 @@ public class Group extends GrouperAPI implements Owner {
       Iterator  iter  = this.getTypes().iterator();
       while (iter.hasNext()) {
         t = (GroupType) iter.next();
-        if ( ( (GroupTypeDTO) t.getDTO() ).getIsAssignable() ) {
+        if ( t.getIsAssignable() ) {
           types.add(t);
         }
       }
@@ -1875,26 +1933,36 @@ public class Group extends GrouperAPI implements Owner {
   } // public Set getRemovableTypes()
 
   /**
-   * Get group types for this group.
+   * Get group types for this group (only non internal ones).
    * <pre class="eg">
    * Set types = g.getTypes();
    * </pre>
    * @return  Set of group types.
    */
   public Set getTypes() {
-    Set       types = new LinkedHashSet();
-    Iterator  it    = this._getDTO().getTypes().iterator();
+
+    Set       newTypes = new LinkedHashSet();
+    Iterator  it    = this.getTypesDb().iterator();
     while (it.hasNext()) {
-      GroupTypeDTO dto = (GroupTypeDTO) it.next();
-      if ( !dto.getIsInternal() ) {
-        GroupType type = new GroupType();
-        type.setDTO(dto);
-        types.add(type);
+      GroupType groupType = (GroupType) it.next();
+      if ( !groupType.getIsInternal() ) {
+        newTypes.add(groupType);
       }
     }
-    return types;
+    return newTypes;
   } // public Set getTypes()
 
+  /**
+   * get types in db
+   * @return types
+   */
+  public Set<GroupType> getTypesDb() {
+    if (this.types == null) {
+      this.types = GrouperDAOFactory.getFactory().getGroup()._findAllTypesByGroup( this.getUuid() );
+    }
+    return this.types;
+  }
+  
   /**
    * Get subjects with the UPDATE privilege on this group.
    * <pre class="eg">
@@ -1908,12 +1976,6 @@ public class Group extends GrouperAPI implements Owner {
   {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.UPDATE);
   } 
-
-  /**
-   */
-  public String getUuid() {
-    return this._getDTO().getUuid();
-  } // public String getUuid()
 
   /**
    * Get subjects with the VIEW privilege on this group.
@@ -1994,7 +2056,7 @@ public class Group extends GrouperAPI implements Owner {
    */
   public boolean hasComposite() {
     try {
-      GrouperDAOFactory.getFactory().getComposite().findAsOwner( this._getDTO() );
+      GrouperDAOFactory.getFactory().getComposite().findAsOwner( this );
       return true;
     }
     catch (CompositeNotFoundException eCNF) {
@@ -2154,10 +2216,6 @@ public class Group extends GrouperAPI implements Owner {
     return rv;
   } // public boolean hasImmediateMember(subj, f)
 
-  public int hashCode() {
-    return this.getDTO().hashCode();
-  } // public int hashCode()
-
   /**
    * Check whether the subject is a member of this group.
    * 
@@ -2286,7 +2344,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return if has type
    */
   public boolean hasType(GroupType type) {
-    return this._getDTO().getTypes().contains( type.getDTO() );
+    return this.getTypesDb().contains( type );
   } // public boolean hasType(type)
 
   /**
@@ -2333,7 +2391,7 @@ public class Group extends GrouperAPI implements Owner {
    * @return  Boolean true if group is a factor in a composite membership.
    */
   public boolean isComposite() {
-    if ( GrouperDAOFactory.getFactory().getComposite().findAsFactor( this._getDTO() ).size() > 0 ) {
+    if ( GrouperDAOFactory.getFactory().getComposite().findAsFactor( this ).size() > 0 ) {
       return true;
     }
     return false;
@@ -2455,7 +2513,7 @@ public class Group extends GrouperAPI implements Owner {
    */
   public void store() {
     if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+      GrouperDAOFactory.getFactory().getGroup().update( this );
     }
   }
   
@@ -2464,7 +2522,7 @@ public class Group extends GrouperAPI implements Owner {
    */
   private void storeIfConfiguredToStore() {
     if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      GrouperDAOFactory.getFactory().getGroup().update( this._getDTO() );
+      GrouperDAOFactory.getFactory().getGroup().update( this );
     }
   }
   
@@ -2527,7 +2585,7 @@ public class Group extends GrouperAPI implements Owner {
         throw new InsufficientPrivilegeException();
       }
 
-      Map attrs = this._getDTO().getAttributes();
+      Map attrs = this.getAttributesDb();
       attrs.put(attr, value);
       if      ( attr.equals(GrouperConfig.ATTR_EXTENSION) )   {
         attrs.put( GrouperConfig.ATTR_NAME, U.constructName( this.getParentStem().getName(), value ) );
@@ -2535,7 +2593,7 @@ public class Group extends GrouperAPI implements Owner {
       else if ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
         attrs.put( GrouperConfig.ATTR_DISPLAY_NAME, U.constructName( this.getParentStem().getDisplayName(), value ) );
       }
-      this._getDTO().setAttributes(attrs);
+      this.setAttributes(attrs);
       this.internal_setModified();
       this.storeIfConfiguredToStore();
       sw.stop();
@@ -2668,8 +2726,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     try {
       GrouperSession.validate( GrouperSession.staticGrouperSession() );
-      Member m = new Member();
-      m.setDTO( GrouperDAOFactory.getFactory().getMember().findBySubject( this.toSubject() ) );
+      Member m = GrouperDAOFactory.getFactory().getMember().findBySubject( this.toSubject() );
       GrouperSession.staticGrouperSession();
       this.cachedMember = m;
       return this.cachedMember;
@@ -2724,7 +2781,7 @@ public class Group extends GrouperAPI implements Owner {
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append( GrouperConfig.ATTR_NAME, (String) this._getDTO().getAttributes().get(GrouperConfig.ATTR_NAME) )
+      .append( GrouperConfig.ATTR_NAME, (String) this.getAttributesDb().get(GrouperConfig.ATTR_NAME) )
       .append( "uuid", this.getUuid() )
       .toString();
   } // public String toString()
@@ -2734,7 +2791,7 @@ public class Group extends GrouperAPI implements Owner {
    * TODO 20070531 make into some flavor of validator
    * @param subj 
    * @param f 
-   * @return 
+   * @return  boolean
    * @throws IllegalArgumentException 
    * @throws SchemaException 
    * @since   1.2.1
@@ -2763,6 +2820,7 @@ public class Group extends GrouperAPI implements Owner {
       return true;
     }
     catch (InsufficientPrivilegeException eIP) {
+      //eIP.printStackTrace();
       return false;
     }
   }
@@ -2773,8 +2831,8 @@ public class Group extends GrouperAPI implements Owner {
    * 
    */
   protected void internal_setModified() {
-    this._getDTO().setModifierUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
-    this._getDTO().setModifyTime( new Date().getTime() );
+    this.setModifierUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+    this.setModifyTimeLong( new Date().getTime() );
   } // protected void internal_setModified()
 
 
@@ -2800,15 +2858,6 @@ public class Group extends GrouperAPI implements Owner {
     return rv;
   } // private boolean _canReadField(name)
 
-  // @since   1.2.0
-  /**
-   * @return the dto
-   * 
-   */
-  public GroupDTO _getDTO() {
-    return (GroupDTO) super.getDTO();
-  }
-  
   /**
    * 
    * @throws InsufficientPrivilegeException
@@ -2858,6 +2907,308 @@ public class Group extends GrouperAPI implements Owner {
 
 
   } // private void _revokeAllAccessPrivs()
+
+  // PUBLIC CLASS METHODS //
+  
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#dbVersionDifferent()
+   */
+  @Override
+  boolean dbVersionDifferent() {
+    Set<String> differentFields = dbVersionDifferentFields();
+    return differentFields.size() > 0;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefaultDTO#dbVersionDifferentFields()
+   */
+  @Override
+  Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        GrouperUtil.toSet(FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, 
+            FIELD_CREATOR_UUID, FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE,
+            FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID), ATTRIBUTE_PREFIX);
+    return result;
+  }
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Group();
+    this.dbVersion.attributes = this.attributes == null ? null : new HashMap<String,String>(this.attributes);
+    this.dbVersion.createSource = this.createSource;
+    this.dbVersion.createTime = this.createTime;
+    this.dbVersion.creatorUUID = this.creatorUUID;
+    this.dbVersion.id = this.id;
+    this.dbVersion.modifierUUID = this.modifierUUID;
+    this.dbVersion.modifySource = this.modifySource;
+    this.dbVersion.modifyTime = this.modifyTime;
+    this.dbVersion.parentUUID = this.parentUUID;
+    this.dbVersion.uuid = this.uuid;
+  }
+
+  /**
+   * @since   1.2.0
+   */  
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof Group)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.getUuid(), ( (Group) other ).getUuid() )
+      .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @since   1.2.0
+   */
+  public Map getAttributesDb() {
+    if (this.attributes == null) {
+      this.attributes = GrouperDAOFactory.getFactory().getGroup().findAllAttributesByGroup( this.getUuid() );
+    }
+    return this.attributes;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getCreateTimeLong() {
+    return this.createTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  public Group getDbVersion() {
+    return this.dbVersion;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getModifierUuid() {
+    return this.modifierUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public long getModifyTimeLong() {
+    return this.modifyTime;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getParentUuid() {
+    return this.parentUUID;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getUuid() )
+      .toHashCode();
+  } // public int hashCode()
+
+  @Override
+  public boolean onDelete(Session hs) 
+    throws  CallbackException {
+    GrouperDAOFactory.getFactory().getGroup().putInExistsCache( this.getUuid(), false );
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, false, this);
+    super.onPostSave(hibernateSession);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, true, this);
+    super.onPostUpdate(hibernateSession);
+  
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefaultDTO#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    //see if there is a hook class
+    GroupHooks groupHooks = (GroupHooks)GrouperHookType.GROUP.hooksInstance();
+    
+    if (groupHooks != null) {
+      HooksGroupPreInsertBean hooksGroupPreInsertBean = new HooksGroupPreInsertBean(new HooksContext(), this);
+      try {
+        groupHooks.groupPreInsert(hooksGroupPreInsertBean);
+      } catch (HookVeto hv) {
+        hv.assignVetoType(VetoTypeGrouper.GROUP_PRE_INSERT, false);
+        throw hv;
+      }
+    }
+    
+  }
+
+  // @since   @HEAD@
+  public boolean onSave(Session hs) 
+    throws  CallbackException
+  {
+    GrouperDAOFactory.getFactory().getGroup().putInExistsCache( this.getUuid(), true );
+    return Lifecycle.NO_VETO;
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setAttributes(Map attributes) {
+    this.attributes = attributes;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreateSourceDb(String createSource) {
+    this.createSource = createSource;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreateTimeLong(long createTime) {
+    this.createTime = createTime;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+  
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setId(String id) {
+    this.id = id;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setModifierUuid(String modifierUUID) {
+    this.modifierUUID = modifierUUID;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setModifySourceDb(String modifySource) {
+    this.modifySource = modifySource;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setModifyTimeLong(long modifyTime) {
+    this.modifyTime = modifyTime;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setParentUuid(String parentUUID) {
+    this.parentUUID = parentUUID;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setTypes(Set types) {
+    this.types = types;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+
+  }
+
+  /**
+   * @since   1.2.0
+   */
+  public String toStringDb() {
+    return new ToStringBuilder(this)
+      .append( "attributes",   this.getAttributesDb()   )
+      .append( "createSource", this.getCreateSource() )
+      .append( "createTime",   this.getCreateTimeLong()   )
+      .append( "creatorUuid",  this.getCreatorUuid()  )
+      .append( "modifierUuid", this.getModifierUuid() )
+      .append( "modifySource", this.getModifySource() )
+      .append( "modifyTime",   this.getModifyTime()   )
+      .append( "ownerUuid",    this.getUuid()         )
+      .append( "parentUuid",   this.getParentUuid()   )
+      .append( "types",        this.getTypesDb()        )
+      .toString();
+  } // public String toString()
 
 } // public class Group extends GrouperAPI implements Owner
 

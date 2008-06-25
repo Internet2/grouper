@@ -27,7 +27,7 @@ import  java.util.Set;
 /**
  * Mock {@link AccessResolver}.
  * @author  blair christensen.
- * @version $Id: MockAccessResolver.java,v 1.4 2008-02-10 07:22:46 mchyzer Exp $
+ * @version $Id: MockAccessResolver.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockAccessResolver implements AccessResolver {
@@ -136,6 +136,15 @@ public class MockAccessResolver implements AccessResolver {
     throws  IllegalArgumentException,
             UnableToPerformException
   {
+    throw E;
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
+   */
+  public void flushCache() {
     throw E;
   }            
 

@@ -16,24 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import  edu.internet2.middleware.grouper.internal.dto.FieldDTO;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  java.io.Serializable;
-import  java.util.Date;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
-import  org.apache.commons.lang.time.*;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.time.StopWatch;
+
+import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.internal.util.Quote;
 
 /** 
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.56 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.57 2008-06-25 05:46:06 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -78,7 +81,18 @@ public class GroupType extends GrouperAPI implements Serializable {
     sw.stop();
     EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
     return type;
-  } 
+  }
+
+
+  private long    createTime;
+  // PRIVATE INSTANCE VARIABLES //
+  private String  creatorUUID;
+  private Set     fields;
+  private String  id;
+  private boolean isAssignable  = true;
+  private boolean isInternal    = false;
+  private String  name;
+  private String  uuid; 
 
 
   // PUBLIC INSTANCE METHODS //
@@ -193,7 +207,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     StopWatch sw = new StopWatch();
     sw.start();
     if ( this.isSystemType() ) {
-      String msg = E.GROUPTYPE_NODELSYS + this._getDTO().getName();
+      String msg = E.GROUPTYPE_NODELSYS + this.getName();
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     } 
@@ -203,14 +217,14 @@ public class GroupType extends GrouperAPI implements Serializable {
       throw new InsufficientPrivilegeException(msg);
     }
     try {
-      if ( GrouperDAOFactory.getFactory().getGroup().findAllByType( this._getDTO() ).size() > 0 ) {
+      if ( GrouperDAOFactory.getFactory().getGroup().findAllByType( this ).size() > 0 ) {
         String msg = E.GROUPTYPE_DELINUSE;
         ErrorLog.error(GroupType.class, msg);
         throw new SchemaException(msg);
       }
       // Now delete the type
-      String typeName = this._getDTO().getName(); // For logging purposes
-      GrouperDAOFactory.getFactory().getGroupType().delete( this._getDTO(), this._getDTO().getFields() );
+      String typeName = this.getName(); // For logging purposes
+      GrouperDAOFactory.getFactory().getGroupType().delete( this, this.getFields() );
       sw.stop();
       EventLog.info(s, M.GROUPTYPE_DEL + Quote.single(typeName), sw);
       // Now update the cached types + fields
@@ -271,14 +285,14 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
     // With validation complete, delete the field
     try {
-      Set fields = this._getDTO().getFields();
-      if ( fields.remove( (FieldDTO) f.getDTO() ) ) {
-        this._getDTO().setFields(fields);
-        GrouperDAOFactory.getFactory().getGroupType().deleteField( (FieldDTO) f.getDTO() );
+      Set fields = this.getFields();
+      if ( fields.remove( f ) ) {
+        this.setFields(fields);
+        GrouperDAOFactory.getFactory().getGroupType().deleteField( f);
         sw.stop();
         EventLog.info(
           s,
-          M.GROUPTYPE_DELFIELD + Quote.single(f.getName()) + " type=" + Quote.single( this._getDTO().getName() ),
+          M.GROUPTYPE_DELFIELD + Quote.single(f.getName()) + " type=" + Quote.single( this.getName() ),
           sw
         );
       }
@@ -295,43 +309,6 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
   } // public void deleteField(s, name)
 
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof GroupType)) {
-      return false;
-    }
-    return this.getDTO().equals( ( (GroupType) other ).getDTO() );
-  } // public boolean equals(other)
-
-  /**
-   * Get group fields for this group type.
-   * @return  A set of {@link Field} objects.
-   */
-  public Set getFields() {
-    Set       fields  = new LinkedHashSet();
-    Iterator  it      = this._getDTO().getFields().iterator();
-    while (it.hasNext()) {
-      fields.add( new Field().setDTO( (FieldDTO) it.next() ) );
-    }
-    return fields;
-  } 
-
-  /**
-   * Get group type name.
-   * @return  group type name.
-   */
-  public String getName() {
-    return this._getDTO().getName();
-  } // public String getName()
-
-  /**
-   */
-  public int hashCode() {
-    return this.getDTO().hashCode();
-  } // public int hashCode()
-
   // @since   1.2.0
   public boolean isSystemType() {
     if ( "base".equals( this.getName() ) || "naming".equals( this.getName() ) ) {
@@ -340,12 +317,6 @@ public class GroupType extends GrouperAPI implements Serializable {
     return false;
   } // public boolean isSystemType()
   
-  /**
-   */
-  public String toString() {
-    return this.getDTO().toString();
-  } // public String toString()
-
 
   // PROTECTED CLASS METHODS //
 
@@ -367,15 +338,15 @@ public class GroupType extends GrouperAPI implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg);
     }
-    GroupTypeDTO _gt = new GroupTypeDTO()
-      .setCreateTime( new Date().getTime() )
-      .setCreatorUuid( s.getMember().getUuid() )
-      .setFields( new LinkedHashSet() )
-      .setIsAssignable(isAssignable)
-      .setIsInternal(isInternal)
-      .setName(name)
-      .setUuid( GrouperUuid.getUuid() )
-      ;
+    GroupType _gt = new GroupType();
+    _gt.setCreateTime( new Date().getTime() );
+      _gt.setCreatorUuid( s.getMember().getUuid() );
+      _gt.setFields( new LinkedHashSet() );
+      _gt.setIsAssignable(isAssignable);
+      _gt.setIsInternal(isInternal);
+      _gt.setName(name);
+      _gt.setUuid( GrouperUuid.getUuid() );
+      
     try {
       dao.create(_gt) ;
     }
@@ -384,9 +355,7 @@ public class GroupType extends GrouperAPI implements Serializable {
       ErrorLog.error(GroupType.class, msg);
       throw new SchemaException(msg, eDAO);
     }
-    GroupType type = new GroupType();
-    type.setDTO(_gt);
-    return type;
+    return _gt;
   } // protected static GroupType internal_createType(s, name, isAssignable, isInternal)
 
 
@@ -412,32 +381,28 @@ public class GroupType extends GrouperAPI implements Serializable {
       if (required == true) {
         nullable = false;
       }
-      FieldDTO _f = new FieldDTO()
-        .setGroupTypeUuid( this._getDTO().getUuid() )
-        .setIsNullable(nullable)
-        .setName(name)
-        .setReadPrivilege(read)
-        .setType(type)
-        .setUuid( GrouperUuid.getUuid() )
-        .setWritePrivilege(write)
-        ;
+      Field _f = new Field();
+      _f.setGroupTypeUuid( this.getUuid() );
+        _f.setIsNullable(nullable);
+        _f.setName(name);
+        _f.setReadPrivilege(read);
+        _f.setType(type);
+        _f.setUuid( GrouperUuid.getUuid() );
+        _f.setWritePrivilege(write);
+        
       GrouperDAOFactory.getFactory().getGroupType().createField(_f);
 
-      Field f = new Field();
-      f.setDTO(_f);
-
-      Set fields = this._getDTO().getFields();
-      fields.add( (FieldDTO) f.getDTO() );
-      this._getDTO().setFields(fields);
+      Set fields = this.getFields();
+      fields.add( _f );
 
       sw.stop();
       EventLog.info(
         s, 
-        M.GROUPTYPE_ADDFIELD + Quote.single(f.getName()) + " ftype=" + Quote.single(type.toString()) 
-        + " gtype=" + Quote.single( this._getDTO().getName() ),
+        M.GROUPTYPE_ADDFIELD + Quote.single(_f.getName()) + " ftype=" + Quote.single(type.toString()) 
+        + " gtype=" + Quote.single( this.getName() ),
         sw
       );
-      return f;
+      return _f;
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();
@@ -447,11 +412,187 @@ public class GroupType extends GrouperAPI implements Serializable {
   } // protected Field internal_addField(s, name, type, read, write, required)
 
   
-  // PRIVATE INSTANCE METHODS //
+  /**
+   * @since   1.2.0
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof GroupType)) {
+      return false;
+    }
+    GroupType that = (GroupType) other;
+    return new EqualsBuilder()
+      .append( this.getUuid(), that.getUuid() )
+      .isEquals();
+  } // public boolean equals(other)
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public long getCreateTime() {
+    return this.createTime;
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public String getCreatorUuid() {
+    return this.creatorUUID;
+  }
+
+
+  // PROTECTED INSTANCE METHODS //
   
-  // @since   1.2.0
-  private GroupTypeDTO _getDTO() {
-    return (GroupTypeDTO) super.getDTO();
-  } 
+  /**
+   * @since   1.2.0
+   */ 
+  public Set<Field> getFields() {
+    if (this.fields == null) {
+      this.fields = GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( this.getUuid() );
+    }
+    return this.fields;
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public String getId() {
+    return this.id;
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public boolean getIsAssignable() {
+    return this.isAssignable;
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public boolean getIsInternal() {
+    return this.isInternal;
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public String getName() {
+    return this.name;
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public String getUuid() {
+    return this.uuid;
+  }
+
+
+  /**
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+      .append( this.getUuid() )
+      .toHashCode();
+  } // public int hashCode()
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public void setCreateTime(long createTime) {
+    this.createTime = createTime;
+  
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public void setCreatorUuid(String creatorUUID) {
+    this.creatorUUID = creatorUUID;
+  
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public void setFields(Set fields) {
+    this.fields = fields;
+  
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public void setId(String id) {
+    this.id = id;
+  
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public void setIsAssignable(boolean isAssignable) {
+    this.isAssignable = isAssignable;
+  
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public void setIsInternal(boolean isInternal) {
+    this.isInternal = isInternal;
+  
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public void setName(String name) {
+    this.name = name;
+  
+  }
+
+
+  /**
+   * @since   1.2.0
+   */ 
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  
+  }
+
+
+  /**
+   * @since   1.2.0
+   */
+  public String toString() {
+    return new ToStringBuilder(this)
+      .append( "creatorUuid",  this.getCreatorUuid()  )
+      .append( "createTime",   this.getCreateTime()   )
+      .append( "fields",       this.getFields()       )
+      .append( "isAssignable", this.getIsAssignable() )
+      .append( "isInternal",   this.getIsInternal()   )
+      .append( "name",         this.getName()         )
+      .append( "uuid",         this.getUuid()         )
+      .toString();
+  } // public String toString() 
 
 }

@@ -16,15 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.23 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: SubjectHelper.java,v 1.24 2008-06-25 05:46:05 mchyzer Exp $
  */
 public class SubjectHelper {
 
@@ -60,7 +59,7 @@ public class SubjectHelper {
   } 
  
   // @since   1.2.0
-  protected static String getPretty(MemberDTO _m) {
+  protected static String getPretty(Member _m) {
     return  Quote.single( _m.getSubjectId() ) // don't bother grabbing the name.  names aren't consistent, after all.
             + SUBJECT_DELIM
             + Quote.single( _m.getSubjectTypeId() ) 

@@ -20,34 +20,28 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
-import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import edu.internet2.middleware.grouper.internal.dto.StemDTO;
-
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.9 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: BaseMemberOf.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
 
   // PRIVATE INSTANCE VARIABLES //
   private Composite       c;
-  private Set<GrouperDTO> deletes         = new LinkedHashSet<GrouperDTO>();
-  private Set<GrouperDTO> effDeletes      = new LinkedHashSet<GrouperDTO>();
-  private Set<GrouperDTO> effSaves        = new LinkedHashSet<GrouperDTO>();
+  private Set<GrouperAPI> deletes         = new LinkedHashSet<GrouperAPI>();
+  private Set<GrouperAPI> effDeletes      = new LinkedHashSet<GrouperAPI>();
+  private Set<GrouperAPI> effSaves        = new LinkedHashSet<GrouperAPI>();
   private Field           f               = Group.getDefaultList();
   private Group           g;
-  private MemberDTO       _m;
-  private MembershipDTO   _ms;
-  private Set<GroupDTO>             modifiedGroups  = new LinkedHashSet();
-  private Set<StemDTO>             modifiedStems   = new LinkedHashSet();
+  private Member       _m;
+  private Membership   _ms;
+  private Set<Group>             modifiedGroups  = new LinkedHashSet();
+  private Set<Stem>             modifiedStems   = new LinkedHashSet();
   private Stem            ns;
   private String          ownerUUID;  
-  private Set<GrouperDTO> saves           = new LinkedHashSet<GrouperDTO>();
+  private Set<GrouperAPI> saves           = new LinkedHashSet<GrouperAPI>();
 
 
   // CONSTRUCTORS //
@@ -70,14 +64,14 @@ public abstract class BaseMemberOf implements MemberOf {
   /**
    * @since   1.2.0
    */
-  public Set<GroupDTO> getModifiedGroups() {
+  public Set<Group> getModifiedGroups() {
     return this.modifiedGroups;
   }
 
   /**
    * @since   1.2.0
    */
-  public Set<StemDTO> getModifiedStems() {
+  public Set<Stem> getModifiedStems() {
     return this.modifiedStems;
   }
 
@@ -92,32 +86,32 @@ public abstract class BaseMemberOf implements MemberOf {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected Set<GrouperDTO> addDelete(GrouperDTO dto) {
+  protected Set<GrouperAPI> addDelete(GrouperAPI dto) {
     this.deletes.add(dto);
     return this.deletes;
   }
   // @since   1.2.0
-  protected Set<GrouperDTO> addDeletes(Collection<GrouperDTO> c) {
+  protected Set<GrouperAPI> addDeletes(Collection<GrouperAPI> c) {
     this.deletes.addAll(c);
     return this.deletes;
   }
   // @since   1.2.0
-  protected Set<GrouperDTO> addEffectiveDeletes(Collection<GrouperDTO> c) {
+  protected Set<GrouperAPI> addEffectiveDeletes(Collection<GrouperAPI> c) {
     this.effDeletes.addAll(c);
     return this.effDeletes;
   }
   // @since   1.2.0
-  protected Set<GrouperDTO> addEffectiveSaves(Collection<GrouperDTO> c) {
+  protected Set<GrouperAPI> addEffectiveSaves(Collection<GrouperAPI> c) {
     this.effSaves.addAll(c);
     return this.effSaves;
   }
   // @since   1.2.0
-  protected Set<GrouperDTO> addSave(GrouperDTO dto) {
+  protected Set<GrouperAPI> addSave(GrouperAPI dto) {
     this.saves.add(dto);
     return this.saves;
   }
   // @since   1.2.0
-  protected Set<GrouperDTO> addSaves(Collection<GrouperDTO> c) {
+  protected Set<GrouperAPI> addSaves(Collection<GrouperAPI> c) {
     this.saves.addAll(c);
     return this.saves;
   }
@@ -126,11 +120,11 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.c;
   }  
   // @since   1.2.0
-  protected Set<GrouperDTO> getEffectiveDeletes() {
+  protected Set<GrouperAPI> getEffectiveDeletes() {
     return this.effDeletes;
   }
   // @since   1.2.0
-  protected Set<GrouperDTO> getEffectiveSaves() {
+  protected Set<GrouperAPI> getEffectiveSaves() {
     return this.effSaves;
   }
   // @since   1.2.0
@@ -142,11 +136,11 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.g;
   }
   // @since   1.2.0
-  public MemberDTO getMemberDTO() {
+  public Member getMember() {
     return this._m;
   }
   // @since   1.2.0
-  public MembershipDTO getMembershipDTO() {
+  public Membership getMembership() {
     return this._ms;
   }
   // @since   1.2.0
@@ -174,22 +168,22 @@ public abstract class BaseMemberOf implements MemberOf {
     return this;
   }
   // @since   1.2.0
-  protected MemberOf setMemberDTO(MemberDTO _m) {
+  protected MemberOf setMember(Member _m) {
     this._m = _m;
     return this;
   }
   // @since   1.2.0
-  protected MemberOf setMembershipDTO(MembershipDTO _ms) {
+  protected MemberOf setMembership(Membership _ms) {
     this._ms = _ms;
     return this;
   }
   // @since   1.2.0
-  protected MemberOf setModifiedGroups(Set<GroupDTO> modifiedGroups) {
+  protected MemberOf setModifiedGroups(Set<Group> modifiedGroups) {
     this.modifiedGroups = modifiedGroups;
     return this;
   }
   // @since   1.2.0
-  protected MemberOf setModifiedStems(Set<StemDTO> modifiedStems) {
+  protected MemberOf setModifiedStems(Set<Stem> modifiedStems) {
     this.modifiedStems = modifiedStems;
     return this;
   }

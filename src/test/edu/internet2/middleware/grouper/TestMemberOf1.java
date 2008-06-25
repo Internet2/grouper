@@ -16,16 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import java.util.Iterator;
+
+import junit.framework.Assert;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf1.java,v 1.12 2007-04-19 15:39:50 blair Exp $
+ * @version $Id: TestMemberOf1.java,v 1.13 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.0
  */
 public class TestMemberOf1 extends GrouperTest {
@@ -428,7 +430,7 @@ public class TestMemberOf1 extends GrouperTest {
         );
         Assert.assertNotNull(ms);
         DefaultMemberOf mof = new DefaultMemberOf();
-        mof.deleteImmediate( r.rs, gALL, (MembershipDTO) ms.getDTO(), (MemberDTO) gAAS.toMember().getDTO() ); 
+        mof.deleteImmediate( r.rs, gALL, ms, gAAS.toMember() ); 
         gALL.deleteMember( gAAS.toSubject() );
         Assert.assertTrue("finally, a hibernate exception wasn't thrown", true);
         T.getMemberships(gA_A, 2);

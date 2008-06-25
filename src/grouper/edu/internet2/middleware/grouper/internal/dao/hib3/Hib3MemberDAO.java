@@ -17,19 +17,17 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.ErrorLog;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
-import edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -37,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -46,11 +44,11 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   private static        HashMap<String, Boolean>    existsCache     = new HashMap<String, Boolean>();
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
   //TODO, move this to ehcache?
-  private static        HashMap<String, MemberDTO>  uuid2dtoCache   = new HashMap<String, MemberDTO>();
+  private static        HashMap<String, Member>  uuid2dtoCache   = new HashMap<String, Member>();
   /**
    * @since   @HEAD@
    */
-  public void create(MemberDTO _m) 
+  public void create(Member _m) 
     throws  GrouperDAOException {
 
     HibernateSession.byObjectStatic().save(_m);
@@ -68,7 +66,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     Object id = null;
     try {
       id = HibernateSession.byHqlStatic()
-        .createQuery("select m.id from MemberDTO as m where m.uuid = :uuid")
+        .createQuery("select m.id from Member as m where m.uuid = :uuid")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".Exists")
         .setString("uuid", uuid).uniqueResult(Object.class);
@@ -100,23 +98,23 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   /**
    * @since   @HEAD@
    */
-  public Set<MemberDTO> findAll(Source source) 
+  public Set<Member> findAll(Source source) 
     throws  GrouperDAOException
   {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     if (source == null) {
-      byHqlStatic.createQuery("from MemberDTO");
+      byHqlStatic.createQuery("from Member");
     } else {
-      byHqlStatic.createQuery("from MemberDTO as m where m.subjectSourceId=:sourceId");
+      byHqlStatic.createQuery("from Member as m where m.subjectSourceIdDb=:sourceId");
       byHqlStatic.setString("sourceId", source.getId());
     }
-    return byHqlStatic.listSet(MemberDTO.class);  
+    return byHqlStatic.listSet(Member.class);  
   } // public findAll(Source source)
 
   /**
    * @since   @HEAD@
    */
-  public MemberDTO findBySubject(Subject subj)
+  public Member findBySubject(Subject subj)
     throws  GrouperDAOException,
             MemberNotFoundException
   {
@@ -126,20 +124,20 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   /**
    * @since   @HEAD@
    */
-  public MemberDTO findBySubject(String id, String src, String type) 
+  public Member findBySubject(String id, String src, String type) 
     throws  GrouperDAOException,
             MemberNotFoundException {
-    MemberDTO memberDto = HibernateSession.byHqlStatic()
-      .createQuery("from MemberDTO as m where "
-        + "     m.subjectId       = :sid    "  
-        + "and  m.subjectSourceId = :source "
+    Member memberDto = HibernateSession.byHqlStatic()
+      .createQuery("from Member as m where "
+        + "     m.subjectIdDb       = :sid    "  
+        + "and  m.subjectSourceIdDb = :source "
         + "and  m.subjectTypeId   = :type")
         .setCacheable(true)
         .setCacheRegion(KLASS + ".FindBySubject")
         .setString( "sid",    id   )
         .setString( "type",   type )
         .setString( "source", src  )
-        .uniqueResult(MemberDTO.class);
+        .uniqueResult(Member.class);
     if (memberDto == null) {
       throw new MemberNotFoundException();
     }
@@ -150,21 +148,21 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   /**
    * @since   @HEAD@
    */
-  public MemberDTO findByUuid(String uuid) 
+  public Member findByUuid(String uuid) 
     throws  GrouperDAOException,
             MemberNotFoundException
   {
     if ( uuid2dtoCache.containsKey(uuid) ) {
       return uuid2dtoCache.get(uuid);
     }
-    MemberDTO memberDto = null;
+    Member memberDto = null;
     
     try {
       memberDto = HibernateSession.byHqlStatic()
-      .createQuery("from MemberDTO as m where m.uuid = :uuid")
+      .createQuery("from Member as m where m.uuid = :uuid")
       .setCacheable(false) // but i probably should - or at least permit it
       //.setCacheRegion(KLASS + ".FindByUuid")
-      .setString("uuid", uuid).uniqueResult(MemberDTO.class);
+      .setString("uuid", uuid).uniqueResult(Member.class);
     } catch (GrouperDAOException gde) {
       Throwable throwable = gde.getCause();
       //CH 20080218 this was legacy error handling
@@ -200,7 +198,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   /**
    * @since   @HEAD@
    */
-  public void update(MemberDTO _m) 
+  public void update(Member _m) 
     throws  GrouperDAOException {
     
     HibernateSession.byObjectStatic().update(_m);
@@ -214,7 +212,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
-    hibernateSession.byHql().createQuery("delete from MemberDTO as m where m.subjectId != :subject")
+    hibernateSession.byHql().createQuery("delete from Member as m where m.subjectIdDb != :subject")
       .setString( "subject", "GrouperSystem" )
       .executeUpdate()
       ;

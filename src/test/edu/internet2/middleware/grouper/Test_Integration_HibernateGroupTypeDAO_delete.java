@@ -17,12 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
-import  edu.internet2.middleware.grouper.internal.dto.GroupTypeDTO;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.9 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
@@ -68,15 +67,14 @@ public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
       type.addAttribute(s, "custom attribute", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
       type.addList(s, "custom list", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN);
 
-      GroupTypeDTO _gt = (GroupTypeDTO) type.getDTO();
       assertEquals(
         "grouptype has fields before deletion",
-        2, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( _gt.getUuid() ).size()
+        2, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( type.getUuid() ).size()
       );
       type.delete(s); // fields show be automatically deleted when the parent type is deleted
       assertEquals(
         "grouptype does not have fields after deletion",
-        0, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( _gt.getUuid() ).size()
+        0, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( type.getUuid() ).size()
       );
     }
     catch (Exception e) {
@@ -93,15 +91,14 @@ public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
       type.addAttribute(s, "custom attribute", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
       type.addList(s, "custom list", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN);
 
-      GroupTypeDTO _gt = (GroupTypeDTO) type.getDTO();
       assertEquals(
         "grouptype has fields before reset",
-        2, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( _gt.getUuid() ).size()
+        2, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( type.getUuid() ).size()
       );
       RegistryReset.reset();  // fields should be deleted when registry is reset
       assertEquals(
         "grouptype does not have fields after reset",
-        0, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( _gt.getUuid() ).size()
+        0, GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( type.getUuid() ).size()
       );
     }
     catch (Exception e) {

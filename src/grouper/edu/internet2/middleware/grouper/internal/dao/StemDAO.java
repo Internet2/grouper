@@ -16,19 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
-import  edu.internet2.middleware.grouper.DefaultMemberOf;
-import  edu.internet2.middleware.grouper.Stem;
-import  edu.internet2.middleware.grouper.StemNotFoundException;
-import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
-import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
-import  java.util.Date;
-import  java.util.Set;
+import java.util.Date;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.DefaultMemberOf;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemNotFoundException;
 
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.9 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: StemDAO.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -36,25 +36,25 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void createChildGroup(StemDTO _parent, GroupDTO _child, MemberDTO _m)
+  void createChildGroup(Stem _parent, Group _child, Member _m)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void createChildStem(StemDTO _parent, StemDTO _child)
+  void createChildStem(Stem _parent, Stem _child)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void createRootStem(StemDTO _root)
+  void createRootStem(Stem _root)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void delete(StemDTO _ns)
+  void delete(Stem _ns)
     throws  GrouperDAOException;
 
   /**
@@ -66,63 +66,63 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set<StemDTO> findAllByApproximateDisplayExtension(String val) 
+  Set<Stem> findAllByApproximateDisplayExtension(String val) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<StemDTO> findAllByApproximateDisplayName(String val) 
+  Set<Stem> findAllByApproximateDisplayName(String val) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<StemDTO> findAllByApproximateExtension(String val) 
+  Set<Stem> findAllByApproximateExtension(String val) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<StemDTO> findAllByApproximateName(String val) 
+  Set<Stem> findAllByApproximateName(String val) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<StemDTO> findAllByApproximateNameAny(String name) 
+  Set<Stem> findAllByApproximateNameAny(String name) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<StemDTO> findAllByCreatedAfter(Date d) 
+  Set<Stem> findAllByCreatedAfter(Date d) 
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  Set<StemDTO> findAllByCreatedBefore(Date d) 
+  Set<Stem> findAllByCreatedBefore(Date d) 
     throws  GrouperDAOException;
 
   /**
    * Find all child groups within specified scope.
    * @since   1.2.1
    */
-  Set<GroupDTO> findAllChildGroups(StemDTO ns, Stem.Scope scope)
+  Set<Group> findAllChildGroups(Stem ns, Stem.Scope scope)
     throws  GrouperDAOException;
 
   /**
    * Find all child stems within specified scope.
    * @since   1.2.1
    */
-  Set<StemDTO> findAllChildStems(StemDTO ns, Stem.Scope scope)
+  Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  StemDTO findByName(String name) 
+  Stem findByName(String name) 
     throws  GrouperDAOException,
             StemNotFoundException
             ;
@@ -130,7 +130,7 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  StemDTO findByUuid(String uuid)
+  Stem findByUuid(String uuid)
     throws  GrouperDAOException,
             StemNotFoundException
             ;
@@ -138,25 +138,25 @@ public interface StemDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void renameStemAndChildren(StemDTO _ns, Set children)
+  void renameStemAndChildren(Stem _ns, Set children)
     throws  GrouperDAOException;
 
   /** 
    * @since   1.2.0
    */
-  void revokePriv(StemDTO _ns, DefaultMemberOf mof)
+  void revokePriv(Stem _ns, DefaultMemberOf mof)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void revokePriv(StemDTO _ns, Set toDelete)
+  void revokePriv(Stem _ns, Set toDelete)
     throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
    */
-  void update(StemDTO _ns)
+  void update(Stem _ns)
     throws  GrouperDAOException;
 
 } 

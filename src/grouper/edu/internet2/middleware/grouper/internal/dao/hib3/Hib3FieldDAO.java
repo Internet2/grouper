@@ -15,8 +15,6 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
@@ -30,12 +28,11 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dto.FieldDTO;
 
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.4 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -54,13 +51,13 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
     
     try {
       id = HibernateSession.byHqlStatic()
-      .createQuery("select f.id from FieldDTO f where f.name = :name")
+      .createQuery("select f.id from Field f where f.name = :name")
       .setString("name", name).uniqueResult(Object.class);
     } catch (GrouperDAOException gde) {
       Throwable throwable = gde.getCause();
       //CH 20080218 this was legacy error handling
       if (throwable instanceof HibernateException) {
-        ErrorLog.fatal( FieldDTO.class, throwable.getMessage() );
+        ErrorLog.fatal( Field.class, throwable.getMessage() );
       }
       throw gde;
     }
@@ -74,39 +71,39 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   /**
    * @since   @HEAD@
    */
-  public Set<FieldDTO> findAll() 
+  public Set<Field> findAll() 
     throws  GrouperRuntimeException
   {
     return HibernateSession.byHqlStatic()
-      .createQuery("from FieldDTO order by name asc")
+      .createQuery("from Field order by name asc")
       .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindAll").listSet(FieldDTO.class);
+      .setCacheRegion(KLASS + ".FindAll").listSet(Field.class);
   } // public Set findAll()
 
   /** 
    * @since   @HEAD@
    */
-  public Set<FieldDTO> findAllFieldsByGroupType(String uuid)
+  public Set<Field> findAllFieldsByGroupType(String uuid)
     throws  GrouperDAOException
   {
     return HibernateSession.byHqlStatic()
-      .createQuery("from FieldDTO as f where f.groupTypeUuid = :uuid order by f.name asc")
+      .createQuery("from Field as f where f.groupTypeUuid = :uuid order by f.name asc")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllFieldsByGroupType")
-      .setString("uuid", uuid).listSet(FieldDTO.class);
+      .setString("uuid", uuid).listSet(Field.class);
   } 
 
   /**
    * @since   @HEAD@
    */
-  public Set<FieldDTO> findAllByType(FieldType type) 
+  public Set<Field> findAllByType(FieldType type) 
     throws  GrouperDAOException
   {
     return HibernateSession.byHqlStatic()
-       .createQuery("from FieldDTO where type = :type order by name asc")
+       .createQuery("from Field where type = :type order by name asc")
        .setCacheable(false)
        .setCacheRegion(KLASS + ".FindAllByType")
-       .setString( "type", type.toString() ).listSet(FieldDTO.class);
+       .setString( "type", type.toString() ).listSet(Field.class);
   } // public Set fieldAllByType(type)
 
   /**
@@ -118,10 +115,10 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   {
     ByHqlStatic qry = HibernateSession.byHqlStatic();
     if      ( f.getType().equals(FieldType.ATTRIBUTE) ) {
-      qry.createQuery("from AttributeDTO as a where a.attrName = :name");
+      qry.createQuery("from Attribute as a where a.attrName = :name");
     }
     else if ( f.getType().equals(FieldType.LIST) )      {
-      qry.createQuery("from MembershipDTO as ms where ms.listName = :name");
+      qry.createQuery("from Membership as ms where ms.listName = :name");
     } else {
       throw new SchemaException( f.getType().toString() );
     }

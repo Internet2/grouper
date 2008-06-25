@@ -17,11 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
-import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
 
 /** 
  * @author  blair christensen.
- * @version $Id: DeleteStemValidator.java,v 1.6 2007-08-02 19:25:15 blair Exp $
+ * @version $Id: DeleteStemValidator.java,v 1.7 2008-06-25 05:46:05 mchyzer Exp $
  * @since   1.2.0
  */
 class DeleteStemValidator extends GrouperValidator {
@@ -35,10 +34,10 @@ class DeleteStemValidator extends GrouperValidator {
     if      ( Stem.ROOT_NAME.equals( ns.getName() ) ) {
       v.setErrorMessage("cannot delete root stem");
     }
-    else if ( dao.findAllChildStems( (StemDTO) ns.getDTO(), Stem.Scope.ONE ).size() > 0 ) {
+    else if ( dao.findAllChildStems( ns, Stem.Scope.ONE ).size() > 0 ) {
       v.setErrorMessage("cannot delete stem with child stems");
     }
-    else if ( dao.findAllChildGroups( (StemDTO) ns.getDTO(), Stem.Scope.ONE ).size() > 0 ) {
+    else if ( dao.findAllChildGroups( ns, Stem.Scope.ONE ).size() > 0 ) {
       v.setErrorMessage("cannot delete stem with child groups");
     }
     else {

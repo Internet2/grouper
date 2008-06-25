@@ -1,34 +1,30 @@
 /*
  * @author mchyzer
- * $Id: GroupDTOTest.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: GroupDataTest.java,v 1.1 2008-06-25 05:46:05 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.internal.dto;
+package edu.internet2.middleware.grouper;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.GrouperTest;
-import edu.internet2.middleware.grouper.RegistryReset;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO;
-import edu.internet2.middleware.grouper.internal.dto.GroupDTO;
 
 
 /**
  *
  */
-public class GroupDTOTest extends GrouperTest {
+public class GroupDataTest extends GrouperTest {
   
   /**
    * main
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GroupDTOTest("testDbRetrieve"));
+    TestRunner.run(new GroupDataTest("testDbRetrieve"));
     //TestRunner.run(Hib3GroupDAOTest.class);
   }
   
   /**
    * @param name
    */
-  public GroupDTOTest(String name) {
+  public GroupDataTest(String name) {
     super(name);
   }
 
@@ -45,18 +41,18 @@ public class GroupDTOTest extends GrouperTest {
    * Test method for {@link edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO#dbVersionDifferent()}.
    */
   public void testDbVersionDifferent() {
-    GroupDTO group1 = new GroupDTO();
+    Group group1 = new Group();
     group1.dbVersionReset();
     assertFalse("Nothing should not be different", group1.dbVersionDifferent());
-    group1.setCreateSource("a");
+    group1.setCreateSourceDb("a");
     assertTrue(group1.dbVersionDifferent());
     assertEquals("Only one field changed", 1, group1.dbVersionDifferentFields().size());
-    assertEquals("Only one field changed", GroupDTO.FIELD_CREATE_SOURCE, (String)group1.dbVersionDifferentFields().toArray()[0]);
-    group1.setCreateSource(null);
+    assertEquals("Only one field changed", Group.FIELD_CREATE_SOURCE, (String)group1.dbVersionDifferentFields().toArray()[0]);
+    group1.setCreateSourceDb(null);
     assertFalse("Nothing should not be different", group1.dbVersionDifferent());
     assertEquals("No fields changed", 0, group1.dbVersionDifferentFields().size());
     
-    group1.setCreateSource("");
+    group1.setCreateSourceDb("");
     assertEquals("No fields changed", 0, group1.dbVersionDifferentFields().size());
     assertFalse("empty is same as null", group1.dbVersionDifferent());
     assertEquals("No fields changed", 0, group1.dbVersionDifferentFields().size());
