@@ -29,13 +29,16 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostDeleteBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostInsertBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostUpdateBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreDeleteBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreUpdateBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -51,7 +54,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.93 2008-06-26 11:16:48 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.94 2008-06-26 18:08:36 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -351,8 +354,10 @@ public class Membership extends GrouperAPI {
       mof.addImmediate( s, g, f, m );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EL.addEffMembers( s, g, subj, f, mof.getEffectiveSaves() );
-    }
-    catch (IllegalStateException eIS)           {
+    } catch (HookVeto hookVeto) {
+      //just throw, this is ok
+      throw hookVeto;
+    } catch (IllegalStateException eIS)           {
       throw new MemberAddException( eIS.getMessage(), eIS );
     }    
     catch (InsufficientPrivilegeException eIP)  {
@@ -878,5 +883,63 @@ public class Membership extends GrouperAPI {
       .append( "viaUuid",     this.getViaUuid()     )
       .toString();
   } // public String toString()
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipPostDeleteBean.class, 
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipPostInsertBean.class, 
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_UPDATE, HooksMembershipPostUpdateBean.class, 
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_UPDATE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipPreDeleteBean.class, 
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE);
+
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipPreUpdateBean.class, 
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE);
+  }
   
 }
