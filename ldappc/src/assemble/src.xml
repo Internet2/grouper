@@ -21,8 +21,15 @@
       <excludes>
         <exclude>**/target/**</exclude>
         <exclude>**/bin/**</exclude>
-        <exclude>**/test-foo/**</exclude>
+        <exclude>cobertura.ser</exclude>
+        <exclude>**/logs/*.log*</exclude>
       </excludes>
+    </fileSet>
+
+    <!-- Run scripts -->
+    <fileSet>
+      <directory>src/scripts</directory>
+      <outputDirectory>/bin</outputDirectory>
     </fileSet>
 
     <!-- Documentation -->
