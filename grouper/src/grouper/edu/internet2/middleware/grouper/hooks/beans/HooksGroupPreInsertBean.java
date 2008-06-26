@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksGroupPreInsertBean.java,v 1.3 2008-06-25 05:46:06 mchyzer Exp $
+ * $Id: HooksGroupPreInsertBean.java,v 1.4 2008-06-26 11:16:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -16,11 +16,9 @@ public class HooksGroupPreInsertBean extends HooksBean {
   private Group group = null;
   
   /**
-   * @param theHooksContext
    * @param theGroup
    */
-  public HooksGroupPreInsertBean(HooksContext theHooksContext, Group theGroup) {
-    super(theHooksContext);
+  public HooksGroupPreInsertBean(Group theGroup) {
     this.group = theGroup;
   }
   

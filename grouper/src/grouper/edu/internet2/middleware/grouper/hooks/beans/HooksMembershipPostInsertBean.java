@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksMembershipPostInsertBean.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: HooksMembershipPostInsertBean.java,v 1.3 2008-06-26 11:16:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -10,13 +10,5 @@ package edu.internet2.middleware.grouper.hooks.beans;
  */
 public class HooksMembershipPostInsertBean extends HooksBean {
 
-  /**
-   * @param theHooksContext
-   */
-  public HooksMembershipPostInsertBean(HooksContext theHooksContext) {
-    super(theHooksContext);
-  }
-
-  
   
 }

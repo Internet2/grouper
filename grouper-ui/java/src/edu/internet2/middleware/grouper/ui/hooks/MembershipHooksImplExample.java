@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.2 2008-06-21 04:16:21 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.3 2008-06-26 11:16:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ui.hooks;
 
@@ -8,12 +8,12 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.SchemaException;
-import edu.internet2.middleware.grouper.hooks.HookVeto;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperBuiltinContextType;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 
 
 /**
@@ -22,11 +22,12 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberB
 public class MembershipHooksImplExample extends MembershipHooks {
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean)
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean)
    */
   @Override
-  public void membershipPreAddMember(HooksMembershipPreAddMemberBean preAddMemberBean) {
-    HooksContext hooksContext = preAddMemberBean.getHooksContext();
+  public void membershipPreAddMember(HooksContext hooksContext, HooksMembershipPreAddMemberBean preAddMemberBean) {
+
     //TODO make this unknown if not known
     GrouperContextType grouperContextType = hooksContext.getGrouperContextType();
     

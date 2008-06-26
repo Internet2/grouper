@@ -18,6 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -122,6 +123,8 @@ public class GrouperUtil {
       result.append(currChar);
       if ((currChar >= 'A') && (currChar <= 'Z')) {
         previousCap = true;
+      } else {
+        previousCap = false;
       }
     }
   
@@ -1320,6 +1323,27 @@ public class GrouperUtil {
   }
 
   /**
+   * print the simple names of a list of classes
+   * @param object
+   * @return the simple names
+   */
+  public static String classesString(Object object) {
+    StringBuilder result = new StringBuilder();
+    if (object.getClass().isArray()) {
+      int length = Array.getLength(object);
+      for (int i=0;i<length;i++) {
+        result.append(((Class)object).getSimpleName());
+        if (i < length-1) {
+          result.append(", ");
+        }
+      }
+      return result.toString();
+    }
+    
+    throw new RuntimeException("Not implemented: " + className(object));
+  }
+  
+  /**
    * null safe classname method, max out at 20
    * 
    * @param object
@@ -1329,9 +1353,10 @@ public class GrouperUtil {
     if (object == null) {
       return null;
     }
+    StringBuffer result = new StringBuffer();
+    
     Iterator iterator = iterator(object);
     int length = length(object);
-    StringBuffer result = new StringBuffer();
     for (int i = 0; i < length && i < 20; i++) {
       result.append(className(next(object, iterator, i)));
       if (i != length - 1) {
@@ -1780,6 +1805,78 @@ public class GrouperUtil {
   }
   
   /**
+   * simple method to get method names
+   * @param theClass
+   * @param superclassToStopAt 
+   * @param includeSuperclassToStopAt 
+   * @param includeStaticMethods 
+   * @return the set of method names
+   */
+  public static Set<String> methodNames(Class<?> theClass, Class<?> superclassToStopAt, 
+      boolean includeSuperclassToStopAt, boolean includeStaticMethods) {
+
+    Set<Method> methods = new LinkedHashSet<Method>();
+    methodsHelper(theClass, superclassToStopAt, includeSuperclassToStopAt, includeStaticMethods, 
+        null, false, methods);
+    Set<String> methodNames = new HashSet<String>();
+    for (Method method : methods) {
+      methodNames.add(method.getName());
+    }
+    return methodNames;
+  }
+
+  /**
+   * get the set of methods
+   * @param theClass
+   * @param superclassToStopAt 
+   * @param includeSuperclassToStopAt 
+   * @param includeStaticMethods
+   * @param markerAnnotation 
+   * @param includeAnnotation 
+   * @param methodSet
+   */
+  public static void methodsHelper(Class<?> theClass, Class<?> superclassToStopAt, 
+      boolean includeSuperclassToStopAt,
+      boolean includeStaticMethods, Class<? extends Annotation> markerAnnotation, 
+      boolean includeAnnotation, Set<Method> methodSet) {
+    theClass = unenhanceClass(theClass);
+    Method[] methods = theClass.getDeclaredMethods();
+    if (length(methods) != 0) {
+      for (Method method : methods) {
+        // if not static, then continue
+        if (!includeStaticMethods
+            && Modifier.isStatic(method.getModifiers())) {
+          continue;
+        }
+        // if checking for annotation
+        if (markerAnnotation != null
+            && (includeAnnotation != method
+                .isAnnotationPresent(markerAnnotation))) {
+          continue;
+        }
+        // go for it
+        methodSet.add(method);
+      }
+    }
+    // see if done recursing (if superclassToStopAt is null, then stop at
+    // Object
+    if (theClass.equals(superclassToStopAt)
+        || theClass.equals(Object.class)) {
+      return;
+    }
+    Class superclass = theClass.getSuperclass();
+    if (!includeSuperclassToStopAt && superclass.equals(superclassToStopAt)) {
+      return;
+    }
+    // recurse
+    methodsHelper(superclass, superclassToStopAt,
+        includeSuperclassToStopAt, includeStaticMethods,
+        markerAnnotation, includeAnnotation, methodSet);
+    
+  }
+  
+  
+  /**
    * get all field names from a class, including superclasses (if specified)
    * 
    * @param theClass
@@ -2016,6 +2113,26 @@ public class GrouperUtil {
   }
 
   /**
+   * construct an instance by reflection
+   * @param <T>
+   * @param theClass
+   * @param args
+   * @param types
+   * @return the instance
+   */
+  public static <T> T construct(Class<T> theClass, Class[] types, Object[] args) {
+    try {
+      Constructor<T> constructor = theClass.getConstructor(types);
+      
+      return constructor.newInstance(args);
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Having trouble with constructor for class: " + theClass.getSimpleName()
+          + " and args: " + classesString(types), e);
+     }
+  }
+  
+  /**
    * helper method for calling a method
    * 
    * @param theClass
@@ -2104,9 +2221,22 @@ public class GrouperUtil {
 
     //only if the method exists, try to execute
     Object result = null;
+    Exception e = null;
     try {
       result = method.invoke(invokeOn, args);
-    } catch (Exception e) {
+    } catch (IllegalAccessException iae) {
+      e = iae;
+    } catch (IllegalArgumentException iae) {
+      e = iae;
+    } catch (InvocationTargetException ite) {
+      //this means the underlying call caused exception... its ok if runtime
+      if (ite.getCause() instanceof RuntimeException) {
+        throw (RuntimeException)ite.getCause();
+      }
+      //else throw as invocation target...
+      e = ite;
+    }
+    if (e != null) {
       throw new RuntimeException("Cant execute reflection method: "
           + method.getName() + ", on: " + className(invokeOn)
           + ", with args: " + classNameCollection(args), e);

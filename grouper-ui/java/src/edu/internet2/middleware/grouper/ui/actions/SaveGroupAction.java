@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.hooks.HookVeto;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
@@ -141,7 +141,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.16 2008-06-21 04:16:21 mchyzer Exp $
+ * @version $Id: SaveGroupAction.java,v 1.17 2008-06-26 11:16:44 mchyzer Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 

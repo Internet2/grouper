@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.hooks.HookVeto;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 
 /**
@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: Message.java,v 1.5 2008-06-21 04:16:22 mchyzer Exp $
+ * @version $Id: Message.java,v 1.6 2008-06-26 11:16:44 mchyzer Exp $
  */
 public class Message {
 	private String message = "";

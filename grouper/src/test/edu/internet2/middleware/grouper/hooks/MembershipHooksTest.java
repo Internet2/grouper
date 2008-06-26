@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksTest.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: MembershipHooksTest.java,v 1.3 2008-06-26 11:16:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 
 
 /**
@@ -54,7 +56,7 @@ public class MembershipHooksTest extends GrouperTest {
       fail("Should veto subj1");
     } catch (HookVeto hookVeto) {
       assertEquals("subject cannot be subj1", hookVeto.getReason());
-      assertEquals(VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, hookVeto.getVetoType());
+      assertEquals(VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER, hookVeto.getVetoType());
     }
     
   }
@@ -77,7 +79,7 @@ public class MembershipHooksTest extends GrouperTest {
   @Override
   protected void tearDown() {
     //dont have the test hook imple
-    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), null);
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), (Class<?>)null);
   }
 
   /**

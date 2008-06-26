@@ -7,14 +7,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 
-import edu.internet2.middleware.grouper.hooks.HookVeto;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
 /**
- * @version $Id: ByObject.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.3 2008-06-26 11:16:47 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {

@@ -29,10 +29,14 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -47,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.92 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.93 2008-06-26 11:16:48 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -735,21 +739,18 @@ public class Membership extends GrouperAPI {
   } // public int hashCode()
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
-    //see if there is a hook class
-    MembershipHooks membershipHooks = (MembershipHooks)GrouperHookType.MEMBERSHIP.hooksInstance();
     
-    if (membershipHooks != null) {
-      HooksMembershipPreInsertBean hooksMembershipPreInsertBean = 
-        new HooksMembershipPreInsertBean(new HooksContext(), this);
-            
-      membershipHooks.membershipPreInsert(hooksMembershipPreInsertBean);
-    }
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipPreInsertBean.class, 
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT);
+
   }
 
   /**

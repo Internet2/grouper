@@ -1,13 +1,15 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl.java,v 1.3 2008-06-25 05:46:06 mchyzer Exp $
+ * $Id: MembershipHooksImpl.java,v 1.4 2008-06-26 11:16:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 
 
 /**
@@ -27,10 +29,11 @@ public class MembershipHooksImpl extends MembershipHooks {
 
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean)
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean)
    */
   @Override
-  public void membershipPreAddMember(
+  public void membershipPreAddMember(HooksContext hooksContext, 
       HooksMembershipPreAddMemberBean preAddMemberBean) {
     String subjectId = preAddMemberBean.getMember().getSubjectId();
     mostRecentInsertMemberSubjectId = subjectId;
