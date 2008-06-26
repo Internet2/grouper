@@ -20,7 +20,6 @@
       <useDefaultExcludes>true</useDefaultExcludes>
       <excludes>
         <exclude>**/target/**</exclude>
-        <exclude>**/bin/**</exclude>
         <exclude>cobertura.ser</exclude>
         <exclude>**/logs/*.log*</exclude>
       </excludes>
@@ -28,7 +27,7 @@
 
     <!-- Run scripts -->
     <fileSet>
-      <directory>src/scripts</directory>
+      <directory>bin</directory>
       <outputDirectory>/bin</outputDirectory>
     </fileSet>
 

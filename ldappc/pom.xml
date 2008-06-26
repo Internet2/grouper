@@ -18,6 +18,7 @@
       <name>Tom Barton</name>
       <organization>The University of Chicago</organization>
       <organizationUrl>http://www.uchicago.edu/</organizationUrl>
+      <email>tbarton@uchicago.edu</email>
       <roles>
         <role>manager</role>
       </roles>
@@ -28,6 +29,7 @@
       <name>Kathryn Huxtable</name>
       <organization>Independent</organization>
       <organizationUrl>http://www.kathrynhuxtable.org/</organizationUrl>
+      <email>kathryn@kathrynhuxtable.org</email>
       <roles>
         <role>developer</role>
       </roles>
@@ -36,8 +38,31 @@
     <developer>
       <id>mchyzer</id>
       <name>Chris Hyzer</name>
-      <organization>University of Kansas</organization>
+      <organization>University of Pennsylvania</organization>
       <organizationUrl>http://www.upenn.edu/</organizationUrl>
+      <email>mchyzer@isc.upenn.edu</email>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+    <developer>
+      <id>ddonn</id>
+      <name>Dave Donnelly</name>
+      <organization>Stanford University</organization>
+      <organizationUrl>http://www.stanford.edu/</organizationUrl>
+      <email>ddonn@stanford.edu</email>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-8</timezone>
+    </developer>
+    <developer>
+      <id>shilen</id>
+      <name>Shilen Patel</name>
+      <organization>Duke University</organization>
+      <organizationUrl>http://www.duke.edu/</organizationUrl>
+      <email>shilen@duke.edu</email>
       <roles>
         <role>developer</role>
       </roles>
@@ -150,7 +175,7 @@
         </executions>
         <configuration>
           <includeScope>runtime</includeScope>
-          <outputDirectory>${basedir}/lib</outputDirectory>
+          <outputDirectory>${project.build.directory}/lib</outputDirectory>
         </configuration>
       </plugin>
     </plugins>

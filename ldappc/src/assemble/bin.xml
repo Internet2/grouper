@@ -31,7 +31,7 @@
     </fileSet>
     <!-- Copy scripts directory -->
     <fileSet>
-      <directory>src/scripts</directory>
+      <directory>bin</directory>
       <outputDirectory>/bin</outputDirectory>
     </fileSet>
 
