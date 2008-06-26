@@ -37,11 +37,12 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
-import edu.internet2.middleware.grouper.hooks.HookVeto;
-import edu.internet2.middleware.grouper.hooks.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -58,7 +59,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.184 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Group.java,v 1.185 2008-06-26 11:16:48 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -3075,37 +3076,30 @@ public class Group extends GrouperAPI implements Owner {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefaultDTO#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
-    //see if there is a hook class
-    GroupHooks groupHooks = (GroupHooks)GrouperHookType.GROUP.hooksInstance();
-    
-    if (groupHooks != null) {
-      HooksGroupPreInsertBean hooksGroupPreInsertBean = new HooksGroupPreInsertBean(new HooksContext(), this);
-      try {
-        groupHooks.groupPreInsert(hooksGroupPreInsertBean);
-      } catch (HookVeto hv) {
-        hv.assignVetoType(VetoTypeGrouper.GROUP_PRE_INSERT, false);
-        throw hv;
-      }
-    }
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupPreInsertBean.class, 
+        this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT);
     
   }
 
-  // @since   @HEAD@
-  public boolean onSave(Session hs) 
-    throws  CallbackException
-  {
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onSave(org.hibernate.Session)
+   */
+  public boolean onSave(Session hs) throws  CallbackException {
     GrouperDAOFactory.getFactory().getGroup().putInExistsCache( this.getUuid(), true );
     return Lifecycle.NO_VETO;
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @param attributes
    */
   public void setAttributes(Map attributes) {
     this.attributes = attributes;

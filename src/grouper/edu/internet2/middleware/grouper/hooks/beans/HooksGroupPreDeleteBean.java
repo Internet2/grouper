@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksGroupPreDeleteBean.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: HooksGroupPreDeleteBean.java,v 1.3 2008-06-26 11:16:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -10,13 +10,5 @@ package edu.internet2.middleware.grouper.hooks.beans;
  */
 public class HooksGroupPreDeleteBean extends HooksBean {
 
-  /**
-   * @param theHooksContext
-   */
-  public HooksGroupPreDeleteBean(HooksContext theHooksContext) {
-    super(theHooksContext);
-  }
-
-  
   
 }

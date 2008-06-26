@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: HooksMembershipPreAddMemberBean.java,v 1.3 2008-06-25 05:46:06 mchyzer Exp $
+ * $Id: HooksMembershipPreAddMemberBean.java,v 1.4 2008-06-26 11:16:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -45,9 +45,8 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
    * @param theHooksContext
    * @param theDefaultMemberOf 
    */
-  public HooksMembershipPreAddMemberBean(HooksContext theHooksContext, 
+  public HooksMembershipPreAddMemberBean(
       DefaultMemberOf theDefaultMemberOf) {
-    super(theHooksContext);
     this.defaultMemberOf = theDefaultMemberOf;
     this.composite = theDefaultMemberOf.getComposite();
     this.field = theDefaultMemberOf.getField();
