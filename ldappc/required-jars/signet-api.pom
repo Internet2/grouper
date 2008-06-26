@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>edu.internet2.middleware.signet</groupId>
+  <artifactId>signet-api</artifactId>
+  <version>1.3.0-RC1</version>
+  <name>Signet API</name>
+  <description>Signet permissions management system</description>
+  <url>http://signet.internet2.edu</url>
+  <dependencies>
+    <dependency>
+      <groupId>edu.internet2.middleware.signet</groupId>
+      <artifactId>signet-util</artifactId>
+      <version>1.3.0-RC1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.6.ga</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
+    </dependency>
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+      <version>1.0.1</version>
+    </dependency>
+  </dependencies>
+</project>
