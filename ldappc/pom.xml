@@ -243,7 +243,6 @@
         <artifactId>maven-surefire-report-plugin</artifactId>
         <configuration>
           <outputDirectory>${project.reporting.outputDirectory}/unitTest</outputDirectory>
-          <xrefLocation>${project.reporting.outputDirectory}/xref</xrefLocation>
         </configuration>
       </plugin>
       <plugin>
