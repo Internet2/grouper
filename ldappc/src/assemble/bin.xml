@@ -26,7 +26,7 @@
       <directory>logs</directory>
       <outputDirectory>/logs</outputDirectory>
       <excludes>
-        <exclude>*.log</exclude>
+        <exclude>*.log*</exclude>
       </excludes>
     </fileSet>
     <!-- Copy scripts directory -->
