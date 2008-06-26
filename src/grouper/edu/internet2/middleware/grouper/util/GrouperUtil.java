@@ -983,6 +983,17 @@ public class GrouperUtil {
   }
 
   /**
+   * convert classes to a list
+   * @param classes
+   * @return list of classes
+   */
+  public static List<Class<?>> toListClasses(Class<?>... classes) {
+    return toList(classes);
+  }
+  
+
+  
+  /**
    * return a set of objects from varargs.
    * 
    * @param <T> template type of the objects
