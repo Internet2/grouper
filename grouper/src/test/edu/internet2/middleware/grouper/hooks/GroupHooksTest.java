@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksTest.java,v 1.4 2008-06-26 16:43:21 mchyzer Exp $
+ * $Id: GroupHooksTest.java,v 1.5 2008-06-26 18:08:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -84,8 +84,12 @@ public class GroupHooksTest extends GrouperTest {
 
     assertEquals("test9", group.getExtension());
     assertEquals("test9", GroupHooksImpl.mostRecentPreUpdateGroupExtension);
-    
+
+    //remove hooks since an update hook is caleld on add
+    overrideHooksRemove();
     group = StemHelper.addChildGroup(this.edu, "test10", "the test10");
+    overrideHooksAdd();
+    
     try {
       group.setDisplayExtension("the test10");
       group.store();
@@ -102,7 +106,7 @@ public class GroupHooksTest extends GrouperTest {
    * @throws InsufficientPrivilegeException 
    * 
    */
-  public void atestGroupPostUpdate() throws GroupModifyException, InsufficientPrivilegeException {
+  public void testGroupPostUpdate() throws GroupModifyException, InsufficientPrivilegeException {
     
     
     Group group = StemHelper.addChildGroup(this.edu, "test11", "the test11");
@@ -115,7 +119,10 @@ public class GroupHooksTest extends GrouperTest {
     assertEquals("test11", group.getExtension());
     assertEquals("test11", GroupHooksImpl.mostRecentPostUpdateGroupExtension);
     
+    //remove hooks since an update hook is caleld on add
+    overrideHooksRemove();
     group = StemHelper.addChildGroup(this.edu, "test12", "the test12");
+    overrideHooksAdd();
     try {
       group.setDisplayExtension("the test12");
       group.store();
@@ -217,6 +224,13 @@ public class GroupHooksTest extends GrouperTest {
    */
   @Override
   protected void tearDown() {
+    overrideHooksRemove();
+  }
+
+  /**
+   * 
+   */
+  private void overrideHooksRemove() {
     //dont have the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.GROUP.getPropertyFileKey(), (Class<?>)null);
   }
@@ -226,13 +240,20 @@ public class GroupHooksTest extends GrouperTest {
    * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
    */
   protected void setUp () {
-    //this is the test hook imple
-    GrouperHookType.addHookOverride(GrouperHookType.GROUP.getPropertyFileKey(), 
-        GrouperUtil.toListClasses(GroupHooksImpl.class, GroupHooksImpl2.class));
+    overrideHooksAdd();
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
     edu   = StemHelper.addChildStem(root, "edu", "education");
+  }
+
+  /**
+   * 
+   */
+  private void overrideHooksAdd() {
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.GROUP.getPropertyFileKey(), 
+        GrouperUtil.toListClasses(GroupHooksImpl.class, GroupHooksImpl2.class));
   }
 
 }

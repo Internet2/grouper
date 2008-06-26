@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksTest.java,v 1.3 2008-06-26 11:16:48 mchyzer Exp $
+ * $Id: MembershipHooksTest.java,v 1.4 2008-06-26 18:08:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -41,26 +41,6 @@ public class MembershipHooksTest extends GrouperTest {
     super(name);
   }
 
-  /**
-   * @throws Exception 
-   */
-  public void testMemberPreInsert() throws Exception {
-    
-    group.addMember(SubjectTestHelper.SUBJ0);
-    Set<Membership> memberships = group.getMemberships();
-    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
-    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl.getMostRecentInsertMemberSubjectId());
-    
-    try {
-      group.addMember(SubjectTestHelper.SUBJ1);
-      fail("Should veto subj1");
-    } catch (HookVeto hookVeto) {
-      assertEquals("subject cannot be subj1", hookVeto.getReason());
-      assertEquals(VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER, hookVeto.getVetoType());
-    }
-    
-  }
-
   /** edu stem */
   private Stem edu;
   
@@ -78,6 +58,13 @@ public class MembershipHooksTest extends GrouperTest {
    */
   @Override
   protected void tearDown() {
+    overrideHooksRemove();
+  }
+
+  /**
+   * 
+   */
+  private void overrideHooksRemove() {
     //dont have the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), (Class<?>)null);
   }
@@ -87,8 +74,6 @@ public class MembershipHooksTest extends GrouperTest {
    * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
    */
   protected void setUp () {
-    //this is the test hook imple
-    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), MembershipHooksImpl.class);
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     grouperSession     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(grouperSession);
@@ -96,5 +81,181 @@ public class MembershipHooksTest extends GrouperTest {
     group = StemHelper.addChildGroup(this.edu, "group", "the group");
 
   }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPreAddMember() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), MembershipHooksImpl.class);
+
+    MembershipHooksImpl.mostRecentInsertMemberSubjectId = null;
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl.mostRecentInsertMemberSubjectId);
+    
+    try {
+      group.addMember(SubjectTestHelper.SUBJ1);
+      fail("Should veto subj1");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subject cannot be subj1", hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER, hookVeto.getVetoType());
+    }
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPreInsert() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
+        MembershipHooksImpl3.class);
+
+    MembershipHooksImpl3.mostRecentInsertMemberSubjectId = null;
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl3.mostRecentInsertMemberSubjectId);
+    
+    try {
+      group.addMember(SubjectTestHelper.SUBJ1);
+      fail("Should veto subj1");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subject cannot be subj1", hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, hookVeto.getVetoType());
+    }
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPostInsert() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
+        MembershipHooksImpl4.class);
+
+    MembershipHooksImpl4.mostRecentInsertMemberSubjectId = null;
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl4.mostRecentInsertMemberSubjectId);
+    
+    try {
+      group.addMember(SubjectTestHelper.SUBJ1);
+      fail("Should veto subj1");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subject cannot be subj1", hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBERSHIP_POST_INSERT, hookVeto.getVetoType());
+    }
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPreDelete() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
+        MembershipHooksImpl5.class);
+
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+
+    MembershipHooksImpl5.mostRecentDeleteMemberSubjectId = null;
+
+    group.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    memberships = group.getMemberships();
+
+    assertEquals(0, memberships.size());
+
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl5.mostRecentDeleteMemberSubjectId);
+    
+    group.addMember(SubjectTestHelper.SUBJ1);
+    
+    try {
+      group.deleteMember(SubjectTestHelper.SUBJ1);
+      fail("Should veto subj1");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subject cannot be subj1", hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBERSHIP_PRE_DELETE, hookVeto.getVetoType());
+    }
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPostDelete() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
+        MembershipHooksImpl6.class);
+
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+
+    MembershipHooksImpl6.mostRecentDeleteMemberSubjectId = null;
+
+    group.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    memberships = group.getMemberships();
+
+    assertEquals(0, memberships.size());
+
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl6.mostRecentDeleteMemberSubjectId);
+    
+    group.addMember(SubjectTestHelper.SUBJ1);
+    
+    try {
+      group.deleteMember(SubjectTestHelper.SUBJ1);
+      fail("Should veto subj1");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subject cannot be subj1", hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBERSHIP_POST_DELETE, hookVeto.getVetoType());
+    }
+    
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPostAddMember() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), MembershipHooksImpl2.class);
+    
+    MembershipHooksImpl2.mostRecentInsertMemberSubjectId = null;
+
+    group.addMember(SubjectTestHelper.SUBJ0);
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl2.mostRecentInsertMemberSubjectId);
+    
+    try {
+      group.addMember(SubjectTestHelper.SUBJ1);
+      fail("Should veto subj1");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subject cannot be subj1", hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER, hookVeto.getVetoType());
+    }
+    
+  }
+
 
 }

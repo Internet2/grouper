@@ -14,7 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.4 2008-06-26 16:43:21 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.5 2008-06-26 18:08:36 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -231,6 +231,11 @@ public class ByObject extends HibernateDelegate {
       Boolean isInsert = null;
       if (object instanceof HibGrouperLifecycle) {
         isInsert = HibUtilsMapping.isInsert(hibernateSession, object);
+        if (isInsert) {
+          ((HibGrouperLifecycle)object).onPreSave(hibernateSession);
+        } else {
+          ((HibGrouperLifecycle)object).onPreUpdate(hibernateSession);
+        }
       }
       
       session.saveOrUpdate(object);
