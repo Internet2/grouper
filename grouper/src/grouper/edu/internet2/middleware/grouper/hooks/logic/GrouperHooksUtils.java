@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.3 2008-06-26 11:16:47 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.4 2008-06-26 16:43:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -16,7 +16,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperHooksUtils {
 
-  
   /**
    * 
    * @param grouperHookType e.g. GrouperHookType.GROUP

@@ -10,6 +10,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -163,6 +164,9 @@ public class ByObjectStatic {
         
       });
       
+    } catch (HookVeto hookVeto) {
+      //just throw, this is ok
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in update: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;

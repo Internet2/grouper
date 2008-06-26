@@ -37,11 +37,14 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostDeleteBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostInsertBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostUpdateBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreDeleteBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreUpdateBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
-import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -59,7 +62,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.185 2008-06-26 11:16:48 mchyzer Exp $
+ * @version $Id: Group.java,v 1.186 2008-06-26 16:43:21 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -3063,6 +3066,11 @@ public class Group extends GrouperAPI implements Owner {
   public void onPostSave(HibernateSession hibernateSession) {
     GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, false, this);
     super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupPostInsertBean.class, 
+        this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT);
+
   }
 
   /**
@@ -3071,7 +3079,25 @@ public class Group extends GrouperAPI implements Owner {
   public void onPostUpdate(HibernateSession hibernateSession) {
     GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, true, this);
     super.onPostUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_POST_UPDATE, HooksGroupPostUpdateBean.class, 
+        this, Group.class, VetoTypeGrouper.GROUP_POST_UPDATE);
+
   
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_POST_DELETE, HooksGroupPostDeleteBean.class, 
+        this, Group.class, VetoTypeGrouper.GROUP_POST_DELETE);
+
   }
 
   /**
@@ -3203,6 +3229,31 @@ public class Group extends GrouperAPI implements Owner {
       .append( "types",        this.getTypesDb()        )
       .toString();
   } // public String toString()
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupPreDeleteBean.class, 
+        this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupPreUpdateBean.class, 
+        this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE);
+
+  }
 
 } // public class Group extends GrouperAPI implements Owner
 
