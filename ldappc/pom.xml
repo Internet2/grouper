@@ -115,52 +115,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2-beta-2</version>
-        <configuration>
-          <descriptors>
-            <descriptor>src/assembly/bin.xml</descriptor>
-            <descriptor>src/assembly/src.xml</descriptor>
-          </descriptors>
-        </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.4.3</version>
-        <configuration>
-          <argLine>-Xmx300M</argLine>
-          <includes>
-            <include>**/AllJUnitTests.java</include>
-          </includes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.2</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>edu.internet2.middleware.ldappc.Ldappc</mainClass>
-              <addClasspath>true</addClasspath>
-              <addExtensions />
-              <classpathPrefix>lib</classpathPrefix>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <version>2.0</version>
         <executions>
@@ -177,8 +131,64 @@
           <outputDirectory>${project.build.directory}/lib</outputDirectory>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+            </manifest>
+            <manifestEntries>
+              <url>${pom.url}</url>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.4.3</version>
+        <configuration>
+          <argLine>-Xmx300M</argLine>
+          <includes>
+            <include>**/AllJUnitTests.java</include>
+          </includes>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>distribution</id>
+      <build>
+        <plugins>
+	      <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-assembly-plugin</artifactId>
+	        <version>2.2-beta-2</version>
+	        <configuration>
+	          <finalName>${project.artifactId}-${project.version}</finalName>
+	          <descriptors>
+	            <descriptor>src/assembly/bin.xml</descriptor>
+	            <descriptor>src/assembly/src.xml</descriptor>
+	          </descriptors>
+	        </configuration>
+	        <executions>
+	          <execution>
+	            <id>make-assembly</id>
+	            <phase>package</phase>
+	            <goals>
+	              <goal>attached</goal>
+	            </goals>
+	          </execution>
+	        </executions>
+	      </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
