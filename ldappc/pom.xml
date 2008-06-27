@@ -40,32 +40,18 @@
     <contributor>
       <name>Chris Hyzer</name>
       <organization>University of Pennsylvania</organization>
-      <organizationUrl>http://www.upenn.edu/</organizationUrl>
-      <email>mchyzer@isc.upenn.edu</email>
-      <roles>
-        <role>contributor</role>
-      </roles>
-      <timezone>-5</timezone>
     </contributor>
     <contributor>
       <name>Dave Donnelly</name>
       <organization>Stanford University</organization>
-      <organizationUrl>http://www.stanford.edu/</organizationUrl>
-      <email>ddonn@stanford.edu</email>
-      <roles>
-        <role>contributor</role>
-      </roles>
-      <timezone>-8</timezone>
     </contributor>
     <contributor>
       <name>Shilen Patel</name>
       <organization>Duke University</organization>
-      <organizationUrl>http://www.duke.edu/</organizationUrl>
-      <email>shilen@duke.edu</email>
-      <roles>
-        <role>contributor</role>
-      </roles>
-      <timezone>-5</timezone>
+    </contributor>
+    <contributor>
+      <name>Michael Gettes</name>
+      <organization>MIT</organization>
     </contributor>
   </contributors>
   <licenses>
