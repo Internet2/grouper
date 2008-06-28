@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.3 2008-06-26 11:16:44 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.4 2008-06-28 06:55:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ui.hooks;
 
@@ -12,7 +12,7 @@ import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperBuiltinContextType;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipAddMemberBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 
 
@@ -26,7 +26,7 @@ public class MembershipHooksImplExample extends MembershipHooks {
    * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean)
    */
   @Override
-  public void membershipPreAddMember(HooksContext hooksContext, HooksMembershipPreAddMemberBean preAddMemberBean) {
+  public void membershipPreAddMember(HooksContext hooksContext, HooksMembershipAddMemberBean preAddMemberBean) {
 
     //TODO make this unknown if not known
     GrouperContextType grouperContextType = hooksContext.getGrouperContextType();

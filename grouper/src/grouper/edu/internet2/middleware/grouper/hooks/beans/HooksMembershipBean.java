@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksMembershipBean.java,v 1.1 2008-06-26 18:08:36 mchyzer Exp $
+ * $Id: HooksMembershipBean.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -9,7 +9,7 @@ import edu.internet2.middleware.grouper.Membership;
 
 
 /**
- *
+ * bean to hold objects for membership low level hooks
  */
 public class HooksMembershipBean extends HooksBean {
   

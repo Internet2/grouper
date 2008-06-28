@@ -23,7 +23,7 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.8 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.9 2008-06-28 06:55:48 mchyzer Exp $
  */
  public class SubjectTestHelper {
 
@@ -33,6 +33,13 @@ import  junit.framework.*;
   public static final Subject  SUBJ0;
   public static final Subject  SUBJ1;
   public static final Subject  SUBJ2;
+  public static final Subject  SUBJ3;
+  public static final Subject  SUBJ4;
+  public static final Subject  SUBJ5;
+  public static final Subject  SUBJ6;
+  public static final Subject  SUBJ7;
+  public static final Subject  SUBJ8;
+  public static final Subject  SUBJ9;
   public static final String   SUBJ0_ID    = "test.subject.0";
   public static final String   SUBJ0_NAME  = "my name is test.subject.0";
   public static final String   SUBJ0_TYPE  = "person";
@@ -42,6 +49,27 @@ import  junit.framework.*;
   public static final String   SUBJ2_ID    = "test.subject.2";
   public static final String   SUBJ2_NAME  = "my name is test.subject.2";
   public static final String   SUBJ2_TYPE  = "person";
+  public static final String   SUBJ3_ID    = "test.subject.3";
+  public static final String   SUBJ3_NAME  = "my name is test.subject.3";
+  public static final String   SUBJ3_TYPE  = "person";
+  public static final String   SUBJ4_ID    = "test.subject.4";
+  public static final String   SUBJ4_NAME  = "my name is test.subject.4";
+  public static final String   SUBJ4_TYPE  = "person";
+  public static final String   SUBJ5_ID    = "test.subject.5";
+  public static final String   SUBJ5_NAME  = "my name is test.subject.5";
+  public static final String   SUBJ5_TYPE  = "person";
+  public static final String   SUBJ6_ID    = "test.subject.6";
+  public static final String   SUBJ6_NAME  = "my name is test.subject.6";
+  public static final String   SUBJ6_TYPE  = "person";
+  public static final String   SUBJ7_ID    = "test.subject.7";
+  public static final String   SUBJ7_NAME  = "my name is test.subject.7";
+  public static final String   SUBJ7_TYPE  = "person";
+  public static final String   SUBJ8_ID    = "test.subject.8";
+  public static final String   SUBJ8_NAME  = "my name is test.subject.8";
+  public static final String   SUBJ8_TYPE  = "person";
+  public static final String   SUBJ9_ID    = "test.subject.9";
+  public static final String   SUBJ9_NAME  = "my name is test.subject.9";
+  public static final String   SUBJ9_TYPE  = "person";
   public static final String   SUBJ_ALL    = "GrouperAll";
   public static final String   SUBJ_ROOT   = "GrouperSystem";
 
@@ -50,6 +78,13 @@ import  junit.framework.*;
       SUBJ0 = SubjectFinder.findById(SUBJ0_ID);
       SUBJ1 = SubjectFinder.findById(SUBJ1_ID);
       SUBJ2 = SubjectFinder.findById(SUBJ2_ID);
+      SUBJ3 = SubjectFinder.findById(SUBJ3_ID);
+      SUBJ4 = SubjectFinder.findById(SUBJ4_ID);
+      SUBJ5 = SubjectFinder.findById(SUBJ5_ID);
+      SUBJ6 = SubjectFinder.findById(SUBJ6_ID);
+      SUBJ7 = SubjectFinder.findById(SUBJ7_ID);
+      SUBJ8 = SubjectFinder.findById(SUBJ8_ID);
+      SUBJ9 = SubjectFinder.findById(SUBJ9_ID);
       SUBJA = SubjectFinder.findById(SUBJ_ALL);
       SUBJR = SubjectFinder.findById(SUBJ_ROOT);
     }

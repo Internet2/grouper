@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -27,6 +26,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -36,7 +41,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.57 2008-06-25 05:46:06 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.58 2008-06-28 06:55:47 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -594,5 +599,78 @@ public class GroupType extends GrouperAPI implements Serializable {
       .append( "uuid",         this.getUuid()         )
       .toString();
   } // public String toString() 
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_POST_DELETE, HooksGroupTypeBean.class, 
+        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_POST_INSERT, HooksGroupTypeBean.class, 
+        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_INSERT);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_POST_UPDATE, HooksGroupTypeBean.class, 
+        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_UPDATE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_PRE_DELETE, HooksGroupTypeBean.class, 
+        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_DELETE);
+  
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_PRE_INSERT, HooksGroupTypeBean.class, 
+        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_INSERT);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_PRE_UPDATE, HooksGroupTypeBean.class, 
+        this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_UPDATE);
+  }
 
 }

@@ -37,12 +37,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostUpdateBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreUpdateBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -62,7 +57,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.186 2008-06-26 16:43:21 mchyzer Exp $
+ * @version $Id: Group.java,v 1.187 2008-06-28 06:55:47 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -3068,7 +3063,7 @@ public class Group extends GrouperAPI implements Owner {
     super.onPostSave(hibernateSession);
     
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupPostInsertBean.class, 
+        GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT);
 
   }
@@ -3081,7 +3076,7 @@ public class Group extends GrouperAPI implements Owner {
     super.onPostUpdate(hibernateSession);
     
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_POST_UPDATE, HooksGroupPostUpdateBean.class, 
+        GroupHooks.METHOD_GROUP_POST_UPDATE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_UPDATE);
 
   
@@ -3095,7 +3090,7 @@ public class Group extends GrouperAPI implements Owner {
     super.onPostDelete(hibernateSession);
 
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_POST_DELETE, HooksGroupPostDeleteBean.class, 
+        GroupHooks.METHOD_GROUP_POST_DELETE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_DELETE);
 
   }
@@ -3109,7 +3104,7 @@ public class Group extends GrouperAPI implements Owner {
     super.onPreSave(hibernateSession);
     
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupPreInsertBean.class, 
+        GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT);
     
   }
@@ -3238,7 +3233,7 @@ public class Group extends GrouperAPI implements Owner {
     super.onPreDelete(hibernateSession);
 
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupPreDeleteBean.class, 
+        GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE);
   }
 
@@ -3250,7 +3245,7 @@ public class Group extends GrouperAPI implements Owner {
     super.onPreUpdate(hibernateSession);
     
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupPreUpdateBean.class, 
+        GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE);
 
   }

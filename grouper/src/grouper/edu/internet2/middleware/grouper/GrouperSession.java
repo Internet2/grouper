@@ -30,6 +30,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GrouperSessionHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGrouperSessionBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.Realize;
@@ -44,7 +50,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.79 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.80 2008-06-28 06:55:47 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -575,6 +581,79 @@ public class GrouperSession extends GrouperAPI {
       .append( "startTime",  this.getStartTime()   )
       .append( "uuid",       this.getUuid() )
       .toString();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_DELETE, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_POST_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_INSERT, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_POST_INSERT);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_UPDATE, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_POST_UPDATE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_PRE_DELETE, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_PRE_DELETE);
+  
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_PRE_INSERT, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_PRE_INSERT);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_PRE_UPDATE, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_PRE_UPDATE);
   }
 
   /**

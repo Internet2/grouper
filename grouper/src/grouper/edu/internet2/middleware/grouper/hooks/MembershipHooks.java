@@ -1,18 +1,12 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooks.java,v 1.3 2008-06-26 11:16:47 mchyzer Exp $
+ * $Id: MembershipHooks.java,v 1.4 2008-06-28 06:55:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostUpdateBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostAddMemberBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreUpdateBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
 
 
 /**
@@ -54,7 +48,7 @@ public abstract class MembershipHooks {
    * @param hooksContext
    * @param preUpdateBean
    */
-  public void membershipPreUpdate(HooksContext hooksContext, HooksMembershipPreUpdateBean preUpdateBean) {
+  public void membershipPreUpdate(HooksContext hooksContext, HooksMembershipBean preUpdateBean) {
     
   }
   
@@ -63,7 +57,7 @@ public abstract class MembershipHooks {
    * @param hooksContext
    * @param postUpdateBean
    */
-  public void membershipPostUpdate(HooksContext hooksContext, HooksMembershipPostUpdateBean postUpdateBean) {
+  public void membershipPostUpdate(HooksContext hooksContext, HooksMembershipBean postUpdateBean) {
     
   }
   
@@ -73,7 +67,7 @@ public abstract class MembershipHooks {
    * @param preAddMemberBean
    */
   public void membershipPreAddMember(HooksContext hooksContext, 
-      HooksMembershipPreAddMemberBean preAddMemberBean) {
+      HooksMembershipAddMemberBean preAddMemberBean) {
     
   }
   
@@ -83,7 +77,7 @@ public abstract class MembershipHooks {
    * @param postAddMemberBean
    */
   public void membershipPostAddMember(HooksContext hooksContext, 
-      HooksMembershipPostAddMemberBean postAddMemberBean) {
+      HooksMembershipAddMemberBean postAddMemberBean) {
     
   }
   
@@ -92,7 +86,7 @@ public abstract class MembershipHooks {
    * @param hooksContext
    * @param preInsertBean
    */
-  public void membershipPreInsert(HooksContext hooksContext, HooksMembershipPreInsertBean preInsertBean) {
+  public void membershipPreInsert(HooksContext hooksContext, HooksMembershipBean preInsertBean) {
     
   }
   
@@ -101,7 +95,7 @@ public abstract class MembershipHooks {
    * @param hooksContext
    * @param postInsertBean
    */
-  public void membershipPostInsert(HooksContext hooksContext, HooksMembershipPostInsertBean postInsertBean) {
+  public void membershipPostInsert(HooksContext hooksContext, HooksMembershipBean postInsertBean) {
     
   }
   
@@ -110,7 +104,7 @@ public abstract class MembershipHooks {
    * @param hooksContext
    * @param preDeleteBean
    */
-  public void membershipPreDelete(HooksContext hooksContext, HooksMembershipPreDeleteBean preDeleteBean) {
+  public void membershipPreDelete(HooksContext hooksContext, HooksMembershipBean preDeleteBean) {
     
   }
   
@@ -119,7 +113,7 @@ public abstract class MembershipHooks {
    * @param hooksContext
    * @param postDeleteBean
    */
-  public void membershipPostDelete(HooksContext hooksContext, HooksMembershipPostDeleteBean postDeleteBean) {
+  public void membershipPostDelete(HooksContext hooksContext, HooksMembershipBean postDeleteBean) {
     
   }
   

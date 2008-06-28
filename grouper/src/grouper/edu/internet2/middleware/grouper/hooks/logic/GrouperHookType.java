@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHookType.java,v 1.3 2008-06-26 11:16:47 mchyzer Exp $
+ * $Id: GrouperHookType.java,v 1.4 2008-06-28 06:55:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -13,8 +13,15 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.hooks.CompositeHooks;
+import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
+import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
+import edu.internet2.middleware.grouper.hooks.GrouperSessionHooks;
+import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
+import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -29,7 +36,42 @@ public enum GrouperHookType {
   GROUP("hooks.group.class", GroupHooks.class),
   
   /**
-   * group hooks
+   * stem hooks
+   */
+  STEM("hooks.stem.class", StemHooks.class),
+  
+  /**
+   * member hooks
+   */
+  MEMBER("hooks.member.class", MemberHooks.class),
+  
+  /**
+   * composite hooks
+   */
+  COMPOSITE("hooks.composite.class", CompositeHooks.class),
+  
+  /**
+   * field hooks
+   */
+  FIELD("hooks.field.class", FieldHooks.class),
+  
+  /**
+   * grouper session hooks
+   */
+  GROUPER_SESSION("hooks.grouperSession.class", GrouperSessionHooks.class),
+  
+  /**
+   * group type hooks
+   */
+  GROUP_TYPE("hooks.groupType.class", GroupTypeHooks.class),
+  
+  /**
+   * stem hooks
+   */
+  GROUP_TYPE_TUPLE("hooks.groupTypeTuple.class", GroupTypeTupleHooks.class),
+  
+  /**
+   * membership hooks
    */
   MEMBERSHIP("hooks.membership.class", MembershipHooks.class);
 

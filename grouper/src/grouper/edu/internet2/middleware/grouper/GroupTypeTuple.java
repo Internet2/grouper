@@ -20,10 +20,17 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.1 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class GroupTypeTuple extends GrouperAPI {
@@ -100,6 +107,79 @@ public class GroupTypeTuple extends GrouperAPI {
   public GroupTypeTuple setTypeUuid(String typeUUID) {
     this.typeUUID = typeUUID;
     return this;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_DELETE, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_INSERT, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_INSERT);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_UPDATE, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_UPDATE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_DELETE, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_DELETE);
+  
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_INSERT, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_INSERT);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_UPDATE, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_UPDATE);
   }
 
 } 

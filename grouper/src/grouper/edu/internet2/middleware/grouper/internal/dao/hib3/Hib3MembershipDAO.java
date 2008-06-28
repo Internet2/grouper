@@ -34,12 +34,9 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostAddMemberBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipAddMemberBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
-import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -48,7 +45,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.13 2008-06-26 11:16:47 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.14 2008-06-28 06:55:48 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -446,7 +443,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             
             GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
                 MembershipHooks.METHOD_MEMBERSHIP_PRE_ADD_MEMBER,
-                HooksMembershipPreAddMemberBean.class, mof, DefaultMemberOf.class, 
+                HooksMembershipAddMemberBean.class, mof, DefaultMemberOf.class, 
                 VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER);
             
             ByObject byObject = hibernateSession.byObject();
@@ -460,7 +457,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
             GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
                 MembershipHooks.METHOD_MEMBERSHIP_POST_ADD_MEMBER,
-                HooksMembershipPostAddMemberBean.class, mof, DefaultMemberOf.class, 
+                HooksMembershipAddMemberBean.class, mof, DefaultMemberOf.class, 
                 VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER);
             
             return null;

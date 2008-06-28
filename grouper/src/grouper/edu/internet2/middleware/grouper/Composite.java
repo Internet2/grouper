@@ -28,6 +28,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
 
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.CompositeHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 
@@ -41,7 +47,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.51 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.52 2008-06-28 06:55:47 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -536,6 +542,79 @@ public class Composite extends GrouperAPI {
       .append( "rightFactorUuid", this.getRightFactorUuid()   )
       .append( "type",            this.getType()              )
       .toString();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_POST_DELETE, HooksCompositeBean.class, 
+        this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_POST_INSERT, HooksCompositeBean.class, 
+        this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_INSERT);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_POST_UPDATE, HooksCompositeBean.class, 
+        this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_UPDATE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_PRE_DELETE, HooksCompositeBean.class, 
+        this, Composite.class, VetoTypeGrouper.COMPOSITE_PRE_DELETE);
+  
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_PRE_INSERT, HooksCompositeBean.class, 
+        this, Composite.class, VetoTypeGrouper.COMPOSITE_PRE_INSERT);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_PRE_UPDATE, HooksCompositeBean.class, 
+        this, Composite.class, VetoTypeGrouper.COMPOSITE_PRE_UPDATE);
   } 
 
 } 

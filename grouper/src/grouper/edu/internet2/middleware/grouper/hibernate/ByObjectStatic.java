@@ -123,6 +123,8 @@ public class ByObjectStatic {
             }
         
       });
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
@@ -203,6 +205,8 @@ public class ByObjectStatic {
         
       });
       return result;
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in update: " + theClass + ", " + this, e);
       throw e;
@@ -245,6 +249,8 @@ public class ByObjectStatic {
             }
         
       });
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
@@ -286,6 +292,8 @@ public class ByObjectStatic {
         
       });
       
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in saveOrUpdate: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;
@@ -328,6 +336,8 @@ public class ByObjectStatic {
             }
         
       });
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
@@ -375,6 +385,8 @@ public class ByObjectStatic {
         
       });
       return result;
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;
@@ -417,6 +429,8 @@ public class ByObjectStatic {
             }
         
       });
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
@@ -461,6 +475,8 @@ public class ByObjectStatic {
             }
         
       });
+    } catch (HookVeto hookVeto) {
+      throw hookVeto;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(object) + ", " + this, e);
       throw e;

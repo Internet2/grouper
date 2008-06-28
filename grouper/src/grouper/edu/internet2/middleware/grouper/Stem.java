@@ -32,6 +32,12 @@ import org.apache.commons.lang.time.StopWatch;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -46,7 +52,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.152 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.153 2008-06-28 06:55:47 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -890,6 +896,13 @@ public class Stem extends GrouperAPI implements Owner {
     }
   }
 
+  /**
+   * will be implemented soon
+   */
+  public void store() {
+    
+  }
+  
   /**
    * Set <i>displayExtension</i>.
    * <p>This will also update the <i>displayName</i> of all child stems and groups.</p>
@@ -1761,6 +1774,79 @@ public class Stem extends GrouperAPI implements Owner {
       .append( "parentUuid",       this.getParentUuid()       )
       .toString();
   } // public String toString()
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_POST_DELETE, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_POST_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_POST_INSERT, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_POST_INSERT);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_POST_UPDATE, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_POST_UPDATE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_PRE_DELETE, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_PRE_DELETE);
+  
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_PRE_INSERT, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_PRE_INSERT);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE);
+  }
 
   /**
    * create stems and parents if not exist.
