@@ -5,6 +5,7 @@
     <format>tar.gz</format>
     <format>zip</format>
   </formats>
+  <includeSiteDirectory>true</includeSiteDirectory>
 
   <dependencySets>
     <dependencySet>
@@ -15,6 +16,20 @@
     </dependencySet>
   </dependencySets>
 
+  <!-- Copy runner scripts -->
+  <files>
+    <file>
+      <source>src/scripts/ldappc.sh</source>
+      <outputDirectory>/bin</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>src/scripts/ldappc.bat</source>
+      <outputDirectory>/bin</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+  </files>
+
   <fileSets>
     <fileSet>
       <useDefaultExcludes>true</useDefaultExcludes>
@@ -23,18 +38,6 @@
         <exclude>cobertura.ser</exclude>
         <exclude>**/logs/*.log*</exclude>
       </excludes>
-    </fileSet>
-
-    <!-- Run scripts -->
-    <fileSet>
-      <directory>bin</directory>
-      <outputDirectory>/bin</outputDirectory>
-    </fileSet>
-
-    <!-- Documentation -->
-    <fileSet>
-      <directory>target/site</directory>
-      <outputDirectory>/doc</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>

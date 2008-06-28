@@ -1,0 +1,29 @@
+<!-- Binary distribution, along with dependency jar files -->
+<assembly>
+  <id>runInPlace</id>
+  <baseDirectory></baseDirectory>
+
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>lib</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <includes>
+        <include>*:jar:*</include>
+      </includes>
+    </dependencySet>
+  </dependencySets>
+
+  <!-- Copy runner scripts -->
+  <files>
+    <file>
+      <source>src/scripts/ldappc.sh</source>
+      <outputDirectory>bin</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>src/scripts/ldappc.bat</source>
+      <outputDirectory>bin</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+  </files>
+</assembly>

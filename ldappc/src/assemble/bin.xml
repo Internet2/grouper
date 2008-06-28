@@ -5,6 +5,7 @@
     <format>tar.gz</format>
     <format>zip</format>
   </formats>
+  <includeSiteDirectory>true</includeSiteDirectory>
 
   <dependencySets>
     <dependencySet>
@@ -14,6 +15,20 @@
       </includes>
     </dependencySet>
   </dependencySets>
+
+  <!-- Copy runner scripts -->
+  <files>
+    <file>
+      <source>src/scripts/ldappc.sh</source>
+      <outputDirectory>/bin</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>src/scripts/ldappc.bat</source>
+      <outputDirectory>/bin</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+  </files>
 
   <fileSets>
     <!-- Copy conf directory -->
@@ -29,22 +44,13 @@
         <exclude>*.log*</exclude>
       </excludes>
     </fileSet>
-    <!-- Copy scripts directory -->
-    <fileSet>
-      <directory>bin</directory>
-      <outputDirectory>/bin</outputDirectory>
-    </fileSet>
 
-    <!-- Documentation -->
+    <!-- Copy README and LICENSE -->
     <fileSet>
       <includes>
         <include>README*</include>
         <include>LICENSE*</include>
       </includes>
-    </fileSet>
-    <fileSet>
-      <directory>target/site</directory>
-      <outputDirectory>/doc</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>

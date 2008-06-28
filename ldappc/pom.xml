@@ -101,24 +101,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.0</version>
-        <executions>
-          <execution>
-            <id>copy-dependencies</id>
-            <phase>package</phase>
-            <goals>
-              <goal>copy-dependencies</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <includeScope>runtime</includeScope>
-          <outputDirectory>${project.build.directory}/lib</outputDirectory>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.2</version>
         <configuration>
@@ -147,6 +129,38 @@
   </build>
   <profiles>
     <profile>
+      <id>runner</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+	      <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-assembly-plugin</artifactId>
+	        <version>2.2-beta-2</version>
+	        <configuration>
+	          <finalName>.</finalName>
+	          <appendAssemblyId>false</appendAssemblyId>
+	          <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
+	          <descriptors>
+	            <descriptor>src/assembly/runner.xml</descriptor>
+	          </descriptors>
+	        </configuration>
+	        <executions>
+	          <execution>
+	            <id>make-assembly</id>
+	            <phase>package</phase>
+	            <goals>
+	              <goal>directory-single</goal>
+	            </goals>
+	          </execution>
+	        </executions>
+	      </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>distribution</id>
       <build>
         <plugins>
@@ -155,7 +169,8 @@
 	        <artifactId>maven-assembly-plugin</artifactId>
 	        <version>2.2-beta-2</version>
 	        <configuration>
-	          <finalName>${project.artifactId}-${project.version}</finalName>
+	          <tarLongFileMode>gnu</tarLongFileMode>
+	          <ignoreDirFormatExtensions>false</ignoreDirFormatExtensions>
 	          <descriptors>
 	            <descriptor>src/assembly/bin.xml</descriptor>
 	            <descriptor>src/assembly/src.xml</descriptor>
@@ -166,7 +181,7 @@
 	            <id>make-assembly</id>
 	            <phase>package</phase>
 	            <goals>
-	              <goal>attached</goal>
+	              <goal>single</goal>
 	            </goals>
 	          </execution>
 	        </executions>
