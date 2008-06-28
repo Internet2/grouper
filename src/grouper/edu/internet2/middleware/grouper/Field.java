@@ -22,12 +22,19 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.FieldHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+
 
 /** 
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.26 2008-06-25 05:46:05 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.27 2008-06-28 06:55:47 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 
@@ -268,6 +275,79 @@ public class Field extends GrouperAPI implements Serializable {
       .append( "writePrivilege", this.getWritePrivilege() )
       .toString();
   } // public String toString()
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+        FieldHooks.METHOD_FIELD_POST_DELETE, HooksFieldBean.class, 
+        this, Field.class, VetoTypeGrouper.FIELD_POST_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+        FieldHooks.METHOD_FIELD_POST_INSERT, HooksFieldBean.class, 
+        this, Field.class, VetoTypeGrouper.FIELD_POST_INSERT);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+        FieldHooks.METHOD_FIELD_POST_UPDATE, HooksFieldBean.class, 
+        this, Field.class, VetoTypeGrouper.FIELD_POST_UPDATE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+        FieldHooks.METHOD_FIELD_PRE_DELETE, HooksFieldBean.class, 
+        this, Field.class, VetoTypeGrouper.FIELD_PRE_DELETE);
+  
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+        FieldHooks.METHOD_FIELD_PRE_INSERT, HooksFieldBean.class, 
+        this, Field.class, VetoTypeGrouper.FIELD_PRE_INSERT);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+        FieldHooks.METHOD_FIELD_PRE_UPDATE, HooksFieldBean.class, 
+        this, Field.class, VetoTypeGrouper.FIELD_PRE_UPDATE);
+  }
 
 } // public class Field extends GrouperAPI implements Serializable
 

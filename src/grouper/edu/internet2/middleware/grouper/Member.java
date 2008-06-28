@@ -29,6 +29,12 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.MemberHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.subject.Source;
@@ -45,7 +51,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.100 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Member.java,v 1.101 2008-06-28 06:55:47 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1491,6 +1497,79 @@ public class Member extends GrouperAPI implements Serializable {
       .append( "subjectTypeId",   this.getSubjectTypeId()   )
       .append( "uuid",            this.getUuid()            )
       .toString();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_POST_DELETE, HooksMemberBean.class, 
+        this, Member.class, VetoTypeGrouper.MEMBER_POST_DELETE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_POST_INSERT, HooksMemberBean.class, 
+        this, Member.class, VetoTypeGrouper.MEMBER_POST_INSERT);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    super.onPostUpdate(hibernateSession);
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_POST_UPDATE, HooksMemberBean.class, 
+        this, Member.class, VetoTypeGrouper.MEMBER_POST_UPDATE);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_PRE_DELETE, HooksMemberBean.class, 
+        this, Member.class, VetoTypeGrouper.MEMBER_PRE_DELETE);
+  
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_PRE_INSERT, HooksMemberBean.class, 
+        this, Member.class, VetoTypeGrouper.MEMBER_PRE_INSERT);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_PRE_UPDATE, HooksMemberBean.class, 
+        this, Member.class, VetoTypeGrouper.MEMBER_PRE_UPDATE);
   }
 
 } 

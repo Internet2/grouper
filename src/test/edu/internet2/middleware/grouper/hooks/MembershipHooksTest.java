@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksTest.java,v 1.4 2008-06-26 18:08:36 mchyzer Exp $
+ * $Id: MembershipHooksTest.java,v 1.5 2008-06-28 06:55:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -130,7 +130,9 @@ public class MembershipHooksTest extends GrouperTest {
       assertEquals("subject cannot be subj1", hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, hookVeto.getVetoType());
     }
-    
+    memberships = group.getMemberships();
+    assertEquals(1, memberships.size());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
   }
 
   /**

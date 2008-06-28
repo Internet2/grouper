@@ -1,16 +1,11 @@
 /*
  * @author mchyzer
- * $Id: GroupHooks.java,v 1.3 2008-06-26 11:16:47 mchyzer Exp $
+ * $Id: GroupHooks.java,v 1.4 2008-06-28 06:55:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostUpdateBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreUpdateBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 
 
 /**
@@ -46,7 +41,7 @@ public abstract class GroupHooks {
    * @param hooksContext
    * @param preUpdateBean
    */
-  public void groupPreUpdate(HooksContext hooksContext, HooksGroupPreUpdateBean preUpdateBean) {
+  public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
     
   }
   
@@ -55,7 +50,7 @@ public abstract class GroupHooks {
    * @param hooksContext
    * @param postUpdateBean
    */
-  public void groupPostUpdate(HooksContext hooksContext, HooksGroupPostUpdateBean postUpdateBean) {
+  public void groupPostUpdate(HooksContext hooksContext, HooksGroupBean postUpdateBean) {
     
   }
   
@@ -64,7 +59,7 @@ public abstract class GroupHooks {
    * @param hooksContext
    * @param preInsertBean
    */
-  public void groupPreInsert(HooksContext hooksContext, HooksGroupPreInsertBean preInsertBean) {
+  public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {
     
   }
   
@@ -73,7 +68,7 @@ public abstract class GroupHooks {
    * @param hooksContext
    * @param postInsertBean
    */
-  public void groupPostInsert(HooksContext hooksContext, HooksGroupPostInsertBean postInsertBean) {
+  public void groupPostInsert(HooksContext hooksContext, HooksGroupBean postInsertBean) {
     
   }
   
@@ -82,7 +77,7 @@ public abstract class GroupHooks {
    * @param hooksContext
    * @param preDeleteBean
    */
-  public void groupPreDelete(HooksContext hooksContext, HooksGroupPreDeleteBean preDeleteBean) {
+  public void groupPreDelete(HooksContext hooksContext, HooksGroupBean preDeleteBean) {
     
   }
   
@@ -91,7 +86,7 @@ public abstract class GroupHooks {
    * @param hooksContext
    * @param postDeleteBean
    */
-  public void groupPostDelete(HooksContext hooksContext, HooksGroupPostDeleteBean postDeleteBean) {
+  public void groupPostDelete(HooksContext hooksContext, HooksGroupBean postDeleteBean) {
     
   }
   

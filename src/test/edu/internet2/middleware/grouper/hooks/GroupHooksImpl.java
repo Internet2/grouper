@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImpl.java,v 1.5 2008-06-26 16:43:21 mchyzer Exp $
+ * $Id: GroupHooksImpl.java,v 1.6 2008-06-28 06:55:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -9,12 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostUpdateBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreUpdateBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 
 
@@ -28,10 +23,10 @@ public class GroupHooksImpl extends GroupHooks {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean)
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
   @Override
-  public void groupPreInsert(HooksContext hooksContext, HooksGroupPreInsertBean preInsertBean) {
+  public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {
     
     Group group = preInsertBean.getGroup();
     String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
@@ -46,11 +41,11 @@ public class GroupHooksImpl extends GroupHooks {
   static String mostRecentPostDeleteGroupExtension;
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostDeleteBean)
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
   @Override
   public void groupPostDelete(HooksContext hooksContext,
-      HooksGroupPostDeleteBean postDeleteBean) {
+      HooksGroupBean postDeleteBean) {
     Group group = postDeleteBean.getGroup();
     String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
     mostRecentPostDeleteGroupExtension = extension;
@@ -60,11 +55,11 @@ public class GroupHooksImpl extends GroupHooks {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostInsertBean)
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
   @Override
   public void groupPostInsert(HooksContext hooksContext,
-      HooksGroupPostInsertBean postInsertBean) {
+      HooksGroupBean postInsertBean) {
 
     Group group = postInsertBean.getGroup();
     String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
@@ -79,11 +74,11 @@ public class GroupHooksImpl extends GroupHooks {
   static String mostRecentPostUpdateGroupExtension;
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupPostUpdateBean)
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
   @Override
   public void groupPostUpdate(HooksContext hooksContext,
-      HooksGroupPostUpdateBean postUpdateBean) {
+      HooksGroupBean postUpdateBean) {
     Group group = postUpdateBean.getGroup();
     String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
     mostRecentPostUpdateGroupExtension = extension;
@@ -96,11 +91,11 @@ public class GroupHooksImpl extends GroupHooks {
   static String mostRecentPreDeleteGroupExtension;
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreDeleteBean)
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
   @Override
   public void groupPreDelete(HooksContext hooksContext,
-      HooksGroupPreDeleteBean preDeleteBean) {
+      HooksGroupBean preDeleteBean) {
     Group group = preDeleteBean.getGroup();
     String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
     mostRecentPreDeleteGroupExtension = extension;
@@ -116,11 +111,11 @@ public class GroupHooksImpl extends GroupHooks {
   static String mostRecentPreUpdateGroupExtension;
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreUpdateBean)
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
   @Override
   public void groupPreUpdate(HooksContext hooksContext,
-      HooksGroupPreUpdateBean preUpdateBean) {
+      HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
     String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
     mostRecentPreUpdateGroupExtension = extension;

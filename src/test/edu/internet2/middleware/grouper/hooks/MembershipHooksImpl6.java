@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl6.java,v 1.1 2008-06-26 18:08:36 mchyzer Exp $
+ * $Id: MembershipHooksImpl6.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -9,7 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.MemberNotFoundException;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostDeleteBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 
 
@@ -27,7 +27,7 @@ public class MembershipHooksImpl6 extends MembershipHooks {
    */
   @Override
   public void membershipPostDelete(HooksContext hooksContext,
-      HooksMembershipPostDeleteBean postDeleteBean) {
+      HooksMembershipBean postDeleteBean) {
     try {
       String subjectId = postDeleteBean.getMembership().getMember().getSubjectId();
       mostRecentDeleteMemberSubjectId = subjectId;

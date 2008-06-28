@@ -30,12 +30,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostUpdateBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreDeleteBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreInsertBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreUpdateBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -54,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.94 2008-06-26 18:08:36 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.95 2008-06-28 06:55:47 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -753,7 +748,7 @@ public class Membership extends GrouperAPI {
     
     
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipPreInsertBean.class, 
+        MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT);
 
   }
@@ -891,7 +886,7 @@ public class Membership extends GrouperAPI {
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipPostDeleteBean.class, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE);
   }
 
@@ -902,7 +897,7 @@ public class Membership extends GrouperAPI {
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipPostInsertBean.class, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT);
   }
 
@@ -913,7 +908,7 @@ public class Membership extends GrouperAPI {
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_POST_UPDATE, HooksMembershipPostUpdateBean.class, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_UPDATE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_UPDATE);
   }
 
@@ -925,7 +920,7 @@ public class Membership extends GrouperAPI {
     super.onPreDelete(hibernateSession);
     
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipPreDeleteBean.class, 
+        MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE);
 
   }
@@ -938,7 +933,7 @@ public class Membership extends GrouperAPI {
     super.onPreUpdate(hibernateSession);
     
     GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipPreUpdateBean.class, 
+        MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE);
   }
   

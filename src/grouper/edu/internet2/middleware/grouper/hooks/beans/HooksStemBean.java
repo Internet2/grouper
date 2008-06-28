@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksStemBean.java,v 1.1 2008-06-27 19:04:04 mchyzer Exp $
+ * $Id: HooksStemBean.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -8,7 +8,7 @@ import edu.internet2.middleware.grouper.Stem;
 
 
 /**
- *
+ * bean to hold objects for stem low level hooks
  */
 public class HooksStemBean extends HooksBean {
   

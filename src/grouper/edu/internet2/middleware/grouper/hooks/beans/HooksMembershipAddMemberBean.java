@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: HooksMembershipPreAddMemberBean.java,v 1.4 2008-06-26 11:16:47 mchyzer Exp $
+ * $Id: HooksMembershipAddMemberBean.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -14,38 +14,43 @@ import edu.internet2.middleware.grouper.Stem;
 
 
 /**
- * pre update bean for high level membership change (the main change, not
+ * pre/post update bean for high level membership change (the main change, not
  * the side effects like adding the member to the groups where the group
  * to be added to is a member)
  */
-public class HooksMembershipPreAddMemberBean extends HooksBean {
+public class HooksMembershipAddMemberBean extends HooksBean {
 
   /** object being inserted */
   private DefaultMemberOf defaultMemberOf = null;
-  
-  /** composite if applicable */
-  private Composite composite;
-  
-  /** field for membership */
-  private Field field;
-  
-  /** group for membership */
-  private Group group;
-  
-  /** member being assigned */
-  private Member member;
-  
-  /** membership dto */
-  private Membership membership;
-  
-  /** stem */
-  private Stem stem;
-
   /**
-   * @param theHooksContext
+   * composite if applicable 
+   */
+  private Composite composite;
+  /**
+   * field for membership 
+   */
+  private Field field;
+  /**
+   * group for membership 
+   */
+  private Group group;
+  /**
+   * member being assigned 
+   */
+  private Member member;
+  /**
+   * membership dto 
+   */
+  private Membership membership;
+  /**
+   * stem 
+   */
+  private Stem stem;
+  
+  /**
    * @param theDefaultMemberOf 
    */
-  public HooksMembershipPreAddMemberBean(
+  public HooksMembershipAddMemberBean(
       DefaultMemberOf theDefaultMemberOf) {
     this.defaultMemberOf = theDefaultMemberOf;
     this.composite = theDefaultMemberOf.getComposite();
@@ -63,7 +68,6 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
     return this.defaultMemberOf;
   }
 
-  
   /**
    * composite if applicable
    * @return the composite
@@ -72,7 +76,6 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
     return this.composite;
   }
 
-  
   /**
    * field for membership
    * @return the field
@@ -81,7 +84,6 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
     return this.field;
   }
 
-  
   /**
    * group for membership
    * @return the group
@@ -90,7 +92,6 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
     return this.group;
   }
 
-  
   /**
    * member being assigned
    * @return the member
@@ -99,7 +100,6 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
     return this.member;
   }
 
-  
   /**
    * membership dto
    * @return the membership
@@ -108,7 +108,6 @@ public class HooksMembershipPreAddMemberBean extends HooksBean {
     return this.membership;
   }
 
-  
   /**
    * stem
    * @return the stem
