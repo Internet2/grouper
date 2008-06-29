@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  *
  */
-public class ByObjectStatic {
+public class ByObjectStatic extends ByQueryBase {
   
   /** logger */
   private static final Log LOG = LogFactory.getLog(ByObjectStatic.class);
@@ -118,7 +118,9 @@ public class ByObjectStatic {
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
               
-              hibernateSession.byObject().update(collection);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.update(collection);
               return null;
             }
         
@@ -156,10 +158,14 @@ public class ByObjectStatic {
   
             public Object callback(HibernateSession hibernateSession) {
               
-              GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
-              GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
+              GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, 
+                  "Cant set cacheable here");
+              GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, 
+                  "Cant set cacheRegion here");
               
-              hibernateSession.byObject().update(object);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.update(object);
               
               return null;
             }
@@ -198,7 +204,9 @@ public class ByObjectStatic {
   
             public Object callback(HibernateSession hibernateSession) {
               
-              T theResult = hibernateSession.byObject().load(theClass, id);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              T theResult = byObject.load(theClass, id);
               
               return theResult;
             }
@@ -244,7 +252,9 @@ public class ByObjectStatic {
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
               
-              hibernateSession.byObject().saveOrUpdate(collection);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.saveOrUpdate(collection);
               return null;
             }
         
@@ -285,7 +295,9 @@ public class ByObjectStatic {
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
               
-              hibernateSession.byObject().saveOrUpdate(object);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.saveOrUpdate(object);
               
               return null;
             }
@@ -331,7 +343,9 @@ public class ByObjectStatic {
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
               
-              hibernateSession.byObject().save(collection);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.save(collection);
               return null;
             }
         
@@ -379,7 +393,9 @@ public class ByObjectStatic {
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
               
-              return hibernateSession.byObject().save(object);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              return byObject.save(object);
               
             }
         
@@ -424,7 +440,9 @@ public class ByObjectStatic {
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
               
-              hibernateSession.byObject().delete(collection);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.delete(collection);
               return null;
             }
         
@@ -470,7 +488,9 @@ public class ByObjectStatic {
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
               
-              hibernateSession.byObject().delete(object);
+              ByObject byObject = hibernateSession.byObject();
+              ByObjectStatic.this.copyFieldsTo(byObject);
+              byObject.delete(object);
               return null;
             }
         
@@ -494,6 +514,13 @@ public class ByObjectStatic {
    */
   ByObjectStatic() {}
   
-  
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.ByQueryBase#setIgnoreHooks(boolean)
+   */
+  @Override
+  public ByObjectStatic setIgnoreHooks(boolean theIgnoreHooks) {
+    return (ByObjectStatic)super.setIgnoreHooks(theIgnoreHooks);
+  }
+
   
 }

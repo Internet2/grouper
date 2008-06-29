@@ -4,13 +4,43 @@ package edu.internet2.middleware.grouper.hibernate;
 
 
 
+
 /**
  * Superclass of query types, holds common fields
- * @version $Id: ByQueryBase.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * @version $Id: ByQueryBase.java,v 1.3 2008-06-29 17:42:41 mchyzer Exp $
  * @author mchyzer
  */
 abstract class ByQueryBase {
   
+  /** if we should ignore hooks */
+  private boolean ignoreHooks = false;
+  
+  /**
+   * if we should ignore hooks
+   * @param theIgnoreHooks
+   * @return if we should ignore hooks
+   */
+  public ByQueryBase setIgnoreHooks(boolean theIgnoreHooks) {
+    this.ignoreHooks = theIgnoreHooks;
+    return this;
+  }
+  
+  /**
+   * if we should ignore hooks
+   * @return if we should ignore hooks
+   */
+  public boolean isIgnoreHooks() {
+    return this.ignoreHooks;
+  }
+  
+  /**
+   * copy fields from this to the argument
+   * @param byQueryBase
+   */
+  protected void copyFieldsTo(ByQueryBase byQueryBase) {
+    byQueryBase.setIgnoreHooks(this.isIgnoreHooks());
+  }
+
   /**
    * 
    */

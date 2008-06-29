@@ -28,7 +28,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.56 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.57 2008-06-29 17:42:41 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -143,14 +143,14 @@ public class GrouperConfig {
    * @since   1.2.0
    */
   public static String getBuildProperty(String property) {
-    return getDefaultValueIfNull( getInstance().build.getProperty(property) );
+    return getDefaultTrimmedValueIfNull( getInstance().build.getProperty(property) );
   } 
 
   /** 
    * @since   1.2.1
    */
-  private static String getDefaultValueIfNull(String val) {
-    return ( val == null ? GrouperConfig.EMPTY_STRING : val );
+  private static String getDefaultTrimmedValueIfNull(String val) {
+    return ( val == null ? GrouperConfig.EMPTY_STRING : val.trim() );
   }
 
   /**
@@ -163,7 +163,7 @@ public class GrouperConfig {
    * @since   1.1.0
    */
   public static String getHibernateProperty(String property) {
-    return getDefaultValueIfNull( getInstance().hib.getProperty(property) );
+    return getDefaultTrimmedValueIfNull( getInstance().hib.getProperty(property) );
   }
 
   /**
@@ -186,7 +186,7 @@ public class GrouperConfig {
    * @since   1.1.0
    */
   public static String getProperty(String property) {
-    return getDefaultValueIfNull( getInstance().api.getProperty(property) );
+    return getDefaultTrimmedValueIfNull( getInstance().api.getProperty(property) );
   }
 
   /**

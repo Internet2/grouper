@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.58 2008-06-28 06:55:47 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.59 2008-06-29 17:42:41 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -388,12 +388,12 @@ public class GroupType extends GrouperAPI implements Serializable {
       }
       Field _f = new Field();
       _f.setGroupTypeUuid( this.getUuid() );
-        _f.setIsNullable(nullable);
-        _f.setName(name);
-        _f.setReadPrivilege(read);
-        _f.setType(type);
-        _f.setUuid( GrouperUuid.getUuid() );
-        _f.setWritePrivilege(write);
+      _f.setIsNullable(nullable);
+      _f.setName(name);
+      _f.setReadPrivilege(read);
+      _f.setType(type);
+      _f.setUuid( GrouperUuid.getUuid() );
+      _f.setWritePrivilege(write);
         
       GrouperDAOFactory.getFactory().getGroupType().createField(_f);
 
