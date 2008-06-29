@@ -159,6 +159,11 @@
 	      </plugin>
         </plugins>
       </build>
+      <properties>
+        <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
+        <runner.useOutputDirectory>true</runner.useOutputDirectory>
+        <runner.includeProjectJar>true</runner.includeProjectJar>
+      </properties>
     </profile>
     <profile>
       <id>distribution</id>
@@ -188,6 +193,11 @@
 	      </plugin>
         </plugins>
       </build>
+      <properties>
+        <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
+        <runner.useOutputDirectory>false</runner.useOutputDirectory>
+        <runner.includeProjectJar>false</runner.includeProjectJar>
+      </properties>
     </profile>
   </profiles>
   <dependencies>
@@ -364,4 +374,7 @@
       </plugin>
     </plugins>
   </reporting>
+  <properties>
+    <runner.extraJvmProperties>-Xmx256m</runner.extraJvmProperties>
+  </properties>
 </project>
