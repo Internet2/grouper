@@ -23,7 +23,7 @@ import  edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
  * Hibernate DAO configuration.
  * <p/>
  * @author  blair christensen.
- * @version $Id: HibernateDaoConfig.java,v 1.3 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: HibernateDaoConfig.java,v 1.4 2008-06-29 17:42:41 mchyzer Exp $
  * @since   1.2.1
  */
 public class HibernateDaoConfig implements Configuration {
@@ -50,7 +50,8 @@ public class HibernateDaoConfig implements Configuration {
   public String getProperty(String property) 
     throws  IllegalArgumentException
   {
-    return this.cfg.getProperty(property);
+    String val = this.cfg.getProperty(property);
+    return val == null ? null : val.trim();
   }
 
   /**

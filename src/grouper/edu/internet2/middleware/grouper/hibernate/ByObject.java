@@ -14,7 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.5 2008-06-26 18:08:36 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.6 2008-06-29 17:42:41 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -79,13 +79,13 @@ public class ByObject extends HibernateDelegate {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
       
-      if (object instanceof HibGrouperLifecycle) {
+      if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPreDelete(hibernateSession);
       }
 
       session.delete(object);
       
-      if (object instanceof HibGrouperLifecycle) {
+      if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostDelete(hibernateSession);
       }
 
@@ -154,13 +154,13 @@ public class ByObject extends HibernateDelegate {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
 
-      if (object instanceof HibGrouperLifecycle) {
+      if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPreSave(hibernateSession);
       }
 
       Serializable id = session.save(object);
       
-      if (object instanceof HibGrouperLifecycle) {
+      if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostSave(hibernateSession);
       }
       return id;
@@ -229,7 +229,7 @@ public class ByObject extends HibernateDelegate {
       Session session  = hibernateSession.getSession();
 
       Boolean isInsert = null;
-      if (object instanceof HibGrouperLifecycle) {
+      if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         isInsert = HibUtilsMapping.isInsert(hibernateSession, object);
         if (isInsert) {
           ((HibGrouperLifecycle)object).onPreSave(hibernateSession);
@@ -240,7 +240,7 @@ public class ByObject extends HibernateDelegate {
       
       session.saveOrUpdate(object);
 
-      if (object instanceof HibGrouperLifecycle) {
+      if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         if (isInsert) {
           ((HibGrouperLifecycle)object).onPostSave(hibernateSession);
         } else {
@@ -333,13 +333,13 @@ public class ByObject extends HibernateDelegate {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
       
-      if (object instanceof HibGrouperLifecycle) {
+      if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPreUpdate(hibernateSession);
       }
 
       session.update(object);
       
-      if (object instanceof HibGrouperLifecycle) {
+      if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostUpdate(hibernateSession);
       }
       
@@ -354,5 +354,13 @@ public class ByObject extends HibernateDelegate {
       throw e;
     }
     
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.ByQueryBase#setIgnoreHooks(boolean)
+   */
+  @Override
+  public ByObject setIgnoreHooks(boolean theIgnoreHooks) {
+    return (ByObject)super.setIgnoreHooks(theIgnoreHooks);
   }
 }

@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.5 2008-06-29 17:42:41 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -138,8 +138,8 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
     while (it.hasNext()) {
       _type = (GroupType) it.next();
       if ( ! ( _type.getName().equals("base") || _type.getName().equals("naming") ) ) {
-        byObject.delete(_type.getFields());
-        byObject.delete( _type );
+        byObject.setIgnoreHooks(true).delete(_type.getFields());
+        byObject.setIgnoreHooks(true).delete( _type );
       }
     }
   }

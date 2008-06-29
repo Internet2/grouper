@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
 /**
  * Basic Hibernate <code>GrouperSession</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GrouperSessionDAO.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3GrouperSessionDAO.java,v 1.5 2008-06-29 17:42:41 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO {
@@ -55,7 +55,10 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
 
           public Object callback(HibernateSession hibernateSession) {
             ByObject byObject = hibernateSession.byObject();
-            byObject.delete( byObject.load( GrouperSession.class, _s.getId() ) );
+            //CH 20080628: this used to load and delete, now it just deletes
+            //if it loads, then we lose state for hooks...
+            //byObject.delete( byObject.load( GrouperSession.class, _s.getId() ) );
+            byObject.delete( _s );
             return null;
           }
       

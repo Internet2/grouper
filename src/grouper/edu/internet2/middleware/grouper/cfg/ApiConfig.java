@@ -25,7 +25,7 @@ import  edu.internet2.middleware.grouper.GrouperRuntimeException;
  * you should probably use G
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.5 2008-06-21 04:16:13 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.6 2008-06-29 17:42:41 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -75,7 +75,7 @@ public class ApiConfig implements Configuration {
     if (val == null) {
       val = this.defaultCfg.getProperty(property);
     }
-    return val;
+    return val == null ? null : val.trim();
   }
 
   /**
