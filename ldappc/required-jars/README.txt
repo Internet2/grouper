@@ -5,7 +5,6 @@ Run the following commands from this directory to install these jars
 to your local Maven repository.
 
 # External jars
-mvn install:install-file -Dpackaging=jar -DgroupId=com.dawidweiss.invoker -DartifactId=invoker -Dversion=1.0 -Dfile=invoker.jar
 mvn install:install-file -Dpackaging=jar -DgroupId=com.jamonapi -DartifactId=jamon -Dversion=2.7 -Dfile=jamon-2.7.jar
 mvn install:install-file -Dpackaging=jar -DgroupId=javax.transaction -DartifactId=jta -Dversion=1.0.1B -Dfile=jta-1.0.1B.jar
 mvn install:install-file -Dpackaging=jar -DgroupId=javax.mail -DartifactId=mailapi -Dversion=1.3.2 -Dfile=mailapi-1.3.2.jar
