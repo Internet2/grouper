@@ -20,12 +20,12 @@ import org.apache.commons.lang.StringUtils;
 
 import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 
-/** 
+/**
  * Grouper API configuration.  If you are accessing a property from grouper.properties,
- * you should probably use G
+ * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.6 2008-06-29 17:42:41 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.7 2008-06-30 17:40:43 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -34,12 +34,12 @@ public class ApiConfig implements Configuration {
   /**
    * Property name for <code>AccessAdapter</code> implementation.
    * @since   1.2.1
-   */ 
+   */
   public static final String ACCESS_PRIVILEGE_INTERFACE = "privileges.access.interface";
   /**
    * Property name for <code>NamingAdapter</code> implementation.
    * @since   1.2.1
-   */ 
+   */
   public static final String NAMING_PRIVILEGE_INTERFACE = "privileges.naming.interface";
 
   /** if use local.grouper.properties */
@@ -65,11 +65,11 @@ public class ApiConfig implements Configuration {
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#getProperty(String)
    * @since   1.2.1
    */
-  public String getProperty(String property) 
+  public String getProperty(String property)
     throws  IllegalArgumentException
   {
     String val = null;
-    if (this.useLocal) { 
+    if (this.useLocal) {
       val = this.localCfg.getProperty(property);
     }
     if (val == null) {
