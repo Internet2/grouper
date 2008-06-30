@@ -1,9 +1,11 @@
-The jars in this directory are required by ldappc and its dependents
-(Grouper, Signet, Subject) but are not in the central repository.
+#!/bin/sh
 
-Run the following commands from this directory to install these jars
-to your local Maven repository. Scripts to do this are in this directory
-in the install.bat and install.sh files.
+# The jars in this directory are required by ldappc and its dependents
+# (Grouper, Signet, Subject) but are not in the central repository.
+
+# Run the following commands from this directory to install these jars
+# to your local Maven repository. Scripts to do this are in this directory
+# in the install.bat and install.sh files.
 
 # External jars
 mvn install:install-file -Dpackaging=jar -DgroupId=com.jamonapi -DartifactId=jamon -Dversion=2.7 -Dfile=jamon-2.7.jar
