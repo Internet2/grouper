@@ -17,28 +17,75 @@
 
 package edu.internet2.middleware.grouper;
 import java.io.Serializable;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.27 2008-06-28 06:55:47 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.28 2008-06-30 04:01:33 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Serializable {
 
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: cachedGroupType */
+  public static final String FIELD_CACHED_GROUP_TYPE = "cachedGroupType";
+
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: groupTypeUUID */
+  public static final String FIELD_GROUP_TYPE_UUID = "groupTypeUUID";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: isNullable */
+  public static final String FIELD_IS_NULLABLE = "isNullable";
+
+  /** constant for field name for: name */
+  public static final String FIELD_NAME = "name";
+
+  /** constant for field name for: readPrivilege */
+  public static final String FIELD_READ_PRIVILEGE = "readPrivilege";
+
+  /** constant for field name for: type */
+  public static final String FIELD_TYPE = "type";
+
+  /** constant for field name for: uuid */
+  public static final String FIELD_UUID = "uuid";
+
+  /** constant for field name for: writePrivilege */
+  public static final String FIELD_WRITE_PRIVILEGE = "writePrivilege";
+
+  /**
+   * fields which are included in db version
+   */
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_CACHED_GROUP_TYPE, FIELD_GROUP_TYPE_UUID, FIELD_ID, FIELD_IS_NULLABLE, 
+      FIELD_NAME, FIELD_READ_PRIVILEGE, FIELD_TYPE, FIELD_UUID, 
+      FIELD_WRITE_PRIVILEGE);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  @GrouperIgnoreDbVersion
+  @GrouperIgnoreFieldConstant
   private GroupType cachedGroupType   = null;
   // PRIVATE INSTANCE VARIABLES //
   private String    groupTypeUUID;
@@ -282,9 +329,9 @@ public class Field extends GrouperAPI implements Serializable {
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_POST_DELETE, HooksFieldBean.class, 
-        this, Field.class, VetoTypeGrouper.FIELD_POST_DELETE);
+        this, Field.class, VetoTypeGrouper.FIELD_POST_DELETE, false, true);
   }
 
   /**
@@ -293,9 +340,9 @@ public class Field extends GrouperAPI implements Serializable {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_POST_INSERT, HooksFieldBean.class, 
-        this, Field.class, VetoTypeGrouper.FIELD_POST_INSERT);
+        this, Field.class, VetoTypeGrouper.FIELD_POST_INSERT, true, false);
   }
 
   /**
@@ -304,9 +351,9 @@ public class Field extends GrouperAPI implements Serializable {
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_POST_UPDATE, HooksFieldBean.class, 
-        this, Field.class, VetoTypeGrouper.FIELD_POST_UPDATE);
+        this, Field.class, VetoTypeGrouper.FIELD_POST_UPDATE, true, false);
   }
 
   /**
@@ -316,9 +363,9 @@ public class Field extends GrouperAPI implements Serializable {
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_PRE_DELETE, HooksFieldBean.class, 
-        this, Field.class, VetoTypeGrouper.FIELD_PRE_DELETE);
+        this, Field.class, VetoTypeGrouper.FIELD_PRE_DELETE, false, false);
   
   }
 
@@ -331,9 +378,9 @@ public class Field extends GrouperAPI implements Serializable {
     super.onPreSave(hibernateSession);
     
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_PRE_INSERT, HooksFieldBean.class, 
-        this, Field.class, VetoTypeGrouper.FIELD_PRE_INSERT);
+        this, Field.class, VetoTypeGrouper.FIELD_PRE_INSERT, false, false);
   
   }
 
@@ -344,9 +391,45 @@ public class Field extends GrouperAPI implements Serializable {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.FIELD, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_PRE_UPDATE, HooksFieldBean.class, 
-        this, Field.class, VetoTypeGrouper.FIELD_PRE_UPDATE);
+        this, Field.class, VetoTypeGrouper.FIELD_PRE_UPDATE, false, false);
+  }
+
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public Field dbVersion() {
+    return (Field)this.dbVersion;
+  }
+
+  /**
+   * note, these are massaged so that name, extension, etc look like normal fields.
+   * access with fieldValue()
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Field();
+    
+    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
   }
 
 } // public class Field extends GrouperAPI implements Serializable

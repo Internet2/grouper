@@ -23,26 +23,55 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.12 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.13 2008-06-30 04:01:33 mchyzer Exp $
  * @since   1.2.0
  */
-abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
+public abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
+
+  /** save the state when retrieving from DB */
+  @GrouperIgnoreDbVersion
+  protected Object dbVersion = null;
+
+  /** field name for db version */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+  
+  /**
+   * call this method to get the field value (e.g. from dbVersionDifferentFields).
+   * some objects have different interpretations (e.g. Group will process attribute__whatever)
+   * @param fieldName
+   * @return the value
+   */
+  public Object fieldValue(String fieldName) {
+    return GrouperUtil.fieldValue(this, fieldName);
+  }
+  
+  /**
+   * version of this object in the database
+   * @return the db version
+   */
+  public Object dbVersion() {
+    return this.dbVersion;
+  }
 
   /**
    * see if the state of this object has changed compared to the DB state (last known)
    * @return true if changed, false if not
    */
-  boolean dbVersionDifferent() {
-    throw new RuntimeException("Not implemented");
+  public boolean dbVersionIsDifferent() {
+    Set<String> differentFields = dbVersionDifferentFields();
+    return differentFields.size() > 0;
   }
+
 
 
   /**
@@ -50,7 +79,7 @@ abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
    * note that attributes will print out: attribute__attributeName
    * @return a set of attributes changed, or empty set if none
    */
-  Set<String> dbVersionDifferentFields() {
+  public Set<String> dbVersionDifferentFields() {
     throw new RuntimeException("Not implemented");
   }
 
@@ -58,7 +87,14 @@ abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
   /**
    * take a snapshot of the data since this is what is in the db
    */
-  void dbVersionReset() {
+  public void dbVersionReset() {
+  }
+
+  /**
+   * set to null (e.g. on delete)
+   */
+  public void dbVersionClear() {
+    this.dbVersion = null;
   }
 
 
@@ -89,7 +125,6 @@ abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPostSave(HibernateSession hibernateSession) {
-    this.dbVersionReset();
   }
 
 
@@ -97,7 +132,6 @@ abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
-    this.dbVersionReset();
   }
 
 

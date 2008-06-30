@@ -33,6 +33,8 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -57,7 +59,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.187 2008-06-28 06:55:47 mchyzer Exp $
+ * @version $Id: Group.java,v 1.188 2008-06-30 04:01:33 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -285,8 +287,12 @@ public class Group extends GrouperAPI implements Owner {
   /** */
   private static final  String                    KEY_SUBJECT   = "subject";  // for state caching
   /** */
+  @GrouperIgnoreDbVersion 
+  @GrouperIgnoreFieldConstant
   private               Member                    cachedMember  = null;
   /** */
+  @GrouperIgnoreDbVersion 
+  @GrouperIgnoreFieldConstant
   private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
   // TODO 20070531 review lazy-loading to improve consistency + performance
   
@@ -297,43 +303,70 @@ public class Group extends GrouperAPI implements Owner {
   private String    creatorUUID;
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
   
-  /** save the state when retrieving from DB */
-  private Group dbVersion = null;
   private String    id;
   private String    modifierUUID;
   private String    modifySource;
   private long      modifyTime      = 0; // default to the epoch
   private String    parentUUID;
+
+  @GrouperIgnoreDbVersion 
+  @GrouperIgnoreFieldConstant
   private Set       types;
+  
   private String    uuid;
   /** constant for prefix of field diffs for attributes: attribute__ */
   public static final String ATTRIBUTE_PREFIX = "attribute__";
-  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
   
+  
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+
   /** constant for field name for: attributes */
   public static final String FIELD_ATTRIBUTES = "attributes";
+
   /** constant for field name for: createSource */
   public static final String FIELD_CREATE_SOURCE = "createSource";
+
   /** constant for field name for: createTime */
   public static final String FIELD_CREATE_TIME = "createTime";
+
   /** constant for field name for: creatorUUID */
   public static final String FIELD_CREATOR_UUID = "creatorUUID";
+
   /** constant for field name for: dbVersion */
   public static final String FIELD_DB_VERSION = "dbVersion";
+
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
+
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
+
   /** constant for field name for: modifySource */
   public static final String FIELD_MODIFY_SOURCE = "modifySource";
+
   /** constant for field name for: modifyTime */
   public static final String FIELD_MODIFY_TIME = "modifyTime";
+
   /** constant for field name for: parentUUID */
   public static final String FIELD_PARENT_UUID = "parentUUID";
+
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
+
+  /**
+   * fields which are included in db version
+   */
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
+      FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, 
+      FIELD_PARENT_UUID, FIELD_UUID);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  
   /** known built-in attributes */
-  private static final  Set<String>               ALLOWED_ATTRS = GrouperUtil.toSet(
+  private static final  Set<String> ALLOWED_ATTRS = GrouperUtil.toSet(
     GrouperConfig.ATTR_DISPLAY_NAME, GrouperConfig.ATTR_DESCRIPTION, GrouperConfig.ATTR_DISPLAY_EXTENSION,
     GrouperConfig.ATTR_EXTENSION, GrouperConfig.ATTR_NAME);
 
@@ -2907,33 +2940,40 @@ public class Group extends GrouperAPI implements Owner {
 
   } // private void _revokeAllAccessPrivs()
 
-  // PUBLIC CLASS METHODS //
-  
   
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO#dbVersionDifferent()
+   * note, these are massaged so that name, extension, etc look like normal fields.
+   * access with fieldValue()
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
    */
   @Override
-  boolean dbVersionDifferent() {
-    Set<String> differentFields = dbVersionDifferentFields();
-    return differentFields.size() > 0;
-  }
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefaultDTO#dbVersionDifferentFields()
-   */
-  @Override
-  Set<String> dbVersionDifferentFields() {
+  public Set<String> dbVersionDifferentFields() {
     if (this.dbVersion == null) {
       throw new RuntimeException("State was never stored from db");
     }
     //easier to unit test if everything is ordered
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
-        GrouperUtil.toSet(FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, 
-            FIELD_CREATOR_UUID, FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE,
-            FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID), ATTRIBUTE_PREFIX);
+        DB_VERSION_FIELDS, ATTRIBUTE_PREFIX);
+    if (result.contains("attribute__name")) {
+      result.remove("attribute__name");
+      result.add("name");
+    }
+    if (result.contains("attribute__displayName")) {
+      result.remove("attribute__displayName");
+      result.add("displayName");
+    }
+    if (result.contains("attribute__extension")) {
+      result.remove("attribute__extension");
+      result.add("extension");
+    }
+    if (result.contains("attribute__displayExtension")) {
+      result.remove("attribute__displayExtension");
+      result.add("displayExtension");
+    }
+    if (result.contains("attribute__description")) {
+      result.remove("attribute__description");
+      result.add("description");
+    }
     return result;
   }
 
@@ -2941,19 +2981,11 @@ public class Group extends GrouperAPI implements Owner {
    * take a snapshot of the data since this is what is in the db
    */
   @Override
-  void dbVersionReset() {
+  public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
     this.dbVersion = new Group();
-    this.dbVersion.attributes = this.attributes == null ? null : new HashMap<String,String>(this.attributes);
-    this.dbVersion.createSource = this.createSource;
-    this.dbVersion.createTime = this.createTime;
-    this.dbVersion.creatorUUID = this.creatorUUID;
-    this.dbVersion.id = this.id;
-    this.dbVersion.modifierUUID = this.modifierUUID;
-    this.dbVersion.modifySource = this.modifySource;
-    this.dbVersion.modifyTime = this.modifyTime;
-    this.dbVersion.parentUUID = this.parentUUID;
-    this.dbVersion.uuid = this.uuid;
+    
+    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
   }
 
   /**
@@ -2999,8 +3031,9 @@ public class Group extends GrouperAPI implements Owner {
    * save the state when retrieving from DB
    * @return the dbVersion
    */
-  public Group getDbVersion() {
-    return this.dbVersion;
+  @Override
+  public Group dbVersion() {
+    return (Group)this.dbVersion;
   }
 
   /**
@@ -3062,9 +3095,9 @@ public class Group extends GrouperAPI implements Owner {
     GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, false, this);
     super.onPostSave(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT);
+        this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT, true, false);
 
   }
 
@@ -3073,11 +3106,12 @@ public class Group extends GrouperAPI implements Owner {
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
     GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, true, this);
+    
     super.onPostUpdate(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_UPDATE, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_POST_UPDATE);
+        this, Group.class, VetoTypeGrouper.GROUP_POST_UPDATE, true, false);
 
   
   }
@@ -3089,9 +3123,9 @@ public class Group extends GrouperAPI implements Owner {
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
 
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_DELETE, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_POST_DELETE);
+        this, Group.class, VetoTypeGrouper.GROUP_POST_DELETE, false, true);
 
   }
 
@@ -3103,9 +3137,9 @@ public class Group extends GrouperAPI implements Owner {
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT);
+        this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT, false, false);
     
   }
 
@@ -3232,9 +3266,39 @@ public class Group extends GrouperAPI implements Owner {
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
 
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE);
+        this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE, false, false);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#fieldValue(java.lang.String)
+   */
+  @Override
+  public Object fieldValue(String fieldName) {
+    //make the commons ones a little more friendly
+    if (StringUtils.equals("attribute__name", fieldName) 
+        || StringUtils.equals("name", fieldName)) {
+      return this.attributes.get("name");
+    }
+    if (StringUtils.equals("attribute__extension", fieldName) 
+        || StringUtils.equals("extension", fieldName)) {
+      return this.attributes.get("extension");
+    }
+    if (StringUtils.equals("attribute__displayName", fieldName) 
+        || StringUtils.equals("displayName", fieldName)) {
+      return this.attributes.get("displayName");
+    }
+    if (StringUtils.equals("attribute__displayExtension", fieldName) 
+        || StringUtils.equals("displayExtension", fieldName)) {
+      return this.attributes.get("displayExtension");
+    }
+    if (StringUtils.equals("attribute__description", fieldName) 
+        || StringUtils.equals("description", fieldName)) {
+      return this.attributes.get("description");
+    }
+    
+    return super.fieldValue(fieldName);
   }
 
   /**
@@ -3244,9 +3308,9 @@ public class Group extends GrouperAPI implements Owner {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupBean.class, 
-        this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE);
+        this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE, false, false);
 
   }
 

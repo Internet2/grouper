@@ -29,6 +29,8 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
@@ -37,6 +39,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -51,16 +54,49 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.101 2008-06-28 06:55:47 mchyzer Exp $
+ * @version $Id: Member.java,v 1.102 2008-06-30 04:01:33 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
   // PUBLIC CLASS CONSTANTS //
   public static final long serialVersionUID = 2348656645982471668L;
 
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: memberUUID */
+  public static final String FIELD_MEMBER_UUID = "memberUUID";
+
+  /** constant for field name for: subjectID */
+  public static final String FIELD_SUBJECT_ID = "subjectID";
+
+  /** constant for field name for: subjectSourceID */
+  public static final String FIELD_SUBJECT_SOURCE_ID = "subjectSourceID";
+
+  /** constant for field name for: subjectTypeID */
+  public static final String FIELD_SUBJECT_TYPE_ID = "subjectTypeID";
+
+  /**
+   * fields which are included in db version
+   */
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_ID, FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, 
+      FIELD_SUBJECT_TYPE_ID);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+  
   // PRIVATE TRANSIENT INSTANCE PROPERTIES //
+  @GrouperIgnoreFieldConstant 
+  @GrouperIgnoreDbVersion
   private transient Group   g     = null;
+  
+  @GrouperIgnoreDbVersion
+  @GrouperIgnoreFieldConstant
   private transient Subject subj  = null;
 
 
@@ -1505,9 +1541,9 @@ public class Member extends GrouperAPI implements Serializable {
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_DELETE, HooksMemberBean.class, 
-        this, Member.class, VetoTypeGrouper.MEMBER_POST_DELETE);
+        this, Member.class, VetoTypeGrouper.MEMBER_POST_DELETE, false, true);
   }
 
   /**
@@ -1516,9 +1552,9 @@ public class Member extends GrouperAPI implements Serializable {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_INSERT, HooksMemberBean.class, 
-        this, Member.class, VetoTypeGrouper.MEMBER_POST_INSERT);
+        this, Member.class, VetoTypeGrouper.MEMBER_POST_INSERT, true, false);
   }
 
   /**
@@ -1527,9 +1563,9 @@ public class Member extends GrouperAPI implements Serializable {
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_UPDATE, HooksMemberBean.class, 
-        this, Member.class, VetoTypeGrouper.MEMBER_POST_UPDATE);
+        this, Member.class, VetoTypeGrouper.MEMBER_POST_UPDATE, true, false);
   }
 
   /**
@@ -1539,9 +1575,9 @@ public class Member extends GrouperAPI implements Serializable {
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_DELETE, HooksMemberBean.class, 
-        this, Member.class, VetoTypeGrouper.MEMBER_PRE_DELETE);
+        this, Member.class, VetoTypeGrouper.MEMBER_PRE_DELETE, false, false);
   
   }
 
@@ -1554,9 +1590,9 @@ public class Member extends GrouperAPI implements Serializable {
     super.onPreSave(hibernateSession);
     
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_INSERT, HooksMemberBean.class, 
-        this, Member.class, VetoTypeGrouper.MEMBER_PRE_INSERT);
+        this, Member.class, VetoTypeGrouper.MEMBER_PRE_INSERT, false, false);
   
   }
 
@@ -1567,9 +1603,45 @@ public class Member extends GrouperAPI implements Serializable {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_UPDATE, HooksMemberBean.class, 
-        this, Member.class, VetoTypeGrouper.MEMBER_PRE_UPDATE);
+        this, Member.class, VetoTypeGrouper.MEMBER_PRE_UPDATE, false, false);
+  }
+
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public Member dbVersion() {
+    return (Member)this.dbVersion;
+  }
+
+  /**
+   * note, these are massaged so that name, extension, etc look like normal fields.
+   * access with fieldValue()
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Member();
+    
+    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
   }
 
 } 
