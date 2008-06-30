@@ -30,6 +30,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -52,14 +54,73 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.153 2008-06-28 06:55:47 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.154 2008-06-30 04:01:33 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
   /** param helper */
+  @GrouperIgnoreDbVersion 
+  @GrouperIgnoreFieldConstant
   private ParameterHelper param = new ParameterHelper();
 
 
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: createSource */
+  public static final String FIELD_CREATE_SOURCE = "createSource";
+
+  /** constant for field name for: createTime */
+  public static final String FIELD_CREATE_TIME = "createTime";
+
+  /** constant for field name for: creatorUUID */
+  public static final String FIELD_CREATOR_UUID = "creatorUUID";
+
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: description */
+  public static final String FIELD_DESCRIPTION = "description";
+
+  /** constant for field name for: displayExtension */
+  public static final String FIELD_DISPLAY_EXTENSION = "displayExtension";
+
+  /** constant for field name for: displayName */
+  public static final String FIELD_DISPLAY_NAME = "displayName";
+
+  /** constant for field name for: extension */
+  public static final String FIELD_EXTENSION = "extension";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: modifierUUID */
+  public static final String FIELD_MODIFIER_UUID = "modifierUUID";
+
+  /** constant for field name for: modifySource */
+  public static final String FIELD_MODIFY_SOURCE = "modifySource";
+
+  /** constant for field name for: modifyTime */
+  public static final String FIELD_MODIFY_TIME = "modifyTime";
+
+  /** constant for field name for: name */
+  public static final String FIELD_NAME = "name";
+
+  /** constant for field name for: parentUUID */
+  public static final String FIELD_PARENT_UUID = "parentUUID";
+
+  /** constant for field name for: uuid */
+  public static final String FIELD_UUID = "uuid";
+
+  /**
+   * fields which are included in db version
+   */
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
+      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_ID, 
+      FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_NAME, 
+      FIELD_PARENT_UUID, FIELD_UUID);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   /**
    * Search scope: one-level or subtree.
@@ -93,17 +154,22 @@ public class Stem extends GrouperAPI implements Owner {
   /** event log */
   private static final EventLog EL = new EventLog();
 
-
   // PRIVATE INSTANCE VARIABLES //
   /** creator of stem */
+  @GrouperIgnoreDbVersion 
+  @GrouperIgnoreFieldConstant
   private Subject creator;
+  
   /** modifier of stem */
+  @GrouperIgnoreDbVersion 
+  @GrouperIgnoreFieldConstant
   private Subject modifier;
+
   // PRIVATE INSTANCE VARIABLES //
   private String  createSource;
-  private long    createTimeLong;
+  private long    createTime;
   private String  creatorUUID;
-  private Stem dbVersion;
+
   private String  description;
   private String  displayExtension;
   private String  displayName;
@@ -111,7 +177,7 @@ public class Stem extends GrouperAPI implements Owner {
   private String  id;
   private String  modifierUUID;
   private String  modifySource;
-  private long    modifyTimeLong;
+  private long    modifyTime;
   private String  name;
   private String  parentUUID;
   private String  uuid;
@@ -1500,31 +1566,6 @@ public class Stem extends GrouperAPI implements Owner {
   } // private void _revokeAllNamingPrivs()
 
   /**
-   * take a snapshot of the data since this is what is in the db
-   */
-  @Override
-  void dbVersionReset() {
-    //lets get the state from the db so we know what has changed
-    this.dbVersion = new Stem();
-    this.dbVersion.createSource = this.createSource;
-    this.dbVersion.createTimeLong = this.createTimeLong;
-    this.dbVersion.creatorUUID = this.creatorUUID;
-    this.dbVersion.description = this.description;
-    this.dbVersion.displayExtension = this.displayExtension;
-    this.dbVersion.extension = this.extension;
-    this.dbVersion.id = this.id;
-    this.dbVersion.modifierUUID = this.modifierUUID;
-    this.dbVersion.modifySource = this.modifySource;
-    this.dbVersion.modifyTimeLong = this.modifyTimeLong;
-    this.dbVersion.name = this.name;
-    this.dbVersion.parentUUID = this.parentUUID;
-    this.dbVersion.uuid = this.uuid;
-  
-  }
-
-  // PUBLIC INSTANCE METHODS //
-  
-  /**
    * @since   1.2.0
    */  
   public boolean equals(Object other) {
@@ -1543,7 +1584,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @since   1.2.0
    */
   public long getCreateTimeLong() {
-    return this.createTimeLong;
+    return this.createTime;
   }
 
   /**
@@ -1599,7 +1640,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @since   1.2.0
    */
   public long getModifyTimeLong() {
-    return this.modifyTimeLong;
+    return this.modifyTime;
   }
 
   /**
@@ -1637,7 +1678,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @since   1.2.0
    */
   public void setCreateTimeLong(long createTime) {
-    this.createTimeLong = createTime;
+    this.createTime = createTime;
   
   }
 
@@ -1717,7 +1758,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @since   1.2.0
    */
   public void setModifyTimeLong(long modifyTime) {
-    this.modifyTimeLong = modifyTime;
+    this.modifyTime = modifyTime;
   
   }
 
@@ -1781,9 +1822,9 @@ public class Stem extends GrouperAPI implements Owner {
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_DELETE, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_POST_DELETE);
+        this, Stem.class, VetoTypeGrouper.STEM_POST_DELETE, false, true);
   }
 
   /**
@@ -1792,9 +1833,9 @@ public class Stem extends GrouperAPI implements Owner {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_INSERT, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_POST_INSERT);
+        this, Stem.class, VetoTypeGrouper.STEM_POST_INSERT, true, false);
   }
 
   /**
@@ -1803,9 +1844,9 @@ public class Stem extends GrouperAPI implements Owner {
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_UPDATE, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_POST_UPDATE);
+        this, Stem.class, VetoTypeGrouper.STEM_POST_UPDATE, true, false);
   }
 
   /**
@@ -1815,9 +1856,9 @@ public class Stem extends GrouperAPI implements Owner {
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_DELETE, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_PRE_DELETE);
+        this, Stem.class, VetoTypeGrouper.STEM_PRE_DELETE, false, false);
   
   }
 
@@ -1830,9 +1871,9 @@ public class Stem extends GrouperAPI implements Owner {
     super.onPreSave(hibernateSession);
     
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_INSERT, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_PRE_INSERT);
+        this, Stem.class, VetoTypeGrouper.STEM_PRE_INSERT, false, false);
   
   }
 
@@ -1843,9 +1884,45 @@ public class Stem extends GrouperAPI implements Owner {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.STEM, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE);
+        this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE, false, false);
+  }
+
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public Stem dbVersion() {
+    return (Stem)this.dbVersion;
+  }
+
+  /**
+   * note, these are massaged so that name, extension, etc look like normal fields.
+   * access with fieldValue()
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Stem();
+    
+    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
   }
 
   /**

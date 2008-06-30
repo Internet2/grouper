@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.95 2008-06-28 06:55:47 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.96 2008-06-30 04:01:34 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -747,9 +747,9 @@ public class Membership extends GrouperAPI {
     super.onPreSave(hibernateSession);
     
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT);
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
 
   }
 
@@ -885,9 +885,9 @@ public class Membership extends GrouperAPI {
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE);
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE, false, true);
   }
 
   /**
@@ -896,9 +896,9 @@ public class Membership extends GrouperAPI {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT);
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
   }
 
   /**
@@ -907,9 +907,9 @@ public class Membership extends GrouperAPI {
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_UPDATE, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_UPDATE);
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_UPDATE, true, false);
   }
 
   /**
@@ -919,9 +919,9 @@ public class Membership extends GrouperAPI {
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE);
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE, false, false);
 
   }
 
@@ -932,9 +932,9 @@ public class Membership extends GrouperAPI {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE);
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE, false, false);
   }
   
 }

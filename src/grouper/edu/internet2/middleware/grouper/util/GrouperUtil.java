@@ -1816,6 +1816,50 @@ public class GrouperUtil {
   }
   
   /**
+   * copy fields from one object to another.  if map, make a new map so they are not the same object
+   * @param objectFrom
+   * @param objectTo
+   * @param fieldsToCopy
+   */
+  public static void copyObjectFields(Object objectFrom, Object objectTo, 
+      Set<String> fieldsToCopy) {
+    
+    if (objectFrom == objectTo) {
+      return;
+    }
+    
+    //if either null, then all fields are different
+    if (objectFrom == null || objectTo == null) {
+      throw new RuntimeException("Cant copy from or to null: " + className(objectFrom) + ", " + className(objectTo));
+    }
+
+    for (String fieldName : fieldsToCopy) {
+      try {
+        Object value = fieldValue(objectFrom, fieldName);
+        //if map, then just copy it over
+        if (value instanceof Map) {
+          value = new LinkedHashMap((Map)value);
+        } else {
+          if (value != null) {
+            
+            //make sure we can handle the type
+            if (!(value instanceof Number || value instanceof String || value instanceof Date
+                || value instanceof Boolean
+                || value.getClass().isPrimitive() || value.getClass().isPrimitive())) {
+              throw new RuntimeException("Type '" + value.getClass() + "' not expected!");      
+            }
+          }
+        }
+        //assign it
+        assignField(objectTo, fieldName, value);
+      } catch (RuntimeException re) {
+        throw new RuntimeException("Problem copying field " + fieldName 
+            + " on objects: " + className(objectFrom) + ", " + className(objectTo), re);
+      }
+    }
+  }
+  
+  /**
    * simple method to get method names
    * @param theClass
    * @param superclassToStopAt 

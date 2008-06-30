@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Set;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -26,14 +28,37 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.3 2008-06-30 04:01:34 mchyzer Exp $
  * @since   @HEAD@
  */
 public class GroupTypeTuple extends GrouperAPI {
+
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: groupUUID */
+  public static final String FIELD_GROUP_UUID = "groupUUID";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: typeUUID */
+  public static final String FIELD_TYPE_UUID = "typeUUID";
+
+  /**
+   * fields which are included in db version
+   */
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_GROUP_UUID, FIELD_ID, FIELD_TYPE_UUID);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   // PRIVATE INSTANCE VARIABLES //
   private String  groupUUID;
@@ -115,9 +140,9 @@ public class GroupTypeTuple extends GrouperAPI {
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_DELETE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_DELETE);
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_DELETE, false, true);
   }
 
   /**
@@ -126,9 +151,9 @@ public class GroupTypeTuple extends GrouperAPI {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_INSERT, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_INSERT);
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_INSERT, true, false);
   }
 
   /**
@@ -137,9 +162,9 @@ public class GroupTypeTuple extends GrouperAPI {
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_UPDATE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_UPDATE);
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_UPDATE, true, false);
   }
 
   /**
@@ -149,9 +174,9 @@ public class GroupTypeTuple extends GrouperAPI {
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_DELETE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_DELETE);
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_DELETE, false, false);
   
   }
 
@@ -164,9 +189,9 @@ public class GroupTypeTuple extends GrouperAPI {
     super.onPreSave(hibernateSession);
     
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_INSERT, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_INSERT);
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_INSERT, false, false);
   
   }
 
@@ -177,9 +202,45 @@ public class GroupTypeTuple extends GrouperAPI {
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
-    GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_UPDATE, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_UPDATE);
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_UPDATE, false, false);
+  }
+
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public GroupTypeTuple dbVersion() {
+    return (GroupTypeTuple)this.dbVersion;
+  }
+
+  /**
+   * note, these are massaged so that name, extension, etc look like normal fields.
+   * access with fieldValue()
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new GroupTypeTuple();
+    
+    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
   }
 
 } 
