@@ -59,7 +59,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.188 2008-06-30 04:01:33 mchyzer Exp $
+ * @version $Id: Group.java,v 1.189 2008-06-30 04:31:41 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -289,7 +289,7 @@ public class Group extends GrouperAPI implements Owner {
   /** */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
-  private               Member                    cachedMember  = null;
+  private Member cachedMember  = null;
   /** */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant

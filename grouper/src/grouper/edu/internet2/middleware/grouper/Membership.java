@@ -27,6 +27,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
@@ -38,6 +40,7 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -49,9 +52,60 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.96 2008-06-30 04:01:34 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.97 2008-06-30 04:31:41 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
+
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: createTimeLong */
+  public static final String FIELD_CREATE_TIME_LONG = "createTimeLong";
+
+  /** constant for field name for: creatorUUID */
+  public static final String FIELD_CREATOR_UUID = "creatorUUID";
+
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: depth */
+  public static final String FIELD_DEPTH = "depth";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: listName */
+  public static final String FIELD_LIST_NAME = "listName";
+
+  /** constant for field name for: listType */
+  public static final String FIELD_LIST_TYPE = "listType";
+
+  /** constant for field name for: memberUUID */
+  public static final String FIELD_MEMBER_UUID = "memberUUID";
+
+  /** constant for field name for: ownerUUID */
+  public static final String FIELD_OWNER_UUID = "ownerUUID";
+
+  /** constant for field name for: parentUUID */
+  public static final String FIELD_PARENT_UUID = "parentUUID";
+
+  /** constant for field name for: type */
+  public static final String FIELD_TYPE = "type";
+
+  /** constant for field name for: uuid */
+  public static final String FIELD_UUID = "uuid";
+
+  /** constant for field name for: viaUUID */
+  public static final String FIELD_VIA_UUID = "viaUUID";
+
+  /**
+   * fields which are included in db version
+   */
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_ID, 
+      FIELD_LIST_NAME, FIELD_LIST_TYPE, FIELD_MEMBER_UUID, FIELD_OWNER_UUID, 
+      FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, FIELD_VIA_UUID);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   // PUBLIC CLASS CONSTANTS //
   /** A member of a group (aka composite member) has either or both of
@@ -102,6 +156,8 @@ public class Membership extends GrouperAPI {
 
   private String  listType;
 
+  @GrouperIgnoreDbVersion
+  @GrouperIgnoreFieldConstant
   private Member  member;
 
   private String  memberUUID;
@@ -935,6 +991,42 @@ public class Membership extends GrouperAPI {
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE, false, false);
+  }
+
+  /**
+   * save the state when retrieving from DB
+   * @return the dbVersion
+   */
+  @Override
+  public Membership dbVersion() {
+    return (Membership)this.dbVersion;
+  }
+
+  /**
+   * note, these are massaged so that name, extension, etc look like normal fields.
+   * access with fieldValue()
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  @Override
+  public Set<String> dbVersionDifferentFields() {
+    if (this.dbVersion == null) {
+      throw new RuntimeException("State was never stored from db");
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+    return result;
+  }
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = new Membership();
+    
+    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
   }
   
 }

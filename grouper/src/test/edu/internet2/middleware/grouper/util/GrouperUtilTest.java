@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.6 2008-06-30 04:31:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -13,6 +13,9 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.SessionHelper;
 
 
 /**
@@ -26,9 +29,32 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testIndentJson"));
+    TestRunner.run(new GrouperUtilTest("testCopyObjectFields"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * 
+   * @throws AttributeNotFoundException
+   */
+  public void testCopyObjectFields() throws AttributeNotFoundException {
+    SessionHelper.getRootSession();
+
+    Group groupFrom = new Group();
+    Map attributes = new HashMap();
+    attributes.put("a", "b");
+    GrouperUtil.assignField(groupFrom, Group.FIELD_ATTRIBUTES, attributes);
+    GrouperUtil.assignField(groupFrom, Group.FIELD_CREATOR_UUID, "abc");
+    
+    Group groupTo = new Group();
+    GrouperUtil.copyObjectFields(groupFrom, groupTo, 
+        GrouperUtil.toSet(Group.FIELD_ATTRIBUTES, Group.FIELD_CREATOR_UUID, Group.FIELD_CREATE_TIME));
+    
+    assertEquals("b", (String)groupTo.getAttributesDb().get("a"));
+    assertEquals("abc", groupTo.getCreatorUuid());
+    assertEquals(0, groupTo.getCreateTimeLong());
+    
   }
   
   /**
