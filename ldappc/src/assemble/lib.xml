@@ -1,8 +1,11 @@
-<!-- Binary distribution, along with dependency jar files -->
+<!-- Generate in-place runner scripts, along with dependency jar files -->
 <assembly>
   <id>runInPlace</id>
+  
+  <!-- Override the base directory so that files get placed in target directory -->
   <baseDirectory></baseDirectory>
 
+  <!-- Copy dependencies, but not the project jar. It's already in the target directory -->
   <dependencySets>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
@@ -13,7 +16,7 @@
     </dependencySet>
   </dependencySets>
 
-  <!-- Copy runner scripts -->
+  <!-- Generate runner scripts -->
   <files>
     <file>
       <source>src/scripts/ldappc.sh</source>
