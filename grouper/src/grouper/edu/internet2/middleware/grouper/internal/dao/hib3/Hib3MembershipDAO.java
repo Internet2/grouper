@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.15 2008-06-30 17:40:43 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.16 2008-06-30 17:56:01 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -474,7 +474,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     throws  HibernateException
   {
     Session hs = hibernateSession.getSession();
-    HibUtils.executeSql("update grouper_memberships set PARENT_MEMBERSHIP = null", null);
+    
+    hs.createQuery("update Membership set parentUuid = null").executeUpdate();
     
     List<Membership> memberships = 
       hs.createQuery("from Membership as ms order by createTimeLong desc")
