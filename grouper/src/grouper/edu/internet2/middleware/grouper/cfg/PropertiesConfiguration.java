@@ -27,7 +27,7 @@ import java.util.Set;
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.5 2008-01-31 16:16:38 mchyzer Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.5.6.1 2008-06-30 15:16:41 mchyzer Exp $
  * @since   1.2.1
  */
 public class PropertiesConfiguration implements Configuration {
@@ -76,7 +76,8 @@ public class PropertiesConfiguration implements Configuration {
     throws  IllegalArgumentException
   {
     this.helper.validateParamsNotNull(property);
-    return this.getProperties().getProperty(property);
+    String val = this.getProperties().getProperty(property);
+    return val == null ? null : val.trim();
   }
 
   /**
