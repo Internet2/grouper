@@ -90,7 +90,7 @@
         <parameter name="provider_url" value="ldap://localhost:389" />
         <parameter name="security_authentication" value="simple" />
         <parameter name="security_principal" value="cn=manager,dc=example,dc=edu" />
-        <parameter name="security_credentials" value="123" />
+        <parameter name="security_credentials" value="GetFromPropertiesFile" />
       </parameter-list>
     </context>
   </ldap>
