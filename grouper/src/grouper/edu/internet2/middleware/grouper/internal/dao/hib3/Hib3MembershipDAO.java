@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.10.4.2 2008-06-30 17:56:04 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.10.4.3 2008-07-01 03:05:52 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -763,7 +763,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     throws  HibernateException
   {
     
-    hs.createQuery("update Membership set parentUuid = null").executeUpdate();
+    hs.createQuery("update Hib3MembershipDAO set parentUuid = null").executeUpdate();
     
     List<Hib3MembershipDAO> hib3MembershipDAOs = 
       hs.createQuery("from Hib3MembershipDAO as ms order by createTime desc")
