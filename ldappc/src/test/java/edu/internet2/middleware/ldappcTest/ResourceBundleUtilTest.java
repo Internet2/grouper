@@ -68,7 +68,7 @@ public class ResourceBundleUtilTest extends TestCase
     public void testResourceBundleUtil() 
     {
         DisplayTest.showRunTitle("testResourceBundleUtil", "Process Properties File");
-        String dbUrl = ResourceBundleUtil.getString("dbUrl");
+        String dbUrl = ResourceBundleUtil.getString("signetDbUrl");
         String msg = "Does not contain localhost";
         String expected = "Contains localhost";
         if (dbUrl.indexOf("localhost") != -1)

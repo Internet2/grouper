@@ -32,21 +32,9 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
 public class ResourceBundleUtil {
 
     /**
-     * The language
-     * This is temporarily hardwired to English.
-     */  
-    private static final String language = "en";
-
-    /**
-     * The country
-     * This is temporarily hardwired to the US.
-     */  
-    private static final String country = "US";
-
-    /**
      * The ldappc properties file name used for test data.
      */  
-    private static String LDAPPC_PROPERTIES_FILE = "testLdappc";
+    private static String LDAPPC_PROPERTIES_FILE = "ldappc";
 
     /**
      * The resource bundle
@@ -57,22 +45,8 @@ public class ResourceBundleUtil {
     {
         Locale currentLocale;
         ResourceBundle messages;
-        //currentLocale = new Locale(language, country);
         currentLocale = Locale.getDefault();
         bundle = ResourceBundle.getBundle(LDAPPC_PROPERTIES_FILE, currentLocale);
-    }
-
-    /**
-     * Constructor: Uses hardwired values for English and US locale for now.
-     */
-    public ResourceBundleUtil()
-    {
-        /*
-        Locale currentLocale;
-        ResourceBundle messages;
-        currentLocale = new Locale(language, country);
-        bundle = ResourceBundle.getBundle("MessagesBundle", currentLocale);
-        */
     }
 
     /**

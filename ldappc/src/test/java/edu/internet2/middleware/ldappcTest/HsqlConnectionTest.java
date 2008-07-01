@@ -127,7 +127,7 @@ public class HsqlConnectionTest extends TestCase
             // Hsql server is running before running this test.)
             //
 
-            dbUrl = ResourceBundleUtil.getString("dbUrl");
+            dbUrl = ResourceBundleUtil.getString("signetDbUrl");
         
             //                                                         xdb = filename   username  pw 
             //conn = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost:9001/xdb", "sa",    "");

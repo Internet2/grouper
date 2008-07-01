@@ -25,7 +25,8 @@ import junit.framework.Test;
 
 import org.apache.commons.io.FileUtils;
 import org.hsqldb.Server;
-import org.hsqldb.util.SqlTool.SqlToolException;
+
+import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 
 /**
  * This class extends TestSetup to open and close the Grouper and Signet HSQL
@@ -33,10 +34,13 @@ import org.hsqldb.util.SqlTool.SqlToolException;
  */
 public class DatabaseWrapperTestSetup extends TestSetup {
 
-    private static String DB_SRC     = "testDb";
-    private static String DB_TARGET  = "target/testDb";
-    private static int    DB_PORT    = 51515;
-    private HsqlRunner    hsqlRunner = null;
+    private boolean       useEmbeddedGrouper = true;
+    private boolean       useEmbeddedSignet  = true;
+    private int           dbPort             = 0;
+    private String        grouperDbTarget    = null;
+    private String        signetDbTarget     = null;
+    private static String DB_TARGET          = "target/testDb";
+    private HsqlRunner    hsqlRunner         = null;
 
     /**
      * @param suite
@@ -52,13 +56,36 @@ public class DatabaseWrapperTestSetup extends TestSetup {
     protected void setUp() throws Exception {
         super.setUp();
 
-        File dbDir = new File(DB_TARGET);
+        useEmbeddedGrouper = "true".equals(ResourceBundleUtil.getString("testUseEmbeddedGrouper"));
+        useEmbeddedSignet = "true".equals(ResourceBundleUtil.getString("testUseEmbeddedSignet"));
 
-        FileUtils.deleteDirectory(dbDir);
-        FileUtils.copyFileToDirectory(new File(DB_SRC + "/grouper/hsqldb/grouper.properties"), dbDir);
-        FileUtils.copyFileToDirectory(new File(DB_SRC + "/grouper/hsqldb/grouper.script"), dbDir);
-        FileUtils.copyFileToDirectory(new File(DB_SRC + "/signet/hsqldb/signet.properties"), dbDir);
-        FileUtils.copyFileToDirectory(new File(DB_SRC + "/signet/hsqldb/signet.script"), dbDir);
+        if (!useEmbeddedGrouper && !useEmbeddedSignet) {
+            return;
+        }
+
+        String dbPortStr = ResourceBundleUtil.getString("testEmbeddedDbPort");
+        dbPort = Integer.parseInt(dbPortStr);
+
+        grouperDbTarget = useEmbeddedGrouper ? ResourceBundleUtil.getString("testGrouperDbTarget") : "";
+        signetDbTarget = useEmbeddedSignet ? ResourceBundleUtil.getString("testSignetDbTarget") : "";
+
+        if (useEmbeddedGrouper) {
+            File dbDir = new File(grouperDbTarget);
+            FileUtils.deleteDirectory(dbDir);
+            String dbSource = ResourceBundleUtil.getString("testGrouperDbSource");
+            FileUtils.copyFileToDirectory(new File(dbSource + ".properties"), dbDir);
+            FileUtils.copyFileToDirectory(new File(dbSource + ".script"), dbDir);
+        }
+
+        if (useEmbeddedSignet) {
+            File dbDir = new File(signetDbTarget);
+            if (!grouperDbTarget.equals(signetDbTarget)) {
+                FileUtils.deleteDirectory(dbDir);
+            }
+            String dbSource = ResourceBundleUtil.getString("testSignetDbSource");
+            FileUtils.copyFileToDirectory(new File(dbSource + ".properties"), dbDir);
+            FileUtils.copyFileToDirectory(new File(dbSource + ".script"), dbDir);
+        }
 
         hsqlRunner = new HsqlRunner();
         new Thread(hsqlRunner).start();
@@ -76,7 +103,9 @@ public class DatabaseWrapperTestSetup extends TestSetup {
      * {@inheritDoc}
      */
     protected void tearDown() throws Exception {
-        hsqlRunner.stop();
+        if (useEmbeddedGrouper || useEmbeddedSignet) {
+            hsqlRunner.stop();
+        }
 
         super.tearDown();
     }
@@ -102,11 +131,18 @@ public class DatabaseWrapperTestSetup extends TestSetup {
         public void run() {
             server = new Server();
             server.setSilent(true);
-            server.setPort(DB_PORT);
-            server.setDatabasePath(0, DB_TARGET + "/grouper");
-            server.setDatabaseName(0, "grouperdb");
-            server.setDatabasePath(1, DB_TARGET + "/signet");
-            server.setDatabaseName(1, "signetdb");
+            server.setPort(dbPort);
+            int dbIndex = 0;
+            if (useEmbeddedGrouper) {
+                server.setDatabasePath(dbIndex, grouperDbTarget + "/grouper");
+                server.setDatabaseName(dbIndex, "grouperdb");
+                dbIndex++;
+            }
+            if (useEmbeddedSignet) {
+                server.setDatabasePath(dbIndex, signetDbTarget + "/signet");
+                server.setDatabaseName(dbIndex, "signetdb");
+                dbIndex++;
+            }
             server.start();
             started = true;
         }

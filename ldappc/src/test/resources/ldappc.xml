@@ -89,7 +89,7 @@
         <parameter name="provider_url" value="ldap://localhost:10389" />
         <parameter name="security_authentication" value="simple" />
         <parameter name="security_principal" value="uid=admin,ou=system" />
-        <parameter name="security_credentials" value="secret" />
+        <parameter name="security_credentials" value="GetFromPropertiesFile" />
       </parameter-list>
     </context>
   </ldap>

@@ -21,6 +21,7 @@ package edu.internet2.middleware.ldappcTest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 import edu.internet2.middleware.ldappcTest.configuration.AllJUnitConfigurationTests;
 import edu.internet2.middleware.ldappcTest.dbBuilder.AllJUnitBuilderTests;
 import edu.internet2.middleware.ldappcTest.qs.AllJUnitQuickStartTests;
@@ -86,7 +87,7 @@ public class AllJUnitTests extends TestCase
     /**
      * Key for obtaining the Dn for the test context base.
      */ 
-    public static final String TEST_CONTEXT_BASE = "testContextBase";
+    public static final String TEST_CONTEXT_BASE = "testLdapContextBase";
     
     /**
      * Key for obtaining the Dn for the test context base.
@@ -134,7 +135,7 @@ public class AllJUnitTests extends TestCase
      */
     public static Test suite()
     {
-        DN_TEST_BASE = "dc=example,dc=edu";
+        DN_TEST_BASE = ResourceBundleUtil.getString(TEST_CONTEXT_BASE);
 
         TestSuite suite = null;
         if (ALL)

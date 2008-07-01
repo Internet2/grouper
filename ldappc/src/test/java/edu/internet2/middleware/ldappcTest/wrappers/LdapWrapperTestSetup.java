@@ -39,13 +39,15 @@ import edu.internet2.middleware.ldappc.apachedsSchema.EduMemberSchema;
 import edu.internet2.middleware.ldappc.apachedsSchema.EduPermissionSchema;
 import edu.internet2.middleware.ldappc.apachedsSchema.EduPersonSchema;
 import edu.internet2.middleware.ldappc.apachedsSchema.KitnEduPersonSchema;
+import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 import edu.internet2.middleware.ldappcTest.AbstractServerTestSetup;
 
 /**
  * Wrap a suite of tests with an embedded instance of Apache Directory Server.
  */
 public class LdapWrapperTestSetup extends AbstractServerTestSetup {
-    private DirContext ctx = null;
+    private boolean    useEmbeddedLdap = true;
+    private DirContext ctx             = null;
 
     public LdapWrapperTestSetup(Test suite) {
         super(suite);
@@ -55,10 +57,22 @@ public class LdapWrapperTestSetup extends AbstractServerTestSetup {
      * Make sure embedded instance uses our schema.
      */
     public void setUp() throws Exception {
+        useEmbeddedLdap = "true".equals(ResourceBundleUtil.getString("testUseEmbeddedLdap"));
+        if (!useEmbeddedLdap) {
+            return;
+        }
+
         System.out.println("Setting up embedded directory");
 
-        // Set the port we'll use.
-        port = 10389;
+        String portStr = ResourceBundleUtil.getString("testEmbeddedLdapPort");
+        port = Integer.parseInt(portStr);
+
+        String contextBase = ResourceBundleUtil.getString("testLdapContextBase");
+        String partition = ResourceBundleUtil.getString("testLdapBasePartition");
+        String baseOrganization = ResourceBundleUtil.getString("testLdapBaseOrganization");
+        String baseDomainComponent = ResourceBundleUtil.getString("testLdapBaseDomainComponent");
+        String workingDirectory = ResourceBundleUtil.getString("testLdapWorkingDirectory");
+        String importFile = ResourceBundleUtil.getString("testLdapImportFile");
 
         // Add the "edu" object classes and attributes.
         Set schemas = configuration.getBootstrapSchemas();
@@ -72,8 +86,8 @@ public class LdapWrapperTestSetup extends AbstractServerTestSetup {
 
         // Add partition 'example'
         MutablePartitionConfiguration pcfg = new MutablePartitionConfiguration();
-        pcfg.setName("example");
-        pcfg.setSuffix("dc=example,dc=edu");
+        pcfg.setName(partition);
+        pcfg.setSuffix(contextBase);
 
         // Create some indices
         Set<String> indexedAttrs = new HashSet<String>();
@@ -93,12 +107,12 @@ public class LdapWrapperTestSetup extends AbstractServerTestSetup {
 
         // Next, the 'Organization' attribute
         attr = new BasicAttribute("o");
-        attr.add("Example University");
+        attr.add(baseOrganization);
         attrs.put(attr);
 
         // Next, the 'dc' attribute
         attr = new BasicAttribute("dc");
-        attr.add("example");
+        attr.add(baseDomainComponent);
         attrs.put(attr);
 
         // Associate this entry to the partition
@@ -111,16 +125,14 @@ public class LdapWrapperTestSetup extends AbstractServerTestSetup {
 
         configuration.setContextPartitionConfigurations(pcfgs);
 
-        // Create a working directory
-        File workingDirectory = new File("target/server-work");
-        configuration.setWorkingDirectory(workingDirectory);
+        configuration.setWorkingDirectory(new File(workingDirectory));
 
         // Actually start the LDAP server.
         super.setUp();
 
         // Import the test data into the server.
         System.out.println("Importing data into directory");
-        importLdif(new BufferedInputStream(new FileInputStream(new File("testDb/ldap/ldappcSubject.ldif"))));
+        importLdif(new BufferedInputStream(new FileInputStream(new File(importFile))));
         System.out.println("Embedded directory setup complete");
     }
 
@@ -128,8 +140,10 @@ public class LdapWrapperTestSetup extends AbstractServerTestSetup {
      * Shut down the LDAP server.
      */
     public void tearDown() throws Exception {
-        System.out.println("Shutting down embedded directory");
-        super.tearDown();
-        System.out.println("Embedded directory shutdown complete");
+        if (useEmbeddedLdap) {
+            System.out.println("Shutting down embedded directory");
+            super.tearDown();
+            System.out.println("Embedded directory shutdown complete");
+        }
     }
 }
