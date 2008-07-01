@@ -27,7 +27,7 @@ import java.util.Timer;
 /**
  * Class for starting the Ldappc program.
  * For the design of this program, 
- * @see edu.internet2.middleware.ldappc.documentation.Design
+ * see the site documentation.
  * @author Gil Singer 
  */
 public class Ldappc {
