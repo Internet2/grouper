@@ -91,8 +91,8 @@ public abstract class Synchronizer
     }
 
     /**
-     * @param subjectIDTables
-     *            the subjectIDTables to set
+     * @param subjectCache
+     *            the subjectCache to set
      */
     public void setSubjectCache(SubjectCache subjectCache)
     {

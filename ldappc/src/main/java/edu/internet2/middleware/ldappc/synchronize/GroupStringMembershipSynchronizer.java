@@ -63,14 +63,18 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
-     * @param root
-     *            DN of the root element
+     * @param groupNameString
+     *            the string to be provisioned as the name of the group
+     * @param updateWriter
+     *            the Writer to which to write the updates
      * @param configuration
      *            Grouper provisioning configuration
      * @param options
      *            Grouper provisioning options
      * @param subjectCache
      *            Subject cache to speed subject retrieval
+     * @throws NamingException
+     * @throws LdappcConfigurationException
      */
     public GroupStringMembershipSynchronizer(LdapContext ctx, String groupNameString,
             BufferedWriter updateWriter, GrouperProvisionerConfiguration configuration,
@@ -96,11 +100,8 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
      * been provisioned to the entry, it will remain within the subject's LDAP
      * entry.
      * 
-     * @param group
-     *            Group to be included
-     * @param status
-     *            Either {@link #STATUS_NEW}, {@link #STATUS_MODIFIED},
-     *            {@link #STATUS_UNCHANGED} or {@link #STATUS_UNKNOWN}.
+     * @param member
+     *            member to be included
      * @throws NamingException
      *             thrown if a Naming error occurs
      * @throws LdappcException

@@ -123,7 +123,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      *             thrown if a Naming error occurs
      * @throws LdappcException
      *             thrown if an error occurs
-     * @see edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer#performInclude(Group,
+     * @see edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer#performInclude(String,
      *      int)
      */
     protected void performInclude(String groupNameString, int status)
