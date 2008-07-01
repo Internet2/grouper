@@ -179,6 +179,7 @@
 	          <descriptors>
 	            <descriptor>src/assembly/bin.xml</descriptor>
 	            <descriptor>src/assembly/src.xml</descriptor>
+	            <descriptor>src/assembly/site.xml</descriptor>
 	          </descriptors>
 	        </configuration>
 	        <executions>

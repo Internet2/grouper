@@ -1,0 +1,13 @@
+<!-- Site documentation distribution -->
+<assembly>
+  <id>site</id>
+
+  <!-- Generate both tar.gz and zip format distributions -->
+  <formats>
+    <format>tar.gz</format>
+    <format>zip</format>
+  </formats>
+
+  <!-- Include the site directory -->
+  <includeSiteDirectory>true</includeSiteDirectory>
+</assembly>
