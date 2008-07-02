@@ -8,6 +8,11 @@
     <format>zip</format>
   </formats>
 
-  <!-- Include the site directory -->
-  <includeSiteDirectory>true</includeSiteDirectory>
+  <fileSets>
+    <!-- Include the site directory -->
+    <fileSet>
+      <directory>target/site</directory>
+      <outputDirectory></outputDirectory>
+    </fileSet>
+  </fileSets>
 </assembly>
