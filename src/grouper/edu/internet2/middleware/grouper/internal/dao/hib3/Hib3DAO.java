@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.7 2008-07-02 04:28:25 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {
@@ -97,9 +97,10 @@ abstract class Hib3DAO {
    * @param theClass
    * @return the string of resource
    */
-  private static String resourceNameFromClassName(Class theClass) {
+  static String resourceNameFromClassName(Class theClass) {
     String simpleName = theClass.getSimpleName();
-    String daoPackage = Hib3GroupDAO.class.getPackage().getName();
+    String daoClass = Hib3GroupDAO.class.getName();
+    String daoPackage = daoClass.substring(0, daoClass.lastIndexOf('.'));
     //replace with slashes
     String result = StringUtils.replace(daoPackage, ".", "/") + "/Hib3" + simpleName + "DAO.hbm.xml";
     return result;
