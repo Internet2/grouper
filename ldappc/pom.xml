@@ -129,7 +129,7 @@
   </build>
   <profiles>
     <profile>
-      <id>runner</id>
+      <id>runInPlace</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
@@ -144,7 +144,7 @@
 	          <appendAssemblyId>false</appendAssemblyId>
 	          <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
 	          <descriptors>
-	            <descriptor>src/assembly/runner.xml</descriptor>
+	            <descriptor>src/assemble/runInPlace.xml</descriptor>
 	          </descriptors>
 	        </configuration>
 	        <executions>
@@ -161,8 +161,6 @@
       </build>
       <properties>
         <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
-        <runner.useOutputDirectory>true</runner.useOutputDirectory>
-        <runner.includeProjectJar>true</runner.includeProjectJar>
       </properties>
     </profile>
     <profile>
@@ -177,9 +175,9 @@
 	          <tarLongFileMode>gnu</tarLongFileMode>
 	          <ignoreDirFormatExtensions>false</ignoreDirFormatExtensions>
 	          <descriptors>
-	            <descriptor>src/assembly/bin.xml</descriptor>
-	            <descriptor>src/assembly/src.xml</descriptor>
-	            <descriptor>src/assembly/site.xml</descriptor>
+	            <descriptor>src/assemble/bin.xml</descriptor>
+	            <descriptor>src/assemble/src.xml</descriptor>
+	            <descriptor>src/assemble/site.xml</descriptor>
 	          </descriptors>
 	        </configuration>
 	        <executions>
@@ -196,8 +194,37 @@
       </build>
       <properties>
         <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
-        <runner.useOutputDirectory>false</runner.useOutputDirectory>
-        <runner.includeProjectJar>false</runner.includeProjectJar>
+      </properties>
+    </profile>
+    <profile>
+      <id>binary</id>
+      <build>
+        <plugins>
+	      <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-assembly-plugin</artifactId>
+	        <version>2.2-beta-2</version>
+	        <configuration>
+	          <tarLongFileMode>gnu</tarLongFileMode>
+	          <ignoreDirFormatExtensions>false</ignoreDirFormatExtensions>
+	          <descriptors>
+	            <descriptor>src/assemble/bin.xml</descriptor>
+	          </descriptors>
+	        </configuration>
+	        <executions>
+	          <execution>
+	            <id>make-assembly</id>
+	            <phase>package</phase>
+	            <goals>
+	              <goal>single</goal>
+	            </goals>
+	          </execution>
+	        </executions>
+	      </plugin>
+        </plugins>
+      </build>
+      <properties>
+        <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
       </properties>
     </profile>
   </profiles>
