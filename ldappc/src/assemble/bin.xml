@@ -15,6 +15,7 @@
   <dependencySets>
     <dependencySet>
       <outputDirectory>/lib</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
       <includes>
         <include>*:jar:*</include>
       </includes>
