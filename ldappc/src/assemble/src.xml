@@ -1,22 +1,29 @@
 <!-- Source distribution, along with dependency jar files, and site -->
 <assembly>
   <id>src</id>
-  
+
   <!-- Generate both tar.gz and zip format distributions -->
   <formats>
     <format>tar.gz</format>
     <format>zip</format>
   </formats>
 
-  <!-- Include the site directory -->
-  <includeSiteDirectory>true</includeSiteDirectory>
-
-  <!-- Include the dependent jars, including the project jar -->
   <dependencySets>
+  <!-- Copy the dependent jars, excluding the project jar -->
     <dependencySet>
-      <outputDirectory>/lib</outputDirectory>
+      <outputDirectory>target/lib</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
       <includes>
         <include>*:jar:*</include>
+      </includes>
+    </dependencySet>
+
+    <!-- Copy the project jar -->
+    <dependencySet>
+      <outputDirectory>target</outputDirectory>
+      <useProjectArtifact>true</useProjectArtifact>
+      <includes>
+        <include>ldappc:jar:*</include>
       </includes>
     </dependencySet>
   </dependencySets>
@@ -25,18 +32,18 @@
   <files>
     <file>
       <source>src/scripts/ldappc.sh</source>
-      <outputDirectory>/bin</outputDirectory>
+      <outputDirectory>target/bin</outputDirectory>
       <filtered>true</filtered>
     </file>
     <file>
       <source>src/scripts/ldappc.bat</source>
-      <outputDirectory>/bin</outputDirectory>
+      <outputDirectory>target/bin</outputDirectory>
       <filtered>true</filtered>
     </file>
   </files>
 
-  <!-- Copy the main directory, excluding generated files and the usual suspects -->
   <fileSets>
+    <!-- Copy the main directory, excluding generated files and the usual suspects -->
     <fileSet>
       <useDefaultExcludes>true</useDefaultExcludes>
       <excludes>
@@ -44,6 +51,12 @@
         <exclude>cobertura.ser</exclude>
         <exclude>**/logs/*.log*</exclude>
       </excludes>
+    </fileSet>
+
+    <!-- Include the site directory -->
+    <fileSet>
+      <directory>target/site</directory>
+      <outputDirectory>target/site</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>
