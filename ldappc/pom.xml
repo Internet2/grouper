@@ -159,9 +159,6 @@
 	      </plugin>
         </plugins>
       </build>
-      <properties>
-        <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
-      </properties>
     </profile>
     <profile>
       <id>distribution</id>
@@ -192,9 +189,6 @@
 	      </plugin>
         </plugins>
       </build>
-      <properties>
-        <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
-      </properties>
     </profile>
     <profile>
       <id>binary</id>
@@ -223,9 +217,6 @@
 	      </plugin>
         </plugins>
       </build>
-      <properties>
-        <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
-      </properties>
     </profile>
   </profiles>
   <dependencies>
@@ -403,6 +394,6 @@
     </plugins>
   </reporting>
   <properties>
-    <runner.extraJvmProperties>-Xmx256m</runner.extraJvmProperties>
+    <runner.extraJvmArguments>-Xmx256m</runner.extraJvmArguments>
   </properties>
 </project>
