@@ -82,10 +82,10 @@
     </mailingList>
   </mailingLists>
   <scm>
-    <connection>scm:cvs:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi</connection>
-    <developerConnection>scm:cvs:rsh:user@cvs.internet2.edu:/home/cvs/i2mi</developerConnection>
+    <connection>scm:cvs:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi:ldappc-mvn</connection>
+    <developerConnection>scm:cvs:rsh:user@cvs.internet2.edu:/home/cvs/i2mi:ldappc-mvn</developerConnection>
     <tag>HEAD</tag>
-    <url>http://viewvc.internet2.edu/viewvc.py/?root=I2MI</url>
+    <url>http://viewvc.internet2.edu/viewvc.py/ldappc-mvn/?root=I2MI</url>
   </scm>
   <build>
     <plugins>
