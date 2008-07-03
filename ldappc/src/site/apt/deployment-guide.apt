@@ -24,45 +24,50 @@
   To run this program you will need a working Grouper and/or Signet installation,
   and an LDAP directory to provision.
 
-Binary Installation (quickstart)
+  The Ldappc program is available in both binary and source distribution files,
+  or you may check out the source from CVS.  Unless you make changes to the source,
+  or wish to run the test suite against your own directory there is no need to
+  download the source distribution.
+
+Binary Installation (Simplest)
 
   The binary distribution file is available as a compressed tar file or as a zip file.
   Download either and unpack it into the directory of your choice.
-  This will create a subdirectory of ldappc-theVersionNumber, which will 
+  This will create a subdirectory of ldappc-theVersionNumber, which will
   be referred to as the installation directory.  All commands should be run from the
   installation directory.
 
   The directory structure created in the installation directory is as follows:
-  
-*------------------------+-----------------------+
-| <<Directory>>          | <<Discussion>>        |
-*------------------------+-----------------------+
-| <<<bin>>>              | Runner scripts        |
-*------------------------+-----------------------+
-| <<<\ \ \ ldappc.bat>>> | Windows runner script |
-*------------------------+-----------------------+
-| <<<\ \ \ ldappc.sh>>>  | UN*X runner script    |
-*------------------------+-----------------------+
-| <<<conf>>>             | Sample config files: ldappc.xml file template
-*------------------------+-----------------------+
-| <<<lib>>>              | Jar files, including ldappc jar
-*------------------------+-----------------------+
-| <<<LICENSE.txt>>>      | License file          |
-*------------------------+-----------------------+
-| <<<logs>>>             | Log files             |
-*------------------------+-----------------------+
-| <<<README.txt>>>       | Readme file           |
-*------------------------+-----------------------+
-| <<<site>>>             | Documentation files, including project reports
-*------------------------+----------------------------------------+
-| <<<\ \ \ apidoc ...>>> | Javadoc files                          |
-*------------------------+----------------------------------------+
-| <<<\ \ \ index.html>>> | Main site documentation file           |
-*------------------------+----------------------------------------+
-| <<<\ \ \ supplement>>> | Doc file integrated with Javadoc files |
-*------------------------+----------------------------------------+
-| <<<\ \ \ ...>>>        | Additional documentation files         |
-*------------------------+----------------------------------------+
+
+*------------------------+------------------------------------------------+
+| <<Directory>>          | <<Discussion>>                                 |
+*------------------------+------------------------------------------------+
+| <<<bin>>>              | Runner scripts                                 |
+*------------------------+------------------------------------------------+
+| <<<\ \ \ ldappc.bat>>> | Windows runner script                          |
+*------------------------+------------------------------------------------+
+| <<<\ \ \ ldappc.sh>>>  | UN*X runner script                             |
+*------------------------+------------------------------------------------+
+| <<<conf>>>             | Sample config files: ldappc.xml file template  |
+*------------------------+------------------------------------------------+
+| <<<lib>>>              | Jar files, including ldappc jar                |
+*------------------------+------------------------------------------------+
+| <<<LICENSE.txt>>>      | License file                                   |
+*------------------------+------------------------------------------------+
+| <<<logs>>>             | Log files                                      |
+*------------------------+------------------------------------------------+
+| <<<README.txt>>>       | Readme file                                    |
+*------------------------+------------------------------------------------+
+| <<<site>>>             | Documentation files, including project reports |
+*------------------------+------------------------------------------------+
+| <<<\ \ \ apidoc ...>>> | Javadoc files                                  |
+*------------------------+------------------------------------------------+
+| <<<\ \ \ index.html>>> | Main site documentation file                   |
+*------------------------+------------------------------------------------+
+| <<<\ \ \ supplement>>> | Doc file integrated with Javadoc files         |
+*------------------------+------------------------------------------------+
+| <<<\ \ \ ...>>>        | Additional documentation files                 |
+*------------------------+------------------------------------------------+
 
   See the {{{user-manual.html}user manual}} for information on configuring and running
   the Ldappc program.
@@ -81,25 +86,25 @@ Source Installation
   see a subdirectory titled ldappc-theVersionNumber. If you download the source from CVS,
   the directory will just be called ldappc. In either case, this directory will be called the
   installation directory.  All commands should be run from the installation directory.
-  
+
 * Prerequisites
 
   The following are required to build Ldappc from source.
-  
+
 ** Java JDK 1.5 or Later
 
   The Ldappc project, as well as its dependent Grouper and Signet projects, use features
   available only in Java 1.5 and later.  You will need a JDK for Java 1.5 or later.  The
   Sun JDK is recommended for Windows and UN*X systems.  The Apple JDK is recommended for
   Mac OS X.
-  
+
 ** Maven
 
   The ldappc project uses Apache Maven as its build environment.  The project was built using
   version 2.0.9, but later versions should also work.  Maven may already be installed on your
   system, but if not, it can be obtained from {{http://maven.apache.org}},
   and installed.  The mvn command must be in your path.
-  
+
   Discussion of Maven is beyond the scope of this document.  See {{http://maven.apache.org}}
   for more information.
 
@@ -109,14 +114,14 @@ Source Installation
   an embedded copy of the Apache Directory Server, but if you wish to test against your own
   database and/or LDAP server, you can edit the ldappc.xml and ldappc.properties files in the
   src/test/resources directory to reflect this.
-  
+
   See {{{Configuring_LDAP}Configuring LDAP}} for details.
 
 * Installation Procedure
 
   The first step in the installation is to untar the installation archive
-  file to an installation directory of your choice. 
-  This will create a subdirectory of ldappc-theVersionNumber, which will 
+  file to an installation directory of your choice.
+  This will create a subdirectory of ldappc-theVersionNumber, which will
   be referred to as the installation directory.  If you checked out the source from CVS,
   the directory will be called ldappc, but it will still be referred to as the installation
   directory.  Except for installing the required jars, below, all commands must be run
@@ -129,7 +134,7 @@ Source Installation
   artifact is not present in your local repository, Maven will contact the Maven central
   repository, and optionally, third-party repositories, to find the artifact and download it
   into your local repository.
-  
+
   Most jars needed by Ldappc are in the Maven central repository, but several are not.  These
   jars must be installed into your local repository after installing Maven and before attempting
   to build Ldappc.  See the README.txt file in the required-jars directory for instructions.
@@ -139,124 +144,125 @@ Source Installation
 ** Building Ldappc
 
   Run the following command
-  
+
 ---
 mvn clean site package
 ---
 
   This will run Maven and have it clean your installation, build the site documentation, run the
   test suite, and package Ldappc for running from the installation directory.
-  
+
   This involves creating site documentation in the target/site directory, creating an ldappc jar
   in target/ldappc-theVersionNumber.jar, a directory containing all the dependent jars in
   target/lib, and the UN*X and Windows runner scripts in the target/bin directory.
-  
+
   Before running ldappc against your own data, you will need to edit the files in the conf
   directory.  See the {{{user-manual.html}User Manual}} for information on configuring and
   running the Ldappc program.
-  
+
   If you make source changes you do not need to clean or regenerate the site, unless you wish to.
   You can simply run the command
-  
+
 ---
 mvn package
 ---
 
   and the ldappc jar, the dependent library directory, and the runner directory will be
   regenerated as needed.
-  
+
   If you have edited the configuration files in the conf directory, you do not need to run
   Maven at all. These files are included in the class path by the runner scripts and any changes
   will be reflected when you re-run the Ldappc program.
 
 ** Expected Results
 
-  All of the more than 40 test cases should run successfully if the installation is 
+  All of the more than 40 test cases should run successfully if the installation is
   successful.  There should be no error messages sent to the ErrorLog file.
 
 ** Skipping Tests or Ignoring Test Failures
 
   You can skip running the tests by adding the option "-Dmaven.test.skip=true" to the Maven command, e.g.
-  
+
 ---
 mvn package -Dmaven.test.skip=true
 ---
 
   If you want to run the tests, but continue packaging if a test fails, you can instead add the option
   "-Dmaven.test.failure.ignore=true" to the Maven command.
-  
+
 * Building a Distribution
 
   There are two separate profiles for building Ldappc distributions: a "binary" profile, which simply
   creates a binary distribution, and a "distribution" profile, which generates the binary
   distribution, the source distribution, and a site distribution, which just contains the site documentation.
-  
+
   To create just the binary distribution, run
-  
+
 ---
 mvn site package -Pbinary
 ---
 
   To create all three distributions, run
-  
+
 ---
 mvn site package -Pdistribution
 ---
 
   If you have already generated the site documentation you may omit the "site" goal, above.
-  
+
   The distribution files will be in the target directory, along with the Ldappc jar.
   They will have names of the form ldappc-theVersionNumber-theDistributionType.fileType,
   e.g. ldappc-1.2.0-src.tar.gz, or ldappc-1.2.0-bin.zip.
 
-* Essential Configuration File Settings
+Essential Configuration File Settings
 
   There are several configuration files that control the operations of
   of the Ldappc program.  Only one of these configuration files,
-  the ldappc.xml file, requires changes in order to run anything useful 
+  the ldappc.xml file, requires changes in order to run anything useful
   with Ldappc.  The section of the ldappc.xml that requires
   settings is the under the "ldap" tag.  These settings describe how to
   connect to the the LDAP server and how to authenticate to the server.
   For production use, the entire contents of the ldappc.xml file will need
-  to tailored to the users' requirements. 
+  to tailored to the users' requirements.
 
-  See the ldappcTemplate.xml file, which is under the conf directory, for 
+  See the ldappcTemplate.xml file, which is under the conf directory, for
   instructions on what values are needed.  The conf directory contains a
   copy of the ldappc.xml file used in the src/test/resources
   directory that is used for executing the built-in test cases.
   You can change the conf/ldappc.xml file for your own use, as you can
   always restore it from the test copy.  Other files in this
-  directory have copies that include "Template" in the name. 
+  directory have copies that include "Template" in the name.
   The ldappcTemplate.xml file is different from the ldappc.xml file
   in that the former contains detailed descriptions of all of the
   allowed parameters, while the later contains actual values used
-  without most of the descriptive text. 
+  without most of the descriptive text.
 
   Make sure that you have the JAVA_HOME environment variable set
   to point to the JDK1.5.  The code has been tested with JDK1.5 only
 
-** Optional Advanced User Testing Configurations
+* Optional Advanced User Testing Configurations
 
   The test configuration files are in the src/test/resources directory
   and are set up to allow overriding a variety of defaults for testing.
-  The later section, "The Build File" describes these configuration files.
+  The later section, {{{The_Build_Configuration}The Build Configuration}}
+  describes these configuration files.
 
-* Common Problems
+Common Problems
 
-  The following is a list of possible causes why the test cases may fail
+  The following is a list of possible causes why the program may fail
   due incorrect setup.
 
-  If one sees error messages concerning a credential 
-  problem, this may indicate an error in the set up of the LDAP 
-  server or may simply indicate that you have incorrect values for  
-  the "security_principal" and "security_credentials" parameters in the 
-  ldappc.xml file.  
+  If one sees error messages concerning a credential
+  problem, this may indicate an error in the set up of the LDAP
+  server or may simply indicate that you have incorrect values for
+  the "security_principal" and "security_credentials" parameters in the
+  ldappc.xml file.
 
   A failure will occur if required LDAP object classes and/or attributes
-  needed for test or production are not present either in the LDAP schemas provided
+  referred to in ldappc.xml are not present either in the LDAP schemas provided
   in the LDAP server's directory or referenced by the server configuration.
 
-  Make sure the values of source attribute on the source-subject-identifier match 
+  Make sure the values of source attribute on the source-subject-identifier match
   the values of the id tag in the source tag in the sources.xml file.  Since no
   changes to either of these is required for use of the built-in test cases,
   this should not be a problem for installation testing.  However, this may
@@ -265,20 +271,20 @@ mvn site package -Pdistribution
   If one is used to using two separate sources.xml files for Grouper and
   Signet, realize that this will cause a problem if attempted with Ldappc.
   Ldappc needs a sources.xml file in its classpath; if two appear, only the
-  first would be used.  Therefore, if you are using both Grouper and Signet, 
-  you must combine the two sources.xml files into a single file. 
+  first would be used.  Therefore, if you are using both Grouper and Signet,
+  you must combine the two sources.xml files into a single file.
 
   If you get the message "Class file has wrong version 49.0, should be 48.",
-  this indicates that one is trying to use some classes that compiled under JDK 1.4 
+  this indicates that one is trying to use some classes that compiled under JDK 1.4
   with others that compiled under JDK 1.5. make sure that your value of JAVA_HOME
   is JDK1.5.
 
   Another source of problems during development occurred because of the
   existence of two different versions of the hsqldb.jar file.  The Signet
   Quickstart database used version 1.8.0 and the Grouper Quickstart
-  database used 1.7.2.  It has reported that Grouper will not work properly 
+  database used 1.7.2.  It has reported that Grouper will not work properly
   with version 1.8.0. Nevertheless, the Ldappc built-in test cases run using
-  version 1.8.0 for both Signet and Grouper.  The build file places the latest 
+  version 1.8.0 for both Signet and Grouper.  The build file places the latest
   version of the hsqldb.jar file (1.8.0) before all other jar
   files in the classpath to assure that it is used rather than another version.
   For production use, hsqldb is not recommended. You should configure your site's
@@ -287,18 +293,18 @@ mvn site package -Pdistribution
 
   If one is not using the same version of hsqldb.jar for testing and for
   production, then remember to replace the the hsqldb.jar file in the installation
-  directory's lib directory whenever one switches between testing and production.  
+  directory's lib directory whenever one switches between testing and production.
   If one is not using the built-in capability to start the Grouper and Signet
-  databases and is starting one's own databases, then for production one can remove 
+  databases and is starting one's own databases, then for production one can remove
   the provided hsqldb.jar file from the lib directory as it is only needed for testing.
 
 Directory Structure
 
-  The following describes the directory structure of the program after the 
-  initial installation of the source distribution tar file.  Prior to running Maven, 
-  the target directory does not exist. 
+  The following describes the directory structure of the program after the
+  initial installation of the source distribution tar file.  Prior to running Maven,
+  the target directory does not exist.
 
-  Table key: "..." means that lower level directories are not shown. 
+  Table key: "..." means that lower level directories are not shown.
 
   The installation directory, ldappc-theVersionNumber, is not shown to avoid extra indentation.
   Likewise, package paths are compressed.
@@ -318,6 +324,10 @@ Directory Structure
 *------------------------------+----------------------------------------+
 | <<<src>>>                    | Container for project sources          |
 *------------------------------+----------------------------------------+
+| <<<\ \ \ assemble>>>         | Assembly descriptor files              |
+*------------------------------+----------------------------------------+
+| <<<\ \ \ checkstyle>>>       | Contains checkstyle.xml                |
+*------------------------------+----------------------------------------+
 | <<<\ \ \ main>>>             | Runtime sources                        |
 *------------------------------+----------------------------------------+
 | <<<\ \ \ \ \ \ java>>>       | Runtime Java source code               |
@@ -336,14 +346,18 @@ Directory Structure
 *-------------------------------------------+---------------------------------+
 | <<<\ \ \ \ \ \ resources>>>  | Runtime resource files (ldappc.xsd)          |
 *------------------------------+----------------------------------------------+
+| <<<\ \ \ scripts>>>          | Runner script templates                      |
+*------------------------------+----------------------------------------------+
+| <<<\ \ \ site ...>>>         | Raw site documentation source                |
+*------------------------------+----------------------------------------------+
 | <<<\ \ \ test>>>             | Test sources                                 |
 *------------------------------+----------------------------------------------+
 | <<<\ \ \ \ \ \ java>>>       | Test Java source code                        |
 *------------------------------+--------------------------------------------------------------------+
 | <<<\ \ \ \ \ \ \ \ \ edu/internet2/middleware/ldappcTest ...>>>  | Directory for ldappc test code |
 *------------------------------+--------------------------------------------------------------------+
-| <<<\ \ \ \ \ \ resources>>>  | Test resource files (configuration)          |
-*------------------------------+----------------------------------------------+
+| <<<\ \ \ \ \ \ resources>>>  | Test resource files (configuration: ldappc.xml, etc.)              |
+*------------------------------+--------------------------------------------------------------------+
 | <<<target>>>                 | Top level directory build contents           |
 *------------------------------+----------------------------------------------+
 | <<<\ \ \ bin>>>              | Runner scripts                               |
@@ -404,37 +418,36 @@ Directory Structure
   See {{{Configuring_LDAP}Configuring LDAP}} for information on how to use your own
   databases and/or directory for testing.
 
-  At the top level of level of the above structure there are several files.  The one of most interest 
+  At the top level of level of the above structure there are several files.  The one of most interest
   is the pom.xml file used by Maven.  The README.txt file simply refers the reader to this Deployment
   Guide.  The LICENSE.txt file contains the license for this code.  If you check this project out from
   CVS, there may also be Eclipse project files, e.g. .classpath and .project files.
 
-The Build File
+{The Build Configuration}
 
-  An Ant build file is provided along with the source code.  It can be used to compile the code and
-  execute either a set of JUnit test cases or to run the command line interface to the application.
-  When running the JUnit test cases it will automatically start the built-in Grouper 
-  and Signet databases, run the test cases, and stop the databases.  When running for normal (non-testing)
-  execution, it is the responsibility of the user to assure that his Grouper and/or Signet
-  databases are running before executing Ldappc.
-  The build file was created primarily for use in development and testing 
-  and is not set up for convenient general use by deployers for purposes
-  other than installation and testing.  However, it's full capabilities may 
-  prove useful to developers who wish to extend the current product.
+  A Maven pom.xml (Project Object Model) file is provided along with the source code.
+  It describes the requirements to compile the code, execute a set of JUnit test cases,
+  and package the project for use or distribution.
 
-  The Ant build file is set up to allow the user to specify configuration settings in 
-  configuration files and to be able to easily switch between different computing 
-  environments and different configurations of Ldappc.  However, for installation
-  and initial testing, most readers can savely skip reading the rest of this section.
+  When running the JUnit test cases it will automatically start the built-in Grouper
+  and Signet databases and the built-in LDAP directory, run the test cases, and stop the databases.
+
+  When running for normal (non-testing) execution, it is the responsibility of the user
+  to assure that the site's Grouper and/or Signet databases and the site's LDAP directory
+  are running before executing Ldappc.
+
+  The pom.xml file is set up to allow the user to specify database jar dependencies.
+  However, for installation and initial testing, most readers can savely skip reading
+  the rest of this section.
 
 * Ant configuration Files
 
   Two properties files control what the ant scripts do.  These are
-  referred to as the master ant properties file, which is optional, 
-  and the ant system properties file, which is required for running this 
-  Ant build script for installation and testing only if the user does 
-  not have an environmental variable JAVA_HOME set to the directory 
-  for JDK1.5.  A third properties file, testLdappc.properties, is used for 
+  referred to as the master ant properties file, which is optional,
+  and the ant system properties file, which is required for running this
+  Ant build script for installation and testing only if the user does
+  not have an environmental variable JAVA_HOME set to the directory
+  for JDK1.5.  A third properties file, testLdappc.properties, is used for
   providing data to the Ldappc testing code.  Most users will never
   need to modify this file.
 
@@ -483,27 +496,27 @@ The Build File
 * Build File Details
 
   If one has done an Ant install and then wishes to make changes to update from CVS, where
-  the CVS changes involve only changes to Java class files, then one could recompile the 
+  the CVS changes involve only changes to Java class files, then one could recompile the
   code using the Ant "compile" target.  However, unless one knows that no changes have been
-  made to the configuration files or certain other non-Java source files, then one should 
+  made to the configuration files or certain other non-Java source files, then one should
   instead run the Ant script with the "build" target.  It recommended that the "build" or
   "test" targets usually be used instead of the "compile" target.  Use of the "build" target
   will assure that the selected configuration files, the ldappcConfig.xsd file, the sources.xml
   file, and additional test data files are copied to the build directory.
 
-  To save copying time, the lib directory is not copied to the build directory by 
-  the Ant build script.  There is commented out code in the script to perform 
+  To save copying time, the lib directory is not copied to the build directory by
+  the Ant build script.  There is commented out code in the script to perform
   the copy that could be uncommented and other modifications could be made to allow
   doing the copying of selected jar files based on some new property value.
   The user may wish to do this if he wishes to maintain different configurations that
-  use different library versions. 
+  use different library versions.
 
 The Schema Files
 
   Most of the schema files needed by Ldappc will be provided by the LDAP server that the
-  user deploys.  In addition, the user will need to set up the LDAP server to include the 
-  ldappc.schema that is located in the conf directory, as discussed in the 
-  "Prerequisites" section. 
+  user deploys.  In addition, the user will need to set up the LDAP server to include the
+  ldappc.schema that is located in the conf directory, as discussed in the
+  "Prerequisites" section.
 
 The sources.xml File
 
@@ -515,8 +528,8 @@ The sources.xml File
   location and SQL commands for all data sources.
 
   The Ant build script determines where to get the sources.xml file in the following
-  manner.  If the user does not do anything special, then the sources.xml file is copied 
-  to the build directory from the "applicationConfigDir" directory; this is 
+  manner.  If the user does not do anything special, then the sources.xml file is copied
+  to the build directory from the "applicationConfigDir" directory; this is
   the "conf" directory unless set otherwise in the antMaster.xml file.
   If user wants the script to find the sources.xml file elsewhere, he can set
   the "sourcesXmlDir" property in the antSystem.properties file to the
@@ -529,36 +542,36 @@ The sources.xml File
 Javadoc Documentation
 
   Unless you are reading a printed copy of this document, you must already
-  have navigated to the Javadoc and do not need read to further in this section. 
+  have navigated to the Javadoc and do not need read to further in this section.
 
   The distribution file comes with a directory, docs, that contains the generated
-  Javadoc directories.  The Ant docs target can be used to recreate the Javadoc 
+  Javadoc directories.  The Ant docs target can be used to recreate the Javadoc
   documentation from the src directory.
 
   Within this documentation there are some Ldappc documentation files.
   These documentation files can be located by placing the
   appropriate URL in a browser window.  This URL is dependent on
-  on the base location where Ldappc is deployed plus the following 
-  relative path: 
+  on the base location where Ldappc is deployed plus the following
+  relative path:
   doc/javadoc/index.html
-  Once the Javadoc is visible in your browser, navigate to the  
+  Once the Javadoc is visible in your browser, navigate to the
   edu.internet2.middleware.ldappc.documentation package.
   Then select the DocumentationRoadmap or any of the other links.
-  The other available topics are: 
+  The other available topics are:
   Archicture, DeploymentGuide, Design, LdapGuide, and UserManual.
 
 Testing
 
   The distribution includes a set of JUnit test cases.  These test cases
-  are dependent on the use of databases built into the deployment package. 
-  The JUnit test cases are set up for use only with the HSQLDB 
+  are dependent on the use of databases built into the deployment package.
+  The JUnit test cases are set up for use only with the HSQLDB
   database management program, whose jar file is included
   in the distribution.
-  The test data for the built-in Grouper and Signet databases are in located 
-  in the testDb directory. 
+  The test data for the built-in Grouper and Signet databases are in located
+  in the testDb directory.
 
   When running the built-in test cases, the build script
-  will automatically start and stop the databases for Grouper 
+  will automatically start and stop the databases for Grouper
   and Signet.
   If a complete set of configuration and database files is placed
   in a directory parallel to the directory that contains the
@@ -571,14 +584,14 @@ Testing
 
   The following figure shows the structure of the built-in test data, where
   gsDataDir is parameter in the Ant system properties file whose default
-  value is "testDb".  This directory format is referred as the gsData standard 
+  value is "testDb".  This directory format is referred as the gsData standard
   directory format.
 
 ---
 gsDataDir
     grouper
         conf
-            ehcache.xml 
+            ehcache.xml
             grouper.hibernate.properties
             grouper.properties.
         hsqldb
@@ -596,16 +609,16 @@ gsDataDir
 
   It is not necessary to read this section for installation and initial testing.
 
-  The primary purpose of the build file is for installation and running 
+  The primary purpose of the build file is for installation and running
   the built-in test cases.  However, the build file was used extensively for
-  development may be useful to recipients for some purposes  
+  development may be useful to recipients for some purposes
   in addition to installation and running the test
   cases provided.  In particular, if one wishes to create one's own
   test cases, one can use the above standard data structure and the
   build file will start and shutdown the database for the user.
   On the other hand, the build script is set up only for use with
   the HSQLDB database.  Oracle users, for instance, would need to make
-  significant changes to the build file that are not discussed here. 
+  significant changes to the build file that are not discussed here.
 
   To run using one's own databases, some changes are required.
   The parameter gsDataDir in the ant system properties file defines
@@ -614,17 +627,17 @@ gsDataDir
   This directory is used for the built-in test data, but the gsDataDir
   value can be set to another directory with different data.
   It could even be used for production data if the user chooses to place all
-  Grouper and Signet data under this directory in a standard data format.  
+  Grouper and Signet data under this directory in a standard data format.
   However, it is anticipated that most users will use their existing Grouper and
-  Signet directory structure to hold their data (except for the sources.xml file).   
+  Signet directory structure to hold their data (except for the sources.xml file).
   The gsData standard directory format is required for the built-in test database;
   but is not required otherwise; however, several
-  additional properties must be set if it is not used.  The configuration 
+  additional properties must be set if it is not used.  The configuration
   file conf/testSetX/antSystem.properties file shows and example of setting
   these properties.  If the gsDataDir is used, then
   this data must be in the standard format for this type data, as shown above.
 
-  The following describes files that will need to be modified in order to use the 
+  The following describes files that will need to be modified in order to use the
   build file on a different port than is built-in.  It also has value as list of
   items that will require setting if the user develops his own Ldappc environment.
 
@@ -661,19 +674,19 @@ hibernate.connection.password =
 
   If you want to run the JUnit test cases using OpenLDAP and the built-in database but using
   a different port, in addition to the instances of port 51515 above needing changed,
-  you will you will need to change the port number in the sqltool.rc file of the 
+  you will you will need to change the port number in the sqltool.rc file of the
   ldappc/testDb directory, and possibly the username and password.
 
 * {Configuring LDAP}
 
   If you use an external LDAP for testing, the ldappc.schema and kitneduperson.schema
-  files in the testDb/ldap directory must be added to the LDAP configuration before starting it.  
-  For OpenLDAP, this is done by adding a line similar to the following one 
+  files in the testDb/ldap directory must be added to the LDAP configuration before starting it.
+  For OpenLDAP, this is done by adding a line similar to the following one
   to the slapd.conf file:
 
 ---
 include yourInstallationDirectory/testDb/ldap/ldappc.schema
-include yourInstallationDirectory/testDb/ldap/kitneduperson.schema 
+include yourInstallationDirectory/testDb/ldap/kitneduperson.schema
 ---
 
   For efficient use of the LDAP directory, it is recommed that at least the following
@@ -688,7 +701,7 @@ index   kitnEduPersonRegId    eq
 index   hasMember             eq
 index   member                eq
 index   isMemberOf            eq
-index   eduPersonEntitlement  eq 
+index   eduPersonEntitlement  eq
 ---
 
   If one uses "uniqueMember" instead of "member" in the ldappc.xml file, then one would
@@ -707,18 +720,17 @@ index   eduPersonEntitlement  eq
 
 ---
 cd yourInstallationDirectory\conf\testConfigurations\testSetU
-ldapadd -x -D "yourSecurityPrincipal" -w "yourRootPW" -f ldappcSubject.ldif 
+ldapadd -x -D "yourSecurityPrincipal" -w "yourRootPW" -f ldappcSubject.ldif
 ---
 
-  In the above command, "yourSecurityPrincipal" represents the value used in the 
-  security principal setting in the ldapp.xml file. 
+  In the above command, "yourSecurityPrincipal" represents the value used in the
+  security principal setting in the ldapp.xml file.
 
-  In the above command, "yourRootPW" represents the password used in the 
-  security credential setting in the ldapp.xml file.  Make sure that the 
-  same value is used in the ldapp.xml file, in the above command, and in 
+  In the above command, "yourRootPW" represents the password used in the
+  security credential setting in the ldapp.xml file.  Make sure that the
+  same value is used in the ldapp.xml file, in the above command, and in
   the configuration file for your LDAP server.
 
   The user may wish to make additional changes to the ldappcSubject.ldif and
   the ldappc.xml files; however, until the initial set up of the distribution
-  has been verified, such changes should be kept to a minimum. 
-  
+  has been verified, such changes should be kept to a minimum.
