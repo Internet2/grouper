@@ -8,39 +8,7 @@
     <format>zip</format>
   </formats>
 
-  <dependencySets>
-  <!-- Copy the dependent jars, excluding the project jar -->
-    <dependencySet>
-      <outputDirectory>target/lib</outputDirectory>
-      <useProjectArtifact>false</useProjectArtifact>
-      <includes>
-        <include>*:jar:*</include>
-      </includes>
-    </dependencySet>
-
-    <!-- Copy the project jar -->
-    <dependencySet>
-      <outputDirectory>target</outputDirectory>
-      <useProjectArtifact>true</useProjectArtifact>
-      <includes>
-        <include>ldappc:jar:*</include>
-      </includes>
-    </dependencySet>
-  </dependencySets>
-
-  <!-- Generate runner scripts -->
-  <files>
-    <file>
-      <source>src/scripts/ldappc.sh</source>
-      <outputDirectory>target/bin</outputDirectory>
-      <filtered>true</filtered>
-    </file>
-    <file>
-      <source>src/scripts/ldappc.bat</source>
-      <outputDirectory>target/bin</outputDirectory>
-      <filtered>true</filtered>
-    </file>
-  </files>
+  <includeSiteDirectory>true</includeSiteDirectory>
 
   <fileSets>
     <!-- Copy the main directory, excluding generated files and the usual suspects -->
@@ -51,12 +19,6 @@
         <exclude>cobertura.ser</exclude>
         <exclude>**/logs/*.log*</exclude>
       </excludes>
-    </fileSet>
-
-    <!-- Include the site directory -->
-    <fileSet>
-      <directory>target/site</directory>
-      <outputDirectory>target/site</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>
