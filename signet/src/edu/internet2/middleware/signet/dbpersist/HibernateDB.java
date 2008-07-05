@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.19 2008-07-05 01:22:17 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.20 2008-07-05 23:48:30 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -68,7 +68,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -1747,6 +1747,7 @@ protected Session stdSession = null;
 				msgFmt = new MessageFormat(msgTemplate);
 				String msg = msgFmt.format(msgData);
 				log.warn(msg);
+				break;
 			case (1):
 				retval = (SignetSubject)resultList.iterator().next();
 				break;
