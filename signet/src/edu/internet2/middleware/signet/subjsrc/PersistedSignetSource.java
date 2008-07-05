@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.12 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.13 2008-07-05 01:22:17 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -413,18 +413,10 @@ public String latencyMinutes;
 	{
 		SignetSubject retval;
 
-		try
-		{
-			retval = persistMgr.getSubject(sourceId, subjectId);
-			setSubjectSource(retval);
-			if (isStale(retval))
-				resynchSubject(retval);
-		}
-		catch (ObjectNotFoundException e)
-		{
-			log.debug(e);
-			retval = null;
-		}
+		retval = persistMgr.getSubject(sourceId, subjectId);
+		setSubjectSource(retval);
+		if (isStale(retval))
+			resynchSubject(retval);
 
 		return (retval);
 	}

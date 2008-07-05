@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubsystemXml.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubsystemXml.java,v 1.4 2008-07-05 01:22:17 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Vector;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.SubsystemImpl;
@@ -154,11 +153,9 @@ public class SubsystemXml extends XmlUtil
 			Session hs = hibr.openSession();
 			for (String subsysId : subsysIds)
 			{
-				try { signetSubsystemList.add((SubsystemImpl)hibr.getSubsystem(subsysId)); }
-				catch (ObjectNotFoundException e)
-				{
-					e.printStackTrace();
-				}
+				SubsystemImpl subsys = (SubsystemImpl)hibr.getSubsystem(subsysId);
+				if (null != subsys)
+					signetSubsystemList.add(subsys);
 			}
 			hibr.closeSession(hs);
 		}

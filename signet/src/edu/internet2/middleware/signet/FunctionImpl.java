@@ -1,6 +1,6 @@
 /*--
-$Id: FunctionImpl.java,v 1.22 2008-05-17 20:54:09 ddonn Exp $
-$Date: 2008-05-17 20:54:09 $
+$Id: FunctionImpl.java,v 1.23 2008-07-05 01:22:17 ddonn Exp $
+$Date: 2008-07-05 01:22:17 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -122,15 +122,7 @@ public class FunctionImpl extends EntityImpl implements Function
   {
     if (null == subsystem)
     {
-      try
-      {
-        Subsystem tmpSubsystem = signet.getPersistentDB().getSubsystem(subsystemId);
-        setSubsystem(tmpSubsystem);
-      }
-      catch (ObjectNotFoundException onfe)
-      {
-        throw new SignetRuntimeException(onfe);
-      }
+        setSubsystem(signet.getPersistentDB().getSubsystem(subsystemId));
     }
 
 	if (null != subsystem)

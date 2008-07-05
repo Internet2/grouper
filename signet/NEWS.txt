@@ -1,4 +1,26 @@
 ======================================== 
+Signet	07/03/08
+
+Release Notes for CVS-tagged version Signet_1_3_0rc03
+-----------------------------------------------------
+
+1. Bug fixes:
+    Sig-32 (re-opened) : NullPointerException from "View XML" link
+2. In SignetXml, an ObjectNotFoundException was being thrown if a query
+    resulted in no rows found (e.g. signetxml export scopeTree -scopeId foobar). 
+    In addition, the query would return an uninitialized object (e.g.
+    TreeImpl, with all fields set to null) instead of returning a null.
+3. API changes:
+    a. removed "throws ObjectNotFoundException" from the load(...) methods in
+        HibernateDB.java
+    b. added new method: HibernateDB.getPermissionById(int permKey)
+4. Updated SignetXml/commandHelp.txt to show that the absense of a filter
+    on the "export subsystem" command is a valid option (i.e. returns all
+    subsystems).
+5. Resource-ified three error messages in HibernateDB.java.
+
+
+======================================== 
 Signet  06/24/08
 
 Release Notes for CVS-tagged version Signet_1_3_0rc02

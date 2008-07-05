@@ -67,7 +67,7 @@ SignetXml [options] command [command-args] [filters]
 
         -subjId "sourceId:subjectId" : select subject for the given source and
             subjectId
-        subjId "source1:subj1, source2:subj2, ..." : selects each subject in
+        -subjId "source1:subj1, source2:subj2, ..." : selects each subject in
             the comma-separated list
 
         -source "sourceId" : selects all subjects for the given sourceId
@@ -78,6 +78,8 @@ SignetXml [options] command [command-args] [filters]
             matching both the attribute name and attribute value. 
 
     'export subsystem' filters
+        <null> : if no command arg is specified, export all subsystems
+
         -status [active | inactive | pending] : filter selected subsystems by
             status. Default is all. May be used with 'name' 'scopeId'
             or 'subsysId' (which are mutually exclusive).

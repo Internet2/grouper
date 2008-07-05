@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PermissionImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PermissionImplXa.java,v 1.4 2008-07-05 01:22:17 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 import org.hibernate.Session;
 import edu.internet2.middleware.signet.LimitImpl;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PermissionImpl;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SubsystemImpl;
@@ -168,26 +167,16 @@ public class PermissionImplXa extends EntityImplXa
 		Session hs = hibr.openSession();
 
 //	private Subsystem	subsystem;
-		try
-		{
-			SubsystemImpl subsys = (SubsystemImpl)hibr.load(hs, SubsystemImpl.class, xmlPermission.getSubsystemId());
-			sigPerm.setSubsystem(subsys);
+		SubsystemImpl subsys = (SubsystemImpl)hibr.load(hs, SubsystemImpl.class, xmlPermission.getSubsystemId());
+		sigPerm.setSubsystem(subsys);
 
 //	private Set			limits;
-			for (LimitImplRefXb xmlLimit : xmlPermission.getLimit())
-			{
-				LimitImpl sigLimit = hibr.getLimit(xmlLimit.getKey());
-				sigPerm.addLimit(sigLimit);
-			}
-		}
-		catch (ObjectNotFoundException onfe)
+		for (LimitImplRefXb xmlLimit : xmlPermission.getLimit())
 		{
-			onfe.printStackTrace();
+			LimitImpl sigLimit = hibr.getLimit(xmlLimit.getKey());
+			sigPerm.addLimit(sigLimit);
 		}
-		finally
-		{
-			hibr.closeSession(hs);
-		}
+		hibr.closeSession(hs);
 	}
 
 }

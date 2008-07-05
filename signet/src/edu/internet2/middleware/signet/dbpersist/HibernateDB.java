@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.18 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.19 2008-07-05 01:22:17 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -68,7 +68,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
@@ -121,6 +121,10 @@ public class HibernateDB implements Serializable
 	}
 
 
+	/**
+	 * Get the Hibernate Configuration
+	 * @return The Hibernate Configuration object
+	 */
 	public Configuration getConfiguration()
 	{
 		return (cfg);
@@ -132,24 +136,41 @@ public class HibernateDB implements Serializable
 	 * @param hs The Hibernate Session used to load loadClass
 	 * @param loadClass Class to load
 	 * @param id Primary key for DB-mapped class
-	 * @return Instance of the requested Class or null
-	 * @throws ObjectNotFoundException
+	 * @return Instance of the requested Class, or null if no record of
+	 * class-type with the given ID is found.
 	 */
-	public Object load(Session hs, Class loadClass, String id) throws ObjectNotFoundException
+	public Object load(Session hs, Class loadClass, String id)
 	{
-		Object retval = null;
+		Object						retval = null;
+		IllegalArgumentException	iae = null;
 
 		if (null == hs)
-			throw new ObjectNotFoundException("No 'session' provided for load()"); //$NON-NLS-1$
-		else if (null == id)
-			throw new ObjectNotFoundException("No 'id' provided for load()"); //$NON-NLS-1$
-		else if (null == loadClass)
-			throw new ObjectNotFoundException("No 'loadClass' provided for load()"); //$NON-NLS-1$
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoSession")); //$NON-NLS-1$
+		else if ((null == id) || (0 >= id.length()))
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoId")); //$NON-NLS-1$
 
-		try { retval = hs.load(loadClass, id); }
+		else if (null == loadClass)
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoClass")); //$NON-NLS-1$
+
+		if (null != iae)
+		{
+			log.error(iae);
+			throw iae; 
+		}
+
+		try
+		{
+			retval = hs.get(loadClass, id);
+		}
 		catch (HibernateException he)
 		{
-			throw new ObjectNotFoundException(he);
+			log.error(he);
 		}
 
 		return (retval);
@@ -159,29 +180,16 @@ public class HibernateDB implements Serializable
 	 * Creates a temporary Session and loads a DB object when the ID is known.
 	 * @param loadClass Class to load
 	 * @param id Primary key for DB-mapped class
-	 * @return Instance of the requested Class
-	 * @throws ObjectNotFoundException
+	 * @return Instance of the requested Class, or null if no record of
+	 * class-type with the given ID is found.
 	 */
-	public Object load(Class loadClass, String id) throws ObjectNotFoundException
+	public Object load(Class loadClass, String id)
 	{
 		Object retval = null;
 
-		if (null != id)
-		{
-			Session hs = openSession();
-			try 
-			{
-				retval = load(hs, loadClass, id);
-			}
-			catch (ObjectNotFoundException onfe)
-			{
-				throw onfe;
-			}
-			finally
-			{
-				closeSession(hs);
-			}
-		}
+		Session hs = openSession();
+		retval = load(hs, loadClass, id);
+		closeSession(hs);
 
 		return (retval);
 	}
@@ -191,24 +199,39 @@ public class HibernateDB implements Serializable
 	 * @param hs
 	 * @param loadClass
 	 * @param id
-	 * @return Returns an object of the given Class matching the given primary key
-	 * @throws ObjectNotFoundException
+	 * @return Instance of the requested Class, or null if no record of
+	 * class-type with the given ID is found.
 	 */
-	public Object load(Session hs, Class loadClass, Integer id) throws ObjectNotFoundException
+	public Object load(Session hs, Class loadClass, Integer id)
 	{
-		Object retval = null;
+		Object						retval = null;
+		IllegalArgumentException	iae = null;
 
 		if (null == hs)
-			throw new ObjectNotFoundException("No 'session' provided for load()"); //$NON-NLS-1$
-		else if (null == id)
-			throw new ObjectNotFoundException("No 'id' provided for load()"); //$NON-NLS-1$
-		else if (null == loadClass)
-			throw new ObjectNotFoundException("No 'loadClass' provided for load()"); //$NON-NLS-1$
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoSession")); //$NON-NLS-1$
+		else if ((null == id) || (0 >= id.intValue()))
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoId")); //$NON-NLS-1$
 
-		try { retval = hs.load(loadClass, id); }
+		else if (null == loadClass)
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoClass")); //$NON-NLS-1$
+
+		if (null != iae)
+		{
+			log.error(iae);
+			throw iae; 
+		}
+
+
+		try { retval = hs.get(loadClass, id); }
 		catch (HibernateException he)
 		{
-			throw new ObjectNotFoundException(he);
+			log.error(he);
 		}
 
 		return (retval);
@@ -218,26 +241,16 @@ public class HibernateDB implements Serializable
 	 * Load a DB object when the ID is known. Wrapper method for session.
 	 * @param loadClass Class to load
 	 * @param id Primary key for DB-mapped class
-	 * @return Instance of the requested Class matching the id
-	 * @throws ObjectNotFoundException
+	 * @return Instance of the requested Class, or null if no record of
+	 * class-type with the given ID is found.
 	 */
-	public Object load(Class loadClass, int id) throws ObjectNotFoundException
+	public Object load(Class loadClass, int id)
 	{
 		Object retval = null;
 
 		Session hs = openSession();
-		try
-		{
-			retval = load(hs, loadClass, new Integer(id));
-		}
-		catch (ObjectNotFoundException e)
-		{
-			throw e;
-		}
-		finally
-		{
-			closeSession(hs);
-		}
+		retval = load(hs, loadClass, new Integer(id));
+		closeSession(hs);
 
 		return (retval);
 	}
@@ -248,24 +261,38 @@ public class HibernateDB implements Serializable
 	 * @param hs
 	 * @param loadClass
 	 * @param id
-	 * @return Returns an object of the given Class matching the given primary key
-	 * @throws ObjectNotFoundException
+	 * @return Instance of the requested Class, or null if no record of
+	 * class-type with the given ID is found.
 	 */
-	public Object load(Session hs, Class loadClass, Long id) throws ObjectNotFoundException
+	public Object load(Session hs, Class loadClass, Long id)
 	{
-		Object retval = null;
+		Object						retval = null;
+		IllegalArgumentException	iae = null;
 
 		if (null == hs)
-			throw new ObjectNotFoundException("No 'session' provided for load()"); //$NON-NLS-1$
-		else if (null == id)
-			throw new ObjectNotFoundException("No 'id' provided for load()"); //$NON-NLS-1$
-		else if (null == loadClass)
-			throw new ObjectNotFoundException("No 'loadClass' provided for load()"); //$NON-NLS-1$
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoSession")); //$NON-NLS-1$
+		else if ((null == id) || (0L >= id.longValue()))
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoId")); //$NON-NLS-1$
 
-		try { retval = hs.load(loadClass, id); }
+		else if (null == loadClass)
+			iae = new IllegalArgumentException(
+					ResLoaderApp.getString(
+							"HibernateDb.msg.load.NoClass")); //$NON-NLS-1$
+
+		if (null != iae)
+		{
+			log.error(iae);
+			throw iae; 
+		}
+
+		try { retval = hs.get(loadClass, id); }
 		catch (HibernateException he)
 		{
-			throw new ObjectNotFoundException(he);
+			log.error(he);
 		}
 
 		return (retval);
@@ -275,26 +302,16 @@ public class HibernateDB implements Serializable
 	 * Load a DB object when the ID is known. Wrapper method for session.
 	 * @param loadClass Class to load
 	 * @param id Primary key for DB-mapped class
-	 * @return Instance of the requested Class
-	 * @throws ObjectNotFoundException
+	 * @return Instance of the requested Class, or null if no record of
+	 * class-type with the given ID is found.
 	 */
-	public Object load(Class loadClass, long id) throws ObjectNotFoundException
+	public Object load(Class loadClass, long id)
 	{
 		Object retval = null;
 
 		Session hs = openSession();
-		try
-		{
-			retval = load(hs, loadClass, new Long(id));
-		}
-		catch (ObjectNotFoundException e)
-		{
-			throw e;
-		}
-		finally
-		{
-			closeSession(hs);
-		}
+		retval = load(hs, loadClass, new Long(id));
+		closeSession(hs);
 
 		return (retval);
 	}
@@ -524,10 +541,13 @@ protected Session stdSession = null;
 	/**
 	 * Gets a single Tree by ID using the supplied Hibernate Session. If
 	 * hs is null a new Hibernate Session is opened and closed for the
-	 * duration of this call.
+	 * duration of this call. NOTE: HibernateDB caches the most recently
+	 * fetched ScopeTree. If the incoming ID matches that of the cached tree,
+	 * the cached tree is returned to the caller.
 	 * @param hs The Hibernate Session to use
 	 * @param id The ID of the Tree
-	 * @return the specified Tree
+	 * @return The specified Tree, or null if no ScopeTree is found for the
+	 * given ID.
 	 */
 	public Tree getTreeById(Session hs, String id)
 	{
@@ -535,21 +555,11 @@ protected Session stdSession = null;
 		{
 			Session session = (null != hs) ? hs : openSession();
 
-			try
-			{
-				cachedTree = (TreeImpl)(load(session, TreeImpl.class, id));
+			if (null != (cachedTree = (TreeImpl)(load(session, TreeImpl.class, id))))
 				cachedTree.setSignet(signet);
-			}
-			catch (ObjectNotFoundException onfe)
-			{
-				log.error(onfe);
-			}
-			finally
-			{
-				if (null == hs)
-					closeSession(hs);
-			}
-			
+
+			if (null == hs)
+					closeSession(session);
 		}
 
 		return (cachedTree);
@@ -666,7 +676,7 @@ protected Session stdSession = null;
 
 		Session tmp_hs = openSession();
 
-		StringBuffer queryBuf = new StringBuffer(HibernateQry.Qry_subsystemsAll);
+		StringBuilder queryBuf = new StringBuilder(HibernateQry.Qry_subsystemsAll);
 		if (null != status)
 			queryBuf.append(HibernateQry.Qry_subsystemByStatus_STUB);
 
@@ -689,33 +699,18 @@ protected Session stdSession = null;
 	 * @param id
 	 * @return the specified Subsystem
 	 */
-	public Subsystem getSubsystem(String id) throws ObjectNotFoundException
+	public Subsystem getSubsystem(String id)
 	{
 		SubsystemImpl subsystemImpl;
-		if (id == null)
-		{
-			throw new IllegalArgumentException(ResLoaderApp.getString("Signet.msg.exc.subsysIds")); //$NON-NLS-1$
-		}
-		if (id.length() == 0)
-		{
-			throw new IllegalArgumentException(ResLoaderApp.getString("Signet.msg.exc.subsysIdIs0")); //$NON-NLS-1$
-		}
 
 		Session hs = openSession();
-		try
-		{
-			subsystemImpl = (SubsystemImpl)(load(hs, SubsystemImpl.class, id));
-		}
-		catch (ObjectNotFoundException onfe)
-		{
-			closeSession(hs);
-			Object[] msgData = new Object[] { id };
-			MessageFormat msg = new MessageFormat(ResLoaderApp.getString("Signet.msg.exc.subsysNotFound")); //$NON-NLS-1$
-			throw new ObjectNotFoundException(msg.format(msgData), onfe);
-		}
-		subsystemImpl.setSignet(signet);
+
+		if (null != (subsystemImpl = (SubsystemImpl)(load(hs, SubsystemImpl.class, id))))
+			subsystemImpl.setSignet(signet);
+
 		closeSession(hs);
-		return subsystemImpl;
+
+		return (subsystemImpl);
 	}
 
 	/**
@@ -731,20 +726,20 @@ protected Session stdSession = null;
 	{
 		Set retval = new HashSet();
 
-		Session tmp_hs = (null == hs ? openSession() : hs);
+		Session session = (null != hs) ? hs : openSession();
 
-		StringBuffer queryBuf = new StringBuffer(HibernateQry.Qry_subsystemByName);
+		StringBuilder queryBuf = new StringBuilder(HibernateQry.Qry_subsystemByName);
 		if (null != status)
 			queryBuf.append(HibernateQry.Qry_subsystemByStatus_STUB);
 
-		Query query = tmp_hs.createQuery(queryBuf.toString());
+		Query query = session.createQuery(queryBuf.toString());
 		query.setString("name", subsysName);
 		if (null != status)
 			query.setString("status", status.getName());
 		retval.addAll(query.list());
 
 		if (null == hs)
-			closeSession(tmp_hs);
+			closeSession(session);
 
 		return (retval);
 	}
@@ -762,20 +757,20 @@ protected Session stdSession = null;
 	{
 		Set retval = new HashSet();
 
-		Session tmp_hs = (null == hs ? openSession() : hs);
+		Session session = (null != hs) ? hs : openSession();
 
-		StringBuffer queryBuf = new StringBuffer(HibernateQry.Qry_subsystemByScopeTreeId);
+		StringBuilder queryBuf = new StringBuilder(HibernateQry.Qry_subsystemByScopeTreeId);
 		if (null != status)
 			queryBuf.append(HibernateQry.Qry_subsystemByStatus_STUB);
 
-		Query query = tmp_hs.createQuery(queryBuf.toString());
+		Query query = session.createQuery(queryBuf.toString());
 		query.setString("scopetreeid", scopeTreeId);
 		if (null != status)
 			query.setString("status", status.getName());
 		retval.addAll(query.list());
 
 		if (null == hs)
-			closeSession(tmp_hs);
+			closeSession(session);
 
 		return (retval);
 	}
@@ -898,24 +893,15 @@ protected Session stdSession = null;
 			throw new SignetRuntimeException(e);
 		}
 
-//		try
-//		{
-			Tree tree = getTreeById(session, treeId);
-			for (Iterator iter = resultList.iterator(); iter.hasNext(); )
-			{
-				TreeNodeRelationship tnr = (TreeNodeRelationship)(iter.next());
-				parents.add(tree.getNode(tnr.getParentNodeId()));
-			}
-//		}
-//		catch (ObjectNotFoundException e)
-//		{
-//			throw new SignetRuntimeException(e);
-//		}
-//		finally
-//		{
-			if (null == hs)
-				closeSession(session);
-//		}
+		Tree tree = getTreeById(session, treeId);
+		for (Iterator iter = resultList.iterator(); iter.hasNext(); )
+		{
+			TreeNodeRelationship tnr = (TreeNodeRelationship)(iter.next());
+			parents.add(tree.getNode(tnr.getParentNodeId()));
+		}
+
+		if (null == hs)
+			closeSession(session);
 
 		return (parents);
 	}
@@ -1093,6 +1079,16 @@ protected Session stdSession = null;
 	}
 
 
+	/**
+	 * Return the Permission matching the given primary key
+	 * @param permKey primary key
+	 * @return A PermissionImpl or null
+	 */
+	public PermissionImpl getPermissionById(int permKey)
+	{
+		return ((PermissionImpl)load(PermissionImpl.class, permKey));
+	}
+
 	// I really want to do away with this method, having the Subsystem
 	// pick up its associated Permissions via Hibernate object-mapping.
 	// I just haven't figured out how to do that yet.
@@ -1168,15 +1164,15 @@ protected Session stdSession = null;
 		AssignmentImpl assignment = null;
 		try
 		{
-			assignment = (AssignmentImpl)(load(AssignmentImpl.class, id));
-			assignment.setSignet(signet);
+			if (null != (assignment = (AssignmentImpl)(load(AssignmentImpl.class, id))))
+				assignment.setSignet(signet);
 		}
 		catch (org.hibernate.ObjectNotFoundException honfe)
 		{
 			throw new edu.internet2.middleware.signet.ObjectNotFoundException(honfe);
 		}
 
-		return assignment;
+		return (assignment);
 	}
 
 	/**
@@ -1432,9 +1428,12 @@ protected Session stdSession = null;
 	 */
 	public Proxy getProxy(int id) throws ObjectNotFoundException
 	{
-		ProxyImpl proxy = (ProxyImpl)(load(ProxyImpl.class, id));
-		proxy.setSignet(signet);
-		return proxy;
+		ProxyImpl proxy;
+
+		if (null != (proxy = (ProxyImpl)(load(ProxyImpl.class, id))))
+			proxy.setSignet(signet);
+
+		return (proxy);
 	}
 
 
@@ -1567,8 +1566,11 @@ protected Session stdSession = null;
 	 */
 	public Function getFunction(int pkey) throws ObjectNotFoundException
 	{
-		FunctionImpl function = (FunctionImpl)(load(FunctionImpl.class, pkey));
-		function.setSignet(signet);
+		FunctionImpl function;
+
+		if (null != (function = (FunctionImpl)(load(FunctionImpl.class, pkey))))
+			function.setSignet(signet);
+
 		return (function);
 	}
 
@@ -1603,9 +1605,9 @@ protected Session stdSession = null;
 	{
 		FunctionImpl retval = null;
 
-		Session tmp_hs = (null == hs ? openSession() : hs);
+		Session session = (null != hs) ? hs : openSession();
 
-		Query qry = createQuery(tmp_hs, HibernateQry.Qry_functionByIdAndSubsys);
+		Query qry = createQuery(session, HibernateQry.Qry_functionByIdAndSubsys);
 		qry.setString("function_id", functionId); //$NON-NLS-1$
 		qry.setString("subsys_id", subsystemId); //$NON-NLS-1$
 
@@ -1620,7 +1622,7 @@ protected Session stdSession = null;
 		finally
 		{
 			if (null == hs)
-				closeSession(tmp_hs);
+				closeSession(session);
 		}
 
 		if (null != retval)
@@ -1705,19 +1707,7 @@ protected Session stdSession = null;
 	 */
 	public SignetSubject getSubject(long subject_pk)
 	{
-		SignetSubject subject;
-
-		try
-		{
-			subject = (SignetSubject)load(SignetSubject.class, subject_pk);
-		}
-		catch (ObjectNotFoundException e)
-		{
-			log.error("No SignetSubject found with subjectkey=" + subject_pk); //$NON-NLS-1$
-			subject = null;
-		}
-
-		return (subject);
+		return ((SignetSubject)load(SignetSubject.class, subject_pk));
 	}
 
 
@@ -1728,7 +1718,6 @@ protected Session stdSession = null;
 	 * @return A SignetSubject that matches the given sourceId/subjectId or null if not found
 	 */
 	public SignetSubject getSubject(String sourceId, String subjectId)
-			throws ObjectNotFoundException
 	{
 		List resultList;
 		Session hs = openSession();
@@ -1757,8 +1746,7 @@ protected Session stdSession = null;
 				String msgTemplate = ResLoaderApp.getString("HibernateDb.msg.exc.SubjNotFound");  //$NON-NLS-1$
 				msgFmt = new MessageFormat(msgTemplate);
 				String msg = msgFmt.format(msgData);
-				closeSession(hs);
-				throw new ObjectNotFoundException(msg);
+				log.warn(msg);
 			case (1):
 				retval = (SignetSubject)resultList.iterator().next();
 				break;

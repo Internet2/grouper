@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/CategoryImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/CategoryImplXa.java,v 1.4 2008-07-05 01:22:17 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -18,7 +18,6 @@ limitations under the License.
 package edu.internet2.middleware.signet.util.xml.adapter;
 
 import edu.internet2.middleware.signet.CategoryImpl;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.Subsystem;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
@@ -102,16 +101,9 @@ public class CategoryImplXa extends EntityImplXa
 
 		signetCategory.setKey(xmlCategory.getKey());
 
-		try
-		{
-			HibernateDB hibr = signet.getPersistentDB();
-			Subsystem sigSubsys = hibr.getSubsystem(xmlCategory.getSubsystemId());
-			signetCategory.setSubsystem(sigSubsys);
-		}
-		catch (ObjectNotFoundException e)
-		{
-			e.printStackTrace();
-		}
+		HibernateDB hibr = signet.getPersistentDB();
+		Subsystem sigSubsys = hibr.getSubsystem(xmlCategory.getSubsystemId());
+		signetCategory.setSubsystem(sigSubsys);
 	}
 
 }

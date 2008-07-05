@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectRefXa.java,v 1.4 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectRefXa.java,v 1.5 2008-07-05 01:22:17 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -19,7 +19,6 @@ package edu.internet2.middleware.signet.util.xml.adapter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
@@ -124,7 +123,9 @@ public class SignetSubjectRefXa
 	public void setValues(SignetSubject signetSubject)
 	{
 //	protected Long			subject_PK;
-		xmlSubject.setKey(signetSubject.getSubject_PK());
+		Long pkL = signetSubject.getSubject_PK();
+		long pkl = (null != pkL) ? pkL.longValue() : 0L;
+		xmlSubject.setKey(pkl);
 
 //	protected String		subjectId;
 		xmlSubject.setSubjectId(signetSubject.getId());
@@ -201,14 +202,14 @@ public class SignetSubjectRefXa
 			}
 			else
 				log.warn("Invalid SignetSubject primary key \"" + pk + "\" specified");
+
 			if (null == signetSubject)
 			{
 				log.warn("Attempting to find SignetSubject by SourceId and SubjectId...");
 
 				String srcId = xmlSubject.getSourceId();
 				String subjId = xmlSubject.getSubjectId();
-				try	{ signetSubject = hibr.getSubject(srcId, subjId); }
-				catch (ObjectNotFoundException onfe) { /* handled below */ }
+				signetSubject = hibr.getSubject(srcId, subjId);
 
 				StringBuffer buf = new StringBuffer();
 				if (null == signetSubject)

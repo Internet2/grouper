@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubjectXml.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubjectXml.java,v 1.4 2008-07-05 01:22:17 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -21,7 +21,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.logging.LogFactory;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
@@ -116,16 +115,10 @@ public class SubjectXml extends XmlUtil
 		{
 			for (String id : subjectIds)
 			{
-				try
-				{
-					String[] srcSubj = parsePair(id);
-					SignetSubject subj = hibr.getSubject(srcSubj[0], srcSubj[1]);
+				String[] srcSubj = parsePair(id);
+				SignetSubject subj = hibr.getSubject(srcSubj[0], srcSubj[1]);
+				if (null != subj)
 					xmlSubjectList.add(new SignetSubjectXa(subj, signet).getXmlSubject());
-				}
-				catch (ObjectNotFoundException e)
-				{
-					e.printStackTrace();
-				}
 			}
 		}
 		else if (null != sourceIds)

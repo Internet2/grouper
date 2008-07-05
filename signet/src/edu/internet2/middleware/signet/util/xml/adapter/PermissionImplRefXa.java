@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PermissionImplRefXa.java,v 1.1 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PermissionImplRefXa.java,v 1.2 2008-07-05 01:22:17 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -18,7 +18,6 @@ limitations under the License.
 package edu.internet2.middleware.signet.util.xml.adapter;
 
 import org.apache.commons.logging.Log;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.PermissionImpl;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
@@ -150,15 +149,8 @@ public class PermissionImplRefXa
 	 */
 	public void setValues(PermissionImplRefXb xmlPermission)
 	{
-		try
-		{
-			HibernateDB hibr = signet.getPersistentDB();
-			signetPermission = (PermissionImpl)hibr.load(PermissionImpl.class, xmlPermission.getKey());
-		}
-		catch (ObjectNotFoundException e)
-		{
-			e.printStackTrace();
-		}
+		HibernateDB hibr = signet.getPersistentDB();
+		signetPermission = hibr.getPermissionById(xmlPermission.getKey());
 	}
 
 }

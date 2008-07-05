@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.21 2008-05-17 20:54:09 ddonn Exp $
-$Date: 2008-05-17 20:54:09 $
+$Id: LimitImpl.java,v 1.22 2008-07-05 01:22:17 ddonn Exp $
+$Date: 2008-07-05 01:22:17 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -151,16 +151,7 @@ public final class LimitImpl implements Limit
     	else if (null == subsystemId)
     		log.error("SubsystemId is invalid");
     	else
-    	{
-			try
-			{
-				subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
-			}
-			catch (ObjectNotFoundException onfe)
-			{
-				throw new SignetRuntimeException(onfe);
-			}
-		}
+			subsystem = signet.getPersistentDB().getSubsystem(subsystemId);
 	}
 
 	return (subsystem);
