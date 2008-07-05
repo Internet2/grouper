@@ -150,8 +150,12 @@ table.bodyTable tr.b {
 }
 dl {
   padding: 4px 4px 4px 6px;
+  border: none;
+  background-color: #ffffff;
+/*
   border: 1px solid #aaaaaa;
   background-color: #ccffff;
+*/
 }
 dt {
   color: #006095;
