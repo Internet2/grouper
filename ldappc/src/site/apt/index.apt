@@ -38,6 +38,8 @@
 *---------------------------------------+----------------------------------------------+
 | {{{design.html}Design}}               | for more detailed design information.        |
 *---------------------------------------+----------------------------------------------+
+| {{{faq.html}FAQ}}                     | Frequently Asked Questions                   |
+*---------------------------------------+----------------------------------------------+
 | {{{ldap-guide.html}LDAP Guide}}       | for information about LDAP in general.       |
 *---------------------------------------+---------------------------------------------------+
 | {{{release-notes.html}Release Notes}} | for the release notes for this version of ldappc. |
