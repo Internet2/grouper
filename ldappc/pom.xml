@@ -230,6 +230,12 @@
   <profiles>
     <profile>
       <id>derby</id>
+      <activation>
+        <property>
+          <name>db</name>
+          <value>derby</value>
+        </property>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>org.apache.derby</groupId>
@@ -241,6 +247,12 @@
     </profile>
     <profile>
       <id>hsql</id>
+      <activation>
+        <property>
+          <name>db</name>
+          <value>hsql</value>
+        </property>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>hsqldb</groupId>
@@ -252,6 +264,12 @@
     </profile>
     <profile>
       <id>mysql</id>
+      <activation>
+        <property>
+          <name>db</name>
+          <value>mysql</value>
+        </property>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>mysql</groupId>
@@ -263,6 +281,12 @@
     </profile>
     <profile>
       <id>oracle</id>
+      <activation>
+        <property>
+          <name>db</name>
+          <value>oracle</value>
+        </property>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>com.oracle</groupId>
@@ -274,6 +298,12 @@
     </profile>
     <profile>
       <id>postgres</id>
+      <activation>
+        <property>
+          <name>db</name>
+          <value>postgres</value>
+        </property>
+      </activation>
       <dependencies>
         <dependency>
           <groupId>postgresql</groupId>
