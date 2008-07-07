@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.10 2008-06-28 06:55:48 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.11 2008-07-07 06:26:09 mchyzer Exp $
  */
 public class StemHelper {
 
@@ -186,11 +186,13 @@ public class StemHelper {
       if      (attr.equals("description")) {
         String orig = ns.getDescription();
         ns.setDescription(val);
+        ns.store();
         Assert.assertTrue("set description", true);
         Assert.assertTrue(
           "description", ns.getDescription().equals(val)
         );
         ns.setDescription(orig);
+        ns.store();
         Assert.assertTrue(
           "description reset", ns.getDescription().equals(orig)
         );
@@ -198,11 +200,13 @@ public class StemHelper {
       else if (attr.equals("displayExtension")) {
         String orig = ns.getDisplayExtension();
         ns.setDisplayExtension(val);
+        ns.store();
         Assert.assertTrue("set displayExtension", true);
         Assert.assertTrue(
           "displayExtension", ns.getDisplayExtension().equals(val)
         );
         ns.setDisplayExtension(orig);
+        ns.store();
         Assert.assertTrue(
           "displayExtension reset", ns.getDisplayExtension().equals(orig)
         );
@@ -220,10 +224,12 @@ public class StemHelper {
     try {
       if      (attr.equals("description")) {
         ns.setDescription(val);
+        ns.store();
         Assert.fail("set description");
       } 
       else if (attr.equals("displayExtension")) {
         ns.setDisplayExtension(val);
+        ns.store();
         Assert.fail("set displayExtension");
       }
       else {

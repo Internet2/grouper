@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml18.java,v 1.5 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestXml18.java,v 1.6 2008-07-07 06:26:09 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXml18 extends GrouperTest {
@@ -51,6 +51,8 @@ public class TestXml18 extends GrouperTest {
       String  nameA = nsA.getName();
       String  orig  = nsA.getDescription();
       nsA.setDescription(nameA);
+      nsA.store();
+
       assertStemDescription(nsA, nameA);
       r.rs.stop();
 

@@ -27,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.16 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.17 2008-07-07 06:26:09 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -195,6 +195,7 @@ public class TestStem extends GrouperTest {
     exp = "root stem";
     try {
       root.setDisplayExtension(exp);
+      root.store();
       Assert.assertTrue(
         "mod'd root displayExtension=(" + root.getDisplayExtension() + ") (" + exp + ")", 
         root.getDisplayExtension().equals(exp)
@@ -275,6 +276,7 @@ public class TestStem extends GrouperTest {
     exp = "higher ed";
     try {
       edu.setDisplayExtension(exp);
+      edu.store();
       Assert.assertTrue(
         "mod'd edu displayExtension (" + edu.getDisplayExtension() + ")", 
         edu.getDisplayExtension().equals(exp)
@@ -342,6 +344,7 @@ public class TestStem extends GrouperTest {
       String exp = "higher ed";
       try {
         eduNR.setDisplayExtension(exp);
+        eduNR.store();
         Assert.assertTrue(
         "mod'd edu displayExtension (" + eduNR.getDisplayExtension() + ")", 
         eduNR.getDisplayExtension().equals(exp)
@@ -550,6 +553,7 @@ public class TestStem extends GrouperTest {
       Stem            edu   = root.addChildStem("edu", "edu");
       try {
         edu.setDisplayExtension(null);
+        edu.store();
         Assert.fail("set null displayExtn");
       }
       catch (StemModifyException eSA) {
@@ -557,6 +561,7 @@ public class TestStem extends GrouperTest {
       }
       try {
         edu.setDisplayExtension("");
+        edu.store();
         Assert.fail("set empty displayExtn");
       }
       catch (StemModifyException eSA) {
@@ -564,6 +569,7 @@ public class TestStem extends GrouperTest {
       }
       try {
         edu.setDisplayExtension("a:test");
+        edu.store();
         Assert.fail("set colon-containing displayExtn");
       }
       catch (StemModifyException eSA) {

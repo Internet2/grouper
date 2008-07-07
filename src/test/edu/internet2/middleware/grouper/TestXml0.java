@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml0.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: TestXml0.java,v 1.8 2008-07-07 06:26:09 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXml0 extends GrouperTest {
@@ -55,18 +55,22 @@ public class TestXml0 extends GrouperTest {
       // Set and verify unsightly values
       Stem  nsA = assertFindStemByName( r.rs, "i2:a" );
       nsA.setDisplayExtension(amp);
+      nsA.store();
       assertStemDisplayExtension(nsA, amp);
 
       Stem  nsB = assertFindStemByName( r.rs, "i2:b" );
       nsB.setDisplayExtension(apos);
+      nsB.store();
       assertStemDisplayExtension(nsB, apos);
 
       Stem  nsC = assertFindStemByName( r.rs, "i2:c" );
       nsC.setDisplayExtension(gt);
+      nsC.store();
       assertStemDisplayExtension(nsC, gt);
 
       Stem  nsD = assertFindStemByName( r.rs, "i2:d" );
       nsD.setDisplayExtension(lt);
+      nsD.store();
       assertStemDisplayExtension(nsD, lt);
 
       Group gAA = assertFindGroupByName( r.rs, "i2:a:a" );

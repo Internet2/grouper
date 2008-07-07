@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.6 2008-07-07 06:26:09 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
@@ -37,7 +37,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_Integration_Stem_setExtension("testSetExtension_ChangeAndPropagateAsNonRoot"));
+    TestRunner.run(new Test_Integration_Stem_setExtension("testSetExtensionAndDisplayExtension_ChangeAndPropagateAsNonRoot"));
   }
   
   // TESTS //  
@@ -63,6 +63,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       r.startAllSession();
       Stem  root  = r.findRootStem();
       root.setExtension("i should not be privileged to set this");
+      root.store();
       fail("should have thrown InsufficientPrivilegeException");
     }
     catch (InsufficientPrivilegeException eIP) {
@@ -81,6 +82,8 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       Stem    i2mi  = r.getStem("i2mi");
       String  val   = "new extension";
       i2mi.setExtension(val);
+      i2mi.store();
+
       assertEquals( "extn updated within session", val, i2mi.getExtension() );
       assertEquals( "name updated within session", val, i2mi.getName() );
     }
@@ -100,6 +103,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
       String  val = "new extension";
       ns.setExtension(val);
+      ns.store();
       assertEquals( "extn updated within session", val, ns.getExtension() );
       assertEquals( "name updated within session", val, ns.getName() );
     }
@@ -115,6 +119,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       Stem    i2mi  = r.getStem("i2mi");
       String  val   = "new extension";
       i2mi.setExtension(val);
+      i2mi.store();
 
       // Verify in another session
       Stem ns = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
@@ -140,7 +145,8 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
       String  val = "new extension";
       ns.setExtension(val);
-
+      ns.store();
+      
       // Verify in another session
       Stem verify = StemFinder.findByName( r.startAllSession(), ns.getName() );
       assertEquals( "extn verification", ns.getExtension(), verify.getExtension() );
@@ -161,6 +167,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       Stem    i2mi  = r.getStem("i2mi");
       String  val   = "new extension";
       i2mi.setExtension(val);
+      i2mi.store();
 
       // Verify propagation in a new session
       GrouperSession  s       = r.startAllSession();
@@ -186,7 +193,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
     }
   } // public void testSetExtension_ChangeAndPropagateAsRoot()
 
-  public void testSetExtension_ChangeAndPropagateAsNonRoot() {
+  public void testSetExtensionAndDisplayExtension_ChangeAndPropagateAsNonRoot() {
     try {
       LOG.info("testSetExtension_ChangeAndPropagateNonAsRoot");
       R       r     = R.getContext("grouper");
@@ -197,7 +204,9 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
       String  val = "new extension";
       ns.setExtension(val);
-//      ns.store();
+      ns.setDisplayExtension(val);
+      
+      ns.store();
 
       // Verify propagation in a new session
       GrouperSession  s       = r.startAllSession();
@@ -222,5 +231,41 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
     }
   } // public void testSetExtension_ChangeAndPropagateAsNonRoot()
 
+  public void testSetExtension_ChangeAndPropagateAsNonRoot() {
+    try {
+      LOG.info("testSetExtension_ChangeAndPropagateNonAsRoot");
+      R       r     = R.getContext("grouper");
+      Stem    i2mi  = r.getStem("i2mi");
+      i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
+
+      // Change in a new session
+      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      String  val = "new extension";
+      ns.setExtension(val);
+      
+      ns.store();
+
+      // Verify propagation in a new session
+      GrouperSession  s       = r.startAllSession();
+      Stem            grouper = StemFinder.findByName(s, "new extension:grouper");
+      assertEquals( "child stem extn verification", "grouper", grouper.getExtension() );
+      assertEquals( "child stem name verification", val + ":grouper", grouper.getName() );
+      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev" );
+      assertEquals( "child group 0 extn verification", "grouper-dev", dev.getExtension());
+      assertEquals( "child group 0 name verification", grouper.getName() + ":" + dev.getExtension(), dev.getName() );
+      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users" );
+      assertEquals( "child group 1 extn verification", "grouper-users", users.getExtension());
+      assertEquals( "child group 1 name verification", grouper.getName() + ":" + users.getExtension(), users.getName() );
+    }
+    catch (GroupNotFoundException eGNF) {
+      fail( "did not find renamed group by name: " + eGNF.getMessage() );
+    }  
+    catch (StemNotFoundException eNSNF) {
+      fail( "did not find renamed stem by name: " + eNSNF.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testSetExtension_ChangeAndPropagateAsNonRoot()
 } // public class Test_Integration_Stem_setExtension extends GrouperTest
 
