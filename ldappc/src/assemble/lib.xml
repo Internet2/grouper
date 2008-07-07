@@ -13,7 +13,7 @@
   <dependencySets>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
-      <useProjectArtifact>false</useProjectArtifact>
+      <useProjectArtifact>true</useProjectArtifact>
       <includes>
         <include>*:jar:*</include>
       </includes>
