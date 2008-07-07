@@ -8,11 +8,14 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
@@ -24,6 +27,9 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  */
 public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(WsSampleAddDeleteMemberRestLite.class);
 
   /**
    * add a member with the api
@@ -121,7 +127,7 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
             + ", " + resultMessage);
       }
       
-      System.out.println("Add Server version: " + wsAddMemberLiteResult.getResponseMetadata().getServerVersion()
+      LOG.error("Add Server version: " + wsAddMemberLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -183,7 +189,7 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
             + ", " + resultMessage);
       }
       
-      System.out.println("Delete: Server version: " + wsDeleteMemberLiteResult.getResponseMetadata().getServerVersion()
+      LOG.error("Delete: Server version: " + wsDeleteMemberLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -198,13 +204,13 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    for (int i=0;i<10000;i++) {
+    for (int i=0;i<1000000;i++) {
       if (i%100 == 99) {
         try {
-          Thread.sleep(2000);
           System.gc();
-          System.out.println("Done " + i);
-          System.out.println("Memory: " + (Runtime.getRuntime().totalMemory() -
+          Thread.sleep(2000);
+          LOG.error("Done " + i);
+          LOG.error("Memory: " + (Runtime.getRuntime().totalMemory() -
       Runtime.getRuntime().freeMemory()));
           Thread.sleep(2000);
         } catch (InterruptedException ie) {
@@ -219,8 +225,7 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
         deleteMemberApi();
         
       } catch (Exception e) {
-        System.out.println("Failure " + i);
-        e.printStackTrace();
+        LOG.error("Failure " + i, e);
       }
     }
   }

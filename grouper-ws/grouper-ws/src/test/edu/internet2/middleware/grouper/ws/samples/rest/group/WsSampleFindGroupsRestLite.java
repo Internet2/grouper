@@ -52,9 +52,6 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestFindGroupsLiteRequest findGroupsLite = new WsRestFindGroupsLiteRequest();
 
-      // set the act as id
-      findGroupsLite.setActAsSubjectId("GrouperSystem");
-
       findGroupsLite.setGroupName("aGr");
       findGroupsLite.setQueryFilterType(WsQueryFilterType.FIND_BY_GROUP_NAME_APPROXIMATE.name());
       findGroupsLite.setStemName("aStem");

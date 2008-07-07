@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
@@ -54,7 +55,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.154 2008-06-30 04:01:33 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.155 2008-07-07 06:26:08 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -953,7 +954,10 @@ public class Stem extends GrouperAPI implements Owner {
     try {
       this.setDescriptionDb(value);
       this.internal_setModified();
-      GrouperDAOFactory.getFactory().getStem().update( this );
+      if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+
+        GrouperDAOFactory.getFactory().getStem().update( this );
+      }
       sw.stop();
       EL.stemSetAttr(GrouperSession.staticGrouperSession(), this.getName(), GrouperConfig.ATTR_DESCRIPTION, value, sw);
     }
@@ -964,9 +968,12 @@ public class Stem extends GrouperAPI implements Owner {
 
   /**
    * will be implemented soon
+   * @throws StemModifyException if problem
    */
-  public void store() {
-    
+  public void store() throws StemModifyException {
+    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      GrouperDAOFactory.getFactory().getStem().update( this );
+    }
   }
   
   /**
@@ -1021,8 +1028,10 @@ public class Stem extends GrouperAPI implements Owner {
           );
         }
       }
-      // Now iterate through all child groups and stems, renaming each.
-      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_DISPLAY_EXTENSION) );
+      if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+        // Now iterate through all child groups and stems, renaming each.
+        GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_DISPLAY_EXTENSION) );
+      }
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -1088,8 +1097,11 @@ public class Stem extends GrouperAPI implements Owner {
           );
         }
       }
-      // Now iterate through all child groups and stems, renaming each.
-      GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_EXTENSION) );
+      if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+  
+        // Now iterate through all child groups and stems, renaming each.
+        GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_EXTENSION) );
+      }
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set extension: " + eDAO.getMessage(), eDAO );
@@ -1877,12 +1889,52 @@ public class Stem extends GrouperAPI implements Owner {
   
   }
 
+  /** see if already in onPreUpdate, dont go in again */
+  private static ThreadLocal<Boolean> inOnPreUpdate = new ThreadLocal<Boolean>();
+  
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
+    
+    //if supposed to not have setters do queries
+    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      Boolean inOnPreUpdateBoolean = inOnPreUpdate.get();
+      try {
+        
+        if (inOnPreUpdateBoolean == null || !inOnPreUpdateBoolean) {
+          inOnPreUpdate.set(true);
+          //check and see what needs to be updated
+          Set<String> dbVersionDifferentFields = Stem.this.dbVersionDifferentFields();
+          if (dbVersionDifferentFields.contains(FIELD_EXTENSION)) {
+            
+            // Now iterate through all child groups and stems, renaming each.
+            GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
+                Stem.this._renameChildren(GrouperConfig.ATTR_EXTENSION) );
+          }
+          if (dbVersionDifferentFields.contains(FIELD_DISPLAY_EXTENSION)) {
+            
+            // Now iterate through all child groups and stems, renaming each.
+            GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
+                Stem.this._renameChildren(GrouperConfig.ATTR_DISPLAY_EXTENSION) );
+          }
+          //if its description, just store, we are all good
+        }
+      } catch (StemModifyException ste) {
+        //tunnel checked exceptions
+        throw new RuntimeException(ste);
+      } finally {
+        //if we changed it
+        if (inOnPreUpdateBoolean== null || !inOnPreUpdateBoolean) {
+          //change it back
+          inOnPreUpdate.remove();
+        }
+      }
+    }
+
+
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
@@ -2097,7 +2149,10 @@ public class Stem extends GrouperAPI implements Owner {
                 if (!StringUtils.equals(theStem.getDescription(), description)) {
                   theStem.setDescription(description);
                 }
-                
+                if (theStem.dbVersionIsDifferent()) {
+                  theStem.store();
+                }
+
                 return theStem;
                 //wrap checked exceptions inside unchecked, and rethrow outside
               } catch (StemNotFoundException snfe) {

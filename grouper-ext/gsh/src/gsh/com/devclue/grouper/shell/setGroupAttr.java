@@ -13,7 +13,7 @@ import  edu.internet2.middleware.grouper.*;
  * Set {@link Group} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: setGroupAttr.java,v 1.1.1.1 2008-04-27 14:52:17 tzeller Exp $
+ * @version $Id: setGroupAttr.java,v 1.2 2008-07-07 06:26:14 mchyzer Exp $
  * @since   0.0.1
  */
 public class setGroupAttr {
@@ -42,6 +42,7 @@ public class setGroupAttr {
       GrouperSession  s = GrouperShell.getSession(i);
       Group           g = GroupFinder.findByName(s, name);
       g.setAttribute(attr, val);
+      g.store();
       return true;
     }
     catch (AttributeNotFoundException eANF)     {

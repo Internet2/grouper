@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.49 2008-04-15 13:43:21 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.50 2008-07-07 06:26:12 mchyzer Exp $
  */
 
 
@@ -1703,6 +1703,7 @@ public class GrouperHelper {
 			
 			stem.setDescription(ps.getPersonalStemDescription(s
 					.getSubject()));
+			stem.store();
 
 			stem.grantPriv(s.getSubject(),Privilege.getInstance("create"));
 			stem.grantPriv(s.getSubject(),Privilege.getInstance("stem"));

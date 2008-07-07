@@ -13,7 +13,7 @@ import  edu.internet2.middleware.grouper.*;
  * Set {@link Stem} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: setStemAttr.java,v 1.1.1.1 2008-04-27 14:52:17 tzeller Exp $
+ * @version $Id: setStemAttr.java,v 1.2 2008-07-07 06:26:14 mchyzer Exp $
  * @since   0.0.1
  */
 public class setStemAttr {
@@ -43,10 +43,12 @@ public class setStemAttr {
       Stem            ns  = StemFinder.findByName(s, name);
       if      (attr.equals("description"))      {
         ns.setDescription(val);
+        ns.store();
         return true;
       }
       else if (attr.equals("displayExtension")) {
         ns.setDisplayExtension(val);
+        ns.store();
         return true;
       }
       else {

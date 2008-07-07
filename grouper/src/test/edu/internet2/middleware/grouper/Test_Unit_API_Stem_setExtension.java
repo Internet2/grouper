@@ -21,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_Stem_setExtension.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Test_Unit_API_Stem_setExtension.java,v 1.5 2008-07-07 06:26:09 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_Stem_setExtension extends GrouperTest {
@@ -37,6 +37,7 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
       LOG.info("testSetExtension_NullValue");
       Stem ns = new Stem();
       ns.setExtension(null);
+      ns.store();
       fail("should have thrown StemModifyException");
     }
     catch (StemModifyException eNSM) {
@@ -53,6 +54,7 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
       LOG.info("testSetExtension_EmptyValue");
       Stem ns = new Stem();
       ns.setExtension(GrouperConfig.EMPTY_STRING);
+      ns.store();
       fail("should have thrown StemModifyException");
     }
     catch (StemModifyException eNSM) {
@@ -69,6 +71,7 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
       LOG.info("testSetExtension_ValueContainsColon");
       Stem ns = new Stem();
       ns.setExtension("co:on");
+      ns.store();
       fail("should have thrown StemModifyException");
     }
     catch (StemModifyException eNSM) {
@@ -85,6 +88,7 @@ public class Test_Unit_API_Stem_setExtension extends GrouperTest {
       LOG.info("testSetExtension_WhitespaceOnlyValue");
       Stem ns = new Stem();
       ns.setExtension(" ");
+      ns.store();
       fail("should have thrown StemModifyException");
     }
     catch (StemModifyException eNSM) {

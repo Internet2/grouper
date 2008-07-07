@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.9 2007-08-24 14:18:16 blair Exp $
+ * @version $Id: TestBugsClosed.java,v 1.10 2008-07-07 06:26:09 mchyzer Exp $
  */
 public class TestBugsClosed extends GrouperTest {
 
@@ -536,6 +536,7 @@ public class TestBugsClosed extends GrouperTest {
       Stem            qsuob = StemFinder.findByName(nrs, "qsuob");
       String          de    = "QS University of Bristol";
       qsuob.setDisplayExtension(de);
+      qsuob.store();
       String          val   = qsuob.getDisplayExtension();
       Assert.assertTrue("updated displayExtn: " + val, de.equals(val));
       val                   = qsuob.getDisplayName();

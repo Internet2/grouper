@@ -50,7 +50,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.110 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.111 2008-07-07 06:26:08 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1406,6 +1406,7 @@ public class XmlImporter {
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
     if (v.isValid()) {
       child.setDescription(desc);
+      child.store();
     }
     this._setInternalAttributes(child, e);
   } // private void _processPathCreate(e, stem)
@@ -1425,6 +1426,7 @@ public class XmlImporter {
       NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(dExtn);
       if ( v.isValid() && !dExtn.equals( ns.getDisplayExtension() ) ) {
         ns.setDisplayExtension(dExtn);
+        ns.store();
       }
       String desc = e.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
       v           = NotNullOrEmptyValidator.validate(desc);

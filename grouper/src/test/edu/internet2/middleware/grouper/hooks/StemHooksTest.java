@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemHooksTest.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: StemHooksTest.java,v 1.2 2008-07-07 06:26:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -76,7 +76,7 @@ public class StemHooksTest extends GrouperTest {
     StemHooksImpl.mostRecentPreUpdateStemExtension = null;
 
     stem.setDisplayExtension("the test9");
-    //stem.store();
+    stem.store();
 
     assertEquals("test9", stem.getExtension());
     assertEquals("test9", StemHooksImpl.mostRecentPreUpdateStemExtension);
@@ -88,7 +88,7 @@ public class StemHooksTest extends GrouperTest {
     
     try {
       stem.setDisplayExtension("the test10");
-      //stem.store();
+      stem.store();
       fail("Should veto test10");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test10", hookVeto.getReason());
