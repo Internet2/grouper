@@ -6,6 +6,7 @@ rem to your local Maven repository. Scripts to do this are in this directory
 rem in the install.bat and install.sh files.
 
 rem External jars
+mvn install:install-file -Dpackaging=jar -DgroupId=com.dawidweiss.invoker -DartifactId=invoker -Dversion=1.0 -Dfile=invoker.jar
 mvn install:install-file -Dpackaging=jar -DgroupId=com.jamonapi -DartifactId=jamon -Dversion=2.7 -Dfile=jamon-2.7.jar
 mvn install:install-file -Dpackaging=jar -DgroupId=javax.transaction -DartifactId=jta -Dversion=1.0.1B -Dfile=jta-1.0.1B.jar
 mvn install:install-file -Dpackaging=jar -DgroupId=javax.mail -DartifactId=mailapi -Dversion=1.3.2 -Dfile=mailapi-1.3.2.jar
