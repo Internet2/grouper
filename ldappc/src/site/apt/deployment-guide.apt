@@ -69,6 +69,8 @@ Binary Installation (Simplest)
 | <<<\ \ \ ...>>>        | Additional documentation files                 |
 *------------------------+------------------------------------------------+
 
+  You will need to copy the jdbc driver jar for your database into the lib directory.
+
   See the {{{user-manual.html}user manual}} for information on configuring and running
   the Ldappc program.
 
@@ -140,7 +142,12 @@ Source Installation
   to build Ldappc.  See the README.txt file in the required-jars directory for instructions.
   It's a straightforward process and Windows and UN*X scripts are provided.  These scripts
   must be run from the required-jars directory.
-
+  
+  The JDBC drivers for Derby, HSQL, MySQL, and Postgres are included in the central Maven repository.
+  If you are using Oracle or some other database you may need to download the driver jar and install
+  it in your local repository.  The pom (project object model) files for various versions of Oracle
+  are available in the central repository, but licensing prevents the jar itself from being included.
+  
 ** Building Ldappc
 
   Run the following command
@@ -437,79 +444,8 @@ Directory Structure
   are running before executing Ldappc.
 
   The pom.xml file is set up to allow the user to specify database jar dependencies.
-  However, for installation and initial testing, most readers can savely skip reading
+  However, for installation and initial testing, most readers can safely skip reading
   the rest of this section.
-
-* Ant configuration Files
-
-  Two properties files control what the ant scripts do.  These are
-  referred to as the master ant properties file, which is optional,
-  and the ant system properties file, which is required for running this
-  Ant build script for installation and testing only if the user does
-  not have an environmental variable JAVA_HOME set to the directory
-  for JDK1.5.  A third properties file, testLdappc.properties, is used for
-  providing data to the Ldappc testing code.  Most users will never
-  need to modify this file.
-
-  [[1]] The master ant properties file. (Optional)
-
-    You only need to read about the master ant properties file
-    if you are setting up multiple configurations.
-
-    The default name and location is: antmaster.properties
-    under the installation directory.
-    This may be changed by using -Dmaster=yourMasterPropertiesFile
-    on the ant command line.
-
-    The master file determines the location of the other configuration files.
-    This allows the master file to easily switch between using an antSystem.properties
-    file that uses different databases or configurations.
-    The antmaster.properties file requires the key: applicationConfigDir.
-    If a single set of data and configuration files is to be used, then
-    the normal setting is: applicationConfigDir=conf.
-    If multiple sets of data and configuration files are to be used, then
-    the normal setting is: applicationConfigDir=conf/yourSubDirectory.
-    While most other properties should be set in the ant system properties,
-    described below, the master ant file can be used to set any properties
-    of the properties that are common to all of the ant system properties files
-    in the directories pointed to by the applicationConfigDir property.
-
-  [[1]] The ant system properties file. (Optional)
-
-    The ant system properties file contains properties needed by the build
-    script to account for differences is operating systems, test cases, and user
-    preferences.  The default name and location is: antSystem.properties
-    under the conf directory under the top level directory.
-    This may be changed by setting the property applicationConfigDir
-    in the master ant properties file.
-
-  [[1]] The test ldappc properties file. (Optional)
-
-    The default name and location is testLdappc.properties
-    under the conf directory under the top level directory.
-    The testLdappc.properties file is used for providing data to the Ldappc
-    testing code.  It is also provides an alternative location for the
-    security credentials for the LDAP server.  This would allow one to set
-    different permissions on the file that contains the password and the
-    ldappc.xml file, to which more users may need access.
-
-* Build File Details
-
-  If one has done an Ant install and then wishes to make changes to update from CVS, where
-  the CVS changes involve only changes to Java class files, then one could recompile the
-  code using the Ant "compile" target.  However, unless one knows that no changes have been
-  made to the configuration files or certain other non-Java source files, then one should
-  instead run the Ant script with the "build" target.  It recommended that the "build" or
-  "test" targets usually be used instead of the "compile" target.  Use of the "build" target
-  will assure that the selected configuration files, the ldappcConfig.xsd file, the sources.xml
-  file, and additional test data files are copied to the build directory.
-
-  To save copying time, the lib directory is not copied to the build directory by
-  the Ant build script.  There is commented out code in the script to perform
-  the copy that could be uncommented and other modifications could be made to allow
-  doing the copying of selected jar files based on some new property value.
-  The user may wish to do this if he wishes to maintain different configurations that
-  use different library versions.
 
 The Schema Files
 
