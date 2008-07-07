@@ -1,15 +1,15 @@
-<!-- Generate in-place runner scripts, along with dependency jar files -->
+<!-- Generate lib directory containing dependency jar files -->
 <assembly>
-  <id>runner</id>
+  <id>lib</id>
 
   <formats>
     <format>dir</format>
   </formats>
 
-  <!-- Override the base directory so that files get placed in target directory -->
+  <!-- Override the base directory so that files get placed in base directory -->
   <baseDirectory></baseDirectory>
 
-  <!-- Copy dependencies, but not the project jar. It's already in the target directory -->
+  <!-- Copy dependencies, including the project jar -->
   <dependencySets>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
@@ -19,18 +19,4 @@
       </includes>
     </dependencySet>
   </dependencySets>
-
-  <!-- Generate runner scripts -->
-  <files>
-    <file>
-      <source>src/scripts/ldappc.sh</source>
-      <outputDirectory>bin</outputDirectory>
-      <filtered>true</filtered>
-    </file>
-    <file>
-      <source>src/scripts/ldappc.bat</source>
-      <outputDirectory>bin</outputDirectory>
-      <filtered>true</filtered>
-    </file>
-  </files>
 </assembly>

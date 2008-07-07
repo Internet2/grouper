@@ -9,7 +9,7 @@
   </formats>
 
   <fileSets>
-    <!-- Include the site directory -->
+    <!-- Include the site directory at the main level. It's all this assembly includes -->
     <fileSet>
       <directory>target/site</directory>
       <outputDirectory></outputDirectory>

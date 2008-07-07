@@ -8,6 +8,7 @@
     <format>zip</format>
   </formats>
 
+  <!-- Copy the site directory -->
   <includeSiteDirectory>true</includeSiteDirectory>
 
   <fileSets>

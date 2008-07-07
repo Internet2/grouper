@@ -22,41 +22,34 @@
     </dependencySet>
   </dependencySets>
 
-  <!-- Generate runner scripts -->
-  <files>
-    <file>
-      <source>src/scripts/ldappc.sh</source>
-      <outputDirectory>/bin</outputDirectory>
-      <filtered>true</filtered>
-    </file>
-    <file>
-      <source>src/scripts/ldappc.bat</source>
-      <outputDirectory>/bin</outputDirectory>
-      <filtered>true</filtered>
-    </file>
-  </files>
-
   <fileSets>
-    <!-- Copy conf directory -->
-    <fileSet>
-      <directory>conf</directory>
-      <outputDirectory>/conf</outputDirectory>
-    </fileSet>
-    <!-- Copy logs directory -->
-    <fileSet>
-      <directory>logs</directory>
-      <outputDirectory>/logs</outputDirectory>
-      <excludes>
-        <exclude>*.log*</exclude>
-      </excludes>
-    </fileSet>
-
     <!-- Copy README and LICENSE -->
     <fileSet>
       <includes>
         <include>README*</include>
         <include>LICENSE*</include>
       </includes>
+    </fileSet>
+
+    <!-- Copy bin directory -->
+    <fileSet>
+      <directory>bin</directory>
+      <outputDirectory>/bin</outputDirectory>
+    </fileSet>
+
+    <!-- Copy conf directory -->
+    <fileSet>
+      <directory>conf</directory>
+      <outputDirectory>/conf</outputDirectory>
+    </fileSet>
+
+    <!-- Copy logs directory, excluding log files -->
+    <fileSet>
+      <directory>logs</directory>
+      <outputDirectory>/logs</outputDirectory>
+      <excludes>
+        <exclude>*.log*</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
 </assembly>
