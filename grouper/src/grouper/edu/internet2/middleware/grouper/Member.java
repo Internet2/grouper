@@ -54,7 +54,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.102 2008-06-30 04:01:33 mchyzer Exp $
+ * @version $Id: Member.java,v 1.103 2008-07-08 14:50:15 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1259,8 +1259,10 @@ public class Member extends GrouperAPI implements Serializable {
     }
     String    orig  = this.getSubjectId(); // preserve original for logging purposes
     this.subjectID = id;
-    //TODO dont save on setter
-    GrouperDAOFactory.getFactory().getMember().update( this );
+
+    if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      GrouperDAOFactory.getFactory().getMember().update( this );
+    }
     sw.stop();
     EventLog.info(
       GrouperSession.staticGrouperSession(),
@@ -1269,6 +1271,16 @@ public class Member extends GrouperAPI implements Serializable {
     );
   } // public void setSubjectId(id)
 
+  /**
+   * will be implemented soon
+   * @throws StemModifyException if problem
+   */
+  public void store() {
+    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      GrouperDAOFactory.getFactory().getMember().update( this );
+    }
+  }
+  
   /**
    * simple set subject source id
    * @param id
@@ -1311,8 +1323,9 @@ public class Member extends GrouperAPI implements Serializable {
     }
     String    orig  = this.getSubjectSourceId();
     this.subjectSourceID = id;
-    //TODO dont save on setter
-    GrouperDAOFactory.getFactory().getMember().update( this );
+    if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      GrouperDAOFactory.getFactory().getMember().update( this );
+    }
     sw.stop();
     EventLog.info(
       GrouperSession.staticGrouperSession(),

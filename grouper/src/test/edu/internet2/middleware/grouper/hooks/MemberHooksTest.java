@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MemberHooksTest.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: MemberHooksTest.java,v 1.2 2008-07-08 14:50:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.RegistryReset;
 import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
+import edu.internet2.middleware.grouper.StemModifyException;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -94,6 +95,7 @@ public class MemberHooksTest extends GrouperTest {
     MemberHooksImpl.mostRecentPreUpdateMemberSubjectId = null;
     
     member0.setSubjectId("whatever");
+    member0.store();
     
     assertEquals("whatever", MemberHooksImpl.mostRecentPreUpdateMemberSubjectId);
     
@@ -101,6 +103,8 @@ public class MemberHooksTest extends GrouperTest {
     Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2);
     try {
       member2.setSubjectId("whatever2");
+      member2.store();
+      
       fail("Should veto subj2");
     } catch (HookVeto hookVeto) {
       assertEquals("subjectId cannot be whatever2", hookVeto.getReason());
@@ -127,6 +131,7 @@ public class MemberHooksTest extends GrouperTest {
     MemberHooksImpl.mostRecentPreUpdateMemberSubjectId = null;
     
     member0.setSubjectId("whatever3");
+    member0.store();
     
     assertEquals("whatever3", MemberHooksImpl.mostRecentPreUpdateMemberSubjectId);
     
@@ -134,6 +139,7 @@ public class MemberHooksTest extends GrouperTest {
     Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2);
     try {
       member2.setSubjectId("whatever4");
+      member2.store();
       fail("Should veto subj2");
     } catch (HookVeto hookVeto) {
       assertEquals("subjectId cannot be whatever4", hookVeto.getReason());

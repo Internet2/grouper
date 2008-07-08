@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember30.java,v 1.4 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestMember30.java,v 1.5 2008-07-08 14:50:15 mchyzer Exp $
  */
 public class TestMember30 extends GrouperTest {
 
@@ -49,6 +49,7 @@ public class TestMember30 extends GrouperTest {
       String    orig  = m.getSubjectSourceId();
       try {
         m.setSubjectSourceId( orig.toUpperCase() );
+        m.store();
         fail("unexpectedly changed subject source id on GrouperSystem");
       }
       catch (InsufficientPrivilegeException eIP) {

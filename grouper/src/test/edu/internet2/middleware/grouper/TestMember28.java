@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember28.java,v 1.4 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestMember28.java,v 1.5 2008-07-08 14:50:15 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestMember28 extends GrouperTest {
@@ -49,6 +49,7 @@ public class TestMember28 extends GrouperTest {
       Member  m     = MemberFinder.findBySubject(r.rs, subjA);
       try {
         m.setSubjectSourceId(null);
+        m.store();
         fail("unexpectedly changed subject source id when value null");
       }
       catch (IllegalArgumentException eIA) {
