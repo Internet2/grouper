@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.5 2008-06-30 04:01:35 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.6 2008-07-08 20:47:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -86,8 +86,8 @@ public class GrouperHooksUtils {
    * @param clearDbVersion if the db version should be cleared (e.g. on delete) (for low level hooks)
    * @throws HookVeto if there is a veto (if applicable)
    */
-  public static void callHooksIfRegistered(Object object, GrouperHookType grouperHookType, String hookMethodName,
-      Class<? extends HooksBean> hooksBeanClass, Object[] businessObjects, Class[] businessClasses,
+  public static void callHooksIfRegistered(final Object object, final GrouperHookType grouperHookType, final String hookMethodName,
+      final Class<? extends HooksBean> hooksBeanClass, Object[] businessObjects, Class[] businessClasses,
       VetoType vetoType, boolean resetDbVersion, boolean clearDbVersion) throws HookVeto {
     
     Object dbVersion = null;
@@ -112,16 +112,33 @@ public class GrouperHooksUtils {
     if (hooks != null && hooks.size() > 0) {
       
       //loop through each hook
-      for (Object hook : hooks) {
+      for (final Object hook : hooks) {
         //instantiate bean
         HooksBean hooksBean = GrouperUtil.construct(hooksBeanClass, businessClasses, businessObjects);
         try {
           
           HooksContext hooksContext = new HooksContext();
           
-          //groupHooks.groupPreInsert(hooksContext, hooksGroupPreInsertBean);
-          GrouperUtil.callMethod(hook.getClass(), hook, hookMethodName, new Class[]{HooksContext.class, hooksBeanClass},
-              new Object[]{hooksContext, hooksBean});
+          //if needs to be in another thread
+          if (hook instanceof HookAsynchronousMarker) {
+            
+            HookAsynchronous.callbackAsynchronous(hooksContext, hooksBean, new HookAsynchronousHandler() {
+
+              public void callback(HooksContext hooksContextThread, HooksBean hooksBeanThread) {
+                
+                //groupHooks.groupPreInsert(hooksContext, hooksGroupPreInsertBean);
+                GrouperUtil.callMethod(hook.getClass(), hook, hookMethodName, new Class[]{HooksContext.class, hooksBeanClass},
+                    new Object[]{hooksContextThread, hooksBeanThread});
+
+              }
+            });
+            
+          } else {
+          
+            //groupHooks.groupPreInsert(hooksContext, hooksGroupPreInsertBean);
+            GrouperUtil.callMethod(hook.getClass(), hook, hookMethodName, new Class[]{HooksContext.class, hooksBeanClass},
+                new Object[]{hooksContext, hooksBean});
+          }
         
         } catch (HookVeto hv) {
           hv.assignVetoType(vetoType, false);

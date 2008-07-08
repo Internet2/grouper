@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.4 2008-07-08 20:47:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSessionException;
 import edu.internet2.middleware.grouper.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperCache;
 import edu.internet2.middleware.subject.Subject;
@@ -70,6 +71,24 @@ public class HooksContext {
    */
   public Subject getSubjectActAs() {
     return (Subject)this.getAttribute(HOOKS_KEY_SUBJECT_ACT_AS);
+  }
+
+  /**
+   * get the grouper session from the grouper session threadlocal
+   * @return the grouper session (might be null)
+   */
+  public GrouperSession getGrouperSession() {
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    if (grouperSession == null && !asynchronousGrouperSessionStarted 
+        && asynchronousGrouperSessionSubject != null && asynchronous) {
+      try {
+        asynchronousGrouperSessionStarted = true;
+        grouperSession = GrouperSession.start(asynchronousGrouperSessionSubject);
+      } catch (SessionException se) {
+        throw new RuntimeException(se);
+      }
+    }
+    return grouperSession;
   }
   
   /**
@@ -202,29 +221,39 @@ public class HooksContext {
       //if its asynchronous, then remove the thread local ones
       threadLocalAttribute().clear();
       
-      if (synchronousContext != null) {
-        //carry over the attributes, which are threadsafe
-        if (synchronousContext.attributeLocal != null) {
-          for (String key : synchronousContext.attributeLocal.keySet()) {
-            
-            HooksAttribute hooksAttribute = synchronousContext.attributeLocal.get(key);
-            if (hooksAttribute.isThreadSafe()) {
-              threadLocalAttribute().put(key, hooksAttribute);
-            }
-          }
-        }
-        //copy over the threadlocal to the local attributes
-        for (String key : threadLocalAttribute().keySet()) {
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+      if (grouperSession != null) {
+        this.asynchronousGrouperSessionSubject = grouperSession.getSubject();
+      }
+      
+    }
+    if (synchronousContext != null) {
+      //carry over the attributes, which are threadsafe
+      if (synchronousContext.attributeLocal != null) {
+        for (String key : synchronousContext.attributeLocal.keySet()) {
           
-          HooksAttribute hooksAttribute = threadLocalAttribute().get(key);
+          HooksAttribute hooksAttribute = synchronousContext.attributeLocal.get(key);
           if (hooksAttribute.isThreadSafe()) {
             threadLocalAttribute().put(key, hooksAttribute);
           }
         }
+      }
+      //copy over the threadlocal to the local attributes
+      for (String key : threadLocalAttribute().keySet()) {
         
+        HooksAttribute hooksAttribute = threadLocalAttribute().get(key);
+        if (hooksAttribute.isThreadSafe()) {
+          threadLocalAttribute().put(key, hooksAttribute);
+        }
       }
     }
   }
+  
+  /** keep track of grouper session subject if needed */
+  private Subject asynchronousGrouperSessionSubject;
+  
+  /** if we started one, we should stop it */
+  private boolean asynchronousGrouperSessionStarted;
   
   /**
    * set a global attribute
@@ -394,6 +423,33 @@ public class HooksContext {
       return hooksAttribute.getValue();
     }
     return null;
+  }
+
+  
+  /**
+   * if this context is asynchronous
+   * @return the asynchronous
+   */
+  public boolean isAsynchronous() {
+    return this.asynchronous;
+  }
+
+  
+  /**
+   * keep track of grouper session subject if needed
+   * @return the asynchronousGrouperSessionSubject
+   */
+  public Subject _internal_getAsynchronousGrouperSessionSubject() {
+    return this.asynchronousGrouperSessionSubject;
+  }
+
+  
+  /**
+   * if we started one, we should stop it
+   * @return the asynchronousGrouperSessionStarted
+   */
+  public boolean _internal_isAsynchronousGrouperSessionStarted() {
+    return this.asynchronousGrouperSessionStarted;
   }
   
 }
