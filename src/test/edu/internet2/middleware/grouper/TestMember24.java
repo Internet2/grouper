@@ -21,7 +21,7 @@ import  edu.internet2.middleware.subject.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember24.java,v 1.4 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestMember24.java,v 1.5 2008-07-08 14:50:15 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestMember24 extends GrouperTest {
@@ -54,6 +54,7 @@ public class TestMember24 extends GrouperTest {
       String          orig  = m.getSubjectId();
       try {
         m.setSubjectId( orig.toUpperCase() );
+        m.store();
         fail("unexpectedly changed subjectId when not root-like");
       }
       catch (InsufficientPrivilegeException eIP) {

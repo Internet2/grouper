@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember32.java,v 1.4 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestMember32.java,v 1.5 2008-07-08 14:50:15 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestMember32 extends GrouperTest {
@@ -50,6 +50,7 @@ public class TestMember32 extends GrouperTest {
       String    orig  = m.getSubjectSourceId();
       try {
         m.setSubjectSourceId( orig.toUpperCase() );
+        m.store();
         assertTrue(true);
         T.string("subject source id", orig.toUpperCase(), m.getSubjectSourceId());
       }
