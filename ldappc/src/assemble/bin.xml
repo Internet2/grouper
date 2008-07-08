@@ -8,9 +8,6 @@
     <format>zip</format>
   </formats>
 
-  <!-- Include the site directory -->
-  <includeSiteDirectory>${includeSite}</includeSiteDirectory>
-
   <!-- Include the dependent jars, including the project jar -->
   <dependencySets>
     <dependencySet>

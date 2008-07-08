@@ -8,9 +8,6 @@
     <format>zip</format>
   </formats>
 
-  <!-- Copy the site directory -->
-  <includeSiteDirectory>${includeSite}</includeSiteDirectory>
-
   <fileSets>
     <!-- Copy the main directory, excluding generated files and the usual suspects -->
     <fileSet>
