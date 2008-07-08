@@ -34,13 +34,12 @@ import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
  */
 public class DatabaseWrapperTestSetup extends TestSetup {
 
-    private boolean       useEmbeddedGrouper = true;
-    private boolean       useEmbeddedSignet  = true;
-    private int           dbPort             = 0;
-    private String        grouperDbTarget    = null;
-    private String        signetDbTarget     = null;
-    private static String DB_TARGET          = "target/testDb";
-    private HsqlRunner    hsqlRunner         = null;
+    private boolean    useEmbeddedGrouper = true;
+    private boolean    useEmbeddedSignet  = true;
+    private int        dbPort             = 0;
+    private String     grouperDbTarget    = null;
+    private String     signetDbTarget     = null;
+    private HsqlRunner hsqlRunner         = null;
 
     /**
      * @param suite
@@ -105,6 +104,16 @@ public class DatabaseWrapperTestSetup extends TestSetup {
     protected void tearDown() throws Exception {
         if (useEmbeddedGrouper || useEmbeddedSignet) {
             hsqlRunner.stop();
+        }
+
+        if (useEmbeddedGrouper) {
+            File dbDir = new File(grouperDbTarget);
+            FileUtils.deleteDirectory(dbDir);
+        }
+
+        if (useEmbeddedSignet) {
+            File dbDir = new File(signetDbTarget);
+            FileUtils.deleteDirectory(dbDir);
         }
 
         super.tearDown();
