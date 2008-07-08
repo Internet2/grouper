@@ -9,7 +9,7 @@
   </formats>
 
   <!-- Include the site directory -->
-  <includeSiteDirectory>true</includeSiteDirectory>
+  <includeSiteDirectory>${includeSite}</includeSiteDirectory>
 
   <!-- Include the dependent jars, including the project jar -->
   <dependencySets>

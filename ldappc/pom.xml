@@ -463,5 +463,6 @@
     <skipBinary>true</skipBinary>
     <skipSite>true</skipSite>
     <skipSource>true</skipSource>
+    <includeSite>true</includeSite>
   </properties>
 </project>
