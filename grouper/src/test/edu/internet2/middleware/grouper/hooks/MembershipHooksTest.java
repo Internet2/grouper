@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksTest.java,v 1.6 2008-07-08 06:51:34 mchyzer Exp $
+ * $Id: MembershipHooksTest.java,v 1.7 2008-07-08 20:47:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -31,7 +32,7 @@ public class MembershipHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new MembershipHooksTest("testMemberPreAddMember"));
+    TestRunner.run(new MembershipHooksTest("testMemberPreAddMemberAsync2"));
   }
   
   /**
@@ -48,7 +49,7 @@ public class MembershipHooksTest extends GrouperTest {
   private Stem root;
   
   /** grouper sesion */
-  private GrouperSession grouperSession; 
+  static GrouperSession grouperSession; 
 
   /** test group */
   private Group group;
@@ -110,6 +111,72 @@ public class MembershipHooksTest extends GrouperTest {
     group.deleteMember(SubjectTestHelper.SUBJ0);
     
     assertEquals("This should not fire the add member hook", hookCount, MembershipHooksImpl.preAddMemberHookCount);
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPreAddMemberAsync() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), MembershipHooksImplAsync.class);
+
+    MembershipHooksImplAsync.mostRecentInsertMemberSubjectId = null;
+    
+    int currentSleepCount = MembershipHooksImplAsync.preAddMemberHookCountAyncSeconds;
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    GrouperUtil.sleep(500);
+    
+    assertEquals("Monitor the progress of the hook in another thread", currentSleepCount+1, MembershipHooksImplAsync.preAddMemberHookCountAyncSeconds);
+    
+    GrouperUtil.sleep(1000);
+    
+    assertEquals("Monitor the progress of the hook in another thread", currentSleepCount+2, MembershipHooksImplAsync.preAddMemberHookCountAyncSeconds);
+    
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImplAsync.mostRecentInsertMemberSubjectId);
+    
+    GrouperUtil.sleep(1000);
+    assertTrue(MembershipHooksImplAsync.done);
+    if (MembershipHooksImplAsync.problem != null) {
+      throw MembershipHooksImplAsync.problem;
+    }
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPreAddMemberAsync2() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), MembershipHooksImplAsync2.class);
+
+    MembershipHooksImplAsync2.mostRecentInsertMemberSubjectId = null;
+    
+    int currentSleepCount = MembershipHooksImplAsync2.preAddMemberHookCountAyncSeconds;
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    GrouperUtil.sleep(500);
+    
+    assertEquals("Monitor the progress of the hook in another thread", currentSleepCount+1, MembershipHooksImplAsync2.preAddMemberHookCountAyncSeconds);
+    
+    GrouperUtil.sleep(1000);
+    
+    assertEquals("Monitor the progress of the hook in another thread", currentSleepCount+2, MembershipHooksImplAsync2.preAddMemberHookCountAyncSeconds);
+    
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImplAsync2.mostRecentInsertMemberSubjectId);
+    
+    GrouperUtil.sleep(1000);
+    assertTrue(MembershipHooksImplAsync2.done);
+    if (MembershipHooksImplAsync2.problem != null) {
+      throw MembershipHooksImplAsync2.problem;
+    }
   }
 
   /**
