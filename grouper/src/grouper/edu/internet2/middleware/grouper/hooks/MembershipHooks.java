@@ -1,11 +1,11 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooks.java,v 1.4 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: MembershipHooks.java,v 1.5 2008-07-08 06:51:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
 
 
@@ -26,6 +26,9 @@ public abstract class MembershipHooks {
   /** constant for method name for: membershipPostInsert */
   public static final String METHOD_MEMBERSHIP_POST_INSERT = "membershipPostInsert";
 
+  /** constant for method name for: membershipPostRemoveMember */
+  public static final String METHOD_MEMBERSHIP_POST_REMOVE_MEMBER = "membershipPostRemoveMember";
+
   /** constant for method name for: membershipPostUpdate */
   public static final String METHOD_MEMBERSHIP_POST_UPDATE = "membershipPostUpdate";
 
@@ -38,11 +41,13 @@ public abstract class MembershipHooks {
   /** constant for method name for: membershipPreInsert */
   public static final String METHOD_MEMBERSHIP_PRE_INSERT = "membershipPreInsert";
 
+  /** constant for method name for: membershipPreRemoveMember */
+  public static final String METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER = "membershipPreRemoveMember";
+
   /** constant for method name for: membershipPreUpdate */
   public static final String METHOD_MEMBERSHIP_PRE_UPDATE = "membershipPreUpdate";
 
   //*****  END GENERATED WITH GenerateMethodConstants.java *****//
-
   /**
    * called right before a membership update
    * @param hooksContext
@@ -67,7 +72,17 @@ public abstract class MembershipHooks {
    * @param preAddMemberBean
    */
   public void membershipPreAddMember(HooksContext hooksContext, 
-      HooksMembershipAddMemberBean preAddMemberBean) {
+      HooksMembershipChangeBean preAddMemberBean) {
+    
+  }
+  
+  /**
+   * called right before a membership delete (high level, not the side effects)
+   * @param hooksContext
+   * @param preDeleteMemberBean
+   */
+  public void membershipPreRemoveMember(HooksContext hooksContext, 
+      HooksMembershipChangeBean preDeleteMemberBean) {
     
   }
   
@@ -77,7 +92,17 @@ public abstract class MembershipHooks {
    * @param postAddMemberBean
    */
   public void membershipPostAddMember(HooksContext hooksContext, 
-      HooksMembershipAddMemberBean postAddMemberBean) {
+      HooksMembershipChangeBean postAddMemberBean) {
+    
+  }
+  
+  /**
+   * called right after a membership delete (high level, not the side effects)
+   * @param hooksContext
+   * @param postDeleteMemberBean
+   */
+  public void membershipPostRemoveMember(HooksContext hooksContext, 
+      HooksMembershipChangeBean postDeleteMemberBean) {
     
   }
   

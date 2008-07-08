@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.16 2008-06-30 17:56:01 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.17 2008-07-08 06:51:34 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -440,12 +440,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
           public Object callback(HibernateSession hibernateSession) {
             
-            
-            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_PRE_ADD_MEMBER,
-                HooksMembershipAddMemberBean.class, mof, DefaultMemberOf.class, 
-                VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER);
-            
             ByObject byObject = hibernateSession.byObject();
             byObject.delete(mof.getDeletes());
 
@@ -454,11 +448,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             byObject.saveOrUpdate(mof.getModifiedGroups());
             
             byObject.saveOrUpdate(mof.getModifiedStems());
-
-            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_POST_ADD_MEMBER,
-                HooksMembershipAddMemberBean.class, mof, DefaultMemberOf.class, 
-                VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER);
             
             return null;
           }

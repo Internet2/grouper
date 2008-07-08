@@ -23,7 +23,7 @@ import java.util.Set;
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: BaseMemberOf.java,v 1.11 2008-07-08 06:51:34 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
@@ -57,7 +57,7 @@ public abstract class BaseMemberOf implements MemberOf {
   /**
    * @since   1.2.0
    */
-  public Set getDeletes() {
+  public Set<GrouperAPI> getDeletes() {
     return this.deletes;
   }
   
@@ -78,7 +78,7 @@ public abstract class BaseMemberOf implements MemberOf {
   /**
    * @since   1.2.0
    */
-  public Set getSaves() {
+  public Set<GrouperAPI> getSaves() {
     return this.saves;
   }  
   
@@ -120,11 +120,11 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.c;
   }  
   // @since   1.2.0
-  protected Set<GrouperAPI> getEffectiveDeletes() {
+  public Set<GrouperAPI> getEffectiveDeletes() {
     return this.effDeletes;
   }
   // @since   1.2.0
-  protected Set<GrouperAPI> getEffectiveSaves() {
+  public Set<GrouperAPI> getEffectiveSaves() {
     return this.effSaves;
   }
   // @since   1.2.0
