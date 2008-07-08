@@ -37,9 +37,12 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -59,7 +62,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.189 2008-06-30 04:31:41 mchyzer Exp $
+ * @version $Id: Group.java,v 1.190 2008-07-08 06:51:34 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -1076,9 +1079,29 @@ public class Group extends GrouperAPI implements Owner {
     if ( (f.equals( Group.getDefaultList() ) ) && ( this.hasComposite() ) ) {
       throw new MemberDeleteException(E.GROUP_DMFC);
     }
-    DefaultMemberOf  mof = Membership.internal_delImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
+    final DefaultMemberOf  mof = Membership.internal_delImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
     try {
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
+      GrouperTransaction.callbackGrouperTransaction(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+              GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                  MembershipHooks.METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER,
+                  HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
+                  VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
+              
+              GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+              GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                  MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
+                  HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
+                  VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER);
+              return null;
+            }
+            
+          });
+
     }
     catch (GrouperDAOException eDAO) {
       throw new MemberDeleteException( eDAO.getMessage(), eDAO );

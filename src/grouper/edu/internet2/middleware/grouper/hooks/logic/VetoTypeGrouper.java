@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: VetoTypeGrouper.java,v 1.2 2008-06-28 06:55:48 mchyzer Exp $
+ * $Id: VetoTypeGrouper.java,v 1.3 2008-07-08 06:51:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -174,6 +174,12 @@ public enum VetoTypeGrouper implements VetoType {
   
   /** veto of membership */
   MEMBERSHIP_POST_ADD_MEMBER,
+  
+  /** veto of membership */
+  MEMBERSHIP_PRE_REMOVE_MEMBER,
+  
+  /** veto of membership */
+  MEMBERSHIP_POST_REMOVE_MEMBER,
   
   /** veto of membership */
   MEMBERSHIP_PRE_INSERT,

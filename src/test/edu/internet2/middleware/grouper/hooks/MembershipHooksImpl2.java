@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl2.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: MembershipHooksImpl2.java,v 1.3 2008-07-08 06:51:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipAddMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 
 
@@ -23,11 +23,11 @@ public class MembershipHooksImpl2 extends MembershipHooks {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPostAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipAddMemberBean)
+   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPostAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean)
    */
   @Override
   public void membershipPostAddMember(HooksContext hooksContext, 
-      HooksMembershipAddMemberBean postAddMemberBean) {
+      HooksMembershipChangeBean postAddMemberBean) {
     String subjectId = postAddMemberBean.getMember().getSubjectId();
     mostRecentInsertMemberSubjectId = subjectId;
     if (StringUtils.equals(SubjectTestHelper.SUBJ1.getId(), subjectId)) {

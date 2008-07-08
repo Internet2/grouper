@@ -23,6 +23,7 @@ import java.util.Set;
 
 import net.sf.ehcache.Element;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -30,8 +31,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -52,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.97 2008-06-30 04:31:41 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.98 2008-07-08 06:51:34 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -166,8 +171,33 @@ public class Membership extends GrouperAPI {
 
   private String  parentUUID  = null;                           // reasonable default
 
+  /** either composite, immediate, effective */
   private String  type        = Membership.IMMEDIATE;           // reasonable default
 
+  /**
+   * if this is a composite membership
+   * @return true if composite
+   */
+  public boolean isComposite() {
+    return StringUtils.equals(this.type, Membership.COMPOSITE);
+  }
+  
+  /**
+   * if this is a immediate membership
+   * @return true if immediate
+   */
+  public boolean isImmediate() {
+    return StringUtils.equals(this.type, Membership.IMMEDIATE);
+  }
+  
+  /**
+   * if this is a effective membership
+   * @return true if effective
+   */
+  public boolean isEffective() {
+    return StringUtils.equals(this.type, Membership.EFFECTIVE);
+  }
+  
   private String  uuid        = GrouperUuid.getUuid(); // reasonable default
 
   private String  viaUUID     = null;                           // reasonable default
@@ -392,6 +422,37 @@ public class Membership extends GrouperAPI {
     return via;
   } // public Group getViaGroup()
 
+  /**
+   * wrapper to run hooks on default member of add member
+   * @param mof
+   */
+  private static void internal_insertPersistDefaultMemberOf(final DefaultMemberOf mof) {
+
+    GrouperTransaction.callbackGrouperTransaction(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+
+          public Object callback(GrouperTransaction grouperTransaction)
+              throws GrouperDAOException {
+            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                MembershipHooks.METHOD_MEMBERSHIP_PRE_ADD_MEMBER,
+                HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
+                VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER);
+            
+            GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+
+            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                MembershipHooks.METHOD_MEMBERSHIP_POST_ADD_MEMBER,
+                HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
+                VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER);
+            return null;
+          }
+          
+        });
+
+
+  }
+  
   // @since   1.2.0
   protected static void internal_addImmediateMembership(
     GrouperSession s, Group g, Subject subj, Field f
@@ -403,7 +464,7 @@ public class Membership extends GrouperAPI {
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.addImmediate( s, g, f, m );
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
+      internal_insertPersistDefaultMemberOf(mof);
       EL.addEffMembers( s, g, subj, f, mof.getEffectiveSaves() );
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
@@ -430,7 +491,7 @@ public class Membership extends GrouperAPI {
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.addImmediate( s, ns, f, m );
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
+      internal_insertPersistDefaultMemberOf(mof);
       EL.addEffMembers( s, ns, subj, f, mof.getEffectiveSaves() );
     }
     catch (IllegalStateException eIS)           {
