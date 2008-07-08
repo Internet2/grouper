@@ -8,6 +8,9 @@
     <format>zip</format>
   </formats>
 
+  <!-- Include the site documentation -->
+  <includeSiteDirectory>true</includeSiteDirectory>
+
   <fileSets>
     <!-- Copy the main directory, excluding generated files and the usual suspects -->
     <fileSet>

@@ -111,6 +111,19 @@
             </configuration>
           </execution>
           <execution>
+            <id>make-deploy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <skipAssembly>${skipDeploy}</skipAssembly>
+              <descriptors>
+                <descriptor>src/assemble/deploy.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+          <execution>
             <id>make-lib</id>
             <phase>package</phase>
             <goals>
@@ -461,8 +474,8 @@
   </profiles>
   <properties>
     <skipBinary>true</skipBinary>
+    <skipDeploy>true</skipDeploy>
     <skipSite>true</skipSite>
     <skipSource>true</skipSource>
-    <includeSite>true</includeSite>
   </properties>
 </project>

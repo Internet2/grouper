@@ -1,15 +1,12 @@
 <!-- Binary distribution, along with dependency jar files, and site -->
 <assembly>
-  <id>bin</id>
+  <id>deploy</id>
 
   <!-- Generate both tar.gz and zip format distributions -->
   <formats>
     <format>tar.gz</format>
     <format>zip</format>
   </formats>
-
-  <!-- Include the site documentation -->
-  <includeSiteDirectory>true</includeSiteDirectory>
 
   <!-- Include the dependent jars, including the project jar -->
   <dependencySets>
