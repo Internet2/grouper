@@ -387,7 +387,7 @@
   </dependencies>
   <profiles>
     <profile>
-      <id>derby</id>
+      <id>derby10.4</id>
       <dependencies>
         <dependency>
           <groupId>org.apache.derby</groupId>
@@ -398,7 +398,18 @@
       </dependencies>
     </profile>
     <profile>
-      <id>hsql</id>
+      <id>hsql1.7</id>
+      <dependencies>
+        <dependency>
+          <groupId>hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <version>1.7.3.3</version>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>hsql1.8</id>
       <dependencies>
         <dependency>
           <groupId>hsqldb</groupId>
@@ -409,7 +420,18 @@
       </dependencies>
     </profile>
     <profile>
-      <id>mysql</id>
+      <id>mysql5.0</id>
+      <dependencies>
+        <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>5.0.8</version>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>mysql5.1</id>
       <dependencies>
         <dependency>
           <groupId>mysql</groupId>
@@ -420,7 +442,7 @@
       </dependencies>
     </profile>
     <profile>
-      <id>oracle</id>
+      <id>oracle9</id>
       <dependencies>
         <dependency>
           <groupId>com.oracle</groupId>
@@ -431,7 +453,18 @@
       </dependencies>
     </profile>
     <profile>
-      <id>postgres</id>
+      <id>oracle10</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle</groupId>
+          <artifactId>ojdbc14</artifactId>
+          <version>10.2.0.3.0</version>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>postgres8.3</id>
       <dependencies>
         <dependency>
           <groupId>postgresql</groupId>
