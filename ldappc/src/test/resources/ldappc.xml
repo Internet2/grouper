@@ -70,15 +70,15 @@
   </signet>
 
   <source-subject-identifiers>
-    <source-subject-identifier source="qsuob" subject-attribute="LOGINID" >
+    <source-subject-identifier source="local_person" subject-attribute="LOGINID">
       <ldap-search base="ou=kitn,dc=example,dc=edu" 
         scope="subtree_scope" 
         filter="(uid={0})" />
     </source-subject-identifier>
-    <source-subject-identifier source="signet" subject-attribute="LOGINID">
+    <source-subject-identifier source="qsuob" subject-attribute="LOGINID">
       <ldap-search base="ou=uob,dc=example,dc=edu" 
-	scope="subtree_scope" 
-	filter="(uid={0})" />
+		scope="subtree_scope" 
+		filter="(uid={0})" />
     </source-subject-identifier>
   </source-subject-identifiers>
 
