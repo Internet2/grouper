@@ -15,8 +15,8 @@ mvn install:install-file -Dpackaging=jar -DgroupId=javax.mail -DartifactId=maila
 mvn install:install-file -Dpackaging=jar -DgroupId=javax.mail -DartifactId=smtp -Dversion=1.3.2 -Dfile=smtp-1.3.2.jar
 
 # Internet2 jars
-mvn install:install-file -Dpackaging=jar -DgroupId=edu.internet2.middleware.ldappc -DartifactId=apacheds-ldappc-schema -Dversion=1.0 -Dfile=apacheds-ldappc-schema.jar -DpomFile=apacheds-ldappc-schema.pom
-mvn install:install-file -Dpackaging=jar -DgroupId=edu.internet2.middleware.grouper -DartifactId=grouper -Dversion=1.3.0 -Dfile=grouper.jar -DpomFile=grouper.pom
-mvn install:install-file -Dpackaging=jar -DgroupId=edu.internet2.middleware.signet -DartifactId=signet-api -Dversion=1.3.0-RC1 -Dfile=signet-api.jar -DpomFile=signet-api.pom
-mvn install:install-file -Dpackaging=jar -DgroupId=edu.internet2.middleware.signet -DartifactId=signet-util -Dversion=1.3.0-RC1 -Dfile=signet-util.jar -DpomFile=signet-util.pom
-mvn install:install-file -Dpackaging=jar -DgroupId=edu.internet2.middleware.subject -DartifactId=subject -Dversion=0.3.1 -Dfile=subject.jar -DpomFile=subject.pom
+mvn install:install-file -Dfile=apacheds-ldappc-schema.jar -DpomFile=apacheds-ldappc-schema.pom
+mvn install:install-file -Dfile=grouper.jar -DpomFile=grouper.pom
+mvn install:install-file -Dfile=signet-api.jar -DpomFile=signet-api.pom
+mvn install:install-file -Dfile=signet-util.jar -DpomFile=signet-util.pom
+mvn install:install-file -Dfile=subject.jar -DpomFile=subject.pom
