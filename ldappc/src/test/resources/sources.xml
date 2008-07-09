@@ -178,19 +178,19 @@
     <!--  Database connection properties  -->
     <init-param>
       <param-name>dbDriver</param-name>
-      <param-value>@DB_DRIVER@</param-value>
+      <param-value>org.hsqldb.jdbcDriver</param-value>
     </init-param>
     <init-param>
       <param-name>dbUrl</param-name>
-      <param-value>@DB_URL@</param-value>
+      <param-value>jdbc:hsqldb:hsql://localhost:51515/signetdb</param-value>
     </init-param>
     <init-param>
       <param-name>dbUser</param-name>
-      <param-value>@DB_USERNAME@</param-value>
+      <param-value>sa</param-value>
     </init-param>
     <init-param>
       <param-name>dbPwd</param-name>
-      <param-value>@DB_PASSWORD@</param-value>
+      <param-value></param-value>
     </init-param>
 
      <init-param>
@@ -301,19 +301,19 @@
     <!--  Database connection properties  -->
     <init-param>
       <param-name>dbDriver</param-name>
-      <param-value>@DB_DRIVER@</param-value>
+      <param-value>org.hsqldb.jdbcDriver</param-value>
     </init-param>
     <init-param>
       <param-name>dbUrl</param-name>
-      <param-value>@DB_URL@</param-value>
+      <param-value>jdbc:hsqldb:hsql://localhost:51515/signetdb</param-value>
     </init-param>
     <init-param>
       <param-name>dbUser</param-name>
-      <param-value>@DB_USERNAME@</param-value>
+      <param-value>sa</param-value>
     </init-param>
     <init-param>
       <param-name>dbPwd</param-name>
-      <param-value>@DB_PASSWORD@</param-value>
+      <param-value></param-value>
     </init-param>
 
      <init-param>
