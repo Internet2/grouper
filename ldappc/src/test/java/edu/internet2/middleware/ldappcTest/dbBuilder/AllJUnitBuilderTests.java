@@ -56,7 +56,7 @@ public class AllJUnitBuilderTests extends TestCase
         suite.addTest(new TestSuite(SignetProvisionerPermissionsTest.class));
         // Use the following format to add additional test
         // (change the class name).
-        //suite.addTest(new TestSuite(DatabaseCleanerTest.class));
+        //suite.addTest(new TestSuite(FooTest.class));
         return suite;
    }
 }
