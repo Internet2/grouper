@@ -19,18 +19,18 @@
 package edu.internet2.middleware.ldappcTest;
 
 import junit.framework.TestCase;
-import edu.internet2.middleware.subject.Subject;
-
-
+import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SessionException;
-import edu.internet2.middleware.ldappc.LdappcProvisionControl;
 import edu.internet2.middleware.ldappc.GroupProcessor;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.InputOptions;
+import edu.internet2.middleware.ldappc.LdappcProvisionControl;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
+import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
+import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing creating members of a group so that other
@@ -52,7 +52,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
 
  * @author Gil Singer 
  */
-public class GrouperProvisionerTest extends TestCase
+public class GrouperProvisionerTest extends BaseTestCase
 {
     /**
      * the grouper session
@@ -119,7 +119,7 @@ public class GrouperProvisionerTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(GrouperProvisionerTest.class);
+         BaseTestCase.runTestRunner(GrouperProvisionerTest.class);
     }
 
     /**
