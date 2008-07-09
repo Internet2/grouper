@@ -142,13 +142,13 @@ public class AllJUnitTests extends TestCase
         {    
             suite = new TestSuite(SkeletonTest.class);
             suite.addTest(AllJUnitQuickStartTests.suite());
-            // Clean up the database before rerunning the tests.
-//            suite.addTest(new TestSuite(DatabaseCleanerTest.class));
-            suite.addTest(AllJUnitBaseDirTests.suite());
-            suite.addTest(AllJUnitUtilTests.suite());
-            suite.addTest(AllJUnitConfigurationTests.suite());
-            suite.addTest(AllJUnitSynchronizerTests.suite());
-            suite.addTest(AllJUnitBuilderTests.suite());
+            TestSuite embeddedSuite = new TestSuite(SkeletonTest.class);
+            embeddedSuite.addTest(AllJUnitBaseDirTests.suite());
+            embeddedSuite.addTest(AllJUnitUtilTests.suite());
+            embeddedSuite.addTest(AllJUnitConfigurationTests.suite());
+            embeddedSuite.addTest(AllJUnitSynchronizerTests.suite());
+            embeddedSuite.addTest(AllJUnitBuilderTests.suite());
+            suite.addTest(embeddedSuite);
         }
         else
         {    
