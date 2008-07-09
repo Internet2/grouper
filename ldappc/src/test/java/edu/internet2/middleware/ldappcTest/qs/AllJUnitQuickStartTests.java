@@ -51,6 +51,6 @@ public class AllJUnitQuickStartTests extends TestCase
         TestSuite suite = new TestSuite(QuickStartTestU.class);
         // Add additional tests using the following format:
         // suite.addTest(new TestSuite(ConfigManagerTest.class));
-        return new LdapWrapperTestSetup(new DatabaseWrapperTestSetup(suite));
+        return suite;
    }
 }
