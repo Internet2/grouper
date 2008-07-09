@@ -18,6 +18,8 @@
 
 package edu.internet2.middleware.ldappcTest.qs;
 
+import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
+import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -49,6 +51,6 @@ public class AllJUnitQuickStartTests extends TestCase
         TestSuite suite = new TestSuite(QuickStartTestU.class);
         // Add additional tests using the following format:
         // suite.addTest(new TestSuite(ConfigManagerTest.class));
-        return suite;
+        return new LdapWrapperTestSetup(new DatabaseWrapperTestSetup(suite));
    }
 }
