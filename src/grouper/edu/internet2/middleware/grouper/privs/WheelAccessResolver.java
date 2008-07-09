@@ -21,9 +21,10 @@ import java.util.Set;
 import net.sf.ehcache.Element;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.AccessPrivilege;
-import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperConfig;
@@ -41,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.12 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.13 2008-07-09 05:28:18 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -63,6 +64,9 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   /** wheel session */
   private GrouperSession wheelSession = null;
   
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(WheelAccessResolver.class);
+
   /**
    * @param resolver resolver
    * @since   1.2.1
@@ -86,7 +90,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
       }
       catch (Exception e) {
     	//OK, so wheel group does not exist. Not fatal...
-    	ErrorLog.error(this.getClass(), "Initialisation error with wheel group name '" + wheelName 
+    	LOG.error("Initialisation error with wheel group name '" + wheelName 
     	    + "': " + e.getClass().getSimpleName() 
     	    + "\n" + ExceptionUtils.getFullStackTrace(e));
     	this.useWheel=false;

@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -27,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.52 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.53 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -154,9 +157,12 @@ public class GroupFinder {
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }
-    ErrorLog.error(GroupFinder.class, E.GF_FBNAME + E.CANNOT_VIEW);
+    LOG.error(E.GF_FBNAME + E.CANNOT_VIEW);
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
   } 
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GroupFinder.class);
 
   /**
    * Find a group within the registry by its {@link GroupType}.
@@ -246,7 +252,7 @@ public class GroupFinder {
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }
-    ErrorLog.error(GroupFinder.class, E.GF_FBUUID + E.CANNOT_VIEW);
+    LOG.error(E.GF_FBUUID + E.CANNOT_VIEW);
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
   } 
 

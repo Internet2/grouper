@@ -25,6 +25,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
@@ -54,7 +56,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.103 2008-07-08 14:50:15 mchyzer Exp $
+ * @version $Id: Member.java,v 1.104 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -365,10 +367,13 @@ public class Member extends GrouperAPI implements Serializable {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Member.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getEffectiveMemberships()
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(Member.class);
 
   /**
    * Get effective memberships.
@@ -463,7 +468,7 @@ public class Member extends GrouperAPI implements Serializable {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Member.class, msg);
+      LOG.fatal( msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getImmediateMemberships()
@@ -518,7 +523,7 @@ public class Member extends GrouperAPI implements Serializable {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Member.class, msg);
+      LOG.fatal( msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getMemberships()
@@ -561,7 +566,7 @@ public class Member extends GrouperAPI implements Serializable {
       privs = GrouperSession.staticGrouperSession().getAccessResolver().getPrivileges( g, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } 
@@ -580,7 +585,7 @@ public class Member extends GrouperAPI implements Serializable {
       privs = GrouperSession.staticGrouperSession().getNamingResolver().getPrivileges( ns, this.getSubject() );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
     }
     return privs;
   }
@@ -634,7 +639,7 @@ public class Member extends GrouperAPI implements Serializable {
     }
     catch (SubjectNotFoundException eSNF) {
       String msg = E.MEMBER_SUBJNOTFOUND + eSNF.getMessage();
-      ErrorLog.fatal(Member.class, msg);
+      LOG.fatal( msg);
       throw new GrouperRuntimeException(msg, eSNF);
     }
   } // public Source getSubjectSource()
@@ -712,7 +717,7 @@ public class Member extends GrouperAPI implements Serializable {
               );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } 
@@ -748,7 +753,7 @@ public class Member extends GrouperAPI implements Serializable {
       privs = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.CREATE );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
     }
     return privs;
   } 
@@ -786,7 +791,7 @@ public class Member extends GrouperAPI implements Serializable {
               );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } 
@@ -826,7 +831,7 @@ public class Member extends GrouperAPI implements Serializable {
     }
     catch (SchemaException eS) { 
       String msg = E.FIELD_REQNOTFOUND + AccessPrivilege.OPTOUT;
-      ErrorLog.fatal(Member.class, msg);
+      LOG.fatal( msg);
       throw new GrouperRuntimeException(msg, eS);
     }
 */
@@ -836,7 +841,7 @@ public class Member extends GrouperAPI implements Serializable {
               );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   }
@@ -874,7 +879,7 @@ public class Member extends GrouperAPI implements Serializable {
               );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } 
@@ -910,7 +915,7 @@ public class Member extends GrouperAPI implements Serializable {
       privs = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege( this.getSubject(), NamingPrivilege.STEM );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error( Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage() );
     }
     return privs;
   } // public Set hasStem()
@@ -947,7 +952,7 @@ public class Member extends GrouperAPI implements Serializable {
               );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } 
@@ -985,7 +990,7 @@ public class Member extends GrouperAPI implements Serializable {
               );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return privs;
   } 
@@ -1036,7 +1041,7 @@ public class Member extends GrouperAPI implements Serializable {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Member.class, msg);
+      LOG.fatal( msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean isEffectiveMember(g);
@@ -1110,7 +1115,7 @@ public class Member extends GrouperAPI implements Serializable {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Member.class, msg);
+      LOG.fatal( msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean isImmediateMember(g)
@@ -1159,7 +1164,7 @@ public class Member extends GrouperAPI implements Serializable {
       }
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
   } // public boolean isImmediateMember(g, f)
@@ -1189,7 +1194,7 @@ public class Member extends GrouperAPI implements Serializable {
     catch (SchemaException eShouldNeverHappen) {
       // If we don't have "members" we have serious issues
       String msg = "this should never happen: default group list not found: " + eShouldNeverHappen.getMessage();
-      ErrorLog.fatal(Member.class, msg);
+      LOG.fatal( msg);
       throw new GrouperRuntimeException(msg, eShouldNeverHappen);
     }
   } // public boolean isMember(g)
@@ -1399,8 +1404,8 @@ public class Member extends GrouperAPI implements Serializable {
         groups.add(g);  
       }
       catch (GroupNotFoundException eGNF) {
-        ErrorLog.error(
-          Member.class, E.MEMBER_NOGROUP + Quote.single(this.getUuid()) + " membership="
+        LOG.error(
+          E.MEMBER_NOGROUP + Quote.single(this.getUuid()) + " membership="
           + Quote.single(ms.getUuid()) + " " + eGNF.getMessage()
         );
       }
@@ -1417,7 +1422,7 @@ public class Member extends GrouperAPI implements Serializable {
       rv = GrouperSession.staticGrouperSession().getAccessResolver().hasPrivilege( g, this.getSubject(), priv );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
   } 
@@ -1431,7 +1436,7 @@ public class Member extends GrouperAPI implements Serializable {
       rv = GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege( ns, this.getSubject(), priv );
     }
     catch (SubjectNotFoundException eSNF) {
-      ErrorLog.error(Member.class, E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
   }

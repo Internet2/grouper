@@ -29,6 +29,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
@@ -62,7 +64,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.190 2008-07-08 06:51:34 mchyzer Exp $
+ * @version $Id: Group.java,v 1.191 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -393,12 +395,15 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public static Field getDefaultList()
 
- 
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(Group.class);
+
+
   // PUBLIC INSTANCE METHODS //
 
   /**
@@ -695,7 +700,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUP_TYPEADD + type + ": " + eDAO.getMessage();
-      ErrorLog.error(Group.class, msg);
+      LOG.error(msg);
       throw new GroupModifyException(msg, eDAO); 
     }
   } 
@@ -1168,7 +1173,7 @@ public class Group extends GrouperAPI implements Owner {
     }
     catch (GrouperDAOException eDAO) {
       msg += eDAO.getMessage();
-      ErrorLog.error(Group.class, msg);
+      LOG.error(msg);
       throw new GroupModifyException(msg, eDAO);
     }
   } 
@@ -1411,7 +1416,7 @@ public class Group extends GrouperAPI implements Owner {
     String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_DISPLAY_EXTENSION);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
-      ErrorLog.fatal(Group.class, E.GROUP_NODE);
+      LOG.fatal(E.GROUP_NODE);
       throw new GrouperRuntimeException(E.GROUP_NODE);
     }
     return val;
@@ -1433,7 +1438,7 @@ public class Group extends GrouperAPI implements Owner {
     String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_DISPLAY_NAME);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
-      ErrorLog.fatal(Group.class, E.GROUP_NODN);
+      LOG.fatal(E.GROUP_NODN);
       throw new GrouperRuntimeException(E.GROUP_NODN);
     }
     return val;
@@ -1467,7 +1472,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getEffectiveMembership()
@@ -1527,7 +1532,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getEffectiveMembership()
@@ -1574,7 +1579,7 @@ public class Group extends GrouperAPI implements Owner {
     String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
-      ErrorLog.error(Group.class, E.GROUP_NOE);
+      LOG.error( E.GROUP_NOE);
       throw new GrouperRuntimeException(E.GROUP_NOE);
     }
     return val;
@@ -1605,7 +1610,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getImmediateMembers()
@@ -1664,7 +1669,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getImmediateMemberships()
@@ -1714,7 +1719,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getMembers()
@@ -1756,7 +1761,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public Set getMemberships()
@@ -1875,7 +1880,7 @@ public class Group extends GrouperAPI implements Owner {
     String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_NAME);
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
-      ErrorLog.error(Group.class, E.GROUP_NON);
+      LOG.error( E.GROUP_NON);
       throw new GrouperRuntimeException(E.GROUP_NON);
     }
     return val;
@@ -2153,7 +2158,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean hasEffectiveMember(Subject subj)
@@ -2193,7 +2198,7 @@ public class Group extends GrouperAPI implements Owner {
       rv = m.isEffectiveMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
-      ErrorLog.error(Group.class, E.GROUP_HEM + eMNF.getMessage());
+      LOG.error( E.GROUP_HEM + eMNF.getMessage());
     }
     return rv;
   } // public boolean hasEffectiveMember(subj, f)
@@ -2229,7 +2234,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eS);
     }
   } // public boolean hasImmediateMember(subj)
@@ -2266,7 +2271,7 @@ public class Group extends GrouperAPI implements Owner {
       rv = m.isImmediateMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
-      ErrorLog.error(Group.class, E.GROUP_HIM + eMNF.getMessage());
+      LOG.error( E.GROUP_HIM + eMNF.getMessage());
     }
     return rv;
   } // public boolean hasImmediateMember(subj, f)
@@ -2298,7 +2303,7 @@ public class Group extends GrouperAPI implements Owner {
     catch (SchemaException eShouldNeverHappen) {
       // If we don't have "members" we have serious issues
       String msg = "this should never happen: default group list not found: " + eShouldNeverHappen.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eShouldNeverHappen);
     }
   } // public boolean hasMember(subj)
@@ -2331,7 +2336,7 @@ public class Group extends GrouperAPI implements Owner {
       rv = m.isMember(this, f);
     }
     catch (MemberNotFoundException eMNF) {
-      ErrorLog.error(Group.class, E.GROUP_HM + eMNF.getMessage());
+      LOG.error( E.GROUP_HM + eMNF.getMessage());
     }
     return rv;
   } // public boolean hasMember(subj, f)
@@ -2790,7 +2795,7 @@ public class Group extends GrouperAPI implements Owner {
       // If we can't convert a group to a member we have major issues
       // and should probably just give up
       String msg = E.GROUP_G2M + eMNF.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eMNF);
     }
   } // public Member toMember()
@@ -2818,17 +2823,17 @@ public class Group extends GrouperAPI implements Owner {
     }
     catch (SourceUnavailableException eShouldNeverHappen0)  {
       String msg = E.GROUP_G2S + eShouldNeverHappen0.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eShouldNeverHappen0);
     }
     catch (SubjectNotFoundException eShouldNeverHappen1)    {
       String msg = E.GROUP_G2S + eShouldNeverHappen1.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eShouldNeverHappen1);
     }
     catch (SubjectNotUniqueException eShouldNeverHappen2)   {
       String msg = E.GROUP_G2S + eShouldNeverHappen2.getMessage();
-      ErrorLog.fatal(Group.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eShouldNeverHappen2);
     }
   } // public Subject toSubject()

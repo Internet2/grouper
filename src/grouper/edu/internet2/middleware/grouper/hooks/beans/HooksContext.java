@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.4 2008-07-08 20:47:42 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.5 2008-07-09 05:28:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.util.GrouperCache;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -34,6 +35,9 @@ public class HooksContext {
   /** global attributes, threadsafe */
   private static Map<String, Object> attributeGlobal = 
     new HashMap<String, Object>();
+  
+  /** keep a unique id to keep the logs straight */
+  private String hookId = GrouperUtil.uniqueId();
   
   /**
    * if this context is asynchronous
@@ -450,6 +454,15 @@ public class HooksContext {
    */
   public boolean _internal_isAsynchronousGrouperSessionStarted() {
     return this.asynchronousGrouperSessionStarted;
+  }
+
+  
+  /**
+   * keep a unique id to keep the logs straight
+   * @return the hookId
+   */
+  public String getHookId() {
+    return this.hookId;
   }
   
 }

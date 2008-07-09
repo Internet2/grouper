@@ -25,6 +25,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -44,7 +46,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.60 2008-06-30 04:01:34 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.61 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -255,18 +257,18 @@ public class GroupType extends GrouperAPI implements Serializable {
     sw.start();
     if ( this.isSystemType() ) {
       String msg = E.GROUPTYPE_NODELSYS + this.getName();
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error( msg);
       throw new SchemaException(msg);
     } 
     if (!PrivilegeHelper.isRoot(s)) {
       String msg = E.GROUPTYPE_NODEL;
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error( msg);
       throw new InsufficientPrivilegeException(msg);
     }
     try {
       if ( GrouperDAOFactory.getFactory().getGroup().findAllByType( this ).size() > 0 ) {
         String msg = E.GROUPTYPE_DELINUSE;
-        ErrorLog.error(GroupType.class, msg);
+        LOG.error( msg);
         throw new SchemaException(msg);
       }
       // Now delete the type
@@ -280,10 +282,13 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_DEL + eDAO.getMessage();
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error(msg);
       throw new SchemaException(msg, eDAO);
     }
   } // public void delete(s)
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GroupType.class);
 
   /**
    * Delete a custom {@link Field} from a custom {@link GroupType}.
@@ -327,7 +332,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
     if ( GrouperDAOFactory.getFactory().getField().isInUse(f) ) {
       String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error( msg);
       throw new SchemaException(msg);
     }
     // With validation complete, delete the field
@@ -345,13 +350,13 @@ public class GroupType extends GrouperAPI implements Serializable {
       }
       else {
         String msg = E.GROUPTYPE_FIELDNODELMISS;
-        ErrorLog.error(GroupType.class, msg);
+        LOG.error( msg);
         throw new SchemaException(msg);
       }
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_FIELDDEL + eDAO.getMessage();
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error( msg);
       throw new SchemaException(msg, eDAO);
     }
   } // public void deleteField(s, name)
@@ -376,13 +381,13 @@ public class GroupType extends GrouperAPI implements Serializable {
     //note, no need for GrouperSession inverse of control
     if (!PrivilegeHelper.isRoot(s)) {
       String msg = E.GROUPTYPE_NOADD;
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error( msg);
       throw new InsufficientPrivilegeException(msg);
     }
     GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType();
     if ( dao.existsByName(name) ) {
       String msg = E.GROUPTYPE_EXISTS + name;
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error( msg);
       throw new SchemaException(msg);
     }
     GroupType _gt = new GroupType();
@@ -399,7 +404,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error( msg);
       throw new SchemaException(msg, eDAO);
     }
     return _gt;
@@ -453,7 +458,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();
-      ErrorLog.error(GroupType.class, msg);
+      LOG.error( msg);
       throw new SchemaException(msg, eDAO);
     }
   } // protected Field internal_addField(s, name, type, read, write, required)

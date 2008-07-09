@@ -16,13 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.19 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.20 2008-07-09 05:28:17 mchyzer Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -93,7 +102,7 @@ class GrouperPrivilegeAdapter {
             }
           }
           catch (SubjectNotFoundException eSNF) {
-            ErrorLog.error(GrouperPrivilegeAdapter.class, eSNF.getMessage());
+            LOG.error(eSNF.getMessage());
           }
           if ( ms.getViaUuid() != null ) {
             try {
@@ -101,7 +110,7 @@ class GrouperPrivilegeAdapter {
               revoke  = false;
             }
             catch (GroupNotFoundException eGNF) {
-              ErrorLog.error( GrouperPrivilegeAdapter.class, eGNF.getMessage() );
+              LOG.error(eGNF.getMessage() );
             }
           }
           
@@ -122,6 +131,9 @@ class GrouperPrivilegeAdapter {
       
     });
   } // protected Set internal_getPrivs(s, subj, m, p, it)
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperPrivilegeAdapter.class);
 
   /**
    * @since   1.2.0

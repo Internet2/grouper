@@ -22,10 +22,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.DefaultMemberOf;
-import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
@@ -44,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.8 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.9 2008-07-09 05:28:18 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -166,11 +167,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
     catch (GrouperDAOException e) {
       String error = "Problem querying stem by uuid: '" + uuid + "', " + e.getMessage();
-      ErrorLog.fatal( Hib3StemDAO.class, error );
+      LOG.fatal( error );
       throw new GrouperDAOException( error, e );
     }
   } 
   
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(Hib3StemDAO.class);
+
   /**
    * @since   @HEAD@
    */

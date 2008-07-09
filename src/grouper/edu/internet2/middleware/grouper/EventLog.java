@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.54 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: EventLog.java,v 1.55 2008-07-09 05:28:17 mchyzer Exp $
  */
 class EventLog {
 
@@ -195,7 +195,7 @@ class EventLog {
       }
     }
     else {
-      ErrorLog.error(EventLog.class, E.EVENT_EFFDEL);
+      LOG.error(E.EVENT_EFFDEL);
     }
   }
 
@@ -398,7 +398,7 @@ class EventLog {
           this.stemCache.put(uuid, ns);
         }
         catch (StemNotFoundException eSNF) {
-          ErrorLog.error(EventLog.class, E.EVENT_EFFOWNER + eSNF.getMessage());
+          LOG.error(E.EVENT_EFFOWNER + eSNF.getMessage());
         }
       }   
     }
@@ -421,7 +421,7 @@ class EventLog {
     }
     catch (MemberNotFoundException eMNF)    {
       // TODO 20070323 this can't help performance
-      ErrorLog.error( EventLog.class, E.EVENT_EFFSUBJ + eMNF.getMessage() );
+      LOG.error( E.EVENT_EFFSUBJ + eMNF.getMessage() );
     }
     return " subject=???";
   } 

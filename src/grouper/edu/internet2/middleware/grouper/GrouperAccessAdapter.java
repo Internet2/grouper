@@ -16,13 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import  edu.internet2.middleware.subject.*;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Map;
-import  java.util.Set;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Grouper Access Privilege interface.
@@ -32,7 +36,7 @@ import  java.util.Set;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.66 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.67 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -120,14 +124,17 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     catch (GroupNotFoundException eGNF) {
       String msg = E.GAA_GNF + eGNF.getMessage();
-      ErrorLog.error(GrouperAccessAdapter.class, msg);
+      LOG.error(msg);
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.GPA_MNF + eMNF.getMessage();
-      ErrorLog.error(GrouperAccessAdapter.class, msg);
+      LOG.error( msg);
     }
     return groups;
   } // public Set getGroupsWhereSubjectHasPriv(s, subj, priv)
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperAccessAdapter.class);
 
   /**
    * Get all privileges held by this subject on this group.
@@ -166,10 +173,10 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.GPA_MNF + eMNF.getMessage();
-      ErrorLog.error(GrouperAccessAdapter.class, msg);
+      LOG.error( msg);
     }
     catch (SchemaException eS) {
-      ErrorLog.error(GrouperAccessAdapter.class, eS.getMessage());
+      LOG.error( eS.getMessage());
     }
     return privs;
   } // public Set getPrivs(s, g, subj)
@@ -264,7 +271,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.GPA_MNF + eMNF.getMessage();
-      ErrorLog.error(GrouperAccessAdapter.class, msg);
+      LOG.error( msg);
     }
     return rv;
   } // public boolean hasPriv(s, g, subj, priv)

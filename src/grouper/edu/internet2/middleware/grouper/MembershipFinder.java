@@ -21,6 +21,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.subject.Subject;
@@ -34,7 +37,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.93 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.94 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -302,16 +305,19 @@ public class MembershipFinder {
     }
     catch (MemberNotFoundException eMNF) {
       String msg = "internal_findSubjects: " + eMNF.getMessage();
-      ErrorLog.fatal(MembershipFinder.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eMNF);
     }
     catch (SubjectNotFoundException eSNF) {
       String msg = "internal_findSubjects: " + eSNF.getMessage();
-      ErrorLog.fatal(MembershipFinder.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eSNF);
     }
     return subjs;
   } // protected static Set internal_findSubjects(s, o, f)
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(MemberFinder.class);
 
   // @since   1.2.0
   protected static Set internal_findSubjectsNoPriv(GrouperSession s, Owner o, Field f) {
@@ -332,7 +338,7 @@ public class MembershipFinder {
       catch (Exception e) {
         // @exception MemberNotFoundException
         // @exception SubjectNotFoundException
-        ErrorLog.error(MembershipFinder.class, E.MSF_FINDSUBJECTS + e.getMessage());
+        LOG.error(E.MSF_FINDSUBJECTS + e.getMessage());
       }
     }
     return subjs;

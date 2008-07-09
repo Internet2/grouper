@@ -17,11 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /** 
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.37 2008-06-24 06:07:03 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.38 2008-07-09 05:28:17 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -55,10 +58,13 @@ public class RegistryInstall {
         throwable = throwable.getCause();
       }
       String msg = "unable to initialize registry: " + throwable.getMessage();
-      ErrorLog.fatal(RegistryInstall.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, throwable);
     }
   }
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(RegistryInstall.class);
 
 
   // PRIVATE CLASS METHODS //

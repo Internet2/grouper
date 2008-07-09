@@ -27,6 +27,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
@@ -48,7 +50,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.53 2008-06-30 04:01:34 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.54 2008-07-09 05:28:17 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -207,9 +209,13 @@ public class Composite extends GrouperAPI {
       _updateWhereFactorOwnersAreImmediateMembers(g, factorOwners);
     }
     catch (GroupNotFoundException eShouldNotHappen) {
-      ErrorLog.fatal( Composite.class, "error processing composite updates: " + eShouldNotHappen.getMessage() );  
+      LOG.fatal("error processing composite updates: " + eShouldNotHappen.getMessage() );  
     }
   }
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(Composite.class);
+
 
 
   // PROTECTED INSTANCE METHODS //
@@ -386,7 +392,7 @@ public class Composite extends GrouperAPI {
       return g.getName();
     }
     catch (GroupNotFoundException eGNF) {
-      ErrorLog.error( Composite.class, msg + Quote.single( this.getUuid() ) + ": " + eGNF.getMessage() );
+      LOG.error( msg + Quote.single( this.getUuid() ) + ": " + eGNF.getMessage() );
       return GrouperConfig.EMPTY_STRING;
     }
   } 
@@ -429,11 +435,11 @@ public class Composite extends GrouperAPI {
     }
     catch (GroupNotFoundException eGNF) {
       String msg = E.COMP_UPDATE + eGNF.getMessage();
-      ErrorLog.error(Composite.class, msg);
+      LOG.error(msg);
     }
     catch (IllegalStateException eIS)   {
       String msg = E.COMP_UPDATE + eIS.getMessage();
-      ErrorLog.error(Composite.class, msg);
+      LOG.error(msg);
     }
   }
 

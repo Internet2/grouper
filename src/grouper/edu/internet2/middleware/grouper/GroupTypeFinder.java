@@ -16,27 +16,34 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Map;
-import  java.util.Set;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.28 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.29 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class GroupTypeFinder {
   
   // PRIVATE CLASS VARIABLES //
   private static Map types = new HashMap();
 
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GroupTypeFinder.class);
+
 
   // STATIC //
   static {
-    DebugLog.info(GroupTypeFinder.class, "finding group types");
+    LOG.info("finding group types");
+    
     // We need to initialize the known types at this point to try and
     // avoid running into Hibernate exceptions later on when attempting
     // to save objects.
@@ -45,7 +52,7 @@ public class GroupTypeFinder {
     while (iter.hasNext()) {
       t = (GroupType) iter.next();
       types.put(t.getName(), t);
-      DebugLog.info(GroupTypeFinder.class, "found group type: " + t);
+      LOG.info("found group type: " + t);
     }
   } // static
 
@@ -81,7 +88,7 @@ public class GroupTypeFinder {
       return (GroupType) types.get(name);
     }
     String msg = E.INVALID_GROUP_TYPE + name;
-    ErrorLog.error(GroupTypeFinder.class, msg);
+    LOG.error(msg);
     throw new SchemaException(msg);
   } // public static GroupType find(name)
 
@@ -172,12 +179,12 @@ public class GroupTypeFinder {
         GroupType type = (GroupType)it.next() ;
         types.add(type);
       }
-      DebugLog.info( GroupTypeFinder.class, "found group types: " + types.size() );
+      LOG.info("found group types: " + types.size() );
       return types;
     }
     catch (GrouperRuntimeException eGRE) {
       String msg = E.GROUPTYPE_FINDALL + eGRE.getMessage();
-      ErrorLog.fatal(GroupTypeFinder.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eGRE);
     }
   } // private Static Set _findAll()

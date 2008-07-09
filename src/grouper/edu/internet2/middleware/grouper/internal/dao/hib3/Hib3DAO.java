@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -27,7 +29,6 @@ import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -39,12 +40,11 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.7 2008-07-02 04:28:25 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.8 2008-07-09 05:28:18 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {
@@ -53,6 +53,9 @@ abstract class Hib3DAO {
   private static final Configuration  CFG;
 
   private static final SessionFactory FACTORY;
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(Hib3DAO.class);
 
   // STATIC //
   static {
@@ -85,7 +88,7 @@ abstract class Hib3DAO {
     } 
     catch (Throwable t) {
       String msg = "unable to initialize hibernate: " + t.getMessage();
-      ErrorLog.fatal(Hib3DAO.class, msg);
+      LOG.fatal(msg);
       throw new ExceptionInInitializerError(t);
     }
   } // static
