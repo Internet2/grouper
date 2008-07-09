@@ -6,20 +6,27 @@
  */
 
 package com.devclue.grouper.shell;
-import  bsh.*;
-import  java.util.*;
-import  org.apache.commons.lang.time.*;
+import java.util.List;
 
-import edu.internet2.middleware.grouper.ErrorLog;
+import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import bsh.Interpreter;
+import bsh.TargetError;
+
 
 /**
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.2 2008-04-28 11:12:37 isgwb Exp $
+ * @version $Id: ShellHelper.java,v 1.3 2008-07-09 05:28:11 mchyzer Exp $
  * @since   0.0.1
  */
 class ShellHelper {
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(ShellHelper.class);
 
   // PROTECTED CLASS METHODS //
 
@@ -47,7 +54,7 @@ class ShellHelper {
     	if(eBEE instanceof TargetError) {
     		Throwable t=((TargetError)eBEE).getTarget();
     		if(t!=null) {
-    			ErrorLog.error(GrouperShell.class, eBEE.getMessage(), t);
+    			LOG.error(eBEE.getMessage(), t);
     			err.append("\n// See error log for full stacktrace");
     		}
 	    	while(t!=null) {

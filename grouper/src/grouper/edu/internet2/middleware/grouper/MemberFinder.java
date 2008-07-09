@@ -20,14 +20,18 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import  edu.internet2.middleware.subject.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.52 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.53 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -142,10 +146,13 @@ public class MemberFinder {
     }
     catch (MemberNotFoundException eMNF) {
       String msg = E.MEMBERF_FINDALLMEMBER + eMNF.getMessage();
-      ErrorLog.fatal(MemberFinder.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eMNF);
     }
   } // protected static Member internal_findAllMember()
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(MemberFinder.class);
 
   // @since   1.2.0
   protected static Member internal_findRootMember() 
@@ -158,7 +165,7 @@ public class MemberFinder {
     }
     catch (MemberNotFoundException eShouldNeverHappen) {
       String msg = "unable to fetch GrouperSystem as member: " + eShouldNeverHappen.getMessage();
-      ErrorLog.fatal(MemberFinder.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eShouldNeverHappen);
     }
   } 

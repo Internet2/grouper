@@ -54,7 +54,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.81 2008-06-30 04:01:34 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.82 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -250,7 +250,7 @@ public class GrouperSession extends GrouperAPI {
         idLog = " (for subject id: " + id + ") ";
       }
       String msg = E.S_START + idLog + eMNF.getMessage();
-      ErrorLog.fatal(GrouperSession.class, msg);
+      LOG.fatal(msg);
       throw new SessionException(msg, eMNF);
     }
   } 

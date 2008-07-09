@@ -16,22 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
-import java.util.HashSet;
-import  java.util.Iterator;
-import  java.util.HashMap;
-import  java.util.LinkedHashSet;
-import  java.util.Map;
-import  java.util.Set;
-import  org.apache.commons.lang.builder.*;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.40 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.41 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -135,7 +141,7 @@ public Set getAttributeValues(String name) {
         this._populateAttributes(g); // populate `this.attrs`
       }
       catch (GroupNotFoundException eGNF) {
-        ErrorLog.error( GrouperSubject.class, "unable to retrieve group attributes: " + eGNF.getMessage() );
+        LOG.error("unable to retrieve group attributes: " + eGNF.getMessage() );
       }
     }
     return this.attrs;
@@ -152,7 +158,7 @@ public Set getAttributeValues(String name) {
       this.attrs.put( "createTime",        g.getCreateTime().toString() ); 
     }
     catch (SubjectNotFoundException eSNF0) {
-      ErrorLog.error(GrouperSubject.class, E.GSUBJ_NOCREATOR + eSNF0.getMessage());
+      LOG.error(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
     }
     try {
       // Don't bother with any of the modify* attrs unless we can find
@@ -171,8 +177,12 @@ public Set getAttributeValues(String name) {
       kv = (Map.Entry) it.next();
       this.attrs.put( (String) kv.getKey(), (String) kv.getValue() );
     }
-    DebugLog.info( GrouperSubject.class, "[" + this.name + "] attached attributes: " + this.attrs.size() );
+    LOG.info("[" + this.name + "] attached attributes: " + this.attrs.size() );
   } // private void _populateAttributes(g)
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperSubject.class);
+
 
 } // public class GrouperSubject implements Subject
 

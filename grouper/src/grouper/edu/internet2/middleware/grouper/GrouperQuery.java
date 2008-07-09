@@ -16,13 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /** 
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.27 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GrouperQuery.java,v 1.28 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class GrouperQuery {
 
@@ -108,11 +113,14 @@ public class GrouperQuery {
         groups.add(g);
       }
       else {
-        ErrorLog.error(GrouperQuery.class, E.NI + E.Q_G + o.getClass());
+        LOG.error(E.NI + E.Q_G + o.getClass());
       }
     }
     return groups;
   } // public Set getGroups()
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperQuery.class);
 
   /**
    * Get members matching query filter.
@@ -175,7 +183,7 @@ public class GrouperQuery {
         mships.add( (Membership) o );
       }
       else {
-        ErrorLog.error(GrouperQuery.class, E.NI + E.Q_MS + o.getClass());
+        LOG.error(E.NI + E.Q_MS + o.getClass());
       }
     }
     return mships;
@@ -207,7 +215,7 @@ public class GrouperQuery {
         stems.add( (Stem) o );
       }
       else {
-        ErrorLog.error(GrouperQuery.class, E.NI + E.Q_S + o.getClass());
+        LOG.error(E.NI + E.Q_S + o.getClass());
       }
     }
     return stems;

@@ -16,13 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.21 2008-06-25 05:46:06 mchyzer Exp $
+ * @version $Id: CompositeFinder.java,v 1.22 2008-07-09 05:28:17 mchyzer Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -35,6 +38,9 @@ public class CompositeFinder {
 
 
   // PUBLIC CLASS METHODS //
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(CompositeFinder.class);
 
   /**
    * Find where the specified {@link Group} is a {@link Composite}
@@ -60,7 +66,7 @@ public class CompositeFinder {
         }
       }
       catch (GroupNotFoundException eGNF) {
-        ErrorLog.error( CompositeFinder.class, E.COMPF_FINDASFACTOR + eGNF.getMessage() );
+        LOG.error(E.COMPF_FINDASFACTOR + eGNF.getMessage() );
       }
     } 
     return where;

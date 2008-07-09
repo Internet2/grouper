@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -28,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.54 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.55 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -129,9 +131,12 @@ public class RegistryReset {
   private void _abort(String msg) 
     throws  GrouperRuntimeException
   {
-    ErrorLog.error(RegistryReset.class, msg);
+    LOG.error(msg);
     throw new GrouperRuntimeException(msg);
   }
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(RegistryReset.class);
 
   private void _emptyTables() 
     throws  GrouperException

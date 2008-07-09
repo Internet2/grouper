@@ -17,9 +17,10 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 
-import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperRuntimeException;
@@ -32,13 +33,16 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.6 2008-07-09 05:28:18 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3FieldDAO.class.getName();
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(Hib3FieldDAO.class);
 
 
   /**
@@ -57,7 +61,7 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
       Throwable throwable = gde.getCause();
       //CH 20080218 this was legacy error handling
       if (throwable instanceof HibernateException) {
-        ErrorLog.fatal( Field.class, throwable.getMessage() );
+        LOG.fatal( throwable.getMessage() );
       }
       throw gde;
     }

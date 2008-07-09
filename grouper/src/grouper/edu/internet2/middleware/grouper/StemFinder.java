@@ -21,11 +21,14 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.47 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: StemFinder.java,v 1.48 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class StemFinder {
 
@@ -78,10 +81,13 @@ public class StemFinder {
     }
     catch (StemNotFoundException eSNF) {
       String msg = E.STEM_ROOTNOTFOUND;
-      ErrorLog.fatal(StemFinder.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eSNF);
     }
   } // public static Stem findRootStem(s)
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(StemFinder.class);
 
   /**
    * Get stem by uuid.

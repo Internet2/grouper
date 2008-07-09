@@ -17,13 +17,17 @@
 
 package edu.internet2.middleware.grouper;
 
-import  java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /** 
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.15 2007-08-13 17:54:27 blair Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.16 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
@@ -67,11 +71,14 @@ public class BaseQueryFilter implements QueryFilter {
         }
       }
       else {
-        ErrorLog.error(BaseQueryFilter.class, E.FILTER_SCOPE + o.getClass());
+        LOG.error(E.FILTER_SCOPE + o.getClass());
       }
     }
     return filtered;
   } 
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(BaseQueryFilter.class);
 
   /**
    * Get filter results.

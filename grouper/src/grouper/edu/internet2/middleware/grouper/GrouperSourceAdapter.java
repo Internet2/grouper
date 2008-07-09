@@ -16,9 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /** 
  * Source adapter for using Grouper groups as I2MI Subjects.
@@ -38,7 +47,7 @@ import  java.util.*;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.24 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.25 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -214,7 +223,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
           }
         }
         catch (QueryException eQ) {
-          ErrorLog.error(GrouperSourceAdapter.class, E.GSA_SEARCH + eQ.getMessage());
+          LOG.error(E.GSA_SEARCH + eQ.getMessage());
         } 
         return null;
       }
@@ -223,6 +232,9 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     
     return subjs;
   } // public Set search(searchValue)
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperSourceAdapter.class);
 
 
   // PRIVATE INSTANCE METHODS //

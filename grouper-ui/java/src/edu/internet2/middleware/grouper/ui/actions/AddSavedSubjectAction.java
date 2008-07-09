@@ -33,7 +33,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 
-import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.GrouperSession;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -100,7 +99,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AddSavedSubjectAction.java,v 1.5 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: AddSavedSubjectAction.java,v 1.6 2008-07-09 05:28:14 mchyzer Exp $
  */
 public class AddSavedSubjectAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(AddSavedSubjectAction.class);

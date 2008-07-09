@@ -1,10 +1,13 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.6 2008-07-08 20:47:42 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.7 2008-07-09 05:28:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hooks.beans.HooksBean;
@@ -13,9 +16,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * utils for grouper hooks
  */
 public class GrouperHooksUtils {
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(GrouperHooksUtils.class);
 
   /**
    * 
@@ -125,10 +131,13 @@ public class GrouperHooksUtils {
             HookAsynchronous.callbackAsynchronous(hooksContext, hooksBean, new HookAsynchronousHandler() {
 
               public void callback(HooksContext hooksContextThread, HooksBean hooksBeanThread) {
-                
-                //groupHooks.groupPreInsert(hooksContext, hooksGroupPreInsertBean);
-                GrouperUtil.callMethod(hook.getClass(), hook, hookMethodName, new Class[]{HooksContext.class, hooksBeanClass},
-                    new Object[]{hooksContextThread, hooksBeanThread});
+                try {
+                  //groupHooks.groupPreInsert(hooksContext, hooksGroupPreInsertBean);
+                  GrouperUtil.callMethod(hook.getClass(), hook, hookMethodName, new Class[]{HooksContext.class, hooksBeanClass},
+                      new Object[]{hooksContextThread, hooksBeanThread});
+                } finally {
+                  
+                }
 
               }
             });
@@ -143,6 +152,8 @@ public class GrouperHooksUtils {
         } catch (HookVeto hv) {
           hv.assignVetoType(vetoType, false);
           throw hv;
+        } finally {
+          
         }
       }
       

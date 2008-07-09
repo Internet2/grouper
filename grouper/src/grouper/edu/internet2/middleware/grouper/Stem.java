@@ -29,12 +29,13 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
@@ -55,7 +56,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.156 2008-07-08 14:50:15 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.157 2008-07-09 05:28:17 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -1152,10 +1153,13 @@ public class Stem extends GrouperAPI implements Owner {
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.STEM_ROOTINSTALL + eDAO.getMessage();
-      ErrorLog.fatal(Stem.class, msg);
+      LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eDAO);
     }
   } // protected static Stem internal_addRootStem(GrouperSession s)
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(Stem.class);
 
   /**
    * set modified

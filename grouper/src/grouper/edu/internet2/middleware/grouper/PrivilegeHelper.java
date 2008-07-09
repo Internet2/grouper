@@ -16,19 +16,23 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.internet2.middleware.grouper.privs.AccessResolver;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Collection;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Set;
+import edu.internet2.middleware.subject.Subject;
 
 
 /** 
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.11 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.12 2008-07-09 05:28:17 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -218,11 +222,14 @@ public class PrivilegeHelper {
         
       }
       catch (Exception e) {
-        ErrorLog.error( PrivilegeHelper.class, "canViewMemberships: " + e.getMessage() );
+        LOG.error("canViewMemberships: " + e.getMessage() );
       }
     }
     return mships;
   } 
+
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(PrivilegeHelper.class);
 
   /**
    * TODO 20070823 find a real home for this and/or add tests
@@ -387,7 +394,7 @@ public class PrivilegeHelper {
       }
       catch (GroupNotFoundException eGNF) {
         // wheel group not found. oh well!
-        ErrorLog.error( PrivilegeHelper.class, E.NO_WHEEL_GROUP + name );
+        LOG.error( E.NO_WHEEL_GROUP + name );
       }
     } 
     return rv;
