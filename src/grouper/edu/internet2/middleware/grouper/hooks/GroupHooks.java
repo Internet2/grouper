@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooks.java,v 1.4 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: GroupHooks.java,v 1.5 2008-07-10 06:37:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,6 +15,9 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 public abstract class GroupHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
+
+  /** constant for method name for: groupPostCommitInsert */
+  public static final String METHOD_GROUP_POST_COMMIT_INSERT = "groupPostCommitInsert";
 
   /** constant for method name for: groupPostDelete */
   public static final String METHOD_GROUP_POST_DELETE = "groupPostDelete";
@@ -35,7 +38,7 @@ public abstract class GroupHooks {
   public static final String METHOD_GROUP_PRE_UPDATE = "groupPreUpdate";
 
   //*****  END GENERATED WITH GenerateMethodConstants.java *****//
-
+  
   /**
    * called right before a group update
    * @param hooksContext
@@ -69,6 +72,15 @@ public abstract class GroupHooks {
    * @param postInsertBean
    */
   public void groupPostInsert(HooksContext hooksContext, HooksGroupBean postInsertBean) {
+    
+  }
+  
+  /**
+   * called right after the commit of a post insert.  Note, cant veto this or participate in the tx
+   * @param hooksContext
+   * @param postCommitInsertBean
+   */
+  public void groupPostCommitInsert(HooksContext hooksContext, HooksGroupBean postCommitInsertBean) {
     
   }
   

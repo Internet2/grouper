@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksTest.java,v 1.5 2008-06-26 18:08:36 mchyzer Exp $
+ * $Id: GroupHooksTest.java,v 1.6 2008-07-10 06:37:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,9 +15,14 @@ import edu.internet2.middleware.grouper.RegistryReset;
 import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -31,7 +36,7 @@ public class GroupHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GroupHooksTest("testGroupPreUpdate"));
+    TestRunner.run(new GroupHooksTest("testGroupPostCommitInsert"));
     //TestRunner.run(new GroupHooksTest("testGroupPostUpdate"));
     //TestRunner.run(GroupHooksTest.class);
   }
@@ -43,6 +48,56 @@ public class GroupHooksTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   */
+  public void testGroupPostCommitInsert() {
+    
+    //simple case
+    GroupHooksImpl.mostRecentPostCommitInsertGroupExtension = null;
+    
+    Group group = StemHelper.addChildGroup(this.edu, "test1a", "the test1a");
+    
+    assertEquals("test1a", group.getExtension());
+    assertEquals("test1a", GroupHooksImpl.mostRecentPostCommitInsertGroupExtension);
+
+    //try with a commit
+    
+    GroupHooksImpl.mostRecentPostCommitInsertGroupExtension = null;
+    
+    group = (Group)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        Group theGroup = StemHelper.addChildGroup(GroupHooksTest.this.edu, "test2a", "the test2a");
+        assertNull("shouldnt fire yet", GroupHooksImpl.mostRecentPostCommitInsertGroupExtension);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        assertEquals("test2a", theGroup.getExtension());
+        assertEquals("test2a", GroupHooksImpl.mostRecentPostCommitInsertGroupExtension);
+        return theGroup;
+      }
+    });
+    
+    //try with a rollback
+    
+    GroupHooksImpl.mostRecentPostCommitInsertGroupExtension = null;
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        Group theGroup = StemHelper.addChildGroup(GroupHooksTest.this.edu, "test3a", "the test3a");
+        assertNull("shouldnt fire yet", GroupHooksImpl.mostRecentPostCommitInsertGroupExtension);
+        assertEquals("test3a", theGroup.getExtension());
+        grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+        assertNull("shouldnt fire yet", GroupHooksImpl.mostRecentPostCommitInsertGroupExtension);
+        return null;
+      }
+    });
+    
+    assertNull("shouldnt fire at all", GroupHooksImpl.mostRecentPostCommitInsertGroupExtension);
+    
+  }
   /**
    * 
    */

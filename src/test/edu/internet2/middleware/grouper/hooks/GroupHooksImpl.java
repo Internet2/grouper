@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImpl.java,v 1.6 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: GroupHooksImpl.java,v 1.7 2008-07-10 06:37:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -17,6 +17,22 @@ import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
  * test implementation of group hooks for test
  */
 public class GroupHooksImpl extends GroupHooks {
+
+  /** most recent extension for testing */
+  static String mostRecentPostCommitInsertGroupExtension;
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostCommitInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
+   */
+  @Override
+  public void groupPostCommitInsert(HooksContext hooksContext,
+      HooksGroupBean postInsertCommitBean) {
+    
+    Group group = postInsertCommitBean.getGroup();
+    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    mostRecentPostCommitInsertGroupExtension = extension;
+    
+  }
 
   /** most recent extension for testing */
   static String mostRecentPreInsertGroupExtension;
