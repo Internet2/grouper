@@ -1,15 +1,17 @@
 /*
  * @author mchyzer
- * $Id: GrouperHookType.java,v 1.5 2008-07-10 00:46:53 mchyzer Exp $
+ * $Id: GrouperHookType.java,v 1.6 2008-07-10 05:55:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
@@ -23,13 +25,14 @@ import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * type of hook, and manages the classes and instances
  */
-public enum GrouperHookType {
+public enum GrouperHookType implements GrouperHookTypeInterface {
 
   /**
    * group hooks
@@ -100,10 +103,15 @@ public enum GrouperHookType {
   
   /**
    * get an instance for this group type
-   * @return the instance or null if none configured
+   * @param grouperHookTypeInterface 
+   * @param methodName e.g. groupPreUpdate
+   * @param beanClass e.g. HooksGroupBean.class
+   * @return the instance / methods or empty list if none configured
    */
-  public List<Object> hooksInstances() {
-    return (List<Object>)hooksInstances(this.getPropertyFileKey(), this.getBaseClass());
+  public static List<GrouperHookMethodAndObject> hooksInstances(GrouperHookTypeInterface grouperHookTypeInterface, String methodName, 
+      Class<?> beanClass) {
+    return (List<GrouperHookMethodAndObject>)hooksInstances(grouperHookTypeInterface, grouperHookTypeInterface.getPropertyFileKey(), 
+        grouperHookTypeInterface.getBaseClass(), methodName, beanClass);
   }
   
   /** keep track of all the types and their configured classes.  key is the grouper.properties
@@ -132,6 +140,10 @@ public enum GrouperHookType {
    * @param hookClasses
    */
   public static void addHookOverride(String propertyFileKey, List<Class<?>> hookClasses) {
+    
+    //remove from method cache so it will be calculated again
+    hookTypeMap.remove(propertyFileKey);
+    
     if (hookClasses == null || hookClasses.size() == 0) {
       hookTypesOverride.remove(propertyFileKey);
     } else {
@@ -201,6 +213,9 @@ public enum GrouperHookType {
    */
   static void addHookManual(String propertyFileKey, Class<?> hooksClass) {
     
+    //remove from method cache so it will be calculated again
+    hookTypeMap.remove(propertyFileKey);
+    
     List<Class<?>> hooksClasses = retrieveHooksFromConfig(propertyFileKey);
     
     if (hooksClasses == EMPTY_LIST) {
@@ -220,22 +235,56 @@ public enum GrouperHookType {
   }
   
   /**
+   * this is a map of cached instances.  First the key of the map is the config key (e.g. hooks.member.class)
+   * The value of that is a map of multikey to the list of objects (instances of the hook to call, and method object).
+   * The multikey is the method name (e.g. groupPreUpdate) combined with the bean arg class (not HooksContext) e.g. 
+   * HooksGroupBean.class.  This is a sub-map lookup which can easily be cleared when a new hook is added
+   */
+  private static Map<String, Map<MultiKey, List<GrouperHookMethodAndObject>>> hookTypeMap = 
+      new HashMap<String, Map<MultiKey, List<GrouperHookMethodAndObject>>>();
+  
+  /**
    * get an instance of group hooks
    * @param propertyFileKey key in property file of the hooks config
    * @param baseClass that the class must extend
-   * @param <T> template type
+   * @param grouperHookTypeInterface 
+   * @param methodName e.g. groupPreUpdate
+   * @param beanClass e.g. HooksGroupBean.class
    * @return the instances or empty list if none configured.  Dont edit this list!
    */
-  private static <T> List<T> hooksInstances(String propertyFileKey, Class<T> baseClass) {
+  private static List<GrouperHookMethodAndObject> hooksInstances(GrouperHookTypeInterface grouperHookTypeInterface, 
+      String propertyFileKey, Class<?> baseClass,
+      String methodName, Class<?> beanClass) {
     
     //dont step on toes here, but if the hooks havent been hooked yet, do that
     GrouperHooksUtils.fireHooksInitHooksIfNotFiredAlready();
     
-    List<Class<?>> theHooksClasses = hooksClasses(propertyFileKey);
-    if (theHooksClasses == null) {
-      return null;
+    Map<MultiKey, List<GrouperHookMethodAndObject>> methodMap = hookTypeMap.get(propertyFileKey);
+    
+    //create if not there
+    if (methodMap == null) {
+      methodMap = new HashMap<MultiKey, List<GrouperHookMethodAndObject>>();
+      hookTypeMap.put(propertyFileKey, methodMap);
     }
-    List<T> results = new ArrayList<T>();
+    
+    //see if method is in there already
+    MultiKey methodMapKey = new MultiKey(methodName, beanClass);
+    List<GrouperHookMethodAndObject> results = methodMap.get(methodMapKey);
+    
+    //if there we are all good
+    if (results != null) {
+      return results;
+    }
+    
+    List<Class<?>> theHooksClasses = hooksClasses(propertyFileKey);
+    results = new ArrayList<GrouperHookMethodAndObject>();
+    //set in cache
+    methodMap.put(methodMapKey, results);
+
+    if (theHooksClasses == null || theHooksClasses.size() == 0) {
+      return results;
+    }
+
     for (Class<?> theHooksClass : theHooksClasses) {
 
       //we have a class, make sure it is the right one
@@ -243,7 +292,15 @@ public enum GrouperHookType {
         throw new RuntimeException("Class configured in grouper config: '" + propertyFileKey 
             + "' does not extend " + baseClass.getName());
       }
-      results.add((T)GrouperUtil.newInstance(theHooksClass));
+      
+      //lets see if the method is there
+      Method method = GrouperUtil.method(theHooksClass, methodName, new Class[]{HooksContext.class, beanClass}, 
+          grouperHookTypeInterface.getBaseClass(), false, false, null, false);
+      
+      if (method != null) {
+        results.add(new GrouperHookMethodAndObject(method, GrouperUtil.newInstance(theHooksClass)));
+      }
+      
     }
     
     return results;

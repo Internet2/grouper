@@ -1930,6 +1930,68 @@ public class GrouperUtil {
     
   }
   
+  /**
+   * get the set of methods
+   * @param theClass
+   * @param methodName 
+   * @param paramTypesOrArrayOrList
+   *            types of the params
+   * @param superclassToStopAt 
+   * @param includeSuperclassToStopAt 
+   * @param isStaticOrInstance true if static
+   * @param markerAnnotation 
+   * @param includeAnnotation 
+   * @return the method or null if not found
+   *            
+   */
+  public static Method method(Class<?> theClass, 
+      String methodName, Object paramTypesOrArrayOrList,
+      Class<?> superclassToStopAt, 
+      boolean includeSuperclassToStopAt,
+      boolean isStaticOrInstance, Class<? extends Annotation> markerAnnotation, 
+      boolean includeAnnotation) {
+    theClass = unenhanceClass(theClass);
+
+    Class[] paramTypesArray = (Class[]) toArray(paramTypesOrArrayOrList);
+
+    Method method = null;
+    
+    try {
+      method = theClass.getDeclaredMethod(methodName, paramTypesArray);
+    } catch (NoSuchMethodException nsme) {
+      //this is ok
+    } catch (Exception e) {
+      throw new RuntimeException("Problem retrieving method: " + theClass.getSimpleName() + ", " + methodName, e);
+    }
+    
+    if (method != null) {
+      //we found a method, make sure it is valid
+      // if not static, then return null (dont worry about superclass)
+      if (!isStaticOrInstance
+          && Modifier.isStatic(method.getModifiers())) {
+        return null;
+      }
+      // if checking for annotation, if not there, then recurse
+      if (markerAnnotation == null
+          || (includeAnnotation == method
+              .isAnnotationPresent(markerAnnotation))) {
+        return method;
+      }
+    }
+    // see if done recursing (if superclassToStopAt is null, then stop at
+    // Object
+    if (theClass.equals(superclassToStopAt)
+        || theClass.equals(Object.class)) {
+      return null;
+    }
+    Class superclass = theClass.getSuperclass();
+    if (!includeSuperclassToStopAt && superclass.equals(superclassToStopAt)) {
+      return null;
+    }
+    // recurse
+    return method(superclass, methodName, paramTypesArray, superclassToStopAt,
+        includeSuperclassToStopAt, isStaticOrInstance, markerAnnotation, includeAnnotation);
+  }
   
   /**
    * get all field names from a class, including superclasses (if specified)

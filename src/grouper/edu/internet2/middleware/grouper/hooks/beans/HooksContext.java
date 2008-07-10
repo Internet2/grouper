@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.5 2008-07-09 05:28:18 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.6 2008-07-10 05:55:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -223,6 +223,7 @@ public class HooksContext {
     this.asynchronous = theAsynchronous;
     if (this.asynchronous) {
       //if its asynchronous, then remove the thread local ones
+      //TODO which thread is this happening in, I think it is wrong, dont clear
       threadLocalAttribute().clear();
       
       GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
