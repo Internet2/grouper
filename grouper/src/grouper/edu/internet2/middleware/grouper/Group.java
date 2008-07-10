@@ -64,7 +64,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.191 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: Group.java,v 1.192 2008-07-10 06:37:18 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -3127,6 +3127,9 @@ public class Group extends GrouperAPI implements Owner {
         GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT, true, false);
 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_POST_COMMIT_INSERT, HooksGroupBean.class, 
+        this, Group.class);
   }
 
   /**

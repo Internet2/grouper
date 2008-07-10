@@ -1,22 +1,30 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.9 2008-07-10 05:55:51 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.10 2008-07-10 06:37:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
+import javax.transaction.Status;
+import javax.transaction.Synchronization;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleGrouperStartupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -157,7 +165,8 @@ public class GrouperHooksUtils {
    * @param clearDbVersion if the db version should be cleared (e.g. on delete) (for low level hooks)
    * @throws HookVeto if there is a veto (if applicable)
    */
-  public static void callHooksIfRegistered(final Object object, final GrouperHookTypeInterface grouperHookTypeInterface, final String hookMethodName,
+  public static void callHooksIfRegistered(final Object object, 
+      final GrouperHookTypeInterface grouperHookTypeInterface, final String hookMethodName,
       final Class<? extends HooksBean> hooksBeanClass, Object[] businessObjects, Class[] businessClasses,
       final VetoType vetoType, boolean resetDbVersion, boolean clearDbVersion) throws HookVeto {
     
@@ -178,7 +187,8 @@ public class GrouperHooksUtils {
     }
     
     //see if there is a hook class
-    List<GrouperHookMethodAndObject> hooks = GrouperHookType.hooksInstances(grouperHookTypeInterface, hookMethodName, hooksBeanClass);
+    List<GrouperHookMethodAndObject> hooks = GrouperHookType.hooksInstances(grouperHookTypeInterface, 
+        hookMethodName, hooksBeanClass);
     
     if (hooks != null && hooks.size() > 0) {
       
@@ -192,21 +202,8 @@ public class GrouperHooksUtils {
         final Object hook = hookMethodAndObject.getHookLogicInstance();
         final Method method = hookMethodAndObject.getHookMethod();
         
-        //if needs to be in another thread
-        if (hook instanceof HookAsynchronousMarker) {
-          
-          HookAsynchronous.callbackAsynchronous(hooksContext, hooksBean, new HookAsynchronousHandler() {
-
-            public void callback(HooksContext hooksContextThread, HooksBean hooksBeanThread) {
-              
-              executeHook(method, hook, hooksBeanThread, hooksContextThread, vetoType);
-
-            }
-          });
-          
-        } else {
-          executeHook(method, hook, hooksBean, hooksContext,vetoType);
-        }
+        boolean asychronous = hook instanceof HookAsynchronousMarker;
+        executeHook(method, hook, hooksBean, hooksContext,vetoType, asychronous);
       
       }
       
@@ -223,16 +220,123 @@ public class GrouperHooksUtils {
   }
 
   /**
+   * if there are hooks available, schedule the post commit call
+   * @param object that the hook is about
+   * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
+   * @param hookMethodName is method name in hook to call e.g. groupPreInsert
+   * @param hooksBeanClass e.g. HooksGroupPreInsertBean.class
+   * @param businessObject are the intances to pass to bean constructor.  e.g. group
+   * @param businessClass are the types passed to bean constructor.  e.g. Group.class
+   * @throws HookVeto if there is a veto (if applicable)
+   */
+  public static void schedulePostCommitHooksIfRegistered(final Object object, 
+      final GrouperHookTypeInterface grouperHookTypeInterface, final String hookMethodName,
+      final Class<? extends HooksBean> hooksBeanClass, Object businessObject, Class businessClass) {
+    schedulePostCommitHooksIfRegistered(object, grouperHookTypeInterface, hookMethodName, hooksBeanClass, 
+        businessClass == null ? null : new Object[]{businessObject},
+            businessClass == null ? null : new Class[]{businessClass});
+    
+  }
+
+  /**
+   * if there are hooks available, schedule the post commit call
+   * @param object that the hook is about
+   * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
+   * @param hookMethodName is method name in hook to call e.g. groupPreInsert
+   * @param hooksBeanClass e.g. HooksGroupPreInsertBean.class
+   * @param businessObjects are the intances to pass to bean constructor.  e.g. group
+   * @param businessClasses are the types passed to bean constructor.  e.g. Group.class
+   * @throws HookVeto if there is a veto (if applicable)
+   */
+  public static void schedulePostCommitHooksIfRegistered(final Object object,
+      final GrouperHookTypeInterface grouperHookTypeInterface,
+      final String hookMethodName, final Class<? extends HooksBean> hooksBeanClass,
+      final Object[] businessObjects, final Class[] businessClasses) {
+
+    //see if there is a hook class
+    final List<GrouperHookMethodAndObject> hooks = GrouperHookType.hooksInstances(
+        grouperHookTypeInterface, hookMethodName, hooksBeanClass);
+
+    if (hooks != null && hooks.size() > 0) {
+
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+
+            public Object callback(HibernateSession hibernateSession)
+                throws GrouperDAOException {
+              
+              if (hibernateSession.isNewHibernateSession()) {
+                throw new RuntimeException(
+                    "How could this be a new hibernate session???");
+              }
+
+              Transaction transaction = hibernateSession.getSession().getTransaction();
+              //loop through each hook
+              for (final GrouperHookMethodAndObject hookMethodAndObject : hooks) {
+                //instantiate bean
+                final HooksBean hooksBean = GrouperUtil.construct(hooksBeanClass,
+                    businessClasses, businessObjects);
+        
+                final HooksContext hooksContext = new HooksContext();
+        
+                final Object hook = hookMethodAndObject.getHookLogicInstance();
+                final Method method = hookMethodAndObject.getHookMethod();
+        
+                final boolean asychronous = hook instanceof HookAsynchronousMarker;
+
+                //register this on the transaction
+                transaction.registerSynchronization(new Synchronization() {
+
+                  public void afterCompletion(int status) {
+
+                    //only do this if committed
+                    if (status == Status.STATUS_COMMITTED) {
+
+                      executeHook(method, hook, hooksBean, hooksContext, null,
+                          asychronous);
+
+                    }
+                  }
+
+                  public void beforeCompletion() {
+                  }
+
+                });
+              }
+              return null;
+
+            }
+        });
+
+    }
+
+  }
+
+  /**
    * execute and log hook
    * @param hookMethod
    * @param hook
    * @param hooksBean
    * @param hooksContext
    * @param vetoType 
+   * @param asynchronous 
    */
   private static void executeHook(final Method hookMethod,
-      Object hook, HooksBean hooksBean,
-      HooksContext hooksContext, VetoType vetoType) {
+      final Object hook, final HooksBean hooksBean,
+      final HooksContext hooksContext, final VetoType vetoType, boolean asynchronous) {
+    
+    if (asynchronous) {
+      HookAsynchronous.callbackAsynchronous(hooksContext, hooksBean, new HookAsynchronousHandler() {
+
+        public void callback(HooksContext hooksContextThread, HooksBean hooksBeanThread) {
+          
+          executeHook(hookMethod, hook, hooksBeanThread, hooksContextThread, vetoType, false);
+
+        }
+      });
+      return;
+    }
+    
     String debugLogString = null;
     long start = System.currentTimeMillis();
     if (LOG.isDebugEnabled()) {
