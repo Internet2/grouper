@@ -1,17 +1,21 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.7 2008-07-09 05:28:18 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.8 2008-07-10 00:46:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleGrouperStartupBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -19,6 +23,64 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * utils for grouper hooks
  */
 public class GrouperHooksUtils {
+
+  /**
+   * switch to know if startup hooks have been called yet
+   */
+  private static boolean grouperStartupHooksCalled = false;
+
+  /**
+   * kick off startup hooks if not done already
+   */
+  public synchronized static void fireGrouperStartupHooksIfNotFiredAlready() {
+    if (!grouperStartupHooksCalled) {
+      //even if errors, only call once
+      grouperStartupHooksCalled = true;
+      
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
+          LifecycleHooks.METHOD_GROUPER_STARTUP, HooksLifecycleGrouperStartupBean.class, 
+          (Object)null, null, null);
+      
+    }
+  }
+  
+  /**
+   * switch to know if hooks init hooks have been called yet
+   */
+  private static boolean hooksInitHooksCalled = false;
+
+  /**
+   * kick off hooks init hooks if not done already
+   */
+  synchronized static void fireHooksInitHooksIfNotFiredAlready() {
+    if (!hooksInitHooksCalled) {
+      //even if errors, only call once
+      hooksInitHooksCalled = true;
+      
+      //see if we should register test hook:
+      try {
+        Class testLifecycle = Class.forName("edu.internet2.middleware.grouper.hooks.LifecycleHooksImpl");
+        addHookManual("hooks.lifecycle.class", testLifecycle);
+      } catch (ClassNotFoundException cnfe) {
+        //just ignore, probably not running unit tests
+      }
+      
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
+          LifecycleHooks.METHOD_HOOKS_INIT, HooksLifecycleHooksInitBean.class, 
+          (Object)null, null, null);
+      
+    }
+  }
+  
+  /**
+   * add a hook to the list of configured hooks for this type
+   * note if the class already exists it will not be added again
+   * @param propertyFileKey
+   * @param hooksClass
+   */
+  public static void addHookManual(String propertyFileKey, Class<?> hooksClass) {
+    GrouperHookType.addHookManual(propertyFileKey, hooksClass);
+  }
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperHooksUtils.class);
@@ -39,8 +101,9 @@ public class GrouperHooksUtils {
   public static void callHooksIfRegistered(Object object, GrouperHookType grouperHookType, String hookMethodName,
       Class<? extends HooksBean> hooksBeanClass, Object businessObject, Class businessClass,
       VetoType vetoType, boolean resetDbVersion, boolean clearDbVersion) throws HookVeto {
-    callHooksIfRegistered(object, grouperHookType, hookMethodName, hooksBeanClass, new Object[]{businessObject},
-        new Class[]{businessClass}, vetoType, resetDbVersion, clearDbVersion);
+    callHooksIfRegistered(object, grouperHookType, hookMethodName, hooksBeanClass, 
+        businessClass == null ? null : new Object[]{businessObject},
+        businessClass == null ? null : new Class[]{businessClass}, vetoType, resetDbVersion, clearDbVersion);
   }
   
   /**
@@ -75,8 +138,9 @@ public class GrouperHooksUtils {
   public static void callHooksIfRegistered(GrouperHookType grouperHookType, String hookMethodName,
       Class<? extends HooksBean> hooksBeanClass, Object businessObject, Class businessClass,
       VetoType vetoType) throws HookVeto {
-    callHooksIfRegistered(null, grouperHookType, hookMethodName, hooksBeanClass, new Object[]{businessObject},
-        new Class[]{businessClass}, vetoType, false, false);
+    callHooksIfRegistered(null, grouperHookType, hookMethodName, hooksBeanClass, 
+        businessClass == null ? null : new Object[]{businessObject},
+            businessClass == null ? null : new Class[]{businessClass}, vetoType, false, false);
   }
 
   /**
@@ -94,7 +158,7 @@ public class GrouperHooksUtils {
    */
   public static void callHooksIfRegistered(final Object object, final GrouperHookType grouperHookType, final String hookMethodName,
       final Class<? extends HooksBean> hooksBeanClass, Object[] businessObjects, Class[] businessClasses,
-      VetoType vetoType, boolean resetDbVersion, boolean clearDbVersion) throws HookVeto {
+      final VetoType vetoType, boolean resetDbVersion, boolean clearDbVersion) throws HookVeto {
     
     Object dbVersion = null;
     Object objectVersion = null;
@@ -121,40 +185,25 @@ public class GrouperHooksUtils {
       for (final Object hook : hooks) {
         //instantiate bean
         HooksBean hooksBean = GrouperUtil.construct(hooksBeanClass, businessClasses, businessObjects);
-        try {
-          
-          HooksContext hooksContext = new HooksContext();
-          
-          //if needs to be in another thread
-          if (hook instanceof HookAsynchronousMarker) {
-            
-            HookAsynchronous.callbackAsynchronous(hooksContext, hooksBean, new HookAsynchronousHandler() {
 
-              public void callback(HooksContext hooksContextThread, HooksBean hooksBeanThread) {
-                try {
-                  //groupHooks.groupPreInsert(hooksContext, hooksGroupPreInsertBean);
-                  GrouperUtil.callMethod(hook.getClass(), hook, hookMethodName, new Class[]{HooksContext.class, hooksBeanClass},
-                      new Object[]{hooksContextThread, hooksBeanThread});
-                } finally {
-                  
-                }
-
-              }
-            });
-            
-          } else {
-          
-            //groupHooks.groupPreInsert(hooksContext, hooksGroupPreInsertBean);
-            GrouperUtil.callMethod(hook.getClass(), hook, hookMethodName, new Class[]{HooksContext.class, hooksBeanClass},
-                new Object[]{hooksContext, hooksBean});
-          }
+        HooksContext hooksContext = new HooksContext();
         
-        } catch (HookVeto hv) {
-          hv.assignVetoType(vetoType, false);
-          throw hv;
-        } finally {
+        //if needs to be in another thread
+        if (hook instanceof HookAsynchronousMarker) {
           
+          HookAsynchronous.callbackAsynchronous(hooksContext, hooksBean, new HookAsynchronousHandler() {
+
+            public void callback(HooksContext hooksContextThread, HooksBean hooksBeanThread) {
+              
+              executeHook(hookMethodName, hooksBeanClass, hook, hooksBeanThread, hooksContextThread, vetoType);
+
+            }
+          });
+          
+        } else {
+          executeHook(hookMethodName, hooksBeanClass, hook, hooksBean, hooksContext,vetoType);
         }
+      
       }
       
     }
@@ -167,6 +216,67 @@ public class GrouperHooksUtils {
       grouperAPI.dbVersionClear();
     }
   
+  }
+
+  /**
+   * execute and log hook
+   * @param hookMethodName
+   * @param hooksBeanClass
+   * @param hook
+   * @param hooksBean
+   * @param hooksContext
+   * @param vetoType 
+   */
+  private static void executeHook(final String hookMethodName,
+      final Class<? extends HooksBean> hooksBeanClass, Object hook, HooksBean hooksBean,
+      HooksContext hooksContext, VetoType vetoType) {
+    String debugLogString = null;
+    long start = System.currentTimeMillis();
+    if (LOG.isDebugEnabled()) {
+      debugLogString = hookLogString(hookMethodName, hook, hooksContext);
+      LOG.debug("START: " + debugLogString);
+    }
+    try {
+      //groupHooks.groupPreInsert(hooksContext, hooksGroupPreInsertBean);
+      GrouperUtil.callMethod(hook.getClass(), hook, hookMethodName, new Class[]{HooksContext.class, hooksBeanClass},
+          new Object[]{hooksContext, hooksBean});
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("END (normal): " + debugLogString + " (" + (System.currentTimeMillis() - start) + "ms)");
+      }
+    } catch (HookVeto hv) {
+      hv.assignVetoType(vetoType, false);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("END (veto): " + debugLogString + " (" + (System.currentTimeMillis() - start) + "ms)" + ", veto key: " + hv.getReasonKey() + ", veto message: " + StringUtils.abbreviate(hv.getReason(), 50) );
+      }
+      
+      //see if allowed to veto this:
+      if (vetoType == null) {
+        throw new RuntimeException("You are not allowed to veto this hook! " + debugLogString);
+      }
+      
+      throw hv;
+    } catch (RuntimeException re) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("END (exception): " + debugLogString + " (" + (System.currentTimeMillis() - start) + "ms)" + ", exception: " + re.getMessage(), re);
+      }
+      //insert into log message
+      if (debugLogString == null) {
+        debugLogString = hookLogString(hookMethodName, hook, hooksContext);
+      }
+      GrouperUtil.injectInException(re, debugLogString);
+      throw re;
+    }
+  }
+
+  /**
+   * @param hookMethodName
+   * @param hook
+   * @param hooksContext
+   * @return the log string
+   */
+  private static String hookLogString(final String hookMethodName, Object hook,
+      HooksContext hooksContext) {
+    return "Hook " + hook.getClass().getSimpleName() + "." + hookMethodName + " id: " + hooksContext.getHookId();
   }
 
 }

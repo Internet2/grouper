@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHookType.java,v 1.4 2008-06-28 06:55:48 mchyzer Exp $
+ * $Id: GrouperHookType.java,v 1.5 2008-07-10 00:46:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
 import edu.internet2.middleware.grouper.hooks.GrouperSessionHooks;
+import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
@@ -34,6 +35,11 @@ public enum GrouperHookType {
    * group hooks
    */
   GROUP("hooks.group.class", GroupHooks.class),
+  
+  /**
+   * group hooks
+   */
+  LIFECYCLE("hooks.lifecycle.class", LifecycleHooks.class),
   
   /**
    * stem hooks
@@ -187,11 +193,13 @@ public enum GrouperHookType {
   
   /**
    * add a hook to the list of configured hooks for this type
-   * note if the class already exists it will not be added again
+   * note if the class already exists it will not be added again.
+   * This method is available publicly through {@link GrouperHooksUtils}
+   * method addHookManual
    * @param propertyFileKey
    * @param hooksClass
    */
-  public static void addHookManual(String propertyFileKey, Class<?> hooksClass) {
+  static void addHookManual(String propertyFileKey, Class<?> hooksClass) {
     
     List<Class<?>> hooksClasses = retrieveHooksFromConfig(propertyFileKey);
     
@@ -218,7 +226,10 @@ public enum GrouperHookType {
    * @param <T> template type
    * @return the instances or empty list if none configured.  Dont edit this list!
    */
-  public static <T> List<T> hooksInstances(String propertyFileKey, Class<T> baseClass) {
+  private static <T> List<T> hooksInstances(String propertyFileKey, Class<T> baseClass) {
+    
+    //dont step on toes here, but if the hooks havent been hooked yet, do that
+    GrouperHooksUtils.fireHooksInitHooksIfNotFiredAlready();
     
     List<Class<?>> theHooksClasses = hooksClasses(propertyFileKey);
     if (theHooksClasses == null) {

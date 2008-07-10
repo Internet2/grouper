@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HookAsynchronous.java,v 1.2 2008-07-09 05:28:18 mchyzer Exp $
+ * $Id: HookAsynchronous.java,v 1.3 2008-07-10 00:46:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -42,9 +42,9 @@ public class HookAsynchronous {
         try {
           hookAsynchronousHandler.callback(threadHooksContext, hooksBean);
         } catch (HookVeto hv) {
-          LOG.error("Cant veto an asynchronous hook! id: " + threadHooksContext.getHookId() + ", "  + hooksBean == null ? null : hooksBean.getClass(), hv);
+          LOG.error("Cant veto an asynchronous hook! " + hv.getMessage(), hv);
         } catch (Exception e) {
-          LOG.error("Problem in asynchronous hook: id: " + threadHooksContext.getHookId() + ", "  + hooksBean == null ? null : hooksBean.getClass(), e);
+          LOG.error("Problem in asynchronous hook! " + e.getMessage(), e);
         } finally {
           //stop session if started and still seems like the same one
           if (threadHooksContext._internal_isAsynchronousGrouperSessionStarted()) {
