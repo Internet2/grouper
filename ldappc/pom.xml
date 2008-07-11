@@ -1,17 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <!--
+    The next three items define the project artifact.
+  -->
   <groupId>edu.internet2.middleware.ldappc</groupId>
   <artifactId>ldappc</artifactId>
   <version>1.2.0-SNAPSHOT</version>
+
+  <!--
+    Much of the information in this POM will be used in the site documentation.
+  -->
   <name>LDAP Provisioning Connector</name>
   <description>Ldappc provisions LDAP membership, group, and privilege data from Grouper and Signet.</description>
   <url>https://wiki.internet2.edu/confluence/display/i2miCommon/Home</url>
+
+  <!--
+    Link to JIRA
+  -->
   <issueManagement>
     <system>JIRA</system>
     <url>https://bugs.internet2.edu/jira/browse/MCO</url>
   </issueManagement>
   <inceptionYear>2006</inceptionYear>
+
+  <!--
+    Developer information for site documentation.  These should be people who should expect to
+    receive email with questions about the project.
+  -->
   <developers>
     <developer>
       <id>tbarton</id>
@@ -36,6 +53,11 @@
       <timezone>-6</timezone>
     </developer>
   </developers>
+
+  <!--
+    Contributors are people who have contributed ideas and may have helped,
+    but are not the principal developers.
+  -->
   <contributors>
     <contributor>
       <name>Chris Hyzer</name>
@@ -54,6 +76,13 @@
       <organization>MIT</organization>
     </contributor>
   </contributors>
+
+  <!--
+    This project is licensed using the Apache 2.0 license.
+    Copyright The University of Chicago,
+    University Corporation for Advanced Internet Development, Inc.,
+    and EDUCAUSE.
+  -->
   <licenses>
     <license>
       <name>Apache 2</name>
@@ -61,10 +90,16 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <!--
+    This is an Internet2 project.
+  -->
   <organization>
     <name>Internet2</name>
     <url>http://www.internet2.edu/</url>
   </organization>
+
+  <!-- Links to the user and development mailing lists -->
   <mailingLists>
     <mailingList>
       <name>Grouper Users</name>
@@ -81,12 +116,23 @@
       <archive>https://mail.internet2.edu/wws/arc/grouper-dev</archive>
     </mailingList>
   </mailingLists>
+
+  <!--
+    Links to the source code management system (CVS).  This will appear in the site documentation,
+    and can also be used to generate project activity for the site documentation, though we're
+    not doing that at this time.
+  -->
   <scm>
     <connection>scm:cvs:pserver:anoncvs@anoncvs.internet2.edu:/home/cvs/i2mi:ldappc-mvn</connection>
     <developerConnection>scm:cvs:rsh:user@cvs.internet2.edu:/home/cvs/i2mi:ldappc-mvn</developerConnection>
     <tag>HEAD</tag>
     <url>http://viewvc.internet2.edu/viewvc.py/ldappc-mvn/?root=I2MI</url>
   </scm>
+
+  <!--
+    We have a repository under the base directory containing some special artifacts
+    and jars that cannot be kept at the Maven central repository.
+  -->
   <repositories>
     <repository>
       <id>i2mi</id>
@@ -94,8 +140,25 @@
       <url>file://${basedir}/i2mi-repository</url>
     </repository>
   </repositories>
+
+  <!--
+    Configure the build environment.
+  -->
   <build>
     <plugins>
+      <!--
+        This long configuration defines the various assembly packages that will be
+        built during the package phase. The various "skipXXXX" properties are
+        set in the default, deploy, and distribution profiles and control which
+        assemblies are skipped.
+        
+        There is no way to skip the "make-lib" assembly, which builds the in-place
+        run environment. It creates a "lib" directory *outside* the target
+        directory, in the base directory and copies all dependencies plus the
+        target jar into it.  The runner scripts in the bin directory use the conf
+        directory plus all the jars in the lib directory as the class path
+        and run the Ldappc main.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -104,6 +167,7 @@
           <tarLongFileMode>gnu</tarLongFileMode>
         </configuration>
         <executions>
+          <!-- Make a binary distribution (no source) -->
           <execution>
             <id>make-binary</id>
             <phase>package</phase>
@@ -117,6 +181,7 @@
               </descriptors>
             </configuration>
           </execution>
+          <!-- Make a deployment distribution (like binary, but no site documentation) -->
           <execution>
             <id>make-deploy</id>
             <phase>package</phase>
@@ -130,6 +195,7 @@
               </descriptors>
             </configuration>
           </execution>
+          <!-- Make the "run in-place" environment -->
           <execution>
             <id>make-lib</id>
             <phase>package</phase>
@@ -146,6 +212,7 @@
               </descriptors>
             </configuration>
           </execution>
+          <!-- Make the site distribution (just the site documentation in the base directory) -->
           <execution>
             <id>make-site</id>
             <phase>package</phase>
@@ -159,6 +226,7 @@
               </descriptors>
             </configuration>
           </execution>
+          <!-- Make the source distribution (everything needed to build, plus site documentation) -->
           <execution>
             <id>make-source</id>
             <phase>package</phase>
@@ -174,6 +242,8 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- Specify the JDK version -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -184,6 +254,8 @@
           <debug>true</debug>
         </configuration>
       </plugin>
+
+      <!-- Add a manifest to the project jar, including version and Wiki URL -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -199,6 +271,11 @@
           </archive>
         </configuration>
       </plugin>
+
+      <!--
+        Configure the site plugin to generate the site documentation.  Most of the
+        configuration is actually in the reporting section.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
@@ -207,6 +284,11 @@
           <locales>en</locales>
         </configuration>
       </plugin>
+
+      <!--
+        Configure the JUnit tests.  Just run AllJUnitTests, which is a test suite
+        with a wrapper around it that starts and stops LDAP and the databases.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -220,8 +302,13 @@
       </plugin>
     </plugins>
   </build>
+
+  <!--
+    Configure the reporting information.  This goes into the site documentation.
+  -->
   <reporting>
     <plugins>
+      <!-- Configure the javadoc. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -237,6 +324,8 @@
           <windowtitle>${project.name} ${project.version} Java API.</windowtitle>
         </configuration>
       </plugin>
+
+      <!-- Configure the source cross reference. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
@@ -248,6 +337,8 @@
           <javadocDir>${project.reporting.outputDirectory}/apidocs</javadocDir>
         </configuration>
       </plugin>
+
+      <!-- Configure style checking. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -259,6 +350,12 @@
           <enableRSS>false</enableRSS>
         </configuration>
       </plugin>
+
+      <!--
+        Configure the JUnit test reporting. Note that tests run during build are
+        configured in the build section. This configures the reporting of those
+        tests.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
@@ -267,6 +364,8 @@
           <outputDirectory>${project.reporting.outputDirectory}/unitTest</outputDirectory>
         </configuration>
       </plugin>
+
+      <!-- Generate the following standard project reports. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -286,6 +385,8 @@
           </reportSet>
         </reportSets>
       </plugin>
+
+      <!-- Generate a tag list report to easily find TODO and FIXME comments. -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>taglist-maven-plugin</artifactId>
@@ -297,6 +398,11 @@
           </tags>
         </configuration>
       </plugin>
+
+      <!--
+        Configure the PMD report, reporting on coding style.
+        This also configures CPD (copy/paste detection) reporting.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
@@ -305,6 +411,8 @@
           <targetJdk>1.5</targetJdk>
         </configuration>
       </plugin>
+
+      <!-- Perform Cobertura coverage testing using the unit tests. -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
@@ -312,6 +420,15 @@
       </plugin>
     </plugins>
   </reporting>
+
+  <!--
+    Specify the artifacts on which this project depends.
+    Dependencies are transitive.
+    The default scope is compile and runtime. Test dependencies
+    will only be used while running the unit tests.
+    
+    The dependencies are in alphabetical order by artifactId.
+  -->
   <dependencies>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
@@ -392,7 +509,22 @@
       <version>0.3.1</version>
     </dependency>
   </dependencies>
+
+  <!--
+    Configure the profiles.  Profiles are different sets of configurations
+    under which the project can be built.
+    
+    These fall into two sections:
+    
+    1) Database driver dependency inclusion, generally used during the default
+       run-in-place packaging or in conjunction with the "deploy" profile, and
+    
+    2) The "deploy" and "distribution" profiles, which are used to either
+       make a package for easy deployment to a production environment, or
+       to make the distribution packages which are on the download page.
+  -->
   <profiles>
+    <!-- Database profiles in alphabetical order. -->
     <profile>
       <id>derby10.4</id>
       <dependencies>
@@ -503,12 +635,16 @@
         </dependency>
       </dependencies>
     </profile>
+
+    <!-- Make a deploy assembly. -->
     <profile>
       <id>deploy</id>
       <properties>
         <skipDeploy>false</skipDeploy>
       </properties>
     </profile>
+
+    <!-- Make the distribution assemblies. -->
     <profile>
       <id>distribution</id>
       <properties>
@@ -518,6 +654,12 @@
       </properties>
     </profile>
   </profiles>
+
+  <!--
+    These properties are set to true to skip making the various
+    deploy and distribution assemblies.  The appropriate profiles
+    override these settings to create the assemblies.
+  -->
   <properties>
     <skipBinary>true</skipBinary>
     <skipDeploy>true</skipDeploy>
