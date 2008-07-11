@@ -30,7 +30,7 @@ import  java.util.Set;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.37 2008-03-24 20:15:36 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.38 2008-07-11 05:47:11 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -221,7 +221,7 @@ public class SubjectFinder {
    * @param   query     Subject query string.
    * @return  A {@link Set} of {@link Subject} objects.
    */
-  public static Set findAll(String query) {
+  public static Set<Subject> findAll(String query) {
     return getResolver().findAll(query);
   } 
 
@@ -243,7 +243,7 @@ public class SubjectFinder {
    * @return  A {@link Set} of {@link Subject}s.
    * @throws  SourceUnavailableException
    */
-  public static Set findAll(String query, String source)
+  public static Set<Subject> findAll(String query, String source)
     throws  SourceUnavailableException
   {
     return getResolver().findAll(query, source);
@@ -336,7 +336,7 @@ public class SubjectFinder {
    * </pre>
    * @return  Set of all {@link Source} adapters.
    */
-  public static Set getSources() {
+  public static Set<Source> getSources() {
     return getResolver().getSources();
   }
 
@@ -346,7 +346,7 @@ public class SubjectFinder {
    * </pre>
    * @return  Set of <i>Source</i> adapters providing <i>subjectType</i>.
    */
-  public static Set getSources(String subjectType) {
+  public static Set<Source> getSources(String subjectType) {
     return getResolver().getSources(subjectType);
   }
 

@@ -28,7 +28,7 @@ import  java.util.Set;
  * Subject resolution interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectResolver.java,v 1.3 2007-08-27 15:58:24 blair Exp $
+ * @version $Id: SubjectResolver.java,v 1.4 2008-07-11 05:47:11 mchyzer Exp $
  * @since   1.2.1
  */
 public interface SubjectResolver {
@@ -87,7 +87,7 @@ public interface SubjectResolver {
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
-  Set findAll(String query)
+  Set<Subject> findAll(String query)
     throws  IllegalArgumentException;
 
   /**
@@ -98,7 +98,7 @@ public interface SubjectResolver {
    * @throws  SourceUnavailableException if source is unavailable.
    * @since   1.2.1
    */
-  Set findAll(String query, String source)
+  Set<Subject> findAll(String query, String source)
     throws  IllegalArgumentException,
             SourceUnavailableException
             ;
