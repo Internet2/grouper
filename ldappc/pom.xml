@@ -87,6 +87,13 @@
     <tag>HEAD</tag>
     <url>http://viewvc.internet2.edu/viewvc.py/ldappc-mvn/?root=I2MI</url>
   </scm>
+  <repositories>
+    <repository>
+      <id>i2mi</id>
+      <name>Internet2 Middleware Initiative Repository</name>
+      <url>file://${basedir}/i2mi-repository</url>
+    </repository>
+  </repositories>
   <build>
     <plugins>
       <plugin>
@@ -205,7 +212,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.4.3</version>
         <configuration>
-          <argLine>-Xmx300M</argLine>
+          <argLine>-Xmx400M</argLine>
           <includes>
             <include>**/AllJUnitTests.java</include>
           </includes>
@@ -315,7 +322,7 @@
     <dependency>
       <groupId>edu.internet2.middleware.ldappc</groupId>
       <artifactId>apacheds-ldappc-schema</artifactId>
-      <version>1.0</version>
+      <version>1.0.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -459,6 +466,28 @@
           <groupId>com.oracle</groupId>
           <artifactId>ojdbc14</artifactId>
           <version>10.2.0.3.0</version>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>oracle11-java5</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle</groupId>
+          <artifactId>ojdbc5</artifactId>
+          <version>11.1.0.6</version>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>oracle11-java6</id>
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle</groupId>
+          <artifactId>ojdbc6</artifactId>
+          <version>11.1.0.6</version>
           <scope>runtime</scope>
         </dependency>
       </dependencies>
