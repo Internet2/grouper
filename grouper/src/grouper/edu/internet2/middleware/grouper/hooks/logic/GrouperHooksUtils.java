@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.10 2008-07-10 06:37:18 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.11 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -194,15 +194,18 @@ public class GrouperHooksUtils {
       
       //loop through each hook
       for (final GrouperHookMethodAndObject hookMethodAndObject : hooks) {
+        
+        final Object hook = hookMethodAndObject.getHookLogicInstance();
+
+        boolean asychronous = hook instanceof HookAsynchronousMarker;
+        
         //instantiate bean
         HooksBean hooksBean = GrouperUtil.construct(hooksBeanClass, businessClasses, businessObjects);
 
         HooksContext hooksContext = new HooksContext();
         
-        final Object hook = hookMethodAndObject.getHookLogicInstance();
         final Method method = hookMethodAndObject.getHookMethod();
         
-        boolean asychronous = hook instanceof HookAsynchronousMarker;
         executeHook(method, hook, hooksBean, hooksContext,vetoType, asychronous);
       
       }
@@ -273,17 +276,24 @@ public class GrouperHooksUtils {
               Transaction transaction = hibernateSession.getSession().getTransaction();
               //loop through each hook
               for (final GrouperHookMethodAndObject hookMethodAndObject : hooks) {
+
+                final Object hook = hookMethodAndObject.getHookLogicInstance();
+                
+                final boolean asychronous = hook instanceof HookAsynchronousMarker;
+
+                //clone all the args here since this is a post commit, everything needs
+                //a snapshot now...  only do this if not asynchronous, since asynchronous
+                //will clone already
+                Object[] localBusinessObjects = !asychronous ? GrouperUtil.cloneValue(businessObjects) : businessObjects;
+
                 //instantiate bean
                 final HooksBean hooksBean = GrouperUtil.construct(hooksBeanClass,
-                    businessClasses, businessObjects);
+                    businessClasses, localBusinessObjects);
         
                 final HooksContext hooksContext = new HooksContext();
         
-                final Object hook = hookMethodAndObject.getHookLogicInstance();
                 final Method method = hookMethodAndObject.getHookMethod();
         
-                final boolean asychronous = hook instanceof HookAsynchronousMarker;
-
                 //register this on the transaction
                 transaction.registerSynchronization(new Synchronization() {
 

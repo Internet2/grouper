@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: CompositeHooksImpl.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: CompositeHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -64,7 +64,7 @@ public class CompositeHooksImpl extends CompositeHooks {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.CompositeHooks#compositePostInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean)
+   * @see edu.internet2.middleware.grouper.hooks.CompositeHooks#compositePostCommitInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean)
    */
   @Override
   public void compositePostInsert(HooksContext hooksContext,
@@ -82,9 +82,6 @@ public class CompositeHooksImpl extends CompositeHooks {
     }
 
   }
-
-  /** most recent extension for testing */
-  static String mostRecentPostUpdateCompositeExtension;
 
   /** most recent extension for testing */
   static String mostRecentPreDeleteCompositeExtension;
@@ -109,10 +106,49 @@ public class CompositeHooksImpl extends CompositeHooks {
     
   }
 
-  /** most recent extension for testing */
-  static String mostRecentPostInsertCompositeExtension;
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.CompositeHooks#compositePostCommitInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean)
+   */
+  @Override
+  public void compositePostCommitInsert(HooksContext hooksContext,
+      HooksCompositeBean postCommitInsertBean) {
+  
+    try {
+      Composite composite = postCommitInsertBean.getComposite();
+      String extension = composite.getLeftGroup().getExtension();
+      mostRecentPostCommitInsertCompositeExtension = extension;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException(gnfe);
+    }
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.CompositeHooks#compositePostCommitDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean)
+   */
+  @Override
+  public void compositePostCommitDelete(HooksContext hooksContext,
+      HooksCompositeBean postDeleteBean) {
+  
+    try {
+      Composite composite = postDeleteBean.getComposite();
+      String extension = composite.getLeftGroup().getExtension();
+      mostRecentPostCommitDeleteCompositeExtension = extension;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException(gnfe);
+    }
+    
+  }
 
   /** most recent extension for testing */
-  static String mostRecentPreUpdateCompositeExtension;
+  static String mostRecentPostInsertCompositeExtension;
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitInsertCompositeExtension;
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitDeleteCompositeExtension;
 
 }

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MemberHooksTest.java,v 1.2 2008-07-08 14:50:15 mchyzer Exp $
+ * $Id: MemberHooksTest.java,v 1.3 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -20,11 +20,14 @@ import edu.internet2.middleware.grouper.RegistryReset;
 import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
-import edu.internet2.middleware.grouper.StemModifyException;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 
 /**
@@ -227,6 +230,73 @@ public class MemberHooksTest extends GrouperTest {
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.MEMBER.getPropertyFileKey(), 
         MemberHooksImpl.class);
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPostCommitInsert() throws Exception {
+
+    MemberHooksImpl.mostRecentPostCommitInsertMemberSubjectId = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group.addMember(SubjectTestHelper.SUBJ2);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", MemberHooksImpl.mostRecentPostCommitInsertMemberSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ2.getId(), MemberHooksImpl.mostRecentPostCommitInsertMemberSubjectId);
+        return null;
+      }
+    });    
+    
+  }
+
+    
+  /**
+   * @throws MemberAddException 
+   * @throws InsufficientPrivilegeException 
+   * @throws MemberNotFoundException 
+   * 
+   */
+  public void testMemberPostCommitUpdate() throws MemberAddException, InsufficientPrivilegeException,
+      MemberNotFoundException {
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+
+    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+
+    MemberHooksImpl.mostRecentPostCommitUpdateMemberSubjectId = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          member0.setSubjectId("whatever3");
+          member0.store();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", MemberHooksImpl.mostRecentPostCommitUpdateMemberSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("whatever3", MemberHooksImpl.mostRecentPostCommitUpdateMemberSubjectId);
+        return null;
+      }
+    });    
+
+    
   }
 
 }

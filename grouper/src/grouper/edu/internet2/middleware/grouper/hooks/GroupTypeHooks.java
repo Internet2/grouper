@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeHooks.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: GroupTypeHooks.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,6 +15,15 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean;
 public abstract class GroupTypeHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
+
+  /** constant for method name for: groupTypePostCommitDelete */
+  public static final String METHOD_GROUP_TYPE_POST_COMMIT_DELETE = "groupTypePostCommitDelete";
+
+  /** constant for method name for: groupTypePostCommitInsert */
+  public static final String METHOD_GROUP_TYPE_POST_COMMIT_INSERT = "groupTypePostCommitInsert";
+
+  /** constant for method name for: groupTypePostCommitUpdate */
+  public static final String METHOD_GROUP_TYPE_POST_COMMIT_UPDATE = "groupTypePostCommitUpdate";
 
   /** constant for method name for: groupTypePostDelete */
   public static final String METHOD_GROUP_TYPE_POST_DELETE = "groupTypePostDelete";
@@ -82,11 +91,38 @@ public abstract class GroupTypeHooks {
   }
   
   /**
-   * called right after a groupType insert
+   * called right after a groupType delete
    * @param hooksContext
    * @param postDeleteBean
    */
   public void groupTypePostDelete(HooksContext hooksContext, HooksGroupTypeBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a groupType delete commit
+   * @param hooksContext
+   * @param postCommitDeleteBean
+   */
+  public void groupTypePostCommitDelete(HooksContext hooksContext, HooksGroupTypeBean postCommitDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a groupType insert commit
+   * @param hooksContext
+   * @param postCommitInsertBean
+   */
+  public void groupTypePostCommitInsert(HooksContext hooksContext, HooksGroupTypeBean postCommitInsertBean) {
+    
+  }
+
+  /**
+   * called right after a groupType update commit
+   * @param hooksContext
+   * @param postCommitUpdateBean
+   */
+  public void groupTypePostCommitUpdate(HooksContext hooksContext, HooksGroupTypeBean postCommitUpdateBean) {
     
   }
   

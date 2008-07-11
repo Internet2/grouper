@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HookAsynchronous.java,v 1.3 2008-07-10 00:46:53 mchyzer Exp $
+ * $Id: HookAsynchronous.java,v 1.4 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -36,11 +36,13 @@ public class HookAsynchronous {
     final HooksContext threadHooksContext = new HooksContext(true, hooksContext);
     Thread thread = new Thread(new Runnable() {
 
+    final HooksBean hooksBeanCloned = (HooksBean)hooksBean.clone();
+      
       //run in new thread
       public void run() {
         
         try {
-          hookAsynchronousHandler.callback(threadHooksContext, hooksBean);
+          hookAsynchronousHandler.callback(threadHooksContext, hooksBeanCloned);
         } catch (HookVeto hv) {
           LOG.error("Cant veto an asynchronous hook! " + hv.getMessage(), hv);
         } catch (Exception e) {

@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImplExample.java,v 1.5 2008-06-28 06:55:43 mchyzer Exp $
+ * $Id: GroupHooksImplExample.java,v 1.1 2008-07-11 05:11:28 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.ui.hooks;
+package edu.internet2.middleware.grouper.hooks.examples;
 
 import org.apache.commons.lang.StringUtils;
 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl6.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: MembershipHooksImpl6.java,v 1.3 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -21,9 +21,12 @@ public class MembershipHooksImpl6 extends MembershipHooks {
   /** most recent subject id added to group */
   static String mostRecentDeleteMemberSubjectId;
 
+  /** most recent subject id added to group */
+  static String mostRecentDeleteCommitMemberSubjectId;
 
   /**
-   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPostDeleteBean)
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean)
    */
   @Override
   public void membershipPostDelete(HooksContext hooksContext,
@@ -39,4 +42,18 @@ public class MembershipHooksImpl6 extends MembershipHooks {
     }
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPostCommitDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean)
+   */
+  @Override
+  public void membershipPostCommitDelete(HooksContext hooksContext,
+      HooksMembershipBean postDeleteBean) {
+    try {
+      String subjectId = postDeleteBean.getMembership().getMember().getSubjectId();
+      mostRecentDeleteCommitMemberSubjectId = subjectId;
+    } catch (MemberNotFoundException mnfe) {
+      throw new RuntimeException(mnfe);
+    }
+  }
 }

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImpl.java,v 1.7 2008-07-10 06:37:18 mchyzer Exp $
+ * $Id: GroupHooksImpl.java,v 1.8 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -21,6 +21,9 @@ public class GroupHooksImpl extends GroupHooks {
   /** most recent extension for testing */
   static String mostRecentPostCommitInsertGroupExtension;
 
+  /** keep reference to the group to make sure it is different */
+  static Group mostRecentPostCommitInsertGroup;
+  
   /**
    * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostCommitInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
@@ -31,6 +34,38 @@ public class GroupHooksImpl extends GroupHooks {
     Group group = postInsertCommitBean.getGroup();
     String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
     mostRecentPostCommitInsertGroupExtension = extension;
+    mostRecentPostCommitInsertGroup = group;
+  }
+
+  /** most recent extension for testing */
+  static String mostRecentPostCommitUpdateGroupExtension;
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostCommitUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
+   */
+  @Override
+  public void groupPostCommitUpdate(HooksContext hooksContext,
+      HooksGroupBean postUpdateCommitBean) {
+    
+    Group group = postUpdateCommitBean.getGroup();
+    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    mostRecentPostCommitUpdateGroupExtension = extension;
+    
+  }
+
+  /** most recent extension for testing */
+  static String mostRecentPostCommitDeleteGroupExtension;
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPostCommitDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
+   */
+  @Override
+  public void groupPostCommitDelete(HooksContext hooksContext,
+      HooksGroupBean postDeleteCommitBean) {
+    
+    Group group = postDeleteCommitBean.getGroup();
+    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    mostRecentPostCommitDeleteGroupExtension = extension;
     
   }
 

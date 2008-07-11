@@ -32,12 +32,15 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -56,13 +59,14 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.157 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.158 2008-07-11 05:11:28 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
   /** param helper */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private ParameterHelper param = new ParameterHelper();
 
 
@@ -122,6 +126,16 @@ public class Stem extends GrouperAPI implements Owner {
       FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_NAME, 
       FIELD_PARENT_UUID, FIELD_UUID);
 
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
+      FIELD_DB_VERSION, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, 
+      FIELD_EXTENSION, FIELD_ID, FIELD_MODIFIER_UUID, 
+      FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_NAME, 
+      FIELD_PARENT_UUID, FIELD_UUID);
+
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   /**
@@ -160,11 +174,13 @@ public class Stem extends GrouperAPI implements Owner {
   /** creator of stem */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private Subject creator;
   
   /** modifier of stem */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private Subject modifier;
 
   // PRIVATE INSTANCE VARIABLES //
@@ -1837,7 +1853,13 @@ public class Stem extends GrouperAPI implements Owner {
    */
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
+
     super.onPostDelete(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_POST_COMMIT_DELETE, HooksStemBean.class, 
+        this, Stem.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_DELETE, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_POST_DELETE, false, true);
@@ -1848,7 +1870,13 @@ public class Stem extends GrouperAPI implements Owner {
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
+
     super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_POST_COMMIT_INSERT, HooksStemBean.class, 
+        this, Stem.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_INSERT, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_POST_INSERT, true, false);
@@ -1859,7 +1887,13 @@ public class Stem extends GrouperAPI implements Owner {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
+
     super.onPostUpdate(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_POST_COMMIT_UPDATE, HooksStemBean.class, 
+        this, Stem.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_UPDATE, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_POST_UPDATE, true, false);
@@ -1976,9 +2010,15 @@ public class Stem extends GrouperAPI implements Owner {
   @Override
   public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
-    this.dbVersion = new Stem();
-    
-    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public Stem clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
   /**

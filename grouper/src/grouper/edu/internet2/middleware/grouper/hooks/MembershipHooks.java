@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooks.java,v 1.5 2008-07-08 06:51:34 mchyzer Exp $
+ * $Id: MembershipHooks.java,v 1.6 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -19,6 +19,21 @@ public abstract class MembershipHooks {
 
   /** constant for method name for: membershipPostAddMember */
   public static final String METHOD_MEMBERSHIP_POST_ADD_MEMBER = "membershipPostAddMember";
+
+  /** constant for method name for: membershipPostCommitAddMember */
+  public static final String METHOD_MEMBERSHIP_POST_COMMIT_ADD_MEMBER = "membershipPostCommitAddMember";
+
+  /** constant for method name for: membershipPostCommitDelete */
+  public static final String METHOD_MEMBERSHIP_POST_COMMIT_DELETE = "membershipPostCommitDelete";
+
+  /** constant for method name for: membershipPostCommitInsert */
+  public static final String METHOD_MEMBERSHIP_POST_COMMIT_INSERT = "membershipPostCommitInsert";
+
+  /** constant for method name for: membershipPostCommitRemoveMember */
+  public static final String METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER = "membershipPostCommitRemoveMember";
+
+  /** constant for method name for: membershipPostCommitUpdate */
+  public static final String METHOD_MEMBERSHIP_POST_COMMIT_UPDATE = "membershipPostCommitUpdate";
 
   /** constant for method name for: membershipPostDelete */
   public static final String METHOD_MEMBERSHIP_POST_DELETE = "membershipPostDelete";
@@ -48,6 +63,7 @@ public abstract class MembershipHooks {
   public static final String METHOD_MEMBERSHIP_PRE_UPDATE = "membershipPreUpdate";
 
   //*****  END GENERATED WITH GenerateMethodConstants.java *****//
+
   /**
    * called right before a membership update
    * @param hooksContext
@@ -134,11 +150,58 @@ public abstract class MembershipHooks {
   }
   
   /**
-   * called right after a membership insert
+   * called right after a membership delete
    * @param hooksContext
    * @param postDeleteBean
    */
   public void membershipPostDelete(HooksContext hooksContext, HooksMembershipBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a membership update (high level, not the side effects)
+   * @param hooksContext
+   * @param postAddMemberBean
+   */
+  public void membershipPostCommitAddMember(HooksContext hooksContext, 
+      HooksMembershipChangeBean postAddMemberBean) {
+    
+  }
+
+  /**
+   * called right after a membership delete commit
+   * @param hooksContext
+   * @param postDeleteBean
+   */
+  public void membershipPostCommitDelete(HooksContext hooksContext, HooksMembershipBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a membership insert commit
+   * @param hooksContext
+   * @param postInsertBean
+   */
+  public void membershipPostCommitInsert(HooksContext hooksContext, HooksMembershipBean postInsertBean) {
+    
+  }
+
+  /**
+   * called right after a membership delete commit (high level, not the side effects)
+   * @param hooksContext
+   * @param postDeleteMemberBean
+   */
+  public void membershipPostCommitRemoveMember(HooksContext hooksContext, 
+      HooksMembershipChangeBean postDeleteMemberBean) {
+    
+  }
+
+  /**
+   * called right after a membership update commit
+   * @param hooksContext
+   * @param postUpdateBean
+   */
+  public void membershipPostCommitUpdate(HooksContext hooksContext, HooksMembershipBean postUpdateBean) {
     
   }
   

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemHooks.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: StemHooks.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,6 +15,15 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
 public abstract class StemHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
+
+  /** constant for method name for: stemPostCommitDelete */
+  public static final String METHOD_STEM_POST_COMMIT_DELETE = "stemPostCommitDelete";
+
+  /** constant for method name for: stemPostCommitInsert */
+  public static final String METHOD_STEM_POST_COMMIT_INSERT = "stemPostCommitInsert";
+
+  /** constant for method name for: stemPostCommitUpdate */
+  public static final String METHOD_STEM_POST_COMMIT_UPDATE = "stemPostCommitUpdate";
 
   /** constant for method name for: stemPostDelete */
   public static final String METHOD_STEM_POST_DELETE = "stemPostDelete";
@@ -82,11 +91,38 @@ public abstract class StemHooks {
   }
   
   /**
-   * called right after a stem insert
+   * called right after a stem delete
    * @param hooksContext
    * @param postDeleteBean
    */
   public void stemPostDelete(HooksContext hooksContext, HooksStemBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a stem delete commit
+   * @param hooksContext
+   * @param postCommitDeleteBean
+   */
+  public void stemPostCommitDelete(HooksContext hooksContext, HooksStemBean postCommitDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a stem insert commit
+   * @param hooksContext
+   * @param postCommitInsertBean
+   */
+  public void stemPostCommitInsert(HooksContext hooksContext, HooksStemBean postCommitInsertBean) {
+    
+  }
+
+  /**
+   * called right after a stem update commit
+   * @param hooksContext
+   * @param postCommitUpdateBean
+   */
+  public void stemPostCommitUpdate(HooksContext hooksContext, HooksStemBean postCommitUpdateBean) {
     
   }
   

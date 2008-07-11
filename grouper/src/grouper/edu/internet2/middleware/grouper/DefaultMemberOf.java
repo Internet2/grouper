@@ -22,18 +22,82 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.11 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.12 2008-07-11 05:11:28 mchyzer Exp $
  * @since   1.2.0
  */
-public class DefaultMemberOf extends BaseMemberOf {
+@GrouperIgnoreDbVersion
+public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
+
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: _m */
+  public static final String FIELD__M = "_m";
+
+  /** constant for field name for: _ms */
+  public static final String FIELD__MS = "_ms";
+
+  /** constant for field name for: c */
+  public static final String FIELD_C = "c";
+
+  /** constant for field name for: deletes */
+  public static final String FIELD_DELETES = "deletes";
+
+  /** constant for field name for: effDeletes */
+  public static final String FIELD_EFF_DELETES = "effDeletes";
+
+  /** constant for field name for: effSaves */
+  public static final String FIELD_EFF_SAVES = "effSaves";
+
+  /** constant for field name for: f */
+  public static final String FIELD_F = "f";
+
+  /** constant for field name for: g */
+  public static final String FIELD_G = "g";
+
+  /** constant for field name for: modifiedGroups */
+  public static final String FIELD_MODIFIED_GROUPS = "modifiedGroups";
+
+  /** constant for field name for: modifiedStems */
+  public static final String FIELD_MODIFIED_STEMS = "modifiedStems";
+
+  /** constant for field name for: ns */
+  public static final String FIELD_NS = "ns";
+
+  /** constant for field name for: ownerUUID */
+  public static final String FIELD_OWNER_UUID = "ownerUUID";
+
+  /** constant for field name for: saves */
+  public static final String FIELD_SAVES = "saves";
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD__M, FIELD__MS, FIELD_C, FIELD_DELETES, 
+      FIELD_EFF_DELETES, FIELD_EFF_SAVES, FIELD_F, FIELD_G, 
+      FIELD_MODIFIED_GROUPS, FIELD_MODIFIED_STEMS, FIELD_NS, FIELD_OWNER_UUID, 
+      FIELD_SAVES);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public Object clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
 
   // PUBLIC INSTANCE METHODS //
  

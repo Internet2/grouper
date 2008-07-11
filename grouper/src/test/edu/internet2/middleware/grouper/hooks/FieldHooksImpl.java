@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: FieldHooksImpl.java,v 1.1 2008-06-29 17:42:41 mchyzer Exp $
+ * $Id: FieldHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -57,6 +57,19 @@ public class FieldHooksImpl extends FieldHooks {
    * @see edu.internet2.middleware.grouper.hooks.FieldHooks#fieldPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean)
    */
   @Override
+  public void fieldPostCommitInsert(HooksContext hooksContext, HooksFieldBean postInsertBean) {
+    
+    Field field = postInsertBean.getField();
+    String name = field.getName();
+    mostRecentPostCommitInsertFieldName = name;
+    
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.FieldHooks#fieldPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean)
+   */
+  @Override
   public void fieldPreDelete(HooksContext hooksContext, HooksFieldBean preDeleteBean) {
     
     Field field = preDeleteBean.getField();
@@ -83,19 +96,35 @@ public class FieldHooksImpl extends FieldHooks {
     }
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.FieldHooks#fieldPostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean)
+   */
+  @Override
+  public void fieldPostCommitDelete(HooksContext hooksContext, HooksFieldBean preDeleteBean) {
+    
+    Field field = preDeleteBean.getField();
+    String name = field.getName();
+    mostRecentPostCommitDeleteFieldName = name;
+  }
+
   /** most recent extension for testing */
   static String mostRecentPostDeleteFieldName;
 
   /** most recent extension for testing */
-  static String mostRecentPostUpdateFieldName;
-
-  /** most recent extension for testing */
   static String mostRecentPreDeleteFieldName;
 
-  /** most recent extension for testing */
+  /**
+   * most recent extension for testing 
+   */
   static String mostRecentPostInsertFieldName;
 
   /** most recent extension for testing */
-  static String mostRecentPreUpdateFieldName;
+  static String mostRecentPostCommitInsertFieldName;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitDeleteFieldName;
 
 }

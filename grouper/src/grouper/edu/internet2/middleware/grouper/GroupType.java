@@ -28,10 +28,13 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -46,7 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.61 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.62 2008-07-11 05:11:28 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -82,6 +85,13 @@ public class GroupType extends GrouperAPI implements Serializable {
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_ID, FIELD_IS_ASSIGNABLE, 
       FIELD_IS_INTERNAL, FIELD_NAME, FIELD_UUID);
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_ID,
+      FIELD_IS_ASSIGNABLE, FIELD_IS_INTERNAL, FIELD_NAME, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -135,6 +145,7 @@ public class GroupType extends GrouperAPI implements Serializable {
   
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private Set     fields;
   
   private String  id;
@@ -652,7 +663,13 @@ public class GroupType extends GrouperAPI implements Serializable {
    */
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
+
     super.onPostDelete(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_DELETE, HooksGroupTypeBean.class, 
+        this, GroupType.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
         GroupTypeHooks.METHOD_GROUP_TYPE_POST_DELETE, HooksGroupTypeBean.class, 
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_DELETE, false, true);
@@ -663,7 +680,13 @@ public class GroupType extends GrouperAPI implements Serializable {
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
+
     super.onPostSave(hibernateSession);
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_INSERT, HooksGroupTypeBean.class, 
+        this, GroupType.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
         GroupTypeHooks.METHOD_GROUP_TYPE_POST_INSERT, HooksGroupTypeBean.class, 
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_INSERT, true, false);
@@ -674,7 +697,13 @@ public class GroupType extends GrouperAPI implements Serializable {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
+
     super.onPostUpdate(hibernateSession);
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
+        GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_UPDATE, HooksGroupTypeBean.class, 
+        this, GroupType.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
         GroupTypeHooks.METHOD_GROUP_TYPE_POST_UPDATE, HooksGroupTypeBean.class, 
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_POST_UPDATE, true, false);
@@ -685,6 +714,7 @@ public class GroupType extends GrouperAPI implements Serializable {
    */
   @Override
   public void onPreDelete(HibernateSession hibernateSession) {
+
     super.onPreDelete(hibernateSession);
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
@@ -751,9 +781,16 @@ public class GroupType extends GrouperAPI implements Serializable {
   @Override
   public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
-    this.dbVersion = new GroupType();
-    
-    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
   }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public GroupType clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
 
 }

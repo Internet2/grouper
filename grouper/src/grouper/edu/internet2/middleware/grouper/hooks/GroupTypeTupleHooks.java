@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleHooks.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: GroupTypeTupleHooks.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,6 +15,15 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
 public abstract class GroupTypeTupleHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
+
+  /** constant for method name for: groupTypeTuplePostCommitDelete */
+  public static final String METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_DELETE = "groupTypeTuplePostCommitDelete";
+
+  /** constant for method name for: groupTypeTuplePostCommitInsert */
+  public static final String METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_INSERT = "groupTypeTuplePostCommitInsert";
+
+  /** constant for method name for: groupTypeTuplePostCommitUpdate */
+  public static final String METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_UPDATE = "groupTypeTuplePostCommitUpdate";
 
   /** constant for method name for: groupTypeTuplePostDelete */
   public static final String METHOD_GROUP_TYPE_TUPLE_POST_DELETE = "groupTypeTuplePostDelete";
@@ -82,11 +91,38 @@ public abstract class GroupTypeTupleHooks {
   }
   
   /**
-   * called right after a groupTypeTuple insert
+   * called right after a groupTypeTuple delete
    * @param hooksContext
    * @param postDeleteBean
    */
   public void groupTypeTuplePostDelete(HooksContext hooksContext, HooksGroupTypeTupleBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a groupTypeTuple delete commit
+   * @param hooksContext
+   * @param postCommitDeleteBean
+   */
+  public void groupTypeTuplePostCommitDelete(HooksContext hooksContext, HooksGroupTypeTupleBean postCommitDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a groupTypeTuple insert commit
+   * @param hooksContext
+   * @param postCommitInsertBean
+   */
+  public void groupTypeTuplePostCommitInsert(HooksContext hooksContext, HooksGroupTypeTupleBean postCommitInsertBean) {
+    
+  }
+
+  /**
+   * called right after a groupTypeTuple update commit
+   * @param hooksContext
+   * @param postCommitUpdateBean
+   */
+  public void groupTypeTuplePostCommitUpdate(HooksContext hooksContext, HooksGroupTypeTupleBean postCommitUpdateBean) {
     
   }
   

@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.5 2008-07-08 06:51:37 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.1 2008-07-11 05:11:28 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.ui.hooks;
+package edu.internet2.middleware.grouper.hooks.examples;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;

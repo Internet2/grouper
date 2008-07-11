@@ -32,7 +32,9 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -50,7 +52,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.54 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.55 2008-07-11 05:11:28 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -91,6 +93,14 @@ public class Composite extends GrouperAPI {
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_FACTOR_OWNER_UUID, FIELD_ID, 
       FIELD_LEFT_FACTOR_UUID, FIELD_RIGHT_FACTOR_UUID, FIELD_TYPE, FIELD_UUID);
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_FACTOR_OWNER_UUID, 
+      FIELD_ID, FIELD_LEFT_FACTOR_UUID, FIELD_RIGHT_FACTOR_UUID, FIELD_TYPE, 
+      FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -596,6 +606,11 @@ public class Composite extends GrouperAPI {
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_DELETE, HooksCompositeBean.class, 
+        this, Composite.class);
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_DELETE, HooksCompositeBean.class, 
         this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_DELETE, false, true);
@@ -607,6 +622,11 @@ public class Composite extends GrouperAPI {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_INSERT, HooksCompositeBean.class, 
+        this, Composite.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_INSERT, HooksCompositeBean.class, 
         this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_INSERT, true, false);
@@ -618,6 +638,11 @@ public class Composite extends GrouperAPI {
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_UPDATE, HooksCompositeBean.class, 
+        this, Composite.class);
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_UPDATE, HooksCompositeBean.class, 
         this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_UPDATE, true, false);
@@ -694,10 +719,16 @@ public class Composite extends GrouperAPI {
   @Override
   public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
-    this.dbVersion = new Composite();
-    
-    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
-  } 
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public Composite clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
 
 } 
 

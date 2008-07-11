@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllHooksTests.java,v 1.6 2008-07-10 05:55:51 mchyzer Exp $
+ * $Id: AllHooksTests.java,v 1.7 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -18,9 +18,10 @@ public class AllHooksTests {
    * @param args
    */
   public static void main(String[] args) {
+    @SuppressWarnings("unused")
     long start = System.currentTimeMillis();
     TestRunner.run(AllHooksTests.suite());
-    System.err.println("Took: " + (System.currentTimeMillis() - start));
+    //System.err.println("Took: " + (System.currentTimeMillis() - start));
   }
   
 

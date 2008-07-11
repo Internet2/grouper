@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperSessionHooksImpl.java,v 1.1 2008-06-29 17:42:41 mchyzer Exp $
+ * $Id: GrouperSessionHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -75,9 +75,6 @@ public class GrouperSessionHooksImpl extends GrouperSessionHooks {
   }
 
   /** most recent subjectId for testing */
-  static String mostRecentPostUpdateGrouperSessionSubjectId;
-
-  /** most recent subjectId for testing */
   static String mostRecentPreDeleteGrouperSessionSubjectId;
 
   /**
@@ -97,10 +94,42 @@ public class GrouperSessionHooksImpl extends GrouperSessionHooks {
     
   }
 
-  /** most recent subjectId for testing */
-  static String mostRecentPostInsertGrouperSessionSubjectId;
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.GrouperSessionHooks#grouperSessionPostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGrouperSessionBean)
+   */
+  @Override
+  public void grouperSessionPostCommitDelete(HooksContext hooksContext,
+      HooksGrouperSessionBean postDeleteBean) {
+    
+  
+    GrouperSession grouperSession = postDeleteBean.getGrouperSession();
+    String subjectId = grouperSession.getSubjectDb().getId();
+    mostRecentPostCommitDeleteGrouperSessionSubjectId = subjectId;
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.GrouperSessionHooks#grouperSessionPostInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGrouperSessionBean)
+   */
+  @Override
+  public void grouperSessionPostCommitInsert(HooksContext hooksContext,
+      HooksGrouperSessionBean postInsertBean) {
+  
+    GrouperSession grouperSession = postInsertBean.getGrouperSession();
+    String subjectId = grouperSession.getSubjectDb().getId();
+    mostRecentPostCommitInsertGrouperSessionSubjectId = subjectId;
+  
+  }
 
   /** most recent subjectId for testing */
-  static String mostRecentPreUpdateGrouperSessionSubjectId;
+  static String mostRecentPostInsertGrouperSessionSubjectId;
+  /**
+   * most recent subjectId for testing 
+   */
+  static String mostRecentPostCommitDeleteGrouperSessionSubjectId;
+  /**
+   * most recent subjectId for testing 
+   */
+  static String mostRecentPostCommitInsertGrouperSessionSubjectId;
 
 }

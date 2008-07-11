@@ -38,10 +38,18 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.11 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.12 2008-07-11 05:11:28 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
+   */
+  @Override
+  public RegistrySubject clone() {
+    throw new RuntimeException("Clone not supported");
+  }
 
   // PUBLIC CLASS METHODS //
 

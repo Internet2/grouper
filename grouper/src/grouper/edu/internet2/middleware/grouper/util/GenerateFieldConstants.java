@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GenerateFieldConstants.java,v 1.4 2008-06-30 04:31:41 mchyzer Exp $
+ * $Id: GenerateFieldConstants.java,v 1.5 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -9,11 +9,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeTuple;
-import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
 
 
 /**
@@ -26,7 +26,7 @@ public class GenerateFieldConstants {
    * @param args
    */
   public static void main(String[] args) {
-    generateConstants(Membership.class);
+    generateConstants(GrouperSession.class);
   }
   
   /**
@@ -70,6 +70,36 @@ public class GenerateFieldConstants {
       System.out.println("   * fields which are included in db version");
       System.out.println("   */");
       System.out.print("  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(\n      ");
+      
+      for (int i=0;i<fieldNames.size();i++) {
+        System.out.print("FIELD_" + GrouperUtil.oracleStandardNameFromJava(fieldNames.get(i)));
+        if (i!=fieldNames.size()-1) {
+          System.out.print(", ");
+
+          //put a newline every once and a while
+          if ((i+1) % 4 == 0) {
+            System.out.print("\n      ");
+          }
+        } else {
+          //else end it
+          System.out.println(");");
+        }
+      }
+      System.out.print("\n");
+      
+    }
+    
+    if (theClass.getAnnotation(GrouperIgnoreClone.class) == null) {
+      fieldNamesSet = GrouperUtil.fieldNames(theClass,
+          Object.class, null, false, false, false, GrouperIgnoreClone.class);
+      //sort
+      fieldNames = new ArrayList<String>(fieldNamesSet);
+      Collections.sort(fieldNames);
+      
+      System.out.println("  /**");
+      System.out.println("   * fields which are included in clone method");
+      System.out.println("   */");
+      System.out.print("  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(\n      ");
       
       for (int i=0;i<fieldNames.size();i++) {
         System.out.print("FIELD_" + GrouperUtil.oracleStandardNameFromJava(fieldNames.get(i)));

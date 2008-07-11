@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: CompositeHooks.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: CompositeHooks.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,6 +15,15 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
 public abstract class CompositeHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
+
+  /** constant for method name for: compositePostCommitDelete */
+  public static final String METHOD_COMPOSITE_POST_COMMIT_DELETE = "compositePostCommitDelete";
+
+  /** constant for method name for: compositePostCommitInsert */
+  public static final String METHOD_COMPOSITE_POST_COMMIT_INSERT = "compositePostCommitInsert";
+
+  /** constant for method name for: compositePostCommitUpdate */
+  public static final String METHOD_COMPOSITE_POST_COMMIT_UPDATE = "compositePostCommitUpdate";
 
   /** constant for method name for: compositePostDelete */
   public static final String METHOD_COMPOSITE_POST_DELETE = "compositePostDelete";
@@ -35,7 +44,6 @@ public abstract class CompositeHooks {
   public static final String METHOD_COMPOSITE_PRE_UPDATE = "compositePreUpdate";
 
   //*****  END GENERATED WITH GenerateMethodConstants.java *****//
-
   /**
    * called right before a composite update
    * @param hooksContext
@@ -82,11 +90,38 @@ public abstract class CompositeHooks {
   }
   
   /**
-   * called right after a composite insert
+   * called right after a composite delete
    * @param hooksContext
    * @param postDeleteBean
    */
   public void compositePostDelete(HooksContext hooksContext, HooksCompositeBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a composite delete commit
+   * @param hooksContext
+   * @param postCommitDeleteBean
+   */
+  public void compositePostCommitDelete(HooksContext hooksContext, HooksCompositeBean postCommitDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a composite insert commit
+   * @param hooksContext
+   * @param postCommitInsertBean
+   */
+  public void compositePostCommitInsert(HooksContext hooksContext, HooksCompositeBean postCommitInsertBean) {
+    
+  }
+
+  /**
+   * called right after a composite update commit
+   * @param hooksContext
+   * @param postCommitUpdateBean
+   */
+  public void compositePostCommitUpdate(HooksContext hooksContext, HooksCompositeBean postCommitUpdateBean) {
     
   }
   
