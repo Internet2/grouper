@@ -11,19 +11,19 @@ documents include architecture, design, LDAP, and deployment guides plus a
 user's manual.  You can directly select the "Deployment Guide" link for
 detailed documentation about the installation process.
 
-For those who are accessing the program using CVS, before building you must
-install the dependencies in the required-jars directory into your local Maven
-repository.  Instructions for doing this are in the required-jars/README.txt
-file.
-
 To generate the site documentation, run "mvn site" from the working
 directory; this will generate the documentation in the target/site directory.
 Then open the target/site/index.html file in a browser window.
 
 To build the program, run "mvn package" from the working directory;
-this will compile everything and create a target/ldappc-version.jar file, a
-target/lib directory containing the required runtime jars, along with Windows
-and UN*X runner scripts in target/bin.
+this will compile everything and create a target/ldappc-version.jar file, and
+a lib directory containing the required runtime jars. The project can then
+be run using the UN*X and Windows runner scripts in the bin directory.
+
+To generate a deployment package, run "mvn package -Pdeploy", which generates
+a deploy distribution in the target directory. This contains everything
+needed to run ldappc. This is the same as the binary distribution, but does
+not contain the documentation.
 
 To generate a distribution that can be run elsewhere, run
 "mvn package -Pdistribution", which generates both a binary and a source
