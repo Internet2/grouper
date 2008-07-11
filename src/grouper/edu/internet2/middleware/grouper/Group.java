@@ -66,7 +66,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.193 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: Group.java,v 1.194 2008-07-11 05:47:11 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -308,7 +308,7 @@ public class Group extends GrouperAPI implements Owner {
   // TODO 20070531 review lazy-loading to improve consistency + performance
   
   // PRIVATE INSTANCE VARIABLES //
-  private Map       attributes;
+  private Map<String, String>       attributes;
   private String    createSource;
   private long      createTime      = 0; // default to the epoch
   private String    creatorUUID;
@@ -1269,7 +1269,7 @@ public class Group extends GrouperAPI implements Owner {
    * </pre>
    * @return  A map of attributes and values.
    */
-  public Map getAttributes() {
+  public Map<String, String> getAttributes() {
     Map       filtered  = new HashMap();
     Map.Entry kv;
     Iterator  it        = this.getAttributesDb().entrySet().iterator();
@@ -3055,9 +3055,10 @@ public class Group extends GrouperAPI implements Owner {
   } // public boolean equals(other)
 
   /**
+   * This is a direct access to the attributes (going around security checking etc)
    * @since   1.2.0
    */
-  public Map getAttributesDb() {
+  public Map<String, String> getAttributesDb() {
     if (this.attributes == null) {
       this.attributes = GrouperDAOFactory.getFactory().getGroup().findAllAttributesByGroup( this.getUuid() );
     }
