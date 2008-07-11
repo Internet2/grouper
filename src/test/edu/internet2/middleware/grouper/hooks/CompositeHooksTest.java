@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: CompositeHooksTest.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: CompositeHooksTest.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -16,9 +16,13 @@ import edu.internet2.middleware.grouper.RegistryReset;
 import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 
 /**
@@ -90,6 +94,35 @@ public class CompositeHooksTest extends GrouperTest {
   /**
    * @throws InsufficientPrivilegeException 
    * @throws MemberAddException 
+   */
+  public void testCompositePostCommitInsert() throws InsufficientPrivilegeException, MemberAddException {
+    
+    CompositeHooksImpl.mostRecentPostCommitInsertCompositeExtension = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group7.addCompositeMember(CompositeType.UNION, CompositeHooksTest.this.group8, CompositeHooksTest.this.group9);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", CompositeHooksImpl.mostRecentPostCommitInsertCompositeExtension);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(group8.getExtension(), CompositeHooksImpl.mostRecentPostCommitInsertCompositeExtension);
+        return null;
+      }
+    });    
+    
+  }
+
+  /**
+   * @throws InsufficientPrivilegeException 
+   * @throws MemberAddException 
    * @throws MemberDeleteException 
    * 
    */
@@ -98,7 +131,7 @@ public class CompositeHooksTest extends GrouperTest {
     group7.addCompositeMember(CompositeType.UNION, this.group8, this.group9);
     
     CompositeHooksImpl.mostRecentPostDeleteCompositeExtension = null;
-
+  
     group7.deleteCompositeMember();
     
     assertEquals(group8.getExtension(), CompositeHooksImpl.mostRecentPostDeleteCompositeExtension);
@@ -111,6 +144,40 @@ public class CompositeHooksTest extends GrouperTest {
       assertEquals("extension cannot be test10", hookVeto.getReason());
       assertEquals(VetoTypeGrouper.COMPOSITE_POST_DELETE, hookVeto.getVetoType());
     }
+  }
+
+  /**
+   * @throws InsufficientPrivilegeException 
+   * @throws MemberAddException 
+   * @throws MemberDeleteException 
+   * 
+   */
+  public void testCompositePostCommitDelete() throws InsufficientPrivilegeException, MemberAddException, MemberDeleteException {
+    
+    group7.addCompositeMember(CompositeType.UNION, this.group8, this.group9);
+    
+    CompositeHooksImpl.mostRecentPostCommitDeleteCompositeExtension = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group7.deleteCompositeMember();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", CompositeHooksImpl.mostRecentPostCommitDeleteCompositeExtension);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(group8.getExtension(), CompositeHooksImpl.mostRecentPostCommitDeleteCompositeExtension);
+        return null;
+      }
+    });    
+
+    
   }
 
   /**

@@ -35,6 +35,7 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -52,6 +53,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -64,7 +66,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.192 2008-07-10 06:37:18 mchyzer Exp $
+ * @version $Id: Group.java,v 1.193 2008-07-11 05:11:28 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -291,13 +293,17 @@ public class Group extends GrouperAPI implements Owner {
   private static final  String                    KEY_MODIFIER  = "modifier"; // for state caching
   /** */
   private static final  String                    KEY_SUBJECT   = "subject";  // for state caching
+  
   /** */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private Member cachedMember  = null;
+
   /** */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
   // TODO 20070531 review lazy-loading to improve consistency + performance
   
@@ -306,7 +312,6 @@ public class Group extends GrouperAPI implements Owner {
   private String    createSource;
   private long      createTime      = 0; // default to the epoch
   private String    creatorUUID;
-  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
   
   private String    id;
   private String    modifierUUID;
@@ -316,7 +321,8 @@ public class Group extends GrouperAPI implements Owner {
 
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
-  private Set       types;
+  @GrouperIgnoreClone
+  private Set<GroupType>       types;
   
   private String    uuid;
   /** constant for prefix of field diffs for attributes: attribute__ */
@@ -324,7 +330,6 @@ public class Group extends GrouperAPI implements Owner {
   
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
-
 
   /** constant for field name for: attributes */
   public static final String FIELD_ATTRIBUTES = "attributes";
@@ -366,6 +371,14 @@ public class Group extends GrouperAPI implements Owner {
       FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
       FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, 
       FIELD_PARENT_UUID, FIELD_UUID);
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
+      FIELD_DB_VERSION, FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, 
+      FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -1097,6 +1110,10 @@ public class Group extends GrouperAPI implements Owner {
                   VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
               
               GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+              GrouperHooksUtils.schedulePostCommitHooksIfRegistered(mof, GrouperHookType.MEMBERSHIP, 
+                  MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
+                  mof, DefaultMemberOf.class);
 
               GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
                   MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
@@ -3011,9 +3028,15 @@ public class Group extends GrouperAPI implements Owner {
   @Override
   public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
-    this.dbVersion = new Group();
-    
-    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public Group clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
   /**
@@ -3123,13 +3146,14 @@ public class Group extends GrouperAPI implements Owner {
     GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, false, this);
     super.onPostSave(hibernateSession);
     
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_POST_COMMIT_INSERT, HooksGroupBean.class, 
+        this, Group.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_INSERT, true, false);
 
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP, 
-        GroupHooks.METHOD_GROUP_POST_COMMIT_INSERT, HooksGroupBean.class, 
-        this, Group.class);
   }
 
   /**
@@ -3140,11 +3164,15 @@ public class Group extends GrouperAPI implements Owner {
     
     super.onPostUpdate(hibernateSession);
     
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_POST_COMMIT_UPDATE, HooksGroupBean.class, 
+        this, Group.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_UPDATE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_POST_UPDATE, true, false);
 
-  
+
   }
 
   /**
@@ -3153,6 +3181,10 @@ public class Group extends GrouperAPI implements Owner {
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP, 
+        GroupHooks.METHOD_GROUP_POST_COMMIT_DELETE, HooksGroupBean.class, 
+        this, Group.class);
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_DELETE, HooksGroupBean.class, 

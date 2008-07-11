@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl8.java,v 1.1 2008-07-08 06:51:34 mchyzer Exp $
+ * $Id: MembershipHooksImpl8.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -26,7 +26,7 @@ public class MembershipHooksImpl8 extends MembershipHooks {
       HooksMembershipChangeBean postDeleteMemberBean) {
     try {
       String subjectId = postDeleteMemberBean.getMembership().getMember().getSubjectId();
-      mostRecentDeleteMemberSubjectId = subjectId;
+      mostRecentRemoveMemberSubjectId = subjectId;
       if (StringUtils.equals(SubjectTestHelper.SUBJ1.getId(), subjectId)) {
         throw new HookVeto("hook.veto.subjectId.isNot.subj1", "subject cannot be subj1");
       }
@@ -35,8 +35,25 @@ public class MembershipHooksImpl8 extends MembershipHooks {
     }
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPostRemoveMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean)
+   */
+  @Override
+  public void membershipPostCommitRemoveMember(HooksContext hooksContext,
+      HooksMembershipChangeBean postDeleteCommitMemberBean) {
+    try {
+      String subjectId = postDeleteCommitMemberBean.getMembership().getMember().getSubjectId();
+      mostRecentRemoveCommitMemberSubjectId = subjectId;
+    } catch (MemberNotFoundException mnfe) {
+      throw new RuntimeException(mnfe);
+    }
+  }
+
 
   /** most recent subject id added to group */
-  static String mostRecentDeleteMemberSubjectId;
+  static String mostRecentRemoveMemberSubjectId;
+
+  /** most recent subject id added to group */
+  static String mostRecentRemoveCommitMemberSubjectId;
 
 }

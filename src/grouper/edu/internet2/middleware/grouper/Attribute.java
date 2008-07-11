@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.15 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.16 2008-07-11 05:11:28 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Attribute extends GrouperAPI {
@@ -116,6 +116,14 @@ public class Attribute extends GrouperAPI {
   public Attribute setValue(String value) {
     this.value = value;
     return this;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
+   */
+  @Override
+  public Attribute clone() {
+    throw new RuntimeException("Clone not supported");
   }
 
 } 

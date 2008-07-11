@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksTest.java,v 1.6 2008-07-10 06:37:18 mchyzer Exp $
+ * $Id: GroupHooksTest.java,v 1.7 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -36,9 +36,9 @@ public class GroupHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GroupHooksTest("testGroupPostCommitInsert"));
+    //TestRunner.run(new GroupHooksTest("testGroupPostCommitInsert"));
     //TestRunner.run(new GroupHooksTest("testGroupPostUpdate"));
-    //TestRunner.run(GroupHooksTest.class);
+    TestRunner.run(GroupHooksTest.class);
   }
   
   /**
@@ -60,13 +60,14 @@ public class GroupHooksTest extends GrouperTest {
     
     assertEquals("test1a", group.getExtension());
     assertEquals("test1a", GroupHooksImpl.mostRecentPostCommitInsertGroupExtension);
-
+    assertFalse("It should send a copy, not the actual gruop", GroupHooksImpl.mostRecentPostCommitInsertGroup == group);
+    
     //try with a commit
     
     GroupHooksImpl.mostRecentPostCommitInsertGroupExtension = null;
     
     group = (Group)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
-
+  
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         Group theGroup = StemHelper.addChildGroup(GroupHooksTest.this.edu, "test2a", "the test2a");
@@ -83,7 +84,7 @@ public class GroupHooksTest extends GrouperTest {
     GroupHooksImpl.mostRecentPostCommitInsertGroupExtension = null;
     
     GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
-
+  
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         Group theGroup = StemHelper.addChildGroup(GroupHooksTest.this.edu, "test3a", "the test3a");
@@ -98,6 +99,62 @@ public class GroupHooksTest extends GrouperTest {
     assertNull("shouldnt fire at all", GroupHooksImpl.mostRecentPostCommitInsertGroupExtension);
     
   }
+
+  /**
+   * 
+   */
+  public void testGroupPostCommitUpdate() {
+    
+    final Group theGroup = StemHelper.addChildGroup(GroupHooksTest.this.edu, "test2b", "the test2b");
+
+    GroupHooksImpl.mostRecentPostCommitUpdateGroupExtension = null;
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        try {
+          theGroup.setDescription("new description");
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        theGroup.store();
+        assertNull("shouldnt fire yet", GroupHooksImpl.mostRecentPostCommitUpdateGroupExtension);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        assertEquals("test2b", theGroup.getExtension());
+        assertEquals("test2b", GroupHooksImpl.mostRecentPostCommitUpdateGroupExtension);
+        return theGroup;
+      }
+    });
+  }
+
+  /**
+   * 
+   */
+  public void testGroupPostCommitDelete() {
+    
+    final Group theGroup = StemHelper.addChildGroup(GroupHooksTest.this.edu, "test2c", "the test2c");
+
+    GroupHooksImpl.mostRecentPostCommitDeleteGroupExtension = null;
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        try {
+          theGroup.delete();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        assertNull("shouldnt fire yet", GroupHooksImpl.mostRecentPostCommitDeleteGroupExtension);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        assertEquals("test2c", theGroup.getExtension());
+        assertEquals("test2c", GroupHooksImpl.mostRecentPostCommitDeleteGroupExtension);
+        return theGroup;
+      }
+    });
+  }
+
   /**
    * 
    */

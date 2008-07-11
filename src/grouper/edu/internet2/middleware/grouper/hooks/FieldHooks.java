@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: FieldHooks.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: FieldHooks.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,6 +15,15 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean;
 public abstract class FieldHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
+
+  /** constant for method name for: fieldPostCommitDelete */
+  public static final String METHOD_FIELD_POST_COMMIT_DELETE = "fieldPostCommitDelete";
+
+  /** constant for method name for: fieldPostCommitInsert */
+  public static final String METHOD_FIELD_POST_COMMIT_INSERT = "fieldPostCommitInsert";
+
+  /** constant for method name for: fieldPostCommitUpdate */
+  public static final String METHOD_FIELD_POST_COMMIT_UPDATE = "fieldPostCommitUpdate";
 
   /** constant for method name for: fieldPostDelete */
   public static final String METHOD_FIELD_POST_DELETE = "fieldPostDelete";
@@ -82,11 +91,38 @@ public abstract class FieldHooks {
   }
   
   /**
-   * called right after a field insert
+   * called right after a field delete
    * @param hooksContext
    * @param postDeleteBean
    */
   public void fieldPostDelete(HooksContext hooksContext, HooksFieldBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a field delete commit
+   * @param hooksContext
+   * @param postCommitDeleteBean
+   */
+  public void fieldPostCommitDelete(HooksContext hooksContext, HooksFieldBean postCommitDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a field insert commit
+   * @param hooksContext
+   * @param postCommitInsertBean
+   */
+  public void fieldPostCommitInsert(HooksContext hooksContext, HooksFieldBean postCommitInsertBean) {
+    
+  }
+
+  /**
+   * called right after a field update commit
+   * @param hooksContext
+   * @param postCommitUpdateBean
+   */
+  public void fieldPostCommitUpdate(HooksContext hooksContext, HooksFieldBean postCommitUpdateBean) {
     
   }
   

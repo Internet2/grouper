@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleHooksImpl.java,v 1.1 2008-06-29 17:42:41 mchyzer Exp $
+ * $Id: GroupTypeTupleHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -106,11 +106,43 @@ public class GroupTypeTupleHooksImpl extends GroupTypeTupleHooks {
     }
   }
 
-  /** most recent extension for testing */
-  static String mostRecentPostDeleteGroupTypeTupleName;
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks#groupTypeTuplePostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean)
+   */
+  @Override
+  public void groupTypeTuplePostCommitDelete(HooksContext hooksContext, HooksGroupTypeTupleBean preDeleteBean) {
+    
+    GroupTypeTuple groupTypeTuple = preDeleteBean.getGroupTypeTuple();
+    String name = null;
+    try {
+      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid()).getExtension();
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException(gnfe);
+    }
+    mostRecentPostCommitDeleteGroupTypeTupleName = name;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks#groupTypeTuplePostInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean)
+   */
+  @Override
+  public void groupTypeTuplePostCommitInsert(HooksContext hooksContext, HooksGroupTypeTupleBean postInsertBean) {
+    
+    GroupTypeTuple groupTypeTuple = postInsertBean.getGroupTypeTuple();
+    String name = null;
+    try {
+      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid()).getExtension();
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException(gnfe);
+    }
+    mostRecentPostCommitInsertGroupTypeTupleName = name;
+    
+  }
 
   /** most recent extension for testing */
-  static String mostRecentPostUpdateGroupTypeTupleName;
+  static String mostRecentPostDeleteGroupTypeTupleName;
 
   /** most recent extension for testing */
   static String mostRecentPreDeleteGroupTypeTupleName;
@@ -118,7 +150,14 @@ public class GroupTypeTupleHooksImpl extends GroupTypeTupleHooks {
   /** most recent extension for testing */
   static String mostRecentPostInsertGroupTypeTupleName;
 
-  /** most recent extension for testing */
-  static String mostRecentPreUpdateGroupTypeTupleName;
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitDeleteGroupTypeTupleName;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitInsertGroupTypeTupleName;
 
 }

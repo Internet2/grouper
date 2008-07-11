@@ -30,11 +30,14 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GrouperSessionHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGrouperSessionBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -54,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.82 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.83 2008-07-11 05:11:28 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -72,6 +75,9 @@ public class GrouperSession extends GrouperAPI {
   /** constant for field name for: startTimeLong */
   public static final String FIELD_START_TIME_LONG = "startTimeLong";
 
+  /** constant for field name for: subject */
+  public static final String FIELD_SUBJECT = "subject";
+
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
 
@@ -80,6 +86,13 @@ public class GrouperSession extends GrouperAPI {
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ID, FIELD_MEMBER_UUID, FIELD_START_TIME_LONG, FIELD_UUID);
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_DB_VERSION, FIELD_ID, FIELD_MEMBER_UUID, FIELD_START_TIME_LONG, 
+      FIELD_SUBJECT, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -112,30 +125,37 @@ public class GrouperSession extends GrouperAPI {
   
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private AccessAdapter   access;         // TODO 20070816 eliminate
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private AccessResolver  accessResolver;
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private Member          cachedMember;
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private ApiConfig       cfg;
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private NamingAdapter   naming;         // TODO 20070816 eliminate
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private NamingResolver  namingResolver;
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private GrouperSession  rootSession;
 
   // PRIVATE INSTANCE VARIABLES //
@@ -146,18 +166,17 @@ public class GrouperSession extends GrouperAPI {
   private long            startTimeLong;
 
   @GrouperIgnoreDbVersion
-  @GrouperIgnoreFieldConstant
   private Subject         subject;
 
   private String          uuid;
 
 
   /**
-   * Default constructor.
+   * Default constructor.  Dont call this, use the factory: start(Subject)
    * <p/>
    * @since   1.2.0
    */
-  private GrouperSession() {
+  public GrouperSession() {
     this.cachedMember = null;
     this.cfg          = new ApiConfig();
     this.rootSession  = null;
@@ -428,6 +447,20 @@ public class GrouperSession extends GrouperAPI {
   } // public Subject getSubject()
 
   /**
+   * Get the {@link Subject} associated with this API session.
+   * <pre class="eg">
+   * Subject subj = s.getSubject(); 
+   * </pre>
+   * @return  A {@link Subject} object.
+   * @throws  GrouperRuntimeException
+   */
+  public Subject getSubjectDb() 
+    throws  GrouperRuntimeException
+  {
+    return this.subject;
+  } // public Subject getSubject()
+
+  /**
    * Currently just a testing hack.
    * <p/>
    * @return  Value of <i>property</i> or null if not set.
@@ -640,6 +673,11 @@ public class GrouperSession extends GrouperAPI {
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_COMMIT_DELETE, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUPER_SESSION, 
         GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_DELETE, HooksGrouperSessionBean.class, 
         this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_POST_DELETE, false, true);
@@ -651,6 +689,11 @@ public class GrouperSession extends GrouperAPI {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
+
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_COMMIT_INSERT, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUPER_SESSION, 
         GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_INSERT, HooksGrouperSessionBean.class, 
         this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_POST_INSERT, true, false);
@@ -661,7 +704,13 @@ public class GrouperSession extends GrouperAPI {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
+
     super.onPostUpdate(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUPER_SESSION, 
+        GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_COMMIT_UPDATE, HooksGrouperSessionBean.class, 
+        this, GrouperSession.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUPER_SESSION, 
         GrouperSessionHooks.METHOD_GROUPER_SESSION_POST_UPDATE, HooksGrouperSessionBean.class, 
         this, GrouperSession.class, VetoTypeGrouper.GROUPER_SESSION_POST_UPDATE, true, false);
@@ -738,9 +787,15 @@ public class GrouperSession extends GrouperAPI {
   @Override
   public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
-    this.dbVersion = new GrouperSession();
-    
-    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public GrouperSession clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
   /**

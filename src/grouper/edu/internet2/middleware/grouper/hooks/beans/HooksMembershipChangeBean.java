@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: HooksMembershipChangeBean.java,v 1.1 2008-07-08 06:51:34 mchyzer Exp $
+ * $Id: HooksMembershipChangeBean.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -23,10 +24,31 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * the side effects like adding the member to the groups where the group
  * to be added to is a member)
  */
+@GrouperIgnoreDbVersion
 public class HooksMembershipChangeBean extends HooksBean {
+
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: defaultMemberOf */
+  public static final String FIELD_DEFAULT_MEMBER_OF = "defaultMemberOf";
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_DEFAULT_MEMBER_OF);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   /** object being inserted */
   private DefaultMemberOf defaultMemberOf = null;
+  /**
+   * 
+   */
+  public HooksMembershipChangeBean() {
+    super();
+  }
+
   /**
    * @param theDefaultMemberOf 
    */
@@ -191,4 +213,11 @@ public class HooksMembershipChangeBean extends HooksBean {
     return result;
   }
 
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public HooksMembershipChangeBean clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
 }

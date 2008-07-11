@@ -28,6 +28,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
@@ -35,7 +36,11 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.CompositeHooks;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
@@ -57,7 +62,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.98 2008-07-08 06:51:34 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.99 2008-07-11 05:11:28 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -109,6 +114,15 @@ public class Membership extends GrouperAPI {
       FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_ID, 
       FIELD_LIST_NAME, FIELD_LIST_TYPE, FIELD_MEMBER_UUID, FIELD_OWNER_UUID, 
       FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, FIELD_VIA_UUID);
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_DEPTH, 
+      FIELD_ID, FIELD_LIST_NAME, FIELD_LIST_TYPE, FIELD_MEMBER_UUID, 
+      FIELD_OWNER_UUID, FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, 
+      FIELD_VIA_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -163,6 +177,7 @@ public class Membership extends GrouperAPI {
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private Member  member;
 
   private String  memberUUID;
@@ -440,6 +455,9 @@ public class Membership extends GrouperAPI {
             
             GrouperDAOFactory.getFactory().getMembership().update(mof);
 
+            GrouperHooksUtils.schedulePostCommitHooksIfRegistered(mof, GrouperHookType.MEMBERSHIP, 
+                MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_ADD_MEMBER, HooksMembershipChangeBean.class, 
+                mof, DefaultMemberOf.class);
 
             GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
                 MembershipHooks.METHOD_MEMBERSHIP_POST_ADD_MEMBER,
@@ -1001,7 +1019,13 @@ public class Membership extends GrouperAPI {
    */
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
+
     super.onPostDelete(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_DELETE, HooksMembershipBean.class, 
+        this, Membership.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE, false, true);
@@ -1012,7 +1036,13 @@ public class Membership extends GrouperAPI {
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
+
     super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
+        this, Membership.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
@@ -1023,7 +1053,13 @@ public class Membership extends GrouperAPI {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
+
     super.onPostUpdate(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_UPDATE, HooksMembershipBean.class, 
+        this, Membership.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_UPDATE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_UPDATE, true, false);
@@ -1085,9 +1121,16 @@ public class Membership extends GrouperAPI {
   @Override
   public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
-    this.dbVersion = new Membership();
-    
-    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
   }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public Membership clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
   
 }

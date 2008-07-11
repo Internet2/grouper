@@ -1,17 +1,42 @@
 /*
  * @author mchyzer
- * $Id: HooksCompositeBean.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: HooksCompositeBean.java,v 1.3 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * bean to hold objects for composite low level hooks
  */
+@GrouperIgnoreDbVersion
 public class HooksCompositeBean extends HooksBean {
   
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /**
+   * 
+   */
+  public HooksCompositeBean() {
+    super();
+  }
+
+  /** constant for field name for: composite */
+  public static final String FIELD_COMPOSITE = "composite";
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_COMPOSITE);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
   /** object being affected */
   private Composite composite = null;
   
@@ -28,6 +53,14 @@ public class HooksCompositeBean extends HooksBean {
    */
   public Composite getComposite() {
     return this.composite;
+  }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public HooksCompositeBean clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
 }

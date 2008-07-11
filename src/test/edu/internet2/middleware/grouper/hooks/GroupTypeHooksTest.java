@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeHooksTest.java,v 1.1 2008-06-29 17:42:41 mchyzer Exp $
+ * $Id: GroupTypeHooksTest.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -12,9 +12,13 @@ import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.RegistryReset;
 import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SessionHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 
 /**
@@ -180,6 +184,71 @@ public class GroupTypeHooksTest extends GrouperTest {
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.GROUP_TYPE.getPropertyFileKey(), 
         GroupTypeHooksImpl.class);
+  }
+
+  /**
+   * @throws SchemaException 
+   * @throws InsufficientPrivilegeException 
+   */
+  public void testGroupTypePostCommitDelete() throws SchemaException, InsufficientPrivilegeException {
+    
+    final GroupType groupType = GroupType.createType(grouperSession, "test7");
+  
+    GroupTypeHooksImpl.mostRecentPostCommitDeleteGroupTypeName = null;
+
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          groupType.delete(grouperSession);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", GroupTypeHooksImpl.mostRecentPostCommitDeleteGroupTypeName);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test7", GroupTypeHooksImpl.mostRecentPostCommitDeleteGroupTypeName);
+        return null;
+      }
+    });    
+
+    
+    
+    
+  }
+
+  /**
+   * @throws SchemaException 
+   * @throws InsufficientPrivilegeException 
+   * 
+   */
+  public void testGroupTypePostCommitInsert() throws SchemaException, InsufficientPrivilegeException {
+    
+    GroupTypeHooksImpl.mostRecentPostCommitInsertGroupTypeName = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          GroupType.createType(grouperSession, "test3");
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", GroupTypeHooksImpl.mostRecentPostCommitInsertGroupTypeName);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test3", GroupTypeHooksImpl.mostRecentPostCommitInsertGroupTypeName);
+        return null;
+      }
+    });    
+    
   }
 
 }

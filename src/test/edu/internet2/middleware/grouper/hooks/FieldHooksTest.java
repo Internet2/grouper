@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: FieldHooksTest.java,v 1.1 2008-06-29 17:42:41 mchyzer Exp $
+ * $Id: FieldHooksTest.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,9 +15,13 @@ import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.RegistryReset;
 import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SessionHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 
 /**
@@ -197,6 +201,68 @@ public class FieldHooksTest extends GrouperTest {
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.FIELD.getPropertyFileKey(), 
         FieldHooksImpl.class);
+  }
+
+  /**
+   * @throws SchemaException 
+   * @throws InsufficientPrivilegeException 
+   * 
+   */
+  public void testFieldPostCommitDelete() throws SchemaException, InsufficientPrivilegeException {
+    
+    FieldHooksImpl.mostRecentPostCommitDeleteFieldName = null;
+    
+    this.groupType.addAttribute(grouperSession, "test7", read, write, true);
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          FieldHooksTest.this.groupType.deleteField(grouperSession, "test7");
+
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", FieldHooksImpl.mostRecentPostCommitDeleteFieldName);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test7", FieldHooksImpl.mostRecentPostCommitDeleteFieldName);
+        return null;
+      }
+    });    
+  }
+
+  /**
+   * @throws SchemaException 
+   * @throws InsufficientPrivilegeException 
+   * 
+   */
+  public void testFieldPostCommitInsert() throws SchemaException, InsufficientPrivilegeException {
+    
+    FieldHooksImpl.mostRecentPostCommitInsertFieldName = null;
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          FieldHooksTest.this.groupType.addAttribute(grouperSession, "test3", read, write, true);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", FieldHooksImpl.mostRecentPostCommitInsertFieldName);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test3", FieldHooksImpl.mostRecentPostCommitInsertFieldName);
+        return null;
+      }
+    });    
+    
   }
 
 }

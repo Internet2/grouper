@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemHooksImpl.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: StemHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -110,6 +110,21 @@ public class StemHooksImpl extends StemHooks {
   static String mostRecentPreUpdateStemExtension;
 
   /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitDeleteStemExtension;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitInsertStemExtension;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitUpdateStemExtension;
+
+  /**
    * @see edu.internet2.middleware.grouper.hooks.StemHooks#stemPreUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksStemBean)
    */
   @Override
@@ -121,6 +136,41 @@ public class StemHooksImpl extends StemHooks {
     if (StringUtils.equals("test10", extension)) {
       throw new HookVeto("hook.veto.stem.update.name.not.test10", "name cannot be test10");
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.StemHooks#stemPostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksStemBean)
+   */
+  @Override
+  public void stemPostCommitDelete(HooksContext hooksContext,
+      HooksStemBean postDeleteBean) {
+    Stem stem = postDeleteBean.getStem();
+    String extension = (String)stem.getExtension();
+    mostRecentPostCommitDeleteStemExtension = extension;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.StemHooks#stemPostInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksStemBean)
+   */
+  @Override
+  public void stemPostCommitInsert(HooksContext hooksContext,
+      HooksStemBean postInsertBean) {
+  
+    Stem stem = postInsertBean.getStem();
+    String extension = (String)stem.getExtension();
+    mostRecentPostCommitInsertStemExtension = extension;
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.StemHooks#stemPostUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksStemBean)
+   */
+  @Override
+  public void stemPostCommitUpdate(HooksContext hooksContext,
+      HooksStemBean postUpdateBean) {
+    Stem stem = postUpdateBean.getStem();
+    String extension = (String)stem.getExtension();
+    mostRecentPostCommitUpdateStemExtension = extension;
   }
 
 }

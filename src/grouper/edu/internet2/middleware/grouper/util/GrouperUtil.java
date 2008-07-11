@@ -52,8 +52,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -1816,47 +1819,122 @@ public class GrouperUtil {
   }
   
   /**
-   * copy fields from one object to another.  if map, make a new map so they are not the same object
-   * @param objectFrom
-   * @param objectTo
-   * @param fieldsToCopy
+   * clone an object, assign primitives, Strings, maps of string attributes.  Clone GrouperCloneable fields.
+   * @param <T> template
+   * @param object
+   * @param fieldsToClone
+   * @return the cloned object or null if input is null
    */
-  public static void copyObjectFields(Object objectFrom, Object objectTo, 
-      Set<String> fieldsToCopy) {
+  public static <T> T clone(T object, Set<String> fieldsToClone) {
     
-    if (objectFrom == objectTo) {
+    //make a return object
+    T result = (T)GrouperUtil.newInstance(object.getClass());
+    
+    cloneFields(object, result, fieldsToClone);
+    
+    return result;
+  }
+  
+  /**
+   * clone an object, assign primitives, Strings, maps of string attributes.  Clone GrouperCloneable fields.
+   * @param <T> template
+   * @param object
+   * @param result 
+   * @param fieldsToClone
+   */
+  public static <T> void cloneFields(T object, T result,
+      Set<String> fieldsToClone) {
+    
+    if (object == result) {
       return;
     }
     
     //if either null, then all fields are different
-    if (objectFrom == null || objectTo == null) {
-      throw new RuntimeException("Cant copy from or to null: " + className(objectFrom) + ", " + className(objectTo));
+    if (object == null || result == null) {
+      throw new RuntimeException("Cant copy from or to null: " + className(object) + ", " + className(result));
     }
-
-    for (String fieldName : fieldsToCopy) {
+    
+    Class<?> fieldValueClass = null;
+    
+    for (String fieldName : GrouperUtil.nonNull(fieldsToClone)) {
       try {
-        Object value = fieldValue(objectFrom, fieldName);
-        //if map, then just copy it over
-        if (value instanceof Map) {
-          value = new LinkedHashMap((Map)value);
-        } else {
-          if (value != null) {
-            
-            //make sure we can handle the type
-            if (!(value instanceof Number || value instanceof String || value instanceof Date
-                || value instanceof Boolean
-                || value.getClass().isPrimitive() || value.getClass().isPrimitive())) {
-              throw new RuntimeException("Type '" + value.getClass() + "' not expected!");      
-            }
-          }
-        }
-        //assign it
-        assignField(objectTo, fieldName, value);
+        
+        Object fieldValue = fieldValue(object, fieldName);
+        fieldValueClass = fieldValue == null ? null : fieldValue.getClass();
+        
+        Object fieldValueToAssign = cloneValue(fieldValue);
+        
+        //assign the field to the clone
+        GrouperUtil.assignField(result, fieldName, fieldValueToAssign);
+        
       } catch (RuntimeException re) {
-        throw new RuntimeException("Problem copying field " + fieldName 
-            + " on objects: " + className(objectFrom) + ", " + className(objectTo), re);
+        throw new RuntimeException("Problem cloning field: " + object.getClass() 
+              + ", " + fieldName + ", " + fieldValueClass);
       }
     }
+  }
+  
+  /**
+   * helper method to clone the value of a field.  just returns the same
+   * reference for primitives and immutables.  Will subclone GrouperCloneables, 
+   * and will throw exception if not expecting the type.  Will clone sets, lists, maps.
+   * @param <T> template
+   * 
+   * @param value
+   * @return the cloned value
+   */
+  public static <T> T cloneValue(T value) {
+
+    Object clonedValue = value;
+    
+    if (value == null || value instanceof String 
+        || value.getClass().isPrimitive() || value instanceof Number
+        || value instanceof Boolean
+        || value instanceof Date || value instanceof Configuration
+        || value instanceof Subject) {
+      //clone things
+      //for strings, and immutable classes, just assign
+      //nothing to do, just assign the value
+    } else if (value instanceof GrouperCloneable) {
+      
+      //lets clone the object
+      clonedValue = ((GrouperCloneable)value).clone();
+      
+    } else if (value instanceof Map) {
+      clonedValue = new LinkedHashMap();
+      Map mapValue = (Map)value;
+      Map clonedMapValue = (Map)clonedValue;
+      for (Object key : mapValue.keySet()) {
+        clonedMapValue.put(cloneValue(key), cloneValue(mapValue.get(key)));
+      }
+    } else if (value instanceof Set) {
+        clonedValue = new LinkedHashSet();
+        Set setValue = (Set)value;
+        Set clonedSetValue = (Set)clonedValue;
+        for (Object each : setValue) {
+          clonedSetValue.add(cloneValue(each));
+        }
+    } else if (value instanceof List) {
+      clonedValue = new ArrayList();
+      List listValue = (List)value;
+      List clonedListValue = (List)clonedValue;
+      for (Object each : listValue) {
+        clonedListValue.add(cloneValue(each));
+      }
+    } else if (value.getClass().isArray()) {
+      clonedValue = Array.newInstance(value.getClass().getComponentType(), Array.getLength(value));
+      for (int i=0;i<Array.getLength(value);i++) {
+        Array.set(clonedValue, i, cloneValue(Array.get(value, i)));
+      }
+      
+      
+    } else {
+
+      //this means lets add support for a new type of object
+      throw new RuntimeException("Unexpected class in clone method: " + value.getClass());
+    
+    }
+    return (T)clonedValue;
   }
   
   /**

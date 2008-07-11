@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemHooksTest.java,v 1.2 2008-07-07 06:26:09 mchyzer Exp $
+ * $Id: StemHooksTest.java,v 1.3 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -14,9 +14,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemDeleteException;
 import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.StemModifyException;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 
 /**
@@ -250,6 +254,96 @@ public class StemHooksTest extends GrouperTest {
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.STEM.getPropertyFileKey(), 
         StemHooksImpl.class);
+  }
+
+  /**
+   * @throws InsufficientPrivilegeException 
+   * @throws StemDeleteException 
+   * 
+   */
+  public void testStemPostCommitDelete() throws InsufficientPrivilegeException, StemDeleteException {
+    
+    final Stem stem = StemHelper.addChildStem(this.edu, "test4", "the test4");
+    
+    StemHooksImpl.mostRecentPostCommitDeleteStemExtension = null;
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          stem.delete();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", StemHooksImpl.mostRecentPostCommitDeleteStemExtension);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test4", StemHooksImpl.mostRecentPostCommitDeleteStemExtension);
+        return null;
+      }
+    });    
+  }
+
+  /**
+   * 
+   */
+  public void testStemPostCommitInsert() {
+    
+    StemHooksImpl.mostRecentPostCommitInsertStemExtension = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          StemHelper.addChildStem(StemHooksTest.this.edu, "test7", "the test7");
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", StemHooksImpl.mostRecentPostCommitInsertStemExtension);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test7", StemHooksImpl.mostRecentPostCommitInsertStemExtension);
+        return null;
+      }
+    });    
+  }
+
+  /**
+   * @throws StemModifyException 
+   * @throws InsufficientPrivilegeException 
+   * 
+   */
+  public void testStemPostCommitUpdate() throws StemModifyException, InsufficientPrivilegeException {
+    
+    final Stem stem = StemHelper.addChildStem(this.edu, "test11", "the test11");
+
+    StemHooksImpl.mostRecentPostCommitUpdateStemExtension = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          stem.setDisplayExtension("the test11");
+          stem.store();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", StemHooksImpl.mostRecentPostCommitUpdateStemExtension);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test11", StemHooksImpl.mostRecentPostCommitUpdateStemExtension);
+        return null;
+      }
+    });    
   }
 
 }

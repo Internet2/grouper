@@ -1,10 +1,15 @@
 /*
  * @author mchyzer
- * $Id: HooksLifecycleHibInitBean.java,v 1.1 2008-07-10 00:46:54 mchyzer Exp $
+ * $Id: HooksLifecycleHibInitBean.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
+import java.util.Set;
+
 import org.hibernate.cfg.Configuration;
+
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -16,12 +21,33 @@ import org.hibernate.cfg.Configuration;
  * 
  * </pre>
  */
+@GrouperIgnoreDbVersion
 public class HooksLifecycleHibInitBean extends HooksBean {
   
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: configuration */
+  public static final String FIELD_CONFIGURATION = "configuration";
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_CONFIGURATION);
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
   /** hibernate configuration */
   private Configuration configuration = null;
   
+  /**
+   * 
+   */
+  public HooksLifecycleHibInitBean() {
+    super();
+  }
+
+
   /**
    * 
    * @param theConfiguration is the configuration
@@ -39,4 +65,11 @@ public class HooksLifecycleHibInitBean extends HooksBean {
     return this.configuration;
   }
   
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public HooksLifecycleHibInitBean clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
 }

@@ -31,10 +31,13 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -56,7 +59,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.104 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: Member.java,v 1.105 2008-07-11 05:11:28 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -90,15 +93,24 @@ public class Member extends GrouperAPI implements Serializable {
       FIELD_ID, FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, 
       FIELD_SUBJECT_TYPE_ID);
 
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_DB_VERSION, FIELD_ID, FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, 
+      FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID);
+
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
   // PRIVATE TRANSIENT INSTANCE PROPERTIES //
   @GrouperIgnoreFieldConstant 
   @GrouperIgnoreDbVersion
+  @GrouperIgnoreClone
   private transient Group   g     = null;
   
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
   private transient Subject subj  = null;
 
 
@@ -1558,7 +1570,13 @@ public class Member extends GrouperAPI implements Serializable {
    */
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
+
     super.onPostDelete(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_POST_COMMIT_DELETE, HooksMemberBean.class, 
+        this, Member.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_DELETE, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_POST_DELETE, false, true);
@@ -1569,7 +1587,13 @@ public class Member extends GrouperAPI implements Serializable {
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
+
     super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_POST_COMMIT_INSERT, HooksMemberBean.class, 
+        this, Member.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_INSERT, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_POST_INSERT, true, false);
@@ -1580,7 +1604,13 @@ public class Member extends GrouperAPI implements Serializable {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
+
     super.onPostUpdate(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_POST_COMMIT_UPDATE, HooksMemberBean.class, 
+        this, Member.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_UPDATE, HooksMemberBean.class, 
         this, Member.class, VetoTypeGrouper.MEMBER_POST_UPDATE, true, false);
@@ -1657,10 +1687,17 @@ public class Member extends GrouperAPI implements Serializable {
   @Override
   public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
-    this.dbVersion = new Member();
-    
-    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
   }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public Member clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
 
 } 
 

@@ -21,12 +21,20 @@ package edu.internet2.middleware.grouper;
 /**
  * Mock {@link GrouperAPI}.
  * @author  blair christensen.
- * @version $Id: MockGrouperAPI.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: MockGrouperAPI.java,v 1.3 2008-07-11 05:11:28 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockGrouperAPI extends GrouperAPI {
 
   // Nothing
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
+   */
+  @Override
+  public MockGrouperAPI clone() {
+    throw new RuntimeException("Clone not supported");
+  }
 
 }
 

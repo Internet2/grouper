@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksTest.java,v 1.7 2008-07-08 20:47:42 mchyzer Exp $
+ * $Id: MembershipHooksTest.java,v 1.8 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -16,9 +16,13 @@ import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -90,13 +94,13 @@ public class MembershipHooksTest extends GrouperTest {
     
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), MembershipHooksImpl.class);
-
-    MembershipHooksImpl.mostRecentInsertMemberSubjectId = null;
+  
+    MembershipHooksImpl.mostRecentAddMemberSubjectId = null;
     
     group.addMember(SubjectTestHelper.SUBJ0);
     Set<Membership> memberships = group.getMemberships();
     assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
-    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl.mostRecentInsertMemberSubjectId);
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl.mostRecentAddMemberSubjectId);
     
     try {
       group.addMember(SubjectTestHelper.SUBJ1);
@@ -111,6 +115,37 @@ public class MembershipHooksTest extends GrouperTest {
     group.deleteMember(SubjectTestHelper.SUBJ0);
     
     assertEquals("This should not fire the add member hook", hookCount, MembershipHooksImpl.preAddMemberHookCount);
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPostCommitAddMember() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), MembershipHooksImpl.class);
+
+    MembershipHooksImpl.mostRecentAddCommitMemberSubjectId = null;
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group.addMember(SubjectTestHelper.SUBJ0);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", MembershipHooksImpl.mostRecentAddCommitMemberSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl.mostRecentAddCommitMemberSubjectId);
+        return null;
+      }
+    });    
+    
   }
 
   /**
@@ -215,7 +250,7 @@ public class MembershipHooksTest extends GrouperTest {
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
         MembershipHooksImpl4.class);
-
+  
     MembershipHooksImpl4.mostRecentInsertMemberSubjectId = null;
     
     group.addMember(SubjectTestHelper.SUBJ0);
@@ -230,6 +265,37 @@ public class MembershipHooksTest extends GrouperTest {
       assertEquals("subject cannot be subj1", hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBERSHIP_POST_INSERT, hookVeto.getVetoType());
     }
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPostCommitInsert() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
+        MembershipHooksImpl4.class);
+
+    MembershipHooksImpl4.mostRecentInsertCommitMemberSubjectId = null;
+        
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group.addMember(SubjectTestHelper.SUBJ0);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", MembershipHooksImpl4.mostRecentInsertCommitMemberSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl4.mostRecentInsertCommitMemberSubjectId);
+        return null;
+      }
+    });    
   }
 
   /**
@@ -346,27 +412,60 @@ public class MembershipHooksTest extends GrouperTest {
   /**
    * @throws Exception 
    */
+  public void testMemberPostCommitDelete() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
+        MembershipHooksImpl6.class);
+  
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    MembershipHooksImpl6.mostRecentDeleteCommitMemberSubjectId = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group.deleteMember(SubjectTestHelper.SUBJ0);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", MembershipHooksImpl6.mostRecentDeleteCommitMemberSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl6.mostRecentDeleteCommitMemberSubjectId);
+        return null;
+      }
+    });    
+  }
+
+  /**
+   * @throws Exception 
+   */
   public void testMemberPostRemoveMember() throws Exception {
     
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
         MembershipHooksImpl8.class);
-
+  
     
     group.addMember(SubjectTestHelper.SUBJ0);
     
     Set<Membership> memberships = group.getMemberships();
     assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
-
-    MembershipHooksImpl8.mostRecentDeleteMemberSubjectId = null;
-
+  
+    MembershipHooksImpl8.mostRecentRemoveMemberSubjectId = null;
+  
     group.deleteMember(SubjectTestHelper.SUBJ0);
     
     memberships = group.getMemberships();
-
+  
     assertEquals(0, memberships.size());
-
-    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl8.mostRecentDeleteMemberSubjectId);
+  
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl8.mostRecentRemoveMemberSubjectId);
     
     group.addMember(SubjectTestHelper.SUBJ1);
     
@@ -378,6 +477,39 @@ public class MembershipHooksTest extends GrouperTest {
       assertEquals(VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER, hookVeto.getVetoType());
     }
     
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPostCommitRemoveMember() throws Exception {
+    
+    //this is the test hook imple
+    GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
+        MembershipHooksImpl8.class);
+
+    group.addMember(SubjectTestHelper.SUBJ0);
+
+    MembershipHooksImpl8.mostRecentRemoveCommitMemberSubjectId = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group.deleteMember(SubjectTestHelper.SUBJ0);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", MembershipHooksImpl8.mostRecentRemoveCommitMemberSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl8.mostRecentRemoveCommitMemberSubjectId);
+        return null;
+      }
+    });    
   }
 
   /**

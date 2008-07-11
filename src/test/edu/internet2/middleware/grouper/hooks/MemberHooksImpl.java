@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MemberHooksImpl.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: MemberHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -79,6 +79,16 @@ public class MemberHooksImpl extends MemberHooks {
   static String mostRecentPreUpdateMemberSubjectId;
 
   /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitInsertMemberSubjectId;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitUpdateMemberSubjectId;
+
+  /**
    * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPreUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
    */
   @Override
@@ -92,6 +102,32 @@ public class MemberHooksImpl extends MemberHooks {
       throw new HookVeto("hook.veto.member.update.subjectId.not.whatever2", "subjectId cannot be whatever2");
     }
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPostInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
+   */
+  @Override
+  public void memberPostCommitInsert(HooksContext hooksContext,
+      HooksMemberBean postInsertBean) {
+  
+    Member member = postInsertBean.getMember();
+    String subjectId = (String)member.getSubjectId();
+    mostRecentPostCommitInsertMemberSubjectId = subjectId;
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPostUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
+   */
+  @Override
+  public void memberPostCommitUpdate(HooksContext hooksContext,
+      HooksMemberBean postUpdateBean) {
+    
+    Member member = postUpdateBean.getMember();
+    String subjectId = (String)member.getSubjectId();
+    mostRecentPostCommitUpdateMemberSubjectId = subjectId;
+  
   }
 
 }

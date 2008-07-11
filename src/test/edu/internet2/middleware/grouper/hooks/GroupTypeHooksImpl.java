@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeHooksImpl.java,v 1.1 2008-06-29 17:42:41 mchyzer Exp $
+ * $Id: GroupTypeHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -73,6 +73,18 @@ public class GroupTypeHooksImpl extends GroupTypeHooks {
    * @see edu.internet2.middleware.grouper.hooks.GroupTypeHooks#groupTypePostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean)
    */
   @Override
+  public void groupTypePostCommitDelete(HooksContext hooksContext, HooksGroupTypeBean preDeleteBean) {
+    
+    GroupType groupType = preDeleteBean.getGroupType();
+    String name = groupType.getName();
+    mostRecentPostCommitDeleteGroupTypeName = name;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.GroupTypeHooks#groupTypePostDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean)
+   */
+  @Override
   public void groupTypePostDelete(HooksContext hooksContext, HooksGroupTypeBean preDeleteBean) {
     
     GroupType groupType = preDeleteBean.getGroupType();
@@ -83,11 +95,21 @@ public class GroupTypeHooksImpl extends GroupTypeHooks {
     }
   }
 
-  /** most recent extension for testing */
-  static String mostRecentPostDeleteGroupTypeName;
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.GroupTypeHooks#groupTypePreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean)
+   */
+  @Override
+  public void groupTypePostCommitInsert(HooksContext hooksContext, HooksGroupTypeBean postInsertBean) {
+    
+    GroupType groupType = postInsertBean.getGroupType();
+    String name = groupType.getName();
+    mostRecentPostCommitInsertGroupTypeName = name;
+    
+  }
 
   /** most recent extension for testing */
-  static String mostRecentPostUpdateGroupTypeName;
+  static String mostRecentPostDeleteGroupTypeName;
 
   /** most recent extension for testing */
   static String mostRecentPreDeleteGroupTypeName;
@@ -95,7 +117,14 @@ public class GroupTypeHooksImpl extends GroupTypeHooks {
   /** most recent extension for testing */
   static String mostRecentPostInsertGroupTypeName;
 
-  /** most recent extension for testing */
-  static String mostRecentPreUpdateGroupTypeName;
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitDeleteGroupTypeName;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitInsertGroupTypeName;
 
 }

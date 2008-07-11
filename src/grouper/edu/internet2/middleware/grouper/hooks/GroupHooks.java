@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooks.java,v 1.5 2008-07-10 06:37:18 mchyzer Exp $
+ * $Id: GroupHooks.java,v 1.6 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -16,8 +16,14 @@ public abstract class GroupHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
 
+  /** constant for method name for: groupPostCommitDelete */
+  public static final String METHOD_GROUP_POST_COMMIT_DELETE = "groupPostCommitDelete";
+
   /** constant for method name for: groupPostCommitInsert */
   public static final String METHOD_GROUP_POST_COMMIT_INSERT = "groupPostCommitInsert";
+
+  /** constant for method name for: groupPostCommitUpdate */
+  public static final String METHOD_GROUP_POST_COMMIT_UPDATE = "groupPostCommitUpdate";
 
   /** constant for method name for: groupPostDelete */
   public static final String METHOD_GROUP_POST_DELETE = "groupPostDelete";
@@ -37,8 +43,7 @@ public abstract class GroupHooks {
   /** constant for method name for: groupPreUpdate */
   public static final String METHOD_GROUP_PRE_UPDATE = "groupPreUpdate";
 
-  //*****  END GENERATED WITH GenerateMethodConstants.java *****//
-  
+  //*****  END GENERATED WITH GenerateMethodConstants.java *****//  
   /**
    * called right before a group update
    * @param hooksContext
@@ -76,7 +81,7 @@ public abstract class GroupHooks {
   }
   
   /**
-   * called right after the commit of a post insert.  Note, cant veto this or participate in the tx
+   * called right after the commit of a post insert commit.  Note, cant veto this or participate in the tx
    * @param hooksContext
    * @param postCommitInsertBean
    */
@@ -94,11 +99,29 @@ public abstract class GroupHooks {
   }
   
   /**
-   * called right after a group insert
+   * called right after a group delete
    * @param hooksContext
    * @param postDeleteBean
    */
   public void groupPostDelete(HooksContext hooksContext, HooksGroupBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a commit involving a group delete commit
+   * @param hooksContext
+   * @param postCommitDeleteBean
+   */
+  public void groupPostCommitDelete(HooksContext hooksContext, HooksGroupBean postCommitDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a commit on a group update commit
+   * @param hooksContext
+   * @param postCommitUpdateBean
+   */
+  public void groupPostCommitUpdate(HooksContext hooksContext, HooksGroupBean postCommitUpdateBean) {
     
   }
   

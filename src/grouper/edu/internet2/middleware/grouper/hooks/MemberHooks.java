@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MemberHooks.java,v 1.1 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: MemberHooks.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -15,6 +15,15 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
 public abstract class MemberHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
+
+  /** constant for method name for: memberPostCommitDelete */
+  public static final String METHOD_MEMBER_POST_COMMIT_DELETE = "memberPostCommitDelete";
+
+  /** constant for method name for: memberPostCommitInsert */
+  public static final String METHOD_MEMBER_POST_COMMIT_INSERT = "memberPostCommitInsert";
+
+  /** constant for method name for: memberPostCommitUpdate */
+  public static final String METHOD_MEMBER_POST_COMMIT_UPDATE = "memberPostCommitUpdate";
 
   /** constant for method name for: memberPostDelete */
   public static final String METHOD_MEMBER_POST_DELETE = "memberPostDelete";
@@ -82,11 +91,38 @@ public abstract class MemberHooks {
   }
   
   /**
-   * called right after a member insert
+   * called right after a member delete
    * @param hooksContext
    * @param postDeleteBean
    */
   public void memberPostDelete(HooksContext hooksContext, HooksMemberBean postDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a member delete commit
+   * @param hooksContext
+   * @param postCommitDeleteBean
+   */
+  public void memberPostCommitDelete(HooksContext hooksContext, HooksMemberBean postCommitDeleteBean) {
+    
+  }
+
+  /**
+   * called right after a member insert commit
+   * @param hooksContext
+   * @param postCommitInsertBean
+   */
+  public void memberPostCommitInsert(HooksContext hooksContext, HooksMemberBean postCommitInsertBean) {
+    
+  }
+
+  /**
+   * called right after a member update commit
+   * @param hooksContext
+   * @param postCommitUpdateBean
+   */
+  public void memberPostCommitUpdate(HooksContext hooksContext, HooksMemberBean postCommitUpdateBean) {
     
   }
   

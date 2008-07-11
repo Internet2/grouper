@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleHooksTest.java,v 1.1 2008-06-29 17:42:41 mchyzer Exp $
+ * $Id: GroupTypeTupleHooksTest.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -8,7 +8,6 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupModifyException;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
@@ -17,9 +16,13 @@ import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 
 /**
@@ -211,6 +214,73 @@ public class GroupTypeTupleHooksTest extends GrouperTest {
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.GROUP_TYPE_TUPLE.getPropertyFileKey(), 
         GroupTypeTupleHooksImpl.class);
+  }
+
+  /**
+   * @throws SchemaException 
+   * @throws InsufficientPrivilegeException 
+   * @throws GroupModifyException 
+   */
+  public void testGroupTypeTuplePostCommitDelete() throws SchemaException, InsufficientPrivilegeException, GroupModifyException {
+    
+    final Group group = StemHelper.addChildGroup(this.edu, "test7", "the test7");
+    group.addType(groupType);
+  
+    
+    GroupTypeTupleHooksImpl.mostRecentPostCommitDeleteGroupTypeTupleName = null;
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group.deleteType(groupType);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", GroupTypeTupleHooksImpl.mostRecentPostCommitDeleteGroupTypeTupleName);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test7", GroupTypeTupleHooksImpl.mostRecentPostCommitDeleteGroupTypeTupleName);
+        return null;
+      }
+    });    
+    
+  }
+
+  /**
+   * @throws SchemaException 
+   * @throws InsufficientPrivilegeException 
+   * @throws GroupModifyException 
+   * 
+   */
+  public void testGroupTypeTuplePostCommitInsert() throws SchemaException, InsufficientPrivilegeException, GroupModifyException {
+    
+    final Group group = StemHelper.addChildGroup(this.edu, "test3", "the test3");
+
+    GroupTypeTupleHooksImpl.mostRecentPostCommitInsertGroupTypeTupleName = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          group.addType(groupType);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", GroupTypeTupleHooksImpl.mostRecentPostCommitInsertGroupTypeTupleName);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals("test3", GroupTypeTupleHooksImpl.mostRecentPostCommitInsertGroupTypeTupleName);
+        return null;
+      }
+    });    
+    
   }
 
 }

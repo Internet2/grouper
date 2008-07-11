@@ -23,7 +23,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -33,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.3 2008-06-30 04:01:34 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.4 2008-07-11 05:11:28 mchyzer Exp $
  * @since   @HEAD@
  */
 public class GroupTypeTuple extends GrouperAPI {
@@ -57,6 +59,12 @@ public class GroupTypeTuple extends GrouperAPI {
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_GROUP_UUID, FIELD_ID, FIELD_TYPE_UUID);
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_DB_VERSION, FIELD_GROUP_UUID, FIELD_ID, FIELD_TYPE_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -139,7 +147,13 @@ public class GroupTypeTuple extends GrouperAPI {
    */
   @Override
   public void onPostDelete(HibernateSession hibernateSession) {
+
     super.onPostDelete(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_DELETE, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_DELETE, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_DELETE, false, true);
@@ -150,7 +164,13 @@ public class GroupTypeTuple extends GrouperAPI {
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
+
     super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_INSERT, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_INSERT, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_INSERT, true, false);
@@ -161,7 +181,13 @@ public class GroupTypeTuple extends GrouperAPI {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
+
     super.onPostUpdate(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_UPDATE, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class);
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_UPDATE, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_UPDATE, true, false);
@@ -238,10 +264,17 @@ public class GroupTypeTuple extends GrouperAPI {
   @Override
   public void dbVersionReset() {
     //lets get the state from the db so we know what has changed
-    this.dbVersion = new GroupTypeTuple();
-    
-    GrouperUtil.copyObjectFields(this, this.dbVersion, DB_VERSION_FIELDS);
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
   }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public GroupTypeTuple clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
 
 } 
 

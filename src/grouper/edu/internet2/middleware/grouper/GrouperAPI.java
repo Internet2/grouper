@@ -26,6 +26,7 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -33,10 +34,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.13 2008-06-30 04:01:33 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.14 2008-07-11 05:11:28 mchyzer Exp $
  * @since   1.2.0
  */
-public abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
+public abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle, GrouperCloneable {
 
   /** save the state when retrieving from DB */
   @GrouperIgnoreDbVersion
@@ -171,6 +172,12 @@ public abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle {
   public boolean onUpdate(Session s) throws CallbackException {
     return Lifecycle.NO_VETO;
   } 
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public abstract GrouperAPI clone();
 
 } 
 

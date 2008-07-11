@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.6 2008-06-30 04:31:41 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.7 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -48,7 +48,7 @@ public class GrouperUtilTest extends TestCase {
     GrouperUtil.assignField(groupFrom, Group.FIELD_CREATOR_UUID, "abc");
     
     Group groupTo = new Group();
-    GrouperUtil.copyObjectFields(groupFrom, groupTo, 
+    GrouperUtil.cloneFields(groupFrom, groupTo, 
         GrouperUtil.toSet(Group.FIELD_ATTRIBUTES, Group.FIELD_CREATOR_UUID, Group.FIELD_CREATE_TIME));
     
     assertEquals("b", (String)groupTo.getAttributesDb().get("a"));

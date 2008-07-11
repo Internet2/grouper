@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperSessionHooksTest.java,v 1.1 2008-06-29 17:42:41 mchyzer Exp $
+ * $Id: GrouperSessionHooksTest.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -10,9 +10,13 @@ import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.RegistryReset;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 
 /**
@@ -25,7 +29,7 @@ public class GrouperSessionHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperSessionHooksTest("testGrouperSessionPostDelete"));
+    TestRunner.run(new GrouperSessionHooksTest("testGrouperSessionPostCommitDelete"));
     //TestRunner.run(new GrouperSessionHooksTest(""));
     //TestRunner.run(GrouperSessionHooksTest.class);
   }
@@ -165,6 +169,68 @@ public class GrouperSessionHooksTest extends GrouperTest {
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.GROUPER_SESSION.getPropertyFileKey(), 
         GrouperSessionHooksImpl.class);
+  }
+
+  /**
+   * @throws SessionException 
+   * 
+   */
+  public void testGrouperSessionPostCommitDelete() throws SessionException {
+    
+    final GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+
+    GrouperSessionHooksImpl.mostRecentPostCommitDeleteGrouperSessionSubjectId = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          grouperSession.stop();
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", GrouperSessionHooksImpl.mostRecentPostCommitDeleteGrouperSessionSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ0.getId(), GrouperSessionHooksImpl.mostRecentPostCommitDeleteGrouperSessionSubjectId);
+        return null;
+      }
+    });    
+
+    
+  }
+
+  /**
+   * @throws SessionException 
+   * 
+   */
+  public void testGrouperSessionPostCommitInsert() throws SessionException {
+    
+    GrouperSessionHooksImpl.mostRecentPostCommitInsertGrouperSessionSubjectId = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        try {
+          GrouperSession.start(SubjectTestHelper.SUBJ2);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+        
+        assertNull("shouldnt fire yet", GrouperSessionHooksImpl.mostRecentPostCommitInsertGrouperSessionSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ2.getId(), GrouperSessionHooksImpl.mostRecentPostCommitInsertGrouperSessionSubjectId);
+        return null;
+      }
+    });    
+
+    
   }
 
 }
