@@ -18,9 +18,10 @@ They can be broadly divided into three groups:
 
 3) Sun jars (mail, smtp, jta)
 	These jars are licensed by Sun under a restrictive license that prevents
-	them from being included in the central repository. It's not clear to
-	me that we can legally include these jars in our distribution, but
-	it seems that everyone does it.
+	them from being included in the central repository.  These jars are
+	legal to include in our software, but we had to agree to the Sun license
+	to do it. If we moved to later versions of these jars, Sun has a more
+	lenient license and its own repository that we could reference.
 
 If you need to add a jar to this repository you must create a pom file for it.
 Use the existing pom files as a template. The essential elements are the
