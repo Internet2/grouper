@@ -42,7 +42,7 @@ import java.util.Properties;
  * Class for doing a Grouper export
  * @author Gil Singer 
  */
-public class GrouperExportTest extends TestCase
+public class GrouperExportTest extends BaseTestCase
 {
 
     /**
@@ -166,7 +166,7 @@ public class GrouperExportTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(GrouperExportTest.class);
+        BaseTestCase.runTestRunner(GrouperExportTest.class);
     }
     
 

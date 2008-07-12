@@ -59,7 +59,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
 
  * @author Gil Singer 
  */
-public class GrouperProvisionerLastModifyTest extends TestCase
+public class GrouperProvisionerLastModifyTest extends BaseTestCase
 {
     /**
      * the grouper session
@@ -126,7 +126,7 @@ public class GrouperProvisionerLastModifyTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(GrouperProvisionerLastModifyTest.class);
+        BaseTestCase.runTestRunner(GrouperProvisionerLastModifyTest.class);
     }
 
     /**

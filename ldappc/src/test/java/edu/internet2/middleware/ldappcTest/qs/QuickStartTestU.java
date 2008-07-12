@@ -41,6 +41,7 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.TestOptions;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
@@ -82,7 +83,7 @@ import javax.naming.directory.SearchResult;
 /**
  * Class for testing TODO FINISH
  */
-public class QuickStartTestU extends TestCase
+public class QuickStartTestU extends BaseTestCase
 {
     /**
      * Grouper group root DN
@@ -216,7 +217,7 @@ public class QuickStartTestU extends TestCase
      */
     public static void main(String args[])
     {
-        junit.textui.TestRunner.run(QuickStartTestU.class);
+        BaseTestCase.runTestRunner(QuickStartTestU.class);
     }
 
     /**

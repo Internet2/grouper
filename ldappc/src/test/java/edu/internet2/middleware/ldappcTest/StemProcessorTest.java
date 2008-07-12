@@ -51,7 +51,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
  *
  * @author Gil Singer 
  */
-public class StemProcessorTest extends TestCase
+public class StemProcessorTest extends BaseTestCase
 {
     /**
      * the grouper session
@@ -154,7 +154,7 @@ public class StemProcessorTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(StemProcessorTest.class);
+        BaseTestCase.runTestRunner(StemProcessorTest.class);
     }
 
     /**

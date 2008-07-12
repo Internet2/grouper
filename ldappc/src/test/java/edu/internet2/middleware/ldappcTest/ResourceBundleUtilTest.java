@@ -28,7 +28,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
  * This does not use any of the non-test classes.
  * @author Gil Singer 
  */
-public class ResourceBundleUtilTest extends TestCase
+public class ResourceBundleUtilTest extends BaseTestCase
 {
 
     /**
@@ -59,7 +59,7 @@ public class ResourceBundleUtilTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(ResourceBundleUtilTest.class);
+        BaseTestCase.runTestRunner(ResourceBundleUtilTest.class);
     }
 
     /**

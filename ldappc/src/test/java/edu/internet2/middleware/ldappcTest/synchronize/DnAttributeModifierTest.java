@@ -34,13 +34,14 @@ import junit.framework.TestCase;
 
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.synchronize.DnAttributeModifier;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the
  * {@link edu.internet2.middleware.ldappc.synchronize.DnAttributeModifier}.
  */
-public class DnAttributeModifierTest extends TestCase
+public class DnAttributeModifierTest extends BaseTestCase
 {
     /**
      * Name parser to use for testing
@@ -88,7 +89,7 @@ public class DnAttributeModifierTest extends TestCase
      */
     public static void main(String args[])
     {
-        junit.textui.TestRunner.run(AttributeModifierTest.class);
+        BaseTestCase.runTestRunner(AttributeModifierTest.class);
     }
 
     /**

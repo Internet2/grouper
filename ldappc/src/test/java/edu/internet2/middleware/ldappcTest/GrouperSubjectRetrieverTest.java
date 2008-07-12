@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
  * Class for doing a simple LDAP search
  * @author Gil Singer 
  */
-public class GrouperSubjectRetrieverTest extends TestCase
+public class GrouperSubjectRetrieverTest extends BaseTestCase
 {
 
     /**
@@ -59,7 +59,7 @@ public class GrouperSubjectRetrieverTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(GrouperSubjectRetrieverTest.class);
+        BaseTestCase.runTestRunner(GrouperSubjectRetrieverTest.class);
     }
     
 

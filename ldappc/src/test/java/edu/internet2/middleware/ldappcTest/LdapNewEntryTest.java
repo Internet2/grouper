@@ -43,7 +43,7 @@ import java.util.Hashtable;
  * Class for doing a simple LDAP search
  * @author Gil Singer 
  */
-public class LdapNewEntryTest extends TestCase
+public class LdapNewEntryTest extends BaseTestCase
 {
 
     /**
@@ -100,7 +100,7 @@ public class LdapNewEntryTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(LdapNewEntryTest.class);
+        BaseTestCase.runTestRunner(LdapNewEntryTest.class);
     }
     
 

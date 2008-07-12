@@ -30,13 +30,14 @@ import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the
  * {@link edu.internet2.middleware.ldappc.ConfigManager}.
  */
-public class ConfigManagerTest extends TestCase
+public class ConfigManagerTest extends BaseTestCase
 {
     /**
      * Relative configuration resource path
@@ -113,7 +114,7 @@ public class ConfigManagerTest extends TestCase
      */
     public static void main(String args[])
     {
-        junit.textui.TestRunner.run(ConfigManagerTest.class);
+        BaseTestCase.runTestRunner(ConfigManagerTest.class);
     }
 
     /**

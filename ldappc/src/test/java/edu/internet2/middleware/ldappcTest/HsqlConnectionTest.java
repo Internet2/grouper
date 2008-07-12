@@ -35,7 +35,7 @@ import java.sql.Statement;
  * This does not use any of the non-test classes.
  * @author Gil Singer 
  */
-public class HsqlConnectionTest extends TestCase
+public class HsqlConnectionTest extends BaseTestCase
 {
     /**
      * database connection
@@ -71,7 +71,7 @@ public class HsqlConnectionTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(HsqlConnectionTest.class);
+        BaseTestCase.runTestRunner(HsqlConnectionTest.class);
     }
     
     /**

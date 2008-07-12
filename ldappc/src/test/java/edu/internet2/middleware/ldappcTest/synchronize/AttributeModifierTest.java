@@ -28,13 +28,14 @@ import javax.naming.directory.ModificationItem;
 import junit.framework.TestCase;
 
 import edu.internet2.middleware.ldappc.synchronize.AttributeModifier;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the
  * {@link edu.internet2.middleware.ldappc.synchronize.AttributeModifier}.
  */
-public class AttributeModifierTest extends TestCase
+public class AttributeModifierTest extends BaseTestCase
 {
     /**
      * Class constructor
@@ -67,7 +68,7 @@ public class AttributeModifierTest extends TestCase
      */
     public static void main(String args[])
     {
-        junit.textui.TestRunner.run(AttributeModifierTest.class);
+        BaseTestCase.runTestRunner(AttributeModifierTest.class);
     }
 
     /**

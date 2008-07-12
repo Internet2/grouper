@@ -64,7 +64,7 @@ import java.util.Iterator;
 
  * @author Gil Singer 
  */
-public class GroupProcessorTest extends TestCase
+public class GroupProcessorTest extends BaseTestCase
 {
     /**
      * the grouper session
@@ -146,7 +146,7 @@ public class GroupProcessorTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(GroupProcessorTest.class);
+        BaseTestCase.runTestRunner(GroupProcessorTest.class);
     }
 
     /**

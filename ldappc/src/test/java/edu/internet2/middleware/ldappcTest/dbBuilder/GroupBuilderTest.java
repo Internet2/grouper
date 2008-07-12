@@ -18,23 +18,21 @@
 
 package edu.internet2.middleware.ldappcTest.dbBuilder;
 
-import junit.framework.TestCase;
-
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GroupAddException;
 import edu.internet2.middleware.grouper.GroupDeleteException;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemNotFoundException;
-import edu.internet2.middleware.grouper.StemAddException;
-import edu.internet2.middleware.grouper.StemDeleteException;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemAddException;
+import edu.internet2.middleware.grouper.StemDeleteException;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
-import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
@@ -46,7 +44,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
  *
  * @author Gil Singer 
  */
-public class GroupBuilderTest extends TestCase
+public class GroupBuilderTest extends BaseTestCase
 {
     /**
      * the grouper session
@@ -182,7 +180,7 @@ public class GroupBuilderTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(GroupBuilderTest.class);
+        BaseTestCase.runTestRunner(GroupBuilderTest.class);
     }
     
     /**

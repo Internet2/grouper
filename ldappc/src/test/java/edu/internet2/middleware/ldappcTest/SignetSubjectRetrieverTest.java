@@ -29,7 +29,7 @@ import java.util.List;
  * Class for doing a simple LDAP search
  * @author Gil Singer 
  */
-public class SignetSubjectRetrieverTest extends TestCase
+public class SignetSubjectRetrieverTest extends BaseTestCase
 {
 
     /**
@@ -60,7 +60,7 @@ public class SignetSubjectRetrieverTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(SignetSubjectRetrieverTest.class);
+        BaseTestCase.runTestRunner(SignetSubjectRetrieverTest.class);
     }
     
 

@@ -30,7 +30,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
  * Class for testing the GrouperSessionControl class
  * @author Gil Singer 
  */
-public class GrouperSessionControlTest extends TestCase
+public class GrouperSessionControlTest extends BaseTestCase
 {
     /**
      * Instance for starting and stopping a GrouperSession
@@ -66,7 +66,7 @@ public class GrouperSessionControlTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(GrouperSessionControlTest.class);
+        BaseTestCase.runTestRunner(GrouperSessionControlTest.class);
     }
     
 

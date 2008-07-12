@@ -39,7 +39,7 @@ import java.util.Calendar;
  * @author Gil Singer
  */
 
-public class InputOptionsTest extends TestCase
+public class InputOptionsTest extends BaseTestCase
 {
     /*
      * An instance of the main class, just to check that it can be created.
@@ -104,7 +104,7 @@ public class InputOptionsTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(InputOptionsTest.class);
+        BaseTestCase.runTestRunner(InputOptionsTest.class);
     }
     
     /**

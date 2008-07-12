@@ -38,7 +38,7 @@ import java.util.Hashtable;
  * Class for testing the RootProcessor class
  * @author Gil Singer 
  */
-public class RootProcessorTest extends TestCase
+public class RootProcessorTest extends BaseTestCase
 {
 
     /**
@@ -96,7 +96,7 @@ public class RootProcessorTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(RootProcessorTest.class);
+        BaseTestCase.runTestRunner(RootProcessorTest.class);
     }
 
     /**

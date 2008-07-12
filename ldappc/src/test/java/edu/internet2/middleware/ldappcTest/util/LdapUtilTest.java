@@ -22,12 +22,13 @@ import junit.framework.TestCase;
 
 
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * Class for testing the LdapUtil class.
  */
-public class LdapUtilTest extends TestCase
+public class LdapUtilTest extends BaseTestCase
 {
     /**
      * Constructor
@@ -57,7 +58,7 @@ public class LdapUtilTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(LdapUtilTest.class);
+        BaseTestCase.runTestRunner(LdapUtilTest.class);
     }
     
     /**

@@ -18,19 +18,16 @@
 
 package edu.internet2.middleware.ldappcTest.dbBuilder;
 
-import junit.framework.TestCase;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
-import edu.internet2.middleware.subject.Subject;
-
-
-
+import edu.internet2.middleware.ldappcTest.GrouperProvisionerTest;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing creating a stem and group so that other
@@ -41,7 +38,7 @@ import javax.naming.ldap.LdapContext;
  *
  * @author Gil Singer 
  */
-public class SignetSubjectProvisionerTest extends TestCase
+public class SignetSubjectProvisionerTest extends BaseTestCase
 {
     /**
      * the Signet subject provisioner
@@ -98,7 +95,7 @@ public class SignetSubjectProvisionerTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(SignetSubjectProvisionerTest.class);
+        BaseTestCase.runTestRunner(SignetSubjectProvisionerTest.class);
     }
     
     /**

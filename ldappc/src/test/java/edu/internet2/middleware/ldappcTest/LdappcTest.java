@@ -29,7 +29,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
  * @author Gil Singer 
  */
 
-public class LdappcTest extends TestCase
+public class LdappcTest extends BaseTestCase
 {
 
     /*
@@ -80,7 +80,7 @@ public class LdappcTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(LdappcTest.class);
+        BaseTestCase.runTestRunner(LdappcTest.class);
     }
     
     /**

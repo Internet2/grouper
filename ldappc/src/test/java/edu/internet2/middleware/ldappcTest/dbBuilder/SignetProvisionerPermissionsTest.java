@@ -21,17 +21,16 @@ package edu.internet2.middleware.ldappcTest.dbBuilder;
 import java.util.Iterator;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcSignetProvisioner;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
-import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Privilege;
 import edu.internet2.middleware.signet.Signet;
@@ -45,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  *
  * @author Gil Singer 
  */
-public class SignetProvisionerPermissionsTest extends TestCase
+public class SignetProvisionerPermissionsTest extends BaseTestCase
 {
     /**
      * the LdappcSignetProvisioner instance
@@ -96,7 +95,7 @@ public class SignetProvisionerPermissionsTest extends TestCase
      */
     public static void main(String args[]) 
     {
-         junit.textui.TestRunner.run(SignetProvisionerPermissionsTest.class);
+        BaseTestCase.runTestRunner(SignetProvisionerPermissionsTest.class);
     }
 
     /**
