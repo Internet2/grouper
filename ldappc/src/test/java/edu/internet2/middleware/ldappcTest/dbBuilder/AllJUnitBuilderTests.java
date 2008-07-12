@@ -47,16 +47,9 @@ public class AllJUnitBuilderTests extends TestCase
     public static Test suite() 
     {
         TestSuite suite = new TestSuite(GroupBuilderTest.class);
-        // Removing these tests to reduce test running time.  These tests
-        // were initial tests to verify developer understanding of Grouper,
-        // Signet, and LDAP methods and exercise local provisioning not
-        // connected to the provisioning based on the ldappc.xml file.
-        //suite.addTest(new TestSuite(SignetSubjectProvisionerTest.class));
-        //suite.addTest(new TestSuite(GrouperSubjectProvisionerTest.class));
+        suite.addTest(new TestSuite(SignetSubjectProvisionerTest.class));
+        suite.addTest(new TestSuite(GrouperSubjectProvisionerTest.class));
         suite.addTest(new TestSuite(SignetProvisionerPermissionsTest.class));
-        // Use the following format to add additional test
-        // (change the class name).
-        //suite.addTest(new TestSuite(FooTest.class));
         return suite;
    }
 }
