@@ -241,7 +241,7 @@ public class SignetProvisioner extends Provisioner
      */
     protected boolean isSignetSubject(Subject subject)
     {
-        return (subject != null && "signet".equalsIgnoreCase(subject.getId()) && "application"
+        return (subject != null && "Super_SignetSubject".equalsIgnoreCase(subject.getId()) && "application"
                 .equalsIgnoreCase(subject.getType().getName()));
     }
 
