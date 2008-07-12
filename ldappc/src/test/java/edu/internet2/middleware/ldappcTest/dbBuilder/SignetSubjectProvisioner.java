@@ -19,7 +19,8 @@ limitations under the License.
 package edu.internet2.middleware.ldappcTest.dbBuilder;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 import javax.naming.ContextNotEmptyException;
 import javax.naming.NameAlreadyBoundException;
@@ -40,7 +41,6 @@ import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.subject.Subject;
 
@@ -101,7 +101,11 @@ public class SignetSubjectProvisioner
        //
        Signet signet = new Signet();
        // FIXME Is SignetAppSource.SIGNET_SOURCE_ID the correct source?
-       List privSubjects = signet.getSubjectsBySource(SignetAppSource.SIGNET_SOURCE_ID);
+       // There are 3 types of Subject Sources in Signet:
+       // 1. The built-in Signet Super-Subject Source (SIGNET_SOURCE_ID, above)
+       // 2. The Signet Persistent Source (Signet's DB can be used as a Subject Source!)
+       // 3. All other Subject Sources
+       Vector<SignetSubject> privSubjs = new Vector<SignetSubject>(signet.getPersistentDB().getSubjects());
        
        //
        // Create the DN that is used as a base for adding subjects.
@@ -111,9 +115,9 @@ public class SignetSubjectProvisioner
        //
        // For each privileged subject, process the subjects
        //
-       Iterator privSubjectIterator = privSubjects.iterator();
+       Iterator privSubjectIterator = privSubjs.iterator();
        LdapContext ctx = LdapUtil.getLdapContext();        
-       int numberOfSubjects = privSubjects.size();
+       int numberOfSubjects = privSubjs.size();
 
        if (numberOfSubjects > 0)
        {
@@ -132,27 +136,13 @@ public class SignetSubjectProvisioner
                //
                // Get the privileged subject
                //
-               SignetSubject privSubject = (SignetSubject) privSubjectIterator.next();
-    
-               //
-               // Try to find the subject.
-               //
-               Subject subject = null;
-    
-               //
-               // Using signet.getSubject() as privSubject.getSubject() encounters
-               // a NullPointerException.
-               //
-
-
-               subject = signet.getSubject(privSubject.getSubjectType(),
-                       privSubject.getId());
+               SignetSubject subject = (SignetSubject) privSubjectIterator.next();
 
                //
                // TEMPORARY FIX: Don't process the "signet" subject. 
                // TODO: Find a better way
                //
-               if (subject != null && "signet".equalsIgnoreCase(subject.getId())
+               if (subject != null && "Super_SignetSubject".equalsIgnoreCase(subject.getId())
                        && "application".equalsIgnoreCase(subject.getType().getName()))
                {
                    continue;
@@ -160,9 +150,11 @@ public class SignetSubjectProvisioner
 
                // example of testSubjectsDn: "ou=testSubjects,ou=testgrouper,dc=my-domain,dc=com"; 
 
-               sourceId = subject.getSource().getId();
+               Subject subj = signet.getSubject(subject.getSourceId(), subject.getId());
+
+               sourceId = subject.getSourceId();
                // Write this subject to the LDAP directory
-               buildSubjectLdapEntry(ctx, subject, testSubjectsDn, sourceId);
+               buildSubjectLdapEntry(ctx, subj, testSubjectsDn, sourceId);
 
                //
                // TODO: Reinstate the following code and figure out why it occurs.
@@ -274,7 +266,8 @@ public class SignetSubjectProvisioner
         ConfigManager configuration = ConfigManager.getInstance();
         LdapSearchFilter filter = configuration.getSourceSubjectLdapFilter(sourceId); 
         String sourceNameAttr = configuration.getSourceSubjectNamingAttribute(sourceId);
-        String subjectIdentifier = subject.getAttributeValue(sourceNameAttr);
+//        String subjectIdentifier = subject.getAttributeValue(sourceNameAttr);
+        String subjectIdentifier = subject.getAttributeValue("subjectAuthId");
 
         //
         // Create an attribute list for creating the new subject entry.
