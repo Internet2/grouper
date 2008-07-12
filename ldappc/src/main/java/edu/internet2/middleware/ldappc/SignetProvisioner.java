@@ -20,7 +20,6 @@ package edu.internet2.middleware.ldappc;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -41,7 +40,6 @@ import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.subject.Subject;
 
@@ -128,8 +126,11 @@ public class SignetProvisioner extends Provisioner
         //
         Signet signet = new Signet();
         
-        // FIXME Is SignetAppSource.SIGNET_SOURCE_ID the appropriate source name?
-        Vector privSubjs = signet.getSubjectsBySource(SignetAppSource.SIGNET_SOURCE_ID);
+        // There are 3 types of Subject Sources in Signet:
+        // 1. The built-in Signet Super-Subject Source (SIGNET_SOURCE_ID, above)
+        // 2. The Signet Persistent Source (Signet's DB can be used as a Subject Source!)
+        // 3. All other Subject Sources
+        Vector<SignetSubject> privSubjs = new Vector<SignetSubject>(signet.getPersistentDB().getSubjects());
 
         //
         // For each privileged subject, process the active permissions
@@ -143,17 +144,7 @@ public class SignetProvisioner extends Provisioner
             SignetSubject privSubj = (SignetSubject) privSubjIterator
                     .next();
 
-            //
-            // Try to find the privilege subject's subject.
-            //
-            Subject subject = null;
-            //
-            // Using signet.getSubject() as privSubj.getSubject() encounters
-            // a NullPointerException.
-            //
-            subject = signet.getSubject(privSubj.getSourceId(),
-                    privSubj.getId());
-            if (subject == null)
+            if (privSubj == null)
             {
                 //
                 // Handle the exception
@@ -170,7 +161,7 @@ public class SignetProvisioner extends Provisioner
             //
             // Don't process the "signet" subject.
             //
-            if (isSignetSubject(subject))
+            if (isSignetSubject(privSubj))
             {
                 continue;
             }
@@ -181,14 +172,14 @@ public class SignetProvisioner extends Provisioner
             Name subjectDn = null;
             try
             {
-                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
+                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, privSubj);
             }
             catch(Exception e)
             {
                 //
                 // Log a warning and continue with the loop
                 //
-                String errorData = getErrorData(privSubj, subject, null);
+                String errorData = getErrorData(privSubj, privSubj, null);
                 logThrowableWarning(e, errorData);
                 continue;
             }
@@ -211,7 +202,7 @@ public class SignetProvisioner extends Provisioner
             }
             catch(Exception e)
             {
-                String errorData = getErrorData(privSubj, subject, subjectDn);
+                String errorData = getErrorData(privSubj, privSubj, subjectDn);
                 logThrowableError(e, errorData);
                 caughtExceptions.add(new LdappcException(errorData, e));
             }
