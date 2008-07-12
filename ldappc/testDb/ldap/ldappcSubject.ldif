@@ -29,7 +29,7 @@ ou: uob
 dn: ou=testgrouper,dc=example,dc=edu
 objectclass: top
 objectclass: organizationalUnit
-description: location in which to root privisioned groups
+description: location in which to root provisioned groups
 ou: testgrouper
 
 dn: cn=manager,dc=example,dc=edu
