@@ -99,7 +99,9 @@
     <url>http://www.internet2.edu/</url>
   </organization>
 
-  <!-- Links to the user and development mailing lists -->
+  <!--
+    Links to the user and development mailing lists.
+  -->
   <mailingLists>
     <mailingList>
       <name>Grouper Users</name>
@@ -128,6 +130,16 @@
     <tag>HEAD</tag>
     <url>http://viewvc.internet2.edu/viewvc.py/ldappc-mvn/?root=I2MI</url>
   </scm>
+
+  <!--
+    Configure the deploy location for the site documentation.
+  -->
+  <distributionManagement>
+    <site>
+      <id>website</id>
+      <url>scpexe://http://middleware.internet2.edu/dir/groups/grouper/ldappc/1.2.0/doc</url>
+    </site>
+  </distributionManagement>
 
   <!--
     We have a repository under the base directory containing some special artifacts
@@ -167,6 +179,7 @@
           <tarLongFileMode>gnu</tarLongFileMode>
         </configuration>
         <executions>
+
           <!-- Make a binary distribution (no source) -->
           <execution>
             <id>make-binary</id>
@@ -181,6 +194,7 @@
               </descriptors>
             </configuration>
           </execution>
+
           <!-- Make a deployment distribution (like binary, but no site documentation) -->
           <execution>
             <id>make-deploy</id>
@@ -195,6 +209,7 @@
               </descriptors>
             </configuration>
           </execution>
+
           <!-- Make the "run in-place" environment -->
           <execution>
             <id>make-lib</id>
@@ -212,6 +227,7 @@
               </descriptors>
             </configuration>
           </execution>
+
           <!-- Make the site distribution (just the site documentation in the base directory) -->
           <execution>
             <id>make-site</id>
@@ -226,6 +242,7 @@
               </descriptors>
             </configuration>
           </execution>
+
           <!-- Make the source distribution (everything needed to build, plus site documentation) -->
           <execution>
             <id>make-source</id>
