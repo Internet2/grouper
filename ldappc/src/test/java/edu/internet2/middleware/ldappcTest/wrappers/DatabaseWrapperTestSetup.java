@@ -40,6 +40,7 @@ public class DatabaseWrapperTestSetup extends TestSetup {
     private String     grouperDbTarget    = null;
     private String     signetDbTarget     = null;
     private HsqlRunner hsqlRunner         = null;
+    private Thread     thread             = null;
 
     /**
      * @param suite
@@ -87,7 +88,8 @@ public class DatabaseWrapperTestSetup extends TestSetup {
         }
 
         hsqlRunner = new HsqlRunner();
-        new Thread(hsqlRunner).start();
+        thread = new Thread(hsqlRunner, "hsqlRunner");
+        thread.start();
 
         // Wait for at most 30 seconds
         for (int i = 0; i < 30; i++) {
@@ -102,15 +104,22 @@ public class DatabaseWrapperTestSetup extends TestSetup {
      * {@inheritDoc}
      */
     protected void tearDown() throws Exception {
+        // If we're using the embedded database, stop the runner
+        // and wait for it to die.
         if (useEmbeddedGrouper || useEmbeddedSignet) {
             hsqlRunner.stop();
+            while (thread.isAlive()) {
+                Thread.sleep(1000);
+            }
         }
 
+        // Delete the grouper database.
         if (useEmbeddedGrouper) {
             File dbDir = new File(grouperDbTarget);
             FileUtils.deleteDirectory(dbDir);
         }
 
+        // Delete the signet database.
         if (useEmbeddedSignet) {
             File dbDir = new File(signetDbTarget);
             FileUtils.deleteDirectory(dbDir);
@@ -143,24 +152,48 @@ public class DatabaseWrapperTestSetup extends TestSetup {
             server.setPort(dbPort);
             int dbIndex = 0;
             if (useEmbeddedGrouper) {
-                server.setDatabasePath(dbIndex, grouperDbTarget + "/grouper");
+                server.setDatabasePath(dbIndex, "file:" + grouperDbTarget + "/grouper");
                 server.setDatabaseName(dbIndex, "grouperdb");
                 dbIndex++;
             }
             if (useEmbeddedSignet) {
-                server.setDatabasePath(dbIndex, signetDbTarget + "/signet");
+                server.setDatabasePath(dbIndex, "file:" + signetDbTarget + "/signet");
                 server.setDatabaseName(dbIndex, "signetdb");
                 dbIndex++;
             }
+            System.out.println("Starting db");
+            System.out.flush();
             server.start();
             started = true;
+            System.out.println("db started");
+            System.out.flush();
+            while (started) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("Shutting down server");
+            System.out.flush();
+            server.shutdown();
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            System.out.println("State = " + server.getState());
+            System.out.println("Thread = " + Thread.currentThread().getName());
+            System.out.println("runner thread status = " + thread.isDaemon());
+            System.out.flush();
         }
 
         /**
          * Shut down the databases. Reset the start status.
          */
         public void stop() {
-            server.shutdown();
             started = false;
         }
     }
