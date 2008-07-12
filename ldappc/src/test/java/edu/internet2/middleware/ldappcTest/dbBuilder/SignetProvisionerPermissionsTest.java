@@ -184,7 +184,7 @@ public class SignetProvisionerPermissionsTest extends TestCase
         // Get the PrivilegedSubject, which should be uid=lsaito, Saito, Lee
         //
         SignetSubject privSubject = null;
-        privSubject = signet.getSubject("person", "SD00009");
+        privSubject = signet.getSubject("local_person", "SD00009");
         if (privSubject == null) {
              fail("Could not find PrivilegedSubject.");
         } 
