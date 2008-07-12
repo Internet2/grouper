@@ -137,7 +137,7 @@
   <distributionManagement>
     <site>
       <id>website</id>
-      <url>scpexe://http://middleware.internet2.edu/dir/groups/grouper/ldappc/${pom.version}/doc</url>
+      <url>scpexe://middleware.internet2.edu/dir/groups/grouper/ldappc/${pom.version}/doc</url>
     </site>
   </distributionManagement>
 
