@@ -172,7 +172,7 @@ public class SignetProvisioner extends Provisioner
             Name subjectDn = null;
             try
             {
-                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, privSubj);
+                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, privSubj.getSourceId(), privSubj.getId());
             }
             catch(Exception e)
             {
