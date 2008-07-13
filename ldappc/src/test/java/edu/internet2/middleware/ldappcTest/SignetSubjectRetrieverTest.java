@@ -14,7 +14,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappcTest;
 
@@ -27,48 +27,42 @@ import java.util.List;
 
 /**
  * Class for doing a simple LDAP search
- * @author Gil Singer 
+ * 
+ * @author Gil Singer
  */
-public class SignetSubjectRetrieverTest extends BaseTestCase
-{
+public class SignetSubjectRetrieverTest extends BaseTestCase {
 
     /**
      * Constructor
      */
-    public SignetSubjectRetrieverTest(String name) 
-    {
+    public SignetSubjectRetrieverTest(String name) {
         super(name);
     }
-    
+
     /**
      * Setup the fixture.
      */
-    protected void setUp() 
-    {
-        DisplayTest.showRunClass(getClass().getName());       
+    protected void setUp() {
+        DisplayTest.showRunClass(getClass().getName());
     }
 
     /**
      * Tear down the fixture.
      */
-    protected void tearDown() 
-    {
+    protected void tearDown() {
     }
 
     /**
      * The main method for running the test.
      */
-    public static void main(String args[]) 
-    {
+    public static void main(String args[]) {
         BaseTestCase.runTestRunner(SignetSubjectRetrieverTest.class);
     }
-    
 
     /**
      * A test of LDAP search capability.
      */
-    public void testSignetSubjectRetriever() 
-    {
+    public void testSignetSubjectRetriever() {
         DisplayTest.showRunTitle("testSignetSubjectRetriever", "All privileged subjects are retrieved.");
 
         SignetSubjectRetriever signetSubjectRetriever = new SignetSubjectRetriever();
@@ -76,22 +70,19 @@ public class SignetSubjectRetrieverTest extends BaseTestCase
         assertNotNull(subjectList);
         // 
         // Different test database will return different subjectList sizes.
-        // For example, the Signet demo database returns ? while the test database on
-        // the Unix biofix system has 8.  However, this figure may change.
-        // Therefore, this just tests to make sure that there are at least 2 subject in the
+        // For example, the Signet demo database returns ? while the test
+        // database on
+        // the Unix biofix system has 8. However, this figure may change.
+        // Therefore, this just tests to make sure that there are at least 2
+        // subject in the
         // list.
         //
 
-        String msg = "Bad subject list size";
+        String msg = "Bad subject list size = " + subjectList.size();
         String expected = "Subject list size is okay ( > 2 ).";
-        if (subjectList.size() > 2)
-        {
+        if (subjectList.size() > 2) {
             msg = expected;
         }
         assertEquals(expected, msg);
     }
 }
-        
-
-
-
