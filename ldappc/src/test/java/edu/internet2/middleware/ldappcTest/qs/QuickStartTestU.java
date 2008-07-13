@@ -291,7 +291,7 @@ public class QuickStartTestU extends BaseTestCase
     /**
      * Test provisioned group mapped attributes
      */
-public void internalTestProvisionedGroupMappedAttributes()
+    public void internalTestProvisionedGroupMappedAttributes()
     {
         DisplayTest
                 .showRunTitle("Verifying provisioned group mapped attributes");
@@ -641,7 +641,4 @@ public void internalTestProvisionedGroupMappedAttributes()
         }
         return groupAndMembers;
     }
-
-
-
 }
