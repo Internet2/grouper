@@ -19,7 +19,6 @@
 package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -169,13 +168,10 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
                     //
                     // See if at least one of the permission functions is listed
                     // in the function queries
-                    //
-                    // FIXME Have the terms changed completely between 1.2 and 1.3? Is a function or permission called something else now?
-                    Set functions = new HashSet();//permission.getFunctions();
-                    Iterator functionIterator = functions.iterator();
-                    while(functionIterator.hasNext())
-                    {
-                        Function function = (Function) functionIterator.next();
+                    // FIXME Have the terms changed completely between 1.2 and 1.3?
+                    // Is a function or permission called something else now?
+                    Set<Function> functions = new HashSet<Function>();//permission.getFunctions();
+                    for (Function function : functions) {
                         if (functionQueries.contains(function.getId()))
                         {
                             isIncluded = true;
@@ -231,7 +227,7 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    public void synchronize(Set privileges) throws NamingException,
+    public void synchronize(Set<Privilege> privileges) throws NamingException,
             LdappcException
     {
         //
@@ -242,13 +238,10 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
         //
         // Get the set of privileges and iterate over them
         //
-        Iterator privIterator = privileges.iterator();
-        while(privIterator.hasNext())
-        {
+        for (Privilege privilege : privileges) {
             //
-            // Get the privilege and it's permission
+            // Get the permission
             //
-            Privilege privilege = (Privilege) privIterator.next();
             Permission permission = privilege.getPermission();
 
             //
