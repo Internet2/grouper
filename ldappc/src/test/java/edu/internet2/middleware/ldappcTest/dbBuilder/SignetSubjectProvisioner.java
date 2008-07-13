@@ -100,7 +100,6 @@ public class SignetSubjectProvisioner
        // Get the list of privileged subjects
        //
        Signet signet = new Signet();
-       // FIXME Is SignetAppSource.SIGNET_SOURCE_ID the correct source?
        // There are 3 types of Subject Sources in Signet:
        // 1. The built-in Signet Super-Subject Source (SIGNET_SOURCE_ID, above)
        // 2. The Signet Persistent Source (Signet's DB can be used as a Subject Source!)
