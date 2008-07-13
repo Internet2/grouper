@@ -23,8 +23,10 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import  edu.internet2.middleware.signet.Signet;
 import  edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Class for finding subjects.
@@ -65,12 +67,15 @@ public class SignetSubjectRetriever
         }
 
 
-        List privSubj = null;
+        Vector<SignetSubject> privSubj = null;
         
         try
         {
-            // FIXME Is SignetAppSource.SIGNET_SOURCE_ID the correct source?
-            privSubj = signet.getSubjectsBySource(SignetAppSource.SIGNET_SOURCE_ID);
+            // There are 3 types of Subject Sources in Signet:
+            // 1. The built-in Signet Super-Subject Source (SIGNET_SOURCE_ID, above)
+            // 2. The Signet Persistent Source (Signet's DB can be used as a Subject Source!)
+            // 3. All other Subject Sources
+            privSubj = new Vector<SignetSubject>(signet.getPersistentDB().getSubjects());
         }
         catch (SignetRuntimeException sre)
         {
