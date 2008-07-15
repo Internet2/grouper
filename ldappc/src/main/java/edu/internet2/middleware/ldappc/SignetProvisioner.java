@@ -39,6 +39,9 @@ import edu.internet2.middleware.ldappc.synchronize.StringPermissionSynchronizer;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
+import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.LimitValue;
+import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.subject.Subject;
@@ -135,15 +138,7 @@ public class SignetProvisioner extends Provisioner
         //
         // For each privileged subject, process the active permissions
         //
-        Iterator privSubjIterator = privSubjs.iterator();
-        while(privSubjIterator.hasNext())
-        {
-            //
-            // Get the privileged subject
-            //
-            SignetSubject privSubj = (SignetSubject) privSubjIterator
-                    .next();
-
+        for (SignetSubject privSubj : privSubjs) {
             if (privSubj == null)
             {
                 //
@@ -194,11 +189,10 @@ public class SignetProvisioner extends Provisioner
             // permissions with
             // those in the directory
             //
-            PermissionSynchronizer synchronizer = getSynchronizer(ldapCtx,
-                    subjectDn);
+            PermissionSynchronizer synchronizer = getSynchronizer(ldapCtx, subjectDn);
             try
             {
-                synchronizer.synchronize(privSubj.getPrivileges());
+                synchronizer.synchronize(privSubj.getAssignmentsReceived());
             }
             catch(Exception e)
             {

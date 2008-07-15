@@ -18,7 +18,6 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -29,9 +28,12 @@ import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.SignetProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.SignetProvisionerOptions;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
+import edu.internet2.middleware.signet.Assignment;
+import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Privilege;
+import edu.internet2.middleware.signet.PrivilegeImpl;
 import edu.internet2.middleware.signet.Status;
 import edu.internet2.middleware.signet.Subsystem;
 
@@ -118,7 +120,7 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * @return <code>true</code> if the permission is to be included, and
      *         <code>false</code> otherwise.
      */
-    protected boolean isIncluded(Permission permission)
+    protected boolean isIncluded(Permission permission, Function function)
     {
         //
         // Init the return value
@@ -166,17 +168,11 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
                 if (!isIncluded)
                 {
                     //
-                    // See if at least one of the permission functions is listed
+                    // See if the permission function is listed
                     // in the function queries
-                    // FIXME Have the terms changed completely between 1.2 and 1.3?
-                    // Is a function or permission called something else now?
-                    Set<Function> functions = new HashSet<Function>();//permission.getFunctions();
-                    for (Function function : functions) {
-                        if (functionQueries.contains(function.getId()))
-                        {
-                            isIncluded = true;
-                            break;
-                        }
+                    if (functionQueries.contains(function.getId()))
+                    {
+                        isIncluded = true;
                     }
                 }
             }
@@ -227,8 +223,7 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    public void synchronize(Set<Privilege> privileges) throws NamingException,
-            LdappcException
+    public void synchronize(Set<AssignmentImpl> assignments) throws NamingException, LdappcException
     {
         //
         // Initialize the process
@@ -238,19 +233,21 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
         //
         // Get the set of privileges and iterate over them
         //
-        for (Privilege privilege : privileges) {
-            //
-            // Get the permission
-            //
-            Permission permission = privilege.getPermission();
+        for (Assignment assignment : assignments) {
+            for (Privilege privilege : (Set<Privilege>) PrivilegeImpl.getPrivileges(assignment)) {
+                //
+                // Get the permission
+                //
+                Permission permission = privilege.getPermission();
 
-            //
-            // If the permission is included, process it indicating whether or
-            // not it should be provisioned
-            //
-            if (isIncluded(permission))
-            {
-                performInclude(privilege, determineStatus(permission));
+                //
+                // If the permission is included, process it indicating whether or
+                // not it should be provisioned
+                //
+                if (isIncluded(permission, assignment.getFunction()))
+                {
+                    performInclude(privilege, determineStatus(permission));
+                }
             }
         }
 
