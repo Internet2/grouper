@@ -157,29 +157,26 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
                 + permission.getId() + DELIMITER + privilege.getScope().getId();
 
         //
-        // Get the limit values and iterate over those
+        // Get the limit values and iterate over those.
+        // If there are no limits, provision the prefix string.
         //
-        Set limitValues = privilege.getLimitValues();
-        Iterator limitValsIterator = limitValues.iterator();
-        while(limitValsIterator.hasNext())
-        {
-            //
-            // Get the next value
-            //
-            LimitValue limitValue = (LimitValue) limitValsIterator.next();
-
-            //
-            // Build the string
-            //
-            String permStr = commonPrefix + DELIMITER
-                    + limitValue.getLimit().getId() + DELIMITER
-                    + limitValue.getValue();
-
-            //
-            // Store the permission string in the attribute modifier
-            // (status doesn't improve things here so ignore it)
-            //
-            permissionMods.store(permStr);
+        if (privilege.getLimitValues().size() == 0) {
+            permissionMods.store(commonPrefix);
+        } else {
+            for (LimitValue limitValue : (Set<LimitValue>) privilege.getLimitValues()) {
+                //
+                // Build the string
+                //
+                String permStr = commonPrefix + DELIMITER
+                        + limitValue.getLimit().getId() + DELIMITER
+                        + limitValue.getValue();
+    
+                //
+                // Store the permission string in the attribute modifier
+                // (status doesn't improve things here so ignore it)
+                //
+                permissionMods.store(permStr);
+            }
         }
     }
 
