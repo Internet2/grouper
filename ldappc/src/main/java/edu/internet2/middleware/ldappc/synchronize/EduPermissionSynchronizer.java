@@ -58,13 +58,13 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
     /**
      * Set to hold the DNs of eduPermission objects that need to be deleted
      */
-    private Set deletes = new HashSet();
+    private Set<Name> deletes = new HashSet<Name>();
 
     /**
      * Set to hold the DNs of eduPermission objects that have already been
      * processed
      */
-    private Set processed = new HashSet();
+    private Set<Name> processed = new HashSet();
 
     /**
      * Constructs a <code>EduPermissionSynchronizer</code>
@@ -100,16 +100,13 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Init vars
         //
-        Vector namingExceptions = new Vector();
+        Vector<Exception> namingExceptions = new Vector();
         LdapContext context = getContext();
 
         //
         // Delete any eduPermission objects that are no longer valid
         //
-        Iterator iterator = deletes.iterator();
-        while(iterator.hasNext())
-        {
-            Name dn = (Name) iterator.next();
+        for (Name dn : deletes) {
             try
             {
                 LdapUtil.delete(context, dn);
@@ -221,33 +218,24 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      * @see edu.internet2.middleware.ldappc.synchronize.PermissionSynchronizer#performInclude(Privilege,
      *      int)
      */
-    protected void performInclude(Privilege privilege, int status)
-            throws NamingException
+    protected void performInclude(Privilege privilege, int status) throws NamingException
     {
         //
         // Sort limit values by limit ids
         //
-        Map limitMap = buildLimitMap(privilege.getLimitValues());
+        Map<String, BasicAttribute> limitMap = buildLimitMap(privilege.getLimitValues());
 
         //
         // Build the common values of the privilege DN
         //
         Permission permission = privilege.getPermission();
-        String safeSubsystemId = LdapUtil.makeLdapNameSafe(permission
-                .getSubsystem().getId());
+        String safeSubsystemId = LdapUtil.makeLdapNameSafe(permission.getSubsystem().getId());
         String safePermissionId = LdapUtil.makeLdapNameSafe(permission.getId());
 
         //
         // Get the limit values and iterate over those
         //
-        Iterator limitIdsIterator = limitMap.keySet().iterator();
-        while(limitIdsIterator.hasNext())
-        {
-            //
-            // Get the next limit id
-            //
-            String limitId = (String) limitIdsIterator.next();
-
+        for (String limitId : limitMap.keySet()) {
             //
             // Build the privilege DN made up of eduPermissionSubsytemId,
             // eduPermissionId, and eduPermissionLimitId.
@@ -318,20 +306,13 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      *            Set of LimitValues
      * @return Limit id to BasicAttribute map
      */
-    protected Map buildLimitMap(Set limitValues)
+    protected Map buildLimitMap(Set<LimitValue> limitValues)
     {
         HashMap limitMap = new HashMap();
 
         if (limitValues != null)
         {
-            Iterator limitValsIterator = limitValues.iterator();
-            while(limitValsIterator.hasNext())
-            {
-                //
-                // Get the next limitValue
-                //
-                LimitValue limitValue = (LimitValue) limitValsIterator.next();
-
+            for (LimitValue limitValue : limitValues) {
                 //
                 // Get the limit id and value
                 //
@@ -390,7 +371,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Init vector to hold the attribute modifiers
         //
-        Vector attributeModifiers = new Vector();
+        Vector<AttributeModifier> attributeModifiers = new Vector();
 
         //
         // Get the privilege's scope
@@ -400,11 +381,9 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Build and populate the scope id modifier
         //
-        AttributeModifier scopeIdModifier = new AttributeModifier(
-                EduPermission.Attribute.EDU_PERMISSION_SCOPE_ID);
+        AttributeModifier scopeIdModifier = new AttributeModifier(EduPermission.Attribute.EDU_PERMISSION_SCOPE_ID);
 
-        scopeIdModifier
-                .init(attributes.get(scopeIdModifier.getAttributeName()));
+        scopeIdModifier.init(attributes.get(scopeIdModifier.getAttributeName()));
 
         String scopeId = scope.getId();
         if (scopeId != null)
@@ -420,11 +399,9 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Build and populate the scope name modifier
         //
-        AttributeModifier scopeNameModifier = new AttributeModifier(
-                EduPermission.Attribute.EDU_PERMISSION_SCOPE_NAME);
+        AttributeModifier scopeNameModifier = new AttributeModifier(EduPermission.Attribute.EDU_PERMISSION_SCOPE_NAME);
 
-        scopeNameModifier.init(attributes.get(scopeNameModifier
-                .getAttributeName()));
+        scopeNameModifier.init(attributes.get(scopeNameModifier.getAttributeName()));
 
         String scopeName = scope.getName();
         if (scopeName != null)
@@ -440,11 +417,9 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Build and populate the limit values modifier
         //
-        AttributeModifier limitValuesModifier = new AttributeModifier(
-                EduPermission.Attribute.EDU_PERMISSION_LIMIT);
+        AttributeModifier limitValuesModifier = new AttributeModifier(EduPermission.Attribute.EDU_PERMISSION_LIMIT);
 
-        limitValuesModifier.init(attributes.get(limitValuesModifier
-                .getAttributeName()));
+        limitValuesModifier.init(attributes.get(limitValuesModifier.getAttributeName()));
 
         NamingEnumeration limitValues = limits.getAll();
         while(limitValues.hasMore())
@@ -460,12 +435,10 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Get all of the modifications
         //
-        Vector modifications = new Vector();
-        Iterator modifiersIterator = attributeModifiers.iterator();
-        while(modifiersIterator.hasNext())
+        Vector<ModificationItem> modifications = new Vector();
+        for (AttributeModifier mod : attributeModifiers)
         {
-            ModificationItem[] items = ((AttributeModifier) modifiersIterator
-                    .next()).getModifications();
+            ModificationItem[] items = mod.getModifications();
             for(int i = 0; i < items.length; i++)
             {
                 modifications.add(items[i]);
@@ -475,8 +448,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Build the modification item array
         //
-        ModificationItem[] modificationItems = new ModificationItem[modifications
-                .size()];
+        ModificationItem[] modificationItems = new ModificationItem[modifications.size()];
         for(int i = 0; i < modificationItems.length; i++)
         {
             modificationItems[i] = (ModificationItem) modifications.get(i);
@@ -522,29 +494,23 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Add the object class attribute
         //
-        attributes.put(LdapUtil.OBJECT_CLASS_ATTRIBUTE,
-                EduPermission.OBJECT_CLASS);
+        attributes.put(LdapUtil.OBJECT_CLASS_ATTRIBUTE, EduPermission.OBJECT_CLASS);
 
         //
         // Add the RDN attributes
         //
-        attributes.put(EduPermission.Attribute.EDU_PERMISSION_SUBSYSTEM_ID,
-                permission.getSubsystem().getId());
-        attributes.put(EduPermission.Attribute.EDU_PERMISSION_ID, permission
-                .getId());
-        attributes
-                .put(EduPermission.Attribute.EDU_PERMISSION_LIMIT_ID, limitId);
+        attributes.put(EduPermission.Attribute.EDU_PERMISSION_SUBSYSTEM_ID, permission.getSubsystem().getId());
+        attributes.put(EduPermission.Attribute.EDU_PERMISSION_ID, permission.getId());
+        attributes.put(EduPermission.Attribute.EDU_PERMISSION_LIMIT_ID, limitId);
 
         //
         // Add the scope values
         //
         TreeNode scope = privilege.getScope();
-        attributes.put(EduPermission.Attribute.EDU_PERMISSION_SCOPE_ID, scope
-                .getId());
+        attributes.put(EduPermission.Attribute.EDU_PERMISSION_SCOPE_ID, scope.getId());
         if (scope.getName() != null)
         {
-            attributes.put(EduPermission.Attribute.EDU_PERMISSION_SCOPE_NAME,
-                    scope.getName());
+            attributes.put(EduPermission.Attribute.EDU_PERMISSION_SCOPE_NAME, scope.getName());
         }
 
         //
