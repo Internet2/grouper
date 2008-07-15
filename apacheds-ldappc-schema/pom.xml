@@ -4,7 +4,7 @@
   <groupId>edu.internet2.middleware.ldappc</groupId>
   <artifactId>apacheds-ldappc-schema</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <name>Schema Project</name>
   <url>http://directory.apache.org/</url>
 

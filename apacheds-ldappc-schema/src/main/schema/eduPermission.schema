@@ -51,7 +51,7 @@ objectclass ( 1.3.6.1.4.1.5923.1.1.123456789
 	NAME 'eduPermission'
 	SUP top
 	STRUCTURAL
-	MUST ( eduPermissionSubsystemId $ eduPermissionId $ eduPermissionLimitId )
-	MAY ( eduPermissionScopeId $ eduPermissionScopeName $ eduPermissionLimit )
+	MUST ( eduPermissionSubsystemId $ eduPermissionId )
+	MAY ( eduPermissionScopeId $ eduPermissionScopeName $ eduPermissionLimit $ eduPermissionLimitId )
 	)
 
