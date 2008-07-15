@@ -19,3 +19,4 @@ Release Notes for CVS-tagged version Signet_1_3_0rc03
 
 5. Resource-ified three error messages in HibernateDB.java.
 
+

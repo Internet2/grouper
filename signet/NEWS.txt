@@ -1,6 +1,19 @@
 ======================================== 
 Signet	07/05/08
 
+Release Notes for CVS-tagged version Signet_1_3_0
+-------------------------------------------------
+
+1. Fixed some discrepencies in log4j configuration file.
+
+2. Upgraded JAXB to version 2.1.7.
+
+3. Added UML class diagram for Signet metadata.
+
+
+======================================== 
+Signet	07/05/08
+
 Release Notes for CVS-tagged version Signet_1_3_0rc03
 -----------------------------------------------------
 
