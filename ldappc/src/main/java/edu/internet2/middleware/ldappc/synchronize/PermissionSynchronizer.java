@@ -197,7 +197,7 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected abstract void performInclude(Privilege privilege, int status)
+    protected abstract void performInclude(Privilege privilege, Function function, int status)
             throws NamingException, LdappcException;
 
     /**
@@ -246,7 +246,7 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
                 //
                 if (isIncluded(permission, assignment.getFunction()))
                 {
-                    performInclude(privilege, determineStatus(permission));
+                    performInclude(privilege, assignment.getFunction(), determineStatus(permission));
                 }
             }
         }
