@@ -52,28 +52,29 @@
     <permissions-listing stored-as="string" 
       string-object-class="eduPerson"
       string-attribute="eduPersonEntitlement"
-      string-prefix="urn:mace:example.edu:permission:" />
-      <!-- 
+      string-prefix="urn:mace:example.edu:permission" />
       <permissions-queries>
         <subsystem-queries>
           <subsystem-list>
-            <subsystem id="" />
+            <subsystem id="projectx" />
+            <subsystem id="library" />
           </subsystem-list>
         </subsystem-queries>
+<!--
         <function-queries>
           <function-list>
             <function id="" />
           </function-list>
         </function-queries>
+-->
       </permissions-queries>
-      -->
   </signet>
 
   <source-subject-identifiers>
-    <source-subject-identifier source="local_person" subject-attribute="LOGINID">
+    <source-subject-identifier source="local_person" subject-attribute="id">
       <ldap-search base="ou=kitn,dc=example,dc=edu" 
         scope="subtree_scope" 
-        filter="(uid={0})" />
+        filter="(kitnEduPersonRegId={0})" />
     </source-subject-identifier>
     <source-subject-identifier source="qsuob" subject-attribute="LOGINID">
       <ldap-search base="ou=uob,dc=example,dc=edu" 
