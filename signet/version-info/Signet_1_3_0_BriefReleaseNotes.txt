@@ -1,5 +1,17 @@
-Release Notes for SIGNET_1_3_0rc01
-==================================
+Release Notes for SIGNET_1_3_0
+==============================
+
+Reported Bugs that are fixed
+----------------------------
+
+    SIG-32 : NullPointerException from "View XML" link
+    SIG-33 : Proxy data not in Assignment XML
+    SIG-34 : Assignment XML should support container structure
+    SIG-35 : NullPointerException throw on export scopeTree
+    SIG-36 : Scope Tree XML should support container structure
+    SIG-38 : A command-arg that contains multiple colon delimiters fails to be processed
+    SIG-39 : SignetXML creates an output file called 'stdout.xml' when no xmlFilename is provided
+    SIG-40: ...there are no limits that can be set in the UI...
 
 API Changes
 -----------
@@ -37,31 +49,35 @@ Removed references to Functions from Permission (unused, and also
 Added getSubjectsBySourceId(String sourceId) to Signet.java
 
 Added several methods to HibernateDB:
-	getSubsystemById(Stirng id), getSubsystemById(Session hs, Stirng id)
-	getTreeBySubsystemId(String id), getTreeBySubsystemId(Session hs, String id)
-	getTrees(Session hs)
-	getSubsystems(Status status)
-	getSubsystemsByName(Session hs, String subsysName, Status status)
-	getSubsystemsByScopeTree(Session hs, String scopeTreeId, Status status)
-	getSubjectsByAttributeValue(String attrName, String attrValue)
-	getSubjects()
-	getSubjectsBySourceId(String sourceId)
-	getLimit(int limit_pk)
-	getLimit(String subsystemId, String limitId)
-	getAssignmentsBySubsystem()
-	getAssignmentsByFunction()
-	getAssignmentsByScope()
-	getFunction(...)
+    getSubsystemById(Stirng id), getSubsystemById(Session hs, Stirng id)
+    getTreeBySubsystemId(String id), getTreeBySubsystemId(Session hs, String id)
+    getTrees(Session hs)
+    getSubsystems(Status status)
+    getSubsystemsByName(Session hs, String subsysName, Status status)
+    getSubsystemsByScopeTree(Session hs, String scopeTreeId, Status status)
+    getSubjectsByAttributeValue(String attrName, String attrValue)
+    getSubjects()
+    getSubjectsBySourceId(String sourceId)
+    getLimit(int limit_pk)
+    getLimit(String subsystemId, String limitId)
+    getAssignmentsBySubsystem()
+    getAssignmentsByFunction()
+    getAssignmentsByScope()
+    getFunction(...)
+    getProxies(String status)
+    getPermissionById(int permKey)
 
 Moved Hibernate Query strings from HibernateDB to new class HibernateQry
 
+Removed "throws ObjectNotFoundException" from the load(...) methods in
+    HibernateDB.java
+        
 Implemented PersistedSignetSource.getSubjects() (was always returning empty set).
 
-Modified two methods in SignetSubject to accept a null or zero-length parameter in which
-case it returns all assignments or proxies.
+Modified two methods in SignetSubject to accept a null or zero-length parameter
+in which case it returns all assignments or proxies.
 	getAssignmentsReceived(String isActive) 
 	getProxiesReceived(String isActive)
-	
 
 Added SignetSubject.getPrivileges(Status status)
 
@@ -72,7 +88,7 @@ Utilities
 Added optional command-line parameter to dist-signet_cp.bat to allow
    setting base directory lib files.
 
-Added SignetXml
+Added SignetXml command-line utility for import/export of Signet data.
 
 
 Signet Build
@@ -81,6 +97,9 @@ Signet Build
 Fixed some problems in buildSignetXmlDefs.xml task definition file.
 
 Added Signet-specific information to MANIFEST.MF in the webapp WAR file
+
+Removed build_QS.xml and buildSignet_QS.properties from the zip/tar
+    distribution build.
 
 
 Configuration and Resources
@@ -93,9 +112,9 @@ Fixed problem with error message format for property Signet.msg.exc.noAdapter_2
 Third Party Libs
 ----------------
 
-Added JAXB 2.1.5 libs for Signet Xml
+Added JAXB 2.1.7 libs to support Signet Xml.
 
-Switched from DBCP to C3P0 Connection Pooling (Hibernate's version)
+Switched from DBCP to C3P0 Connection Pooling (Hibernate's version).
 
 
 Database
@@ -105,4 +124,10 @@ No changes in model
 
 User Interface
 --------------
-Modified "View XML" link to display data in the new PermissionXML format
+Modified "View XML" link to display data in the new PermissionXML format.
+
+
+Developer Tools / Notes
+-----------------------
+Added UML class diagram for Signet metadata.
+

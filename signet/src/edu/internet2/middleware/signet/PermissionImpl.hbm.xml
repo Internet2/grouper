@@ -33,7 +33,6 @@
 		<set
 			name="limits"
 			table="signet_permission_limit"
-			inverse="true"
 			cascade="save-update" >
 			
 			<key column="permissionKey"/>
