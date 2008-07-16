@@ -47,11 +47,17 @@ attributetype ( 1.3.6.1.4.1.5923.1.1.123456789.1.6
 	EQUALITY caseIgnoreMatch
 	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
+attributetype ( 1.3.6.1.4.1.5923.1.1.123456789.1.7
+	NAME 'eduPermissionFunctionId'
+	DESC 'A functionId associated with the permission'
+	EQUALITY caseIgnoreMatch
+	SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
 objectclass ( 1.3.6.1.4.1.5923.1.1.123456789
 	NAME 'eduPermission'
 	SUP top
 	STRUCTURAL
-	MUST ( eduPermissionSubsystemId $ eduPermissionId )
+	MUST ( eduPermissionSubsystemId $ eduPermissionFunctionId $ eduPermissionId )
 	MAY ( eduPermissionScopeId $ eduPermissionScopeName $ eduPermissionLimit $ eduPermissionLimitId )
 	)
 
