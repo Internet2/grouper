@@ -18,7 +18,6 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.naming.Name;
@@ -35,6 +34,7 @@ import edu.internet2.middleware.ldappc.SignetProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.SignetProvisionerOptions;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
+import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Privilege;
@@ -136,7 +136,7 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
      * @see edu.internet2.middleware.ldappc.synchronize.PermissionSynchronizer#performInclude(Privilege,
      *      int)
      */
-    protected void performInclude(Privilege privilege, int status)
+    protected void performInclude(Privilege privilege, Function function, int status)
             throws NamingException, LdappcException
     {
         //
@@ -149,12 +149,15 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
         // <prefix>:<SubsystemId>:<PermissionId>:<ScopeId> of the total string
         // <prefix>:<SubsystemId>:<PermissionId>:<ScopeId>:<LimitId>:<Limit>
         //
-        String commonPrefix = getConfiguration()
-                .getPermissionsListingStringPrefix()
+        String commonPrefix = getConfiguration().getPermissionsListingStringPrefix()
                 + DELIMITER
                 + permission.getSubsystem().getId()
                 + DELIMITER
-                + permission.getId() + DELIMITER + privilege.getScope().getId();
+                + function.getId()
+                + DELIMITER
+                + permission.getId()
+                + DELIMITER
+                + privilege.getScope().getId();
 
         //
         // Get the limit values and iterate over those.
@@ -170,6 +173,7 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
                 String permStr = commonPrefix + DELIMITER
                         + limitValue.getLimit().getId() + DELIMITER
                         + limitValue.getValue();
+                System.out.println("    " + permStr);
     
                 //
                 // Store the permission string in the attribute modifier
