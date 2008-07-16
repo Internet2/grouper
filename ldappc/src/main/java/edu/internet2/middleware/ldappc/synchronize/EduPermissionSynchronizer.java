@@ -20,7 +20,6 @@ package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -44,6 +43,7 @@ import edu.internet2.middleware.ldappc.ldap.EduPermission;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
+import edu.internet2.middleware.signet.Function;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Privilege;
@@ -218,7 +218,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      * @see edu.internet2.middleware.ldappc.synchronize.PermissionSynchronizer#performInclude(Privilege,
      *      int)
      */
-    protected void performInclude(Privilege privilege, int status) throws NamingException
+    protected void performInclude(Privilege privilege, Function function, int status) throws NamingException
     {
         //
         // Sort limit values by limit ids
@@ -230,6 +230,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         Permission permission = privilege.getPermission();
         String safeSubsystemId = LdapUtil.makeLdapNameSafe(permission.getSubsystem().getId());
+        String safeFunctionId = LdapUtil.makeLdapNameSafe(function.getId());
         String safePermissionId = LdapUtil.makeLdapNameSafe(permission.getId());
 
         //
@@ -241,13 +242,13 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
             // eduPermissionId, and eduPermissionLimitId.
             //
             Name eduPermDn = (Name) getSubject().clone();
-            eduPermDn.add(EduPermission.Attribute.EDU_PERMISSION_SUBSYSTEM_ID
-                    + "=" + safeSubsystemId
+            eduPermDn.add(EduPermission.Attribute.EDU_PERMISSION_SUBSYSTEM_ID + "=" + safeSubsystemId
                     + LdapUtil.MULTIVALUED_RDN_DELIMITER
-                    + EduPermission.Attribute.EDU_PERMISSION_ID + "="
-                    + safePermissionId + LdapUtil.MULTIVALUED_RDN_DELIMITER
-                    + EduPermission.Attribute.EDU_PERMISSION_LIMIT_ID + "="
-                    + LdapUtil.makeLdapNameSafe(limitId));
+                    + EduPermission.Attribute.EDU_PERMISSION_FUNCTION_ID + "=" + safeFunctionId
+                    + LdapUtil.MULTIVALUED_RDN_DELIMITER
+                    + EduPermission.Attribute.EDU_PERMISSION_ID + "=" + safePermissionId
+                    + LdapUtil.MULTIVALUED_RDN_DELIMITER
+                    + EduPermission.Attribute.EDU_PERMISSION_LIMIT_ID + "=" + LdapUtil.makeLdapNameSafe(limitId));
 
             //
             // Act based on whether or not the eduPermission DN exists in
@@ -284,8 +285,8 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
                 //
                 // Add a new eduPermission entry
                 //
-                addEduPermission(eduPermDn, limitId, privilege,
-                        (BasicAttribute) limitMap.get(limitId));
+                addEduPermission(eduPermDn, limitId, safeFunctionId,
+                        privilege, (BasicAttribute) limitMap.get(limitId));
             }
 
             //
@@ -469,6 +470,8 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      *            DN of the new entry
      * @param limitId
      *            Limit id
+     * @param functionId
+     *            Function id
      * @param privilege
      *            Privilege being added
      * @param limits
@@ -479,7 +482,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      *             thrown if a Naming error occurs
      */
     private void addEduPermission(Name eduPermDn, String limitId,
-            Privilege privilege, BasicAttribute limits) throws NamingException
+            String functionId, Privilege privilege, BasicAttribute limits) throws NamingException
     {
         //
         // Get the associated permission
@@ -500,6 +503,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         // Add the RDN attributes
         //
         attributes.put(EduPermission.Attribute.EDU_PERMISSION_SUBSYSTEM_ID, permission.getSubsystem().getId());
+        attributes.put(EduPermission.Attribute.EDU_PERMISSION_FUNCTION_ID, functionId);
         attributes.put(EduPermission.Attribute.EDU_PERMISSION_ID, permission.getId());
         attributes.put(EduPermission.Attribute.EDU_PERMISSION_LIMIT_ID, limitId);
 
