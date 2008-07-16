@@ -39,6 +39,11 @@ public class EduPermission
         public static final String EDU_PERMISSION_SUBSYSTEM_ID = "eduPermissionSubsystemId";
 
         /**
+         * eduPermissionFunctionId attribute
+         */
+        public static final String EDU_PERMISSION_FUNCTION_ID = "eduPermissionFunctionId";
+
+        /**
          * eduPermissionId attribute
          */
         public static final String EDU_PERMISSION_ID = "eduPermissionId";
