@@ -18,103 +18,74 @@
 
 package edu.internet2.middleware.ldappcTest.qs;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapContext;
-
-import junit.framework.TestCase;
-import junit.framework.AssertionFailedError;
-
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
-import edu.internet2.middleware.ldappcTest.TestOptions;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
-
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
-import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappc.Ldappc;
-import edu.internet2.middleware.ldappc.ConfigManager;
-import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
-import edu.internet2.middleware.ldappc.GrouperSessionControl;
-import edu.internet2.middleware.ldappc.StemProcessor;
-import edu.internet2.middleware.ldappc.GroupProcessor;
-import edu.internet2.middleware.ldappc.InputOptions;
-import edu.internet2.middleware.ldappc.LdappcProvisionControl;
-
-import edu.internet2.middleware.grouper.AttributeNotFoundException;
-import edu.internet2.middleware.grouper.GroupNameFilter;
-import edu.internet2.middleware.grouper.GrouperQuery;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
-import edu.internet2.middleware.grouper.GroupAddException;
-import edu.internet2.middleware.grouper.GroupDeleteException;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.MemberNotFoundException;
-import edu.internet2.middleware.grouper.MemberAddException;
-import edu.internet2.middleware.grouper.MemberDeleteException;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.SessionException;
-import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.UnionFilter;
-
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+
+import edu.internet2.middleware.grouper.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupNameFilter;
+import edu.internet2.middleware.grouper.GrouperQuery;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.ldappc.ConfigManager;
+import edu.internet2.middleware.ldappc.GrouperSessionControl;
+import edu.internet2.middleware.ldappc.Ldappc;
+import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.DisplayTest;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+
 /**
  * Class for testing TODO FINISH
  */
-public class BushyGroupsProvisionTest extends BaseTestCase
-{
+public class BushyGroupsProvisionTest extends BaseTestCase {
     /**
      * Grouper group root DN
      */
-    //static final String GROUPER_GROUP_ROOT_DN = "ou=testgrouper,dc=example,dc=edu";
-
+    // static final String GROUPER_GROUP_ROOT_DN =
+    // "ou=testgrouper,dc=example,dc=edu";
     /**
      * Grouper subject root DN
      */
-    static final String GROUPER_SUBJECT_ROOT_DN = "ou=uob,dc=example,dc=edu";
+    static final String           GROUPER_SUBJECT_ROOT_DN = "ou=uob,dc=example,dc=edu";
 
     /**
      * Signet member root DN
      */
-    static final String SIGNET_SUBJECT_ROOT_DN = "ou=kitn,dc=example,dc=edu";
+    static final String           SIGNET_SUBJECT_ROOT_DN  = "ou=kitn,dc=example,dc=edu";
 
     /**
      * Grouper group root DN
      */
-    private static String grouperGroupRootDn;
-    
+    private static String         grouperGroupRootDn;
+
     /**
      * Holds the configuration instance.
      */
-    private ConfigManager configuration;
+    private ConfigManager         configuration;
 
     /**
      * Holds the set of provisioned groups
      */
-    private Set provisionedGroups;
+    private Set                   provisionedGroups;
 
     /**
      * Holds the grouper session
@@ -124,21 +95,19 @@ public class BushyGroupsProvisionTest extends BaseTestCase
     /**
      * Holds the ldap context
      */
-    private LdapContext ldapContext;
+    private LdapContext           ldapContext;
 
     /**
      * Constructor
      */
-    public BushyGroupsProvisionTest(String name)
-    {
+    public BushyGroupsProvisionTest(String name) {
         super(name);
     }
 
     /**
      * Setup the fixture.
      */
-    protected void setUp()
-    {
+    protected void setUp() {
         DisplayTest.showRunClass(getClass().getName());
         ConfigManager.cleanConfiguration();
         ConfigManager.loadSingleton("/ldappc-bushyGroups.xml");
@@ -147,14 +116,10 @@ public class BushyGroupsProvisionTest extends BaseTestCase
         //
         // Get ldap context
         //
-        try
-        {
+        try {
             ldapContext = LdapUtil.getLdapContext(ConfigManager.getInstance().getLdapContextParameters(), null);
-        }
-        catch(Exception e)
-        {
-            ErrorLog.fatal(getClass(), "Unable to get Ldap context :: "
-                    + e.getMessage());
+        } catch (Exception e) {
+            ErrorLog.fatal(getClass(), "Unable to get Ldap context :: " + e.getMessage());
         }
 
         grouperGroupRootDn = ConfigManager.getInstance().getGroupDnRoot();
@@ -162,14 +127,10 @@ public class BushyGroupsProvisionTest extends BaseTestCase
         //
         // Verify basics about the directory
         //
-        try
-        {
+        try {
             performVerification();
-        }
-        catch(Exception e)
-        {
-            fail("Unable to verify environment for testing :: "
-                    + e.getMessage());
+        } catch (Exception e) {
+            fail("Unable to verify environment for testing :: " + e.getMessage());
         }
 
         //
@@ -183,22 +144,17 @@ public class BushyGroupsProvisionTest extends BaseTestCase
         // Build a grouper sessions
         //
         sessionCtrl = new GrouperSessionControl();
-        if (!sessionCtrl.startSession("GrouperSystem"))
-        {
+        if (!sessionCtrl.startSession("GrouperSystem")) {
             fail("Failed to create Grouper session");
         }
 
         //
         // Get the set of groups provisioned
         //
-        try
-        {
+        try {
             provisionedGroups = getProvisionedGroups();
-        }
-        catch(Exception e)
-        {
-            ErrorLog.fatal(getClass(),
-                    "Unable to get provisioned group set :: " + e.getMessage());
+        } catch (Exception e) {
+            ErrorLog.fatal(getClass(), "Unable to get provisioned group set :: " + e.getMessage());
         }
 
     }
@@ -207,48 +163,39 @@ public class BushyGroupsProvisionTest extends BaseTestCase
      * Returns the set of provisioned groups. This ASSUMES the ldappc.xml file
      * uses a single stem query of "qsuob"
      */
-    private Set getProvisionedGroups() throws Exception
-    {
+    private Set getProvisionedGroups() throws Exception {
         Stem stem = StemFinder.findByName(sessionCtrl.getSession(), "qsuob");
         GroupNameFilter filter = new GroupNameFilter("%", stem);
-        return GrouperQuery.createQuery(sessionCtrl.getSession(), filter)
-                .getGroups();
+        return GrouperQuery.createQuery(sessionCtrl.getSession(), filter).getGroups();
     }
 
     /**
      * Tear down the fixture.
      */
-    protected void tearDown()
-    {
+    protected void tearDown() {
         sessionCtrl.stopSession();
     }
 
     /**
      * The main method for running the test.
      */
-    public static void main(String args[])
-    {
+    public static void main(String args[]) {
         BaseTestCase.runTestRunner(BushyGroupsProvisionTest.class);
     }
 
     /**
      * Test that groups have been provisioned
      */
-    public void testProvisionedGroups()
-    {
-        DisplayTest
-                .showRunTitle("Verifying the number of provisioned group entries");
+    public void testProvisionedGroups() {
+        DisplayTest.showRunTitle("Verifying the number of provisioned group entries");
 
-        try
-        {
+        try {
             //
             // Get the set of provisioned groups from the directory
             //
-            NamingEnumeration groupEntries = ldapContext
-                    .list(grouperGroupRootDn);
+            NamingEnumeration groupEntries = ldapContext.list(grouperGroupRootDn);
             HashSet ldapGroupNames = new HashSet();
-            while(groupEntries.hasMore())
-            {
+            while (groupEntries.hasMore()) {
                 NameClassPair nameClass = (NameClassPair) groupEntries.next();
                 ldapGroupNames.add(nameClass.getName());
             }
@@ -256,41 +203,30 @@ public class BushyGroupsProvisionTest extends BaseTestCase
             //
             // Iterate through the groups building set of names
             //
-            String rdnAttr = ConfigManager.getInstance()
-                    .getGroupDnRdnAttribute();
+            String rdnAttr = ConfigManager.getInstance().getGroupDnRdnAttribute();
             HashSet grouperGroupNames = new HashSet();
             Iterator groups = provisionedGroups.iterator();
-            while(groups.hasNext())
-            {
+            while (groups.hasNext()) {
                 /*
-                grouperGroupNames.add(rdnAttr
-                        + "="
-                        + LdapUtil.makeLdapNameSafe(((Group) groups.next())
-                                .getName()));
+                 * grouperGroupNames.add(rdnAttr + "=" +
+                 * LdapUtil.makeLdapNameSafe(((Group) groups.next())
+                 * .getName()));
                  */
-                Group group = (Group)groups.next();
-                grouperGroupNames.add(rdnAttr + "="
-                        + LdapUtil.makeLdapNameSafe(group.getName()));
+                Group group = (Group) groups.next();
+                grouperGroupNames.add(rdnAttr + "=" + LdapUtil.makeLdapNameSafe(group.getName()));
             }
 
             //
             // Verify the name sets are the same
             //
-            if (!ldapGroupNames.containsAll(grouperGroupNames))
-            {
+            if (!ldapGroupNames.containsAll(grouperGroupNames)) {
                 grouperGroupNames.removeAll(ldapGroupNames);
-                fail("Following names were not found in the directory: "
-                        + grouperGroupNames);
-            }
-            else if (!grouperGroupNames.containsAll(ldapGroupNames))
-            {
+                fail("Following names were not found in the directory: " + grouperGroupNames);
+            } else if (!grouperGroupNames.containsAll(ldapGroupNames)) {
                 ldapGroupNames.removeAll(grouperGroupNames);
-                fail("Following names were not found in Grouper:"
-                        + ldapGroupNames);
+                fail("Following names were not found in Grouper:" + ldapGroupNames);
             }
-        }
-        catch(NamingException ne)
-        {
+        } catch (NamingException ne) {
             fail("Unable to verify provisioned groups :: " + ne.getMessage());
         }
 
@@ -302,13 +238,10 @@ public class BushyGroupsProvisionTest extends BaseTestCase
     /**
      * Test provisioned group mapped attributes
      */
-    public void internalTestProvisionedGroupMappedAttributes()
-    {
-        DisplayTest
-                .showRunTitle("Verifying provisioned group mapped attributes");
+    public void internalTestProvisionedGroupMappedAttributes() {
+        DisplayTest.showRunTitle("Verifying provisioned group mapped attributes");
 
-        try
-        {
+        try {
             //
             // Get the list of mapped attributes
             //
@@ -319,8 +252,7 @@ public class BushyGroupsProvisionTest extends BaseTestCase
             // Build the list of attributes to retrieve from directory
             //
             Collection ldapAttributes = attributeMapping.values();
-            String[] ldapAttrArray = (String[]) ldapAttributes
-                    .toArray(new String[0]);
+            String[] ldapAttrArray = (String[]) ldapAttributes.toArray(new String[0]);
 
             //
             // Get the RDN attribute name
@@ -332,202 +264,161 @@ public class BushyGroupsProvisionTest extends BaseTestCase
             // ldap attribute value
             //
             Iterator groups = provisionedGroups.iterator();
-            while(groups.hasNext())
-            {
+            while (groups.hasNext()) {
                 //
                 // Get the associated group entry
                 //
                 Group group = (Group) groups.next();
-                String groupDn = rdnAttr + "="
-                        + LdapUtil.makeLdapNameSafe(group.getName()) + "," +
-                        grouperGroupRootDn;
-                
-                Attributes attributes = ldapContext.getAttributes(groupDn,
-                        ldapAttrArray);
+                String groupDn = rdnAttr + "=" + LdapUtil.makeLdapNameSafe(group.getName()) + "," + grouperGroupRootDn;
+
+                Attributes attributes = ldapContext.getAttributes(groupDn, ldapAttrArray);
 
                 //
                 // Verify ldap attribute value is same as grouper attribute
                 // value
                 //
                 Iterator keys = attributeMapping.keySet().iterator();
-                while(keys.hasNext())
-                {
+                while (keys.hasNext()) {
                     String grouperAttr = (String) keys.next();
-                    String ldapAttr = (String) attributeMapping
-                            .get(grouperAttr);
+                    String ldapAttr = (String) attributeMapping.get(grouperAttr);
 
-                    try
-                    {
-                        String grouperAttrValue = group
-                                .getAttribute(grouperAttr);
+                    try {
+                        String grouperAttrValue = group.getAttribute(grouperAttr);
                         Attribute attribute = attributes.get(ldapAttr);
-                        if (attribute != null)
-                        {
-                            assertEquals("To many ldap attribute values",1,attribute.size());
-                            assertEquals("Grouper and ldap attribute values don't match",grouperAttrValue,attribute.get());
-                        }
-                        else
-                        {
+                        if (attribute != null) {
+                            assertEquals("To many ldap attribute values", 1, attribute.size());
+                            assertEquals("Grouper and ldap attribute values don't match", grouperAttrValue, attribute.get());
+                        } else {
                             fail("Ldap attribute not found");
                         }
-                    }
-                    catch(AttributeNotFoundException anfe)
-                    {
+                    } catch (AttributeNotFoundException anfe) {
                         // Do nothing; ignore
                     }
                 }
             }
 
-                //
-                // Get the set of provisioned groups mapped attributes from the
-                // directory
-                //
-                NamingEnumeration groupEntries = ldapContext
-                        .list(grouperGroupRootDn);
-                HashSet ldapGroupNames = new HashSet();
-                while(groupEntries.hasMore())
-                {
-                    NameClassPair nameClass = (NameClassPair) groupEntries
-                            .next();
-                    ldapGroupNames.add(nameClass.getName());
-                }
-        }
-        catch(NamingException ne)
-        {
-            ne.printStackTrace();            
-            fail("Unable to verify provisioned groups mapped attributes :: "
-                    + ne.getMessage());
+            //
+            // Get the set of provisioned groups mapped attributes from the
+            // directory
+            //
+            NamingEnumeration groupEntries = ldapContext.list(grouperGroupRootDn);
+            HashSet ldapGroupNames = new HashSet();
+            while (groupEntries.hasMore()) {
+                NameClassPair nameClass = (NameClassPair) groupEntries.next();
+                ldapGroupNames.add(nameClass.getName());
+            }
+        } catch (NamingException ne) {
+            ne.printStackTrace();
+            fail("Unable to verify provisioned groups mapped attributes :: " + ne.getMessage());
         }
     }
 
     /**
      * Test provisioned group name membership list
      */
-    public void internalTestProvisionedGroupNameMembershipList()
-    {
-        DisplayTest
-                .showRunTitle("Verifying provisioned group name membership list");
+    public void internalTestProvisionedGroupNameMembershipList() {
+        DisplayTest.showRunTitle("Verifying provisioned group name membership list");
 
-            ConfigManager cm = ConfigManager.getInstance();
-            String rdnAttr = ConfigManager.getInstance().getGroupDnRdnAttribute();
+        ConfigManager cm = ConfigManager.getInstance();
+        String rdnAttr = ConfigManager.getInstance().getGroupDnRdnAttribute();
 
+        //
+        // Get the LDAP entry attribute containing the list of Members names
+        // which
+        // belong to the Group.
+        // Explicitly, get the group-members-name-list element's
+        // attribute, list-attribute (e.g. "hasMember").
+        //
+        String groupMembersNameListAttr = cm.getGroupMembersNameListAttribute();
+        // Get a Map of source names to subject attribute names
+        Map groupMembersNameListNamingAttributes = cm.getGroupMembersNameListNamingAttributes();
+
+        // Get a HashMap containing a list of groups as keys with values of a
+        // list
+        // of names of members.
+        HashMap groupAndMembers = hasMemberSearch();
+        Group group = null;
+        Iterator groups = provisionedGroups.iterator();
+
+        while (groups.hasNext()) {
+            HashSet grouperMemberNames = new HashSet();
             //
-            // Get  the LDAP entry attribute containing the list of Members names which
-            // belong to the Group. 
-            // Explicitly, get the group-members-name-list element's
-            // attribute, list-attribute (e.g. "hasMember").
+            // Get the associated group entry
             //
-            String groupMembersNameListAttr = cm.getGroupMembersNameListAttribute();
-            // Get a Map of source names to subject attribute names
-            Map groupMembersNameListNamingAttributes = cm.getGroupMembersNameListNamingAttributes();
-
-            // Get a HashMap containing a list of groups as keys with values of a list
-            // of names of members.
-            HashMap groupAndMembers = hasMemberSearch();
-            Group group = null;            
-            Iterator groups = provisionedGroups.iterator();
-
-            while(groups.hasNext())
-            {
-                HashSet grouperMemberNames = new HashSet();
+            group = (Group) groups.next();
+            String groupRdn = rdnAttr + "=" + LdapUtil.makeLdapNameSafe(group.getName());
+            String groupDn = groupRdn + "," + grouperGroupRootDn;
+            //
+            // Get membership process it
+            //
+            Iterator members = group.getMembers().iterator();
+            while (members.hasNext()) {
                 //
-                // Get the associated group entry
+                // Get the member subject
                 //
-                group = (Group) groups.next();
-                String groupRdn = rdnAttr + "=" + LdapUtil.makeLdapNameSafe(group.getName());
-                String groupDn = groupRdn + "," + grouperGroupRootDn;
-                //
-                // Get membership process it
-                //
-                Iterator members = group.getMembers().iterator();
-                while(members.hasNext())
-                {
-                    //
-                    // Get the member subject
-                    //
-                    Member member = (Member) members.next();
-                    Subject subject = null;
-                    try
-                    {
-                        subject = member.getSubject();
-                        Source source = subject.getSource();
-                        if ( "qsuob".equals(source.getId()) )
-                        {
-                            // Check that the subject id is in the list of members for this group
-                            String listOfMembersInLdap = (String)groupAndMembers.get(groupRdn);
-                            if (listOfMembersInLdap.indexOf(subject.getId()) == -1)
-                            {
-                                fail("**********The subject id of " + subject.getId() + " was not found in " 
-                                        + listOfMembersInLdap );
-                            }
+                Member member = (Member) members.next();
+                Subject subject = null;
+                try {
+                    subject = member.getSubject();
+                    Source source = subject.getSource();
+                    if ("qsuob".equals(source.getId())) {
+                        // Check that the subject id is in the list of members
+                        // for this group
+                        String listOfMembersInLdap = (String) groupAndMembers.get(groupRdn);
+                        if (listOfMembersInLdap.indexOf(subject.getId()) == -1) {
+                            fail("**********The subject id of " + subject.getId() + " was not found in " + listOfMembersInLdap);
                         }
                     }
-                    catch(SubjectNotFoundException snfe)
-                    {
-                        //
-                        // If the subject was not found, log it and continue
-                        //
-                        fail(" Subject not found :: " + snfe.getMessage());
-                        continue;
-                    }
-        
-        
+                } catch (SubjectNotFoundException snfe) {
                     //
-                    // Catch all of the exceptions thrown as they are "warning" and
-                    // handle them in a common manner.
+                    // If the subject was not found, log it and continue
                     //
-                    try
-                    {
-                        //
-                        // Get the subject source
-                        //
-                        Source source = subject.getSource();
-                        if (source == null)
-                        {
-                            fail("Source is null");
-                        }
-        
-                        //
-                        // Get the naming attribute for this source
-                        //
-                        String nameAttribute = cm.getGroupMembersNameListNamingAttribute(
-                                        source.getId());
-                        if (nameAttribute != null)
-                        {
-                            //
-                            // Get the subject attribute value
-                            //
-                            String nameValue = subject
-                                    .getAttributeValue(nameAttribute);
-                            if (nameValue != null)
-                            {
-                                grouperMemberNames.add(nameValue);
-                            }
-                            else
-                            {
-                                fail("Naming attribute ["
-                                        + nameAttribute + "] is not defined.");
-                            }
-                        }
-                        else
-                        {
-                            fail ("No group members name list naming attribute defined for source id ["
-                                            + source.getId() + "]");
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        //
-                        // All of the exceptions thrown in this try are "warning"
-                        // related so simply log them and continue on with
-                        // processing.
-                        //
-                        fail("Failure in verifying group member list: " + e.getMessage());
-                    }
+                    fail(" Subject not found :: " + snfe.getMessage());
+                    continue;
                 }
-                // FOR DEBUG, do a single group
-                //break;
+
+                //
+                // Catch all of the exceptions thrown as they are "warning" and
+                // handle them in a common manner.
+                //
+                try {
+                    //
+                    // Get the subject source
+                    //
+                    Source source = subject.getSource();
+                    if (source == null) {
+                        fail("Source is null");
+                    }
+
+                    //
+                    // Get the naming attribute for this source
+                    //
+                    String nameAttribute = cm.getGroupMembersNameListNamingAttribute(source.getId());
+                    if (nameAttribute != null) {
+                        //
+                        // Get the subject attribute value
+                        //
+                        String nameValue = subject.getAttributeValue(nameAttribute);
+                        if (nameValue != null) {
+                            grouperMemberNames.add(nameValue);
+                        } else {
+                            fail("Naming attribute [" + nameAttribute + "] is not defined.");
+                        }
+                    } else {
+                        fail("No group members name list naming attribute defined for source id [" + source.getId() + "]");
+                    }
+                } catch (Exception e) {
+                    //
+                    // All of the exceptions thrown in this try are "warning"
+                    // related so simply log them and continue on with
+                    // processing.
+                    //
+                    fail("Failure in verifying group member list: " + e.getMessage());
+                }
             }
+            // FOR DEBUG, do a single group
+            // break;
+        }
     }
 
     /**
@@ -546,8 +437,7 @@ public class BushyGroupsProvisionTest extends BaseTestCase
      * Performs a very basic verification that the subjects.ldif file has been
      * loaded.
      */
-    private void performVerification() throws Exception
-    {
+    private void performVerification() throws Exception {
         //
         // Throw an exception based on msg length below
         //
@@ -557,86 +447,70 @@ public class BushyGroupsProvisionTest extends BaseTestCase
         // Verify that specific entries exists
         //
         String[] dn = { GROUPER_SUBJECT_ROOT_DN, grouperGroupRootDn };
-        for(int i = 0; i < dn.length; i++)
-        {
-            try
-            {
+        for (int i = 0; i < dn.length; i++) {
+            try {
                 ldapContext.lookup(dn[i]);
-            }
-            catch(Exception e)
-            {
-                msg += (msg.length() > 0 ? "\n" : "") + "Unable to locate dn: "
-                        + dn[i];
+            } catch (Exception e) {
+                msg += (msg.length() > 0 ? "\n" : "") + "Unable to locate dn: " + dn[i];
             }
         }
 
         //
         // If something wasn't found, thrown an exception
         //
-        if (msg.length() > 0)
-        {
+        if (msg.length() > 0) {
             throw new Exception(msg);
         }
     }
 
     /**
      * Search kDAP for hasMember
-     * @return map of groups as key with values of a string containing members 
+     * 
+     * @return map of groups as key with values of a string containing members
      */
-    private HashMap hasMemberSearch() 
-    {
+    private HashMap hasMemberSearch() {
         HashMap groupAndMembers = new HashMap();
         HashSet members = new HashSet();
         // Specify the attributes to match
-        Attributes matchAttrs = new BasicAttributes(true); // ignore attribute name case
+        Attributes matchAttrs = new BasicAttributes(true); // ignore attribute
+                                                            // name case
         matchAttrs.put(new BasicAttribute("hasMember"));
-        String[] attributesToReturn = {"hasMember"};
+        String[] attributesToReturn = { "hasMember" };
 
-        try
-        {
+        try {
             // Search for objects that have those matching attributes
-            if (matchAttrs == null)
-            {
+            if (matchAttrs == null) {
                 fail("In hasMemberSearch, matchAttrs is null.");
             }
-            if (ldapContext == null)
-            {
+            if (ldapContext == null) {
                 fail("In hasMemberSearch, ldapContext is null.");
             }
-            //NamingEnumeration answer = ldapContext.search(groupDn, 
-            NamingEnumeration answer = ldapContext.search(grouperGroupRootDn, 
-                    matchAttrs, attributesToReturn);
-            //e.g.: NamingEnumeration answer = ldapContext.search("dc=my-domain,dc=com", matchAttrs);
-            if (answer != null)
-            {
-                if (!answer.hasMore())
-                {
+            // NamingEnumeration answer = ldapContext.search(groupDn,
+            NamingEnumeration answer = ldapContext.search(grouperGroupRootDn, matchAttrs, attributesToReturn);
+            // e.g.: NamingEnumeration answer =
+            // ldapContext.search("dc=my-domain,dc=com", matchAttrs);
+            if (answer != null) {
+                if (!answer.hasMore()) {
                     fail("Could not find any search match for " + grouperGroupRootDn + ".");
                 }
-            }
-            else
-            {
+            } else {
                 fail("value returned from search is null.");
             }
-        
+
             Attributes searchAttributes = null;
             while (answer.hasMore()) {
-                SearchResult sr = (SearchResult)answer.next();
-                //members.add(sr.getName());
-                
+                SearchResult sr = (SearchResult) answer.next();
+                // members.add(sr.getName());
+
                 searchAttributes = sr.getAttributes();
-                for (NamingEnumeration e = searchAttributes.getAll(); e.hasMore();)
-                {
+                for (NamingEnumeration e = searchAttributes.getAll(); e.hasMore();) {
                     // Should only have one element.
                     String value = (String) e.next().toString();
                     groupAndMembers.put(sr.getName(), value);
-                } 
+                }
             }
-        }
-        catch(NamingException ne)
-        {
-            fail("Could not get search attributes -- naming exception: "
-                    + ne.getMessage() + "    " + ne.toString());
+        } catch (NamingException ne) {
+            fail("Could not get search attributes -- naming exception: " + ne.getMessage() + "    " + ne.toString());
         }
         return groupAndMembers;
     }
