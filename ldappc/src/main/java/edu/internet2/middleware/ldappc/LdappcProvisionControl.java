@@ -93,17 +93,17 @@ public class LdappcProvisionControl
         //
         if (options.getDoGroups() || options.getDoMemberships())
         {
-            LdappcGrouperProvisioner a2lgp = new LdappcGrouperProvisioner(
-                    options, subjectCache);
-            a2lgp.provisionGroups();
+            LdappcGrouperProvisioner provisioner = new LdappcGrouperProvisioner(options, subjectCache);
+            provisioner.provisionGroups();
         }
+
         //
         // Provision Signet information if requested
         //
         if (options.getDoPermissions())
         {
-            LdappcSignetProvisioner a2lsp = new LdappcSignetProvisioner(options, subjectCache);
-            a2lsp.provisionPermissions();
+            LdappcSignetProvisioner provisioner = new LdappcSignetProvisioner(options, subjectCache);
+            provisioner.provisionPermissions();
         }
         
         int subjectIDLookups = subjectCache.getSubjectIdLookups();
