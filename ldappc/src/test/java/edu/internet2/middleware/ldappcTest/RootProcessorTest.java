@@ -22,7 +22,6 @@ import junit.framework.TestCase;
 
 
 import edu.internet2.middleware.ldappc.ConfigManager;
-import edu.internet2.middleware.ldappc.RootProcessor;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 import javax.naming.Context;
@@ -105,15 +104,19 @@ public class RootProcessorTest extends BaseTestCase
     public void testContextExists() 
     {
         DisplayTest.showRunTitle("testUseOrCreateContext", "Test Context Exists");
-        //
-        RootProcessor rootProcessor = new RootProcessor();
-        Hashtable contextParameters = ConfigManager.getInstance().getLdapContextParameters();
-        String administrator = (String)contextParameters.get(Context.SECURITY_PRINCIPAL);
-        boolean exists = rootProcessor.contextExists(administrator);
 
-        if (!exists)
+        Hashtable contextParameters = configManager.getLdapContextParameters();
+        String administrator = (String) contextParameters.get(Context.SECURITY_PRINCIPAL);
+
+        try 
+        {
+            ctx.lookup(administrator);
+        } 
+        catch ( NamingException e ) 
         {
             fail(administrator + " does not exist but is required for testing.");
         }
+
+        assertTrue(true);
      }
 }
