@@ -359,22 +359,6 @@ public class LdapUtil
     }
 
     /**
-     * This creates an {@link javax.naming.ldap.LdapContext}. The environment
-     * properties are defined by
-     * {@link edu.internet2.middleware.ldappc.ConfigManager#getLdapContextParameters()}.
-     * No connection request controls are used.
-     * 
-     * @return LdapContext
-     * @throws javax.naming.NamingException
-     *             if a naming exception is encountered
-     */
-    static public LdapContext getLdapContext() throws NamingException
-    {
-        return getLdapContext(ConfigManager.getInstance()
-                .getLdapContextParameters(), null);
-    }
-
-    /**
      * This creates an {@link javax.naming.ldap.LdapContext} with the given
      * environment properties and connection request controls.
      * 
