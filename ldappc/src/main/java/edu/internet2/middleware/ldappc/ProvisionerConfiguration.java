@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappc;
 
+import java.util.Hashtable;
 import java.util.Map;
 
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
@@ -85,4 +86,17 @@ public interface ProvisionerConfiguration
      * @return size estimate for a hash table.
      */
     public int getSourceSubjectHashEstimate(String source);
+    
+    /**
+     * This method returns a {@link java.util.Hashtable} of the LDAP parameters
+     * defined to create the {@link javax.naming.InitialContext}. Each of the
+     * parameter names from the configuration file that match, ignoring case, a
+     * constant name from {@link javax.naming.ldap.LdapContext} have been
+     * converted to the actual value of the <code>LdapContext</code> constant.
+     * This allows the returned <code>Hashtable</code> to be used directly
+     * when creating an initial context.
+     * 
+     * @return Hashtable with the LDAP initial context parameters.
+     */
+    public Hashtable getLdapContextParameters();
 }
