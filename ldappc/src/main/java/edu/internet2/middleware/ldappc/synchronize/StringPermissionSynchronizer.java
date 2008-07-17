@@ -173,7 +173,6 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
                 String permStr = commonPrefix + DELIMITER
                         + limitValue.getLimit().getId() + DELIMITER
                         + limitValue.getValue();
-                System.out.println("    " + permStr);
     
                 //
                 // Store the permission string in the attribute modifier
