@@ -297,7 +297,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
     }
 
     /**
-     * This builds a mapping from Limit ID to all of the it's values. This
+     * This builds a mapping from Limit ID to all of its values. This
      * transforms the set of LimitValues to a mapping where the key is the Limit
      * ID and the value is a BasicAttribute whose ID is
      * {@link edu.internet2.middleware.ldappc.ldap.EduPermission.Attribute#EDU_PERMISSION_LIMIT}
