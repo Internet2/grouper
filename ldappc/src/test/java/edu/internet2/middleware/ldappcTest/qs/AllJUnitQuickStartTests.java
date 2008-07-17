@@ -48,6 +48,7 @@ public class AllJUnitQuickStartTests extends TestCase
     {
         TestSuite suite = new TestSuite();
         suite.addTest(new TestSuite(QuickStartTestU.class));
+        suite.addTest(new TestSuite(BushyGroupsProvisionTest.class));
         suite.addTest(new TestSuite(EduPermissionProvisionTest.class));
         // Add additional tests using the following format:
         // suite.addTest(new TestSuite(TestClass.class));
