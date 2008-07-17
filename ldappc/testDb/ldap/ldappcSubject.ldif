@@ -32,6 +32,12 @@ objectclass: organizationalUnit
 description: location in which to root provisioned groups
 ou: testgrouper
 
+dn: ou=testgrouper-bushy,dc=example,dc=edu
+objectclass: top
+objectclass: organizationalUnit
+description: location in which to root provisioned groups
+ou: testgrouper
+
 dn: cn=manager,dc=example,dc=edu
 objectclass: top
 objectclass: organizationalRole
