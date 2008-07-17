@@ -32,10 +32,12 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.grouper.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.ChildGroupFilter;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupNameFilter;
 import edu.internet2.middleware.grouper.GrouperQuery;
@@ -165,7 +167,7 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
      */
     private Set getProvisionedGroups() throws Exception {
         Stem stem = StemFinder.findByName(sessionCtrl.getSession(), "qsuob");
-        GroupNameFilter filter = new GroupNameFilter("%", stem);
+        ChildGroupFilter filter = new ChildGroupFilter(stem);
         return GrouperQuery.createQuery(sessionCtrl.getSession(), filter).getGroups();
     }
 
@@ -193,7 +195,9 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
             //
             // Get the set of provisioned groups from the directory
             //
-            NamingEnumeration groupEntries = ldapContext.list(grouperGroupRootDn);
+            SearchControls cons = new SearchControls();
+            cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            NamingEnumeration<SearchResult> groupEntries = ldapContext.search(grouperGroupRootDn, "(objectClass=groupOfNames)", cons);
             HashSet ldapGroupNames = new HashSet();
             while (groupEntries.hasMore()) {
                 NameClassPair nameClass = (NameClassPair) groupEntries.next();
