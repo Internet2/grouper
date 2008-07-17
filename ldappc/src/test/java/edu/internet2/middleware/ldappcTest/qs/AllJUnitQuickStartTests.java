@@ -18,11 +18,10 @@
 
 package edu.internet2.middleware.ldappcTest.qs;
 
-import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
-import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import edu.internet2.middleware.ldappcTest.SkeletonTest;
 
 /**
  * This class builds a TestSuite out of the individual test classes
@@ -32,7 +31,6 @@ import junit.framework.TestSuite;
 
 public class AllJUnitQuickStartTests extends TestCase 
 {
-
     /** 
      * Class for running all of the quick start test cases.
      */
@@ -48,9 +46,11 @@ public class AllJUnitQuickStartTests extends TestCase
 
     public static Test suite() 
     {
-        TestSuite suite = new TestSuite(QuickStartTestU.class);
+        TestSuite suite = new TestSuite();
+        suite.addTest(new TestSuite(QuickStartTestU.class));
+        suite.addTest(new TestSuite(EduPermissionProvisionTest.class));
         // Add additional tests using the following format:
-        // suite.addTest(new TestSuite(ConfigManagerTest.class));
+        // suite.addTest(new TestSuite(TestClass.class));
         return suite;
    }
 }
