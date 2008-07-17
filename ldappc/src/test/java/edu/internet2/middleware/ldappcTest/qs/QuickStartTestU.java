@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappcTest.qs;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -140,7 +141,7 @@ public class QuickStartTestU extends BaseTestCase
         //
         try
         {
-            ldapContext = LdapUtil.getLdapContext();
+            ldapContext = LdapUtil.getLdapContext(ConfigManager.getInstance().getLdapContextParameters(), null);
         }
         catch(Exception e)
         {

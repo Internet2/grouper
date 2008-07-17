@@ -115,7 +115,7 @@ public class SignetSubjectProvisioner
        // For each privileged subject, process the subjects
        //
        Iterator privSubjectIterator = privSubjs.iterator();
-       LdapContext ctx = LdapUtil.getLdapContext();        
+       LdapContext ctx = LdapUtil.getLdapContext(ConfigManager.getInstance().getLdapContextParameters(), null);        
        int numberOfSubjects = privSubjs.size();
 
        if (numberOfSubjects > 0)

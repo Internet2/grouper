@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import edu.internet2.middleware.subject.Subject;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 
 
@@ -96,7 +97,7 @@ public class GrouperSubjectProvisionerTest extends BaseTestCase
         LdapContext ctx = null;
         try
         {       
-            ctx = LdapUtil.getLdapContext();
+            ctx = LdapUtil.getLdapContext(ConfigManager.getInstance().getLdapContextParameters(), null);
         }
         catch (NamingException ne)
         {

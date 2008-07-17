@@ -73,7 +73,7 @@ public class SignetSubjectProvisionerTest extends BaseTestCase
         
         try
         {       
-            ldapCtx = LdapUtil.getLdapContext();
+            ldapCtx = LdapUtil.getLdapContext(ConfigManager.getInstance().getLdapContextParameters(), null);
         }
         catch (NamingException ne)
         {

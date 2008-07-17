@@ -140,7 +140,7 @@ public class DatabaseDisplayer
     {
         try
         { 
-            ldapContext = LdapUtil.getLdapContext();
+            ldapContext = LdapUtil.getLdapContext(ConfigManager.getInstance().getLdapContextParameters(), null);
         }
         catch(NamingException ne)
         { 
@@ -509,7 +509,7 @@ public class DatabaseDisplayer
 
         try
         {
-            DirContext contextToDisplay = (DirContext)LdapUtil.getLdapContext().lookup(dn);
+            DirContext contextToDisplay = (DirContext)LdapUtil.getLdapContext(ConfigManager.getInstance().getLdapContextParameters(), null).lookup(dn);
 
             NamingEnumeration childEnum = contextToDisplay.listBindings("");
     

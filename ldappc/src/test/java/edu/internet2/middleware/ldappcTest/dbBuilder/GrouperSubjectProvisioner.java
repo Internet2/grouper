@@ -107,7 +107,7 @@ public class GrouperSubjectProvisioner
        // Process each Subject
        //
        Iterator subjectIterator = subjects.iterator();
-       LdapContext ctx = LdapUtil.getLdapContext();        
+       LdapContext ctx = LdapUtil.getLdapContext(ConfigManager.getInstance().getLdapContextParameters(), null);        
        int numberOfSubjects = subjects.size();
        //System.out.println(" DEBUG Number of subjects = " + subjects.size() );
        int subjectCount = 0;
