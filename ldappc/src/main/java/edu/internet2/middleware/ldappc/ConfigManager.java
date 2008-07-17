@@ -84,7 +84,7 @@ public class ConfigManager
     /**
      * Singleton instance of ConfigManager
      */
-    private static ConfigManager          instance;
+    private static ConfigManager          instance                             = null;
 
     /**
      * List of SAXParseException objects created while parsing the configuration
@@ -334,6 +334,14 @@ public class ConfigManager
         // Initialize the ConfigManager instance
         //
         init(uri);
+    }
+    
+    /**
+     * Clean the singleton, allowing for re-use with a different configuration file
+     * during testing.
+     */
+    public static void cleanConfiguration() {
+        instance = null;
     }
 
     /**
