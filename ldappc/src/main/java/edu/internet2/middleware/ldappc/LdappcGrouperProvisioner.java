@@ -82,19 +82,12 @@ class LdappcGrouperProvisioner
             SubjectCache subjectCache)
     {
         this.options = options;
-
-        // Get the GrouperProvisionerConfiguration
-
-        if (options.getConfigManagerLocation() != null)
-        {
-            ConfigManager.loadSingleton(options.getConfigManagerLocation());
-        }
-        configuration = ConfigManager.getInstance();
+        this.configuration = ConfigManager.getInstance();
 
         // Build the LDAP context
         try
         {
-            ldapContext = LdapUtil.getLdapContext();
+            ldapContext = LdapUtil.getLdapContext(configuration.getLdapContextParameters(), null);
         }
         catch (NamingException ne)
         {
