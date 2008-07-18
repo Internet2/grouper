@@ -140,13 +140,15 @@ public class AllJUnitTests extends TestCase
         TestSuite suite = null;
         if (ALL)
         {    
-            suite = new TestSuite(SkeletonTest.class);
-            suite.addTest(AllJUnitQuickStartTests.suite());
-            suite.addTest(AllJUnitBaseDirTests.suite());
-            suite.addTest(AllJUnitUtilTests.suite());
-            suite.addTest(AllJUnitConfigurationTests.suite());
-            suite.addTest(AllJUnitSynchronizerTests.suite());
-            suite.addTest(AllJUnitBuilderTests.suite());
+            suite = new TestSuite();
+            suite.addTest(new LdapWrapperTestSetup(AllJUnitQuickStartTests.suite()));
+            TestSuite suite1 = new TestSuite();
+            suite1.addTest(AllJUnitBaseDirTests.suite());
+            suite1.addTest(AllJUnitUtilTests.suite());
+            suite1.addTest(AllJUnitConfigurationTests.suite());
+            suite1.addTest(AllJUnitSynchronizerTests.suite());
+            suite1.addTest(AllJUnitBuilderTests.suite());
+            suite.addTest(new LdapWrapperTestSetup(suite1));
         }
         else
         {    
@@ -163,6 +165,6 @@ public class AllJUnitTests extends TestCase
             //suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
             suite.addTest(new TestSuite(QuickStartTestU.class));
         }
-        return new LdapWrapperTestSetup(new DatabaseWrapperTestSetup(suite));
+        return new DatabaseWrapperTestSetup(suite);
    }
 }
