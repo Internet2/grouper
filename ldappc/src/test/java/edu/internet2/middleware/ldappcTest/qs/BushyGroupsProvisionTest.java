@@ -245,7 +245,7 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
 
         // Avoid time for provisioning for each test.
         internalTestProvisionedGroupMappedAttributes();
-//        internalTestProvisionedGroupNameMembershipList();
+        internalTestProvisionedGroupNameMembershipList();
     }
 
     /**
@@ -408,21 +408,22 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
 
         // Get a HashMap containing a list of groups as keys with values of a
         // list of names of members.
-        HashMap groupAndMembers = hasMemberSearch();
+        Map<Name, Set<String>> groupAndMembers = hasMemberSearch();
+
         for (Group group : provisionedGroups) {
             HashSet grouperMemberNames = new HashSet();
 
-            String groupRdn = rdnAttr + "=" + LdapUtil.makeLdapNameSafe(group.getName());
-            String groupDn = groupRdn + "," + grouperGroupRootDn;
+            Name groupDn = null;
+            try {
+                groupDn = buildGroupDn(group);
+            } catch (NamingException e1) {
+                fail("Unable to build group DN for group " + group.getName());
+            }
+
             //
             // Get membership process it
             //
-            Iterator members = group.getMembers().iterator();
-            while (members.hasNext()) {
-                //
-                // Get the member subject
-                //
-                Member member = (Member) members.next();
+            for (Member member : (Set<Member>) group.getMembers()) {
                 Subject subject = null;
                 try {
                     subject = member.getSubject();
@@ -430,9 +431,8 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
                     if ("qsuob".equals(source.getId())) {
                         // Check that the subject id is in the list of members
                         // for this group
-                        String listOfMembersInLdap = (String) groupAndMembers.get(groupRdn);
-                        if (listOfMembersInLdap.indexOf(subject.getId()) == -1) {
-                            fail("**********The subject id of " + subject.getId() + " was not found in " + listOfMembersInLdap);
+                        if (!groupAndMembers.get(groupDn).contains(subject.getId())) {
+                            fail("**********The subject id of " + subject.getId() + " was not found in " + groupAndMembers.get(groupDn));
                         }
                     }
                 } catch (SubjectNotFoundException snfe) {
@@ -534,13 +534,12 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
      * 
      * @return map of groups as key with values of a string containing members
      */
-    private HashMap hasMemberSearch() {
-        HashMap groupAndMembers = new HashMap();
-        HashSet members = new HashSet();
-        // Specify the attributes to match
-        Attributes matchAttrs = new BasicAttributes(true); // ignore attribute
-        // name case
+    private Map<Name, Set<String>> hasMemberSearch() {
+        Map<Name, Set<String>> groupAndMembers = new HashMap<Name, Set<String>>();
+        // Specify the attributes to match. Ignore attribute name case.
+        Attributes matchAttrs = new BasicAttributes(true);
         matchAttrs.put(new BasicAttribute("hasMember"));
+        // Specify the attributes to return.
         String[] attributesToReturn = { "hasMember" };
 
         try {
@@ -551,29 +550,17 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
             if (ldapContext == null) {
                 fail("In hasMemberSearch, ldapContext is null.");
             }
-            // NamingEnumeration answer = ldapContext.search(groupDn,
-            NamingEnumeration answer = ldapContext.search(grouperGroupRootDn, matchAttrs, attributesToReturn);
-            // e.g.: NamingEnumeration answer =
-            // ldapContext.search("dc=my-domain,dc=com", matchAttrs);
-            if (answer != null) {
-                if (!answer.hasMore()) {
-                    fail("Could not find any search match for " + grouperGroupRootDn + ".");
-                }
-            } else {
-                fail("value returned from search is null.");
-            }
+            for (Group group : provisionedGroups) {
+                Name groupDn = buildGroupDn(group);
+                Attributes attributes = ldapContext.getAttributes(groupDn, attributesToReturn);
 
-            Attributes searchAttributes = null;
-            while (answer.hasMore()) {
-                SearchResult sr = (SearchResult) answer.next();
-                // members.add(sr.getName());
-
-                searchAttributes = sr.getAttributes();
-                for (NamingEnumeration e = searchAttributes.getAll(); e.hasMore();) {
-                    // Should only have one element.
-                    String value = (String) e.next().toString();
-                    groupAndMembers.put(sr.getName(), value);
+                Attribute attribute = attributes.get("hasMember");
+                Set<String> members = new HashSet<String>();
+                for (int i = 0; i < attribute.size(); i++) {
+                    String value = (String) attribute.get(i).toString();
+                    members.add(value);
                 }
+                groupAndMembers.put(groupDn, members);
             }
         } catch (NamingException ne) {
             fail("Could not get search attributes -- naming exception: " + ne.getMessage() + "    " + ne.toString());
