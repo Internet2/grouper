@@ -14,7 +14,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappcTest;
 
@@ -32,139 +32,131 @@ import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 
 /**
  * This class builds a master TestSuite out of the individual test suites.
- * @author Gil Singer 
+ * 
+ * @author Gil Singer
  */
-public class AllJUnitTests extends TestCase
-{
+public class AllJUnitTests extends TestCase {
     //
     // Set values for test case dependencies.
     // Currently two sets of test cases are allowed, biofix1 and windows1.
-    // These parameter distinguish between different databases being used for testing
+    // These parameter distinguish between different databases being used for
+    // testing
     // on different operating systems.
     //
-    // Eventually these need to be replaced by having the test case setup build a 
+    // Eventually these need to be replaced by having the test case setup build
+    // a
     // common test database and delete it at the end of the test.
     //
 
     /**
-     * Constant indicating the built-in database is to be used for testing on 
-     * the biofix system.
-     * This is set in the ldappc.properties file and must be consist with it.
-     */ 
-    public static final String TEST_CASE_BIOFIX_TEST = "biofixTest";
+     * Constant indicating the built-in database is to be used for testing on
+     * the biofix system. This is set in the ldappc.properties file and must be
+     * consist with it.
+     */
+    public static final String   TEST_CASE_BIOFIX_TEST     = "biofixTest";
 
     /**
-     * Constant indicating the UC database is to be used for testing on 
-     * the biofix system.
-     * This is set in the ldappc.properties file and must be consist with it.
-     */ 
-    public static final String TEST_CASE_BIOFIX_UC = "biofixUC";
+     * Constant indicating the UC database is to be used for testing on the
+     * biofix system. This is set in the ldappc.properties file and must be
+     * consist with it.
+     */
+    public static final String   TEST_CASE_BIOFIX_UC       = "biofixUC";
 
     /**
-     * Constant indicating the built-in database is to be used for testing on 
-     * the Windows system.
-     * This is set in the ldappc.properties file and must be consist with it.
-     */ 
-    public static final String TEST_CASE_WINDOWS_TEST = "windowsTest";
+     * Constant indicating the built-in database is to be used for testing on
+     * the Windows system. This is set in the ldappc.properties file and must be
+     * consist with it.
+     */
+    public static final String   TEST_CASE_WINDOWS_TEST    = "windowsTest";
 
     /**
-     * Constant indicating the Quickstart database is to be used for testing on 
-     * the Windows system.
-     * This is set in the ldappc.properties file and must be consist with it.
-     */ 
-    public static final String TEST_CASE_WINDOWS_QS = "windowsQS";
-    
+     * Constant indicating the Quickstart database is to be used for testing on
+     * the Windows system. This is set in the ldappc.properties file and must be
+     * consist with it.
+     */
+    public static final String   TEST_CASE_WINDOWS_QS      = "windowsQS";
+
     /*
-     * Constant indicating the URL for the Signet database used on the biofix system.
-     */ 
-    //public static final String DB_URL_BIOFIX1 = "jdbc:hsqldb:hsql://localhost:9002/demo-uc-people";
-    
+     * Constant indicating the URL for the Signet database used on the biofix
+     * system.
+     */
+    // public static final String DB_URL_BIOFIX1 =
+    // "jdbc:hsqldb:hsql://localhost:9002/demo-uc-people";
     /*
-     * Constant indicating the URL for the Signet database used on a Windows system.
-     */ 
-    //public static final String DB_URL_WINDOWS1 = "jdbc:hsqldb:hsql://localhost:9001/xdb";
-    
+     * Constant indicating the URL for the Signet database used on a Windows
+     * system.
+     */
+    // public static final String DB_URL_WINDOWS1 =
+    // "jdbc:hsqldb:hsql://localhost:9001/xdb";
     /**
      * Key for obtaining the Dn for the test context base.
-     */ 
-    public static final String TEST_CONTEXT_BASE = "testLdapContextBase";
-    
+     */
+    public static final String   TEST_CONTEXT_BASE         = "testLdapContextBase";
+
     /**
      * Key for obtaining the Dn for the test context base.
-     */ 
-    public static final String TEST_CONTEXT_BASE_MANAGER = "testContextBaseManager";
-    
+     */
+    public static final String   TEST_CONTEXT_BASE_MANAGER = "testContextBaseManager";
+
     /**
      * Key for obtaining the DN for the context base.
-     */ 
-    public static final String ROOTOU = "rootou";
-    
+     */
+    public static final String   ROOTOU                    = "rootou";
+
     /**
-     * Constant indicating the identifier in the Signet database used on a Windows system.
-     */ 
-    public static final String SUBJECT_QUERY = "Subject";
-    
+     * Constant indicating the identifier in the Signet database used on a
+     * Windows system.
+     */
+    public static final String   SUBJECT_QUERY             = "Subject";
+
     /**
-     * Constant indicating the identifier in the Signet database used on a Windows system.
-     */ 
-    public static final String INDIVIDUAL_QUERY = "individual";    
-    
+     * Constant indicating the identifier in the Signet database used on a
+     * Windows system.
+     */
+    public static final String   INDIVIDUAL_QUERY          = "individual";
+
     /**
      * The distinguished name for the base context used for testing.
-     */ 
-    public static String DN_TEST_BASE;
-    
+     */
+    public static String         DN_TEST_BASE;
+
     /**
      * A convenience setting to allow easy switching between running all tests
-     * and running a specific (hardwired) test.
-     * Set ALL= true to run all tests.
+     * and running a specific (hardwired) test. Set ALL= true to run all tests.
      * When setting ALL = false, change the class in the else section if needed.
      */
-    private static final boolean ALL = true;
-    
+    private static final boolean ALL                       = true;
+
     /**
      * Constructor
      */
-    public AllJUnitTests(String name)
-    {
+    public AllJUnitTests(String name) {
         super(name);
     }
 
     /**
      * This method builds a master TestSuite out of the individual test suites.
      */
-    public static Test suite()
-    {
+    public static Test suite() {
         DN_TEST_BASE = ResourceBundleUtil.getString(TEST_CONTEXT_BASE);
 
         TestSuite suite = null;
-        if (ALL)
-        {    
+        if (ALL) {
             suite = new TestSuite();
             suite.addTest(new LdapWrapperTestSetup(AllJUnitQuickStartTests.suite()));
+
             TestSuite suite1 = new TestSuite();
             suite1.addTest(AllJUnitBaseDirTests.suite());
             suite1.addTest(AllJUnitUtilTests.suite());
             suite1.addTest(AllJUnitConfigurationTests.suite());
             suite1.addTest(AllJUnitSynchronizerTests.suite());
             suite1.addTest(AllJUnitBuilderTests.suite());
+
             suite.addTest(new LdapWrapperTestSetup(suite1));
-        }
-        else
-        {    
-            suite = new TestSuite(SkeletonTest.class);
-            //suite = new TestSuite(LdapNewEntryTest.class);
-            //suite = new TestSuite(SimpleLdapSearchTest.class);
-            //suite.addTest(new TestSuite(DatabaseCleanerTest.class));
-            //suite = new TestSuite(StemProcessorTest.class);
-            //suite.addTest(new TestSuite(GroupProcessorTest.class));
-            //suite = new TestSuite(StemProcessorTest.class);
-            //suite.addTest(new TestSuite(SignetSubjectProvisionerTest.class));
-            //suite.addTest(new TestSuite(GrouperSubjectProvisionerTest.class));
-            //suite.addTest(new TestSuite(SignetProvisionerPermissionsTest.class));
-            //suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
-            suite.addTest(new TestSuite(QuickStartTestU.class));
+        } else {
+            suite = new TestSuite();
+            suite.addTest(new LdapWrapperTestSetup(new TestSuite(QuickStartTestU.class)));
         }
         return new DatabaseWrapperTestSetup(suite);
-   }
+    }
 }
