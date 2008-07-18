@@ -129,7 +129,7 @@ Source Installation
   directory.  Except for installing the required jars, below, all commands must be run
   from the installation directory.
 
-** Install Required Jars in Local Maven Repository
+** The Maven Repository
 
   Maven uses a local artifact repository in your home directory to store dependent jars used
   by Maven projects.  This directory will be created if it does not exist.  If a dependent
@@ -137,26 +137,38 @@ Source Installation
   repository, and optionally, third-party repositories, to find the artifact and download it
   into your local repository.
 
-  Most jars needed by Ldappc are in the Maven central repository, but several are not.  These
-  jars must be installed into your local repository after installing Maven and before attempting
-  to build Ldappc.  See the README.txt file in the required-jars directory for instructions.
-  It's a straightforward process and Windows and UN*X scripts are provided.  These scripts
-  must be run from the required-jars directory.
-  
+  Most jars needed by Ldappc are in the Maven central repository, but several are not.  We
+  have provided a small "remote" repository in the distribution which contains the required
+  jars for building and/or running Ldappc.  You should not need to take any action to use
+  this repository, as it is referenced in Ldappc's POM (Project Object Model) file.
+
+** Commercial Database Jars
+
   The JDBC drivers for Derby, HSQL, MySQL, and Postgres are included in the central Maven repository.
-  If you are using Oracle or some other database you may need to download the driver jar and install
+  If you are using Oracle or some other commercial database you may need to download the driver jar and install
   it in your local repository.  The pom (project object model) files for various versions of Oracle
   are available in the central repository, but licensing prevents the jar itself from being included.
+  
+  To view instructions for installing Oracle jars into your local repository see the README.txt
+  file in the i2mi-repository directory.
   
 ** Building Ldappc
 
   Run the following command
 
 ---
-mvn clean site package
+mvn site package -Pmydb
 ---
 
-  This will run Maven and have it clean your installation, build the site documentation, run the
+  where mydb is the profile listed in the pom.xml file corresponding to the database and version
+  you wish to use for Signet and/or Grouper.  If you wish to use different databases for Signet
+  and Grouper you may list the profiles separated by commas, e.g.
+  
+---
+mvn site package -Poracle10,mysql5.1
+---
+  
+  This will run Maven and have it build the site documentation, run the
   test suite, and package Ldappc for running from the installation directory.
 
   This involves creating site documentation in the target/site directory, creating an ldappc jar
@@ -167,9 +179,14 @@ mvn clean site package
   directory.  See the {{{user-manual.html}User Manual}} for information on configuring and
   running the Ldappc program.
 
-  If you make source changes you do not need to clean or regenerate the site, unless you wish to.
-  You can simply run the command
+  If you want to clean your build environment, the command
 
+---
+mvn clean
+---
+
+  can be used.  To simply build the project exclusive of documentation, run the command
+  
 ---
 mvn package
 ---
@@ -191,31 +208,40 @@ mvn package
   You can skip running the tests by adding the option "-Dmaven.test.skip=true" to the Maven command, e.g.
 
 ---
-mvn package -Dmaven.test.skip=true
+mvn package -DskipTests=true
 ---
 
   If you want to run the tests, but continue packaging if a test fails, you can instead add the option
   "-Dmaven.test.failure.ignore=true" to the Maven command.
 
+* Deploying Ldappc
+
+  To deploy Ldappc you need the bin directory, the conf directory, and the lib directory.
+  There is a profile for creating a compressed tar file and a zip file containing these directories.
+
+  To create a deploy distribution including the MySQL 5.1 driver, run
+
+---
+mvn site package -Pmysql5.1,deploy
+---
+
+
 * Building a Distribution
 
-  There are two separate profiles for building Ldappc distributions: a "binary" profile, which simply
-  creates a binary distribution, and a "distribution" profile, which generates the binary
+  There are two separate profiles for building Ldappc distributions: a "deploy" profile, which simply
+  creates a distribution suitable for running, and a "distribution" profile, which generates the binary
   distribution, the source distribution, and a site distribution, which just contains the site documentation.
 
-  To create just the binary distribution, run
+** Generating the distributions
 
----
-mvn site package -Pbinary
----
-
-  To create all three distributions, run
+  To create the main three distributions, run
 
 ---
 mvn site package -Pdistribution
 ---
 
-  If you have already generated the site documentation you may omit the "site" goal, above.
+  If you have already generated the site documentation and have not made source changes,
+  you may omit the "site" goal, above.
 
   The distribution files will be in the target directory, along with the Ldappc jar.
   They will have names of the form ldappc-theVersionNumber-theDistributionType.fileType,
