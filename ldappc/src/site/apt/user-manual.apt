@@ -15,7 +15,9 @@
 ~~ See the License for the specific language governing permissions and
 ~~ limitations under the License.
 
-User Manual
+ -----
+ User Manual
+ -----
 
   This document describes how to use the Ldappc program. This document is not
   yet complete. The discussion that is provided is limited to some of the
@@ -44,7 +46,7 @@ Command Line Input
 *-----------------------+------------------+--------------------------------------------------------------------------------+
 | no arguments          |                  | Display the following list of available arguments to standard output.          | 
 *-----------------------+------------------+--------------------------------------------------------------------------------+
-| <<<-subject>>>        | <subjectId>      | The SubjectId used to establish Grouper API and Signet API sessions.           |
+| <<<-subject>>>        | <subjectId>      | The SubjectId used to establish Grouper API sessions.                          |
 |                       |                  | If any arguments are used, then "<<<-subject>>> <subjectId>" is required.      |
 *-----------------------+------------------+--------------------------------------------------------------------------------+
 | <<<-groups>>>         |                  | (Optional) When present, group information will be provisioned.                |

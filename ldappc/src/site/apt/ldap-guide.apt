@@ -15,7 +15,9 @@
 ~~ See the License for the specific language governing permissions and
 ~~ limitations under the License.
 
-LDAP Guide
+ -----
+ LDAP Guide
+ -----
 
   This document provides a guide to information about LDAP 
   (Lightweight Directory Access Protocol) that is central to the purpose of
