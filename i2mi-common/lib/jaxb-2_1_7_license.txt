@@ -1,6 +1,0 @@
-Source and binary distributions of JAXB 2.1.7 downloaded from
-https://jaxb.dev.java.net/2.1.7/
-
-JAXB 2.1.7 license is online at
-https://glassfish.dev.java.net/public/CDDL+GPL.html
-
