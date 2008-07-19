@@ -46,7 +46,8 @@ public class AllJUnitSynchronizerTests extends TestCase
 
     public static Test suite() 
     {
-        TestSuite suite = new TestSuite(AttributeModifierTest.class);
+        TestSuite suite = new TestSuite();
+        suite.addTest(new TestSuite(AttributeModifierTest.class));
         suite.addTest(new TestSuite(DnAttributeModifierTest.class));
         // Add additional tests using the following format:
         // suite.addTest(new TestSuite(ConfigManagerTest.class));

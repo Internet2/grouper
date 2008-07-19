@@ -46,7 +46,8 @@ public class AllJUnitBuilderTests extends TestCase
 
     public static Test suite() 
     {
-        TestSuite suite = new TestSuite(GroupBuilderTest.class);
+        TestSuite suite = new TestSuite();
+        suite.addTest(new TestSuite(GroupBuilderTest.class));
         suite.addTest(new TestSuite(SignetSubjectProvisionerTest.class));
         suite.addTest(new TestSuite(GrouperSubjectProvisionerTest.class));
         suite.addTest(new TestSuite(SignetProvisionerPermissionsTest.class));

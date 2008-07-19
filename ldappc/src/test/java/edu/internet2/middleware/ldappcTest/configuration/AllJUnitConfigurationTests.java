@@ -48,7 +48,8 @@ public class AllJUnitConfigurationTests extends TestCase
 
     public static Test suite() 
     {
-        TestSuite suite = new TestSuite(ConfigManagerTest.class);
+        TestSuite suite = new TestSuite();
+        suite.addTest(new TestSuite(ConfigManagerTest.class));
         // Add additional tests using the following format:
         // suite.addTest(new TestSuite(ConfigManagerTest.class));
         return suite;

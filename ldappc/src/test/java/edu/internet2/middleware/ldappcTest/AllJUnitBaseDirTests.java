@@ -50,7 +50,8 @@ public class AllJUnitBaseDirTests extends TestCase
 
     public static Test suite() 
     {
-        TestSuite suite = new TestSuite(LdappcTest.class);
+        TestSuite suite = new TestSuite();
+        suite.addTest(new TestSuite(LdappcTest.class));
         suite.addTest(new TestSuite(InputOptionsTest.class));
         suite.addTest(new TestSuite(RootProcessorTest.class));
         suite.addTest(new TestSuite(LdapSchemaTest.class));

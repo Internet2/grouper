@@ -28,6 +28,7 @@ import edu.internet2.middleware.ldappcTest.qs.AllJUnitQuickStartTests;
 import edu.internet2.middleware.ldappcTest.qs.BushyGroupsProvisionTest;
 import edu.internet2.middleware.ldappcTest.qs.QuickStartTestU;
 import edu.internet2.middleware.ldappcTest.synchronize.AllJUnitSynchronizerTests;
+import edu.internet2.middleware.ldappcTest.util.AllJUnitUtilTests;
 import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
 import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 

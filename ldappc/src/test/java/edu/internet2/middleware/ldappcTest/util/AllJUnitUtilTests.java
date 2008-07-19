@@ -16,14 +16,13 @@
     limitations under the License.
 */
 
-package edu.internet2.middleware.ldappcTest;
+package edu.internet2.middleware.ldappcTest.util;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import edu.internet2.middleware.ldappcTest.ResourceBundleUtilTest;
-import edu.internet2.middleware.ldappcTest.util.LdapUtilTest;
 
 /**
  * This class builds a TestSuite out of the individual test classes.
@@ -50,7 +49,8 @@ public class AllJUnitUtilTests extends TestCase
 
     public static Test suite() 
     {
-        TestSuite suite = new TestSuite(ResourceBundleUtilTest.class);
+        TestSuite suite = new TestSuite();
+        suite.addTest( new TestSuite(ResourceBundleUtilTest.class));
         // This test takes about 7 minutes on Grouper1.1 so run only
         // occasionally.
         //suite.addTest(new TestSuite(GrouperExportTest.class));
