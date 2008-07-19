@@ -25,6 +25,7 @@ import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 import edu.internet2.middleware.ldappcTest.configuration.AllJUnitConfigurationTests;
 import edu.internet2.middleware.ldappcTest.dbBuilder.AllJUnitBuilderTests;
 import edu.internet2.middleware.ldappcTest.qs.AllJUnitQuickStartTests;
+import edu.internet2.middleware.ldappcTest.qs.BushyGroupsProvisionTest;
 import edu.internet2.middleware.ldappcTest.qs.QuickStartTestU;
 import edu.internet2.middleware.ldappcTest.synchronize.AllJUnitSynchronizerTests;
 import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
@@ -156,6 +157,8 @@ public class AllJUnitTests extends TestCase {
         } else {
             suite = new TestSuite();
             suite.addTest(new LdapWrapperTestSetup(new TestSuite(QuickStartTestU.class)));
+            suite.addTest(new LdapWrapperTestSetup(new TestSuite(BushyGroupsProvisionTest.class)));
+            suite.addTest(new LdapWrapperTestSetup(AllJUnitConfigurationTests.suite()));
         }
         return new DatabaseWrapperTestSetup(suite);
     }
