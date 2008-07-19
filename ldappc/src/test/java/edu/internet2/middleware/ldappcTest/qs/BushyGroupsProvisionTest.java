@@ -65,10 +65,10 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class BushyGroupsProvisionTest extends BaseTestCase {
     /**
-     * Grouper group root DN
+     * Config file for provisioning bushy groups.
      */
-    // static final String GROUPER_GROUP_ROOT_DN =
-    // "ou=testgrouper,dc=example,dc=edu";
+    private static final String BUSHY_GROUPS_CONFIG = "ldappc-bushyGroups.xml";
+
     /**
      * Grouper subject root DN
      */
@@ -116,7 +116,7 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
     protected void setUp() {
         DisplayTest.showRunClass(getClass().getName());
         ConfigManager.cleanConfiguration();
-        ConfigManager.loadSingleton("/ldappc-bushyGroups.xml");
+        ConfigManager.loadSingleton(ConfigManager.getSystemResourceURL(BUSHY_GROUPS_CONFIG, true).toString());
         configuration = ConfigManager.getInstance();
 
         //

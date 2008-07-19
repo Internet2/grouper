@@ -57,6 +57,11 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 public class EduPermissionProvisionTest extends BaseTestCase
 {
     /**
+     * Config file for provisioning eduPermission objects.
+     */
+    private static final String EDU_PERMISSION_CONFIG = "ldappc-eduPermission.xml";
+
+    /**
      * Signet member root DN
      */
     static final String SIGNET_SUBJECT_ROOT_DN = "ou=kitn,dc=example,dc=edu";
@@ -101,7 +106,7 @@ public class EduPermissionProvisionTest extends BaseTestCase
     {
         DisplayTest.showRunClass(getClass().getName());
         ConfigManager.cleanConfiguration();
-        ConfigManager.loadSingleton("/ldappc-eduPermission.xml");
+        ConfigManager.loadSingleton(ConfigManager.getSystemResourceURL(EDU_PERMISSION_CONFIG, true).toString());
         configuration = ConfigManager.getInstance();
         
         subjectCache = new SubjectCache();
