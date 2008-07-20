@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.1 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.2 2008-07-20 21:18:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -9,7 +9,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
-import edu.internet2.middleware.grouper.hooks.beans.GrouperBuiltinContextType;
+import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
@@ -23,19 +23,18 @@ public class MembershipHooksImplExample extends MembershipHooks {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreAddMemberBean)
+   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreAddMember(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean)
    */
   @Override
   public void membershipPreAddMember(HooksContext hooksContext, HooksMembershipChangeBean preAddMemberBean) {
 
-    //TODO make this unknown if not known
     GrouperContextType grouperContextType = hooksContext.getGrouperContextType();
     
     //only care about this if not grouper loader
-    if (!grouperContextType.equals(GrouperBuiltinContextType.GROUPER_LOADER)) {
+    if (!GrouperContextTypeBuiltIn.GROUPER_LOADER.equals(grouperContextType)) {
       
       //if the act as user is is in the wheel group, then just admonish
-      if (hooksContext.isSubjectActAsInGroup("penn:etc:sysAdminGroup")) {
+      if (hooksContext.isSubjectFromGrouperSessionInGroup("penn:etc:sysAdminGroup")) {
         
         //add warning to system
         

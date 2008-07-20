@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllHooksTests.java,v 1.7 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: AllHooksTests.java,v 1.8 2008-07-20 21:18:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -23,7 +23,6 @@ public class AllHooksTests {
     TestRunner.run(AllHooksTests.suite());
     //System.err.println("Took: " + (System.currentTimeMillis() - start));
   }
-  
 
   /**
    * 
@@ -40,6 +39,7 @@ public class AllHooksTests {
     suite.addTestSuite(GroupTypeHooksTest.class);
     suite.addTestSuite(MembershipHooksTest.class);
     suite.addTestSuite(MemberHooksTest.class);
+    suite.addTestSuite(LifecycleHooksTest.class);
     suite.addTestSuite(GroupTypeTupleHooksTest.class);
     //$JUnit-END$
     return suite;
