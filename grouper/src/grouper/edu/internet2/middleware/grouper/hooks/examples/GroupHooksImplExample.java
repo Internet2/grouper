@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImplExample.java,v 1.1 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: GroupHooksImplExample.java,v 1.2 2008-07-20 21:18:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -20,7 +20,7 @@ public class GroupHooksImplExample extends GroupHooks {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupPreInsertBean)
+   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
    */
   @Override
   public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HookVeto.java,v 1.1 2008-06-26 11:16:47 mchyzer Exp $
+ * $Id: HookVeto.java,v 1.2 2008-07-20 21:18:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -115,6 +115,7 @@ public class HookVeto extends RuntimeException {
    * 
    */
   public HookVeto(String theReasonKey, String theReason) {
+    super(theReasonKey + ": " + theReason);
     this.reason = theReason;
     this.reasonKey = theReasonKey;
   }

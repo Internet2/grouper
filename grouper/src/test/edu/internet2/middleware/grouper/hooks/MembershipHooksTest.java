@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksTest.java,v 1.8 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: MembershipHooksTest.java,v 1.9 2008-07-20 21:18:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -19,6 +19,8 @@ import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -36,7 +38,7 @@ public class MembershipHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new MembershipHooksTest("testMemberPreAddMemberAsync2"));
+    TestRunner.run(new MembershipHooksTest("testMemberPreAddMemberAsync"));
   }
   
   /**
@@ -149,6 +151,7 @@ public class MembershipHooksTest extends GrouperTest {
   }
 
   /**
+   * test async with callback
    * @throws Exception 
    */
   public void testMemberPreAddMemberAsync() throws Exception {
@@ -156,9 +159,21 @@ public class MembershipHooksTest extends GrouperTest {
     //this is the test hook imple
     GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), MembershipHooksImplAsync.class);
 
+    //clear the override threadlocals, assign stuff
+    HooksContext.clearThreadLocal();
+    HooksContext.setAttributeThreadLocal("testMemberPreAddMemberAsync", "hey2", false);
+    HooksContext.setAttributeThreadLocal("testMemberPreAddMemberAsync2", "there2", true);
+    MembershipHooksImplAsync.hooksContextValue = null;
+    MembershipHooksImplAsync.hooksContextValue2 = null;
+    MembershipHooksImplAsync.hooksGrouperSessionSubject = null;
+    MembershipHooksImplAsync.hooksGrouperContext = null;
+    
     MembershipHooksImplAsync.mostRecentInsertMemberSubjectId = null;
     
     int currentSleepCount = MembershipHooksImplAsync.preAddMemberHookCountAyncSeconds;
+    
+    GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
+    GrouperContextTypeBuiltIn.setThreadLocalContext(GrouperContextTypeBuiltIn.GROUPER_WS);
     
     group.addMember(SubjectTestHelper.SUBJ0);
     
@@ -174,6 +189,17 @@ public class MembershipHooksTest extends GrouperTest {
     assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
     assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImplAsync.mostRecentInsertMemberSubjectId);
     
+    assertEquals("This one is not threadsafe, shouldnt go to next thread", null, 
+        MembershipHooksImplAsync.hooksContextValue);
+    assertEquals("This one is threadsafe, should go to next thread", "there2", 
+        MembershipHooksImplAsync.hooksContextValue2);
+    assertEquals("Should propagate subject to new thread", 
+        SessionHelper.getRootSession().getSubject().getId(), 
+        MembershipHooksImplAsync.hooksGrouperSessionSubject.getId());
+    assertEquals("Should get the threadlocal context type", 
+        GrouperContextTypeBuiltIn.GROUPER_WS, 
+        MembershipHooksImplAsync.hooksGrouperContext);
+    
     GrouperUtil.sleep(1000);
     assertTrue(MembershipHooksImplAsync.done);
     if (MembershipHooksImplAsync.problem != null) {
@@ -182,6 +208,7 @@ public class MembershipHooksTest extends GrouperTest {
   }
 
   /**
+   * test async with interface
    * @throws Exception 
    */
   public void testMemberPreAddMemberAsync2() throws Exception {
@@ -223,12 +250,22 @@ public class MembershipHooksTest extends GrouperTest {
     GrouperHookType.addHookOverride(GrouperHookType.MEMBERSHIP.getPropertyFileKey(), 
         MembershipHooksImpl3.class);
 
+    //clear the override threadlocals, assign stuff
+    HooksContext.clearThreadLocal();
+    HooksContext.setAttributeThreadLocal("testMemberPreInsert", "hey", false);
+    HooksContext.setAttributeThreadLocal("testMemberPreInsert2", "there", true);
+    MembershipHooksImpl3.hooksContextValue = null;
+    MembershipHooksImpl3.hooksContextValue2 = null;
+    
     MembershipHooksImpl3.mostRecentInsertMemberSubjectId = null;
     
     group.addMember(SubjectTestHelper.SUBJ0);
     Set<Membership> memberships = group.getMemberships();
     assertEquals(SubjectTestHelper.SUBJ0.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
     assertEquals(SubjectTestHelper.SUBJ0.getId(), MembershipHooksImpl3.mostRecentInsertMemberSubjectId);
+    
+    assertEquals("hey", MembershipHooksImpl3.hooksContextValue);
+    assertEquals("there", MembershipHooksImpl3.hooksContextValue2);
     
     try {
       group.addMember(SubjectTestHelper.SUBJ1);

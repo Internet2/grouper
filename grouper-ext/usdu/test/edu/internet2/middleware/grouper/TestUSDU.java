@@ -6,7 +6,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
-import edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -27,11 +26,14 @@ public class TestUSDU extends GrouperTest {
   }
 
   private void deleteSubject(Subject subject) throws InterruptedException {
-
+    
+    //CH 20080720, I converted this to latest, but didnt test it
     RegistrySubjectDAO dao = GrouperDAOFactory.getFactory().getRegistrySubject();
-    RegistrySubjectDTO dto = new RegistrySubjectDTO().setId(subject.getId()).setName(subject.getName()).setType(
-        subject.getType().toString());
-    dao.delete(dto);
+    RegistrySubject registrySubject = new RegistrySubject();
+    registrySubject.setId(subject.getId());
+    registrySubject.setName(subject.getName());
+    registrySubject.setTypeString(subject.getType().getName());
+    dao.delete(registrySubject);
 
     // must be longer than timeToIdleSeconds and timeToLiveSeconds in
     // src/test/conf/grouper.ehcache.xml

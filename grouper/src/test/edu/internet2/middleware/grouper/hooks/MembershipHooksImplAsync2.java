@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplAsync2.java,v 1.1 2008-07-08 20:47:42 mchyzer Exp $
+ * $Id: MembershipHooksImplAsync2.java,v 1.2 2008-07-20 21:18:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -49,7 +49,7 @@ public class MembershipHooksImplAsync2 extends MembershipHooks implements HookAs
     preAddMemberHookCountAyncSeconds++;
     
     //get a session
-    GrouperSession grouperSession = hooksContext.getGrouperSession();
+    GrouperSession grouperSession = hooksContext.grouperSession();
     
     if (grouperSession == MembershipHooksTest.grouperSession) {
       problem = new RuntimeException("GrouperSession is the same instance");

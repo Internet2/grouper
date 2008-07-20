@@ -3,12 +3,17 @@ package edu.internet2.middleware.grouper.hooks.beans;
 /**
  * type of context
  */
-public enum GrouperBuiltinContextType implements GrouperContextType {
+public enum GrouperContextTypeBuiltIn implements GrouperContextType {
   
   /**
    * normal API call
    */
   GROUPER_API,
+  
+  /**
+   * ant tools like schema-export etc
+   */
+  ANT_TOOLS,
   
   /**
    * from the UI
@@ -21,9 +26,14 @@ public enum GrouperBuiltinContextType implements GrouperContextType {
   GROUPER_WS,
   
   /**
-   * from gruoper shell
+   * from grouper shell
    */
   GSH,
+  
+  /**
+   * if the context type if not known
+   */
+  UNKNOWN,
   
   /**
    * from undeleted subject utility
@@ -45,7 +55,7 @@ public enum GrouperBuiltinContextType implements GrouperContextType {
    * @param defaultContext the defaultContext to set
    */
   public static void setDefaultContext(GrouperContextType defaultContext) {
-    GrouperBuiltinContextType.defaultContext = defaultContext;
+    GrouperContextTypeBuiltIn.defaultContext = defaultContext;
   }
  
   /**
@@ -67,7 +77,10 @@ public enum GrouperBuiltinContextType implements GrouperContextType {
   }
   
   /**
-   * current grouper context
+   * current grouper context.  Will not return null, if null will return
+   * UNKNOWN.  This defaults to the default global context, but if the
+   * threadlocal one was set, use that instead.
+   * 
    * @return the threadlocal if there is one there, or global 
    */
   public static GrouperContextType currentGrouperContext() {
@@ -77,7 +90,19 @@ public enum GrouperBuiltinContextType implements GrouperContextType {
       grouperContextType = defaultContext;
     }
     
+    if (grouperContextType == null) {
+      return UNKNOWN;
+    }
+    
     return grouperContextType;
+  }
+
+  
+  /**
+   * @return the threadLocalGrouperContextType
+   */
+  public static GrouperContextType _internal_getThreadLocalGrouperContextType() {
+    return threadLocalGrouperContextType.get();
   }
   
 }

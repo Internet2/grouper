@@ -34,7 +34,9 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.util.ExpirableCache;
+import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.util.GrouperCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
@@ -216,20 +218,20 @@ public class GrouperServiceJ2ee implements Filter {
   }
 
   /** cache the actAs */
-  private static ExpirableCache<MultiKey, Boolean> actAsCache = null;
+  private static GrouperCache<MultiKey, Boolean> actAsCache = null;
 
   /** cache the actAs */
-  private static ExpirableCache<MultiKey, Boolean> subjectAllowedCache = null;
+  private static GrouperCache<MultiKey, Boolean> subjectAllowedCache = null;
 
   /**
    * get the actAsCache, and init if not initted
    * @return the actAsCache
    */
-  private static ExpirableCache<MultiKey, Boolean> actAsCache() {
+  private static GrouperCache<MultiKey, Boolean> actAsCache() {
     if (actAsCache == null) {
       int actAsTimeoutMinutes = GrouperWsConfig.getPropertyInt(
           GrouperWsConfig.WS_ACT_AS_CACHE_MINUTES, 30);
-      actAsCache = new ExpirableCache<MultiKey, Boolean>(actAsTimeoutMinutes);
+      actAsCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsActAsCache", 10000, false, 60*60*24, actAsTimeoutMinutes*60, false);
     }
     return actAsCache;
   }
@@ -238,11 +240,12 @@ public class GrouperServiceJ2ee implements Filter {
    * get the subjectAllowedCache, and init if not initted
    * @return the subjectAllowedCache
    */
-  private static ExpirableCache<MultiKey, Boolean> subjectAllowedCache() {
+  private static GrouperCache<MultiKey, Boolean> subjectAllowedCache() {
     if (subjectAllowedCache == null) {
       int subjectAllowedTimeoutMinutes = GrouperWsConfig.getPropertyInt(
           GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES, 30);
-      subjectAllowedCache = new ExpirableCache<MultiKey, Boolean>(subjectAllowedTimeoutMinutes);
+      subjectAllowedCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsAllowedCache", 10000, false, 60*60*24, subjectAllowedTimeoutMinutes*60, false);
+
     }
     return subjectAllowedCache;
   }
@@ -256,10 +259,25 @@ public class GrouperServiceJ2ee implements Filter {
    */
   public static Subject retrieveSubjectActAs(WsSubjectLookup actAsLookup)
       throws WsInvalidQueryException {
+    Subject actAsSubject = retrieveSubjectActAsHelper(actAsLookup);
+    HooksContext.assignSubjectLoggedIn(actAsSubject);
+    return actAsSubject;
+  }
 
-    //TODO test this
+  /**
+   * retrieve the subject to act as
+   * 
+   * @param actAsLookup that the caller wants to act as
+   * @return the subject
+   * @throws WsInvalidQueryException if there is a problem
+   */
+  private static Subject retrieveSubjectActAsHelper(WsSubjectLookup actAsLookup)
+      throws WsInvalidQueryException {
+
     Subject loggedInSubject = retrieveSubjectLoggedIn();
 
+    HooksContext.assignSubjectLoggedIn(loggedInSubject);
+    
     //make sure allowed
     String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
     
@@ -401,7 +419,7 @@ public class GrouperServiceJ2ee implements Filter {
       }
 
       if (countNoExceptions == 0) {
-        throw new RuntimeException("Problems seeing is web service user '"
+        throw new RuntimeException("Problems seeing if web service user '"
             + loggedInSubject + "' can actAs the other subject: '" + actAsSubject + "'");
       }
       // if not an effective member
@@ -509,6 +527,15 @@ public class GrouperServiceJ2ee implements Filter {
     threadLocalRequest.set((HttpServletRequest) request);
     threadLocalResponse.set((HttpServletResponse) response);
     threadLocalRequestStartMillis.set(System.currentTimeMillis());
+    
+    GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_WS);
+
+    //lets add the request, session, and response
+    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_REQUEST, request, false);
+    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, 
+        ((HttpServletRequest)request).getSession(), false);
+    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
+
     try {
       filterChain.doFilter(request, response);
     } finally {
@@ -516,6 +543,8 @@ public class GrouperServiceJ2ee implements Filter {
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();
       threadLocalServlet.remove();
+      
+      HooksContext.clearThreadLocal();
     }
 
   }

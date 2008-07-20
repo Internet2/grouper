@@ -35,9 +35,11 @@ import java.util.*;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 import edu.internet2.middleware.grouper.ui.CallerPageException;
+import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -176,7 +178,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.16 2008-04-14 14:42:55 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.17 2008-07-20 21:18:43 mchyzer Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -260,13 +262,28 @@ public abstract class GrouperCapableAction
 				}else forward = new ActionForward(getMediaResources(session).getString("admin.browse.path"),true);
 			}catch(GrouperDAOException e) {
 				Throwable cause=e.getCause();
-				if(!(cause instanceof UnrecoverableErrorException)) {
+				
+				Throwable causeCause = cause == null ? null : cause.getCause();
+				
+        Throwable causeCauseCause = causeCause == null ? null : causeCause.getCause();
+        
+				HookVeto hookVeto = (cause instanceof HookVeto) ? (HookVeto)cause : null;
+				
+				hookVeto = ((hookVeto == null) && (causeCause instanceof HookVeto)) ? (HookVeto)causeCause : hookVeto;
+				
+        hookVeto = ((hookVeto == null) && (causeCauseCause instanceof HookVeto)) ? (HookVeto)causeCauseCause : hookVeto;
+
+        if (hookVeto != null) {
+          Message.addVetoMessageToScreen(request, hookVeto);
+        } else if(!(cause instanceof UnrecoverableErrorException)) {
 					LOG.error(NavExceptionHelper.toLog(cause));
 					cause=new UnrecoverableErrorException(cause);
 				}
-				NavExceptionHelper neh=getExceptionHelper(session);
-				String msg = neh.getMessage((UnrecoverableErrorException)cause);
-				request.setAttribute("seriousError",msg);
+        if (cause instanceof UnrecoverableErrorException) {
+  				NavExceptionHelper neh=getExceptionHelper(session);
+  				String msg = neh.getMessage((UnrecoverableErrorException)cause);
+  				request.setAttribute("seriousError",msg);
+        }
 				forward=mapping.findForward("ErrorPage");
 			}
 			Date after = new Date();

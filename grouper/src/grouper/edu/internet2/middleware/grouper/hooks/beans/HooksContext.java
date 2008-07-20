@@ -1,19 +1,16 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.6 2008-07-10 05:55:51 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.7 2008-07-20 21:18:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -23,6 +20,7 @@ import edu.internet2.middleware.grouper.GrouperSessionException;
 import edu.internet2.middleware.grouper.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.util.GrouperCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -31,10 +29,6 @@ import edu.internet2.middleware.subject.Subject;
  * context in which hooks are running
  */
 public class HooksContext {
-  
-  /** global attributes, threadsafe */
-  private static Map<String, Object> attributeGlobal = 
-    new HashMap<String, Object>();
   
   /** keep a unique id to keep the logs straight */
   private String hookId = GrouperUtil.uniqueId();
@@ -70,18 +64,29 @@ public class HooksContext {
   }
   
   /**
-   * current acting subject in app (if applicable)
+   * current user in the grouper session or null if none there
+   * @return the subject logged in (or null if not available)
+   */
+  public Subject getSubjectFromGrouperSession() {
+    GrouperSession grouperSession = this.grouperSession();
+    return grouperSession == null ? null : grouperSession.getSubject();
+  }
+  
+  /**
+   * current acting subject in app (if applicable), or just the current
+   * subject
    * @return the subject acting as (or null if not available)
    */
   public Subject getSubjectActAs() {
-    return (Subject)this.getAttribute(HOOKS_KEY_SUBJECT_ACT_AS);
+    Subject subjectActAs = (Subject)this.getAttribute(HOOKS_KEY_SUBJECT_ACT_AS);
+    return GrouperUtil.defaultIfNull(subjectActAs, this.getSubjectLoggedIn());
   }
 
   /**
    * get the grouper session from the grouper session threadlocal
    * @return the grouper session (might be null)
    */
-  public GrouperSession getGrouperSession() {
+  public GrouperSession grouperSession() {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
     if (grouperSession == null && !asynchronousGrouperSessionStarted 
         && asynchronousGrouperSessionSubject != null && asynchronous) {
@@ -93,6 +98,17 @@ public class HooksContext {
       }
     }
     return grouperSession;
+  }
+  
+  /**
+   * if this is an asynchronous hook, the grouper session subject is passed from
+   * the other thread to this thread, this is that subject.  note, you can call
+   * HooksContext.grouperSession() to start a session instead.
+   * 
+   * @return the subject
+   */
+  public Subject getAsynchronousGrouperSessionSubject() {
+    return this.asynchronousGrouperSessionSubject;
   }
   
   /**
@@ -133,10 +149,31 @@ public class HooksContext {
    */
   public boolean isSubjectActAsInGroup(final String groupName) {
     final Subject subject = this.getSubjectActAs();
+    
+    return isSubjectInGroup(groupName, subject);
+  }
+
+  /**
+   * see if the current subject in grouper session is in a certain group (e.g. for authorization)
+   * @param groupName fully qualified group name to check
+   * @return true if the subject is in group, false if subject is null or not in group
+   */
+  public boolean isSubjectFromGrouperSessionInGroup(final String groupName) {
+    final Subject subject = this.getSubjectFromGrouperSession();
+    
+    return isSubjectInGroup(groupName, subject);
+  }
+
+  /**
+   * see if a subject is in a group
+   * @param groupName
+   * @param subject
+   * @return true if subject is in group
+   */
+  private boolean isSubjectInGroup(final String groupName, final Subject subject) {
     if (subject == null) {
       return false;
     }
-    
     //see if answer is cached
     final MultiKey multiKey = new MultiKey(groupName, subject.getId(), subject.getSource());
     Boolean result = subjectInGroupCache.get(multiKey);
@@ -190,66 +227,61 @@ public class HooksContext {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+
+  /**
+   * look at all threadlocal attributes, and extract the names and values of the threadsafe ones.
+   * if the values are cloneable, then clone them
+   * @return the map, never null
+   */
+  public Map<String, Object> _internal_threadSafeAttributes(){
+    Map<String, Object> result = new HashMap<String, Object>();
+    Map<String, HooksAttribute> theThreadLocalAttribute = threadLocalAttribute();
+    for (String key : theThreadLocalAttribute.keySet()) {
+      
+      HooksAttribute hooksAttribute = theThreadLocalAttribute.get(key);
+      if (hooksAttribute.isThreadSafe()) {
+        Object value = hooksAttribute.getValue();
+        //if cloneable, then clone it
+        if (value instanceof GrouperCloneable) {
+          value = ((GrouperCloneable)value).clone();
+        }
+        result.put(key, value);
+      }
+    }
+    return result;
+  }
   
-//  /**
-//   * return the grouper session, or null if none in context
-//   * @return the grouper session
-//   */
-//  public GrouperSession getGrouperSession() {
-//    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
-//      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-//    if (sessions != null) {
-//      //get the last non-null one, remove if not there
-//      for (int i=sessions.size()-1;i>=0;i--) {
-//        WeakReference<GrouperSession> reference = sessions.get(i);
-//        GrouperSession session = reference.get();
-//        if (session == null) {
-//          sessions.remove(i);
-//        } else {
-//          return session;
-//        }
-//      }
-//    }
-//    //cant find
-//    return null;
-//  }
   
   /**
    * constructor
-   * @param theAsynchronous
-   * @param synchronousContext 
+   * @param theAsynchronous true if this is in a new thread, false if not
+   * @param threadSafeAttributes attributes from another thread if applicable 
+   * @param theAsynchronousGrouperSessionSubject if asynchronous, pass in who the grouper subject should be
+   * @param theAynchronousHookId if we are asynchronous, pass in what the hook id should be
    */
-  public HooksContext(boolean theAsynchronous, HooksContext synchronousContext) {
+  public HooksContext(boolean theAsynchronous, Map<String, Object> threadSafeAttributes, 
+      Subject theAsynchronousGrouperSessionSubject, String theAynchronousHookId) {
+
     this.asynchronous = theAsynchronous;
     if (this.asynchronous) {
       //if its asynchronous, then remove the thread local ones
-      //TODO which thread is this happening in, I think it is wrong, dont clear
       threadLocalAttribute().clear();
       
-      GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-      if (grouperSession != null) {
-        this.asynchronousGrouperSessionSubject = grouperSession.getSubject();
+      this.asynchronousGrouperSessionSubject = theAsynchronousGrouperSessionSubject;
+      
+      //assign the id if necessary
+      if (!StringUtils.isBlank(theAynchronousHookId)) {
+        this.hookId = theAynchronousHookId;
       }
       
     }
-    if (synchronousContext != null) {
-      //carry over the attributes, which are threadsafe
-      if (synchronousContext.attributeLocal != null) {
-        for (String key : synchronousContext.attributeLocal.keySet()) {
-          
-          HooksAttribute hooksAttribute = synchronousContext.attributeLocal.get(key);
-          if (hooksAttribute.isThreadSafe()) {
-            threadLocalAttribute().put(key, hooksAttribute);
-          }
-        }
-      }
-      //copy over the threadlocal to the local attributes
-      for (String key : threadLocalAttribute().keySet()) {
+    if (threadSafeAttributes != null) {
+      for (String key : threadSafeAttributes.keySet()) {
         
-        HooksAttribute hooksAttribute = threadLocalAttribute().get(key);
-        if (hooksAttribute.isThreadSafe()) {
-          threadLocalAttribute().put(key, hooksAttribute);
-        }
+        HooksAttribute hooksAttribute = new HooksAttribute(true, threadSafeAttributes.get(key));
+
+        //put in map as threadsafe
+        threadLocalAttribute().put(key, hooksAttribute);
       }
     }
   }
@@ -259,22 +291,28 @@ public class HooksContext {
   
   /** if we started one, we should stop it */
   private boolean asynchronousGrouperSessionStarted;
-  
+
   /**
-   * set a global attribute
-   * @param key
-   * @param value
+   * if application, key in context for response
    */
-  public static void setAttributeGlobal(String key, Object value) {
-    attributeGlobal.put(key, value);
-  }
+  public static final String KEY_HTTP_SERVLET_RESPONSE = "HttpServletResponse";
+
+  /**
+   * if application, key in context for session
+   */
+  public static final String KEY_HTTP_SESSION = "HttpSession";
+
+  /**
+   * if application, key in context for request
+   */
+  public static final String KEY_HTTP_SERVLET_REQUEST = "HttpServletRequest";
   
   /**
-   * get the context in which the hooks are running
+   * get the context in which the hooks are running, e.g. UI, GSH, etc
    * @return the context
    */
   public GrouperContextType getGrouperContextType() {
-    return GrouperBuiltinContextType.currentGrouperContext();
+    return GrouperContextTypeBuiltIn.currentGrouperContext();
   }
 
   /**
@@ -300,13 +338,13 @@ public class HooksContext {
    * set a threadlocal attribute
    * @param key
    * @param value
-   * @param threadSafe if this should be set for hooks spawned in new thread
+   * @param okToCopyToNewThread if this should be set for hooks spawned in new thread
    */
-  public static void setAttributeThreadLocal(String key, Object value, boolean threadSafe) {
+  public static void setAttributeThreadLocal(String key, Object value, boolean okToCopyToNewThread) {
     if (value == null) {
       threadLocalAttribute().remove(key);
     } else {
-      threadLocalAttribute().put(key, new HooksAttribute(threadSafe, value));
+      threadLocalAttribute().put(key, new HooksAttribute(okToCopyToNewThread, value));
     }
   }
   
@@ -317,91 +355,15 @@ public class HooksContext {
     threadLocalAttribute().clear();
   }
 
-//  /**
-//   * keep sessions in a list so they fall off when done
-//   * @param grouperSession
-//   */
-//  public static void removeGrouperSessionThreadLocal(GrouperSession grouperSession) {
-//    
-//    List<WeakReference<GrouperSession>> sessions = (List<WeakReference<GrouperSession>>)threadLocalAttribute()
-//      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-//    
-//    if (sessions != null) {
-//      //lets find and remove this one or removed ones
-//      Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();
-//      while (iterator.hasNext()) {
-//        WeakReference<GrouperSession> currentReference = iterator.next();
-//        
-//        //if not there, or the one to remove, then remove
-//        GrouperSession currentSession = currentReference.get();
-//        if (currentSession == null || currentSession == grouperSession) {
-//          iterator.remove();
-//        }
-//        
-//      }
-//      
-//    }
-//  }
-  
-//  /**
-//   * keep sessions in a list so they fall off when done
-//   * @param grouperSession
-//   */
-//  public static void addGrouperSessionThreadLocal(GrouperSession grouperSession) {
-//    
-//     HooksAttribute hooksAttribute = threadLocalAttribute()
-//      .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-//     
-//    List<WeakReference<GrouperSession>> sessions;
-//     
-//    if (hooksAttribute == null) {
-//      sessions = new ArrayList<WeakReference<GrouperSession>>();
-//      setAttributeThreadLocal(HooksContext.HOOKS_KEY_GROUPER_SESSION, sessions, false);
-//      hooksAttribute = threadLocalAttribute()
-//        .get(HooksContext.HOOKS_KEY_GROUPER_SESSION);
-//    }
-//    
-//    sessions = (List<WeakReference<GrouperSession>>)hooksAttribute.getValue();
-//    
-//    //lets clear out removed ones
-//    Iterator<WeakReference<GrouperSession>> iterator = sessions.iterator();
-//    while (iterator.hasNext()) {
-//      WeakReference<GrouperSession> currentReference = iterator.next();
-//      
-//      //if not there, remove
-//      GrouperSession currentSession = currentReference.get();
-//      if (currentSession == null) {
-//        iterator.remove();
-//      }
-//      
-//    }
-//    
-//    //add to end
-//    sessions.add(new WeakReference<GrouperSession>(grouperSession));
-//  }
-  
-  /**
-   * local attributes just for this context
-   */
-  private Map<String, HooksAttribute> attributeLocal = new HashMap<String, HooksAttribute>();
-
-//  /**
-//   * hooks internal attribute key for grouper session
-//   */
-//  public static final String HOOKS_KEY_GROUPER_SESSION = "_grouperSession";
-  
   /**
    * keys of attributes (all put together, global, threadlocal, local
    * @return the key
    */
   public Set<String> attributeKeySet() {
     Set<String> keySet = new HashSet<String>();
-    keySet.addAll(attributeGlobal.keySet());
-    //if not asynchronous, then use threadlocals, else copied into local
-    if (!this.asynchronous) {
-      keySet.addAll(threadLocalAttribute().keySet());
-    }
-    keySet.addAll(attributeLocal.keySet());
+
+    keySet.addAll(threadLocalAttribute().keySet());
+
     return keySet;
   }
   
@@ -411,19 +373,8 @@ public class HooksContext {
    * @return the object or null if not found
    */
   public Object getAttribute(String key) {
-    HooksAttribute hooksAttribute = attributeLocal.get(key);
-    Object value = null;
-    
-    //dont check thread local if asynchronous 
-    if (hooksAttribute == null && !this.asynchronous) {
-      hooksAttribute = threadLocalAttribute().get(key);
-    }
-    if (hooksAttribute == null) {
-      value = attributeGlobal.get(key);
-      if (value != null) {
-        return value;
-      }
-    }
+    HooksAttribute hooksAttribute = threadLocalAttribute().get(key);
+
     if (hooksAttribute != null) {
       return hooksAttribute.getValue();
     }

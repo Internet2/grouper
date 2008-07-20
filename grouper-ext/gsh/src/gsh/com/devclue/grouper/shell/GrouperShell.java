@@ -6,15 +6,25 @@
  */
 
 package com.devclue.grouper.shell;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
-import  java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
+
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.1.1.1 2008-04-27 14:52:17 tzeller Exp $
+ * @version $Id: GrouperShell.java,v 1.2 2008-07-20 21:18:54 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -54,6 +64,17 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
+
+    Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
+    File propertiesFile = GrouperUtil.fileFromResourceName("grouper.hibernate.properties");
+    String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
+    String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+    String propertiesFileLocation = propertiesFile == null ? " [cant find grouper.hibernate.properties]" :
+      propertiesFile.getAbsolutePath();
+    System.out.println("Connecting to: " + user + "@" + url + "\n    based on " + propertiesFileLocation);
+    
+    GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GSH);
+    
     try {
       new GrouperShell( new ShellCommandReader(args) ).run();
     }
@@ -116,11 +137,15 @@ public class GrouperShell {
     try {
       GrouperSession s = (GrouperSession) GrouperShell.get(i, GSH_SESSION);
       if (s == null) {
-        s = GrouperSession.start(
-          SubjectFinder.findById(
-            "GrouperSystem", "application", InternalSourceAdapter.ID
-          )
-        );
+        s = GrouperSession.staticGrouperSession(false);
+        
+        if (s == null) {
+          s = GrouperSession.start(
+            SubjectFinder.findById(
+              "GrouperSystem", "application", InternalSourceAdapter.ID
+            )
+          );
+        }
         GrouperShell.set(i, GSH_SESSION, s);
       }
       return s;

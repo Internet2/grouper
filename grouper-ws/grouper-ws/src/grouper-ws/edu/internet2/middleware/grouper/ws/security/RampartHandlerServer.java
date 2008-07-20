@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: RampartHandlerServer.java,v 1.1 2008-04-01 08:38:34 mchyzer Exp $
+ * $Id: RampartHandlerServer.java,v 1.2 2008-07-20 21:18:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.security;
 
@@ -49,9 +49,8 @@ public class RampartHandlerServer implements CallbackHandler {
    */
   public void handle (Callback[] callbacks) throws IOException, UnsupportedCallbackException {
     Class<? extends GrouperWssecAuthentication> wssecClass = retrieveRampartCallbackClass();
-    //TODO remove typecast when upgrade grouper
-    GrouperWssecAuthentication grouperWssecAuthentication = 
-      (GrouperWssecAuthentication)GrouperUtil.newInstance(wssecClass); 
+
+    GrouperWssecAuthentication grouperWssecAuthentication = GrouperUtil.newInstance(wssecClass); 
     for (int i = 0; i < callbacks.length; i++) {
       if (callbacks[i] instanceof WSPasswordCallback) {
         WSPasswordCallback wsPasswordCallback = (WSPasswordCallback) callbacks[i];

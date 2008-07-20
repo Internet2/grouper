@@ -1,12 +1,12 @@
 /*
  * @author mchyzer
- * $Id: GrouperContextType.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: GrouperContextType.java,v 1.3 2008-07-20 21:18:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
 
 /**
- *
+ * Get the current context type from GrouperBuiltInContextType.currentGrouperContext()
  */
 public interface GrouperContextType {
 

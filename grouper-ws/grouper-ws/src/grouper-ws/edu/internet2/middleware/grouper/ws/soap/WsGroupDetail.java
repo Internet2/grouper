@@ -168,10 +168,10 @@ public class WsGroupDetail {
       Map<String, String> attributeMap = group.getAttributes();
 
       //remove common attributes to not take redundant space in response
-      attributeMap.remove(GrouperConfig.ATTR_N);
-      attributeMap.remove(GrouperConfig.ATTR_E);
-      attributeMap.remove(GrouperConfig.ATTR_DE);
-      attributeMap.remove(GrouperConfig.ATTR_DN);
+      attributeMap.remove(GrouperConfig.ATTR_NAME);
+      attributeMap.remove(GrouperConfig.ATTR_EXTENSION);
+      attributeMap.remove(GrouperConfig.ATTR_DISPLAY_EXTENSION);
+      attributeMap.remove(GrouperConfig.ATTR_DISPLAY_NAME);
 
       //find attributes, set in arrays in order
       if (attributeMap.size() > 0) {

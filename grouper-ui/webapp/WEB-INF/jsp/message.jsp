@@ -4,10 +4,11 @@
 		 'message'
 --%><%--
   @author Gary Brown.
-  @version $Id: message.jsp,v 1.4 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: message.jsp,v 1.5 2008-07-20 21:18:43 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
+<%-- included at least from body.jsp --%>
 <div class="grouperMessage <c:out value="${message.containerId}"/>"  >
 
 <%-- print out prefix --%>

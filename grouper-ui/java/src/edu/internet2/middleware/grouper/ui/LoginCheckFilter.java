@@ -38,6 +38,8 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSessionException;
+import edu.internet2.middleware.grouper.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -56,7 +58,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.14 2008-04-09 17:58:19 isgwb Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.15 2008-07-20 21:18:43 mchyzer Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -95,8 +97,8 @@ public class LoginCheckFilter implements Filter {
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
 	 *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
-	public void doFilter(ServletRequest req, ServletResponse res,
-			FilterChain chain) throws IOException, ServletException {
+	public void doFilter(final ServletRequest req, final ServletResponse res,
+			final FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
 		HttpSession session = request.getSession();
@@ -145,7 +147,35 @@ public class LoginCheckFilter implements Filter {
 
 			
 			SessionInitialiser.initThread(session);
-			chain.doFilter(req, res);
+			
+			GrouperSession grouperSession = SessionInitialiser.getGrouperSession(session);
+			
+			try {
+        GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+  
+          public Object callback(GrouperSession innerGrouperSession)
+              throws GrouperSessionException {
+            try {
+              chain.doFilter(req, res);
+              return null;
+            } catch (IOException ie) {
+              throw new GrouperSessionException(ie);
+            } catch (ServletException se) {
+              throw new GrouperSessionException(se);
+            }
+          }
+          
+        });
+			} catch (GrouperSessionException re) {
+			  if (re.getCause() instanceof IOException) {
+			    throw (IOException)re.getCause();
+			  }
+        if (re.getCause() instanceof ServletException) {
+          throw (ServletException)re.getCause();
+        }
+        throw re;
+			}
+			
 			Date after = new Date();
 			if (tLOG != null) {
 				String timingsClass = (String) request
@@ -211,7 +241,31 @@ public class LoginCheckFilter implements Filter {
 		request.getSession().setAttribute("AuthSubject", subjMap);
 		
 		
-		chain.doFilter(req, res);
+    try {
+      GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession innerGrouperSession)
+            throws GrouperSessionException {
+          try {
+            chain.doFilter(req, res);
+            return null;
+          } catch (IOException ie) {
+            throw new GrouperSessionException(ie);
+          } catch (ServletException se) {
+            throw new GrouperSessionException(se);
+          }
+        }
+        
+      });
+    } catch (GrouperSessionException re) {
+      if (re.getCause() instanceof IOException) {
+        throw (IOException)re.getCause();
+      }
+      if (re.getCause() instanceof ServletException) {
+        throw (ServletException)re.getCause();
+      }
+      throw re;
+    }
 
 
 	}
