@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsStemQueryFilter.java,v 1.2 2008-03-29 10:50:43 mchyzer Exp $
+ * @author mchyzer $Id: WsStemQueryFilter.java,v 1.3 2008-07-21 05:16:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -7,10 +7,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.query.StemScope;

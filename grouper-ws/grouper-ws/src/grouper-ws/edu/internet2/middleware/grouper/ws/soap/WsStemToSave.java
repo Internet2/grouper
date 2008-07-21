@@ -9,12 +9,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.SaveMode;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemAddException;
-import edu.internet2.middleware.grouper.StemModifyException;
-import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.StemAddException;
+import edu.internet2.middleware.grouper.exception.StemModifyException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**

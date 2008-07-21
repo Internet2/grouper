@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Subject;

@@ -1,23 +1,23 @@
 /*
- * @author mchyzer $Id: WsStemQueryFilterType.java,v 1.1 2008-03-29 10:50:44 mchyzer Exp $
+ * @author mchyzer $Id: WsStemQueryFilterType.java,v 1.2 2008-07-21 05:16:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ComplementFilter;
-import edu.internet2.middleware.grouper.IntersectionFilter;
-import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemNameAnyFilter;
-import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.queryFilter.StemAnyAttributeFilter;
-import edu.internet2.middleware.grouper.queryFilter.StemAttributeFilter;
-import edu.internet2.middleware.grouper.queryFilter.StemNameExactFilter;
-import edu.internet2.middleware.grouper.queryFilter.StemUuidFilter;
-import edu.internet2.middleware.grouper.queryFilter.StemsInStemFilter;
+import edu.internet2.middleware.grouper.filter.ComplementFilter;
+import edu.internet2.middleware.grouper.filter.IntersectionFilter;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.filter.StemAnyAttributeFilter;
+import edu.internet2.middleware.grouper.filter.StemAttributeFilter;
+import edu.internet2.middleware.grouper.filter.StemNameAnyFilter;
+import edu.internet2.middleware.grouper.filter.StemNameExactFilter;
+import edu.internet2.middleware.grouper.filter.StemUuidFilter;
+import edu.internet2.middleware.grouper.filter.StemsInStemFilter;
+import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;

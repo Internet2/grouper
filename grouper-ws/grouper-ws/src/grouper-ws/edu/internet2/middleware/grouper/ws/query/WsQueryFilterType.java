@@ -1,26 +1,26 @@
 /*
- * @author mchyzer $Id: WsQueryFilterType.java,v 1.4 2008-03-31 13:53:43 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilterType.java,v 1.5 2008-07-21 05:16:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.ComplementFilter;
-import edu.internet2.middleware.grouper.GroupAnyAttributeFilter;
-import edu.internet2.middleware.grouper.GroupAttributeFilter;
-import edu.internet2.middleware.grouper.GroupNameFilter;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFilter;
-import edu.internet2.middleware.grouper.IntersectionFilter;
-import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.UnionFilter;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.queryFilter.GroupAttributeExactFilter;
-import edu.internet2.middleware.grouper.queryFilter.GroupNameExactFilter;
-import edu.internet2.middleware.grouper.queryFilter.GroupUuidFilter;
-import edu.internet2.middleware.grouper.queryFilter.GroupsInStemFilter;
+import edu.internet2.middleware.grouper.filter.ComplementFilter;
+import edu.internet2.middleware.grouper.filter.GroupAnyAttributeFilter;
+import edu.internet2.middleware.grouper.filter.GroupAttributeExactFilter;
+import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
+import edu.internet2.middleware.grouper.filter.GroupNameExactFilter;
+import edu.internet2.middleware.grouper.filter.GroupNameFilter;
+import edu.internet2.middleware.grouper.filter.GroupTypeFilter;
+import edu.internet2.middleware.grouper.filter.GroupUuidFilter;
+import edu.internet2.middleware.grouper.filter.GroupsInStemFilter;
+import edu.internet2.middleware.grouper.filter.IntersectionFilter;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
