@@ -20,13 +20,14 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
+import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.35 2008-07-21 18:05:44 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.36 2008-07-21 18:47:13 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -77,13 +78,15 @@ public class SuiteDefault extends TestCase {
 
     suite.addTestSuite( Test_util_ParameterHelper.class );
 
+    suite.addTestSuite(GroupDataTest.class);
+
     suite.addTest(SuiteRefactor.suite()); 
 
     suite.addTest(AllLoaderDbTests.suite());
+    suite.addTest(AllUsduTests.suite());
     suite.addTest(AllHooksTests.suite());
-    suite.addTestSuite(GroupDataTest.class);
     suite.addTest(AllUtilTests.suite());
-    
+
     return suite;
   }
 

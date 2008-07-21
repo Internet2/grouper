@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.12 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: T.java,v 1.13 2008-07-21 18:47:13 mchyzer Exp $
  * @since   1.0
  */
 public class T extends GrouperTest {
@@ -45,7 +45,7 @@ public class T extends GrouperTest {
   } // protected static void amount(msg, exp, got)
 
   // @since   1.0
-  protected static void e(Exception e) {
+  public static void e(Exception e) {
     new GrouperTest().unexpectedException(e);
   } // protected static void unexpectedException(e)
 
