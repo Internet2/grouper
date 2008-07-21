@@ -1,7 +1,14 @@
-<!-- $Id: build.xml,v 1.182 2008-07-21 04:43:59 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.183 2008-07-21 18:05:44 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
+  <!-- ant contrib allows conditionals in ant scripts -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${basedir}/libAnt/ant-contrib-1.0b3.jar" />
+    </classpath>
+  </taskdef>
+  
   <!-- PROPERTIES -->
 
   <!-- Grouper Distribution and Versioning Properties -->
@@ -509,6 +516,30 @@
                   property="test.classpath.string" 
                   refid="test.classpath"
     />
+    
+    <!-- if there is no loader bat/sh, copy from example -->
+    <if>
+      <not>
+        <available file="bin/grouperloader.bat" />
+      </not>
+      <then>
+        <copy file="bin/grouperloader.example.bat" tofile="bin/grouperloader.bat" />
+      </then>
+    </if>
+    <if>
+      <not>
+        <available file="bin/grouperloader.sh" />
+      </not>
+      <then>
+        <copy file="bin/grouperloader.example.sh" tofile="bin/grouperloader.sh" />
+      </then>
+    </if>
+    
+    <!-- fix line endings and permissions of scripts -->
+    <fixcrlf srcdir="bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="bin" eol="dos" includes="*.bat" />
+    <chmod dir="bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+
   </target>
   <!-- target: init -->
 

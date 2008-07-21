@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.12 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.13 2008-07-21 18:05:44 mchyzer Exp $
  */
 public class TestPrivSTEM extends GrouperTest {
 
@@ -57,8 +57,8 @@ public class TestPrivSTEM extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    //TestRunner.run(new TestPrivSTEM("testGrantedToCreator"));
-    TestRunner.run(TestPrivSTEM.class);
+    TestRunner.run(new TestPrivSTEM("testRevokeStem"));
+    //TestRunner.run(TestPrivSTEM.class);
   }
 
   // Tests

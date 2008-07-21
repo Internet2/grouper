@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
@@ -52,7 +54,7 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.10 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.11 2008-07-21 18:05:44 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {
@@ -82,18 +84,20 @@ abstract class Hib3DAO {
       // And now load all configuration information
       CFG = new Configuration()
         .addProperties(p)
-        .addResource(resourceNameFromClassName(Attribute.class))
-        .addResource(resourceNameFromClassName(Composite.class))
-        .addResource(resourceNameFromClassName(Field.class))
-        .addResource(resourceNameFromClassName(Group.class))
-        .addResource(resourceNameFromClassName(GroupType.class))
-        .addResource(resourceNameFromClassName(GroupTypeTuple.class))
-        .addResource(resourceNameFromClassName(GrouperSession.class))
-        .addResource(resourceNameFromClassName(Member.class))
-        .addResource(resourceNameFromClassName(Membership.class))
-        .addResource(resourceNameFromClassName(RegistrySubject.class))
-        .addResource(resourceNameFromClassName(RegistrySubjectAttribute.class))
-        .addResource(resourceNameFromClassName(Stem.class));
+        .addResource(resourceNameFromClassName(Hib3AttributeDAO.class))
+        .addResource(resourceNameFromClassName(Hib3CompositeDAO.class))
+        .addResource(resourceNameFromClassName(Hib3FieldDAO.class))
+        .addResource(resourceNameFromClassName(Hib3GroupDAO.class))
+        .addResource(resourceNameFromClassName(Hib3GroupTypeDAO.class))
+        .addResource(resourceNameFromClassName(Hib3GroupTypeTupleDAO.class))
+        .addResource(resourceNameFromClassName(Hib3GrouperSessionDAO.class))
+        .addResource(resourceNameFromClassName(Hib3MemberDAO.class))
+        .addResource(resourceNameFromClassName(Hib3MembershipDAO.class))
+        .addResource(resourceNameFromClassName(Hib3RegistrySubjectDAO.class))
+        .addResource(resourceNameFromClassName(Hib3RegistrySubjectAttributeDAO.class))
+        .addResource(resourceNameFromClassName(Hib3StemDAO.class))
+        .addResource(resourceNameFromClassName(Hib3GrouperDdl.class))
+        .addResource(resourceNameFromClassName(Hib3GrouperLoaderLog.class));
       
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
           LifecycleHooks.METHOD_HIBERNATE_INIT, HooksLifecycleHibInitBean.class, 
@@ -117,11 +121,10 @@ abstract class Hib3DAO {
    * @return the string of resource
    */
   public static String resourceNameFromClassName(Class theClass) {
-    String simpleName = theClass.getSimpleName();
-    String daoClass = Hib3GroupDAO.class.getName();
-    String daoPackage = daoClass.substring(0, daoClass.lastIndexOf('.'));
-    //replace with slashes
-    String result = StringUtils.replace(daoPackage, ".", "/") + "/Hib3" + simpleName + "DAO.hbm.xml";
+    String daoClass = theClass.getName();
+    //replace with hbm
+    String result = StringUtils.replace(daoClass, ".", "/") + ".hbm.xml";
+    
     return result;
   }
   

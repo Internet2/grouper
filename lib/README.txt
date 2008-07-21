@@ -197,5 +197,14 @@ can send mail, e.g. for log4j
 * Updated 2008/05/08
 
 ---
-$Id: README.txt,v 1.15 2008-05-09 05:18:27 mchyzer Exp $
+
+# quartz-1.6.0.jar
+
+can schedule tasks or jobs (e.g. loader)
+
+* License: Public Domain
+* Updated 2008/07/21
+
+---
+$Id: README.txt,v 1.16 2008-07-21 18:05:44 mchyzer Exp $
 
