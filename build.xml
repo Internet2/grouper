@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.183 2008-07-21 18:05:44 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.184 2008-07-21 18:47:13 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -535,6 +535,24 @@
       </then>
     </if>
     
+    <!-- if there is no usdu bat/sh, copy from example -->
+    <if>
+      <not>
+        <available file="bin/usdu.bat" />
+      </not>
+      <then>
+        <copy file="bin/usdu.example.bat" tofile="bin/usdu.bat" />
+      </then>
+    </if>
+    <if>
+      <not>
+        <available file="bin/usdu.sh" />
+      </not>
+      <then>
+        <copy file="bin/usdu.example.sh" tofile="bin/usdu.sh" />
+      </then>
+    </if>
+
     <!-- fix line endings and permissions of scripts -->
     <fixcrlf srcdir="bin" eol="unix" includes="*.sh" />
     <fixcrlf srcdir="bin" eol="dos" includes="*.bat" />
