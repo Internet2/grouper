@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.181 2008-06-17 12:34:12 khuxtable Exp $ -->
+<!-- $Id: build.xml,v 1.182 2008-07-21 04:43:59 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -228,7 +228,7 @@
     <!-- CH already prompted in schemaexport -->
     <java fork="true"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.RegistryInstall"
+          classname="edu.internet2.middleware.grouper.registry.RegistryInstall"
     >
       <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
       </java>
@@ -246,7 +246,7 @@
       <record name="${db.init.log}" action="start"/>
     <java fork="true"
           classpathref="test.classpath"
-          classname="edu.internet2.middleware.grouper.RegistryInstall"
+          classname="edu.internet2.middleware.grouper.registry.RegistryInstall"
     >
       <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
     </java>
@@ -284,7 +284,7 @@
       <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.RegistryReset"
+          classname="edu.internet2.middleware.grouper.registry.RegistryReset"
     >
         <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
       </java>
@@ -469,7 +469,7 @@
   >
     <java fork="true"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.GrouperInfo"
+          classname="edu.internet2.middleware.grouper.misc.GrouperInfo"
     />
   </target>
   <!-- target: info -->
@@ -648,7 +648,7 @@
     <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.RegistryInitializeSchema"
+          classname="edu.internet2.middleware.grouper.registry.RegistryInitializeSchema"
           failonerror="true"
     >
     <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
@@ -685,7 +685,7 @@
     <java fork="true"
           maxmemory="${memory.max}"
           classpathref="test.classpath"
-          classname="edu.internet2.middleware.grouper.RegistryInitializeSchema"
+          classname="edu.internet2.middleware.grouper.registry.RegistryInitializeSchema"
           failonerror="true"
     >
       <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
@@ -720,7 +720,7 @@
     <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.RegistryAddForeignKeys"
+          classname="edu.internet2.middleware.grouper.registry.RegistryAddForeignKeys"
           failonerror="true"
     >
       <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
@@ -904,7 +904,7 @@
       <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.XmlExporter"
+          classname="edu.internet2.middleware.grouper.xml.XmlExporter"
           failonerror="true"
     >
         <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
@@ -936,7 +936,7 @@
       <java fork="true"
           maxmemory="${memory.max}"
           classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.XmlImporter"
+          classname="edu.internet2.middleware.grouper.xml.XmlImporter"
           failonerror="true"
     >
         <jvmarg value="-Dgrouper.allow.db.changes=true"/> 

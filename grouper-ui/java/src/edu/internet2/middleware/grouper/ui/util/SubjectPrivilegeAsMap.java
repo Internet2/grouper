@@ -21,8 +21,8 @@ import java.util.Map;
 
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.LazySubject;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.subject.Subject;
 
@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectPrivilegeAsMap.java,v 1.5 2008-03-03 13:54:52 isgwb Exp $
+ * @version $Id: SubjectPrivilegeAsMap.java,v 1.6 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class SubjectPrivilegeAsMap extends ObjectAsMap {
 

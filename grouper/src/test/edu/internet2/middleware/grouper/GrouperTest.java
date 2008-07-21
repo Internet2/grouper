@@ -16,7 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  junit.framework.*;
@@ -29,7 +36,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.3 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {

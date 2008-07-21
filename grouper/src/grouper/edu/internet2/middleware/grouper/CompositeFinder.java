@@ -23,9 +23,14 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.22 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: CompositeFinder.java,v 1.23 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.0
  */
 public class CompositeFinder {

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -25,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.9 2007-03-16 18:16:04 blair Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestSuFiGrSoAdFindByIdfr extends TestCase {
 

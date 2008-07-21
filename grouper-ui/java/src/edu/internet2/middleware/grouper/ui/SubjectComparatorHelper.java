@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import edu.internet2.middleware.grouper.GrouperSubject;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.SubjectAsMap;
 import edu.internet2.middleware.subject.Subject;
@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectComparatorHelper.java,v 1.6 2008-03-03 13:58:25 isgwb Exp $
+ * @version $Id: SubjectComparatorHelper.java,v 1.7 2008-07-21 04:43:47 mchyzer Exp $
  */
 
 public class SubjectComparatorHelper implements GrouperComparatorHelper{

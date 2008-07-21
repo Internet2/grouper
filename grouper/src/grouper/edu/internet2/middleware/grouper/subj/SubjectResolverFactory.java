@@ -16,14 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import  edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /** 
  * Factory for returning a <code>SubjectResolver</code>.
  * @author  blair christensen.
- * @version $Id: SubjectResolverFactory.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: SubjectResolverFactory.java,v 1.3 2008-07-21 04:43:59 mchyzer Exp $
  * @since   1.2.1
  */
 public class SubjectResolverFactory {

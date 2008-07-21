@@ -17,12 +17,18 @@
 
 package edu.internet2.middleware.grouper;
 
+import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.exception.StemAddException;
+
 
 /**
  * Test {@link MembershipFinder}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_MembershipFinder.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_api_MembershipFinder.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_MembershipFinder extends GrouperTest {

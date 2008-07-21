@@ -18,9 +18,11 @@
 package edu.internet2.middleware.grouper;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupFinder_FindByAttribute.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: TestGroupFinder_FindByAttribute.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupFinder_FindByAttribute extends GrouperTest {

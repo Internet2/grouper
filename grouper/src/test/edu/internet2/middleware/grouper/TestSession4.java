@@ -21,11 +21,13 @@ import junit.textui.TestRunner;
 
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession4.java,v 1.9 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: TestSession4.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestSession4 extends TestCase {
 

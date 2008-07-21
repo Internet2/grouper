@@ -18,9 +18,12 @@
 package edu.internet2.middleware.grouper;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupFinder_FindByType.java,v 1.4 2007-02-19 20:43:29 blair Exp $
+ * @version $Id: TestGroupFinder_FindByType.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupFinder_FindByType extends GrouperTest {

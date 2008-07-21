@@ -16,16 +16,32 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.xml.XmlExporter;
 import  edu.internet2.middleware.subject.Subject;
 import  edu.internet2.middleware.subject.SubjectNotFoundException;
 import  java.util.regex.Pattern;
 
+import junit.textui.TestRunner;
+
 /**
  * @author  blair christensen.
- * @version $Id: Test_U_API_XmlExporter_internal_membershipToXML.java,v 1.2 2007-05-31 19:01:11 blair Exp $
+ * @version $Id: Test_U_API_XmlExporter_internal_membershipToXML.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_U_API_XmlExporter_internal_membershipToXML extends GrouperTest {
+
+  /**
+   * main
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(Test_U_API_XmlExporter_internal_membershipToXML.class);
+    //TestRunner.run(new Test_U_API_XmlExporter_internal_membershipToXML("test_internal_groupToXML_escapeDisplayName"));
+  }
 
   // PRIVATE CLASS VARIABLES //
   private Subject         all;

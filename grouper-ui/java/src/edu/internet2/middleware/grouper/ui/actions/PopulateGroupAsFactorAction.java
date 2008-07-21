@@ -39,9 +39,9 @@ import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -103,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupAsFactorAction.java,v 1.4 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: PopulateGroupAsFactorAction.java,v 1.5 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class PopulateGroupAsFactorAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupAsFactorAction.class);

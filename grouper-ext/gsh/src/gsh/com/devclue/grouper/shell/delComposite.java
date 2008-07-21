@@ -8,12 +8,15 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 
 /**
  * Delete a composite member.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delComposite.java,v 1.1.1.1 2008-04-27 14:52:17 tzeller Exp $
+ * @version $Id: delComposite.java,v 1.2 2008-07-21 04:44:17 mchyzer Exp $
  * @since   0.0.1
  */
 public class delComposite {

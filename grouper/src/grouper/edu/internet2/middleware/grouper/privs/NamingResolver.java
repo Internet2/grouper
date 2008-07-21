@@ -19,10 +19,8 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.NamingAdapter;
-import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -30,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolver.java,v 1.4 2008-03-24 20:15:35 mchyzer Exp $
+ * @version $Id: NamingResolver.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public interface NamingResolver {
@@ -47,7 +45,7 @@ public interface NamingResolver {
    * Get all groups where <i>subject</i> has <i>privilege</i>.
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
-   * @see     edu.internet2.middleware.grouper.NamingAdapter#getStemsWhereSubjectHasPriv(GrouperSession, Subject, Privilege)
+   * @see     edu.internet2.middleware.grouper.privs.NamingAdapter#getStemsWhereSubjectHasPriv(GrouperSession, Subject, Privilege)
    * @since   1.2.1
    */
   Set<Stem> getStemsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
@@ -57,7 +55,7 @@ public interface NamingResolver {
    * Get all privileges <i>subject</i> has on <i>group</i>.
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
-   * @see     edu.internet2.middleware.grouper.NamingAdapter#getPrivs(GrouperSession, Stem, Subject)
+   * @see     edu.internet2.middleware.grouper.privs.NamingAdapter#getPrivs(GrouperSession, Stem, Subject)
    * @since   1.2.1
    */
   Set<Privilege> getPrivileges(Stem stem, Subject subject)
@@ -68,7 +66,7 @@ public interface NamingResolver {
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
    * @see
-   * edu.internet2.middleware.grouper.NamingAdapter#getSubjectsWithPriv(GrouperSession, Stem, Privilege)
+   * edu.internet2.middleware.grouper.privs.NamingAdapter#getSubjectsWithPriv(GrouperSession, Stem, Privilege)
    * @since   1.2.1
    */
   Set<Subject> getSubjectsWithPrivilege(Stem stem, Privilege privilege)
@@ -79,7 +77,7 @@ public interface NamingResolver {
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be granted.
-   * @see     edu.internet2.middleware.grouper.NamingAdapter#grantPriv(GrouperSession, Stem, Subject, Privilege)
+   * @see     edu.internet2.middleware.grouper.privs.NamingAdapter#grantPriv(GrouperSession, Stem, Subject, Privilege)
    * @since   1.2.1
    */
   void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
@@ -91,7 +89,7 @@ public interface NamingResolver {
    * Check whether <i>subject</i> has <i>privilege</i> on <i>group</i>.
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
-   * @see     edu.internet2.middleware.grouper.NamingAdapter#hasPriv(GrouperSession, Stem, Subject, Privilege)
+   * @see     edu.internet2.middleware.grouper.privs.NamingAdapter#hasPriv(GrouperSession, Stem, Subject, Privilege)
    * @since   1.2.1
    */
   boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
@@ -102,7 +100,7 @@ public interface NamingResolver {
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be revoked.
-   * @see     edu.internet2.middleware.grouper.NamingAdapter#revokePriv(GrouperSession, Stem, Privilege)
+   * @see     edu.internet2.middleware.grouper.privs.NamingAdapter#revokePriv(GrouperSession, Stem, Privilege)
    * @since   1.2.1
    */
   void revokePrivilege(Stem stem, Privilege privilege)
@@ -115,7 +113,7 @@ public interface NamingResolver {
    * <p/>
    * @throws  IllegalArgumentException if any parameter is null.
    * @throws  UnableToPerformException if the privilege could not be revoked.
-   * @see     edu.internet2.middleware.grouper.NamingAdapter#revokePriv(GrouperSession, Stem, Subject, Privilege)
+   * @see     edu.internet2.middleware.grouper.privs.NamingAdapter#revokePriv(GrouperSession, Stem, Subject, Privilege)
    * @since   1.2.1
    */
   void revokePrivilege(Stem stem, Subject subject, Privilege privilege)

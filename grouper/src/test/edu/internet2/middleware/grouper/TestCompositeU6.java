@@ -19,9 +19,14 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU6.java,v 1.5 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestCompositeU6.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestCompositeU6 extends TestCase {
 

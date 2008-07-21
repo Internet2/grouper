@@ -18,11 +18,14 @@
 package edu.internet2.middleware.grouper;
 import  java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.xml.XmlExporter;
+
 import junit.textui.TestRunner;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
@@ -32,7 +35,8 @@ public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_U_API_XmlExporter_internal_groupToXML("test_internal_groupToXML_escapeDisplayName"));
+    TestRunner.run(Test_U_API_XmlExporter_internal_groupToXML.class);
+    //TestRunner.run(new Test_U_API_XmlExporter_internal_groupToXML("test_internal_groupToXML_escapeDisplayName"));
   }
   
   /**

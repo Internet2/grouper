@@ -20,9 +20,11 @@ import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr0.java,v 1.3 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGAttr0.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr0 extends GrouperTest {

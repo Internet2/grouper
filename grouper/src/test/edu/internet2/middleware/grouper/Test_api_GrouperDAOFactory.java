@@ -18,14 +18,17 @@
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
 /**
  * Test {@link GrouperDAOFactory}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperDAOFactory.java,v 1.4 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Test_api_GrouperDAOFactory.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperDAOFactory extends GrouperTest {

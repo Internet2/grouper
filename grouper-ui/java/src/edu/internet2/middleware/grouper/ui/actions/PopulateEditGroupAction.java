@@ -33,14 +33,14 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
-import edu.internet2.middleware.grouper.AccessPrivilege;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.subject.Subject;
@@ -133,7 +133,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAction.java,v 1.10 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateEditGroupAction.java,v 1.11 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class PopulateEditGroupAction extends GrouperCapableAction {
 

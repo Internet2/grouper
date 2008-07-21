@@ -27,8 +27,8 @@ import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: DefaultMembershipImporter.java,v 1.3 2007-04-17 08:40:07 isgwb Exp $
+ * @version $Id: DefaultMembershipImporter.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
  */
 
 public class DefaultMembershipImporter implements MembershipImporter{

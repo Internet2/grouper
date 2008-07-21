@@ -22,7 +22,7 @@ import org.apache.commons.beanutils.WrapDynaBean;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 
 /**
  * Wraps a GrouperStem- allows non persistent values to be stored for the UI and
@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.StemNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: StemAsMap.java,v 1.6 2008-03-03 13:54:52 isgwb Exp $
+ * @version $Id: StemAsMap.java,v 1.7 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class StemAsMap extends ObjectAsMap {
 	

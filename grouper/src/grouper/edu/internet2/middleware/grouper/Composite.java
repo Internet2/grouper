@@ -30,6 +30,9 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
@@ -40,6 +43,12 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.log.EventLog;
+import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
@@ -52,7 +61,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.55 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.56 2008-07-21 04:43:56 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -231,27 +240,27 @@ public class Composite extends GrouperAPI {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.1.0
-  protected String getName() {
+  public String getName() {
     return this.getClass().getName();
   } // protected String getName()
 
   // @since   1.2.0
-  protected String internal_getLeftName() {
+  public String internal_getLeftName() {
     return this._getName( this.getLeftFactorUuid(), E.COMP_NULL_LEFT_GROUP );
   } 
 
   // @since   1.2.0
-  protected String internal_getOwnerName() {
+  public String internal_getOwnerName() {
     return this._getName( this.getFactorOwnerUuid(), E.COMP_NULL_OWNER_GROUP );
   }
 
   // @since   1.2.0
-  protected String internal_getRightName() {
+  public String internal_getRightName() {
     return this._getName( this.getRightFactorUuid(), E.COMP_NULL_RIGHT_GROUP );
   }
 
   // @since   1.2.0
-  protected void internal_setModified() {
+  public void internal_setModified() {
     // As composites can only be created and deleted at this time,
     // marking as modified is irrelevant. 
   } // protected void internal_setModified()

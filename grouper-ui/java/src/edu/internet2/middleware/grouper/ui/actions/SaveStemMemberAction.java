@@ -34,10 +34,10 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Privilege;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.subject.Subject;
@@ -118,7 +118,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SaveStemMemberAction.java,v 1.5 2008-04-03 13:30:22 isgwb Exp $
+ * @version $Id: SaveStemMemberAction.java,v 1.6 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class SaveStemMemberAction extends GrouperCapableAction {
 

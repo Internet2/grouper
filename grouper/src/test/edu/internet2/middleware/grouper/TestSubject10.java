@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject10.java,v 1.8 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: TestSubject10.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestSubject10 extends TestCase {
 

@@ -38,6 +38,25 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemAddException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -53,9 +72,31 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.grouper.log.EventLog;
+import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.M;
+import edu.internet2.middleware.grouper.misc.Owner;
+import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.AddCompositeMemberValidator;
+import edu.internet2.middleware.grouper.validator.CanOptinValidator;
+import edu.internet2.middleware.grouper.validator.CanOptoutValidator;
+import edu.internet2.middleware.grouper.validator.CompositeValidator;
+import edu.internet2.middleware.grouper.validator.FieldTypeValidator;
+import edu.internet2.middleware.grouper.validator.GetGroupAttributeValidator;
+import edu.internet2.middleware.grouper.validator.GrouperValidator;
+import edu.internet2.middleware.grouper.validator.NamingValidator;
+import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
+import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -66,7 +107,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.195 2008-07-20 21:18:57 mchyzer Exp $
+ * @version $Id: Group.java,v 1.196 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -2873,7 +2914,7 @@ public class Group extends GrouperAPI implements Owner {
    * @throws SchemaException 
    * @since   1.2.1
    */
-  protected boolean internal_canWriteField(Subject subj, Field f)
+  public boolean internal_canWriteField(Subject subj, Field f)
     throws  IllegalArgumentException,
             SchemaException
   {
@@ -2907,7 +2948,7 @@ public class Group extends GrouperAPI implements Owner {
   /**
    * 
    */
-  protected void internal_setModified() {
+  public void internal_setModified() {
     this.setModifierUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
     this.setModifyTimeLong( new Date().getTime() );
   } // protected void internal_setModified()

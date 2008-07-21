@@ -24,11 +24,17 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+
 /**
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.48 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: StemFinder.java,v 1.49 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class StemFinder {
 
@@ -115,10 +121,8 @@ public class StemFinder {
   } // public static Stem findByUuid(s, uuid)
 
 
-  // PROTECTED CLASS METHODS //
-
   // @since   1.2.0
-  protected static Set internal_findAllByApproximateDisplayExtension(GrouperSession s, String val) 
+  public static Set internal_findAllByApproximateDisplayExtension(GrouperSession s, String val) 
     throws  QueryException
   {
     //note, no need for GrouperSession inverse of control
@@ -134,7 +138,7 @@ public class StemFinder {
   } // protected static Set internal_findAllByApproximateDisplayExtension(s, val)
 
   // @since   1.2.0
-  protected static Set internal_findAllByApproximateDisplayName(GrouperSession s, String val) 
+  public static Set internal_findAllByApproximateDisplayName(GrouperSession s, String val) 
     throws  QueryException
   {
     //note, no need for GrouperSession inverse of control
@@ -147,10 +151,10 @@ public class StemFinder {
       stems.add(ns);
     }
     return stems;
-  } // protected static Set internal_findAllByApproximateDisplayExtension(s, val)
+  } // public static Set internal_findAllByApproximateDisplayExtension(s, val)
 
   // @since   1.2.0
-  protected static Set internal_findAllByApproximateExtension(GrouperSession s, String val) 
+  public static Set internal_findAllByApproximateExtension(GrouperSession s, String val) 
     throws  QueryException
   {
     //note, no need for GrouperSession inverse of control
@@ -163,10 +167,10 @@ public class StemFinder {
       stems.add(ns);
     }
     return stems;
-  } // protected static Set internal_findAllByApproximateExtension(s, val)
+  } // public static Set internal_findAllByApproximateExtension(s, val)
 
   // @since   1.2.0
-  protected static Set internal_findAllByApproximateName(GrouperSession s, String val) 
+  public static Set internal_findAllByApproximateName(GrouperSession s, String val) 
     throws  QueryException
   {
     //note, no need for GrouperSession inverse of control
@@ -179,10 +183,10 @@ public class StemFinder {
       stems.add(ns);
     }
     return stems;
-  } // protected static Set internal_findAllByApproximateName(s, val)
+  } // public static Set internal_findAllByApproximateName(s, val)
 
   // @since   1.2.0
-  protected static Set internal_findAllByApproximateNameAny(GrouperSession s, String val) 
+  public static Set internal_findAllByApproximateNameAny(GrouperSession s, String val) 
     throws  QueryException
   {
     //note, no need for GrouperSession inverse of control
@@ -195,10 +199,10 @@ public class StemFinder {
       stems.add(ns);
     }
     return stems;
-  } // protected static Set internal_findAllByApproximateNameAny(s, val)
+  } // public static Set internal_findAllByApproximateNameAny(s, val)
 
   // @since   1.2.0
-  protected static Set internal_findAllByCreatedAfter(GrouperSession s, Date d) 
+  public static Set internal_findAllByCreatedAfter(GrouperSession s, Date d) 
     throws  QueryException
   {
     //note, no need for GrouperSession inverse of control
@@ -211,10 +215,10 @@ public class StemFinder {
       stems.add(ns);
     }
     return stems;
-  } // protected static Set internal_findAllByCreatedAfter(s, d)
+  } // public static Set internal_findAllByCreatedAfter(s, d)
 
   // @since   1.2.0
-  protected static Set internal_findAllByCreatedBefore(GrouperSession s, Date d) 
+  public static Set internal_findAllByCreatedBefore(GrouperSession s, Date d) 
     throws  QueryException
   {
     //note, no need for GrouperSession inverse of control
@@ -227,10 +231,10 @@ public class StemFinder {
       stems.add(ns);
     }
     return stems;
-  } // protected static Set internal_findAllByCreatedBefore(s, d)
+  } // public static Set internal_findAllByCreatedBefore(s, d)
 
   // @since   1.2.0
-  protected static Stem internal_findByName(String name) 
+  public static Stem internal_findByName(String name) 
     throws  StemNotFoundException
   {
     // @session false
@@ -238,7 +242,7 @@ public class StemFinder {
       name = Stem.ROOT_INT;
     }
     return GrouperDAOFactory.getFactory().getStem().findByName(name);
-  } // protected static StemDTO internal_findByName(name)
+  } // public static StemDTO internal_findByName(name)
 
 }
 

@@ -28,13 +28,13 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
-import edu.internet2.middleware.grouper.CompositeType;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.ui.Message;
 
 
@@ -106,7 +106,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveCompositeAction.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: SaveCompositeAction.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class SaveCompositeAction extends GrouperCapableAction {
 

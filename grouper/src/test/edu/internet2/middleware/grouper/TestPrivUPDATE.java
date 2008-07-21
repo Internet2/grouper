@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import junit.textui.TestRunner;
@@ -26,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Test use of the UPDATE {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivUPDATE.java,v 1.11 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: TestPrivUPDATE.java,v 1.12 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestPrivUPDATE extends TestCase {
 

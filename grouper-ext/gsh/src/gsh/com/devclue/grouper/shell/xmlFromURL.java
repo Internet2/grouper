@@ -8,6 +8,10 @@
 package com.devclue.grouper.shell;
 import  bsh.*;
 import  edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.xml.XmlImporter;
+import edu.internet2.middleware.grouper.xml.XmlReader;
+
 import  java.net.URL;
 import  java.util.Properties;
 
@@ -15,7 +19,7 @@ import  java.util.Properties;
  * Import Groups Registry from XML URL.
  * <p/>
  * @author  blair christensen.
- * @version $Id: xmlFromURL.java,v 1.1.1.1 2008-04-27 14:52:17 tzeller Exp $
+ * @version $Id: xmlFromURL.java,v 1.2 2008-07-21 04:44:17 mchyzer Exp $
  * @since   0.1.0
  */
 public class xmlFromURL {

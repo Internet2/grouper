@@ -20,11 +20,13 @@ import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * Test {@link SubjectFinder.findAll()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdSearch.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestSuFiGrSoAdSearch.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestSuFiGrSoAdSearch extends TestCase {
 

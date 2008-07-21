@@ -23,11 +23,14 @@ import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf1.java,v 1.13 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: TestMemberOf1.java,v 1.14 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.0
  */
 public class TestMemberOf1 extends GrouperTest {

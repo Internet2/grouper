@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: HooksMembershipChangeBean.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: HooksMembershipChangeBean.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -16,6 +15,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 

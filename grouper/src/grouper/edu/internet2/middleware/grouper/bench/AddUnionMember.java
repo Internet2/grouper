@@ -17,12 +17,14 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*; 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import  edu.internet2.middleware.subject.*;      
 
 /**
  * Benchmark adding a union {@link Composite} {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddUnionMember.java,v 1.6 2007-03-06 17:02:43 blair Exp $
+ * @version $Id: AddUnionMember.java,v 1.7 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.1.0
  */
 public class AddUnionMember extends BaseGrouperBenchmark {

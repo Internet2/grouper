@@ -1,11 +1,11 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImpl2.java,v 1.2 2008-06-28 06:55:47 mchyzer Exp $
+ * $Id: GroupHooksImpl2.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 

@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.logging.*;
 
 
 /**
  * @author  blair christensen.
- * @version $Id: TestAddMember3.java,v 1.9 2007-02-14 17:46:06 blair Exp $
+ * @version $Id: TestAddMember3.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestAddMember3 extends GrouperTest {
 

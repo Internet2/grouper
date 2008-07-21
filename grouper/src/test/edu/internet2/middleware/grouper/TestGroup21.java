@@ -19,9 +19,11 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup21.java,v 1.4 2007-03-05 20:04:17 blair Exp $
+ * @version $Id: TestGroup21.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestGroup21 extends TestCase {
 

@@ -32,6 +32,17 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -50,6 +61,11 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.log.EventLog;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -62,7 +78,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.99 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.100 2008-07-21 04:43:56 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
@@ -472,7 +488,7 @@ public class Membership extends GrouperAPI {
   }
   
   // @since   1.2.0
-  protected static void internal_addImmediateMembership(
+  public static void internal_addImmediateMembership(
     GrouperSession s, Group g, Subject subj, Field f
   )
     throws  MemberAddException
@@ -496,10 +512,10 @@ public class Membership extends GrouperAPI {
     catch (MemberNotFoundException eMNF)        {
       throw new MemberAddException( eMNF.getMessage(), eMNF );
     }
-  } // protected static void internal_addImmediateMembership(s, g, subj, f)
+  } // public static void internal_addImmediateMembership(s, g, subj, f)
 
   // @since   1.2.0
-  protected static void internal_addImmediateMembership(
+  public static void internal_addImmediateMembership(
     GrouperSession s, Stem ns, Subject subj, Field f
   )
     throws  MemberAddException
@@ -521,10 +537,10 @@ public class Membership extends GrouperAPI {
     catch (MemberNotFoundException eMNF)        {
       throw new MemberAddException( eMNF.getMessage(), eMNF );
     }
-  } // protected static void internal_addImmediateMembership(s, ns, subj, f)
+  } // public static void internal_addImmediateMembership(s, ns, subj, f)
 
   // @since   1.2.0
-  protected static DefaultMemberOf internal_delImmediateMembership(GrouperSession s, Group g, Subject subj, Field f)
+  public static DefaultMemberOf internal_delImmediateMembership(GrouperSession s, Group g, Subject subj, Field f)
     throws  MemberDeleteException
   {
     try {
@@ -549,10 +565,10 @@ public class Membership extends GrouperAPI {
     catch (MembershipNotFoundException eMSNF)   {
       throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
     }
-  } // protected static void internal_delImmediateMembership(s, g, subj, f)
+  } // public static void internal_delImmediateMembership(s, g, subj, f)
 
   // @since   1.2.0
-  protected static DefaultMemberOf internal_delImmediateMembership(GrouperSession s, Stem ns, Subject subj, Field f)
+  public static DefaultMemberOf internal_delImmediateMembership(GrouperSession s, Stem ns, Subject subj, Field f)
     throws  MemberDeleteException
   {
     try {
@@ -579,7 +595,7 @@ public class Membership extends GrouperAPI {
     catch (MembershipNotFoundException eMSNF)   {
       throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
     }
-  } // protected static void internal_delImmediateMembership(s, ns, subj, f)
+  } // public static void internal_delImmediateMembership(s, ns, subj, f)
 
   /**
    * @since   1.2.0
@@ -590,7 +606,7 @@ public class Membership extends GrouperAPI {
    * @throws MemberDeleteException
    * @throws SchemaException
    */
-  protected static Set internal_deleteAllField(GrouperSession s, final Group g, final Field f)
+  public static Set internal_deleteAllField(GrouperSession s, final Group g, final Field f)
     throws  MemberDeleteException,
             SchemaException
   {
@@ -658,7 +674,7 @@ public class Membership extends GrouperAPI {
       }
       throw gse;
     }
-  } // protected static Set internal_deleteAllField(s, g, f)
+  } // public static Set internal_deleteAllField(s, g, f)
 
   /**
    * @since   1.2.0
@@ -668,7 +684,7 @@ public class Membership extends GrouperAPI {
    * @return the set
    * @throws MemberDeleteException
    */
-  protected static Set internal_deleteAllField(GrouperSession s, final Stem ns, final Field f)
+  public static Set internal_deleteAllField(GrouperSession s, final Stem ns, final Field f)
     throws  MemberDeleteException
   {
     GrouperSession.validate(s);
@@ -707,10 +723,10 @@ public class Membership extends GrouperAPI {
       }
       
     });
-  } // protected static Set internal_deleteAllField(s, ns, f)
+  } // public static Set internal_deleteAllField(s, ns, f)
 
   // @since   1.2.0
-  protected static Set internal_deleteAllFieldType(GrouperSession s, Group g, FieldType type) 
+  public static Set internal_deleteAllFieldType(GrouperSession s, Group g, FieldType type) 
     throws  MemberDeleteException,
             SchemaException
   {
@@ -723,10 +739,10 @@ public class Membership extends GrouperAPI {
       deletes.addAll( internal_deleteAllField(s, g, f) );
     }
     return deletes;
-  } // protected static Set internal_deleteAllFieldType(s, g, f)
+  } // public static Set internal_deleteAllFieldType(s, g, f)
 
   // @since   1.2.0
-  protected static Set internal_deleteAllFieldType(GrouperSession s, Stem ns, FieldType type) 
+  public static Set internal_deleteAllFieldType(GrouperSession s, Stem ns, FieldType type) 
     throws  MemberDeleteException,
             SchemaException
   {
@@ -739,7 +755,7 @@ public class Membership extends GrouperAPI {
       deletes.addAll( internal_deleteAllField(s, ns, f) );
     }
     return deletes;
-  } // protected static Set internal_deleteAllFieldType(s, ns, f)
+  } // public static Set internal_deleteAllFieldType(s, ns, f)
 
   //@since   1.3.0
   private Group getGroupFromCache(String uuid) {

@@ -35,10 +35,10 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -96,7 +96,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 
  * @author Gary Brown.
- * @version $Id: PopulateAddCompositeAction.java,v 1.3 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: PopulateAddCompositeAction.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class PopulateAddCompositeAction extends GrouperCapableAction {
 

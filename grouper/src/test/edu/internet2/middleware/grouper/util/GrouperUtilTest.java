@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.7 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.8 2008-07-21 04:43:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -13,9 +13,9 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.SessionHelper;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 
 
 /**

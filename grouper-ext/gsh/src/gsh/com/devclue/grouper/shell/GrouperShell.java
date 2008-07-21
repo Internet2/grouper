@@ -15,16 +15,16 @@ import org.apache.commons.lang.StringUtils;
 
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.2 2008-07-20 21:18:54 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.3 2008-07-21 04:44:17 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {

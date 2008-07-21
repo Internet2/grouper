@@ -35,6 +35,20 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemAddException;
+import edu.internet2.middleware.grouper.exception.StemDeleteException;
+import edu.internet2.middleware.grouper.exception.StemModifyException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -50,7 +64,25 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.grouper.log.EventLog;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.M;
+import edu.internet2.middleware.grouper.misc.Owner;
+import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.AddGroupValidator;
+import edu.internet2.middleware.grouper.validator.AddStemValidator;
+import edu.internet2.middleware.grouper.validator.DeleteStemValidator;
+import edu.internet2.middleware.grouper.validator.GrouperValidator;
+import edu.internet2.middleware.grouper.validator.NamingValidator;
+import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -59,7 +91,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.158 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.159 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner {
 
@@ -163,7 +195,7 @@ public class Stem extends GrouperAPI implements Owner {
   // PROTECTED CLASS CONSTANTS //
   // TODO 20070419 how can i get rid of this?
   /** root int */
-  protected static final String ROOT_INT = ":"; // Appease Oracle, et. al.
+  public static final String ROOT_INT = ":"; // Appease Oracle, et. al.
 
 
   // PRIVATE CLASS CONSTANTS //
@@ -791,7 +823,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @throws  IllegalArgumentException if <i>group</i> is null.
    * @since   1.2.1
    */
-  protected boolean isChildGroup(Group group)
+  public boolean isChildGroup(Group group)
     throws  IllegalArgumentException
   {
     if (group == null) { // TODO 20070813 ParameterHelper
@@ -823,7 +855,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @throws  IllegalArgumentException if <i>stem</i> is null.
    * @since   1.2.1
    */
-  protected boolean isChildStem(Stem stem) 
+  public boolean isChildStem(Stem stem) 
     throws  IllegalArgumentException
   {
     if (stem == null) { // TODO 20070813 ParameterHelper
@@ -1151,7 +1183,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @return stem
    * @throws GrouperRuntimeException is problem
    */
-  protected static Stem internal_addRootStem(GrouperSession s) 
+  public static Stem internal_addRootStem(GrouperSession s) 
     throws  GrouperRuntimeException
   {
     //note, no need for GrouperSession inverse of control
@@ -1181,7 +1213,7 @@ public class Stem extends GrouperAPI implements Owner {
    * set modified
    * @since   1.2.0
    */
-  protected void internal_setModified() {
+  public void internal_setModified() {
     this.setModifierUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
     this.setModifyTimeLong(  new Date().getTime()    );
   } // protected void internal_setModified()
@@ -1199,7 +1231,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @throws InsufficientPrivilegeException if problem 
    * @since   1.2.0
    */
-  protected Group internal_addChildGroup(String extn, String dExtn, String uuid) 
+  public Group internal_addChildGroup(String extn, String dExtn, String uuid) 
     throws  GroupAddException,
             InsufficientPrivilegeException
   {
@@ -1285,7 +1317,7 @@ public class Stem extends GrouperAPI implements Owner {
    * @throws StemAddException if problem
    * @throws InsufficientPrivilegeException if problem
    */
-  protected Stem internal_addChildStem(String extn, String dExtn, String uuid) 
+  public Stem internal_addChildStem(String extn, String dExtn, String uuid) 
     throws  StemAddException,
             InsufficientPrivilegeException
   {

@@ -30,6 +30,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -97,7 +99,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DeleteGroupAction.java,v 1.10 2008-05-03 03:57:32 mchyzer Exp $
+ * @version $Id: DeleteGroupAction.java,v 1.11 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class DeleteGroupAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(DeleteGroupAction.class);

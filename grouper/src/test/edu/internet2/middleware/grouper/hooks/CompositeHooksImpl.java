@@ -1,13 +1,13 @@
 /*
  * @author mchyzer
- * $Id: CompositeHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: CompositeHooksImpl.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;

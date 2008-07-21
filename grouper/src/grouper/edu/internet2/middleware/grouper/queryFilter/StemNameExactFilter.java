@@ -20,20 +20,20 @@ package edu.internet2.middleware.grouper.queryFilter;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.BaseQueryFilter;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.QueryException;
-import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.filter.BaseQueryFilter;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 
 /** 
  * Query by exact stem name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemNameExactFilter.java,v 1.2 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: StemNameExactFilter.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  */
 public class StemNameExactFilter extends BaseQueryFilter {
 
@@ -52,7 +52,7 @@ public class StemNameExactFilter extends BaseQueryFilter {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.BaseQueryFilter#getResults(edu.internet2.middleware.grouper.GrouperSession)
+   * @see edu.internet2.middleware.grouper.filter.BaseQueryFilter#getResults(edu.internet2.middleware.grouper.GrouperSession)
    * @return the stem in a set, or null if none
    */
   @Override

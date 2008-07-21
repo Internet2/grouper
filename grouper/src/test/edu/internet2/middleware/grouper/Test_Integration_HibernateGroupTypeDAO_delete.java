@@ -19,9 +19,13 @@ package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.11 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {

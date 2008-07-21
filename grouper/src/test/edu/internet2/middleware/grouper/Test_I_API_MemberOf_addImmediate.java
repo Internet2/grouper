@@ -16,11 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.misc.MemberOf;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_addImmediate.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_addImmediate.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_addImmediate extends GrouperTest {

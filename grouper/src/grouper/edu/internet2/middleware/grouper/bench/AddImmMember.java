@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*; 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import  edu.internet2.middleware.subject.*;      
 
 /**
@@ -30,7 +31,7 @@ import  edu.internet2.middleware.subject.*;
  * memberships
  * 
  * @author  blair christensen.
- * @version $Id: AddImmMember.java,v 1.8 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: AddImmMember.java,v 1.9 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.1.0
  */
 public class AddImmMember extends BaseGrouperBenchmark {

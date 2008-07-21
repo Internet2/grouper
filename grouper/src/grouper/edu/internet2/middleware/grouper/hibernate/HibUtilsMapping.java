@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibUtilsMapping.java,v 1.2 2008-06-21 04:16:13 mchyzer Exp $
+ * $Id: HibUtilsMapping.java,v 1.3 2008-07-21 04:43:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -14,7 +14,7 @@ import org.hibernate.mapping.PropertyGeneration;
 import org.hibernate.mapping.SimpleValue;
 import org.hibernate.mapping.Value;
 
-import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 

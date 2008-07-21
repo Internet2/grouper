@@ -19,9 +19,12 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestMember16.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestMember16.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestMember16 extends TestCase {
 

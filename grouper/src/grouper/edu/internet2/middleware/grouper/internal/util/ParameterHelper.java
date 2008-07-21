@@ -16,14 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
-import  edu.internet2.middleware.grouper.AccessAdapter;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.NamingAdapter;
-import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import  edu.internet2.middleware.grouper.privs.AccessResolver;
+import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import  edu.internet2.middleware.grouper.privs.NamingResolver;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import  edu.internet2.middleware.subject.Subject;
 import  edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -32,7 +32,7 @@ import  edu.internet2.middleware.subject.provider.SourceManager;
  * Utility class for validating parameters.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ParameterHelper.java,v 1.4 2007-08-27 16:40:16 blair Exp $
+ * @version $Id: ParameterHelper.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class ParameterHelper {

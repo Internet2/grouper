@@ -34,7 +34,7 @@ import org.apache.ddlutils.platform.SqlBuilder;
 import org.hibernate.HibernateException;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
-import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.5 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {

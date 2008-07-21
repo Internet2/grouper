@@ -33,10 +33,10 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
@@ -156,7 +156,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
 
  * @author Gary Brown.
- * @version $Id: PopulateFindNewMembersAction.java,v 1.10 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: PopulateFindNewMembersAction.java,v 1.11 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class PopulateFindNewMembersAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateFindNewMembersAction.class);

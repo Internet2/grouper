@@ -30,28 +30,28 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import edu.internet2.middleware.grouper.ComplementFilter;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupAnyAttributeFilter;
-import edu.internet2.middleware.grouper.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFilter;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
-import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.IntersectionFilter;
-import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemDisplayExtensionFilter;
-import edu.internet2.middleware.grouper.StemDisplayNameFilter;
-import edu.internet2.middleware.grouper.StemExtensionFilter;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemNameAnyFilter;
-import edu.internet2.middleware.grouper.StemNameFilter;
-import edu.internet2.middleware.grouper.UnionFilter;
+import edu.internet2.middleware.grouper.filter.ComplementFilter;
+import edu.internet2.middleware.grouper.filter.GroupAnyAttributeFilter;
+import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
+import edu.internet2.middleware.grouper.filter.GroupTypeFilter;
+import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.filter.IntersectionFilter;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.filter.StemDisplayExtensionFilter;
+import edu.internet2.middleware.grouper.filter.StemDisplayNameFilter;
+import edu.internet2.middleware.grouper.filter.StemExtensionFilter;
+import edu.internet2.middleware.grouper.filter.StemNameAnyFilter;
+import edu.internet2.middleware.grouper.filter.StemNameFilter;
+import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.subject.Subject;
 
@@ -132,7 +132,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.17 2008-04-11 15:21:42 mchyzer Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.18 2008-07-21 04:43:47 mchyzer Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	

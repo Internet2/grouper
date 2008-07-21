@@ -16,11 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.Stem;
 import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.SubjectHelper;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
 
@@ -29,7 +28,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemNamingResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: GrouperSystemNamingResolver.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperSystemNamingResolver extends NamingResolverDecorator {

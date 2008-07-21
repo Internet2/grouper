@@ -16,11 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.Privilege;
 import  edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import  edu.internet2.middleware.subject.Subject;
 
 import java.util.HashSet;
@@ -32,7 +30,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.7 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GrouperAllAccessResolver.java,v 1.8 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {

@@ -16,13 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup35.java,v 1.4 2007-02-08 16:25:25 blair Exp $
+ * @version $Id: TestGroup35.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestGroup35 extends GrouperTest {
 

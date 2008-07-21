@@ -29,6 +29,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
+
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -139,7 +141,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.8 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.9 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(DoAssignNewMembersAction.class);

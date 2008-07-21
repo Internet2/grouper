@@ -25,13 +25,12 @@ import net.sf.ehcache.Statistics;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.util.GrouperCache;
 
 
 /**
  * Base class for common cache operations.
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.8 2008-06-21 04:16:13 mchyzer Exp $
+ * @version $Id: EhcacheController.java,v 1.9 2008-07-21 04:43:59 mchyzer Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeHooksTest.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: GroupTypeHooksTest.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -8,10 +8,9 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperTest;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.RegistryReset;
-import edu.internet2.middleware.grouper.SchemaException;
 import edu.internet2.middleware.grouper.SessionHelper;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -19,6 +18,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 
 /**

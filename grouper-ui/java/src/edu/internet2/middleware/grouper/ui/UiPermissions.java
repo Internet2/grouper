@@ -28,9 +28,9 @@ import org.w3c.dom.NodeList;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -70,7 +70,7 @@ is=&quot;false&quot;/&gt;<br>
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: UiPermissions.java,v 1.1 2007-10-30 10:53:06 isgwb Exp $
+ * @version $Id: UiPermissions.java,v 1.2 2008-07-21 04:43:47 mchyzer Exp $
  */
 
 public class UiPermissions {

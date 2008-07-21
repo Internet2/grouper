@@ -31,6 +31,8 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
@@ -43,13 +45,22 @@ import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.log.EventLog;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.M;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.AddFieldToGroupTypeValidator;
+import edu.internet2.middleware.grouper.validator.DeleteFieldFromGroupTypeValidator;
+import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
 
 /** 
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.62 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.63 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -384,7 +395,7 @@ public class GroupType extends GrouperAPI implements Serializable {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static GroupType internal_createType(
+  public static GroupType internal_createType(
     GrouperSession s, String name, boolean isAssignable, boolean isInternal)
       throws  InsufficientPrivilegeException,
               SchemaException
@@ -425,7 +436,7 @@ public class GroupType extends GrouperAPI implements Serializable {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected Field internal_addField(
+  public Field internal_addField(
     GrouperSession s, String name, FieldType type, Privilege read, Privilege write, boolean required
   )
     throws  InsufficientPrivilegeException,

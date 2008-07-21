@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
@@ -23,7 +24,7 @@ import  junit.framework.*;
  * Test {@link GrouperSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSourceAdapter.java,v 1.9 2007-03-16 18:16:04 blair Exp $
+ * @version $Id: TestGrouperSourceAdapter.java,v 1.10 2008-07-21 04:43:58 mchyzer Exp $
  */
 public class TestGrouperSourceAdapter extends TestCase {
 

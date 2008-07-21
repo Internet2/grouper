@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -23,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership1.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestMembership1.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestMembership1 extends TestCase {
 

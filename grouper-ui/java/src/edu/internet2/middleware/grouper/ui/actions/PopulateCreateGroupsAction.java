@@ -24,11 +24,11 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
@@ -110,7 +110,7 @@ import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupsAction.java,v 1.5 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: PopulateCreateGroupsAction.java,v 1.6 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class PopulateCreateGroupsAction extends GrouperCapableAction {
 	

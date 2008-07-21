@@ -1,10 +1,11 @@
 /*
  * @author mchyzer
- * $Id: GrouperCacheTest.java,v 1.2 2008-06-21 04:16:12 mchyzer Exp $
+ * $Id: GrouperCacheTest.java,v 1.3 2008-07-21 04:43:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import junit.framework.TestCase;
 
 

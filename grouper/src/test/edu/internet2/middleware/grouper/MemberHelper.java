@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.subject.Subject;
 import  junit.framework.*;
 
@@ -23,7 +24,7 @@ import  junit.framework.*;
  * {@link Member} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberHelper.java,v 1.8 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: MemberHelper.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class MemberHelper {
 

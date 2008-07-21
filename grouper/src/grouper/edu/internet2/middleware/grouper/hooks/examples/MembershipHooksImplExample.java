@@ -1,13 +1,13 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.2 2008-07-20 21:18:57 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.3 2008-07-21 04:43:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;

@@ -33,7 +33,7 @@ import org.w3c.dom.NodeList;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /**
  * Class that reads an XML configuration file and hands off actual data import
@@ -58,7 +58,7 @@ which case it will be used as a default.</p>
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipImportManager.java,v 1.3 2007-04-17 08:40:07 isgwb Exp $
+ * @version $Id: MembershipImportManager.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class MembershipImportManager {
 	private ResourceBundle config;

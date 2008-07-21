@@ -17,11 +17,13 @@
 
 package edu.internet2.middleware.grouper;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * Test {@link Stem.addChildGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.8 2007-02-28 15:32:16 blair Exp $
+ * @version $Id: TestStemAddChildGroup.java,v 1.9 2008-07-21 04:43:58 mchyzer Exp $
  */
 public class TestStemAddChildGroup extends GrouperTest {
 

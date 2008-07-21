@@ -19,9 +19,14 @@ package edu.internet2.middleware.grouper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.StemModifyException;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.validator.NamingValidator;
+
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_Stem_setExtension.java,v 1.5 2008-07-07 06:26:09 mchyzer Exp $
+ * @version $Id: Test_Unit_API_Stem_setExtension.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_Stem_setExtension extends GrouperTest {

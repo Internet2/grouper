@@ -16,12 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem12.java,v 1.3 2007-05-14 16:12:56 blair Exp $
+ * @version $Id: TestStem12.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestStem12 extends GrouperTest {

@@ -32,10 +32,10 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainAction.java,v 1.4 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: PopulateChainAction.java,v 1.5 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class PopulateChainAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateChainAction.class);

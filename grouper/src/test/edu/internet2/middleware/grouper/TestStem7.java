@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -25,7 +27,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem7.java,v 1.10 2007-03-21 18:02:28 blair Exp $
+ * @version $Id: TestStem7.java,v 1.11 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestStem7 extends TestCase {
 

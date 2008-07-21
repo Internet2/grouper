@@ -17,11 +17,12 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*;      
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Benchmark finding the root {@link Stem}.
  * @author  blair christensen.
- * @version $Id: FindRootStem.java,v 1.5 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: FindRootStem.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.1.0
  */
 public class FindRootStem extends BaseGrouperBenchmark {

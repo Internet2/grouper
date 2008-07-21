@@ -17,10 +17,16 @@
 
 package edu.internet2.middleware.grouper;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+
 /**
  * Test <code>Group.deleteAttribute()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteAttribute extends GrouperTest {

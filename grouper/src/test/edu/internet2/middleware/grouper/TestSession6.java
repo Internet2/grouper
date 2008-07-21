@@ -19,11 +19,13 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession6.java,v 1.14 2007-05-31 18:52:25 blair Exp $
+ * @version $Id: TestSession6.java,v 1.15 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestSession6 extends TestCase {
 

@@ -26,6 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -81,7 +83,7 @@ import edu.internet2.middleware.grouper.*;
 </table>
 
  * @author Gary Brown.
- * @version $Id: LeaveGroupAction.java,v 1.3 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: LeaveGroupAction.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
  */
 public class LeaveGroupAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(LeaveGroupAction.class);

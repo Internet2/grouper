@@ -19,13 +19,13 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 
 /** 
  * Basic <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: CompositeDAO.java,v 1.7 2008-07-21 04:43:59 mchyzer Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {

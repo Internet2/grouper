@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
@@ -23,7 +26,7 @@ import  junit.framework.*;
  * {@link GrouperSession} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SessionHelper.java,v 1.7 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: SessionHelper.java,v 1.8 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class SessionHelper {
 

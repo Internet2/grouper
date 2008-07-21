@@ -17,7 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.privs.AccessAdapter;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import  edu.internet2.middleware.grouper.privs.CachingAccessResolver;
 import  edu.internet2.middleware.grouper.privs.AccessWrapper;
 
@@ -25,7 +28,7 @@ import  edu.internet2.middleware.grouper.privs.AccessWrapper;
 /**
  * Test {@link CachingAccessResolver}.
  * @author  blair christensen.
- * @version $Id: Test_privs_CachingAccessResolver.java,v 1.3 2007-12-05 11:25:10 isgwb Exp $
+ * @version $Id: Test_privs_CachingAccessResolver.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_privs_CachingAccessResolver extends GrouperTest {

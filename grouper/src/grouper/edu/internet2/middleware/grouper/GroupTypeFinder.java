@@ -25,11 +25,16 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+
 /**
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.29 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.30 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class GroupTypeFinder {
   
@@ -137,7 +142,7 @@ public class GroupTypeFinder {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  protected static void internal_updateKnownTypes() {
+  public static void internal_updateKnownTypes() {
     // This method irks me still even if it is now more functionally correct
     Set typesInRegistry = _findAll();
     // Look for types to add

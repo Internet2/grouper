@@ -26,14 +26,14 @@ import org.w3c.dom.Element;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /**
  * Interface that reads data and tries to create memberships.  
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipImporter.java,v 1.3 2007-04-17 08:40:07 isgwb Exp $
+ * @version $Id: MembershipImporter.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
  */
 
 public interface MembershipImporter {
