@@ -28,12 +28,46 @@
   or you may check out the source from CVS.  Unless you make changes to the source,
   or wish to run the test suite against your own directory there is no need to
   download the source distribution.
+  
+  Table of Contents
+  
+  * {{{Binary_Installation_Simplest}Binary Installation (Simplest)}}
+  
+  * {{{Source_Installation}Source Installation}}
+  
+    * {{{Prerequisites}Prerequisites}}
+    
+    * {{{Installation_Procedure}Installation Procedure}}
+    
+    * {{{Deploying_Ldappc}Deploying Ldappc}}
+    
+    * {{{Building_a_Distribution}Building a Distribution}}
+  
+  * {{{Essential_Configuration_File_Settings}Essential Configuration File Settings}}
+  
+  * {{{Common_Problems}Common Problems}}
+  
+  * {{{Directory_Structure}Directory Structure}}
+  
+  * {{{The_Build_Configuration}The Build Configuration}}
+  
+  * {{{The_Schema_Files}The Schema Files}}
+  
+  * {{{The_sources.xml_File}The <<<sources.xml>>> File}}
+  
+  * {{{Javadoc_and_Site_Documentation}Javadoc and Site Documentation}}
+  
+  * {{{Testing}Testing}}
+  
+  * {{{Foo_Bar}Foo Bar}}
 
-Binary Installation (Simplest)
+
+
+{Binary Installation (Simplest)}
 
   The binary distribution file is available as a compressed tar file or as a zip file.
   Download either and unpack it into the directory of your choice.
-  This will create a subdirectory of ldappc-theVersionNumber, which will
+  This will create a subdirectory of <<<ldappc-theVersionNumber>>>, which will
   be referred to as the installation directory.  All commands should be run from the
   installation directory.
 
@@ -74,7 +108,7 @@ Binary Installation (Simplest)
   See the {{{user-manual.html}user manual}} for information on configuring and running
   the Ldappc program.
 
-Source Installation
+{Source Installation}
 
   The source distribution file is available as a compressed tar file or as a zip file.
   The source is also available from the Internet2 CVS repository by anonymous check out.  See the
@@ -85,11 +119,11 @@ Source Installation
   If you check out the source from CVS, you will have to build the site documentation yourself.
 
   If you download the distribution file and unpack it in a directory of your choice, you will
-  see a subdirectory titled ldappc-theVersionNumber. If you download the source from CVS,
-  the directory will just be called ldappc. In either case, this directory will be called the
+  see a subdirectory titled <<<ldappc-theVersionNumber>>>. If you download the source from CVS,
+  the directory will just be called <<<ldappc>>>. In either case, this directory will be called the
   installation directory.  All commands should be run from the installation directory.
 
-* Prerequisites
+* {Prerequisites}
 
   The following are required to build Ldappc from source.
 
@@ -110,24 +144,27 @@ Source Installation
   Discussion of Maven is beyond the scope of this document.  See {{http://maven.apache.org}}
   for more information.
 
-** LDAP Server (optional)
+** LDAP Server
+
+  You will need an LDAP server as a provisioning destination for Ldappc.  Any standard
+  LDAP server should work.  To our knowledge, Ldappc has been run with Sun Directory Server,
+  OpenLDAP, Fedora Directory Server, and Apache Directory Server.
 
   By default, the built-in tests are done against embedded Grouper and Signet databases, and
   an embedded copy of the Apache Directory Server, but if you wish to test against your own
-  database and/or LDAP server, you can edit the ldappc.xml and ldappc.properties files in the
-  src/test/resources directory to reflect this.
-
+  database and/or LDAP server, you can edit the <<<ldappc*.xml>>>, and <<<ldappc.properties>>>
+  files in the <<<src/test/resources>>> directory to reflect this.
+  
   See {{{Configuring_LDAP}Configuring LDAP}} for details.
 
-* Installation Procedure
+* {Installation Procedure}
 
-  The first step in the installation is to untar the installation archive
+  The first step in the installation is to unpack the installation archive
   file to an installation directory of your choice.
-  This will create a subdirectory of ldappc-theVersionNumber, which will
+  This will create a subdirectory of <<<ldappc-theVersionNumber>>>, which will
   be referred to as the installation directory.  If you checked out the source from CVS,
-  the directory will be called ldappc, but it will still be referred to as the installation
-  directory.  Except for installing the required jars, below, all commands must be run
-  from the installation directory.
+  the directory will be called <<<ldappc>>>, but it will still be referred to as the installation
+  directory.  All commands must be run from the installation directory.
 
 ** The Maven Repository
 
@@ -136,6 +173,10 @@ Source Installation
   artifact is not present in your local repository, Maven will contact the Maven central
   repository, and optionally, third-party repositories, to find the artifact and download it
   into your local repository.
+  
+  This local repository is a utility which will be used by any Maven-based project you may
+  be building.  There will be a lot of jars loaded into it, both for the build process and
+  for Ldappc's dependencies.
 
   Most jars needed by Ldappc are in the Maven central repository, but several are not.  We
   have provided a small "remote" repository in the distribution which contains the required
@@ -144,14 +185,15 @@ Source Installation
 
 ** Commercial Database Jars
 
-  The JDBC drivers for Derby, HSQL, MySQL, and Postgres are included in the central Maven repository.
-  If you are using Oracle or some other commercial database you may need to download the driver jar and install
-  it in your local repository.  The pom (project object model) files for various versions of Oracle
-  are available in the central repository, but licensing prevents the jar itself from being included.
-  
-  To view instructions for installing Oracle jars into your local repository see the README.txt
-  file in the i2mi-repository directory.
-  
+  The JDBC drivers for Derby, HSQL, MySQL, and Postgres are included in the central Maven
+  repository.  If you are using Oracle or some other commercial database you may need to
+  download the driver jar and install it in your local repository.  The pom (project
+  object model) files for various versions of Oracle are available in the central
+  repository, but licensing prevents the jar itself from being included.
+
+  To view instructions for installing Oracle jars into your local repository see the
+  <<<README.txt>>> file in the i2mi-repository directory.
+
 ** Building Ldappc
 
   Run the following command
@@ -160,22 +202,50 @@ Source Installation
 mvn site package -Pmydb
 ---
 
-  where mydb is the profile listed in the pom.xml file corresponding to the database and version
-  you wish to use for Signet and/or Grouper.  If you wish to use different databases for Signet
-  and Grouper you may list the profiles separated by commas, e.g.
+  where <mydb> is the profile listed in the <<<pom.xml>>> file corresponding to the
+  database and version you wish to use for Signet and/or Grouper.
+
+*------------------------+------------------------------------------------+
+| <<Profile>>            | <<Description>>                                |
+*------------------------+------------------------------------------------+
+| <<<derby10.4>>>        | Apache Derby version 10.4.1.3                  |
+*------------------------+------------------------------------------------+
+| <<<hsql1.7>>>          | HSQL version 1.7.3.3                           |
+*------------------------+------------------------------------------------+
+| <<<hsql1.8>>>          | HSQL version 1.8.0.7                           |
+*------------------------+------------------------------------------------+
+| <<<mysql5.0>>>         | MySQL version 5.0.8                            |
+*------------------------+------------------------------------------------+
+| <<<mysql5.1>>>         | MySQL version 5.1.6                            |
+*------------------------+---------------------------------------------------+
+| <<<oracle9>>>          | Oracle for JDK 1.4+ (ojdbc14), version 9.0.2.0.0  |
+*------------------------+---------------------------------------------------+
+| <<<oracle10>>>         | Oracle for JDK 1.4+ (ojdbc14), version 10.2.0.3.0 |
+*------------------------+---------------------------------------------------+
+| <<<oracle11-java5>>>   | Oracle for JDK 1.5+ (ojdbc5), version 11.1.0.6 |
+*------------------------+------------------------------------------------+
+| <<<oracle11-java6>>>   | Oracle for JDK 1.6+ (ojdbc6), version 11.1.0.6 |
+*------------------------+------------------------------------------------+
+| <<<postgres8.3>>>      | PostgreSQL version 8.3-603.jdbc3               |
+*------------------------+------------------------------------------------+
+
+  If you wish to use different databases for Signet
+  and Grouper you may list the profiles separated by commas, e.g. run
   
 ---
 mvn site package -Poracle10,mysql5.1
 ---
+
+  to include both database drivers.
   
-  This will run Maven and have it build the site documentation, run the
+  These commands will run Maven and have it build the site documentation, run the
   test suite, and package Ldappc for running from the installation directory.
 
-  This involves creating site documentation in the target/site directory, creating an ldappc jar
-  in target/ldappc-theVersionNumber.jar, a directory containing all the dependent jars in
-  target/lib, and the UN*X and Windows runner scripts in the target/bin directory.
+  This creates the site documentation in the <<<target/site directory>>>, creates an ldappc jar
+  in <<<target/ldappc-theVersionNumber.jar>>>, and creates a directory containing all the dependent jars,
+  including the ldappc jar, in the <<<lib>>> directory.
 
-  Before running ldappc against your own data, you will need to edit the files in the conf
+  Before running ldappc against your own data, you will need to edit the files in the <<<conf>>>
   directory.  See the {{{user-manual.html}User Manual}} for information on configuring and
   running the Ldappc program.
 
@@ -191,32 +261,33 @@ mvn clean
 mvn package
 ---
 
-  and the ldappc jar, the dependent library directory, and the runner directory will be
-  regenerated as needed.
+  and the ldappc jar, and the dependent library directory will be regenerated as needed.
 
-  If you have edited the configuration files in the conf directory, you do not need to run
+  If you have edited the configuration files in the <<<conf>>> directory, you do not need to run
   Maven at all. These files are included in the class path by the runner scripts and any changes
   will be reflected when you re-run the Ldappc program.
 
 ** Expected Results
 
-  All of the more than 40 test cases should run successfully if the installation is
-  successful.  There should be no error messages sent to the ErrorLog file.
+  All of the current test cases should run successfully if the installation is
+  successful.  There should be no error messages sent to the error log, which is in
+  <<<logs/ldappc_error.log>>> by default.
 
 ** Skipping Tests or Ignoring Test Failures
 
-  You can skip running the tests by adding the option "-Dmaven.test.skip=true" to the Maven command, e.g.
+  You can skip running the tests by adding the option "<<<-DskipTests=true>>>" to the Maven
+  command, e.g.
 
 ---
 mvn package -DskipTests=true
 ---
 
   If you want to run the tests, but continue packaging if a test fails, you can instead add the option
-  "-Dmaven.test.failure.ignore=true" to the Maven command.
+  "<<<-Dmaven.test.failure.ignore=true>>>" to the Maven command.
 
-* Deploying Ldappc
+* {Deploying Ldappc}
 
-  To deploy Ldappc you need the bin directory, the conf directory, and the lib directory.
+  To deploy Ldappc you need the <<<bin>>> directory, the <<<conf>>> directory, and the <<<lib>>> directory.
   There is a profile for creating a compressed tar file and a zip file containing these directories.
 
   To create a deploy distribution including the MySQL 5.1 driver, run
@@ -225,12 +296,11 @@ mvn package -DskipTests=true
 mvn site package -Pmysql5.1,deploy
 ---
 
+* {Building a Distribution}
 
-* Building a Distribution
-
-  There are two separate profiles for building Ldappc distributions: a "deploy" profile, which simply
-  creates a distribution suitable for running, and a "distribution" profile, which generates the binary
-  distribution, the source distribution, and a site distribution, which just contains the site documentation.
+  There are two separate profiles for building Ldappc distributions: a "<<<deploy>>>" profile, which simply
+  creates a distribution suitable for running, and a "<<<distribution>>>" profile, which generates the binary
+  distribution, the source distribution, and a site distribution, which last just contains the site documentation.
 
 ** Generating the distributions
 
@@ -241,46 +311,46 @@ mvn site package -Pdistribution
 ---
 
   If you have already generated the site documentation and have not made source changes,
-  you may omit the "site" goal, above.
+  you may omit the "<<<site>>>" goal, above.
 
   The distribution files will be in the target directory, along with the Ldappc jar.
-  They will have names of the form ldappc-theVersionNumber-theDistributionType.fileType,
-  e.g. ldappc-1.2.0-src.tar.gz, or ldappc-1.2.0-bin.zip.
+  They will have names of the form <<<ldappc-theVersionNumber-theDistributionType.fileType>>>,
+  e.g. <<<ldappc-1.2.0-src.tar.gz>>>, or <<<ldappc-1.2.0-bin.zip>>>.
 
-Essential Configuration File Settings
+{Essential Configuration File Settings}
 
   There are several configuration files that control the operations of
   of the Ldappc program.  Only one of these configuration files,
-  the ldappc.xml file, requires changes in order to run anything useful
-  with Ldappc.  The section of the ldappc.xml that requires
+  the <<<ldappc.xml>>> file, requires changes in order to run anything useful
+  with Ldappc.  The section of <<<ldappc.xml>>> that requires
   settings is the under the "ldap" tag.  These settings describe how to
   connect to the the LDAP server and how to authenticate to the server.
-  For production use, the entire contents of the ldappc.xml file will need
-  to tailored to the users' requirements.
+  For production use, the entire contents of the <<<ldappc.xml>>> file will need
+  to tailored to the site requirements.
 
-  See the ldappcTemplate.xml file, which is under the conf directory, for
-  instructions on what values are needed.  The conf directory contains a
-  copy of the ldappc.xml file used in the src/test/resources
+  See the <<<ldappcTemplate.xml>>> file, which is under the <<<conf>>> directory, for
+  instructions on what values are needed.  The <<<conf>>> directory contains a
+  copy of the <<<ldappc.xml>>> file used in the <<<src/test/resources>>>
   directory that is used for executing the built-in test cases.
-  You can change the conf/ldappc.xml file for your own use, as you can
+  You can change the <<<conf/ldappc.xml>>> file for your own use, as you can
   always restore it from the test copy.  Other files in this
   directory have copies that include "Template" in the name.
-  The ldappcTemplate.xml file is different from the ldappc.xml file
+  The <<<ldappcTemplate.xml>>> file is different from the <<<ldappc.xml>>> file
   in that the former contains detailed descriptions of all of the
   allowed parameters, while the later contains actual values used
   without most of the descriptive text.
 
-  Make sure that you have the JAVA_HOME environment variable set
-  to point to the JDK1.5.  The code has been tested with JDK1.5 only
+  Make sure that you have the <<<JAVA_HOME>>> environment variable set
+  to point to the JDK1.5.  The code has been tested with JDK1.5 only.
 
 * Optional Advanced User Testing Configurations
 
-  The test configuration files are in the src/test/resources directory
+  The test configuration files are in the <<<src/test/resources>>> directory
   and are set up to allow overriding a variety of defaults for testing.
   The later section, {{{The_Build_Configuration}The Build Configuration}}
   describes these configuration files.
 
-Common Problems
+{Common Problems}
 
   The following is a list of possible causes why the program may fail
   due incorrect setup.
@@ -288,11 +358,11 @@ Common Problems
   If one sees error messages concerning a credential
   problem, this may indicate an error in the set up of the LDAP
   server or may simply indicate that you have incorrect values for
-  the "security_principal" and "security_credentials" parameters in the
-  ldappc.xml file.
+  the "<<<security_principal>>>" and "<<<security_credentials>>>" parameters in the
+  <<<ldappc.xml>>> or <<<ldappc.properties>>> files.
 
   A failure will occur if required LDAP object classes and/or attributes
-  referred to in ldappc.xml are not present either in the LDAP schemas provided
+  referred to in <<<ldappc.xml>>> are not present either in the LDAP schemas provided
   in the LDAP server's directory or referenced by the server configuration.
 
   Make sure the values of source attribute on the source-subject-identifier match
@@ -310,28 +380,20 @@ Common Problems
   If you get the message "Class file has wrong version 49.0, should be 48.",
   this indicates that one is trying to use some classes that compiled under JDK 1.4
   with others that compiled under JDK 1.5. make sure that your value of JAVA_HOME
-  is JDK1.5.
+  refers to a JDK1.5 installation.
 
   Another source of problems during development occurred because of the
-  existence of two different versions of the hsqldb.jar file.  The Signet
+  existence of two different versions of the <<<hsqldb.jar>>> file.  The Signet
   Quickstart database used version 1.8.0 and the Grouper Quickstart
   database used 1.7.2.  It has reported that Grouper will not work properly
   with version 1.8.0. Nevertheless, the Ldappc built-in test cases run using
-  version 1.8.0 for both Signet and Grouper.  The build file places the latest
-  version of the hsqldb.jar file (1.8.0) before all other jar
-  files in the classpath to assure that it is used rather than another version.
+  version 1.8.0 for both Signet and Grouper.
+
   For production use, hsqldb is not recommended. You should configure your site's
   Grouper and/or Signet to use a more production-oriented database, such as MySQL,
   Oracle, or Postgres, and include its jar in the path.
 
-  If one is not using the same version of hsqldb.jar for testing and for
-  production, then remember to replace the the hsqldb.jar file in the installation
-  directory's lib directory whenever one switches between testing and production.
-  If one is not using the built-in capability to start the Grouper and Signet
-  databases and is starting one's own databases, then for production one can remove
-  the provided hsqldb.jar file from the lib directory as it is only needed for testing.
-
-Directory Structure
+{Directory Structure}
 
   The following describes the directory structure of the program after the
   initial installation of the source distribution tar file.  Prior to running Maven,
@@ -339,22 +401,22 @@ Directory Structure
 
   Table key: "..." means that lower level directories are not shown.
 
-  The installation directory, ldappc-theVersionNumber, is not shown to avoid extra indentation.
+  The installation directory, <<<ldappc-theVersionNumber>>>, is not shown to avoid extra indentation.
   Likewise, package paths are compressed.
 
 *------------------------------+----------------------------------------+
 | <<Directory>>                | <<Discussion>>                         |
-*------------------------------+----------------------------------------+
+*------------------------------+-----------------------------------------------+
 | <<<conf>>>                   | Configuration files: ldappc.xml file template |
-*------------------------------+----------------------------------------+
+*------------------------------+-----------------------------------------------+
 | <<<LICENSE.txt>>>            | License file                           |
 *------------------------------+----------------------------------------+
 | <<<logs>>>                   | Log files                              |
 *------------------------------+----------------------------------------+
 | <<<README.txt>>>             | Readme file                            |
-*------------------------------+----------------------------------------+
-| <<<required-jars>>>          | Jar files needed by Ldappc but not in the Maven central repository |
-*------------------------------+----------------------------------------+
+*------------------------------+----------------------------------------------------------------------------------------------------+
+| <<<i2mi-repository>>>        | "Remote" repository containing files needed by Ldappc that are not in the Maven central repository |
+*------------------------------+----------------------------------------------------------------------------------------------------+
 | <<<src>>>                    | Container for project sources          |
 *------------------------------+----------------------------------------+
 | <<<\ \ \ assemble>>>         | Assembly descriptor files              |
@@ -406,7 +468,11 @@ Directory Structure
 | <<<\ \ \ ldappc-theVersion-bin.tar.gz>>>  | Binary distribution, compressed tar     |
 *-------------------------------------------+-----------------------------------------+
 | <<<\ \ \ ldappc-theVersion-bin.zip>>>     | Binary distribution, zip                |
-*-------------------------------------------+-----------------------------------------+
+*------------------------------+------------------------------------------------------------+
+| <<<\ \ \ ldappc-theVersion-deploy.tar.gz>>> | Deployment distribution, compressed tar     |
+*---------------------------------------------+---------------------------------------------+
+| <<<\ \ \ ldappc-theVersion-deploy.zip>>>    | Deployment distribution, zip                |
+*---------------------------------------------+---------------------------------------------+
 | <<<\ \ \ ldappc-theVersion-site.tar.gz>>> | Site documentation, compressed tar      |
 *-------------------------------------------+-----------------------------------------+
 | <<<\ \ \ ldappc-theVersion-site.zip>>>    | Site documentation, zip                 |
@@ -417,48 +483,48 @@ Directory Structure
 *-------------------------------------------+-----------------------------------------+
 | <<<\ \ \ ldappc-theVersion.jar>>>         | Project jar, containing runtime classes |
 *------------------------------+------------------------------------------------------+
-| <<<\ \ \ lib>>>              | Dependent library files                      |
-*------------------------------+----------------------------------------------+
+| <<<\ \ \ lib>>>              | Dependent library files                        |
+*------------------------------+------------------------------------------------+
 | <<<\ \ \ site>>>             | Documentation files, including project reports |
-*------------------------------+----------------------------------------------+
+*------------------------------+------------------------------------------------+
 | <<<\ \ \ \ \ \ apidoc ...>>> | Javadoc files                                |
 *------------------------------+----------------------------------------------+
 | <<<\ \ \ \ \ \ index.html>>> | Main site documentation file                 |
 *------------------------------+----------------------------------------------+
 | <<<\ \ \ \ \ \ ...>>>        | Additional documentation files               |
-*------------------------------+----------------------------------------------+
+*------------------------------+-----------------------------------------------+
 | <<<testDb>>>                 | Container for test database and configuration |
-*------------------------------+----------------------------------------------+
+*------------------------------+-------------------------------------------------------+
 | <<<\ \ \ grouper>>>          | Container for Grouper test database and configuration |
-*------------------------------+----------------------------------------------+
+*------------------------------+-------------------------------------------------------+
 | <<<\ \ \ \ \ \ hsqldb>>>     | Container for Grouper test database          |
 *------------------------------+----------------------------------------------+
 | <<<\ \ \ ldap>>>             | Container for LDAP schemas and data          |
-*------------------------------+----------------------------------------------+
+*------------------------------+------------------------------------------------------+
 | <<<\ \ \ signet>>>           | Container for Signet test database and configuration |
-*------------------------------+----------------------------------------------+
+*------------------------------+------------------------------------------------------+
 | <<<\ \ \ \ \ \ hsqldb>>>     | Container for Signet test database           |
 *------------------------------+----------------------------------------------+
 
-  Note that there are configuration files in the top level conf directory and
-  alse in the src/test/resources directory.  The files in the top level directory
-  are used for running Ldappc against your site's data.  The files in the src/test/resources
+  Note that there are configuration files in the top level <<<conf>>> directory and
+  alse in the <<<src/test/resources>>> directory.  The files in the top level directory
+  are used for running Ldappc against your site's data.  The files in the <<<src/test/resources>>>
   directory are used during testing to run against the embedded Grouper and Signet databases,
-  and the embedded LDAP directory.
+  and the embedded LDAP directory using data in the <<<testDb>>> directory.
 
-  During the test process, the testDb data will be copied to separate locations in
+  During the test process, the <<<testDb>>> data will be copied to separate locations in
   the target directory, where the embedded databases and directory will be configured.
   See {{{Configuring_LDAP}Configuring LDAP}} for information on how to use your own
   databases and/or directory for testing.
 
   At the top level of level of the above structure there are several files.  The one of most interest
-  is the pom.xml file used by Maven.  The README.txt file simply refers the reader to this Deployment
-  Guide.  The LICENSE.txt file contains the license for this code.  If you check this project out from
-  CVS, there may also be Eclipse project files, e.g. .classpath and .project files.
+  is the <<<pom.xml>>> file used by Maven.  The <<<README.txt>>> file simply refers the reader to this Deployment
+  Guide.  The <<<LICENSE.txt>>> file contains the license for this code.  If you check this project out from
+  CVS, there may also be Eclipse project files, e.g. <<<.classpath>>> and <<<.project>>> files.
 
 {The Build Configuration}
 
-  A Maven pom.xml (Project Object Model) file is provided along with the source code.
+  A Maven <<<pom.xml>>> (Project Object Model) file is provided along with the source code.
   It describes the requirements to compile the code, execute a set of JUnit test cases,
   and package the project for use or distribution.
 
@@ -466,104 +532,69 @@ Directory Structure
   and Signet databases and the built-in LDAP directory, run the test cases, and stop the databases.
 
   When running for normal (non-testing) execution, it is the responsibility of the user
-  to assure that the site's Grouper and/or Signet databases and the site's LDAP directory
+  to ensure that the site's Grouper and/or Signet databases and the site's LDAP directory
   are running before executing Ldappc.
 
-  The pom.xml file is set up to allow the user to specify database jar dependencies.
+  The <<<pom.xml>>> file is set up to allow the user to specify database jar dependencies.
   However, for installation and initial testing, most readers can safely skip reading
   the rest of this section.
 
-The Schema Files
+{The Schema Files}
 
   Most of the schema files needed by Ldappc will be provided by the LDAP server that the
-  user deploys.  In addition, the user will need to set up the LDAP server to include the
-  ldappc.schema that is located in the conf directory, as discussed in the
-  "Prerequisites" section.
+  user deploys.  In addition, the user may need to set up the LDAP server to include extra
+  object classes and/or attributes such as <eduPerson>, <eduMember> and/or <eduPermission>.
+  See the <<<testDb/ldap/ldappc.schema>>> for details.
 
-The sources.xml File
+{The <<<sources.xml>>> File}
 
-  To use Ldappc, a single sources.xml file is required.
-  Therefore, instead of using the separate sources.xml files for
-  Grouper and Signet for the test cases, these had to be combined into
-  a single sources.xml file, such as the one in the test database directory.
-  Production users must also create a single sources.xml file to define the
-  location and SQL commands for all data sources.
+  To use Ldappc, a single <<<sources.xml>>> file is required.
+  Therefore, instead of using the separate <<<sources.xml>>> files for
+  Grouper and Signet for the test cases, these must be combined into
+  a single <<<sources.xml>>> file, such as the one in the <<<conf>>> directory.
+  Production users must also create a single <<<sources.xml>>> file to define the
+  location and SQL and/or LDAP commands for all data sources.
 
-  The Ant build script determines where to get the sources.xml file in the following
-  manner.  If the user does not do anything special, then the sources.xml file is copied
-  to the build directory from the "applicationConfigDir" directory; this is
-  the "conf" directory unless set otherwise in the antMaster.xml file.
-  If user wants the script to find the sources.xml file elsewhere, he can set
-  the "sourcesXmlDir" property in the antSystem.properties file to the
-  directory desired.  The file name must be sources.xml, unless the
-  user sets the sourcesXml property to a different file name.
-  For testing, e.g. when using the "ant install" or "ant test" commands,
-  the antSystem file used is in the conf/testConfiguration/testSetU
-  directory and it sets sourcesXmlDir=testDb.
-
-Javadoc Documentation
+{Javadoc and Site Documentation}
 
   Unless you are reading a printed copy of this document, you must already
   have navigated to the Javadoc and do not need read to further in this section.
 
-  The distribution file comes with a directory, docs, that contains the generated
-  Javadoc directories.  The Ant docs target can be used to recreate the Javadoc
-  documentation from the src directory.
+  The distribution files come with a directory, <<<site>>>, that contains the generated
+  Javadoc directories in the <<<site/apidocs>>> directory.  The Maven "<<<site>>>" goal
+  can be used to recreate the site documentation from the src directory.  If you just
+  wish to generate the Javadoc files, the "<<<javadoc:javadoc>>>" goal can be used instead.
 
-  Within this documentation there are some Ldappc documentation files.
-  These documentation files can be located by placing the
-  appropriate URL in a browser window.  This URL is dependent on
-  on the base location where Ldappc is deployed plus the following
-  relative path:
-  doc/javadoc/index.html
-  Once the Javadoc is visible in your browser, navigate to the
-  edu.internet2.middleware.ldappc.documentation package.
-  Then select the DocumentationRoadmap or any of the other links.
-  The other available topics are:
-  Archicture, DeploymentGuide, Design, LdapGuide, and UserManual.
-
-Testing
+{Testing}
 
   The distribution includes a set of JUnit test cases.  These test cases
   are dependent on the use of databases built into the deployment package.
-  The JUnit test cases are set up for use only with the HSQLDB
-  database management program, whose jar file is included
-  in the distribution.
-  The test data for the built-in Grouper and Signet databases are in located
-  in the testDb directory.
+  The JUnit test cases are set up for use with the built-in HSQLDB
+  database and Apache Directory Server.
+  The test data for the built-in Grouper and Signet databases as well as the
+  built-in Apache Directory Server are in located in the testDb directory.
 
-  When running the built-in test cases, the build script
+  When running the built-in test cases, the test suite
   will automatically start and stop the databases for Grouper
-  and Signet.
-  If a complete set of configuration and database files is placed
-  in a directory parallel to the directory that contains the
-  built-in cases, then it is also possible to use the build script
-  to start and stop a different database.  In this case, the directory location
-  must be specified using the gsDataDir parameter in the ant system file.
-
-  Setting the noDbStop parameter to true in the ant system file will allow
-  the database to remain running after the test cases are run.
+  and Signet and will also rebuild the LDAP server and start and stop it.
 
   The following figure shows the structure of the built-in test data, where
-  gsDataDir is parameter in the Ant system properties file whose default
-  value is "testDb".  This directory format is referred as the gsData standard
-  directory format.
+  <<<testDb>>> is the directory containing the test data.
 
 ---
-gsDataDir
+testDb
     grouper
-        conf
-            ehcache.xml
-            grouper.hibernate.properties
-            grouper.properties.
         hsqldb
-            grouper.properties.
+            grouper.properties
             grouper.script
+        grouper-export.xml
+    ldap
+        kitneduperson.schema
+        ldappc.schema
+        ldappcSubject.ldif
     signet
-        conf
-            hibernate.cfg.xml
         hsqldb
-            signet.properties.
+            signet.properties
             signet.script
 ---
 
