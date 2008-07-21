@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.184 2008-07-21 18:47:13 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.185 2008-07-21 21:02:00 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -550,6 +550,24 @@
       </not>
       <then>
         <copy file="bin/usdu.example.sh" tofile="bin/usdu.sh" />
+      </then>
+    </if>
+
+    <!-- if there is no gsh bat/sh, copy from example -->
+    <if>
+      <not>
+        <available file="bin/gsh.bat" />
+      </not>
+      <then>
+        <copy file="bin/gsh.example.bat" tofile="bin/gsh.bat" />
+      </then>
+    </if>
+    <if>
+      <not>
+        <available file="bin/gsh.sh" />
+      </not>
+      <then>
+        <copy file="bin/gsh.example.sh" tofile="bin/gsh.sh" />
       </then>
     </if>
 

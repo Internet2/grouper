@@ -3,7 +3,10 @@
 # Run Grouper's Unresolvable Subject Deletion Utility
 
 # if not in bin dir, but in grouper_home, then cd to bin
-[ -e bin/grouperloader.example.sh ] && cd bin
+[ -e bin/usdu.sh ] && cd bin
+
+[ -e usdu.sh ] || echo "Cant find usdu.sh.  Are you in the grouper_home dir or grouper_home\bin dir?"
+[ -e usdu.sh ] || exit 1
 
 JAVA=java
 

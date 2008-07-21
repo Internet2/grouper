@@ -1,7 +1,10 @@
 @echo off
 
 rem if not in bin dir, but in grouper_home, then cd to bin
-IF EXIST bin\grouperloader.example.bat cd bin
+IF EXIST bin\usdu.bat cd bin
+
+IF NOT EXIST usdu.bat echo Cant find file usdu.bat.  Are you in the grouper_home dir or grouper_home\bin dir?
+IF NOT EXIST usdu.bat exit /b 1
 
 set JAVA=java
 
