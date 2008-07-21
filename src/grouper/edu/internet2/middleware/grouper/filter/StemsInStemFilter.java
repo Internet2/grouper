@@ -15,7 +15,7 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper.queryFilter;
+package edu.internet2.middleware.grouper.filter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,8 +26,6 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.filter.BaseQueryFilter;
-import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -35,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Query by stem name exact, and get all stem children, or just immediate
  * <p/>
  * @author  mchyzer
- * @version $Id: StemsInStemFilter.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: StemsInStemFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
  */
 public class StemsInStemFilter extends BaseQueryFilter {
   

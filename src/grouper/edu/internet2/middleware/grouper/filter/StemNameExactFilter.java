@@ -15,7 +15,7 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper.queryFilter;
+package edu.internet2.middleware.grouper.filter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,15 +25,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.filter.BaseQueryFilter;
-import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 
 /** 
  * Query by exact stem name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemNameExactFilter.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: StemNameExactFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
  */
 public class StemNameExactFilter extends BaseQueryFilter {
 

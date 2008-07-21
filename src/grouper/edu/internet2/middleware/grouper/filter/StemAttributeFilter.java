@@ -15,7 +15,7 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper.queryFilter;
+package edu.internet2.middleware.grouper.filter;
 
 import java.util.Set;
 
@@ -26,8 +26,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.QueryException;
-import edu.internet2.middleware.grouper.filter.BaseQueryFilter;
-import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 
@@ -37,7 +35,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
  * but the 4 name columns).
  * <p/>
  * @author mchyzer
- * @version $Id: StemAttributeFilter.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: StemAttributeFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
  */
 public class StemAttributeFilter extends BaseQueryFilter {
   

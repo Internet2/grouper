@@ -15,7 +15,7 @@
   limitations under the License.
 */
 
-package edu.internet2.middleware.grouper.queryFilter;
+package edu.internet2.middleware.grouper.filter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,53 +25,51 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.QueryException;
-import edu.internet2.middleware.grouper.filter.BaseQueryFilter;
-import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 
 /** 
- * Query by group uuid.
+ * Query by exact group name.
  * <p/>
- * @author  mchyzer.
- * @version $Id: GroupUuidFilter.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
+ * @author  blair christensen.
+ * @version $Id: GroupNameExactFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
  */
-public class GroupUuidFilter extends BaseQueryFilter {
+public class GroupNameExactFilter extends BaseQueryFilter {
 
-  /** uuid of group to find */
-  private String uuid;
-
-  // Constructors
+  // Private Instance Variables
+  /** exact name of group to find */
+  private String  name;
 
   /**
-   * {@link QueryFilter} that returns group matching the specified
-   * uuid.
-   * <p>
-   * @param   theUuid  Find groups matching this uuid.
+   * {@link QueryFilter} that returns groups matching the specified
+   * name exactly.
+   * @param   name1  Find groups matching this name.
    */
-  public GroupUuidFilter(String theUuid) {
-    this.uuid = theUuid;
+  public GroupNameExactFilter(String name1) {
+    this.name = name1;
   }
 
   /**
-   * get the results
-   * @param s is the grouper session
-   * @return the set of groups (which is just going to be one or not groups)
-   * @throws QueryException
+   * 
+   * @see edu.internet2.middleware.grouper.filter.BaseQueryFilter#getResults(edu.internet2.middleware.grouper.GrouperSession)
+   * @return the group in a set, or null if none
    */
+  @Override
   public Set<Group> getResults(GrouperSession s) 
-    throws QueryException {
+    throws QueryException  {
 
     //note, no need for GrouperSession inverse of control
+
     GrouperSession.validate(s);
-    Set<Group> groups  = new HashSet<Group>();
+    Set candidates  = new HashSet<Group>();
     Group group = null;
     try {
-      group = GroupFinder.findByUuid(s, this.uuid);
-      groups.add(group);
+      group = GroupFinder.findByName(s, this.name);
+      candidates.add(group);
     } catch (GroupNotFoundException gnfe) {
+      return candidates;
       //ignore
     }
-    return groups;
-  }
+    return candidates;
+  } 
 }
 
