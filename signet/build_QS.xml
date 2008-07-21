@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.14 2008-06-24 01:26:31 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.15 2008-07-21 00:13:14 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -149,6 +149,7 @@
 			use="true"
 			version="true" />
 
+<!--
 		<delete file="${signet.javadoc.zipfile}" />
 		<delete file="${signet.javadoc.gzipfile}" />
 
@@ -171,6 +172,7 @@
 				<exclude name="${signet.javadoc.gzipfile}" />
 			</tarfileset>
 		</tar>
+-->
 	</target>
 
 

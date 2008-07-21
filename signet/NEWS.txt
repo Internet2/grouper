@@ -16,6 +16,8 @@ Release Notes for CVS-tagged version Signet_1_3_0 (final)
 
 5. Fixed an incorrect Subsystem being displayed in the "viewXML" UI component.
 
+6. Added a root directory to all build-generated archive files (*.zip, *.tgz)
+
 
 ======================================== 
 Signet	07/05/08

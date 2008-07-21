@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.73 2008-06-24 01:26:31 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.74 2008-07-21 00:13:14 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -199,17 +199,20 @@
 		<zip destfile="${signet.javadoc.zipfile}"
 				encoding="UTF8"
 				duplicate="fail" >
-			<fileset dir="${dist_doc.dir}" >
+			<zipfileset dir="${dist_doc.dir}"
+					prefix="${signet.javadoc.basename}/">
 				<include name="*/**" />
 				<exclude name="${signet.javadoc.zipfile}" />
 				<exclude name="${signet.javadoc.gzipfile}" />
-			</fileset>
+			</zipfileset>
 		</zip>
 
 		<tar destfile="${signet.javadoc.gzipfile}"
 				longfile="gnu"
 				compression="gzip" >
-			<tarfileset dir="${dist_doc.dir}" mode="755" >
+			<tarfileset dir="${dist_doc.dir}"
+					mode="755"
+					prefix="${signet.javadoc.basename}/" >
 				<include name="*/**" />
 				<exclude name="${signet.javadoc.zipfile}" />
 				<exclude name="${signet.javadoc.gzipfile}" />
@@ -690,7 +693,8 @@
 	<target name="create_src_zip_yes"
 			if="signet.zipfile" >
 		<zip destfile="${signet.zipfile}" >
-			<fileset dir="${basedir}" >
+			<zipfileset dir="${basedir}"
+					prefix="${signet.archive.basename}" >
 				<include name="${source_config.dir}/**" />
 				<include name="${source_java.dir}/**" />
 				<exclude name="${xml.bindings.fullpath}/**" />
@@ -708,7 +712,7 @@
 				<include name="signetBuildTomcatDefs.xml" />
 				<exclude name="${signet.zipfile}" />
 				<exclude name="${signet.gzipfile}" />
-			</fileset>
+			</zipfileset>
 		</zip>
 		<chmod file="${signet.zipfile}" perm="755" />
 	</target>
@@ -720,7 +724,9 @@
 		<tar destfile="${signet.gzipfile}"
 				longfile="gnu"
 				compression="gzip" >
-			<tarfileset dir="${basedir}"  mode="755" >
+			<tarfileset dir="${basedir}"
+					mode="755"
+					prefix="${signet.archive.basename}" >
 				<include name="${source_config.dir}/**" />
 				<include name="${source_java.dir}/**" />
 				<exclude name="${xml.bindings.fullpath}/**" />
