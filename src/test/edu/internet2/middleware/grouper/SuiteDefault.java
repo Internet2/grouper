@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
@@ -27,7 +28,7 @@ import edu.internet2.middleware.grouper.util.AllUtilTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.36 2008-07-21 18:47:13 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.37 2008-07-21 21:01:59 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -82,6 +83,7 @@ public class SuiteDefault extends TestCase {
 
     suite.addTest(SuiteRefactor.suite()); 
 
+    suite.addTest(AllGshTests.suite());
     suite.addTest(AllLoaderDbTests.suite());
     suite.addTest(AllUsduTests.suite());
     suite.addTest(AllHooksTests.suite());

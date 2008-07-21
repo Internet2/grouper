@@ -3,6 +3,9 @@
 # if not in bin dir, but in grouper_home, then cd to bin
 [ -e bin/grouperloader.example.sh ] && cd bin
 
+[ -e grouperloader.sh ] || echo "Cant find grouperloader.sh.  Are you in the grouper_home dir or grouper_home\bin dir?"
+[ -e grouperloader.sh ] || exit 1
+
 JAVA=java
 
 GROUPERLOADER=edu.internet2.middleware.grouper.app.loader.GrouperLoader
