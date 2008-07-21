@@ -19,9 +19,14 @@ package edu.internet2.middleware.grouper;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeI0.java,v 1.8 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: TestCompositeI0.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.0
  */
 public class TestCompositeI0 extends TestCase {

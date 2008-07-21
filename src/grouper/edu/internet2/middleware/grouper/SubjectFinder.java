@@ -16,8 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import  edu.internet2.middleware.grouper.subj.SubjectResolver;
 import  edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
+import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import  edu.internet2.middleware.subject.Source;
 import  edu.internet2.middleware.subject.SourceUnavailableException;
 import  edu.internet2.middleware.subject.Subject;
@@ -30,7 +35,7 @@ import  java.util.Set;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.38 2008-07-11 05:47:11 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.39 2008-07-21 04:43:56 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -354,7 +359,7 @@ public class SubjectFinder {
    * TODO 20070803 what is the point of this method?
    * @since   1.2.0
    */
-  protected static Source internal_getGSA() {
+  public static Source internal_getGSA() {
     if (gsa == null) {
       for ( Source sa : getResolver().getSources() ) {
         if (sa instanceof GrouperSourceAdapter) {
@@ -375,7 +380,7 @@ public class SubjectFinder {
    * Reset <code>SubjectResolver</code>.
    * @since   1.2.1
    */
-  protected static void reset() {
+  public static void reset() {
     resolver = null; // TODO 20070807 this could definitely be improved    
   }
 

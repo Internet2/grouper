@@ -20,9 +20,16 @@ import  java.io.*;
 import  java.util.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.filter.StemNameFilter;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.xml.XmlExporter;
+import edu.internet2.middleware.grouper.xml.XmlImporter;
+import edu.internet2.middleware.grouper.xml.XmlReader;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestXml11.java,v 1.4 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestXml11.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXml11 extends GrouperTest {

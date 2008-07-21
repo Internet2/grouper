@@ -16,10 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import edu.internet2.middleware.grouper.AccessPrivilege;
 import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
@@ -29,7 +27,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingAccessResolver.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: ValidatingAccessResolver.java,v 1.7 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingAccessResolver extends AccessResolverDecorator {

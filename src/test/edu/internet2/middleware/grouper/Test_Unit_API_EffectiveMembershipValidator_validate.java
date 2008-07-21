@@ -19,9 +19,13 @@ package edu.internet2.middleware.grouper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.validator.EffectiveMembershipValidator;
+import edu.internet2.middleware.grouper.validator.GrouperValidator;
+import edu.internet2.middleware.grouper.validator.NotNullValidator;
+
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_EffectiveMembershipValidator_validate extends GrouperTest {

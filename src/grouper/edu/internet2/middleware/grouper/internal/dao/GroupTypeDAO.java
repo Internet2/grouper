@@ -20,12 +20,12 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /** 
  * Basic <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupTypeDAO.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GroupTypeDAO.java,v 1.6 2008-07-21 04:43:59 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupTypeDAO extends GrouperDAO {

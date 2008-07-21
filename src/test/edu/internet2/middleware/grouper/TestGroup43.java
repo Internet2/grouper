@@ -16,12 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.11 2007-05-22 15:20:45 blair Exp $
+ * @version $Id: TestGroup43.java,v 1.12 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {

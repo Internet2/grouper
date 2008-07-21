@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 
@@ -23,7 +24,7 @@ import  junit.framework.*;
  * Test {@link Group.addMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupAddMember.java,v 1.7 2008-02-19 07:50:47 mchyzer Exp $
+ * @version $Id: TestGroupAddMember.java,v 1.8 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestGroupAddMember extends TestCase {
 

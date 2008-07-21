@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.7 2008-07-09 05:28:18 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.8 2008-07-21 04:43:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {

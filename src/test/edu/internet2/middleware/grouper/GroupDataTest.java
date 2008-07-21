@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupDataTest.java,v 1.2 2008-06-30 04:31:41 mchyzer Exp $
+ * $Id: GroupDataTest.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -8,6 +8,7 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 
 /**

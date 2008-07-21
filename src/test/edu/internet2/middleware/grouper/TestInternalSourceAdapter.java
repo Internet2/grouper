@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.subj.InternalSubject;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -25,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 

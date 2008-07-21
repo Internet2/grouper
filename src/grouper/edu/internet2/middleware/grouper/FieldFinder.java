@@ -22,12 +22,16 @@ import  java.util.LinkedHashSet;
 import  java.util.Map;
 import  java.util.Set;
 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+
 
 /**
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.37 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.38 2008-07-21 04:43:56 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -99,7 +103,7 @@ public class FieldFinder {
 
   // @since   1.2.0
   // TODO 20070531 split and test.
-  protected static void internal_updateKnownFields() {
+  public static void internal_updateKnownFields() {
     Field f;
     Set   fieldsInRegistry = findAll();
 

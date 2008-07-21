@@ -23,7 +23,13 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -31,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.53 2008-07-09 05:28:17 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.54 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -133,10 +139,10 @@ public class MemberFinder {
   } // public static Member findByUuid(s, uuid)
 
   
-  // PROTECTED CLASS METHODS //
+  // public CLASS METHODS //
 
   // @since   1.2.0
-  protected static Member internal_findAllMember() 
+  public static Member internal_findAllMember() 
     throws  GrouperRuntimeException
   {
 	  if(all !=null) return all;
@@ -149,13 +155,13 @@ public class MemberFinder {
       LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, eMNF);
     }
-  } // protected static Member internal_findAllMember()
+  } // public static Member internal_findAllMember()
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(MemberFinder.class);
 
   // @since   1.2.0
-  protected static Member internal_findRootMember() 
+  public static Member internal_findRootMember() 
     throws  GrouperRuntimeException
   {
 	if(root != null) return root;
@@ -171,7 +177,7 @@ public class MemberFinder {
   } 
 
   // @since   1.2.0
-  protected static Member internal_findBySubject(Subject subj) 
+  public static Member internal_findBySubject(Subject subj) 
     throws  MemberNotFoundException
   {
     if (subj == null) {
@@ -179,10 +185,10 @@ public class MemberFinder {
     }
     Member m = internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) ;
     return m;
-  } // protected static Member internal_findBySubject(subj)
+  } // public static Member internal_findBySubject(subj)
 
   // @since   1.2.0
-  protected static Member internal_findOrCreateBySubject(String id, String src, String type) {
+  public static Member internal_findOrCreateBySubject(String id, String src, String type) {
     try {
       return GrouperDAOFactory.getFactory().getMember().findBySubject(id, src, type);
     }
@@ -196,10 +202,10 @@ public class MemberFinder {
       GrouperDAOFactory.getFactory().getMember().create(_m);
       return _m;
     }
-  } // protected static Member internal_findOrCreateBySubject(id, src, type)
+  } // public static Member internal_findOrCreateBySubject(id, src, type)
 
   // @since   1.2.0
-  protected static Member internal_findViewableMemberBySubject(GrouperSession s, Subject subj)
+  public static Member internal_findViewableMemberBySubject(GrouperSession s, Subject subj)
     throws  InsufficientPrivilegeException,
             MemberNotFoundException
   {
@@ -215,16 +221,16 @@ public class MemberFinder {
       }
     }
     return m;
-  } // protected static Member internal_findViewableMemberBySubject(s, subj)
+  } // public static Member internal_findViewableMemberBySubject(s, subj)
   
   // @since   1.2.1
-  protected static void clearInternalMembers()
+  public static void clearInternalMembers()
     
   {
     all=null;
     root=null;
     
-  } // protected static void clearInternalMembers()
+  } // public static void clearInternalMembers()
 
 } // public class MemberFinder
 

@@ -54,7 +54,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.cfg.Configuration;
 
-import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.subject.Subject;
 

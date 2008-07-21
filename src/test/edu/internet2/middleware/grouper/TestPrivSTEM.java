@@ -20,11 +20,15 @@ import junit.textui.TestRunner;
 
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.11 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.12 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestPrivSTEM extends GrouperTest {
 

@@ -18,9 +18,11 @@
 package edu.internet2.middleware.grouper;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel0.java,v 1.9 2007-02-14 17:06:28 blair Exp $
+ * @version $Id: TestCompositeModel0.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestCompositeModel0 extends GrouperTest {
 

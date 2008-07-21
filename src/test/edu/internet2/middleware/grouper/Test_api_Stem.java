@@ -17,6 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemAddException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import junit.textui.TestRunner;
 
 
@@ -24,7 +32,7 @@ import junit.textui.TestRunner;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Test_api_Stem.java,v 1.11 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {

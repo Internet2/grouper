@@ -18,14 +18,14 @@
 package edu.internet2.middleware.grouper.cfg;
 import org.apache.commons.lang.StringUtils;
 
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Grouper API configuration.  If you are accessing a property from grouper.properties,
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.7 2008-06-30 17:40:43 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.8 2008-07-21 04:43:59 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {

@@ -16,13 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.filter.GroupNameFilter;
+import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  junit.framework.*;
 
 /**
  * Test {@link GroupNameFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupName.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGQGroupName.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestGQGroupName extends TestCase {
 

@@ -28,13 +28,11 @@ import java.util.Set;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
-import edu.internet2.middleware.grouper.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.SchemaException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -44,13 +42,15 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.14 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.15 2008-07-21 04:43:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {

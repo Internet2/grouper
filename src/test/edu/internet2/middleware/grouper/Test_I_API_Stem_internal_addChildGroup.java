@@ -17,9 +17,16 @@
 
 package edu.internet2.middleware.grouper;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.validator.GrouperValidator;
+import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
+
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Stem_internal_addChildGroup.java,v 1.2 2007-05-31 19:01:11 blair Exp $
+ * @version $Id: Test_I_API_Stem_internal_addChildGroup.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Stem_internal_addChildGroup extends GrouperTest {

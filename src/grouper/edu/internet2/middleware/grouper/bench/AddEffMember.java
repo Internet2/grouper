@@ -17,12 +17,13 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*; 
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import  edu.internet2.middleware.subject.*;      
 
 /**
  * Benchmark adding an effective {@link Membership}.
  * @author  blair christensen.
- * @version $Id: AddEffMember.java,v 1.6 2007-03-06 17:02:43 blair Exp $
+ * @version $Id: AddEffMember.java,v 1.7 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.1.0
  */
 public class AddEffMember extends BaseGrouperBenchmark {

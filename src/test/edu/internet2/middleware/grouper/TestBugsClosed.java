@@ -16,6 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.exception.StemAddException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -25,7 +36,7 @@ import  org.apache.commons.logging.*;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.10 2008-07-07 06:26:09 mchyzer Exp $
+ * @version $Id: TestBugsClosed.java,v 1.11 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestBugsClosed extends GrouperTest {
 

@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.privs.NamingResolverFactory;
 
 
 /**
  * Test {@link NamingResolverFactory}.
  * @author  blair christensen.
- * @version $Id: Test_privs_NamingResolverFactory.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_privs_NamingResolverFactory.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_privs_NamingResolverFactory extends GrouperTest {

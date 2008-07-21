@@ -16,12 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.validator.GrouperValidator;
+import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
 import  edu.internet2.middleware.subject.Subject;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {

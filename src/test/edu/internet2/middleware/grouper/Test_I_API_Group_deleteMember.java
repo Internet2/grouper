@@ -19,11 +19,13 @@ package edu.internet2.middleware.grouper;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteMember.java,v 1.3 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_deleteMember.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteMember extends GrouperTest {

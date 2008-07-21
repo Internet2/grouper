@@ -16,14 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+
 import  java.lang.reflect.*;
 
 /**
  * Reflectively instantiate classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Realize.java,v 1.2 2007-04-17 17:35:00 blair Exp $
+ * @version $Id: Realize.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.0
  */
 public class Realize {

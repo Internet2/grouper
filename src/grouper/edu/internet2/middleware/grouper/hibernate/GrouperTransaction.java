@@ -3,7 +3,7 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
-import edu.internet2.middleware.grouper.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * 

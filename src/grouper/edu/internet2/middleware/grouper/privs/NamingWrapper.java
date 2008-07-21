@@ -16,16 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import  edu.internet2.middleware.grouper.GrantPrivilegeException;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import  edu.internet2.middleware.grouper.NamingAdapter;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.RevokePrivilegeException;
-import  edu.internet2.middleware.grouper.SchemaException;
 import  edu.internet2.middleware.grouper.Stem;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
@@ -35,7 +33,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: NamingWrapper.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {

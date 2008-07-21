@@ -16,13 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  junit.framework.*;
 
 /**
  * Test {@link Group.toMember()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupToMember.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGroupToMember.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestGroupToMember extends TestCase {
 

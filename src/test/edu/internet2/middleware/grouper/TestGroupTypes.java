@@ -20,11 +20,19 @@ import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+
 /**
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.9 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: TestGroupTypes.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 

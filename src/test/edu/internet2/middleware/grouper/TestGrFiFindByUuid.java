@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  junit.framework.*;
 
 /**
  * Test {@link GroupFinder.findByUuid()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrFiFindByUuid.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGrFiFindByUuid.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestGrFiFindByUuid extends TestCase {
 

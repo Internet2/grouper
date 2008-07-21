@@ -17,11 +17,12 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*;      
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Benchmark adding a {@link RegistrySubject}.
  * @author  blair christensen.
- * @version $Id: AddRegistrySubject.java,v 1.1 2007-03-06 17:02:43 blair Exp $
+ * @version $Id: AddRegistrySubject.java,v 1.2 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.1.0
  */
 public class AddRegistrySubject extends BaseGrouperBenchmark {

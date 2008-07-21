@@ -23,11 +23,10 @@ import java.util.Set;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
-import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -41,11 +40,12 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.17 2008-07-08 06:51:34 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.18 2008-07-21 04:43:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {

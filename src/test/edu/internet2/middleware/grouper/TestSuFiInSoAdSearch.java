@@ -20,11 +20,14 @@ import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+
 /**
  * Test {@link SubjectFinder.findAll()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdSearch.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestSuFiInSoAdSearch.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestSuFiInSoAdSearch extends TestCase {
 

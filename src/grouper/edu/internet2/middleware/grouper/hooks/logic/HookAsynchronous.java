@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HookAsynchronous.java,v 1.5 2008-07-20 21:18:57 mchyzer Exp $
+ * $Id: HookAsynchronous.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -11,7 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
 import edu.internet2.middleware.grouper.hooks.beans.HooksBean;

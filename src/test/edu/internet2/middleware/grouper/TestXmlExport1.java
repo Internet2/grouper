@@ -20,9 +20,12 @@ import  java.util.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.xml.XmlExporter;
+
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport1.java,v 1.8 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestXmlExport1.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXmlExport1 extends TestCase {

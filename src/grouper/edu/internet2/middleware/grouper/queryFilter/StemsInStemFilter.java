@@ -19,23 +19,23 @@ package edu.internet2.middleware.grouper.queryFilter;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.BaseQueryFilter;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperSessionException;
-import edu.internet2.middleware.grouper.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.QueryException;
-import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.filter.BaseQueryFilter;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Query by stem name exact, and get all stem children, or just immediate
  * <p/>
  * @author  mchyzer
- * @version $Id: StemsInStemFilter.java,v 1.2 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: StemsInStemFilter.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  */
 public class StemsInStemFilter extends BaseQueryFilter {
   
@@ -68,7 +68,7 @@ public class StemsInStemFilter extends BaseQueryFilter {
   
   /**
    * 
-   * @see edu.internet2.middleware.grouper.BaseQueryFilter#getResults(edu.internet2.middleware.grouper.GrouperSession)
+   * @see edu.internet2.middleware.grouper.filter.BaseQueryFilter#getResults(edu.internet2.middleware.grouper.GrouperSession)
    */
   public Set<Stem> getResults(GrouperSession s) throws QueryException {
     

@@ -24,13 +24,11 @@ import net.sf.ehcache.Element;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
-import edu.internet2.middleware.grouper.AccessPrivilege;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Privilege;
-import edu.internet2.middleware.grouper.UnableToPerformException;
 import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -38,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.8 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.9 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {

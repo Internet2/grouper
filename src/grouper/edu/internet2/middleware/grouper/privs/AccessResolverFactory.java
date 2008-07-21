@@ -16,10 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import  edu.internet2.middleware.grouper.AccessAdapter;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
 
@@ -27,7 +26,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
 /** 
  * Factory for returning a <code>AccessResolver</code>.
  * @author  blair christensen.
- * @version $Id: AccessResolverFactory.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: AccessResolverFactory.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessResolverFactory {

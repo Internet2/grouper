@@ -19,20 +19,20 @@ package edu.internet2.middleware.grouper.queryFilter;
 
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.BaseQueryFilter;
-import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.PrivilegeHelper;
-import edu.internet2.middleware.grouper.QueryException;
-import edu.internet2.middleware.grouper.QueryFilter;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.filter.BaseQueryFilter;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 
 /** 
  * Query by group attribute exactly, not with like or lower.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupAttributeExactFilter.java,v 1.1 2008-03-20 16:40:22 mchyzer Exp $
+ * @version $Id: GroupAttributeExactFilter.java,v 1.2 2008-07-21 04:43:58 mchyzer Exp $
  */
 public class GroupAttributeExactFilter extends BaseQueryFilter {
 

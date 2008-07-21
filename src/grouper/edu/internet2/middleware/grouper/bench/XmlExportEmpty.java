@@ -17,13 +17,16 @@
 
 package edu.internet2.middleware.grouper.bench;
 import  edu.internet2.middleware.grouper.*;      
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.xml.XmlExporter;
+
 import  java.util.Properties;
 import  java.io.*;
 
 /**
  * Benchmark exporting an effectively empty XML file.
  * @author  blair christensen.
- * @version $Id: XmlExportEmpty.java,v 1.2 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: XmlExportEmpty.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.1.0
  */
 public class XmlExportEmpty extends BaseGrouperBenchmark {

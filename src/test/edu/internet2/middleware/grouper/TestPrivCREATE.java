@@ -22,13 +22,17 @@ import junit.textui.TestRunner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.9 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestPrivCREATE extends GrouperTest {
 

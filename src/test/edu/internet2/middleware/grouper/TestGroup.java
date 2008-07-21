@@ -16,6 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -25,7 +29,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.9 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: TestGroup.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestGroup extends GrouperTest {
 

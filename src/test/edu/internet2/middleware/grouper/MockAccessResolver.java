@@ -17,9 +17,11 @@
 
 package edu.internet2.middleware.grouper;
 import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import  edu.internet2.middleware.grouper.privs.AccessResolver;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
 
@@ -27,7 +29,7 @@ import  java.util.Set;
 /**
  * Mock {@link AccessResolver}.
  * @author  blair christensen.
- * @version $Id: MockAccessResolver.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: MockAccessResolver.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockAccessResolver implements AccessResolver {

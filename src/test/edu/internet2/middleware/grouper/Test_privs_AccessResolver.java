@@ -17,6 +17,8 @@
 
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import  edu.internet2.middleware.grouper.privs.AccessResolver;
 import  edu.internet2.middleware.grouper.privs.AccessResolverFactory;
 
@@ -25,7 +27,7 @@ import  edu.internet2.middleware.grouper.privs.AccessResolverFactory;
  * Test {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_privs_AccessResolver.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_privs_AccessResolver.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_privs_AccessResolver extends GrouperTest {

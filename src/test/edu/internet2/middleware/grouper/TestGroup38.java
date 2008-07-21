@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup38.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: TestGroup38.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGroup38 extends TestCase {

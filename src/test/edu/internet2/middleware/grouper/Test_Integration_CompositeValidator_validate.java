@@ -19,9 +19,11 @@ package edu.internet2.middleware.grouper;
 import  java.util.Date;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.validator.CompositeValidator;
+
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_CompositeValidator_validate.java,v 1.3 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Test_Integration_CompositeValidator_validate.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_CompositeValidator_validate extends GrouperTest {

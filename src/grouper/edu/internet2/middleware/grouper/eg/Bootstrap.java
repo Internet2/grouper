@@ -19,6 +19,16 @@ package edu.internet2.middleware.grouper.eg;
 import org.apache.commons.lang.StringUtils;
 
 import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import  edu.internet2.middleware.subject.*; // Import Subject API
 
@@ -169,7 +179,7 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
  * }
  * </pre>
  * @author  blair christensen.
- * @version $Id: Bootstrap.java,v 1.3 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: Bootstrap.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/Bootstrap.java?root=I2MI&view=markup">Source</a>
  * @since   1.2.0
  */

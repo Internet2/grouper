@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import  org.apache.commons.logging.*;
@@ -24,7 +26,7 @@ import  org.apache.commons.logging.*;
  * Test {@link GrouperSubject} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSubject.java,v 1.5 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestGrouperSubject.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
  */
 public class TestGrouperSubject extends TestCase {
 

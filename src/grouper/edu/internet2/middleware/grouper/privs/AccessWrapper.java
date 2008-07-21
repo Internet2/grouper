@@ -16,17 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import  edu.internet2.middleware.grouper.AccessAdapter;
-import edu.internet2.middleware.grouper.AccessPrivilege;
-import  edu.internet2.middleware.grouper.GrantPrivilegeException;
 import  edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import  edu.internet2.middleware.grouper.Privilege;
-import  edu.internet2.middleware.grouper.RevokePrivilegeException;
-import  edu.internet2.middleware.grouper.SchemaException;
-import  edu.internet2.middleware.grouper.UnableToPerformException;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
@@ -36,7 +33,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.7 2008-07-21 04:43:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {

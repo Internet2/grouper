@@ -33,13 +33,13 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
-import edu.internet2.middleware.grouper.GrouperConfig;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.9 2008-07-10 00:46:54 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.10 2008-07-21 04:43:58 mchyzer Exp $
  * @since   @HEAD@
  */
 abstract class Hib3DAO {

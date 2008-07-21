@@ -16,6 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  junit.framework.*;
 import junit.textui.TestRunner;
@@ -26,7 +31,7 @@ import  org.apache.commons.logging.*;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.14 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.15 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestPrivADMIN extends TestCase {
 

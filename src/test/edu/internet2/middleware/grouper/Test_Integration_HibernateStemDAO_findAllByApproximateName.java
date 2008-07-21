@@ -18,9 +18,11 @@
 package edu.internet2.middleware.grouper;
 import  org.apache.commons.logging.*;
 
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateStemDAO_findAllByApproximateName.java,v 1.2 2007-04-05 14:28:28 blair Exp $
+ * @version $Id: Test_Integration_HibernateStemDAO_findAllByApproximateName.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateStemDAO_findAllByApproximateName extends GrouperTest {

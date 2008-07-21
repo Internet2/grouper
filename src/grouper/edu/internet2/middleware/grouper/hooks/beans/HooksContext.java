@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.7 2008-07-20 21:18:57 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.8 2008-07-21 04:43:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -14,14 +14,14 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperSessionException;
-import edu.internet2.middleware.grouper.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
-import edu.internet2.middleware.grouper.util.GrouperCache;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 

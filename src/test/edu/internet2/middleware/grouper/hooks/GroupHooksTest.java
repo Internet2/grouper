@@ -1,20 +1,19 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksTest.java,v 1.7 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: GroupHooksTest.java,v 1.8 2008-07-21 04:43:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupDeleteException;
-import edu.internet2.middleware.grouper.GroupModifyException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperTest;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.RegistryReset;
 import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
+import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -23,6 +22,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 

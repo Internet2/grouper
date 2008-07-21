@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHookType.java,v 1.6 2008-07-10 05:55:51 mchyzer Exp $
+ * $Id: GrouperHookType.java,v 1.7 2008-07-21 04:43:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;

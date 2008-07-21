@@ -17,13 +17,17 @@
 
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.util.GrouperUtilTest;
 import  edu.internet2.middleware.subject.Subject;
 
 /**
  * Test <code>Group.delete()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_RegistrySubject_delete.java,v 1.2 2008-05-09 02:33:58 mchyzer Exp $
+ * @version $Id: Test_I_API_RegistrySubject_delete.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_RegistrySubject_delete extends GrouperTest {

@@ -16,6 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -25,7 +35,7 @@ import  org.apache.commons.logging.*;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.12 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: PrivHelper.java,v 1.13 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class PrivHelper {
 

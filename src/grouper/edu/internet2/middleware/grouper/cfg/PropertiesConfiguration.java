@@ -16,8 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
-import  edu.internet2.middleware.grouper.GrouperException;
-import  edu.internet2.middleware.grouper.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+
 import  java.io.IOException;
 import  java.io.InputStream;
 import  java.util.Properties;
@@ -27,7 +28,7 @@ import java.util.Set;
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.6 2008-06-29 17:42:41 mchyzer Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.7 2008-07-21 04:43:59 mchyzer Exp $
  * @since   1.2.1
  */
 public class PropertiesConfiguration implements Configuration {

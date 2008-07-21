@@ -34,6 +34,10 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GrouperSessionHooks;
@@ -45,11 +49,20 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.log.EventLog;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.M;
+import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.AccessResolverFactory;
+import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.GrouperValidator;
+import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -57,7 +70,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.83 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.84 2008-07-21 04:43:56 mchyzer Exp $
  */
 public class GrouperSession extends GrouperAPI {
 
@@ -401,7 +414,7 @@ public class GrouperSession extends GrouperAPI {
    * @return  <code>AccessResolver</code> used by this session.
    * @since   1.2.1
    */
-  protected NamingResolver getNamingResolver() {
+  public NamingResolver getNamingResolver() {
     if (this.namingResolver == null) {
       this.namingResolver = NamingResolverFactory.getInstance(this);
     }
@@ -540,7 +553,7 @@ public class GrouperSession extends GrouperAPI {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected GrouperSession internal_getRootSession() 
+  public GrouperSession internal_getRootSession() 
     throws  GrouperRuntimeException
   {
     // TODO 20070417 deprecate if possible

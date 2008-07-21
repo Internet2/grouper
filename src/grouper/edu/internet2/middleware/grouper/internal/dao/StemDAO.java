@@ -19,16 +19,16 @@ package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Date;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.DefaultMemberOf;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.10 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: StemDAO.java,v 1.11 2008-07-21 04:43:59 mchyzer Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {

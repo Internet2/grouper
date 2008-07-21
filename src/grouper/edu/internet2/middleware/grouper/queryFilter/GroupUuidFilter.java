@@ -20,20 +20,20 @@ package edu.internet2.middleware.grouper.queryFilter;
 import java.util.HashSet;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.BaseQueryFilter;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.QueryException;
-import edu.internet2.middleware.grouper.QueryFilter;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.filter.BaseQueryFilter;
+import edu.internet2.middleware.grouper.filter.QueryFilter;
 
 
 /** 
  * Query by group uuid.
  * <p/>
  * @author  mchyzer.
- * @version $Id: GroupUuidFilter.java,v 1.2 2008-06-24 06:07:03 mchyzer Exp $
+ * @version $Id: GroupUuidFilter.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
  */
 public class GroupUuidFilter extends BaseQueryFilter {
 

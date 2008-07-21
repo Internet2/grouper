@@ -21,8 +21,8 @@ import java.util.Set;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.5 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 

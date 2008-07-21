@@ -16,12 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember30.java,v 1.5 2008-07-08 14:50:15 mchyzer Exp $
+ * @version $Id: TestMember30.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestMember30 extends GrouperTest {
 

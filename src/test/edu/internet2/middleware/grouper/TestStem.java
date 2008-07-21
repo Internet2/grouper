@@ -16,6 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.exception.StemAddException;
+import edu.internet2.middleware.grouper.exception.StemModifyException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import  edu.internet2.middleware.subject.*;
 import  java.util.*;
 import  junit.framework.*;
@@ -27,7 +34,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.17 2008-07-07 06:26:09 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.18 2008-07-21 04:43:57 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
