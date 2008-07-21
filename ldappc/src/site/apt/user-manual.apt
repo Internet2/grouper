@@ -122,9 +122,9 @@ The Configuration File
   the Subject's directory entry.
 
   The LDAP context parameter list section defines the LDAP connection.
-  The parameters listed will be passed to the LDAP connection. If the security_credentials
+  The parameters listed will be passed to the LDAP connection. If the <<<security_credentials>>>
   parameter is "GetFromPropertiesFile", then the password to connect to LDAP
-  will be read from the ldappc.properties file in the security_credentials property.
+  will be read from the <<<ldappc.properties>>> file in the <<<security_credentials>>> property.
   This allows the password to be kept in a separate file and not checked into a version
   control system, for example.
 
@@ -293,9 +293,9 @@ The Configuration File
 * The Configuration File Template
 
   A template for creating the configuration file that controls how the data
-  categories selected on the command line us provided in the conf directory as
-  "ldappcTemplate.xml". The user should first copy this file into the config
-  directory and name it ldappc.xml. Then modify it according to the
+  categories selected on the command line us provided in the <<<conf>>> directory as
+  <<<ldappcTemplate.xml>>>. The user should first copy this file into the config
+  directory and name it <<<ldappc.xml>>>. Then modify it according to the
   instructions therein.
 
 Ldappc Processing
