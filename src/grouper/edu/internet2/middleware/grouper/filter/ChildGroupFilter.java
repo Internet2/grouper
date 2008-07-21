@@ -16,12 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper.filter;
-import  java.util.Set;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -31,7 +30,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
  * Query filter that retrieves child groups.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ChildGroupFilter.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: ChildGroupFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
  * @since   1.2.1
  */
 public class ChildGroupFilter extends BaseQueryFilter {
