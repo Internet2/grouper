@@ -16,7 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.filter;
-import  java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 
@@ -24,7 +25,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * Null {@link QueryFilter} that will never return any results.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NullFilter.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: NullFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
  */
 public class NullFilter extends BaseQueryFilter {
 

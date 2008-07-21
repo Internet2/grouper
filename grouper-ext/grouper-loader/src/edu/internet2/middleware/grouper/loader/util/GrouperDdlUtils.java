@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.3 2008-07-07 06:26:17 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.4 2008-07-21 05:32:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.util;
 
@@ -31,7 +31,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
-import edu.internet2.middleware.grouper.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlVersionable;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.loader.GrouperLoaderConfig;

@@ -16,7 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.filter;
-import  java.util.*;
+import java.util.Date;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.grouper.exception.QueryException;
  * Query by memberships created after the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipCreatedAfterFilter.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: MembershipCreatedAfterFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
  * @since   1.1.0
  */
 public class MembershipCreatedAfterFilter extends BaseQueryFilter {

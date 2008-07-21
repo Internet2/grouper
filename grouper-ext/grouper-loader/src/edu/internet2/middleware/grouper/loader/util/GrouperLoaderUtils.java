@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderUtils.java,v 1.1 2008-06-01 21:27:26 mchyzer Exp $
+ * $Id: GrouperLoaderUtils.java,v 1.2 2008-07-21 05:32:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.util;
 
@@ -16,8 +16,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 

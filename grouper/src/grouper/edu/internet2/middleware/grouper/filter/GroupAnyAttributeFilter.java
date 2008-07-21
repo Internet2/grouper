@@ -17,7 +17,7 @@
 
 package edu.internet2.middleware.grouper.filter;
 
-import  java.util.*;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
  * Query by all group attributes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupAnyAttributeFilter.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GroupAnyAttributeFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
  */
 public class GroupAnyAttributeFilter extends BaseQueryFilter {
 

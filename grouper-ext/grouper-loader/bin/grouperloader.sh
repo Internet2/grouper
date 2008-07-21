@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Run Grouper's Unresolvable Subject Deletion Utility
+# Run Grouper's loader utility
 #
 # based on gsh.sh
 #
