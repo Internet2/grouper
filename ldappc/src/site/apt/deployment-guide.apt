@@ -2,13 +2,13 @@
 ~~  Copyright 2006-2007 The University Of Chicago
 ~~  Copyright 2006-2007 University Corporation for Advanced Internet Development, Inc.
 ~~  Copyright 2006-2007 EDUCAUSE
-~~ 
+~~
 ~~ Licensed under the Apache License, Version 2.0 (the "License");
 ~~ you may not use this file except in compliance with the License.
 ~~ You may obtain a copy of the License at
-~~ 
+~~
 ~~ http://www.apache.org/licenses/LICENSE-2.0
-~~ 
+~~
 ~~ Unless required by applicable law or agreed to in writing, software
 ~~ distributed under the License is distributed on an "AS IS" BASIS,
 ~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,38 +28,40 @@
   or you may check out the source from CVS.  Unless you make changes to the source,
   or wish to run the test suite against your own directory there is no need to
   download the source distribution.
-  
-  Table of Contents
-  
+
+Table of Contents
+
   * {{{Binary_Installation_Simplest}Binary Installation (Simplest)}}
-  
+
   * {{{Source_Installation}Source Installation}}
-  
+
     * {{{Prerequisites}Prerequisites}}
-    
+
     * {{{Installation_Procedure}Installation Procedure}}
-    
+
     * {{{Deploying_Ldappc}Deploying Ldappc}}
-    
+
     * {{{Building_a_Distribution}Building a Distribution}}
-  
+
   * {{{Essential_Configuration_File_Settings}Essential Configuration File Settings}}
-  
+
   * {{{Common_Problems}Common Problems}}
-  
+
   * {{{Directory_Structure}Directory Structure}}
-  
+
   * {{{The_Build_Configuration}The Build Configuration}}
-  
+
   * {{{The_Schema_Files}The Schema Files}}
-  
+
   * {{{The_sources.xml_File}The <<<sources.xml>>> File}}
-  
+
   * {{{Javadoc_and_Site_Documentation}Javadoc and Site Documentation}}
-  
+
   * {{{Testing}Testing}}
-  
-  * {{{Foo_Bar}Foo Bar}}
+
+    * {{{Configuring_Databases}Configuring Databases}}
+
+    * {{{Configuring_LDAP}Configuring LDAP}}
 
 
 
@@ -154,7 +156,7 @@
   an embedded copy of the Apache Directory Server, but if you wish to test against your own
   database and/or LDAP server, you can edit the <<<ldappc*.xml>>>, and <<<ldappc.properties>>>
   files in the <<<src/test/resources>>> directory to reflect this.
-  
+
   See {{{Configuring_LDAP}Configuring LDAP}} for details.
 
 * {Installation Procedure}
@@ -173,7 +175,7 @@
   artifact is not present in your local repository, Maven will contact the Maven central
   repository, and optionally, third-party repositories, to find the artifact and download it
   into your local repository.
-  
+
   This local repository is a utility which will be used by any Maven-based project you may
   be building.  There will be a lot of jars loaded into it, both for the build process and
   for Ldappc's dependencies.
@@ -231,13 +233,13 @@ mvn site package -Pmydb
 
   If you wish to use different databases for Signet
   and Grouper you may list the profiles separated by commas, e.g. run
-  
+
 ---
 mvn site package -Poracle10,mysql5.1
 ---
 
   to include both database drivers.
-  
+
   These commands will run Maven and have it build the site documentation, run the
   test suite, and package Ldappc for running from the installation directory.
 
@@ -256,7 +258,7 @@ mvn clean
 ---
 
   can be used.  To simply build the project exclusive of documentation, run the command
-  
+
 ---
 mvn package
 ---
@@ -598,37 +600,17 @@ testDb
             signet.script
 ---
 
-* Using the Build File for more than Installation and Testing
+* {Configuring Databases}
 
   It is not necessary to read this section for installation and initial testing.
 
-  The primary purpose of the build file is for installation and running
-  the built-in test cases.  However, the build file was used extensively for
-  development may be useful to recipients for some purposes
-  in addition to installation and running the test
-  cases provided.  In particular, if one wishes to create one's own
-  test cases, one can use the above standard data structure and the
-  build file will start and shutdown the database for the user.
-  On the other hand, the build script is set up only for use with
-  the HSQLDB database.  Oracle users, for instance, would need to make
-  significant changes to the build file that are not discussed here.
-
-  To run using one's own databases, some changes are required.
-  The parameter gsDataDir in the ant system properties file defines
-  the directory that contains the Grouper and Signet configuration and
-  database data used for testing.  The default directory is "testDb".
-  This directory is used for the built-in test data, but the gsDataDir
-  value can be set to another directory with different data.
-  It could even be used for production data if the user chooses to place all
-  Grouper and Signet data under this directory in a standard data format.
-  However, it is anticipated that most users will use their existing Grouper and
-  Signet directory structure to hold their data (except for the sources.xml file).
-  The gsData standard directory format is required for the built-in test database;
-  but is not required otherwise; however, several
-  additional properties must be set if it is not used.  The configuration
-  file conf/testSetX/antSystem.properties file shows and example of setting
-  these properties.  If the gsDataDir is used, then
-  this data must be in the standard format for this type data, as shown above.
+  To run using one's own databases, some changes are required.  You will need
+  to edit the configuration files for Grouper, Signet, the Subject API, and the
+  <<<ldappc.xml>>> and <<<ldappc.properties>>> files.  In particular, there are
+  many test-related settings in <<<ldappc.properties>>>.
+  The parameters <<<testUseEmbeddedGrouper>>> and <<<testUseEmbeddedSignet>>>
+  will need to be set to <<<false>>>.  You will need to start and stop your database
+  yourself before and after running the tests.
 
   The following describes files that will need to be modified in order to use the
   build file on a different port than is built-in.  It also has value as list of
@@ -637,19 +619,19 @@ testDb
   The minimum changes that will be required to the files corresponding the files below are listed below.
   The port 51515 will need to be changed in all the lines below, as will the database names.
 
-  In ldappc/testDb/grouper/conf/grouper.hibernate.properties:
+  In <<<ldappc/testDb/grouper/conf/grouper.hibernate.properties>>>:
 
 ---
 hibernate.connection.url = jdbc:hsqldb:hsql://localhost:51515/grouperdb/grouper.hibernate.properties
 ---
 
-  In the conf directory in file testLdappc.properties:
+  In the <<<src/test/resources>>> directory in file <<<ldappc.properties>>>:
 
 ---
 dbUrl=jdbc:hsqldb:hsql://localhost:51515/signetdb
 ---
 
-  In the ldappc/testDb/sources.xml file:
+  In the <<<src/test/resources/sources.xml>>> file:
 
 ---
 jdbc:hsqldb:hsql://localhost:51515/grouperdb
@@ -658,24 +640,19 @@ jdbc:hsqldb:hsql://localhost:51515/signetdb
 
   Other possible changes to consider are listed below.
 
-  In ldappc/testDb/grouper/conf/grouper.hibernate.properties:
+  In <<<src/test/resources/grouper.hibernate.properties>>>:
 
 ---
 hibernate.connection.username = sa
 hibernate.connection.password =
 ---
 
-  If you want to run the JUnit test cases using OpenLDAP and the built-in database but using
-  a different port, in addition to the instances of port 51515 above needing changed,
-  you will you will need to change the port number in the sqltool.rc file of the
-  ldappc/testDb directory, and possibly the username and password.
-
 * {Configuring LDAP}
 
-  If you use an external LDAP for testing, the ldappc.schema and kitneduperson.schema
-  files in the testDb/ldap directory must be added to the LDAP configuration before starting it.
+  If you use an external LDAP for testing, the <<<ldappc.schema>>> and <<<kitneduperson.schema>>>
+  files in the <<<testDb/ldap>>> directory must be added to the LDAP configuration before starting it.
   For OpenLDAP, this is done by adding a line similar to the following one
-  to the slapd.conf file:
+  to the <<<slapd.conf>>> file:
 
 ---
 include yourInstallationDirectory/testDb/ldap/ldappc.schema
@@ -700,10 +677,15 @@ index   eduPersonEntitlement  eq
   If one uses "uniqueMember" instead of "member" in the ldappc.xml file, then one would
   want to replace "member" above with "uniqueMember".
 
-  You will also need to add the contents of testDb/ldap/ldappcSubject.ldif to your directory.
+  You will also need to add the contents of <<<testDb/ldap/ldappcSubject.ldif>>> to your directory.
   If you have not added the top-level domain object, add that first. Note that the files in
-  the testDb directory are used for actual testing, so if you modify them, the built-in
+  the <<<testDb>>> directory are used for actual testing, so if you modify them, the built-in
   unit tests may fail.
+
+  You will also need to start and stop the directory server yourself before and after
+  running the tests.  To prevent the embedded directory server from being started, the
+  parameter <<<useEmbeddedLdap>>> in <<<src/test/resources/ldappc.properties>>> must be set
+  to <<<false>>>.
 
 ** Setting up the LDAP Directory Test Data Content
 
@@ -712,18 +694,18 @@ index   eduPersonEntitlement  eq
   command to add the data to the LDAP directory as follows.
 
 ---
-cd yourInstallationDirectory\conf\testConfigurations\testSetU
+cd yourInstallationDirectory/testDb/ldap
 ldapadd -x -D "yourSecurityPrincipal" -w "yourRootPW" -f ldappcSubject.ldif
 ---
 
   In the above command, "yourSecurityPrincipal" represents the value used in the
-  security principal setting in the ldapp.xml file.
+  security principal setting in the <<<ldapp.xml>>> file.
 
   In the above command, "yourRootPW" represents the password used in the
-  security credential setting in the ldapp.xml file.  Make sure that the
-  same value is used in the ldapp.xml file, in the above command, and in
+  security credential setting in the <<<ldapp.xml>>> file.  Make sure that the
+  same value is used in the <<<ldapp.xml>>> file, in the above command, and in
   the configuration file for your LDAP server.
 
-  The user may wish to make additional changes to the ldappcSubject.ldif and
-  the ldappc.xml files; however, until the initial set up of the distribution
+  The user may wish to make additional changes to the <<<ldappcSubject.ldif>>> and
+  the <<<ldappc.xml>>> files; however, until the initial set up of the distribution
   has been verified, such changes should be kept to a minimum.
