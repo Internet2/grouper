@@ -7,7 +7,7 @@
   -->
   <groupId>edu.internet2.middleware.ldappc</groupId>
   <artifactId>ldappc</artifactId>
-  <version>1.2.0-20080721</version>
+  <version>1.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <!--
@@ -137,9 +137,18 @@
   -->
   <distributionManagement>
     <site>
+<!--
       <id>website</id>
       <url>scpexe://middleware.internet2.edu/dir/groups/grouper/ldappc/${pom.version}/doc</url>
+-->
+      <id>personal_website</id>
+      <url>scpexe://shell.sonic.net/home/k/kathryn5/public_html/projects/site/${artifactId}</url>
     </site>
+    <repository>
+      <id>personal_inhouse</id>
+      <name>Kathryn Huxtable Repository</name>
+      <url>scpexe://shell.sonic.net/home/k/kathryn5/public_html/projects/repository</url>
+    </repository>
   </distributionManagement>
 
   <!--
