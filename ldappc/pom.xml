@@ -3,11 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <!--
-    The next three items define the project artifact.
+    The next four items define the project artifact.
   -->
   <groupId>edu.internet2.middleware.ldappc</groupId>
   <artifactId>ldappc</artifactId>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>1.2.0-20080721</version>
+  <packaging>jar</packaging>
 
   <!--
     Much of the information in this POM will be used in the site documentation.
