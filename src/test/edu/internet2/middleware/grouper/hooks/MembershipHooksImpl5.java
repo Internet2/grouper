@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl5.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: MembershipHooksImpl5.java,v 1.4 2008-07-23 06:41:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -21,9 +21,9 @@ public class MembershipHooksImpl5 extends MembershipHooks {
   /** most recent subject id added to group */
   static String mostRecentDeleteMemberSubjectId;
   
-
   /**
-   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipPreDeleteBean)
+   * 
+   * @see edu.internet2.middleware.grouper.hooks.MembershipHooks#membershipPreDelete(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean)
    */
   @Override
   public void membershipPreDelete(HooksContext hooksContext,

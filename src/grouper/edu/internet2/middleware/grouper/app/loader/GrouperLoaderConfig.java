@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderConfig.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: GrouperLoaderConfig.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -172,24 +172,14 @@ public class GrouperLoaderConfig {
    */
   public static GrouperLoaderDb retrieveDbProfile(String name) {
     
-    //first look in grouper-loader.properties:
-    String user = getPropertyString("db." + name + ".user");
     String pass = null;
     String url = null;
     String driver = null;
     boolean isGrouper = StringUtils.equals(name, GROUPER_DB_NAME);
+    String user = null;
     
-    if (!StringUtils.isBlank(user)) {
-      if (isGrouper) {
-        throw new RuntimeException("Cant have a database named 'grouper' in " +
-        		"the grouper-loader.properties.  This is a special name for the " +
-        		"grouper.hibernate.properties database");
-      }
-      pass = getPropertyString("db." + name + ".pass");
-      url = getPropertyString("db." + name + ".url");
-      driver = getPropertyString("db." + name + ".driver");
-
-    } else if (isGrouper) {
+    if (isGrouper) {
+      
       //the name "hibernate" is a special term, which could be in the grouper-loader.properties, 
       //but defaults to grouper.hibernate.properties
       Properties properties = GrouperUtil.propertiesFromResourceName(
@@ -199,11 +189,25 @@ public class GrouperLoaderConfig {
       pass = properties.getProperty("hibernate.connection.password");
       url = properties.getProperty("hibernate.connection.url");
       driver = properties.getProperty("hibernate.connection.driver_class");
-
-    } else {
-      throw new RuntimeException("Cant find the db connection named: '" + name + "' in " +
-      		"the grouper-loader.properties.  Should have entries: db." + name + ".user, db." + name 
-      		+ ".pass, db." + name + ".url, db." + name + ".driver");
+    } else {      
+      
+      //first look in grouper-loader.properties:
+      user = getPropertyString("db." + name + ".user");
+      if (!StringUtils.isBlank(user)) {
+        if (isGrouper) {
+          throw new RuntimeException("Cant have a database named 'grouper' in " +
+          		"the grouper-loader.properties.  This is a special name for the " +
+          		"grouper.hibernate.properties database");
+        }
+        pass = getPropertyString("db." + name + ".pass");
+        url = getPropertyString("db." + name + ".url");
+        driver = getPropertyString("db." + name + ".driver");
+      
+      } else {
+        throw new RuntimeException("Cant find the db connection named: '" + name + "' in " +
+        		"the grouper-loader.properties.  Should have entries: db." + name + ".user, db." + name 
+        		+ ".pass, db." + name + ".url, db." + name + ".driver");
+      }
     }
     
     GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(user, pass, url, driver);

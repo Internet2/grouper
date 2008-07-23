@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.12 2008-07-20 21:18:57 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.13 2008-07-23 06:41:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleGrouperStartup
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
 import edu.internet2.middleware.grouper.hooks.examples.GroupAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -43,6 +44,9 @@ public class GrouperHooksUtils {
    * kick off startup hooks if not done already
    */
   public synchronized static void fireGrouperStartupHooksIfNotFiredAlready() {
+    
+    GrouperStartup.startup();
+    
     if (!grouperStartupHooksCalled) {
       //even if errors, only call once
       grouperStartupHooksCalled = true;

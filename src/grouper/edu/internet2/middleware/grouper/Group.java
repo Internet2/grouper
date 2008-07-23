@@ -107,7 +107,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.196 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Group.java,v 1.197 2008-07-23 06:41:30 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -1250,6 +1250,19 @@ public class Group extends GrouperAPI implements Owner {
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.ADMIN);
   }
 
+  /**
+   * get the value of an attribute, if not there return null
+   * @param attributeName
+   * @return the attribute value
+   */
+  public String getAttributeOrNull(String attributeName) {
+    try {
+      return this.getAttribute(attributeName);
+    } catch (AttributeNotFoundException anfe) {
+      return null;
+    }
+  }
+  
   /**
    * Get attribute value.
    * <pre class="eg">

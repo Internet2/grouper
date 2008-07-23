@@ -1,13 +1,12 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouperLoaderLog.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: Hib3GrouperLoaderLog.java,v 1.2 2008-07-23 06:41:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.sql.Timestamp;
 
-import edu.internet2.middleware.grouper.app.loader.util.GrouperLoaderHibUtils;
-import edu.internet2.middleware.grouper.app.loader.util.GrouperLoaderUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -642,16 +641,16 @@ public class Hib3GrouperLoaderLog {
    * make sure this object will fit in the DB
    */
   public void truncate() {
-    this.jobName = GrouperLoaderUtils.truncateAscii(this.jobName, 512);
-    this.jobType = GrouperLoaderUtils.truncateAscii(this.jobType, 128);
-    this.jobScheduleType = GrouperLoaderUtils.truncateAscii(this.jobScheduleType, 128);
-    this.jobDescription = GrouperLoaderUtils.truncateAscii(this.jobDescription, 4000);
-    this.setJobMessage(GrouperLoaderUtils.truncateAscii(this.getJobMessage(), 4000));
-    this.host = GrouperLoaderUtils.truncateAscii(this.host, 128);
-    this.groupUuid = GrouperLoaderUtils.truncateAscii(this.groupUuid, 128);
-    this.jobScheduleQuartzCron = GrouperLoaderUtils.truncateAscii(this.jobScheduleQuartzCron, 128);
-    this.parentJobName = GrouperLoaderUtils.truncateAscii(this.parentJobName, 512);
-    this.parentJobId = GrouperLoaderUtils.truncateAscii(this.parentJobId, 128);
+    this.jobName = GrouperUtil.truncateAscii(this.jobName, 512);
+    this.jobType = GrouperUtil.truncateAscii(this.jobType, 128);
+    this.jobScheduleType = GrouperUtil.truncateAscii(this.jobScheduleType, 128);
+    this.jobDescription = GrouperUtil.truncateAscii(this.jobDescription, 4000);
+    this.setJobMessage(GrouperUtil.truncateAscii(this.getJobMessage(), 4000));
+    this.host = GrouperUtil.truncateAscii(this.host, 128);
+    this.groupUuid = GrouperUtil.truncateAscii(this.groupUuid, 128);
+    this.jobScheduleQuartzCron = GrouperUtil.truncateAscii(this.jobScheduleQuartzCron, 128);
+    this.parentJobName = GrouperUtil.truncateAscii(this.parentJobName, 512);
+    this.parentJobId = GrouperUtil.truncateAscii(this.parentJobId, 128);
   }
   
   /**
@@ -659,7 +658,7 @@ public class Hib3GrouperLoaderLog {
    */
   public void store() {
     this.truncate();
-    GrouperLoaderHibUtils.store(this);
+    HibernateSession.byObjectStatic().saveOrUpdate(this);
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: Hib3GrouploaderLogTest.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: Hib3GrouploaderLogTest.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -10,8 +10,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.app.loader.util.GrouperLoaderHibUtils;
+import edu.internet2.middleware.grouper.hibernate.BySqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -45,7 +45,7 @@ public class Hib3GrouploaderLogTest extends TestCase {
     String testObjectName = "unitTestingOnlyIgnore";
     
     //clean up before test
-    GrouperLoaderHibUtils.executeSql("delete from grouper_loader_log where job_name = ?",
+    BySqlStatic.executeSql("delete from grouper_loader_log where job_name = ?",
         GrouperUtil.toList((Object)testObjectName));
     
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
@@ -64,10 +64,10 @@ public class Hib3GrouploaderLogTest extends TestCase {
     
     //try an update
     hib3GrouploaderLog.setJobDescription("hey");
-    GrouperLoaderHibUtils.store(hib3GrouploaderLog);
+    HibernateSession.byObjectStatic().saveOrUpdate(hib3GrouploaderLog);
     
     //now clean up, just delete
-    GrouperLoaderHibUtils.delete(hib3GrouploaderLog);
+    HibernateSession.byObjectStatic().delete(hib3GrouploaderLog);
   }
   
 }

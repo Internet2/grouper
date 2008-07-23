@@ -22,9 +22,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -52,6 +56,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -968,7 +974,8 @@ public class GrouperUtil {
   }
 
   /**
-   * return a list of objects from varargs.
+   * return a list of objects from varargs.  Though if there is one
+   * object, and it is a list, return it.
    * 
    * @param <T>
    *            template type of the objects
@@ -979,6 +986,10 @@ public class GrouperUtil {
     if (objects == null) {
       return null;
     }
+    if (objects.length == 1 && objects[0] instanceof List) {
+      return (List<T>)objects[0];
+    }
+    
     List<T> result = new ArrayList<T>();
     for (T object : objects) {
       result.add(object);
@@ -5136,6 +5147,198 @@ public class GrouperUtil {
     Method getter = getter(object.getClass(), property, true, true);
     Object result = invokeMethod(getter, object);
     return result;
+  }
+
+  /**
+   * close a connection null safe and dont throw exception
+   * @param connection
+   */
+  public static void closeQuietly(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * close a session null safe and dont throw exception
+   * @param session
+   */
+  public static void closeQuietly(Session session) {
+    if (session != null) {
+      try {
+        session.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * close a statement null safe and dont throw exception
+   * @param statement
+   */
+  public static void closeQuietly(Statement statement) {
+    if (statement != null) {
+      try {
+        statement.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * close a resultSet null safe and dont throw exception
+   * @param resultSet
+   */
+  public static void closeQuietly(ResultSet resultSet) {
+    if (resultSet != null) {
+      try {
+        resultSet.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /** cache the hostname, it wont change */
+  private static String hostname = null;
+
+  /**
+   * get the hostname of this machine
+   * @return the hostname
+   */
+  public static String hostname() {
+  
+    if (StringUtils.isBlank(hostname)) {
+  
+      //get the hostname
+      hostname = "unknown";
+      try {
+        InetAddress addr = InetAddress.getLocalHost();
+  
+        // Get hostname
+        hostname = addr.getHostName();
+      } catch (Exception e) {
+        LOG.error("Cant find servers hostname: ", e);
+      }
+    }
+  
+    return hostname;
+  }
+
+  /**
+   * is ascii char
+   * @param input
+   * @return true if ascii
+   */
+  public static boolean isAscii(char input) {
+    return input < 128;
+  }
+
+  /**
+   * find the length of ascii chars (non ascii are counted as two)
+   * @param input
+   * @return the length of ascii chars
+   */
+  public static int lengthAscii(String input) {
+    if (input == null) {
+      return 0;
+    }
+    //see what real length is
+    int utfLength = input.length();
+    //count how many non asciis
+    int extras = 0;
+    for (int i=0;i<utfLength;i++) {
+      //keep count of non ascii chars
+      if (!isAscii(input.charAt(i))) {
+        extras++;
+      }
+    }
+    return utfLength + extras;
+  }
+
+  /**
+   * rollback a transaction quietly
+   * @param transaction
+   */
+  public static void rollbackQuietly(Transaction transaction) {
+    if (transaction != null && transaction.isActive()) {
+      try {
+        transaction.rollback();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * rollback a connection quietly
+   * @param connection
+   */
+  public static void rollbackQuietly(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.rollback();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * find the length of ascii chars (non ascii are counted as two)
+   * @param input is the string to operate on
+   * @param requiredLength length we need the string to be
+   * @return the length of ascii chars
+   */
+  public static String truncateAscii(String input, int requiredLength) {
+    if (input == null) {
+      return input;
+    }
+    //see what real length is
+    int utfLength = input.length();
+    
+    //see if not worth checking
+    if (utfLength * 2 < requiredLength) {
+      return input;
+    }
+    
+    //count how many non asciis
+    int asciiLength = 0;
+    for (int i=0;i<utfLength;i++) {
+      
+      asciiLength++;
+      
+      //keep count of non ascii chars
+      if (!isAscii(input.charAt(i))) {
+        asciiLength++;
+      }
+      
+      //see if we are over 
+      if (asciiLength > requiredLength) {
+        //do not include the current char
+        return input.substring(0,i);
+      }
+    }
+    //must have fit
+    return input;
+  }
+
+  /**
+   * convert a subject to string safely
+   * @param subject
+   * @return the string value of subject (might be null)
+   */
+  public static String subjectToString(Subject subject) {
+    if (subject == null) {
+      return null;
+    }
+    return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
   }
 
 }
