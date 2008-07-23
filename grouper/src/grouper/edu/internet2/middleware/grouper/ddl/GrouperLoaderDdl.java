@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderDdl.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: GrouperLoaderDdl.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -9,7 +9,6 @@ import java.sql.Types;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
-import edu.internet2.middleware.grouper.app.loader.util.GrouperDdlUtils;
 
 
 /**
@@ -27,7 +26,7 @@ public enum GrouperLoaderDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database) {
       
       //see if the grouper_ext_loader_log table is there
-      GrouperDdlUtils.ddlutilsAddIndex(database, "grouploader_log",
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouploader_log",
           "grouper_loader_job_name_idx", false, "job_name");
     }
   },

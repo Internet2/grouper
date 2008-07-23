@@ -1,12 +1,11 @@
 /*
  * @author mchyzer
- * $Id: Hib3GrouperDdlTest.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: Hib3GrouperDdlTest.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
-import edu.internet2.middleware.grouper.app.loader.util.GrouperLoaderHibUtils;
 import junit.framework.TestCase;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 
 /**
@@ -39,28 +38,27 @@ public class Hib3GrouperDdlTest extends TestCase {
     String testObjectName = "unitTestingOnlyIgnore";
     
     //clean up before test
-    Hib3GrouperDdl hib3GrouperDdl = GrouperLoaderHibUtils.select(Hib3GrouperDdl.class, 
-        "from Hib3GrouperDdl where objectName = '" + testObjectName + "'");
+    Hib3GrouperDdl hib3GrouperDdl = HibernateSession.byHqlStatic().createQuery("from Hib3GrouperDdl where objectName = '" + testObjectName + "'").uniqueResult(Hib3GrouperDdl.class); 
+
     if (hib3GrouperDdl != null) {
-      GrouperLoaderHibUtils.delete(hib3GrouperDdl);
+      HibernateSession.byObjectStatic().delete(hib3GrouperDdl);
       hib3GrouperDdl = null;
     }
     
     hib3GrouperDdl = new Hib3GrouperDdl();
     hib3GrouperDdl.setDbVersion(-5);
-    hib3GrouperDdl.setJavaVersion(-10);
     hib3GrouperDdl.setObjectName(testObjectName);
 
     assertNull("Not stored, no id", hib3GrouperDdl.getId());
-    GrouperLoaderHibUtils.store(hib3GrouperDdl);
+    HibernateSession.byObjectStatic().saveOrUpdate(hib3GrouperDdl);
     assertNotNull("Stored, should have id", hib3GrouperDdl.getId());
     
     //try an update
-    hib3GrouperDdl.setJavaVersion(-12);
-    GrouperLoaderHibUtils.store(hib3GrouperDdl);
+    hib3GrouperDdl.setDbVersion(-8);
+    HibernateSession.byObjectStatic().saveOrUpdate(hib3GrouperDdl);
     
     //now clean up, just delete
-    GrouperLoaderHibUtils.delete(hib3GrouperDdl);
+    HibernateSession.byObjectStatic().delete(hib3GrouperDdl);
   }
   
 }

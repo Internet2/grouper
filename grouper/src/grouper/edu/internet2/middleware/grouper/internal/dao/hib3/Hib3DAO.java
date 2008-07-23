@@ -27,53 +27,65 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.Composite;
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeTuple;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.RegistrySubject;
-import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
-import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.11 2008-07-21 18:05:44 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.12 2008-07-23 06:41:29 mchyzer Exp $
  * @since   @HEAD@
  */
-abstract class Hib3DAO {
+public abstract class Hib3DAO {
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final Configuration  CFG;
+  /**
+   * 
+   */
+  private static Configuration  CFG;
 
-  private static final SessionFactory FACTORY;
+  /**
+   * 
+   */
+  private static SessionFactory FACTORY;
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(Hib3DAO.class);
 
-  // STATIC //
   static {
     try {
       
-      //Grouper startup hook (is this the right place?)
-      GrouperHooksUtils.fireGrouperStartupHooksIfNotFiredAlready();
+      GrouperStartup.startup();
       
+    } catch (Throwable t) {
+      String msg = "unable to initialize hibernate: " + t.getMessage();
+      LOG.fatal(msg, t);
+      throw new ExceptionInInitializerError(t);
+    }
+  }
+
+  /**
+   * keep track of if hibernate is initted yet
+   */
+  private static boolean hibernateInitted = false;
+  
+  /**
+   * init hibernate if not initted
+   */
+  public synchronized static void initHibernateIfNotInitted() {
+    if (hibernateInitted) {
+      return;
+    }
+    
+    //this might not be completely accurate
+    hibernateInitted = true;
+
+    try {
       // Find the custom configuration file
       if (Hib3DAO.class.getResource(GrouperConfig.HIBERNATE_CF) == null) {
         throw new RuntimeException("Cant find resource " + GrouperConfig.HIBERNATE_CF + ", make sure it is on the classpath.");
@@ -105,14 +117,14 @@ abstract class Hib3DAO {
       
       // And finally create our session factory
       FACTORY = CFG.buildSessionFactory();
-    } 
-    catch (Throwable t) {
+    } catch (Throwable t) {
       String msg = "unable to initialize hibernate: " + t.getMessage();
-      LOG.fatal(msg);
-      throw new ExceptionInInitializerError(t);
+      LOG.fatal(msg, t);
+      throw new RuntimeException(msg, t);
     }
-  } // static
 
+  }
+  
 
   /**
    * class is e.g. edu.internet2.middleware.grouper.internal.dto.Attribute,
@@ -128,12 +140,12 @@ abstract class Hib3DAO {
     return result;
   }
   
-  // PROTECTED CLASS METHODS //
-
-  // @since   @HEAD@
+  /**
+   * @return the configuration
+   * @throws HibernateException
+   */
   public static Configuration getConfiguration()
-    throws  HibernateException
-  {
+    throws  HibernateException {
     return CFG;
   }
 
@@ -145,8 +157,9 @@ abstract class Hib3DAO {
    * @throws HibernateException
    */
 	public static Session session()
-    throws  HibernateException
-  {
+    throws  HibernateException {
+	  //just in case
+	  initHibernateIfNotInitted();
 		return FACTORY.openSession();
 	} 
 

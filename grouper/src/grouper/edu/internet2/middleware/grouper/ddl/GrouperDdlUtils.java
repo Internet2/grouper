@@ -1,16 +1,14 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.1 2008-07-23 06:41:29 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.app.loader.util;
+package edu.internet2.middleware.grouper.ddl;
 
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -19,25 +17,22 @@ import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.PlatformFactory;
 import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.ForeignKey;
 import org.apache.ddlutils.model.Index;
 import org.apache.ddlutils.model.IndexColumn;
 import org.apache.ddlutils.model.NonUniqueIndex;
+import org.apache.ddlutils.model.Reference;
 import org.apache.ddlutils.model.Table;
 import org.apache.ddlutils.model.UniqueIndex;
 import org.apache.ddlutils.platform.SqlBuilder;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.ddl.DdlVersionable;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -53,8 +48,7 @@ public class GrouperDdlUtils {
    * @return the platform object
    */
   public static Platform retrievePlatform() {
-    String ddlUtilsDbnameOverride = GrouperLoaderConfig
-        .getPropertyString("ddlutils.dbname.override");
+    String ddlUtilsDbnameOverride = GrouperConfig.getProperty("ddlutils.dbname.override");
     Platform platform = null;
 
     //convenience to get the url, user, etc of the grouper db
@@ -71,6 +65,14 @@ public class GrouperDdlUtils {
   }
 
   /**
+   * kick off bootstrap
+   * @param args
+   */
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+  }
+  
+  /**
    * startup the process, if the version table is not there, print out that ddl
    */
   @SuppressWarnings("unchecked")
@@ -81,6 +83,8 @@ public class GrouperDdlUtils {
     
     //this is in the config or just in the driver
     String dbname = platform.getName();
+    
+    LOG.info("Ddl db name is: '" + dbname + "'");
     
     //convenience to get the url, user, etc of the grouper db, helps get db connection
     GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
@@ -187,11 +191,10 @@ public class GrouperDdlUtils {
           if (!StringUtils.isBlank(script)) {
             result.append(script).append("\n\n");
           }
-          if (version == 0) {
-            result.append("insert into grouper_ddl (id, object_name, db_version, java_version, " +
+          if (version == 1) {
+            result.append("insert into grouper_ddl (id, object_name, db_version, " +
             		"last_updated, history) values ('" + GrouperUuid.getUuid() 
-                +  "', '" + objectName + "', 0, " + javaVersion
-                + ", '" + timestamp + "', \n'" + historyString + "');\n");
+                +  "', '" + objectName + "', 1, '" + timestamp + "', \n'" + historyString + "');\n");
           } else {
             result.append("update grouper_ddl set db_version = " + version 
                 + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
@@ -204,7 +207,7 @@ public class GrouperDdlUtils {
 
 
     } finally {
-      GrouperLoaderUtils.closeQuietly(connection);
+      GrouperUtil.closeQuietly(connection);
     }
 
     String resultString = result.toString();
@@ -224,7 +227,7 @@ public class GrouperDdlUtils {
    * @return the history or new stringbuilder if none available
    */
   public static StringBuilder retrieveHistory(String objectName) {
-    retrieveDdlsFromCacheAndUpdateJavaVersions();
+    retrieveDdlsFromCache();
     for (Hib3GrouperDdl hib3GrouperDdl : GrouperUtil.nonNull(cachedDdls)) {
       if (StringUtils.equals(objectName, hib3GrouperDdl.getObjectName())) {
         return hib3GrouperDdl.getHistory() == null ? new StringBuilder() 
@@ -244,15 +247,13 @@ public class GrouperDdlUtils {
     
     String enumName = "V" + version;
     Class<Enum> enumClass = retrieveDdlEnum(objectName);
-    Enum[] enumsConstants = enumClass.getEnumConstants();
-    for (Enum theEnum : enumsConstants) {
-      if (StringUtils.equals(enumName, theEnum.name())) {
-        return (DdlVersionable)theEnum;
-      }
-    }
-    throw new RuntimeException("Cant find version " + version + "(" + enumName 
-        + ")  in objectName: " + objectName + ", " + enumClass.getName());
     
+    try {
+      return (DdlVersionable)Enum.valueOf(enumClass, enumName);
+    } catch (Exception e) {
+      throw new RuntimeException("Cant find version " + version + "(" + enumName 
+          + ")  in objectName: " + objectName + ", " + enumClass.getName(), e);
+    }
   }
   
   /** cache the ddls */
@@ -288,7 +289,7 @@ public class GrouperDdlUtils {
   /**
    * get the cached ddls from the db and update the hibernate version if they are there
    */
-  private static void retrieveDdlsFromCacheAndUpdateJavaVersions() {
+  private static void retrieveDdlsFromCache() {
     //lazy load the cached ddls
     if (cachedDdls == null) {
       try {
@@ -296,35 +297,12 @@ public class GrouperDdlUtils {
         
         for (Hib3GrouperDdl hib3GrouperDdl : GrouperUtil.nonNull(cachedDdls)) {
           
-          //get the grouper version
-          int currentGrouperDbVersion = hib3GrouperDdl.getJavaVersion();
-          
           String objectName = hib3GrouperDdl.getObjectName();
           
-          int currentGrouperApiVersion = retrieveDdlJavaVersion(objectName);
+          int ddlJavaVersion = retrieveDdlJavaVersion(objectName);
           
-          if (currentGrouperApiVersion != currentGrouperDbVersion) {
-            
-            //we need to update
-            hib3GrouperDdl.setJavaVersion(currentGrouperApiVersion);
-            
-            //get the latest version
-            Session session = null;
-            Transaction transaction = null;
-            try {
-              session = session();
-              transaction = session.beginTransaction();
-              
-              session.saveOrUpdate(hib3GrouperDdl);
-              transaction.commit();
-            } catch (Exception e) {
-              GrouperLoaderUtils.rollbackQuietly(transaction);
-            } finally {
-              GrouperLoaderUtils.closeQuietly(session);
-            }
-          }
+          LOG.info("Current java version for ddl '" + objectName + "' is " + ddlJavaVersion);
         }
-        
       } catch (Exception e) {
         //just log, maybe the table isnt there
         LOG.error("maybe the grouper_ddl table isnt there... if that is the reason its ok.", e);
@@ -342,7 +320,7 @@ public class GrouperDdlUtils {
    */
   public static List<String> retrieveObjectNames() {
     //init stuff
-    retrieveDdlsFromCacheAndUpdateJavaVersions();
+    retrieveDdlsFromCache();
     
     List<String> objectNames = new ArrayList<String>();
     for (Hib3GrouperDdl hib3GrouperDdl : cachedDdls) {
@@ -352,9 +330,6 @@ public class GrouperDdlUtils {
     //make sure Grouper is in there
     if (!objectNames.contains("Grouper")) {
       objectNames.add("Grouper");
-    }
-    if (!objectNames.contains("GrouperLoader")) {
-      objectNames.add("GrouperLoader");
     }
     
     return objectNames;
@@ -368,14 +343,14 @@ public class GrouperDdlUtils {
   public static int retrieveDdlDbVersion(String objectName) {
 
     //init stuff
-    retrieveDdlsFromCacheAndUpdateJavaVersions();
+    retrieveDdlsFromCache();
     
     //find the ddl in the list
     Hib3GrouperDdl hib3GrouperDdl = Hib3GrouperDdl.findInList(cachedDdls, objectName);
     if (hib3GrouperDdl != null) {
       return hib3GrouperDdl.getDbVersion();
     }
-    return -1;
+    return 0;
     
   }
   
@@ -385,28 +360,21 @@ public class GrouperDdlUtils {
    */
   @SuppressWarnings("unchecked")
   public static List<Hib3GrouperDdl> retrieveDdlsFromDb() {
-    //get the latest version
-    Session session = null;
-    try {
-      session = session();
-      List<Hib3GrouperDdl> grouperDdls = session.createQuery("from Hib3GrouperDdl")
-          .list();
 
-      //move the grouper one to the front
-      if (grouperDdls != null) {
-        for (int i = 0; i < GrouperUtil.length(grouperDdls); i++) {
-          Hib3GrouperDdl hib3GrouperDdl = grouperDdls.get(i);
-          if (StringUtils.equals(hib3GrouperDdl.getObjectName(), "Grouper")) {
-            grouperDdls.remove(i);
-            grouperDdls.add(0, hib3GrouperDdl);
-            break;
-          }
+    List<Hib3GrouperDdl> grouperDdls = HibernateSession.byCriteriaStatic().list(Hib3GrouperDdl.class, null); 
+
+    //move the grouper one to the front
+    if (grouperDdls != null) {
+      for (int i = 0; i < GrouperUtil.length(grouperDdls); i++) {
+        Hib3GrouperDdl hib3GrouperDdl = grouperDdls.get(i);
+        if (StringUtils.equals(hib3GrouperDdl.getObjectName(), "Grouper")) {
+          grouperDdls.remove(i);
+          grouperDdls.add(0, hib3GrouperDdl);
+          break;
         }
       }
-      return grouperDdls;
-    } finally {
-      GrouperLoaderUtils.closeQuietly(session);
     }
+    return grouperDdls;
 
   }
 
@@ -501,58 +469,6 @@ public class GrouperDdlUtils {
     return objectName;
   }
   
-  /** configuration */
-  private static final Configuration CFG;
-
-  /** session factory */
-  private static final SessionFactory FACTORY;
-
-  // STATIC //
-  static {
-    try {
-      // Find the custom configuration file
-      if (GrouperDdlUtils.class.getResource(GrouperConfig.HIBERNATE_CF) == null) {
-        throw new RuntimeException("Cant find resource " + GrouperConfig.HIBERNATE_CF
-            + ", make sure it is on the classpath.");
-      }
-      InputStream in = null;
-
-      try {
-        in = GrouperDdlUtils.class.getResourceAsStream(GrouperConfig.HIBERNATE_CF);
-
-        Properties p = new Properties();
-        p.load(in);
-        // And now load all configuration information
-        CFG = new Configuration().addProperties(p).addClass(Hib3GrouperDdl.class)
-          .addClass(Hib3GrouperLoaderLog.class);
-        
-        // And finally create our session factory
-        FACTORY = CFG.buildSessionFactory();
-      } finally {
-        GrouperUtil.closeQuietly(in);
-      }
-    } catch (Throwable t) {
-      throw new ExceptionInInitializerError(t);
-    }
-  } // static
-
-  /**
-   * 
-   * @return the configuration
-   * @throws HibernateException
-   */
-  protected static Configuration getConfiguration() throws HibernateException {
-    return CFG;
-  }
-
-  /**
-   * @return the session
-   * @throws HibernateException
-   */
-  public static Session session() throws HibernateException {
-    return FACTORY.openSession();
-  }
-
   /**
    * get a database object of a certain version based on the existing database, and tack on
    * all the enums up to the version we want (if any)
@@ -594,17 +510,43 @@ public class GrouperDdlUtils {
   }
 
   /**
-   * add an index on a table
+   * add an index on a table.  drop a misnamed or a misuniqued index which is existing
    * @param database
    * @param tableName
    * @param indexName 
    * @param unique
    * @param columnNames
-   * @return the index
+   * @return the index which is the new one, or existing one if it already exists
    */
-  public static Index ddlutilsAddIndex(Database database, String tableName, String indexName, 
+  public static Index ddlutilsFindOrCreateIndex(Database database, String tableName, String indexName, 
       boolean unique, String... columnNames) {
     Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName);
+
+    //search for the index
+    OUTERLOOP:
+    for (Index existingIndex : table.getIndices()) {
+      if (existingIndex.getColumnCount() == columnNames.length) {
+        
+        //no need to check if unique.  you dont want two of the same index, one unique, the other not
+        //look through existing columns (order is important)
+        //see if this is not a match
+        for (int i=0;i<columnNames.length;i++) {
+          if (!StringUtils.equalsIgnoreCase(existingIndex.getColumn(i).getName(), columnNames[i])) {
+            continue OUTERLOOP;
+          }
+        }
+        
+        //if we made it this far, it is the same index!
+        
+        //if exactly the same, leave it be
+        if (unique == existingIndex.isUnique() && StringUtils.equalsIgnoreCase(indexName, existingIndex.getName())) {
+          return existingIndex;
+        }
+        
+        table.removeIndex(existingIndex);
+      }
+    }
+    
     Index index = unique ? new UniqueIndex() : new NonUniqueIndex();
     index.setName(indexName);
     
@@ -618,6 +560,87 @@ public class GrouperDdlUtils {
     
     table.addIndex(index);
     return index;
+  }
+
+  /**
+   * add a foreign key on a table.  drop a misnamed foreign key which is existing
+   * @param database
+   * @param tableName
+   * @param foreignKeyName 
+   * @param foreignTableName 
+   * @param localColumnName
+   * @param foreignColumnName 
+   * @return the foreign key which is the new one, or existing one if it already exists
+   */
+  public static ForeignKey ddlutilsFindOrCreateForeignKey(Database database, String tableName, String foreignKeyName, 
+      String foreignTableName, String localColumnName, String foreignColumnName) {
+    return ddlutilsFindOrCreateForeignKey(database, tableName, foreignKeyName, foreignTableName, 
+        GrouperUtil.toList(localColumnName), GrouperUtil.toList(foreignColumnName));
+  }
+
+  /**
+   * add a foreign key on a table.  drop a misnamed foreign key which is existing
+   * @param database
+   * @param tableName
+   * @param foreignKeyName 
+   * @param foreignTableName 
+   * @param localColumnNames 
+   * @param foreignColumnNames 
+   * @return the foreign key which is the new one, or existing one if it already exists
+   */
+  public static ForeignKey ddlutilsFindOrCreateForeignKey(Database database, String tableName, String foreignKeyName, 
+      String foreignTableName, List<String> localColumnNames, List<String> foreignColumnNames) {
+    
+    //validate inputs
+    if (localColumnNames.size() != foreignColumnNames.size()) {
+      throw new RuntimeException("Local col size must equal foreign col size: " 
+          + localColumnNames.size() + " != " + foreignColumnNames.size());
+    }
+    
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName);
+    Table foreignTable = GrouperDdlUtils.ddlutilsFindTable(database,foreignTableName);
+    
+    //search for the foreign key
+    OUTERLOOP:
+    for (ForeignKey foreignKey : table.getForeignKeys()) {
+      if (foreignKey.getReferences().length == localColumnNames.size()) {
+        for (int i=0;i<localColumnNames.size();i++) {
+
+          Reference reference = foreignKey.getReferences()[i];
+          
+          //if this isnt a match
+          if (!StringUtils.equalsIgnoreCase(reference.getForeignColumnName(), foreignColumnNames.get(i))
+              || !StringUtils.equalsIgnoreCase(reference.getLocalColumnName(), localColumnNames.get(i))) {
+            continue OUTERLOOP;
+          }
+        }
+        
+        //if we made it this far, it is the same foreign key!
+        
+        //if exactly the same, leave it be
+        if (StringUtils.equalsIgnoreCase(foreignKeyName, foreignKey.getName())) {
+          return foreignKey;
+        }
+        
+        table.removeForeignKey(foreignKey);
+      }
+    }
+    
+    ForeignKey foreignKey = new ForeignKey(foreignKeyName);
+    foreignKey.setForeignTableName(foreignTableName);
+    
+    for (int i=0;i<localColumnNames.size();i++) {
+      
+      Column localColumn = GrouperDdlUtils.ddlutilsFindColumn(table, localColumnNames.get(i));
+      Column foreignColumn = GrouperDdlUtils.ddlutilsFindColumn(foreignTable, foreignColumnNames.get(i));
+      
+      Reference reference = new Reference(localColumn, foreignColumn);
+      
+      foreignKey.addReference(reference);
+    }
+    
+    table.addForeignKey(foreignKey);
+    return foreignKey;
   }
   
   /**

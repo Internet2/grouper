@@ -310,6 +310,15 @@ public class HibernateSession {
   }
 
   /**
+   * do a sql query with proper error handling and in an enclosing transaction
+   * (if applicable), or a new one if not
+   * @return the class
+   */
+  public static BySqlStatic bySqlStatic() {
+    return new BySqlStatic();
+  }
+
+  /**
    * do a criteria query with proper error handling and in an enclosing transaction
    * (if applicable), or a new one if not
    * @return the class

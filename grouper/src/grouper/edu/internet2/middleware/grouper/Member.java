@@ -78,7 +78,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.106 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Member.java,v 1.107 2008-07-23 06:41:30 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Serializable {
 
@@ -1528,7 +1528,7 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefault#onDelete(org.hibernate.Session)
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onDelete(org.hibernate.Session)
    */
   @Override
   public boolean onDelete(Session hs) 
@@ -1541,7 +1541,7 @@ public class Member extends GrouperAPI implements Serializable {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dto.GrouperDefault#onSave(org.hibernate.Session)
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onSave(org.hibernate.Session)
    */
   @Override
   public boolean onSave(Session hs) 

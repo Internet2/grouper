@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -30,8 +30,7 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
-import edu.internet2.middleware.grouper.app.loader.util.GrouperLoaderHibUtils;
-import edu.internet2.middleware.grouper.app.loader.util.GrouperLoaderUtils;
+import edu.internet2.middleware.grouper.hibernate.BySqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -145,8 +144,8 @@ public enum GrouperLoaderType {
             //get however many days in the past
             calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
             //run a query to delete (note, dont retrieve records to java, just delete)
-            int records = GrouperLoaderHibUtils.executeSql("delete from grouploader_log where last_updated < ?", 
-                GrouperLoaderUtils.listObject(new Timestamp(calendar.getTimeInMillis())));
+            int records = BySqlStatic.executeSql("delete from grouploader_log where last_updated < ?", 
+                (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
             hib3GrouploaderLog.setJobMessage("Deleted " + records + " records from grouploader_log older than " + daysToKeepLogs + " days old");
           } else {
             hib3GrouploaderLog.setJobMessage("Configured to not delete records from grouploader_log table");
@@ -230,7 +229,7 @@ public enum GrouperLoaderType {
                   grouperLoaderResultsetOverall, groupName);
               //make a new log object for this one subgroup
               
-              hib3GrouploaderLog.setHost(GrouperLoaderUtils.hostname());
+              hib3GrouploaderLog.setHost(GrouperUtil.hostname());
               hib3GrouploaderLog.setJobName("subjobFor_" + groupName);
               hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
               hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
@@ -332,7 +331,7 @@ public enum GrouperLoaderType {
    */
   private String attributeValueValidateRequired(Group group, String attributeName) {
     
-    String attributeValue = GrouperLoaderUtils.groupGetAttribute(group, attributeName);
+    String attributeValue = group.getAttributeOrNull(attributeName);
     
     boolean hasValue = StringUtils.isNotBlank(attributeValue);
     boolean isRequired = this.attributeRequired(attributeName);
@@ -481,7 +480,7 @@ public enum GrouperLoaderType {
                 group.deleteMember(subject);
               } catch (Exception e) {
                 GrouperUtil.injectInException(e, "Problem with " 
-                    + GrouperLoaderUtils.subjectToString(subject) + ", ");
+                    + GrouperUtil.subjectToString(subject) + ", ");
                 throw e;
               }
             }
@@ -492,7 +491,7 @@ public enum GrouperLoaderType {
                 group.addMember(subject);
               } catch (Exception e) {
                 GrouperUtil.injectInException(e, "Problem with " 
-                    + GrouperLoaderUtils.subjectToString(subject) + ", ");
+                    + GrouperUtil.subjectToString(subject) + ", ");
                 throw e;
               }
             }
@@ -547,7 +546,7 @@ public enum GrouperLoaderType {
           jobName = "jobForGroup_" + group.getName();
           groupUuid = group.getUuid();
           //lets get all attribute values
-          grouperLoaderType = GrouperLoaderUtils.groupGetAttribute(group, GrouperLoader.GROUPER_LOADER_TYPE);
+          grouperLoaderType = group.getAttributeOrNull(GrouperLoader.GROUPER_LOADER_TYPE);
           
           GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
   
@@ -629,7 +628,7 @@ public enum GrouperLoaderType {
             //lets enter a log entry so it shows up as error in the db
             Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
             hib3GrouploaderLog.setGroupUuid(groupUuid);
-            hib3GrouploaderLog.setHost(GrouperLoaderUtils.hostname());
+            hib3GrouploaderLog.setHost(GrouperUtil.hostname());
             hib3GrouploaderLog.setJobMessage(errorMessage);
             hib3GrouploaderLog.setJobName(jobName);
             hib3GrouploaderLog.setAndGroupNames(grouperLoaderAndGroups);

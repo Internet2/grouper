@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -18,8 +18,8 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.app.loader.util.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.app.loader.util.GrouperLoaderUtils;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -187,7 +187,7 @@ public class GrouperLoader {
       try {
         //lets enter a log entry so it shows up as error in the db
         Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-        hib3GrouploaderLog.setHost(GrouperLoaderUtils.hostname());
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
         hib3GrouploaderLog.setJobMessage(errorMessage);
         hib3GrouploaderLog.setJobName(GrouperLoaderType.MAINTENANCE_CLEAN_LOGS);
         hib3GrouploaderLog.setJobSchedulePriority(priority);

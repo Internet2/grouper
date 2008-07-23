@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.2 2008-07-23 06:41:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.util.GrouperLoaderUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -127,14 +127,14 @@ public class GrouperLoaderResultset {
         }
       } finally {
         //this is important so no one sneaks some delete statement in there
-        GrouperLoaderUtils.rollbackQuietly(connection);
+        GrouperUtil.rollbackQuietly(connection);
       }
     } catch (SQLException se) {
       throw new RuntimeException("Problem with query: " + query + ",  on db: " + grouperLoaderDb, se);
     } finally {
-      GrouperLoaderUtils.closeQuietly(resultSet);
-      GrouperLoaderUtils.closeQuietly(statement);
-      GrouperLoaderUtils.closeQuietly(connection);
+      GrouperUtil.closeQuietly(resultSet);
+      GrouperUtil.closeQuietly(statement);
+      GrouperUtil.closeQuietly(connection);
     }
     
   }

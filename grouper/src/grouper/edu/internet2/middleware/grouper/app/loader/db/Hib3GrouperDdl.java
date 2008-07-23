@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouperDdl.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: Hib3GrouperDdl.java,v 1.2 2008-07-23 06:41:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -22,9 +22,6 @@ public class Hib3GrouperDdl {
   
   /** version of the object in the db */
   private int dbVersion = 0;
-  
-  /** version of the object that the java side expects */
-  private int javaVersion = 0;
   
   /** last updated timestamp, in string form so easy to update */
   private String lastUpdated = null;
@@ -99,23 +96,6 @@ public class Hib3GrouperDdl {
   public void setDbVersion(int dbVersion1) {
     this.dbVersion = dbVersion1;
   }
-  
-  /**
-   * version of the object that the java side expects
-   * @return the javaVersion
-   */
-  public int getJavaVersion() {
-    return this.javaVersion;
-  }
-  
-  /**
-   * version of the object that the java side expects
-   * @param javaVersion1 the javaVersion to set
-   */
-  public void setJavaVersion(int javaVersion1) {
-    this.javaVersion = javaVersion1;
-  }
-
   
   /**
    * uuid of the row

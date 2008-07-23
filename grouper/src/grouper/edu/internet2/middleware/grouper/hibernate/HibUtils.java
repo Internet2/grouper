@@ -454,7 +454,7 @@ public class HibUtils {
     throw new RuntimeException(
         "Cannot find a hibernate type to associate with java type " + clazz);
   }
-
+  
   /**
    * Returns a list of Hibernate types corresponding to the given params.
    * @param params are the objects to get the types for. Can be list, Object, or array.
