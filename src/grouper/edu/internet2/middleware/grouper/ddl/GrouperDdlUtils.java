@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.1 2008-07-23 06:41:29 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.2 2008-07-25 06:17:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -331,6 +331,13 @@ public class GrouperDdlUtils {
     if (!objectNames.contains("Grouper")) {
       objectNames.add("Grouper");
     }
+    if (!objectNames.contains("Subject")) {
+      objectNames.add("Subject");
+    }
+    if (GrouperConfig.getPropertyBoolean("ddlutils.exclude.subject.tables", false)) {
+      objectNames.remove("Subject");
+    }
+    
     
     return objectNames;
   }
