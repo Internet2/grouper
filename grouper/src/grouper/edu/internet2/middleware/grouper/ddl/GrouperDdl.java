@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.3 2008-07-25 05:42:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -19,6 +19,109 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum GrouperDdl implements DdlVersionable {
 
+  /**
+   * add grouper loader
+   */
+  V4 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database) {
+
+      //see if the grouper_ext_loader_log table is there
+      Table grouploaderLogTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_loader_log", 
+          "log table with a row for each grouper loader job run");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "id", "uuid of this log record", 
+          Types.VARCHAR, "128", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_name", 
+          "Could be group name (friendly) or just config name", Types.VARCHAR, "512", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "status", 
+          "STARTED, SUCCESS, ERROR, WARNING, CONFIG_ERROR", Types.VARCHAR, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "started_time", 
+          "When the job was started", Types.TIMESTAMP, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "ended_time", 
+          "When the job ended (might be blank if daemon died)", Types.TIMESTAMP, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "millis", 
+          "Milliseconds this process took", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "millis_get_data", 
+          "Milliseconds this process took to get the data from the source", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "millis_load_data", 
+          "Milliseconds this process took to load the data to grouper", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_type", 
+          "GrouperLoaderJobType enum value", Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_type", 
+          "GrouperLoaderJobscheduleType enum value", Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_description", 
+          "More information about the job", Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_message", 
+          "Could be a status or error message or stack", Types.VARCHAR, "4000", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "host", 
+          "Host that this job ran on", Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "group_uuid", 
+          "If this job involves one group, this is uuid", Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_quartz_cron", 
+          "Quartz cron string for this col", Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_interval_seconds", 
+          "How many seconds this is supposed to wait between runs", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "last_updated", 
+          "When this record was last updated", Types.TIMESTAMP, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "unresolvable_subject_count", 
+          "The number of records which were not subject resolvable", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "insert_count", 
+          "The number of records inserted", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "update_count", 
+          "The number of records updated", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "delete_count", 
+          "The number of records deleted", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "total_count", 
+          "The total number of records (e.g. total number of members)", Types.INTEGER, null, false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_name", 
+          "If this job is a subjob of another job, then put the parent job name here", Types.VARCHAR, "512", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_id", 
+          "If this job is a subjob of another job, then put the parent job id here", Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "and_group_names", 
+          "If this group query is anded with another group or groups, they are listed here comma separated", Types.VARCHAR, "512", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_priority", 
+          "Priority of this job (5 is unprioritized, higher the better)", Types.INTEGER, null, false, false);
+
+      //see if the grouper_ext_loader_log table is there
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_loader_log",
+          "grouper_loader_job_name_idx", false, "job_name");
+
+    }
+    
+    
+  },
+  
   /** v3 is the foreign keys from grouper v1.3 */
   V3 {
     
