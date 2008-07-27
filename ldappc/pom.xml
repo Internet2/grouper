@@ -72,10 +72,6 @@
       <name>Shilen Patel</name>
       <organization>Duke University</organization>
     </contributor>
-    <contributor>
-      <name>Michael Gettes</name>
-      <organization>MIT</organization>
-    </contributor>
   </contributors>
 
   <!--
@@ -137,18 +133,9 @@
   -->
   <distributionManagement>
     <site>
-<!--
       <id>website</id>
       <url>scpexe://middleware.internet2.edu/dir/groups/grouper/ldappc/${pom.version}/doc</url>
--->
-      <id>personal_website</id>
-      <url>scpexe://shell.sonic.net/home/k/kathryn5/public_html/projects/site/${artifactId}</url>
     </site>
-    <repository>
-      <id>personal_inhouse</id>
-      <name>Kathryn Huxtable Repository</name>
-      <url>scpexe://shell.sonic.net/home/k/kathryn5/public_html/projects/repository</url>
-    </repository>
   </distributionManagement>
 
   <!--
