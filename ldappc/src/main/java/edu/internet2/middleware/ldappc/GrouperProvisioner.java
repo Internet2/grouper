@@ -114,8 +114,8 @@ public class GrouperProvisioner extends Provisioner
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      */
-    public GrouperProvisioner(GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options, LdapContext ldapCtx, SubjectCache subjectCache)
+    public GrouperProvisioner(GrouperProvisionerConfiguration configuration, GrouperProvisionerOptions options,
+            LdapContext ldapCtx, SubjectCache subjectCache)
     {
         super(subjectCache);
         this.configuration = configuration;
@@ -141,7 +141,8 @@ public class GrouperProvisioner extends Provisioner
      *             thrown if one or more exceptions occurs that will not stop
      *             processing but should be reported
      */
-    public void provision() throws QueryException, SchemaException, NamingException, AttributeNotFoundException, SessionException, MultiErrorException, LdappcException
+    public void provision() throws QueryException, SchemaException, NamingException, AttributeNotFoundException,
+            SessionException, MultiErrorException, LdappcException
     {
         //
         // Create a Grouper session control
@@ -245,8 +246,7 @@ public class GrouperProvisioner extends Provisioner
             String name = entry.getKey();
             for (String value : entry.getValue())
             {
-                groupFilter = new UnionFilter(groupFilter, new GroupAttributeExactFilter(name,
-                        value, rootStem));
+                groupFilter = new UnionFilter(groupFilter, new GroupAttributeExactFilter(name, value, rootStem));
             }
         }
 
@@ -304,8 +304,8 @@ public class GrouperProvisioner extends Provisioner
         //
         // Synchronize the root
         //
-        GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ldapCtx, rootDn, configuration,
-                options, subjectCache);
+        GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ldapCtx, rootDn, configuration, options,
+                subjectCache);
         synchronizer.synchronize(groups);
     }
 
@@ -348,8 +348,7 @@ public class GrouperProvisioner extends Provisioner
         String groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
         if (groupNamingAttribute == null)
         {
-            throw new LdappcConfigurationException(
-                    "The name of the group naming attribute is null.");
+            throw new LdappcConfigurationException("The name of the group naming attribute is null.");
         }
 
         //
@@ -392,8 +391,8 @@ public class GrouperProvisioner extends Provisioner
             // Get the membership synchronizer and synchronize by writing
             // updates to the updates file.
             //
-            GroupStringMembershipSynchronizer synchronizer = new GroupStringMembershipSynchronizer(
-                    ldapCtx, groupNameString, updatesWriter, configuration, options, subjectCache);
+            GroupStringMembershipSynchronizer synchronizer = new GroupStringMembershipSynchronizer(ldapCtx,
+                    groupNameString, updatesWriter, configuration, options, subjectCache);
             try
             {
                 synchronizer.synchronize(grouperMemberships);
@@ -401,8 +400,8 @@ public class GrouperProvisioner extends Provisioner
             catch (Exception e)
             {
                 logThrowableError(e, "Unable to synchronize memberships for " + group.getName());
-                caughtExceptions.add(new LdappcException("Unable to synchronize memberships for "
-                        + group.getName(), e));
+                caughtExceptions
+                        .add(new LdappcException("Unable to synchronize memberships for " + group.getName(), e));
                 continue;
             }
         }
@@ -479,17 +478,15 @@ public class GrouperProvisioner extends Provisioner
             if (groupNameString == null)
             {
                 String errorData = getErrorData(null, null, null);
-                Throwable e = new LdappcRuntimeException("Group " + group.getName() + " has no "
-                        + groupNamingAttribute
+                Throwable e = new LdappcRuntimeException("Group " + group.getName() + " has no " + groupNamingAttribute
                         + " attribute and cannot be provisioned as a membership");
                 logThrowableWarning(e, errorData);
             }
         }
         catch (AttributeNotFoundException e1)
         {
-            Throwable e = new LdappcRuntimeException(
-                    "Group " + group.getName() + " has no " + groupNamingAttribute
-                            + " attribute and cannot be provisioned as a membership", e1);
+            Throwable e = new LdappcRuntimeException("Group " + group.getName() + " has no " + groupNamingAttribute
+                    + " attribute and cannot be provisioned as a membership", e1);
             logThrowableWarning(e, "");
         }
 
@@ -513,11 +510,10 @@ public class GrouperProvisioner extends Provisioner
             // Must use alternate mechanism to get subject if search
             // attr is not the subject ID. Alternate method hits the
             // subject API and is rather slower.
-            if ("id".equals(configuration.getSourceSubjectNamingAttribute(member
-                    .getSubjectSourceId())))
+            if ("id".equals(configuration.getSourceSubjectNamingAttribute(member.getSubjectSourceId())))
             {
-                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, member
-                        .getSubjectSourceId(), member.getSubjectId());
+                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, member.getSubjectSourceId(), member
+                        .getSubjectId());
             }
             else
             {
@@ -572,8 +568,7 @@ public class GrouperProvisioner extends Provisioner
             }
             else if (!tempFile.isDirectory())
             {
-                throw new LdappcConfigurationException("Temporary directory " + tempDir
-                        + " is not a directory");
+                throw new LdappcConfigurationException("Temporary directory " + tempDir + " is not a directory");
             }
             filename = tempDir + "/" + filename;
         }
@@ -619,8 +614,7 @@ public class GrouperProvisioner extends Provisioner
                 {
                     if (currentSubjectDn != null)
                     {
-                        updateSubject(currentSubjectDn, !existingObjectDns.contains(subjectDn),
-                                adds, dels, reps);
+                        updateSubject(currentSubjectDn, !existingObjectDns.contains(subjectDn), adds, dels, reps);
                     }
                     adds.clear();
                     dels.clear();
@@ -643,8 +637,7 @@ public class GrouperProvisioner extends Provisioner
             }
             if (currentSubjectDn != null)
             {
-                updateSubject(currentSubjectDn, !existingObjectDns.contains(currentSubjectDn),
-                        adds, dels, reps);
+                updateSubject(currentSubjectDn, !existingObjectDns.contains(currentSubjectDn), adds, dels, reps);
             }
         }
         catch (IOException e)
@@ -682,13 +675,13 @@ public class GrouperProvisioner extends Provisioner
      * @param reps
      *            Set of memberships to replace existing memberships with.xd
      */
-    private void updateSubject(String objectDN, boolean addMemberObjectClass, Set<String> adds,
-            Set<String> dels, Set<String> reps)
+    private void updateSubject(String objectDN, boolean addMemberObjectClass, Set<String> adds, Set<String> dels,
+            Set<String> reps)
     {
         if (adds.size() == 0 && dels.size() == 0 && reps.size() == 0) return;
 
-        int size = (addMemberObjectClass ? 1 : 0) + (adds.size() > 0 ? 1 : 0)
-                + (dels.size() > 0 ? 1 : 0) + (reps.size() > 0 ? 1 : 0);
+        int size = (addMemberObjectClass ? 1 : 0) + (adds.size() > 0 ? 1 : 0) + (dels.size() > 0 ? 1 : 0)
+                + (reps.size() > 0 ? 1 : 0);
 
         ModificationItem[] modItems = new ModificationItem[size];
         int modIndex = 0;
@@ -738,13 +731,18 @@ public class GrouperProvisioner extends Provisioner
         {
             e.printStackTrace();
             System.out.println("Printing ModItems array:");
-            for (ModificationItem modItem : modItems) {
+            for (ModificationItem modItem : modItems)
+            {
                 System.out.println("op = " + modItem.getModificationOp() + ", id = " + modItem.getAttribute().getID());
                 Attribute attr = modItem.getAttribute();
-                for (int i = 0; i < attr.size(); i++) {
-                    try {
+                for (int i = 0; i < attr.size(); i++)
+                {
+                    try
+                    {
                         System.out.println("    " + attr.get(i));
-                    } catch (NamingException e1) {
+                    }
+                    catch (NamingException e1)
+                    {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
@@ -773,8 +771,7 @@ public class GrouperProvisioner extends Provisioner
         catch (Exception e)
         {
             membershipsWriter = null;
-            throw new LdappcRuntimeException("Unable to open membership file: " + membershipsFile,
-                    e);
+            throw new LdappcRuntimeException("Unable to open membership file: " + membershipsFile, e);
         }
         return membershipsWriter;
     }
@@ -784,7 +781,9 @@ public class GrouperProvisioner extends Provisioner
      * 
      * @param membershipsFile
      *            File to read memberships from.
+     * 
      * @return BufferedReader for the file.
+     * 
      * @throws LdappcRuntimeException
      *             thrown if the file cannot be opened.
      */
@@ -818,8 +817,7 @@ public class GrouperProvisioner extends Provisioner
         // Only one type now but this allows for building others based on
         // configuration or options
         //
-        return new StringMembershipSynchronizer(ldapCtx, subjectDn, configuration, options,
-                subjectCache);
+        return new StringMembershipSynchronizer(ldapCtx, subjectDn, configuration, options, subjectCache);
     }
 
     /**
@@ -878,8 +876,8 @@ public class GrouperProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    private void addSubjectDnSet(Set<Name> subjectDns, Set<String> subjectObjectDns,
-            LdapSearchFilter filter, String source) throws NamingException
+    private void addSubjectDnSet(Set<Name> subjectDns, Set<String> subjectObjectDns, LdapSearchFilter filter,
+            String source) throws NamingException
     {
         //
         // Build the search control
@@ -951,8 +949,8 @@ public class GrouperProvisioner extends Provisioner
             boolean hasObjectClass = true;
             if (listObjectClass != null)
             {
-                hasObjectClass = searchResult.getAttributes().get(LdapUtil.OBJECT_CLASS_ATTRIBUTE)
-                        .contains(listObjectClass);
+                hasObjectClass = searchResult.getAttributes().get(LdapUtil.OBJECT_CLASS_ATTRIBUTE).contains(
+                        listObjectClass);
             }
 
             if (searchResult.getAttributes().get(listAttribute) != null)
@@ -997,8 +995,7 @@ public class GrouperProvisioner extends Provisioner
                 // (Doing it this way ensures that required attributes are
                 // handled correctly).
                 //
-                MembershipSynchronizer synchronizer = getMembershipSynchronizer(subjectDn
-                        .toString());
+                MembershipSynchronizer synchronizer = getMembershipSynchronizer(subjectDn.toString());
                 synchronizer.synchronize(emptySet);
             }
             catch (Exception e)
@@ -1041,7 +1038,7 @@ public class GrouperProvisioner extends Provisioner
     }
 
     /**
-     * Returns member data string
+     * Returns member data string.
      * 
      * @param member
      *            Member
@@ -1052,15 +1049,14 @@ public class GrouperProvisioner extends Provisioner
         String memberData = "null";
         if (member != null)
         {
-            memberData = "[ UUID = " + member.getUuid() + " ][ SUBJECT ID = "
-                    + member.getSubjectId() + " ][ SUBJECT SOURCE ID = "
-                    + member.getSubjectSourceId() + " ]";
+            memberData = "[ UUID = " + member.getUuid() + " ][ SUBJECT ID = " + member.getSubjectId()
+                    + " ][ SUBJECT SOURCE ID = " + member.getSubjectSourceId() + " ]";
         }
         return memberData;
     }
 
     /**
-     * Returns group data string
+     * Returns group data string.
      * 
      * @param group
      *            Group
@@ -1071,8 +1067,8 @@ public class GrouperProvisioner extends Provisioner
         String grpData = "null";
         if (group != null)
         {
-            grpData = "[ DISPLAY NAME = " + group.getDisplayName() + " ][NAME = " + group.getName()
-                    + "][UID = " + group.getUuid() + "]";
+            grpData = "[ DISPLAY NAME = " + group.getDisplayName() + " ][NAME = " + group.getName() + "][UID = "
+                    + group.getUuid() + "]";
         }
         return grpData;
     }
