@@ -641,7 +641,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             {
                 try
                 {
-                    Name subjectDn = subjectCache.findSubjectDn(getContext(),
+                    Name subjectDn = getSubjectCache().findSubjectDn(getContext(),
                             getConfiguration(), subject);
                     memberDnMods.store(subjectDn.toString());
                 }
@@ -1398,7 +1398,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      */
     protected String getErrorData(Subject subject)
     {
-        return "SUBJECT[" + subjectCache.getSubjectData(subject) + "]";
+        return "SUBJECT[" + getSubjectCache().getSubjectData(subject) + "]";
     }
 
     /**

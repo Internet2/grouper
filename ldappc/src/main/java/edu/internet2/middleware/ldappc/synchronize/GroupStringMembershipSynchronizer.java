@@ -340,7 +340,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
      */
     protected String getErrorData(Subject subject)
     {
-        return "SUBJECT[" + subjectCache.getSubjectData(subject) + "]";
+        return "SUBJECT[" + getSubjectCache().getSubjectData(subject) + "]";
     }
 
     /**

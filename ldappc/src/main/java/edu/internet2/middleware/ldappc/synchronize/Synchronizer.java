@@ -18,9 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Vector;
 
 import javax.naming.Name;
@@ -43,14 +41,17 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
 public abstract class Synchronizer
 {
     /**
-     * Ldap context
+     * Ldap context.
      */
-    private LdapContext  context;
-
-    protected SubjectCache subjectCache;
+    private LdapContext    context;
 
     /**
-     * Constructs a <code>Synchronizer</code>
+     * Cache for subjects that have already been retrieved.
+     */
+    private SubjectCache subjectCache;
+
+    /**
+     * Constructs a <code>Synchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
@@ -64,7 +65,9 @@ public abstract class Synchronizer
     }
 
     /**
-     * Get the Ldap context
+     * Get the Ldap context.
+     * 
+     * @return the LDAP context.
      */
     public LdapContext getContext()
     {
@@ -72,7 +75,7 @@ public abstract class Synchronizer
     }
 
     /**
-     * Set the Ldap context
+     * Set the Ldap context.
      * 
      * @param context
      *            Ldap context
@@ -83,7 +86,9 @@ public abstract class Synchronizer
     }
 
     /**
-     * @return the subjectIDTables
+     * Return the subject cache.
+     * 
+     * @return the subjectIDTables.
      */
     public SubjectCache getSubjectCache()
     {
@@ -91,6 +96,8 @@ public abstract class Synchronizer
     }
 
     /**
+     * Set the subject cache.
+     * 
      * @param subjectCache
      *            the subjectCache to set
      */
@@ -109,7 +116,6 @@ public abstract class Synchronizer
      * attribute for any of the current object classes defined for
      * <code>dn</code>.
      * 
-     * 
      * @param ctx
      *            Ldap Context
      * @param dn
@@ -121,13 +127,14 @@ public abstract class Synchronizer
      *            Name of the attribute
      * @return <code>true</code> if the attribute is required, and
      *         <code>false</code> otherwise
+     * 
      * @throws NamingException
      *             thrown if a Naming error occurs
      * @throws OperationNotSupportedException
      *             thrown if the schema can not be accessed
      */
-    protected boolean isAttributeRequired(LdapContext ctx, Name dn,
-            String objectClass, String attributeName) throws NamingException, OperationNotSupportedException
+    protected boolean isAttributeRequired(LdapContext ctx, Name dn, String objectClass, String attributeName)
+            throws NamingException, OperationNotSupportedException
     {
         //
         // Build the list of object classes examine based on whether or not
@@ -143,10 +150,8 @@ public abstract class Synchronizer
             //
             // Get the objectClass list for dn
             //
-            Attributes attributes = ctx.getAttributes(dn,
-                    new String[] { LdapUtil.OBJECT_CLASS_ATTRIBUTE });
-            Attribute attribute = attributes
-                    .get(LdapUtil.OBJECT_CLASS_ATTRIBUTE);
+            Attributes attributes = ctx.getAttributes(dn, new String[] { LdapUtil.OBJECT_CLASS_ATTRIBUTE });
+            Attribute attribute = attributes.get(LdapUtil.OBJECT_CLASS_ATTRIBUTE);
 
             //
             // Add the object class list to objectClasses
@@ -198,8 +203,7 @@ public abstract class Synchronizer
         //
         // Search the "ClassDefinition"'s
         //
-        NamingEnumeration results = schema.search("ClassDefinition", filter,
-                controls);
+        NamingEnumeration results = schema.search("ClassDefinition", filter, controls);
 
         //
         // If a result was found, it IS required
@@ -233,8 +237,8 @@ public abstract class Synchronizer
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    protected boolean isAttributeRequired(LdapContext ctx, Name dn,
-            String objectClass, String attributeName, boolean isRequired) throws NamingException
+    protected boolean isAttributeRequired(LdapContext ctx, Name dn, String objectClass, String attributeName,
+            boolean isRequired) throws NamingException
     {
         //
         // Init the return value to be the default value
@@ -253,10 +257,8 @@ public abstract class Synchronizer
             //
             // Log the exception
             //
-            String msg = "Schema for " + dn
-                    + "cannot be accessed. It is assumed that the "
-                    + attributeName + " attribute in " + objectClass + " is "
-                    + (isRequired ? "" : "not") + " a required attribute.";
+            String msg = "Schema for " + dn + "cannot be accessed. It is assumed that the " + attributeName
+                    + " attribute in " + objectClass + " is " + (isRequired ? "" : "not") + " a required attribute.";
             ErrorLog.warn(getClass(), msg);
 
             //
