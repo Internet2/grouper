@@ -215,5 +215,14 @@ processes command line args (e.g. for usdu)
 * Updated 2008/07/21
 
 ---
-$Id: README.txt,v 1.17 2008-07-21 18:47:13 mchyzer Exp $
+
+# ant-1.7.1.jar
+
+runs the sql from the new ddl strategy
+
+* License: Public Domain
+* Updated 2008/07/27
+
+---
+$Id: README.txt,v 1.18 2008-07-27 07:42:41 mchyzer Exp $
 
