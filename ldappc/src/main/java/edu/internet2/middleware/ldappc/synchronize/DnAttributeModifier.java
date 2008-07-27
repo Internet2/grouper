@@ -18,17 +18,12 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.naming.Name;
 import javax.naming.NameParser;
-import javax.naming.NamingException;
 
 /**
  * This is an AttributeModifier for modifying LDAP attribute values that are
@@ -39,7 +34,7 @@ import javax.naming.NamingException;
 public class DnAttributeModifier extends AttributeModifier
 {
     /**
-     * Name parser to use for converting DN strings to Name objects
+     * Name parser to use for converting DN strings to Name objects.
      */
     private NameParser parser;
 

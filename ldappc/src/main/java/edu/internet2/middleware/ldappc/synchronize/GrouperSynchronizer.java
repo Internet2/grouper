@@ -33,39 +33,39 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
 public abstract class GrouperSynchronizer extends Synchronizer
 {
     /**
-     * Indicates the group is new since the last modification date
+     * Indicates the group is new since the last modification date.
      */
     public static final int STATUS_NEW = 0;
 
     /**
-     * Indicates the group has been modified since the last modification date
+     * Indicates the group has been modified since the last modification date.
      */
     public static final int STATUS_MODIFIED = 1;
 
     /**
      * Indicates the group has not been modified since the last modification
-     * date
+     * date.
      */
     public static final int STATUS_UNCHANGED = 2;
 
     /**
      * Indicates a last modification date was not provided so the group's status
-     * is unknown
+     * is unknown.
      */
     public static final int STATUS_UNKNOWN = 3;
 
     /**
-     * Grouper configuration for provisioning
+     * Grouper configuration for provisioning.
      */
     private GrouperProvisionerConfiguration configuration;
 
     /**
-     * Grouper options for provisioning
+     * Grouper options for provisioning.
      */
     private GrouperProvisionerOptions options;
     
     /**
-     * Constructs a <code>GroupSynchronizer</code>
+     * Constructs a <code>GroupSynchronizer</code>.
      * 
      * @param context
      *            Ldap context to be used for synchronizing
@@ -87,7 +87,7 @@ public abstract class GrouperSynchronizer extends Synchronizer
     }
 
     /**
-     * Get the Grouper provisioner configuration
+     * Get the Grouper provisioner configuration.
      * 
      * @return Grouper provisioner configuration
      */
@@ -97,7 +97,7 @@ public abstract class GrouperSynchronizer extends Synchronizer
     }
 
     /**
-     * Set the Grouper provisioner configuration
+     * Set the Grouper provisioner configuration.
      * 
      * @param configuration
      *            Grouper provisioner configuration
@@ -108,7 +108,7 @@ public abstract class GrouperSynchronizer extends Synchronizer
     }
 
     /**
-     * Get the Grouper provisioner options
+     * Get the Grouper provisioner options.
      * 
      * @return Grouper provisioner options
      */
@@ -118,7 +118,7 @@ public abstract class GrouperSynchronizer extends Synchronizer
     }
 
     /**
-     * Set the Grouper provisioner options
+     * Set the Grouper provisioner options.
      * 
      * @param options
      *            Grouper provisioner options

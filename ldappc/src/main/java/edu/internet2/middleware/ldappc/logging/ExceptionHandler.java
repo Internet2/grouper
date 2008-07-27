@@ -14,81 +14,87 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc.logging;
 
-/** 
+/**
  * Ldappc API debug logging.
- *
+ * 
  * @author Gil Singer
  */
-public class ExceptionHandler 
+public final class ExceptionHandler
 {
     /**
      * Exception level for warning messages.
      */
-    public static String WARN = "warn";
+    public static final String WARN  = "warn";
 
     /**
      * Exception level for error messages.
      */
-    public static String ERROR = "error";
+    public static final String ERROR = "error";
 
     /**
      * Exception level for fatal messages.
      */
-    public static String FATAL = "fatal";
+    public static final String FATAL = "fatal";
 
     /**
-     * Constructor
+     * Prevent instantiation.
      */
-    public ExceptionHandler()
+    private ExceptionHandler()
     {
     }
 
     /**
-     * Show the entire chain of exception messages and, optionally,
-     * the chain for StackTraces.  This is for the error log only, not the debug log.
-     * @param throwable the throwable from which the message and stack info is
-     * to be extracted 
-     * @param level The level of the exception (e.g. warn, error, or fatal. 
-     * @param doStackTrace flag if true indicating the stack traces are to be processed 
+     * Show the entire chain of exception messages and, optionally, the chain
+     * for StackTraces. This is for the error log only, not the debug log.
+     * 
+     * @param throwable
+     *            the throwable from which the message and stack info is to be
+     *            extracted
+     * @param level
+     *            The level of the exception (e.g. warn, error, or fatal.
+     * @param doStackTrace
+     *            flag if true indicating the stack traces are to be processed
      */
     public static void logExceptionMessages(Throwable throwable, String level, boolean doStackTrace)
     {
+        Throwable thrown = throwable;
         do
         {
-            System.out.println(throwable.getMessage());
-            /*
+            System.out.println(thrown.getMessage());
+
+/*
             if (WARN.equals(level))
             {
-                ErrorLog.warn(throwable.getMessage());
+                ErrorLog.warn(thrown.getMessage());
             }
             if (ERROR.equals(level))
             {
-                ErrorLog.info(throwable.getMessage());
+                ErrorLog.info(thrown.getMessage());
             }
             if (FATAL.equals(level))
             {
-                ErrorLog.fatal(throwable.getMessage());
+                ErrorLog.fatal(thrown.getMessage());
             }
-            // Also do fatal if level is not recogized because this is programming error.
             else
             {
-                ErrorLog.fatal(throwable.getMessage());
+                // Also do fatal if level is not recogized because this is
+                // programming error.
+                ErrorLog.fatal(thrown.getMessage());
             }
-            */
-            throwable = throwable.getCause();
+*/
+
+            thrown = thrown.getCause();
 
             if (doStackTrace)
             {
-                throwable.printStackTrace();
+                thrown.printStackTrace();
             }
         }
-        while (throwable != null);
+        while (thrown != null);
     }
 
-
 }
-
