@@ -164,7 +164,7 @@ public class SignetProvisioner extends Provisioner
             Name subjectDn = null;
             try
             {
-                subjectDn = subjectCache
+                subjectDn = getSubjectCache()
                         .findSubjectDn(ldapCtx, configuration, privSubj.getSourceId(), privSubj.getId());
             }
             catch (Exception e)
@@ -258,11 +258,11 @@ public class SignetProvisioner extends Provisioner
         if (SignetProvisionerConfiguration.PERMISSIONS_LISTING_EDU_PERMISSION.equals(configuration
                 .getPermissionsListingStoredAs()))
         {
-            synchronizer = new EduPermissionSynchronizer(ctx, subjectDn, configuration, options, subjectCache);
+            synchronizer = new EduPermissionSynchronizer(ctx, subjectDn, configuration, options, getSubjectCache());
         }
         else
         {
-            synchronizer = new StringPermissionSynchronizer(ctx, subjectDn, configuration, options, subjectCache);
+            synchronizer = new StringPermissionSynchronizer(ctx, subjectDn, configuration, options, getSubjectCache());
         }
         return synchronizer;
     }
@@ -289,7 +289,7 @@ public class SignetProvisioner extends Provisioner
         }
         if (subject != null)
         {
-            errorData += "[ SUBJECT " + subjectCache.getSubjectData(subject) + " ]";
+            errorData += "[ SUBJECT " + getSubjectCache().getSubjectData(subject) + " ]";
         }
         if (subjectDn != null)
         {

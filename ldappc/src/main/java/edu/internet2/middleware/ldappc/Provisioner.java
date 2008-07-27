@@ -18,24 +18,8 @@
 
 package edu.internet2.middleware.ldappc;
 
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.naming.Name;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-
-
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
-import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * This abstract parent class for provisioners.
@@ -43,15 +27,34 @@ import edu.internet2.middleware.subject.Subject;
 public abstract class Provisioner
 {
     /**
-     * Delimiter used in messages
+     * Delimiter used in messages.
      */
-    final private String   MSG_DELIMITER = " :: ";
+    private final String MSG_DELIMITER = " :: ";
 
-    protected SubjectCache subjectCache;
+    /**
+     * Cache for subjects retrieved from the subject sources.
+     */
+    private SubjectCache subjectCache;
 
+    /**
+     * Constructor.
+     * 
+     * @param subjectCache
+     *            the subject cache.
+     */
     public Provisioner(SubjectCache subjectCache)
     {
         this.subjectCache = subjectCache;
+    }
+
+    /**
+     * Gets the subject cache.
+     * 
+     * @return the subject cache
+     */
+    public SubjectCache getSubjectCache()
+    {
+        return subjectCache;
     }
 
     /**
@@ -103,7 +106,7 @@ public abstract class Provisioner
     }
 
     /**
-     * Builds the message for logging throwables
+     * Builds the message for logging throwables.
      * 
      * @param throwable
      *            Throwable to log
@@ -113,8 +116,7 @@ public abstract class Provisioner
      */
     protected String buildThrowableMsg(Throwable throwable, String errorData)
     {
-        return throwable.getClass().getName() + MSG_DELIMITER
-                + throwable.getMessage()
+        return throwable.getClass().getName() + MSG_DELIMITER + throwable.getMessage()
                 + (errorData == null ? "" : MSG_DELIMITER + errorData);
     }
 }

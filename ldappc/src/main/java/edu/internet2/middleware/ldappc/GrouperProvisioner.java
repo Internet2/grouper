@@ -307,7 +307,7 @@ public class GrouperProvisioner extends Provisioner
         // Synchronize the root
         //
         GroupSynchronizer synchronizer = new GroupEntrySynchronizer(ldapCtx, rootDn, configuration, options,
-                subjectCache);
+                getSubjectCache());
         synchronizer.synchronize(groups);
     }
 
@@ -396,7 +396,7 @@ public class GrouperProvisioner extends Provisioner
             // updates to the updates file.
             //
             GroupStringMembershipSynchronizer synchronizer = new GroupStringMembershipSynchronizer(ldapCtx,
-                    groupNameString, updatesWriter, configuration, options, subjectCache);
+                    groupNameString, updatesWriter, configuration, options, getSubjectCache());
             try
             {
                 synchronizer.synchronize(grouperMemberships);
@@ -516,13 +516,13 @@ public class GrouperProvisioner extends Provisioner
             // subject API and is rather slower.
             if ("id".equals(configuration.getSourceSubjectNamingAttribute(member.getSubjectSourceId())))
             {
-                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, member.getSubjectSourceId(), member
+                subjectDn = getSubjectCache().findSubjectDn(ldapCtx, configuration, member.getSubjectSourceId(), member
                         .getSubjectId());
             }
             else
             {
                 Subject subject = member.getSubject();
-                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, subject);
+                subjectDn = getSubjectCache().findSubjectDn(ldapCtx, configuration, subject);
             }
         }
         catch (Exception e)
@@ -824,7 +824,7 @@ public class GrouperProvisioner extends Provisioner
         // Only one type now but this allows for building others based on
         // configuration or options
         //
-        return new StringMembershipSynchronizer(ldapCtx, subjectDn, configuration, options, subjectCache);
+        return new StringMembershipSynchronizer(ldapCtx, subjectDn, configuration, options, getSubjectCache());
     }
 
     /**
@@ -1034,7 +1034,7 @@ public class GrouperProvisioner extends Provisioner
         }
         if (subject != null)
         {
-            errorData += "[ SUBJECT " + subjectCache.getSubjectData(subject) + " ]";
+            errorData += "[ SUBJECT " + getSubjectCache().getSubjectData(subject) + " ]";
         }
         if (subjectDn != null)
         {
