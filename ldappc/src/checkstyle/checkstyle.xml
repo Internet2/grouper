@@ -70,7 +70,9 @@ Code standard checking for Internet 2 code
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
         <module name="MissingSwitchDefault"/>
-        <module name="RedundantThrows"/>
+        <module name="RedundantThrows">
+            <property name="allowUnchecked" value="true"/>
+        </module>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
         <module name="FinalClass"/>
