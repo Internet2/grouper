@@ -23,6 +23,9 @@ package edu.internet2.middleware.ldappc;
  */
 public class LdappcException extends Exception
 {
+    /**
+     * Needed because this class implements Serializable.
+     */
     public static final long serialVersionUID = 1;
 
     /**
