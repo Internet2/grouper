@@ -20,6 +20,7 @@
   <classpathentry exported="true" kind="lib" path="lib/dom4j.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
   <classpathentry exported="true" kind="lib" path="lib/odmg.jar"/>
+  <classpathentry kind="lib" path="lib/ant-1.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/asm.jar"/>
 	<classpathentry kind="lib" path="lib/asm-attrs.jar"/>
 	<classpathentry kind="lib" path="lib/asm-util.jar"/>
