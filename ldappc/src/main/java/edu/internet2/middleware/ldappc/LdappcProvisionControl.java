@@ -20,11 +20,7 @@ package edu.internet2.middleware.ldappc;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Hashtable;
-import java.util.Map;
 import java.util.TimerTask;
-
-import javax.naming.Name;
 
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
@@ -36,24 +32,26 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
  * options on to the classes that do the provisioning. The classes that are
  * called will handle obtaining the corresponding type of configuration data.
  */
-public class LdappcProvisionControl
-        extends TimerTask
+public class LdappcProvisionControl extends TimerTask
 {
-    private ProvisionerConfiguration     configuration;
+    /**
+     * Configuration data from configuration file.
+     */
+    private ProvisionerConfiguration configuration;
 
     /**
      * The command line input arguments that determine what data is to be
      * provisioned.
      */
-    private InputOptions                 options;
+    private InputOptions             options;
 
     /**
      * Subject cache to eliminate extra LDAP lookups.
      */
-    private SubjectCache subjectCache = new SubjectCache();
+    private SubjectCache             subjectCache = new SubjectCache();
 
     /**
-     * Constuctor
+     * Constuctor.
      * 
      * @param options
      *            The command line input arguments that determine what data is
@@ -70,8 +68,9 @@ public class LdappcProvisionControl
             ConfigManager.loadSingleton(options.getConfigManagerLocation());
         }
         configuration = ConfigManager.getInstance();
-        
-        for (String source : configuration.getSourceSubjectHashEstimates().keySet()) {
+
+        for (String source : configuration.getSourceSubjectHashEstimates().keySet())
+        {
             DebugLog.info("Estimate(" + source + ") = " + configuration.getSourceSubjectHashEstimate(source));
         }
     }
@@ -85,7 +84,7 @@ public class LdappcProvisionControl
     {
         DebugLog.info(this.getClass(), "***** Starting Provisioning *****");
         Date now = (new GregorianCalendar()).getTime();
-        
+
         subjectCache.init(configuration);
 
         //
@@ -105,15 +104,14 @@ public class LdappcProvisionControl
             LdappcSignetProvisioner provisioner = new LdappcSignetProvisioner(options, subjectCache);
             provisioner.provisionPermissions();
         }
-        
+
         int subjectIDLookups = subjectCache.getSubjectIdLookups();
         int subjectIDTableHits = subjectCache.getSubjectIdTableHits();
-        
+
         DebugLog.info("Subject ID Lookups: " + subjectIDLookups);
         DebugLog.info("Subject Table Hits: " + subjectIDTableHits);
         // Compute hit ratio percent, rounded to nearest tenth percent.
-        double ratio = Math.round(((double) subjectIDTableHits)
-                / subjectIDLookups * 1000.0) / 10.0;
+        double ratio = Math.round(((double) subjectIDTableHits) / subjectIDLookups * 1000.0) / 10.0;
         DebugLog.info("Subject hit ratio:  " + ratio + "%");
 
         //
@@ -121,9 +119,8 @@ public class LdappcProvisionControl
         //
         if (ErrorLog.getFatalOccurred())
         {
-            System.out
-                    .println("A FATAL ERROR occurred when running Ldappc.  "
-                            + "\nCheck error log file, correct the problem, and resubmit.");
+            System.out.println("A FATAL ERROR occurred when running Ldappc.  "
+                    + "\nCheck error log file, correct the problem, and resubmit.");
             cancel();
         }
         else

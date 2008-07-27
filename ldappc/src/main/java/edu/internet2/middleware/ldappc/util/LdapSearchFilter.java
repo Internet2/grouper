@@ -26,7 +26,7 @@ import javax.naming.directory.SearchControls;
 public class LdapSearchFilter
 {
     /**
-     * DN of the search base
+     * DN of the search base.
      */
     private String base;
 
@@ -34,12 +34,12 @@ public class LdapSearchFilter
      * Scope of the search. Either
      * {@link javax.naming.directory.SearchControls#OBJECT_SCOPE},
      * {@link javax.naming.directory.SearchControls#ONELEVEL_SCOPE}, or
-     * {@link javax.naming.directory.SearchControls#SUBTREE_SCOPE}
+     * {@link javax.naming.directory.SearchControls#SUBTREE_SCOPE}.
      */
     private int scope;
 
     /**
-     * Ldap search filter
+     * Ldap search filter.
      */
     private String filter;
 
@@ -61,7 +61,7 @@ public class LdapSearchFilter
     }
 
     /**
-     * Set the base DN
+     * Set the base DN.
      * 
      * @param base
      *            DN of the base entry
@@ -78,7 +78,7 @@ public class LdapSearchFilter
     }
 
     /**
-     * Gets the base DN
+     * Gets the base DN.
      * 
      * @return DN of the base
      */
@@ -91,7 +91,7 @@ public class LdapSearchFilter
      * Set the search scope. Either
      * {@link javax.naming.directory.SearchControls#OBJECT_SCOPE},
      * {@link javax.naming.directory.SearchControls#ONELEVEL_SCOPE}, or
-     * {@link javax.naming.directory.SearchControls#SUBTREE_SCOPE}
+     * {@link javax.naming.directory.SearchControls#SUBTREE_SCOPE}.
      * 
      * @param scope
      *            Search scope
@@ -110,7 +110,7 @@ public class LdapSearchFilter
     }
 
     /**
-     * Get the search scope
+     * Get the search scope.
      * 
      * @return Search scope
      */
@@ -120,7 +120,7 @@ public class LdapSearchFilter
     }
 
     /**
-     * Get the search filter
+     * Get the search filter.
      * 
      * @return Search filter
      */
@@ -130,7 +130,7 @@ public class LdapSearchFilter
     }
 
     /**
-     * Set the search filter
+     * Set the search filter.
      * 
      * @param filter
      *            Search filter

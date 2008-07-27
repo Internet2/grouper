@@ -39,9 +39,6 @@ import edu.internet2.middleware.ldappc.synchronize.StringPermissionSynchronizer;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
-import edu.internet2.middleware.signet.Assignment;
-import edu.internet2.middleware.signet.LimitValue;
-import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.subject.Subject;
@@ -52,19 +49,19 @@ import edu.internet2.middleware.subject.Subject;
 public class SignetProvisioner extends Provisioner
 {
     /**
-     * Signet provisioner configuration
+     * Signet provisioner configuration.
      */
     private SignetProvisionerConfiguration configuration;
 
     /**
-     * Signet provisioner options
+     * Signet provisioner options.
      */
-    private SignetProvisionerOptions options;
+    private SignetProvisionerOptions       options;
 
     /**
-     * Ldap Context
+     * Ldap Context.
      */
-    private LdapContext ldapCtx;
+    private LdapContext                    ldapCtx;
 
     /**
      * Constructs a <code>SignetProvisioner</code> with the given
@@ -81,9 +78,8 @@ public class SignetProvisioner extends Provisioner
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      */
-    public SignetProvisioner(SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options, LdapContext ldapCtx,
-            SubjectCache subjectCache)
+    public SignetProvisioner(SignetProvisionerConfiguration configuration, SignetProvisionerOptions options,
+            LdapContext ldapCtx, SubjectCache subjectCache)
     {
         super(subjectCache);
         this.configuration = configuration;
@@ -110,8 +106,7 @@ public class SignetProvisioner extends Provisioner
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    public void provision() throws NamingException, MultiErrorException,
-            LdappcException
+    public void provision() throws NamingException, MultiErrorException, LdappcException
     {
         //
         // Initialize a vector to hold all caught exceptions that should be
@@ -128,17 +123,19 @@ public class SignetProvisioner extends Provisioner
         // Get the list of privileged subjects
         //
         Signet signet = new Signet();
-        
+
         // There are 3 types of Subject Sources in Signet:
         // 1. The built-in Signet Super-Subject Source (SIGNET_SOURCE_ID, above)
-        // 2. The Signet Persistent Source (Signet's DB can be used as a Subject Source!)
+        // 2. The Signet Persistent Source (Signet's DB can be used as a Subject
+        // Source!)
         // 3. All other Subject Sources
         Vector<SignetSubject> privSubjs = new Vector<SignetSubject>(signet.getPersistentDB().getSubjects());
 
         //
         // For each privileged subject, process the active permissions
         //
-        for (SignetSubject privSubj : privSubjs) {
+        for (SignetSubject privSubj : privSubjs)
+        {
             if (privSubj == null)
             {
                 //
@@ -167,9 +164,10 @@ public class SignetProvisioner extends Provisioner
             Name subjectDn = null;
             try
             {
-                subjectDn = subjectCache.findSubjectDn(ldapCtx, configuration, privSubj.getSourceId(), privSubj.getId());
+                subjectDn = subjectCache
+                        .findSubjectDn(ldapCtx, configuration, privSubj.getSourceId(), privSubj.getId());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 //
                 // Log a warning and continue with the loop
@@ -194,7 +192,7 @@ public class SignetProvisioner extends Provisioner
             {
                 synchronizer.synchronize(privSubj.getAssignmentsReceived());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 String errorData = getErrorData(privSubj, privSubj, subjectDn);
                 logThrowableError(e, errorData);
@@ -209,7 +207,7 @@ public class SignetProvisioner extends Provisioner
         {
             clearSubjectEntryPrivileges(ldapCtx, existingSubjectDns);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             logThrowableError(e);
             caughtExceptions.add(e);
@@ -220,13 +218,12 @@ public class SignetProvisioner extends Provisioner
         //
         if (caughtExceptions.size() > 0)
         {
-            throw new MultiErrorException((Exception[]) caughtExceptions
-                    .toArray(new Exception[0]));
+            throw new MultiErrorException((Exception[]) caughtExceptions.toArray(new Exception[0]));
         }
     }
 
     /**
-     * Returns <code>true</code> if the subject is the Signet subject
+     * Returns <code>true</code> if the subject is the Signet subject.
      * 
      * @param subject
      *            Subject
@@ -235,8 +232,8 @@ public class SignetProvisioner extends Provisioner
      */
     protected boolean isSignetSubject(Subject subject)
     {
-        return (subject != null && "Super_SignetSubject".equalsIgnoreCase(subject.getId()) && "application"
-                .equalsIgnoreCase(subject.getType().getName()));
+        return subject != null && "Super_SignetSubject".equalsIgnoreCase(subject.getId()) && "application"
+            .equalsIgnoreCase(subject.getType().getName());
     }
 
     /**
@@ -251,24 +248,21 @@ public class SignetProvisioner extends Provisioner
      * @throws javax.naming.NamingException
      *             thrown if a Naming error occurs
      */
-    protected PermissionSynchronizer getSynchronizer(LdapContext ctx,
-            Name subjectDn) throws NamingException
+    protected PermissionSynchronizer getSynchronizer(LdapContext ctx, Name subjectDn) throws NamingException
     {
         //
         // Init the return value and build a synchronizer based on the
         // configuration
         //
         PermissionSynchronizer synchronizer = null;
-        if (SignetProvisionerConfiguration.PERMISSIONS_LISTING_EDU_PERMISSION
-                .equals(configuration.getPermissionsListingStoredAs()))
+        if (SignetProvisionerConfiguration.PERMISSIONS_LISTING_EDU_PERMISSION.equals(configuration
+                .getPermissionsListingStoredAs()))
         {
-            synchronizer = new EduPermissionSynchronizer(ctx, subjectDn,
-                    configuration, options, subjectCache);
+            synchronizer = new EduPermissionSynchronizer(ctx, subjectDn, configuration, options, subjectCache);
         }
         else
         {
-            synchronizer = new StringPermissionSynchronizer(ctx, subjectDn,
-                    configuration, options, subjectCache);
+            synchronizer = new StringPermissionSynchronizer(ctx, subjectDn, configuration, options, subjectCache);
         }
         return synchronizer;
     }
@@ -285,15 +279,13 @@ public class SignetProvisioner extends Provisioner
      *            DN of <code>subject</code>'s LDAP entry
      * @return data string
      */
-    protected String getErrorData(SignetSubject privSubj, Subject subject,
-            Name subjectDn)
+    protected String getErrorData(SignetSubject privSubj, Subject subject, Name subjectDn)
     {
         String errorData = "PRIVILEGED SUBJECT";
 
         if (privSubj != null)
         {
-            errorData += "[ NAME = " + privSubj.getName() + " ][ ID = "
-                    + privSubj.getId() + " ]";
+            errorData += "[ NAME = " + privSubj.getName() + " ][ ID = " + privSubj.getId() + " ]";
         }
         if (subject != null)
         {
@@ -337,14 +329,13 @@ public class SignetProvisioner extends Provisioner
         // source
         //
         Iterator sources = sourceFilterMap.keySet().iterator();
-        while(sources.hasNext())
+        while (sources.hasNext())
         {
             //
             // Get the source id and associated filter
             //
             String source = (String) sources.next();
-            LdapSearchFilter filter = (LdapSearchFilter) sourceFilterMap
-                    .get(source);
+            LdapSearchFilter filter = (LdapSearchFilter) sourceFilterMap.get(source);
 
             //
             // Add the subjectDns for this source
@@ -369,8 +360,7 @@ public class SignetProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    private void addSubjectDnSet(Set subjectDns, LdapSearchFilter filter)
-            throws NamingException
+    private void addSubjectDnSet(Set subjectDns, LdapSearchFilter filter) throws NamingException
     {
         //
         // Determine if permissions are being provisioned as eduPermissions
@@ -389,8 +379,7 @@ public class SignetProvisioner extends Provisioner
         // Build the ldap query filter by replacing "{0}" from the ldap search
         // filter with "*" and adding the list attribute filter
         //
-        String filterExpr = LdapUtil.convertParameterToAsterisk(filter
-                .getFilter(), 0);
+        String filterExpr = LdapUtil.convertParameterToAsterisk(filter.getFilter(), 0);
 
         //
         // If necessary, add a filter for the permission list attribute and
@@ -401,16 +390,13 @@ public class SignetProvisioner extends Provisioner
             //
             // Get the attribute and object class
             //
-            String listAttribute = configuration
-                    .getPermissionsListingStringAttribute();
+            String listAttribute = configuration.getPermissionsListingStringAttribute();
             if (listAttribute == null)
             {
-                throw new LdappcConfigurationException(
-                        "Permissions list attribute is null");
+                throw new LdappcConfigurationException("Permissions list attribute is null");
             }
 
-            String listObjectClass = configuration
-                    .getPermissionsListingStringObjectClass();
+            String listObjectClass = configuration.getPermissionsListingStringObjectClass();
 
             //
             // Make the filterExpr an '&' expression with list attribute, and if
@@ -420,8 +406,7 @@ public class SignetProvisioner extends Provisioner
 
             if (listObjectClass != null)
             {
-                filterExpr = filterExpr + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE
-                        + "=" + listObjectClass + ")";
+                filterExpr = filterExpr + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + listObjectClass + ")";
             }
 
             filterExpr = "(&" + filterExpr + ")";
@@ -436,8 +421,7 @@ public class SignetProvisioner extends Provisioner
         //
         // perform the search
         //
-        NamingEnumeration searchResults = ldapCtx.search(baseDn, filterExpr,
-                searchControls);
+        NamingEnumeration searchResults = ldapCtx.search(baseDn, filterExpr, searchControls);
 
         //
         // Init vars needed to process the search results when provisioning
@@ -459,15 +443,14 @@ public class SignetProvisioner extends Provisioner
             // Build the ldap query filter to determine if the subject has
             // eduPermission children
             //
-            eduPermissionFilter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
-                    + EduPermission.OBJECT_CLASS + ")";
+            eduPermissionFilter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + EduPermission.OBJECT_CLASS + ")";
 
         }
 
         //
         // Process the search results
         //
-        while(searchResults.hasMore())
+        while (searchResults.hasMore())
         {
             //
             // Get the search result
@@ -490,8 +473,8 @@ public class SignetProvisioner extends Provisioner
                 // if the subject does not have any eduPermission children,
                 // simply continue with the next subject Dn
                 //
-                NamingEnumeration eduPermissionResults = ldapCtx.search(
-                        subjectDn, eduPermissionFilter, eduPermissionControls);
+                NamingEnumeration eduPermissionResults = ldapCtx.search(subjectDn, eduPermissionFilter,
+                        eduPermissionControls);
                 if (!eduPermissionResults.hasMore())
                 {
                     continue;
@@ -515,8 +498,7 @@ public class SignetProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    private void clearSubjectEntryPrivileges(LdapContext ctx, Set subjectDnSet)
-            throws NamingException
+    private void clearSubjectEntryPrivileges(LdapContext ctx, Set subjectDnSet) throws NamingException
     {
         //
         // Define an empty set that is used below
@@ -527,7 +509,7 @@ public class SignetProvisioner extends Provisioner
         // Iterate over the subject DNs
         //
         Iterator subjectDns = subjectDnSet.iterator();
-        while(subjectDns.hasNext())
+        while (subjectDns.hasNext())
         {
             Name subjectDn = (Name) subjectDns.next();
             try
@@ -538,11 +520,10 @@ public class SignetProvisioner extends Provisioner
                 // (Doing it this way ensures that required attributes are
                 // handled correctly).
                 //
-                PermissionSynchronizer synchronizer = getSynchronizer(ctx,
-                        subjectDn);
+                PermissionSynchronizer synchronizer = getSynchronizer(ctx, subjectDn);
                 synchronizer.synchronize(emptySet);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logThrowableError(e);
             }
