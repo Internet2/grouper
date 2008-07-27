@@ -56,18 +56,18 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 public class EduPermissionSynchronizer extends PermissionSynchronizer
 {
     /**
-     * Set to hold the DNs of eduPermission objects that need to be deleted
+     * Set to hold the DNs of eduPermission objects that need to be deleted.
      */
-    private Set<Name> deletes = new HashSet<Name>();
+    private Set<Name> deletes   = new HashSet<Name>();
 
     /**
      * Set to hold the DNs of eduPermission objects that have already been
-     * processed
+     * processed.
      */
     private Set<Name> processed = new HashSet();
 
     /**
-     * Constructs a <code>EduPermissionSynchronizer</code>
+     * Constructs a <code>EduPermissionSynchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
@@ -80,10 +80,8 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      */
-    public EduPermissionSynchronizer(LdapContext ctx, Name subject,
-            SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options,
-            SubjectCache subjectCache)
+    public EduPermissionSynchronizer(LdapContext ctx, Name subject, SignetProvisionerConfiguration configuration,
+            SignetProvisionerOptions options, SubjectCache subjectCache)
     {
         super(ctx, subject, configuration, options, subjectCache);
     }
@@ -106,15 +104,16 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Delete any eduPermission objects that are no longer valid
         //
-        for (Name dn : deletes) {
+        for (Name dn : deletes)
+        {
             try
             {
                 LdapUtil.delete(context, dn);
             }
-            catch(NamingException ne)
+            catch (NamingException ne)
             {
-                ErrorLog.error(getClass(), "Failed to delete " + dn + " for "
-                        + getSubject() + " :: " + ne.getMessage());
+                ErrorLog
+                        .error(getClass(), "Failed to delete " + dn + " for " + getSubject() + " :: " + ne.getMessage());
                 namingExceptions.add(ne);
             }
         }
@@ -124,13 +123,15 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         if (namingExceptions.size() > 0)
         {
-            throw new MultiErrorException((Exception[]) namingExceptions
-                    .toArray(new Exception[0]));
+            throw new MultiErrorException((Exception[]) namingExceptions.toArray(new Exception[0]));
         }
     }
 
     /**
      * Perform any initialization prior to processing the set of permissions.
+     * 
+     * @throws NamingException
+     *             Thrown if an exception occurs.
      */
     protected void initialize() throws NamingException
     {
@@ -159,22 +160,20 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         // Build the query filter, search controls and find all existing
         // permissions
         //
-        String filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
-                + EduPermission.OBJECT_CLASS + ")";
+        String filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + EduPermission.OBJECT_CLASS + ")";
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         searchControls.setCountLimit(0);
 
-        NamingEnumeration searchEnum = getContext().search(getSubject(),
-                filter, searchControls);
+        NamingEnumeration searchEnum = getContext().search(getSubject(), filter, searchControls);
 
         //
         // Populate deletes with DNs of existing eduPermission objects. It
         // is assumed that everything needs to be deleted.
         //
         NameParser parser = getContext().getNameParser(LdapUtil.EMPTY_NAME);
-        while(searchEnum.hasMore())
+        while (searchEnum.hasMore())
         {
             SearchResult searchResult = (SearchResult) searchEnum.next();
             if (searchResult.isRelative())
@@ -195,9 +194,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
                 //
                 // Log it and continue on.
                 //
-                ErrorLog.error(this.getClass(),
-                        "Unable to handle LDAP URL references: "
-                                + searchResult.getName());
+                ErrorLog.error(this.getClass(), "Unable to handle LDAP URL references: " + searchResult.getName());
             }
         }
     }
@@ -210,13 +207,17 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      * 
      * @param privilege
      *            Privilege holding the permission to be included
+     * @param function
+     *            the function to be included
      * @param status
      *            Either {@link #STATUS_NEW}, {@link #STATUS_MODIFIED},
      *            {@link #STATUS_UNCHANGED} or {@link #STATUS_UNKNOWN}.
+     * 
      * @throws NamingException
      *             thrown if a Naming error occurs
+     * 
      * @see edu.internet2.middleware.ldappc.synchronize.PermissionSynchronizer#performInclude(Privilege,
-     *      int)
+     *      Function, int)
      */
     protected void performInclude(Privilege privilege, Function function, int status) throws NamingException
     {
@@ -236,18 +237,17 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         //
         // Get the limit values and iterate over those
         //
-        for (String limitId : limitMap.keySet()) {
+        for (String limitId : limitMap.keySet())
+        {
             //
             // Build the privilege DN made up of eduPermissionSubsytemId,
             // eduPermissionId, and eduPermissionLimitId.
             //
             Name eduPermDn = (Name) getSubject().clone();
             eduPermDn.add(EduPermission.Attribute.EDU_PERMISSION_SUBSYSTEM_ID + "=" + safeSubsystemId
-                    + LdapUtil.MULTIVALUED_RDN_DELIMITER
-                    + EduPermission.Attribute.EDU_PERMISSION_FUNCTION_ID + "=" + safeFunctionId
-                    + LdapUtil.MULTIVALUED_RDN_DELIMITER
-                    + EduPermission.Attribute.EDU_PERMISSION_ID + "=" + safePermissionId
-                    + LdapUtil.MULTIVALUED_RDN_DELIMITER
+                    + LdapUtil.MULTIVALUED_RDN_DELIMITER + EduPermission.Attribute.EDU_PERMISSION_FUNCTION_ID + "="
+                    + safeFunctionId + LdapUtil.MULTIVALUED_RDN_DELIMITER + EduPermission.Attribute.EDU_PERMISSION_ID
+                    + "=" + safePermissionId + LdapUtil.MULTIVALUED_RDN_DELIMITER
                     + EduPermission.Attribute.EDU_PERMISSION_LIMIT_ID + "=" + LdapUtil.makeLdapNameSafe(limitId));
 
             //
@@ -260,11 +260,9 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
                 // If status is new, modified or unknown, make sure entry is
                 // current.
                 //
-                if (status == STATUS_NEW || status == STATUS_MODIFIED
-                        || status == STATUS_UNKNOWN)
+                if (status == STATUS_NEW || status == STATUS_MODIFIED || status == STATUS_UNKNOWN)
                 {
-                    updateEduPermission(eduPermDn, limitId, privilege,
-                            (BasicAttribute) limitMap.get(limitId));
+                    updateEduPermission(eduPermDn, limitId, privilege, (BasicAttribute) limitMap.get(limitId));
                 }
             }
             else
@@ -276,17 +274,15 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
                 //
                 if (processed.contains(eduPermDn))
                 {
-                    ErrorLog.error(getClass(), "eduPermission identified by "
-                            + eduPermDn + " has already been encountered,"
-                            + " and will not be processed another time.");
+                    ErrorLog.error(getClass(), "eduPermission identified by " + eduPermDn
+                            + " has already been encountered," + " and will not be processed another time.");
                     continue;
                 }
 
                 //
                 // Add a new eduPermission entry
                 //
-                addEduPermission(eduPermDn, limitId, safeFunctionId,
-                        privilege, (BasicAttribute) limitMap.get(limitId));
+                addEduPermission(eduPermDn, limitId, safeFunctionId, privilege, (BasicAttribute) limitMap.get(limitId));
             }
 
             //
@@ -297,9 +293,9 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
     }
 
     /**
-     * This builds a mapping from Limit ID to all of its values. This
-     * transforms the set of LimitValues to a mapping where the key is the Limit
-     * ID and the value is a BasicAttribute whose ID is
+     * This builds a mapping from Limit ID to all of its values. This transforms
+     * the set of LimitValues to a mapping where the key is the Limit ID and the
+     * value is a BasicAttribute whose ID is
      * {@link edu.internet2.middleware.ldappc.ldap.EduPermission.Attribute#EDU_PERMISSION_LIMIT}
      * and whose values come from the associated LimitValues.
      * 
@@ -313,7 +309,8 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
 
         if (limitValues != null)
         {
-            for (LimitValue limitValue : limitValues) {
+            for (LimitValue limitValue : limitValues)
+            {
                 //
                 // Get the limit id and value
                 //
@@ -325,8 +322,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
                 //
                 if (!limitMap.containsKey(id))
                 {
-                    limitMap.put(id, new BasicAttribute(
-                            EduPermission.Attribute.EDU_PERMISSION_LIMIT));
+                    limitMap.put(id, new BasicAttribute(EduPermission.Attribute.EDU_PERMISSION_LIMIT));
                 }
 
                 //
@@ -357,8 +353,8 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    private void updateEduPermission(Name eduPermissionDn, String limitId,
-            Privilege privilege, BasicAttribute limits) throws NamingException
+    private void updateEduPermission(Name eduPermissionDn, String limitId, Privilege privilege, BasicAttribute limits)
+            throws NamingException
     {
         //
         // Get the existing values
@@ -367,7 +363,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
                 eduPermissionDn,
                 new String[] { EduPermission.Attribute.EDU_PERMISSION_SCOPE_ID,
                         EduPermission.Attribute.EDU_PERMISSION_SCOPE_NAME,
-                        EduPermission.Attribute.EDU_PERMISSION_LIMIT });
+                        EduPermission.Attribute.EDU_PERMISSION_LIMIT, });
 
         //
         // Init vector to hold the attribute modifiers
@@ -423,7 +419,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         limitValuesModifier.init(attributes.get(limitValuesModifier.getAttributeName()));
 
         NamingEnumeration limitValues = limits.getAll();
-        while(limitValues.hasMore())
+        while (limitValues.hasMore())
         {
             limitValuesModifier.store((String) limitValues.next());
         }
@@ -440,7 +436,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         for (AttributeModifier mod : attributeModifiers)
         {
             ModificationItem[] items = mod.getModifications();
-            for(int i = 0; i < items.length; i++)
+            for (int i = 0; i < items.length; i++)
             {
                 modifications.add(items[i]);
             }
@@ -450,7 +446,7 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
         // Build the modification item array
         //
         ModificationItem[] modificationItems = new ModificationItem[modifications.size()];
-        for(int i = 0; i < modificationItems.length; i++)
+        for (int i = 0; i < modificationItems.length; i++)
         {
             modificationItems[i] = (ModificationItem) modifications.get(i);
         }
@@ -481,8 +477,8 @@ public class EduPermissionSynchronizer extends PermissionSynchronizer
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    private void addEduPermission(Name eduPermDn, String limitId,
-            String functionId, Privilege privilege, BasicAttribute limits) throws NamingException
+    private void addEduPermission(Name eduPermDn, String limitId, String functionId, Privilege privilege,
+            BasicAttribute limits) throws NamingException
     {
         //
         // Get the associated permission

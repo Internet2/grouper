@@ -69,17 +69,17 @@ import javax.naming.directory.ModificationItem;
 public class AttributeModifier
 {
     /**
-     * Default "no value" value
+     * Default "no value" value.
      */
     static final String  DEFAULT_NO_VALUE    = null;
 
     /**
-     * Default case sensitivity
+     * Default case sensitivity.
      */
     static final boolean DEFAULT_SENSITIVITY = false;
 
     /**
-     * Name of the attribute
+     * Name of the attribute.
      */
     private String       attributeName;
 
@@ -99,9 +99,10 @@ public class AttributeModifier
     private Values       retained;
 
     /**
-     * Total number of deletes started with
+     * Total number of deletes started with.
+     * This is automatically initialized to zero.
      */
-    private int          deletesCnt          = 0;
+    private int          deletesCnt;
 
     /**
      * "no value" value. This is used when the attribute is required, but there
@@ -110,7 +111,7 @@ public class AttributeModifier
     private String       noValue;
 
     /**
-     * Indicates if string comparisions are case sensitive
+     * Indicates if string comparisions are case sensitive.
      */
     private boolean      caseSensitive       = DEFAULT_SENSITIVITY;
 
@@ -171,8 +172,7 @@ public class AttributeModifier
      *            boolean indicating if attribute value comparisions are case
      *            sensitive.
      */
-    public AttributeModifier(String attributeName, String noValue,
-            boolean caseSensitive)
+    public AttributeModifier(String attributeName, String noValue, boolean caseSensitive)
     {
         setAttributeName(attributeName);
         setNoValue(noValue);
@@ -184,7 +184,7 @@ public class AttributeModifier
     }
 
     /**
-     * Gets the attribute name
+     * Gets the attribute name.
      * 
      * @return Attribute name
      */
@@ -194,6 +194,8 @@ public class AttributeModifier
     }
 
     /**
+     * Sets the attribute name.
+     * 
      * @param attributeName
      *            the attribute name to set
      */
@@ -253,7 +255,7 @@ public class AttributeModifier
     }
 
     /**
-     * Clears all of the existing values to be added or deleted
+     * Clears all of the existing values to be added or deleted.
      */
     public void clear()
     {
@@ -316,8 +318,7 @@ public class AttributeModifier
                 //
                 if (!(value instanceof java.lang.String))
                 {
-                    throw new InvalidAttributeValueException(attribute.getID()
-                            + " has an invalid value of type ["
+                    throw new InvalidAttributeValueException(attribute.getID() + " has an invalid value of type ["
                             + value.getClass().getName() + "].");
                 }
                 deletes.add((String) value);
@@ -439,8 +440,7 @@ public class AttributeModifier
                 //
                 // Replace the current value(s) with the additions
                 //
-                modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                        makeAttribute(adds));
+                modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, makeAttribute(adds));
             }
             else if (getNoValue() != null)
             {
@@ -456,9 +456,8 @@ public class AttributeModifier
                     //
                     // Replace the current value(s) with "no value"
                     //
-                    modItem = new ModificationItem(
-                            DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
-                                    getAttributeName(), getNoValue()));
+                    modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(getAttributeName(),
+                            getNoValue()));
                 }
             }
             else if (deletes.size() > 0)
@@ -466,8 +465,7 @@ public class AttributeModifier
                 //
                 // Replace the current value(s) with nothing (i.e., delete them)
                 //
-                modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                        new BasicAttribute(getAttributeName()));
+                modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(getAttributeName()));
             }
             else
             {
@@ -496,8 +494,7 @@ public class AttributeModifier
             //
             // Create modification array based on changes
             //
-            int modsSize = (adds.size() > 0 ? 1 : 0)
-                    + (deletes.size() > 0 ? 1 : 0);
+            int modsSize = (adds.size() > 0 ? 1 : 0) + (deletes.size() > 0 ? 1 : 0);
             if (modsSize > 0)
             {
                 //
@@ -513,16 +510,14 @@ public class AttributeModifier
                 // Add the deletes
                 if (deletes.size() > 0)
                 {
-                    mods[modsIndex] = new ModificationItem(
-                            DirContext.REMOVE_ATTRIBUTE, makeAttribute(deletes));
+                    mods[modsIndex] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, makeAttribute(deletes));
                     modsIndex++;
                 }
 
                 // Add the adds
                 if (adds.size() > 0)
                 {
-                    mods[modsIndex] = new ModificationItem(
-                            DirContext.ADD_ATTRIBUTE, makeAttribute(adds));
+                    mods[modsIndex] = new ModificationItem(DirContext.ADD_ATTRIBUTE, makeAttribute(adds));
                     modsIndex++;
                 }
             }
@@ -553,7 +548,7 @@ public class AttributeModifier
     }
 
     /**
-     * This method retains all of the current values
+     * This method retains all of the current values.
      * 
      * @throws NamingException
      *             thrown if a naming error occurs
@@ -572,8 +567,8 @@ public class AttributeModifier
     }
 
     /**
-     * If <tt>caseSensitive</tt> is <tt>true</tt>, return value,
-     * otherwise return lowercased value.
+     * If <tt>caseSensitive</tt> is <tt>true</tt>, return value, otherwise
+     * return lowercased value.
      * 
      * Note that caseSensitive is a class variable in the enclosing class.
      * 
@@ -590,9 +585,11 @@ public class AttributeModifier
      * Implements optional case ignoring set by backing it with a Map, mapping
      * the possibly lowercased values to the actual values.
      */
-    public class Values
-            implements Iterable<String>
+    public class Values implements Iterable<String>
     {
+        /**
+         * Serial version UID.
+         */
         private static final long   serialVersionUID = 1L;
 
         /**
