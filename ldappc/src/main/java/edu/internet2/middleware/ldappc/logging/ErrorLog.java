@@ -14,34 +14,45 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc.logging;
 
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-/** 
+/**
  * Ldappc API debug logging.
- *
+ * 
  * @author Gil Singer
  */
-public class ErrorLog {
-
+public final class ErrorLog
+{
     /**
-     * The Log file created by the log factory for this class.
-     * Contains methods for displaying a log message prefixed by the class name in brackets.
-     * The logging levels allowed are fatal, error, and warn.
-     */  
+     * The Log file created by the log factory for this class. Contains methods
+     * for displaying a log message prefixed by the class name in brackets. The
+     * logging levels allowed are fatal, error, and warn.
+     */
     private static final Log LOG;
-    
+
     /**
      * flag indicating that one or more fatal errors occurred during execution
      */
-    private static boolean fatalOccurred = false;
+    private static boolean   fatalOccurred = false;
+
+    /**
+     * Prevent instantiation.
+     */
+    private ErrorLog()
+    {
+    }
 
     /**
      * Setter for fatalOccurred.
-     * @param fatalOccurred flag indicating that one or more fatal errors occurred during execution.
+     * 
+     * @param fatalOccurred
+     *            flag indicating that one or more fatal errors occurred during
+     *            execution.
      */
 
     public static void setFatalOccurred(boolean fatalOccurred)
@@ -51,50 +62,63 @@ public class ErrorLog {
 
     /**
      * Getter for fatalOccurred.
-     * @return flag indicating that one or more fatal errors occurred during execution.
+     * 
+     * @return flag indicating that one or more fatal errors occurred during
+     *         execution.
      * 
      */
 
     public static boolean getFatalOccurred()
     {
-       return fatalOccurred;
+        return fatalOccurred;
     }
 
     /**
      * Create the Log file created by the log factory for this class.
      */
-    static { LOG = LogFactory.getLog(ErrorLog.class); }
+    static
+    {
+        LOG = LogFactory.getLog(ErrorLog.class);
+    }
 
     /**
      * Logs warning level messages.
-     * @param c The calling class 
-     * @param msg The message to be logged.
+     * 
+     * @param c
+     *            The calling class
+     * @param msg
+     *            The message to be logged.
      */
-    public static void warn(Class c, String msg) 
+    public static void warn(Class c, String msg)
     {
         LOG.warn("[" + c.getName() + "] " + msg);
-    } 
+    }
 
     /**
      * Logs error level messages.
-     * @param c The calling class 
-     * @param msg The message to be logged.
+     * 
+     * @param c
+     *            The calling class
+     * @param msg
+     *            The message to be logged.
      */
-    public static void error(Class c, String msg) 
+    public static void error(Class c, String msg)
     {
         LOG.error("[" + c.getName() + "] " + msg);
-    } 
+    }
 
     /**
      * Logs fatal level messages.
-     * @param c The calling class 
-     * @param msg The message to be logged.
+     * 
+     * @param c
+     *            The calling class
+     * @param msg
+     *            The message to be logged.
      */
-    public static void fatal(Class c, String msg) 
+    public static void fatal(Class c, String msg)
     {
         fatalOccurred = true;
         LOG.fatal("[" + c.getName() + "] " + msg);
-    } 
+    }
 
 }
-

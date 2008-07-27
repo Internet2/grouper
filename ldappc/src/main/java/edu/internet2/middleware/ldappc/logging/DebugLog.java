@@ -14,67 +14,88 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc.logging;
 
-import org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-/** 
- * Ldappc API debug logging.
- * Contains methods for displaying a log message prefixed by the class name in brackets.
- * The logging levels allowed are info and debug.
- 
+/**
+ * Ldappc API debug logging. Contains methods for displaying a log message
+ * prefixed by the class name in brackets. The logging levels allowed are info
+ * and debug.
+ * 
  * 
  * @author Gil Singer.
  */
-public class DebugLog {
-
+public final class DebugLog
+{
     /**
      * The Log file created by the log factory for this class.
-     */  
-     private static final Log LOG;
+     */
+    private static final Log LOG;
 
     /**
      * Create the Log file created by the log factory for this class.
      */
-    static { LOG = LogFactory.getLog(DebugLog.class); } 
+    static
+    {
+        LOG = LogFactory.getLog(DebugLog.class);
+    }
+
+    /**
+     * Prevent instantiation.
+     */
+    private DebugLog()
+    {
+    }
 
     /**
      * Logs info level messages.
-     * @param c The calling class 
-     * @param msg The message to be logged.
+     * 
+     * @param c
+     *            The calling class
+     * @param msg
+     *            The message to be logged.
      */
-    public static void info(Class c, String msg) 
+    public static void info(Class c, String msg)
     {
         LOG.info("[" + c.getName() + "] " + msg);
-    } 
+    }
 
     /**
      * Logs info level messages.
-     * @param msg The message to be logged.
+     * 
+     * @param msg
+     *            The message to be logged.
      */
-    public static void info(String msg) {
+    public static void info(String msg)
+    {
         LOG.info(msg);
-    } 
+    }
 
     /**
      * Logs debug level messages.
-     * @param c The calling class 
-     * @param msg The message to be logged.
+     * 
+     * @param c
+     *            The calling class
+     * @param msg
+     *            The message to be logged.
      */
-    public static void debug(Class c, String msg) 
+    public static void debug(Class c, String msg)
     {
         LOG.debug("[" + c.getName() + "] " + msg);
-    } 
+    }
 
     /**
      * Logs debug level messages.
-     * @param msg The message to be logged.
+     * 
+     * @param msg
+     *            The message to be logged.
      */
-    public static void debug(String msg) {
+    public static void debug(String msg)
+    {
         LOG.debug(msg);
-    } 
-
+    }
 }
-

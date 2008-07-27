@@ -18,31 +18,33 @@
 
 package edu.internet2.middleware.ldappc.util;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
-
-
-
-
-
-
-
-
-
 
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * This provides utility methods for interacting with a LDAP directory.
  */
-public class LdapDisplayUtil
+public final class LdapDisplayUtil
 {
     /**
-     * 
-     * @return LdapContext
+     * Prevent instantiation of LdapDisplayUtil.
      */
-    static public String getAttributesAsString(Subject subject)
+    private LdapDisplayUtil()
+    {
+    }
+
+    /**
+     * Given a subject, construct a printable representation of its attributes.
+     * 
+     * @param subject
+     *            the subject to display.
+     * 
+     * @return the subject's attributes as a long text string.
+     */
+    static String getAttributesAsString(Subject subject)
     {
         StringBuffer attributesString = new StringBuffer(128);
 
@@ -59,9 +61,8 @@ public class LdapDisplayUtil
                 Iterator it2 = entrySet.iterator();
                 while (it2.hasNext())
                 {
-                    String key = (String)it2.next();
-                    System.out.println( "                     Attribute key/value " 
-                    + key + "   " + attributes.get(key) );
+                    String key = (String) it2.next();
+                    System.out.println("                     Attribute key/value " + key + "   " + attributes.get(key));
                     attributesString.append("\n[" + key + "] " + attributes.get(key));
                 }
             }
@@ -70,9 +71,8 @@ public class LdapDisplayUtil
         {
             attributesString.append("Subject is null.");
         }
-        System.out.println("DEBUG in LdapDisplayUtil.getAttributesAsString: " 
-                + attributesString);
-            
+        System.out.println("DEBUG in LdapDisplayUtil.getAttributesAsString: " + attributesString);
+
         return attributesString.toString();
     }
 }
