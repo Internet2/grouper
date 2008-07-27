@@ -128,13 +128,13 @@ public abstract class Synchronizer
      * @return <code>true</code> if the attribute is required, and
      *         <code>false</code> otherwise
      * 
-     * @throws NamingException
-     *             thrown if a Naming error occurs
      * @throws OperationNotSupportedException
      *             thrown if the schema can not be accessed
+     * @throws NamingException
+     *             thrown if a Naming error occurs
      */
     protected boolean isAttributeRequired(LdapContext ctx, Name dn, String objectClass, String attributeName)
-            throws NamingException, OperationNotSupportedException
+            throws OperationNotSupportedException, NamingException
     {
         //
         // Build the list of object classes examine based on whether or not

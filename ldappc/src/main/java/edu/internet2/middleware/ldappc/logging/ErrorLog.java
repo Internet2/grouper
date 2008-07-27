@@ -36,9 +36,10 @@ public final class ErrorLog
     private static final Log LOG;
 
     /**
-     * flag indicating that one or more fatal errors occurred during execution
+     * flag indicating that one or more fatal errors occurred during execution.
+     * This is automatically initialized to false.
      */
-    private static boolean   fatalOccurred = false;
+    private static boolean   fatalOccurred;
 
     /**
      * Prevent instantiation.
