@@ -18,15 +18,12 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
 import edu.internet2.middleware.ldappc.LdappcException;
@@ -40,12 +37,12 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
 public abstract class MembershipSynchronizer extends GrouperSynchronizer
 {
     /**
-     * DN of the subject whose permissions are being synchronized
+     * DN of the subject whose permissions are being synchronized.
      */
     private String subject;
 
     /**
-     * Constructs a <code>MembershipSynchronizer</code>
+     * Constructs a <code>MembershipSynchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
@@ -58,17 +55,15 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      */
-    public MembershipSynchronizer(LdapContext ctx, String subject,
-            GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options,
-            SubjectCache subjectCache)
+    public MembershipSynchronizer(LdapContext ctx, String subject, GrouperProvisionerConfiguration configuration,
+            GrouperProvisionerOptions options, SubjectCache subjectCache)
     {
-        super(ctx,configuration,options, subjectCache);
+        super(ctx, configuration, options, subjectCache);
         setSubject(subject);
     }
 
     /**
-     * Get the DN of the subject
+     * Get the DN of the subject.
      * 
      * @return DN of the subject
      */
@@ -78,7 +73,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
     }
 
     /**
-     * Set the DN of the subject
+     * Set the DN of the subject.
      * 
      * @param subject
      *            DN of the subject
@@ -102,8 +97,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected abstract void performInclude(String groupNameString, int status)
-            throws NamingException, LdappcException;
+    protected abstract void performInclude(String groupNameString, int status) throws NamingException, LdappcException;
 
     /**
      * Perform any initialization prior to processing the set of groups.
@@ -113,8 +107,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected abstract void initialize() throws NamingException,
-            LdappcException;
+    protected abstract void initialize() throws NamingException, LdappcException;
 
     /**
      * Synchronizes the groups with those in the directory.
@@ -129,8 +122,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    public void synchronize(Set<String> groupNames) throws NamingException,
-            LdappcException
+    public void synchronize(Set<String> groupNames) throws NamingException, LdappcException
     {
         //
         // Initialize the process
@@ -155,7 +147,7 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
             {
                 performInclude(groupNameString, STATUS_UNKNOWN);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 caughtExceptions.add(e);
             }
@@ -171,10 +163,8 @@ public abstract class MembershipSynchronizer extends GrouperSynchronizer
         //
         if (caughtExceptions.size() > 0)
         {
-            throw new MultiErrorException(
-                    "Non-fatal errors occurred processing memberships for "
-                            + getSubject(), (Exception[]) caughtExceptions
-                            .toArray(new Exception[0]));
+            throw new MultiErrorException("Non-fatal errors occurred processing memberships for " + getSubject(),
+                    (Exception[]) caughtExceptions.toArray(new Exception[0]));
         }
     }
 

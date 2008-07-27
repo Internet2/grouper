@@ -26,12 +26,15 @@ package edu.internet2.middleware.ldappc;
  */
 public class MultiErrorException extends LdappcException
 {
+    /**
+     * Serial version UID.
+     */
     public static final long serialVersionUID = 1;
 
     /**
-     * Array of errors
+     * Array of errors.
      */
-    private Exception[] errors;
+    private Exception[]      errors;
 
     /**
      * Constructs a new multiple error exception with null as its detail
@@ -84,8 +87,7 @@ public class MultiErrorException extends LdappcException
      * @param errors
      *            Array of Exceptions
      */
-    public MultiErrorException(String message, Throwable cause,
-            Exception[] errors)
+    public MultiErrorException(String message, Throwable cause, Exception[] errors)
     {
         super(message, cause);
         setErrors(errors);
@@ -115,6 +117,11 @@ public class MultiErrorException extends LdappcException
         setErrors(errors);
     }
 
+    /**
+     * Sets the errors.
+     * 
+     * @param errors the errors to set.
+     */
     private void setErrors(Exception[] errors)
     {
         if (errors == null)
@@ -137,9 +144,10 @@ public class MultiErrorException extends LdappcException
     {
         return errors;
     }
-    
+
     /**
      * Returns the detail message string integrating those from the errors.
+     * 
      * @return the detailed message string
      */
     public String getMessage()
@@ -148,15 +156,15 @@ public class MultiErrorException extends LdappcException
         // Get the message from overridden method
         //
         String message = super.getMessage();
-        
+
         //
         // Add the messages from errors
         //
-        for ( int i = 0; i < errors.length; i++ )
+        for (int i = 0; i < errors.length; i++)
         {
             message += "\n[" + i + "] " + errors[i].toString();
         }
-        
+
         return message;
     }
 }

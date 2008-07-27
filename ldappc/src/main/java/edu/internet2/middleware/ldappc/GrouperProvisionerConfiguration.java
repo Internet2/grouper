@@ -25,31 +25,32 @@ import java.util.Set;
  * This interface defines the common configuration functionality required by the
  * Grouper provisioner.
  */
-public interface GrouperProvisionerConfiguration extends
-        ProvisionerConfiguration
+public interface GrouperProvisionerConfiguration extends ProvisionerConfiguration
 {
 
     /**
-     * Indicates creating a flat Group DN structure
+     * Indicates creating a flat Group DN structure.
      */
-    public static final String GROUP_DN_FLAT = "flat";
+    public static final String GROUP_DN_FLAT          = "flat";
 
     /**
-     * Indicates creating a bushy Group DN structure
+     * Indicates creating a bushy Group DN structure.
      */
-    public static final String GROUP_DN_BUSHY = "bushy";
+    public static final String GROUP_DN_BUSHY         = "bushy";
 
     /**
-     * Grouper group id attribute
+     * Grouper group id attribute.
      */
-    public static final String GROUPER_ID_ATTRIBUTE = "id";
+    public static final String GROUPER_ID_ATTRIBUTE   = "id";
 
     /**
-     * Grouper group name attribute
+     * Grouper group name attribute.
      */
     public static final String GROUPER_NAME_ATTRIBUTE = "name";
-    
+
     /**
+     * Get the group hash table size estimate.
+     * 
      * @return Size of hash table estimate for holding cached subject data.
      */
     public int getGroupHashEstimate();
@@ -88,14 +89,14 @@ public interface GrouperProvisionerConfiguration extends
     public String getGroupDnRoot();
 
     /**
-     * Returns the object class for the Group entry
+     * Returns the object class for the Group entry.
      * 
      * @return Object class for a Group
      */
     public String getGroupDnObjectClass();
 
     /**
-     * Returns the RDN attribute name for the Group entry
+     * Returns the RDN attribute name for the Group entry.
      * 
      * @return RDN attribute name for the Group entry
      */
@@ -111,7 +112,7 @@ public interface GrouperProvisionerConfiguration extends
 
     /**
      * This returns a boolean indicating if Member Groups list is to be
-     * maintained
+     * maintained.
      * 
      * @return true if the Groups to which a Member belongs are listed, and
      *         false otherwise

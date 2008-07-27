@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.5 2008-04-25 19:09:57 khuxtable Exp $
+ * $Id: SubjectCache.java,v 1.6 2008-07-27 14:18:53 khuxtable Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -36,15 +36,30 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * @author Kathryn Huxtable
- * 
+ * Cache subjects retrieved from subject sources to help with performance
+ * issues.
  */
 public class SubjectCache
 {
+    /**
+     * Hash table default estimate.
+     */
     private static final int                     DEFAULT_HASH_ESTIMATE = 25000;
+
+    /**
+     * Nested table mapping source ID to table mapping subject ID to DN.
+     */
     private Map<String, Hashtable<String, Name>> subjectIdToDnTables   = new HashMap<String, Hashtable<String, Name>>();
-    int                                          subjectIdLookups;
-    int                                          subjectIdTableHits;
+
+    /**
+     * Count of subject ID's looked up.
+     */
+    private int                                  subjectIdLookups;
+
+    /**
+     * Count of subject ID table hits.
+     */
+    private int                                  subjectIdTableHits;
 
     /**
      * Return the count of subject ID lookups.
@@ -99,7 +114,7 @@ public class SubjectCache
     }
 
     /**
-     * Returns subject data string without attributes
+     * Returns subject data string without attributes.
      * 
      * @param subject
      *            Subject
@@ -111,7 +126,7 @@ public class SubjectCache
     }
 
     /**
-     * Returns subject data string
+     * Returns subject data string.
      * 
      * @param subject
      *            Subject
@@ -152,8 +167,8 @@ public class SubjectCache
      * @throws MultipleEntriesFoundException
      *             thrown if the search found more than one entry
      */
-    public Name findSubjectDn(LdapContext ctx, ProvisionerConfiguration configuration,
-            Subject subject) throws NamingException, MultipleEntriesFoundException, EntryNotFoundException
+    public Name findSubjectDn(LdapContext ctx, ProvisionerConfiguration configuration, Subject subject)
+            throws NamingException, MultipleEntriesFoundException, EntryNotFoundException
     {
         //
         // Get the subject's source and source id
@@ -161,8 +176,7 @@ public class SubjectCache
         Source source = subject.getSource();
         if (source == null)
         {
-            throw new EntryNotFoundException("Subject [ " + getSubjectData(subject)
-                    + " ] has a null source");
+            throw new EntryNotFoundException("Subject [ " + getSubjectData(subject) + " ] has a null source");
         }
 
         String sourceId = source.getId();
@@ -173,8 +187,7 @@ public class SubjectCache
         String sourceNameAttr = configuration.getSourceSubjectNamingAttribute(sourceId);
         if (sourceNameAttr == null)
         {
-            throw new EntryNotFoundException("Subject [ " + getSubjectData(subject)
-                    + " ] source [ " + sourceId
+            throw new EntryNotFoundException("Subject [ " + getSubjectData(subject) + " ] source [ " + sourceId
                     + " ] does not identify a source subject naming attribute");
         }
 
@@ -214,14 +227,13 @@ public class SubjectCache
      * @throws MultipleEntriesFoundException
      *             thrown if the search found more than one entry
      */
-    public Name findSubjectDn(LdapContext ldapCtx, ProvisionerConfiguration configuration,
-            String sourceId, String subjectIdentifier) throws NamingException, MultipleEntriesFoundException, EntryNotFoundException
+    public Name findSubjectDn(LdapContext ldapCtx, ProvisionerConfiguration configuration, String sourceId,
+            String subjectIdentifier) throws NamingException, MultipleEntriesFoundException, EntryNotFoundException
     {
         //
         // Initialize error message suffix
         //
-        String errorSuffix = "[ subject id = " + subjectIdentifier + " ][ source = " + sourceId
-                + " ]";
+        String errorSuffix = "[ subject id = " + subjectIdentifier + " ][ source = " + sourceId + " ]";
 
         //
         // Get the LDAP search filter for the source
@@ -274,8 +286,7 @@ public class SubjectCache
         //
         // Perform the search
         //
-        NamingEnumeration namingEnum = ldapCtx.search(baseName, filterExpr, filterArgs,
-                searchControls);
+        NamingEnumeration namingEnum = ldapCtx.search(baseName, filterExpr, filterArgs, searchControls);
 
         //
         // If no entries where found, throw an exception
@@ -304,8 +315,7 @@ public class SubjectCache
         //
         if (!searchResult.isRelative())
         {
-            throw new EntryNotFoundException("Unable to resolve the reference found using "
-                    + errorSuffix);
+            throw new EntryNotFoundException("Unable to resolve the reference found using " + errorSuffix);
         }
 
         //

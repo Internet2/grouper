@@ -29,7 +29,7 @@ public abstract class Provisioner
     /**
      * Delimiter used in messages.
      */
-    private final String MSG_DELIMITER = " :: ";
+    private static final String MSG_DELIMITER = " :: ";
 
     /**
      * Cache for subjects retrieved from the subject sources.

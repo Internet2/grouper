@@ -34,40 +34,40 @@ import edu.internet2.middleware.signet.Permission;
 public abstract class SignetSynchronizer extends Synchronizer
 {
     /**
-     * Indicates the permission is new since the last modification date
+     * Indicates the permission is new since the last modification date.
      */
     public static final int STATUS_NEW = 0;
 
     /**
      * Indicates the permission has been modified since the last modification
-     * date
+     * date.
      */
     public static final int STATUS_MODIFIED = 1;
 
     /**
      * Indicates the permission has not been modified since the last
-     * modification date
+     * modification date.
      */
     public static final int STATUS_UNCHANGED = 2;
 
     /**
      * Indicates a last modification date was not provided so the permission's
-     * status is unknown
+     * status is unknown.
      */
     public static final int STATUS_UNKNOWN = 3;
 
     /**
-     * Signet configuration for provisioning
+     * Signet configuration for provisioning.
      */
     private SignetProvisionerConfiguration configuration;
 
     /**
-     * Signet options for provisioning
+     * Signet options for provisioning.
      */
     private SignetProvisionerOptions options;
 
     /**
-     * Constructs a <code>PermissionSynchronizer</code>
+     * Constructs a <code>PermissionSynchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
@@ -89,7 +89,7 @@ public abstract class SignetSynchronizer extends Synchronizer
     }
 
     /**
-     * Get the Signet provisioner configuration
+     * Get the Signet provisioner configuration.
      * 
      * @return Signet provisioner configuration
      */
@@ -99,7 +99,7 @@ public abstract class SignetSynchronizer extends Synchronizer
     }
 
     /**
-     * Set the Signet provisioner configuration
+     * Set the Signet provisioner configuration.
      * 
      * @param configuration
      *            Signet provisioner configuration
@@ -110,7 +110,7 @@ public abstract class SignetSynchronizer extends Synchronizer
     }
 
     /**
-     * Get the Signet provisioner options
+     * Get the Signet provisioner options.
      * 
      * @return Signet provisioner options
      */
@@ -120,7 +120,7 @@ public abstract class SignetSynchronizer extends Synchronizer
     }
 
     /**
-     * Set the Signet provisioner options
+     * Set the Signet provisioner options.
      * 
      * @param options
      *            Signet provisioner options

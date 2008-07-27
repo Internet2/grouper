@@ -14,41 +14,40 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc;
-
-import edu.internet2.middleware.ldappc.LdappcConfigurationException;
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import  edu.internet2.middleware.signet.Signet;
-import  edu.internet2.middleware.signet.SignetRuntimeException;
-import edu.internet2.middleware.signet.subjsrc.SignetAppSource;
-import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 
 import java.util.List;
 import java.util.Vector;
 
+import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.signet.Signet;
+import edu.internet2.middleware.signet.SignetRuntimeException;
+import edu.internet2.middleware.signet.subjsrc.SignetSubject;
+
 /**
  * Class for finding subjects.
+ * 
  * @author Gil Singer
  */
-public class SignetSubjectRetriever 
+public class SignetSubjectRetriever
 {
     /**
-     * Constructor
+     * Constructor.
      */
     public SignetSubjectRetriever()
     {
     }
-    
+
     /**
      * Gets all PrivilegedSubjects. Should probably be changed to return a
      * type-safe Collection.
      * 
-     * @return a List of all of the PrivilegedSubjects accessible to
-     *         Signet, including those who have no privileges. Never returns null:
-     *         in the case of zero PrivilegedSubjects, this method will
-     *         return an empty List.
+     * @return a List of all of the PrivilegedSubjects accessible to Signet,
+     *         including those who have no privileges. Never returns null: in
+     *         the case of zero PrivilegedSubjects, this method will return an
+     *         empty List.
      */
     public List getAllPrivilegedSubjects()
     {
@@ -60,20 +59,20 @@ public class SignetSubjectRetriever
         catch (SignetRuntimeException sre)
         {
             LdappcConfigurationException ace = new LdappcConfigurationException(
-                    "Failed to create Signet instance: Signet database may not be running.",
-                    sre);
+                    "Failed to create Signet instance: Signet database may not be running.", sre);
             sre.printStackTrace();
-            throw(ace);
+            throw ace;
         }
 
-
         Vector<SignetSubject> privSubj = null;
-        
+
         try
         {
             // There are 3 types of Subject Sources in Signet:
-            // 1. The built-in Signet Super-Subject Source (SIGNET_SOURCE_ID, above)
-            // 2. The Signet Persistent Source (Signet's DB can be used as a Subject Source!)
+            // 1. The built-in Signet Super-Subject Source (SIGNET_SOURCE_ID,
+            // above)
+            // 2. The Signet Persistent Source (Signet's DB can be used as a
+            // Subject Source!)
             // 3. All other Subject Sources
             privSubj = new Vector<SignetSubject>(signet.getPersistentDB().getSubjects());
         }
@@ -81,8 +80,7 @@ public class SignetSubjectRetriever
         {
             ErrorLog.error(this.getClass(), sre.getMessage());
         }
-        
+
         return privSubj;
     }
-} 
-
+}
