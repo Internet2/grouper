@@ -22,9 +22,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import edu.internet2.middleware.ldappcTest.LdappcTest;
-import edu.internet2.middleware.ldappcTest.SimpleLdapSearchTest;
-
 /**
  * This class builds a TestSuite out of the individual test classes.
  * It assembles all of the test classes is the "root" directory of
@@ -51,7 +48,6 @@ public class AllJUnitBaseDirTests extends TestCase
     public static Test suite() 
     {
         TestSuite suite = new TestSuite();
-        suite.addTest(new TestSuite(LdappcTest.class));
         suite.addTest(new TestSuite(InputOptionsTest.class));
         suite.addTest(new TestSuite(RootProcessorTest.class));
         suite.addTest(new TestSuite(LdapSchemaTest.class));
