@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -38,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -79,6 +80,8 @@ public class RegistryReset {
     
     //make sure it is ok to change db
     GrouperUtil.promptUserAboutDbChanges("delete all grouper data", true);
+    
+    GrouperStartup.startup();
     
     RegistryReset rr = new RegistryReset();
     try {

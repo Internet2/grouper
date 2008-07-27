@@ -16,16 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
-import org.apache.commons.lang.StringUtils;
+import java.io.File;
 
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Grouper API configuration.  If you are accessing a property from grouper.properties,
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.8 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.9 2008-07-27 07:37:24 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -82,6 +83,7 @@ public class ApiConfig implements Configuration {
    * @since   1.2.1
    */
   private void initializeConfiguration() {
+    printConfigOnce();
     this.useLocal = true;
     this.defaultCfg = new PropertiesConfiguration("/grouper.properties");
     this.localCfg = new PropertiesConfiguration("/local.grouper.properties");
@@ -93,6 +95,22 @@ public class ApiConfig implements Configuration {
     }
   }
 
+  /** print this once */
+  private static boolean printedConfigLocation = false;
+  
+  /**
+   * print where config is read from
+   */
+  private static void printConfigOnce() {
+    if (printedConfigLocation) {
+      return;
+    }
+    printedConfigLocation = true;
+    File grouperPropertiesFile = GrouperUtil.fileFromResourceName("grouper.properties");
+    String propertiesFileLocation = grouperPropertiesFile == null ? "not found" : grouperPropertiesFile.getAbsolutePath(); 
+    System.err.println("grouper.properties read from: " + propertiesFileLocation);
+  }
+  
   /**
    * @see     edu.internet2.middleware.grouper.cfg.Configuration#setProperty(String, String)
    * @since   1.2.1

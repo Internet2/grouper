@@ -3,8 +3,10 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -49,7 +51,7 @@ public class BySqlStatic {
    * @return the number of rows affected or 0 for ddl
    */
   @SuppressWarnings("deprecation")
-  public static int executeSql(final String sql, final List<Object> params) {
+  public int executeSql(final String sql, final List<Object> params) {
   
     int result = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
 
@@ -80,6 +82,86 @@ public class BySqlStatic {
   
   }
 
+  /**
+   * select one object from sql (one row, one col
+   * @param returnClassType type to be returned (currnetly supports string and int
+   * @param <T> the type
+   * @param sql can be insert, update, delete, or ddl
+   * @return the number of rows affected or 0 for ddl
+   */
+  @SuppressWarnings("deprecation")
+  public <T> T select(final Class<T> returnClassType, final String sql) {
+    return select(returnClassType, sql, null);
+  }
+
+  /**
+   * select one object from sql (one row, one col
+   * @param returnClassType type to be returned (currnetly supports string and int
+   * @param <T> the type
+   * @param sql can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @return the number of rows affected or 0 for ddl
+   */
+  @SuppressWarnings("deprecation")
+  public <T> T select(final Class<T> returnClassType, final String sql, final List<Object> params) {
+  
+    T theResult = (T)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+
+      public Object callback(HibernateSession hibernateSession)
+          throws GrouperDAOException {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+          
+          //we dont close this connection or anything since could be pooled
+          Connection connection = hibernateSession.getSession().connection();
+          preparedStatement = connection.prepareStatement(sql);
+      
+          attachParams(preparedStatement, params);
+          
+          resultSet = preparedStatement.executeQuery();
+          
+          boolean hasResults = resultSet.next();
+          
+          if (!hasResults) {
+            throw new RuntimeException("Expected 1 row but received none");
+          }
+          
+          T result = null;
+          boolean isInt = int.class.equals(returnClassType);
+          boolean isPrimitive = isInt;
+          if (isInt || Integer.class.equals(returnClassType)) {
+            BigDecimal bigDecimal = resultSet.getBigDecimal(1);
+            if (bigDecimal != null) {
+              result = (T)(Object)bigDecimal.intValue();
+            }
+          } else if (String.class.equals(returnClassType)) {
+            result = (T)resultSet.getString(1);
+          } else {
+            throw new RuntimeException("Unexpected type: " + returnClassType);
+          }
+          
+          if (result == null && isPrimitive) {
+            throw new NullPointerException("expecting primitive (" + returnClassType.getSimpleName() 
+                + "), but received null");
+          }
+          
+          if (resultSet.next()) {
+            throw new RuntimeException("Expected 1 row but received multiple");
+          }
+          
+          return result;
+
+        } catch (Exception e) {
+          throw new RuntimeException("Problem with query: " + sql, e);
+        } finally {
+          GrouperUtil.closeQuietly(preparedStatement);
+        }
+      }
+    });
+    return theResult;
+  
+  }
 
   /**
    * Attach params for a prepared statement.  The type of the params and types must be the
@@ -90,7 +172,7 @@ public class BySqlStatic {
    * @throws SQLException
    */
   @SuppressWarnings("unchecked")
-  public static void attachParams(PreparedStatement statement, Object params)
+  public void attachParams(PreparedStatement statement, Object params)
       throws HibernateException, SQLException {
     if (GrouperUtil.length(params) == 0) {
       return;
@@ -110,7 +192,7 @@ public class BySqlStatic {
    * @throws HibernateException
    * @throws SQLException
    */
-  public static void attachParams(PreparedStatement statement, Object params, Object types)
+  public void attachParams(PreparedStatement statement, Object params, Object types)
       throws HibernateException, SQLException {
     int paramLength = GrouperUtil.length(params);
     int typeLength = GrouperUtil.length(types);

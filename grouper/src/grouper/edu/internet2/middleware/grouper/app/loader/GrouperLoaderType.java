@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.3 2008-07-27 07:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.hibernate.BySqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -144,11 +145,11 @@ public enum GrouperLoaderType {
             //get however many days in the past
             calendar.add(Calendar.DAY_OF_YEAR, -1 * daysToKeepLogs);
             //run a query to delete (note, dont retrieve records to java, just delete)
-            int records = BySqlStatic.executeSql("delete from grouploader_log where last_updated < ?", 
+            int records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
                 (List<Object>)(Object)GrouperUtil.toList(new Timestamp(calendar.getTimeInMillis())));
-            hib3GrouploaderLog.setJobMessage("Deleted " + records + " records from grouploader_log older than " + daysToKeepLogs + " days old");
+            hib3GrouploaderLog.setJobMessage("Deleted " + records + " records from grouper_loader_log older than " + daysToKeepLogs + " days old");
           } else {
-            hib3GrouploaderLog.setJobMessage("Configured to not delete records from grouploader_log table");
+            hib3GrouploaderLog.setJobMessage("Configured to not delete records from grouper_loader_log table");
           }
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: Hib3GrouploaderLogTest.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
+ * $Id: Hib3GrouploaderLogTest.java,v 1.3 2008-07-27 07:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -45,7 +45,7 @@ public class Hib3GrouploaderLogTest extends TestCase {
     String testObjectName = "unitTestingOnlyIgnore";
     
     //clean up before test
-    BySqlStatic.executeSql("delete from grouper_loader_log where job_name = ?",
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where job_name = ?",
         GrouperUtil.toList((Object)testObjectName));
     
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();

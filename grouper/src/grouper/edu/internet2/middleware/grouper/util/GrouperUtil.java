@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -335,7 +336,9 @@ public class GrouperUtil {
     if (findGrouperPropertiesDbMatch(true, user, url)) {
       System.out.println("This DB user '" + user + "' and url '" + url + "' are allowed to be " +
           "changed in the grouper.properties");
-
+      if (!checkResponse) {
+        System.out.println("Unfortunately this is checked from ant so you have to type 'y' anyways...");
+      }
     } else {
     
       BufferedReader stdin = null;
@@ -3825,6 +3828,86 @@ public class GrouperUtil {
     return typeCast(value, theClass, false, false);
   }
 
+  /**
+   * <pre>
+   * make a new file in the name prefix dir.  If parent dir name is c:\temp
+   * and namePrefix is grouperDdl and nameSuffix is sql, then the file will be:
+   * 
+   * c:\temp\grouperDdl_20080721_13_45_43_123.sql
+   *  
+   * If the file exists, it will make a new filename, and create the empty file, and return it
+   * </pre>
+   *  
+   * @param parentDirName can be blank for current dir
+   * @param namePrefix the part before the date part
+   * @param nameSuffix the last part of file name (can contain dot or will be the extension
+   * @param createFile true to create the file
+   * @return the created file
+   */
+  public static File newFileUniqueName(String parentDirName, String namePrefix, String nameSuffix, boolean createFile) {
+    DateFormat fileNameFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss_SSS");
+    if (!StringUtils.isBlank(parentDirName)) {
+      if (!parentDirName.endsWith("/") && !parentDirName.endsWith("\\")) {
+        parentDirName += File.separator;
+      }
+      
+      //make sure it exists and is a dir
+      File parentDir = new File(parentDirName);
+      if (!parentDir.exists()) {
+        if (!parentDir.mkdirs()) {
+          throw new RuntimeException("Cant make dir: " + parentDir.getAbsolutePath());
+        }
+      } else {
+        if (!parentDir.isDirectory()) {
+          throw new RuntimeException("Parent dir is not a directory: " + parentDir.getAbsolutePath());
+        } 
+      }
+      
+    } else {
+      //make it empty string so it will concatenate well
+      parentDirName = "";
+    }
+    //make sure suffix has a dot in it
+    if (!nameSuffix.contains(".")) {
+      nameSuffix = "." + nameSuffix;
+    }
+    
+    String fileName = parentDirName + namePrefix + "_" + fileNameFormat.format(new Date()) + nameSuffix;
+    int dotLocation = fileName.lastIndexOf('.');
+    String fileNamePre = fileName.substring(0,dotLocation);
+    String fileNamePost = fileName.substring(dotLocation);
+    File theFile = new File(fileName);
+
+    int i;
+    
+    for (i=0;i<1000;i++) {
+      
+      if (!theFile.exists()) {
+        break;
+      }
+      
+      fileName = fileNamePre + "_" + i + fileNamePost;
+      theFile = new File(fileName);
+      
+    }
+    
+    if (i>=1000) {
+      throw new RuntimeException("Cant find filename to create: " + fileName);
+    }
+    
+    if (createFile) {
+      try {
+        if (!theFile.createNewFile()) {
+          throw new RuntimeException("Cant create file, it returned false");
+        }
+      } catch (Exception e) {
+        throw new RuntimeException("Cant create file: " + fileName + ", make sure " +
+        		"permissions and such are ok, or change file location in grouper.properties if applicable", e);
+      }
+    }
+    return theFile;
+  }
+  
   /**
    * <pre>
    * Convert an object to a java.util.Date.  allows, dates, null, blank, 

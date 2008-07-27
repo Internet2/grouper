@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.3 2008-07-27 07:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -18,7 +18,7 @@ import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -38,13 +38,9 @@ public class GrouperLoader {
    */
   public static void main(String[] args) {
     
-    System.out.println("Hey");
-    
     //printAllSupportDdlUtilsPlatforms();
+    GrouperStartup.startup();
     
-    //figures out ddl
-    GrouperDdlUtils.bootstrap();
-
     //this will find all schedulable groups, and schedule them
     GrouperLoaderType.scheduleLoads();
     

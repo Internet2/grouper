@@ -19,16 +19,36 @@ package edu.internet2.middleware.grouper.privs;
 import  java.io.Serializable;
 import  java.util.*;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.FieldType;
+
 /** 
  * Privilege schema specification.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Privilege.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
  */
 public class Privilege implements Serializable {
 
   // PUBLIC CLASS CONSTANTS ///
   public static final long serialVersionUID = 931658631999330719L;
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (obj instanceof Privilege) {
+      if (StringUtils.equals(this.name, ((Privilege)obj).name)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   //get references to these from other classes, e.g. AccessPrivilege.READ, or NamingPrivilege
   // PRIVATE CLASS CONSTANTS //

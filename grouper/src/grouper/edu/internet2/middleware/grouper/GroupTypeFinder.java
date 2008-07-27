@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
@@ -34,33 +35,37 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.30 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.31 2008-07-27 07:37:24 mchyzer Exp $
  */
 public class GroupTypeFinder {
   
-  // PRIVATE CLASS VARIABLES //
-  private static Map types = new HashMap();
+  /** 
+   * every 10 minutes, get new elements
+   */
+  private static GrouperCache<String, GroupType> types = new GrouperCache<String, GroupType>(
+      GroupTypeFinder.class.getName() + ".typeCache", 10000, false, 60*10, 60*10, false);
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GroupTypeFinder.class);
 
 
-  // STATIC //
-  static {
-    LOG.info("finding group types");
-    
-    // We need to initialize the known types at this point to try and
-    // avoid running into Hibernate exceptions later on when attempting
-    // to save objects.
-    GroupType t;
-    Iterator  iter  = _findAll().iterator();
-    while (iter.hasNext()) {
-      t = (GroupType) iter.next();
-      types.put(t.getName(), t);
-      LOG.info("found group type: " + t);
-    }
-  } // static
-
+// 20080727: should do this in static block, too early, things arent initted yet...
+//  // STATIC //
+//  static {
+//    LOG.info("finding group types");
+//    
+//    // We need to initialize the known types at this point to try and
+//    // avoid running into Hibernate exceptions later on when attempting
+//    // to save objects.
+//    GroupType t;
+//    Iterator  iter  = _findAll().iterator();
+//    while (iter.hasNext()) {
+//      t = (GroupType) iter.next();
+//      types.put(t.getName(), t);
+//      LOG.info("found group type: " + t);
+//    }
+//  } // static
+//
 
   // PUBLIC CLASS METHODS //
 
@@ -193,6 +198,13 @@ public class GroupTypeFinder {
       throw new GrouperRuntimeException(msg, eGRE);
     }
   } // private Static Set _findAll()
+
+  /**
+   * clear cache (e.g. if schema export)
+   */
+  public static void clearCache() {
+    types.clear();
+  }
 
 } // public class GroupTypeFinder
 

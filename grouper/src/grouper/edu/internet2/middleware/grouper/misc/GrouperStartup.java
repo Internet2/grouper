@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.1 2008-07-23 06:41:29 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -34,10 +34,16 @@ public class GrouperStartup {
     //register hib objects
     Hib3DAO.initHibernateIfNotInitted();
     
-    //first make sure the DB ddl is up to date
-    GrouperDdlUtils.bootstrap();
+    if (runDdlBootstrap) {
+      //first make sure the DB ddl is up to date
+      GrouperDdlUtils.bootstrap(false, false);
+    }
     
     return true;
   }
+
+  /** if we should run the boot strap from startup */
+  public static boolean runDdlBootstrap = true;
+  
   
 }

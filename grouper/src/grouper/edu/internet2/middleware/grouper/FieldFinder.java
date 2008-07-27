@@ -22,6 +22,7 @@ import  java.util.LinkedHashSet;
 import  java.util.Map;
 import  java.util.Set;
 
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -31,11 +32,15 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.38 2008-07-21 04:43:56 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.39 2008-07-27 07:37:24 mchyzer Exp $
  */
 public class FieldFinder {
 
-  private static HashMap<String, Field> fieldCache = new HashMap<String, Field>();
+  /** 
+   * every 10 minutes, get new elements
+   */
+  private static GrouperCache<String, Field> fieldCache = new GrouperCache<String, Field>(
+      FieldFinder.class.getName() + ".fieldCache", 10000, false, 60*10, 60*10, false);
   
 
 
@@ -118,9 +123,9 @@ public class FieldFinder {
 
     // find fields to remove from the cache
     Set toDel = new LinkedHashSet();
-    for ( Map.Entry kv : fieldCache.entrySet() ) {
-      if ( !fieldsInRegistry.contains( (Field) kv.getValue() ) ) {
-        toDel.add( kv.getKey() );
+    for ( String key : fieldCache.keySet() ) {
+      if ( !fieldsInRegistry.contains( (Field) fieldCache.get(key) ) ) {
+        toDel.add( key );
       }
     }
     // and now remove the fields
@@ -130,5 +135,12 @@ public class FieldFinder {
     }
   } 
 
+  /**
+   * clear cache (e.g. if schema export)
+   */
+  public static void clearCache() {
+    fieldCache.clear();
+  }
+  
 }
 

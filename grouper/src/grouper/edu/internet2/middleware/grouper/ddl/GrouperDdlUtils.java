@@ -1,16 +1,23 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.2 2008-07-25 06:17:52 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.3 2008-07-27 07:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ddlutils.Platform;
@@ -25,14 +32,25 @@ import org.apache.ddlutils.model.Reference;
 import org.apache.ddlutils.model.Table;
 import org.apache.ddlutils.model.UniqueIndex;
 import org.apache.ddlutils.platform.SqlBuilder;
+import org.apache.tools.ant.DefaultLogger;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.SQLExec;
 
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleDdlInitBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
+import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -43,6 +61,17 @@ public class GrouperDdlUtils {
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperDdlUtils.class);
 
+  /** if inside bootstrap, ok to use hibernate */
+  private static boolean insideBootstrap = false;
+
+  /**
+   * if we are inside the bootstrap, or if everything is ok, we are good to go
+   * @return true if ok
+   */
+  public static boolean okToUseHibernate() {
+    return insideBootstrap || everythingRightVersion || RegistryInitializeSchema.inInitSchema;
+  }
+  
   /**
    * retrieve the ddl utils platform
    * @return the platform object
@@ -72,155 +101,447 @@ public class GrouperDdlUtils {
     GrouperStartup.startup();
   }
   
+  
+  /**
+   * true to compare ddl from db version to the current java version, 
+   * false to start over and find all diffs (without deleting existing) 
+   */
+  public static boolean compareFromDbDllVersion = true;
+
+  /**
+   * only run this once
+   */
+  private static boolean bootstrapDone = false;
+  
+  /** if everything is the right version */
+  private static boolean everythingRightVersion = true;
+  
   /**
    * startup the process, if the version table is not there, print out that ddl
+   * @param callFromCommandLine
+   * @param installDefaultGrouperData 
    */
   @SuppressWarnings("unchecked")
-  public static void bootstrap() {
-    
-    
-    Platform platform = retrievePlatform();
-    
-    //this is in the config or just in the driver
-    String dbname = platform.getName();
-    
-    LOG.info("Ddl db name is: '" + dbname + "'");
-    
-    //convenience to get the url, user, etc of the grouper db, helps get db connection
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-    
-    Connection connection = null;
+  public static void bootstrap(boolean callFromCommandLine, boolean installDefaultGrouperData) {
+    if (bootstrapDone) {
+      if (callFromCommandLine) {
+        throw new RuntimeException("DDL bootstrap is already done, something is wrong...");
+      }
+      return;
+    }
 
-    StringBuilder result = new StringBuilder();
-    
     try {
-      connection = grouperDb.connection();
+      //do here so we arent re-entrant
+      bootstrapDone = true;
+  
+      bootstrapHelper(callFromCommandLine, false, !callFromCommandLine || compareFromDbDllVersion, 
+          callFromCommandLine && RegistryInitializeSchema.isDropBeforeCreate(), 
+          callFromCommandLine && RegistryInitializeSchema.isWriteAndRunScript(), false, installDefaultGrouperData);
+    } catch (RuntimeException re) {
+      everythingRightVersion = false;
+      throw re;
+    }
+  }
 
-      List<String> objectNames = retrieveObjectNames();
+  /** keep track if we have already inserted a record here, then subsequent ones are updates */
+  private static Set<String> alreadyInsertedForObjectName = new HashSet<String>();
+  
+  /**
+   * helper method which is more easily testable
+   * @param callFromCommandLine
+   * @param fromUnitTest true if just testing this method
+   * @param theCompareFromDbVersion 
+   * @param theDropBeforeCreate
+   * @param theWriteAndRunScript
+   * @param dropOnly just drop stuff, e.g. for unit test
+   * @param installDefaultGrouperData if registry install should be called afterwards
+   */
+  @SuppressWarnings("unchecked")
+  static void bootstrapHelper(boolean callFromCommandLine, boolean fromUnitTest,
+      boolean theCompareFromDbVersion, boolean theDropBeforeCreate, boolean theWriteAndRunScript,
+      boolean dropOnly, boolean installDefaultGrouperData) {
+        
+    try {
+      insideBootstrap = true;
+
+      //clear out for this run (in case testing, might call this multiple times)
+      alreadyInsertedForObjectName.clear();
       
-      for (String objectName : objectNames) {
-
-        Class<Enum> objectEnumClass = retrieveDdlEnum(objectName);
+      //clear out cache of object versions since if multiple calls from unit tests, can get bad data
+      cachedDdls = null;
+      
+      //if we are messing with ddl, lets clear caches
+      FieldFinder.clearCache();
+      GroupTypeFinder.clearCache();
+      
+      Platform platform = retrievePlatform();
+      
+      //this is in the config or just in the driver
+      String dbname = platform.getName();
+      
+      LOG.info("Ddl db name is: '" + dbname + "'");
+      
+      //convenience to get the url, user, etc of the grouper db, helps get db connection
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+      
+      Connection connection = null;
+  
+      StringBuilder result = new StringBuilder();
+      
+      try {
+        connection = grouperDb.connection();
+  
+        List<String> objectNames = retrieveObjectNames();
         
-        //this is the version in java
-        int javaVersion = retrieveDdlJavaVersion(objectName); 
-        
-        DdlVersionable ddlVersionable = retieveVersion(objectName, javaVersion);
-        
-        StringBuilder historyBuilder = retrieveHistory(objectName);
-        
-        //this is the version in the db
-        int dbVersion = retrieveDdlDbVersion(objectName);
-
-        //see if same version, just continue, all good
-        if (javaVersion == dbVersion) {
-          continue;
-        }
-        
-        //if the java is less than db, then grouper was rolled back... that might not be good
-        if (javaVersion < dbVersion) {
-          LOG.warn("Java version of db object name: " + objectName + " is " 
-              + javaVersion + " which is less than the dbVersion " + dbVersion
-              + ".  This means grouper was upgraded and rolled back?  Check in the enum "
-              + objectEnumClass.getName() + " for details on if things are compatible.");
-          //not much we can do here... good luck!
-          continue;
-        }
-
-        //pattern to get only certain objects (e.g. GROUPERLOADER% )
-        String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
-        //to be safe lets only deal with tables related to this object
-        platform.getModelReader().setDefaultTablePattern(defaultTablePattern);
-        //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-
-        SqlBuilder sqlBuilder = platform.getSqlBuilder();
-
-        //the db version is less than the java version
-        //lets go up one version at a time until we are current
-        for (int version = dbVersion+1; version<=javaVersion;version++) {
-
-          ddlVersionable = retieveVersion(objectName, version);
-          //we just want a script, see if one exists for this version
-          String script = findScriptOverride(ddlVersionable, dbname);
+        for (String objectName : objectNames) {
+  
+          Class<Enum> objectEnumClass = null;
           
-          //if there was no override
-          if (StringUtils.isBlank(script)) {
+          try {
+            objectEnumClass = retrieveDdlEnum(objectName);
+          } catch (RuntimeException e) {
+            //if this is grouper or subject, we have problems
+            if (StringUtils.equals(objectName, "Grouper") || StringUtils.equals(objectName, "Subject")) {
+              //kill the app
+              everythingRightVersion = false;
+              throw e;
+            }
+            //this is probably ok I guess, since the UI tables might not have logic in ws or whatever...
+            LOG.warn("This might be ok, since the DDL isnt managed from this app, but here is the issue for ddl app '" + objectName + "' " + e.getMessage());
+          }
+          
+          //this is the version in java
+          int javaVersion = retrieveDdlJavaVersion(objectName); 
+          
+          DdlVersionable ddlVersionable = retieveVersion(objectName, javaVersion);
+          
+          StringBuilder historyBuilder = retrieveHistory(objectName);
+          
+          //this is the version in the db
+          int realDbVersion = retrieveDdlDbVersion(objectName);
+          
+          String versionStatus = "Ddl object type '" + objectName + "' has dbVersion: " 
+            + realDbVersion + " and java version: " + javaVersion;
+          
+          boolean versionMismatch = javaVersion != realDbVersion;
+  
+          if (callFromCommandLine) {
+            System.err.println(versionStatus);
+          } else {
+            if (versionMismatch) {
+              if (!LOG.isErrorEnabled()) {
+                System.err.println(versionStatus);
+              } else {
+                LOG.error(versionStatus);
+              }
+            } else {
+              LOG.info(versionStatus);
+            }
             
+          }
+  
+          //one originally in the DB
+          @SuppressWarnings("unused")
+          int originalDbVersion = realDbVersion;
+          
+          //this is the logic version in the objects
+          int dbVersion = realDbVersion;
+  
+          if (!theCompareFromDbVersion || theDropBeforeCreate) {
+            //if going from nothing, then go from nothing
+            dbVersion = 0;
+          }
+          
+          //reset to take into account if starting from scratch
+          versionMismatch = javaVersion != dbVersion;
+          
+          //see if same version, just continue, all good
+          if (!versionMismatch) {
+            continue;
+          }
+          
+          //shut down hibernate if not just testing
+          if (!fromUnitTest) {
+            everythingRightVersion = false;
+          }
+          
+          //if the java is less than db, then grouper was rolled back... that might not be good
+          if (javaVersion < dbVersion) {
+            LOG.warn("Java version of db object name: " + objectName + " is " 
+                + javaVersion + " which is less than the dbVersion " + dbVersion
+                + ".  This means grouper was upgraded and rolled back?  Check in the enum "
+                + objectEnumClass.getName() + " for details on if things are compatible.");
+            //not much we can do here... good luck!
+            continue;
+          }
+  
+          //pattern to get only certain objects (e.g. GROUPERLOADER% )
+          String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
+          //to be safe lets only deal with tables related to this object
+          platform.getModelReader().setDefaultTablePattern(defaultTablePattern);
+          //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+  
+          SqlBuilder sqlBuilder = platform.getSqlBuilder();
+          
+          // if deleting all, lets delete all:
+          if (theDropBeforeCreate) {
             //it needs a name, just use "grouper"
             Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                 grouperDb.getUser().toUpperCase(), null);
             Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                 grouperDb.getUser().toUpperCase(), null);
             
-            //get this to the previous version
-            upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, version-1);
-            //get this to the current version
-            upgradeDatabaseVersion(newDatabase, dbVersion, objectName, version);
+            removeAllTables(newDatabase);
             
-            //upgrade to version: version
-            //we need to upgrade from one version to another, but dont want to get the version from the DB, so 
-            //call protected method via reflection
-            StringWriter buffer = new StringWriter();
-            sqlBuilder.setWriter(buffer);
-            try {
-              
-              sqlBuilder.alterDatabase(oldDatabase, newDatabase, null);
-            } catch (Exception e) {
-              throw new RuntimeException("Problem with object name: " + objectName, e);
+            String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
+            
+            if (!StringUtils.isBlank(script)) {
+              result.append(script);
             }
             
-            //GrouperUtil.callMethod(sqlBuilder.getClass(), sqlBuilder, "processTableStructureChanges",
-            //  new Class[]{Database.class, Database.class, Table.class, Table.class, Map.class, List.class},
-            //  new Object[]{oldDatabase, newDatabase, oldDatabase.findTable("grouper_ext_loader_log"), table, null, GrouperUtil.toList(addColumnChange)});
-
-            script = buffer.toString();
-            
-            //String ddl = platform.getAlterTablesSql(connection, database);
-
-
           }
-          //make sure no single quotes in any of these...
-          String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
-          //is this db independent?  if not, figure out what the issues are and fix so we can have comments
-          String summary = timestamp + ": upgrade " + objectName + " from V" + (version-1) + " to V" + version;
-          result.append("/* " + summary + " */\n");
-          historyBuilder.insert(0, summary + ", ");
           
-          String historyString = StringUtils.abbreviate(historyBuilder.toString(), 4000);
+          if (!dropOnly) {
+            //the db version is less than the java version
+            //lets go up one version at a time until we are current
+            for (int version = dbVersion+1; version<=javaVersion;version++) {
+    
+              ddlVersionable = retieveVersion(objectName, version);
+              //we just want a script, see if one exists for this version
+              String script = findScriptOverride(ddlVersionable, dbname);
+              
+              //if there was no override
+              if (StringUtils.isBlank(script)) {
+                
+                //it needs a name, just use "grouper"
+                Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+                    grouperDb.getUser().toUpperCase(), null);
+                Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+                    grouperDb.getUser().toUpperCase(), null);
+                
+                if (theDropBeforeCreate) {
+                  removeAllTables(oldDatabase);
+                  removeAllTables(newDatabase);
+                }
+                
+                //get this to the previous version
+                upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, version-1);
+                //get this to the current version
+                upgradeDatabaseVersion(newDatabase, dbVersion, objectName, version);
+                
+                script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
+                    newDatabase);
+                
+                //String ddl = platform.getAlterTablesSql(connection, database);
+              }
+              //make sure no single quotes in any of these...
+              String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+              //is this db independent?  if not, figure out what the issues are and fix so we can have comments
+              String summary = timestamp + ": upgrade " + objectName + " from V" + (version-1) + " to V" + version;
+              
+              boolean scriptNotBlank = !StringUtils.isBlank(script);
+              //dont do this if shouldnt
+              boolean upgradeDdlTable = realDbVersion < version || theDropBeforeCreate;
+    
+              if (scriptNotBlank || upgradeDdlTable) {
+                result.append("/* " + summary + " */\n");
+              }
+              
+              if (scriptNotBlank) {
+                result.append(script).append("\n\n");
+              }
+    
+              if (upgradeDdlTable) {
+                realDbVersion = version;
+                historyBuilder.insert(0, summary + ", ");
+                
+                String historyString = StringUtils.abbreviate(historyBuilder.toString(), 4000);
+      
+                //see if already in db
+                if ((!containsDbRecord(objectName) || (version == 1 && theDropBeforeCreate)) 
+                    && !alreadyInsertedForObjectName.contains(objectName)) {
+                
+                  result.append("insert into grouper_ddl (id, object_name, db_version, " +
+                  		"last_updated, history) values ('" + GrouperUuid.getUuid() 
+                      +  "', '" + objectName + "', 1, '" + timestamp + "', \n'" + historyString + "');\n");
+                  //dont insert again for this object
+                  alreadyInsertedForObjectName.add(objectName);
+  
+                } else {
+                  
+                  result.append("update grouper_ddl set db_version = " + version 
+                      + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
+                      + "' where object_name = '" + objectName + "';\n");
+  
+                }
+                result.append("commit;\n\n");
+              }
+            }
+          }
+        }
+  
+      } finally {
+        GrouperUtil.closeQuietly(connection);
+      }
+  
+      String resultString = result.toString();
+      
+      if (StringUtils.isNotBlank(resultString)) {
+  
+        String scriptDirName = GrouperConfig.getProperty("ddlutils.directory.for.scripts");
+        
+        File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
+        GrouperUtil.saveStringIntoFile(scriptFile, resultString);
+  
+        String logMessage = "Grouper database schema DDL requires updates, script file is:\n" + scriptFile.getAbsolutePath();
+        if (LOG.isErrorEnabled()) {
+          LOG.error(logMessage);
+          if (callFromCommandLine) {
+            System.err.println(logMessage);
+          }
+        } else {
+          System.err.println(logMessage);
+        }
 
-          if (!StringUtils.isBlank(script)) {
-            result.append(script).append("\n\n");
+        if (theWriteAndRunScript) {
+  
+          PrintStream err = System.err;
+          PrintStream out = System.out;
+          InputStream in = System.in;
+  
+          //dont let ant mess up or close the streams
+          ByteArrayOutputStream baosOutErr = new ByteArrayOutputStream();
+          PrintStream newOutErr = new PrintStream(baosOutErr);
+  
+          System.setErr(newOutErr);
+          System.setOut(newOutErr);
+          
+          SQLExec sqlExec = new SQLExec();
+          
+          sqlExec.setSrc(scriptFile);
+          
+          sqlExec.setDriver(grouperDb.getDriver());
+  
+          sqlExec.setUrl(grouperDb.getUrl());
+          sqlExec.setUserid(grouperDb.getUser());
+          sqlExec.setPassword(grouperDb.getPass());
+
+          Project project = new GrouperAntProject();
+  
+          //tell output where to go
+          DefaultLogger defaultLogger = new DefaultLogger();
+          defaultLogger.setErrorPrintStream(newOutErr);
+          defaultLogger.setOutputPrintStream(newOutErr);
+          project.addBuildListener(defaultLogger);
+          
+          try {
+            sqlExec.setProject(project);
+  
+            sqlExec.execute();
+
+            logMessage = "Script was executed successfully";
+          } catch (Exception e) {
+            logMessage = "Error running script: " + ExceptionUtils.getFullStackTrace(e) + "\n";
+          } finally {
+          
+            newOutErr.flush();
+            newOutErr.close();
+            
+            System.setErr(err);
+            System.setOut(out);
+            System.setIn(in);
           }
-          if (version == 1) {
-            result.append("insert into grouper_ddl (id, object_name, db_version, " +
-            		"last_updated, history) values ('" + GrouperUuid.getUuid() 
-                +  "', '" + objectName + "', 1, '" + timestamp + "', \n'" + historyString + "');\n");
+          
+          String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
+  
+          if (!StringUtils.isBlank(antOutput)) {
+            logMessage = antOutput + "\n";
+          }
+          //if call from command line, print to screen
+          if (LOG.isErrorEnabled() && !callFromCommandLine) {
+            LOG.error(logMessage);
           } else {
-            result.append("update grouper_ddl set db_version = " + version 
-                + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
-                + "' where object_name = '" + objectName + "';\n");
+            System.out.println(logMessage);
           }
-          result.append("commit;\n\n");
+        } else {
+          if (callFromCommandLine) {
+            System.err.println("Note: this script was not executed per the grouper.properties: ddlutils.schemaexport.writeAndRunScript");
+            System.err.println("To run script via ant, carefully review it, then run this:\nant -Dname=" + scriptFile.getAbsolutePath() + " sql");
+          }
+        }
+      } else {
+        boolean printed = false;
+        String note = "NOTE: database table/object structure (ddl) is up to date";
+        if (!theCompareFromDbVersion) {
+          //no script to update
+          if (LOG.isErrorEnabled()) {
+            LOG.error(note);
+          } else {
+            printed = true;
+            System.err.println(note);
+          }
+        }
+        if (!printed && callFromCommandLine) {
+          System.err.println(note);
         }
       }
-      
-
-
+      if (installDefaultGrouperData) {
+        try {
+          RegistryInstall.main(new String[]{"internal"});
+        } catch (RuntimeException e) {
+          
+          GrouperDdlUtils.everythingRightVersion = false;
+          throw e;
+        }
+      }
     } finally {
-      GrouperUtil.closeQuietly(connection);
+      insideBootstrap = false;
     }
-
-    String resultString = result.toString();
-    
-    if (StringUtils.isNotBlank(resultString)) {
-      resultString = "Database requires updates:\n\n" + resultString + "\n\n";
-      LOG.error(resultString);
-      System.out.println("\n\n######################\n\n" + resultString 
-          + "\n\n######################\n\n");
-    }
-    
   }
 
+  /**
+   * @param objectName
+   * @param sqlBuilder
+   * @param oldDatabase
+   * @param newDatabase
+   * @return string
+   */
+  private static String convertChangesToString(String objectName, SqlBuilder sqlBuilder,
+      Database oldDatabase, Database newDatabase) {
+    String script;
+    //upgrade to version: version
+    //we need to upgrade from one version to another, but dont want to get the version from the DB, so 
+    //call protected method via reflection
+    StringWriter buffer = new StringWriter();
+    sqlBuilder.setWriter(buffer);
+    try {
+      
+      sqlBuilder.alterDatabase(oldDatabase, newDatabase, null);
+    } catch (Exception e) {
+      throw new RuntimeException("Problem with object name: " + objectName, e);
+    }
+    
+    //GrouperUtil.callMethod(sqlBuilder.getClass(), sqlBuilder, "processTableStructureChanges",
+    //  new Class[]{Database.class, Database.class, Table.class, Table.class, Map.class, List.class},
+    //  new Object[]{oldDatabase, newDatabase, oldDatabase.findTable("grouper_ext_loader_log"), table, null, GrouperUtil.toList(addColumnChange)});
+
+    script = buffer.toString();
+    return script;
+  }
+
+  /**
+   * remove all objects, the foreign keys, then the tables
+   * @param database
+   */
+  public static void removeAllTables(Database database) {
+    
+    //delete all foreign keys
+    for (Table table : GrouperUtil.nonNull(database.getTables())) {
+      database.removeTable(table);
+    }
+
+  }
+  
   /**
    * find history for a certain object name
    * @param objectName
@@ -309,9 +630,29 @@ public class GrouperDdlUtils {
       }
     
       cachedDdls = GrouperUtil.defaultIfNull(cachedDdls, new ArrayList<Hib3GrouperDdl>());
-    }
-    
+      
+      //call hook so they can be removed or added
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
+          LifecycleHooks.METHOD_DDL_INIT, HooksLifecycleDdlInitBean.class, 
+          (Object)cachedDdls, List.class, null);
 
+      
+    }
+  }
+
+  /**
+   * 
+   * @param ddlName
+   * @return true if record exists
+   */
+  private static boolean containsDbRecord(String ddlName) {
+    retrieveDdlsFromCache();
+    for (Hib3GrouperDdl hib3GrouperDdl  : cachedDdls) {
+      if (StringUtils.equals(hib3GrouperDdl.getObjectName(), ddlName)) {
+        return true;
+      }
+    }
+    return false;
   }
   
   /**
@@ -556,7 +897,7 @@ public class GrouperDdlUtils {
     
     Index index = unique ? new UniqueIndex() : new NonUniqueIndex();
     index.setName(indexName);
-    
+
     for (String columnName : columnNames) {
       
       Column column = GrouperDdlUtils.ddlutilsFindColumn(table, columnName);
