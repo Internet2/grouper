@@ -14,7 +14,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc.util;
 
@@ -24,24 +24,25 @@ import java.util.MissingResourceException;
 
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
-/** 
+/**
  * A utility for accessing data in a ResourceBundle.
- *
+ * 
  * @author Gil Singer
  */
-public class ResourceBundleUtil {
+public final class ResourceBundleUtil
+{
 
     /**
      * The ldappc properties file name used for test data.
-     */  
-    private static String LDAPPC_PROPERTIES_FILE = "ldappc";
+     */
+    private static final String   LDAPPC_PROPERTIES_FILE = "ldappc";
 
     /**
-     * The resource bundle
-     */  
+     * The resource bundle.
+     */
     private static ResourceBundle bundle;
 
-    static 
+    static
     {
         Locale currentLocale;
         ResourceBundle messages;
@@ -50,10 +51,20 @@ public class ResourceBundleUtil {
     }
 
     /**
-     * This method gets a String value from the message resource bundle.
-     * This method handles all key exceptions and creates a log message in case of an error.
-     *
-     * @param key String identifying the key to the object searched for in the resource bundle.
+     * Prevent instantiation.
+     */
+    private ResourceBundleUtil()
+    {
+    }
+
+    /**
+     * This method gets a String value from the message resource bundle. This
+     * method handles all key exceptions and creates a log message in case of an
+     * error.
+     * 
+     * @param key
+     *            String identifying the key to the object searched for in the
+     *            resource bundle.
      * @return String value stored in the class resource bundle.
      */
     public static String getString(String key)

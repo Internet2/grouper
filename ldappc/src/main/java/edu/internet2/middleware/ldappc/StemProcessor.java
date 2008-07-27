@@ -14,48 +14,51 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc;
 
-
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupAddException;
+import edu.internet2.middleware.grouper.GroupDeleteException;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemAddException;
-import edu.internet2.middleware.grouper.StemNotFoundException;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.StemDeleteException;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupAddException;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
-import edu.internet2.middleware.grouper.GroupDeleteException;
+import edu.internet2.middleware.grouper.StemNotFoundException;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
 /**
  * Class for finding subjects.
+ * 
  * @author Gil Singer
  */
-public class StemProcessor 
+public class StemProcessor
 {
-
-    //
-    // Stem delimiter
-    //
-    static final String STEM_DELIMITER = ":";
     /**
-     * Group session
+     * Stem delimiter.
+     */
+    static final String    STEM_DELIMITER = ":";
+
+    /**
+     * Group session.
      */
     private GrouperSession grouperSession;
-    
+
     /**
-     * the root stem
+     * the root stem.
      */
-    private Stem rootStem;
+    private Stem           rootStem;
 
     /**
      * Constructor: Creates and deletes stems and adds and deletes groups.
+     * 
+     * @param grouperSession
+     *            the grouper session.
      */
     public StemProcessor(GrouperSession grouperSession)
     {
@@ -69,50 +72,56 @@ public class StemProcessor
     }
 
     /**
-     * Add a stem to the root stem
-     * @param stemExtension the extension of the stem to be added to the root stem
-     * @param stemDisplayExtension the display extension of the stem to be added to the root stem
-     * @return true if operation is successful 
+     * Add a stem to the root stem.
+     * 
+     * @param stemExtension
+     *            the extension of the stem to be added to the root stem
+     * @param stemDisplayExtension
+     *            the display extension of the stem to be added to the root stem
+     * @return true if operation is successful
      */
-    public Stem addStem(String stemExtension, String stemDisplayExtension) 
+    public Stem addStem(String stemExtension, String stemDisplayExtension)
     {
         Stem stem = addStem(rootStem, stemExtension, stemDisplayExtension);
         return stem;
     }
 
     /**
-     * Add a stem to another stem
-     * @param stemBase the stem to which a new stem is to be added
-     * @param stemExtension the extension of the stem to be added
-     * @param stemDisplayExtension the extension display of the stem to be added
-     * @return true if operation is successful 
+     * Add a stem to another stem.
+     * 
+     * @param stemBase
+     *            the stem to which a new stem is to be added
+     * @param stemExtension
+     *            the extension of the stem to be added
+     * @param stemDisplayExtension
+     *            the extension display of the stem to be added
+     * @return true if operation is successful
      */
-    public Stem addStem(Stem stemBase, String stemExtension, String stemDisplayExtension) 
+    public Stem addStem(Stem stemBase, String stemExtension, String stemDisplayExtension)
     {
-
-        
         Stem stem = null;
         if (stemBase != null)
         {
-            try 
+            try
             {
                 String stemBaseExtension = stemBase.getExtension();
                 stem = StemFinder.findByName(grouperSession, stemBaseExtension + STEM_DELIMITER + stemExtension);
-                // If found, use the one that already exists; assume not an error.
+                // If found, use the one that already exists; assume not an
+                // error.
                 ErrorLog.warn(this.getClass(), "DEBUG: Stem not added as it already exists: " + stem.getName());
             }
-            catch(StemNotFoundException snfe)
+            catch (StemNotFoundException snfe)
             {
                 // Normal case
-                try 
+                try
                 {
-                    stem = stemBase.addChildStem(stemExtension, stemDisplayExtension);    
+                    stem = stemBase.addChildStem(stemExtension, stemDisplayExtension);
                 }
-                catch (StemAddException sae) 
+                catch (StemAddException sae)
                 {
                     ErrorLog.error(this.getClass(), "Stem not added: " + sae.getMessage());
                 }
-                catch (InsufficientPrivilegeException ipe) 
+                catch (InsufficientPrivilegeException ipe)
                 {
                     ErrorLog.error(this.getClass(), "Stem not added: " + ipe.getMessage());
                 }
@@ -125,13 +134,14 @@ public class StemProcessor
         return stem;
     }
 
-
-
     /**
-     * Delete a stem by name
-     * @param stemName the name of the stem to delete
-     * @param ignoreNotFound if true, do not log as an error if not found
-     * @return true if operation is successful 
+     * Delete a stem by name.
+     * 
+     * @param stemName
+     *            the name of the stem to delete
+     * @param ignoreNotFound
+     *            if true, do not log as an error if not found
+     * @return true if operation is successful
      */
     public boolean deleteStemByName(String stemName, boolean ignoreNotFound)
     {
@@ -142,22 +152,23 @@ public class StemProcessor
             stem = StemFinder.findByName(grouperSession, stemName);
             success = deleteStem(stem);
         }
-        catch(StemNotFoundException snfe)
+        catch (StemNotFoundException snfe)
         {
             if (!ignoreNotFound)
             {
-                ErrorLog.error( this.getClass(), "Could not delete stem named " + stemName + "; " +
-                        snfe.getMessage() );
-                        success = false;
+                ErrorLog.error(this.getClass(), "Could not delete stem named " + stemName + "; " + snfe.getMessage());
+                success = false;
             }
-        }    
+        }
         return success;
     }
 
     /**
-     * Delete a stem
-     * @param stem the stem to delete
-     * @return true if operation is successful 
+     * Delete a stem.
+     * 
+     * @param stem
+     *            the stem to delete
+     * @return true if operation is successful
      */
     public boolean deleteStem(Stem stem)
     {
@@ -165,24 +176,23 @@ public class StemProcessor
         //
         // Delete the stem
         //
-        
+
         if (stem != null)
         {
             try
-            { 
+            {
                 stem.delete();
-            } 
+            }
             catch (StemDeleteException sde)
             {
                 success = false;
-                ErrorLog.error(this.getClass(), "Could not delete stem: " 
-                        + stem.getName() + " -- " + sde.getMessage()); 
+                ErrorLog.error(this.getClass(), "Could not delete stem: " + stem.getName() + " -- " + sde.getMessage());
             }
-            catch (InsufficientPrivilegeException ipe) 
+            catch (InsufficientPrivilegeException ipe)
             {
                 success = false;
-                ErrorLog.error(this.getClass(), "Insufficent privilege for deleting stem: " 
-                        + stem.getName() + " -- " + ipe.getMessage());
+                ErrorLog.error(this.getClass(), "Insufficent privilege for deleting stem: " + stem.getName() + " -- "
+                        + ipe.getMessage());
             }
         }
         else
@@ -191,55 +201,62 @@ public class StemProcessor
         }
         return success;
     }
-    
+
     /**
-     * Add a group to a stem
-     * @param stemBase the stem to which a new group is to be added
-     * @param groupExtension the extension of the group to be added
-     * @param groupDisplayExtension the extension display of the group to be added
-     * @return the added group 
+     * Add a group to a stem.
+     * 
+     * @param stemBase
+     *            the stem to which a new group is to be added
+     * @param groupExtension
+     *            the extension of the group to be added
+     * @param groupDisplayExtension
+     *            the extension display of the group to be added
+     * @return the added group
      */
-    public Group addGroup(Stem stemBase, String groupExtension, String groupDisplayExtension) 
+    public Group addGroup(Stem stemBase, String groupExtension, String groupDisplayExtension)
     {
         Group group = null;
         if (stemBase != null)
         {
-            try 
+            try
             {
                 String stemBaseExtension = stemBase.getExtension();
                 group = GroupFinder.findByName(grouperSession, stemBaseExtension + STEM_DELIMITER + groupExtension);
-                // If found, use the one that already exists; assume not an error.
+                // If found, use the one that already exists; assume not an
+                // error.
             }
-            catch(GroupNotFoundException snfe)
+            catch (GroupNotFoundException snfe)
             {
                 // Normal Case
-                try 
+                try
                 {
                     group = stemBase.addChildGroup(groupExtension, groupDisplayExtension);
                 }
-                catch (GroupAddException sae) 
+                catch (GroupAddException sae)
                 {
                     ErrorLog.error(this.getClass(), "Group not added: " + sae.getMessage());
                 }
-                catch (InsufficientPrivilegeException ipe) 
+                catch (InsufficientPrivilegeException ipe)
                 {
                     ErrorLog.error(this.getClass(), "Group not added: " + ipe.getMessage());
-                }    
+                }
             }
 
         }
         else
         {
-            ErrorLog.error(this.getClass(), "Error attempting to to add a group, "
-                    + groupExtension + ", to an non-existent stem.");
+            ErrorLog.error(this.getClass(), "Error attempting to to add a group, " + groupExtension
+                    + ", to an non-existent stem.");
         }
         return group;
     }
 
     /**
-     * Delete a group
-     * @param group the group to delete
-     * @return true if operation is successful 
+     * Delete a group.
+     * 
+     * @param group
+     *            the group to delete
+     * @return true if operation is successful
      */
     public boolean deleteGroup(Group group)
     {
@@ -247,39 +264,42 @@ public class StemProcessor
         //
         // Delete the group
         //
-        
+
         if (group != null)
         {
             try
-            { 
+            {
                 group.delete();
-            } 
+            }
             catch (GroupDeleteException gde)
             {
                 success = false;
-                ErrorLog.error(this.getClass(), "Could not delete group: " 
-                        + group.getName() + " -- " + gde.getMessage()); 
+                ErrorLog.error(this.getClass(), "Could not delete group: " + group.getName() + " -- "
+                        + gde.getMessage());
             }
-            catch (InsufficientPrivilegeException ipe) 
+            catch (InsufficientPrivilegeException ipe)
             {
                 success = false;
-                ErrorLog.error(this.getClass(), "Insufficent privilege for deleting group: " 
-                        + group.getName() + " -- " + ipe.getMessage());
+                ErrorLog.error(this.getClass(), "Insufficent privilege for deleting group: " + group.getName() + " -- "
+                        + ipe.getMessage());
             }
         }
         else
         {
             ErrorLog.error(this.getClass(), "Attempting to delete a null group.");
-   
+
         }
         return success;
     }
 
     /**
-     * Delete a group by name
-     * @param groupName the name of the group to delete
-     * @param ignoreNotFound if true, do not log as an error if not found
-     * @return true if operation is successful 
+     * Delete a group by name.
+     * 
+     * @param groupName
+     *            the name of the group to delete
+     * @param ignoreNotFound
+     *            if true, do not log as an error if not found
+     * @return true if operation is successful
      */
     public boolean deleteGroupByName(String groupName, boolean ignoreNotFound)
     {
@@ -290,35 +310,37 @@ public class StemProcessor
             group = GroupFinder.findByName(grouperSession, groupName);
             success = deleteGroup(group);
         }
-        catch(GroupNotFoundException gnfe)
+        catch (GroupNotFoundException gnfe)
         {
             if (!ignoreNotFound)
             {
-                ErrorLog.error( this.getClass(), "Could not delete group named " + groupName + "; " +
-                        gnfe.getMessage() );
-                        success = false;
+                ErrorLog.error(this.getClass(), "Could not delete group named " + groupName + "; " + gnfe.getMessage());
+                success = false;
             }
-        }    
+        }
         return success;
     }
-    
+
     /**
-     * Determine if a stem exists
-     * @param grouperSession the grouper session
-     * @param stemName name to checked for existence
+     * Determine if a stem exists.
+     * 
+     * @param grouperSession
+     *            the grouper session
+     * @param stemName
+     *            name to checked for existence
      * @return true if stem exists
      */
     public static boolean doesStemExist(GrouperSession grouperSession, String stemName)
     {
         boolean exists = false;
-        
+
         if (stemName != null)
         {
             try
-            { 
-                StemFinder.findByName(grouperSession, stemName); 
+            {
+                StemFinder.findByName(grouperSession, stemName);
                 exists = true;
-            } 
+            }
             catch (StemNotFoundException sde)
             {
                 exists = false;
@@ -326,5 +348,4 @@ public class StemProcessor
         }
         return exists;
     }
-} 
-
+}

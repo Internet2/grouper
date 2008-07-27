@@ -18,21 +18,18 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
-
 
 /**
  * This synchronizes memberships stored in the directory as strings in an
@@ -41,22 +38,22 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
 public class StringMembershipSynchronizer extends MembershipSynchronizer
 {
     /**
-     * Holds the membership listing attribute modifications
+     * Holds the membership listing attribute modifications.
      */
     private AttributeModifier membershipMods;
 
     /**
-     * Holds the object class attribute modifications
+     * Holds the object class attribute modifications.
      */
     private AttributeModifier objectClassMods;
 
     /**
-     * Name of the group naming attribute
+     * Name of the group naming attribute.
      */
-    private String groupNamingAttribute;
+    private String            groupNamingAttribute;
 
     /**
-     * Constructs a <code>StringMembershipSynchronizer</code>
+     * Constructs a <code>StringMembershipSynchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to use for provisioning
@@ -68,11 +65,14 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      *            Signet provisioning options
      * @param subjectCache
      *            Subject cache to speed subject retrieval
+     * 
+     * @throws NamingException
+     *             thrown if a naming exception occurs.
+     * @throws LdappcConfigurationException
+     *             thrown if the configuration isn't correct.
      */
-    public StringMembershipSynchronizer(LdapContext ctx, String subject,
-            GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options,
-            SubjectCache subjectCache)
+    public StringMembershipSynchronizer(LdapContext ctx, String subject, GrouperProvisionerConfiguration configuration,
+            GrouperProvisionerOptions options, SubjectCache subjectCache)
             throws NamingException, LdappcConfigurationException
     {
         //
@@ -90,21 +90,20 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
             throw new LdappcConfigurationException(
                     "The name of the attribute to store membership group strings is null.");
         }
-        
+
         //
         // Initialize the instance attributes
         //
         objectClassMods = new AttributeModifier(LdapUtil.OBJECT_CLASS_ATTRIBUTE);
-        membershipMods = new AttributeModifier(listAttrName,configuration.getMemberGroupsListEmptyValue());
-        
+        membershipMods = new AttributeModifier(listAttrName, configuration.getMemberGroupsListEmptyValue());
+
         //
         // Get the group naming attribute
         //
         groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
         if (groupNamingAttribute == null)
         {
-            throw new LdappcConfigurationException(
-                    "The name of the group naming attribute is null.");
+            throw new LdappcConfigurationException("The name of the group naming attribute is null.");
         }
     }
 
@@ -126,10 +125,9 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
      * @see edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer#performInclude(String,
      *      int)
      */
-    protected void performInclude(String groupNameString, int status)
-            throws NamingException, LdappcException
+    protected void performInclude(String groupNameString, int status) throws NamingException, LdappcException
     {
-            membershipMods.store(groupNameString);
+        membershipMods.store(groupNameString);
     }
 
     /**
@@ -169,10 +167,8 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
         //
         // Get the existing values
         //
-        Attributes attributes = getContext().getAttributes(
-                getSubject(),
-                new String[] { membershipMods.getAttributeName(),
-                        objectClassMods.getAttributeName() });
+        Attributes attributes = getContext().getAttributes(getSubject(),
+                new String[] { membershipMods.getAttributeName(), objectClassMods.getAttributeName() });
 
         //
         // Initialize the membership listing attribute modifier
@@ -184,8 +180,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
         // Populate the objectClass modifier if needed
         //
         objectClassMods.init();
-        String stringObjectClass = getConfiguration()
-                .getMemberGroupsListObjectClass();
+        String stringObjectClass = getConfiguration().getMemberGroupsListObjectClass();
         if (stringObjectClass != null)
         {
             attribute = attributes.get(objectClassMods.getAttributeName());
@@ -210,10 +205,8 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
         //
         // Determine how many modifications are to be performed
         //
-        ModificationItem[] objectClassModItems = objectClassMods
-                .getModifications();
-        ModificationItem[] membershipModItems = membershipMods
-                .getModifications();
+        ModificationItem[] objectClassModItems = objectClassMods.getModifications();
+        ModificationItem[] membershipModItems = membershipMods.getModifications();
         int modCnt = objectClassModItems.length + membershipModItems.length;
 
         //

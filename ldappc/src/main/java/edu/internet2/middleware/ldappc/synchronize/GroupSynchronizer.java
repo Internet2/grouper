@@ -41,17 +41,17 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
 public abstract class GroupSynchronizer extends GrouperSynchronizer
 {
     /**
-     * Stem delimiter
+     * Stem delimiter.
      */
     static final String STEM_DELIMITER = ":";
 
     /**
-     * DN of the root entry that is being synchronized
+     * DN of the root entry that is being synchronized.
      */
     private Name root;
 
     /**
-     * Constructs a <code>GroupSynchronizer</code>
+     * Constructs a <code>GroupSynchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
@@ -74,7 +74,7 @@ public abstract class GroupSynchronizer extends GrouperSynchronizer
     }
 
     /**
-     * Get the DN of the root
+     * Get the DN of the root.
      * 
      * @return DN of the root
      */
@@ -84,7 +84,7 @@ public abstract class GroupSynchronizer extends GrouperSynchronizer
     }
 
     /**
-     * Set the DN of the root
+     * Set the DN of the root.
      * 
      * @param root
      *            DN of the root

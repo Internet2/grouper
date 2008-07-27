@@ -14,20 +14,19 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc;
-
 
 /**
  * Class for containing global constants for the Ldappc program.
  */
-public class Constants {
-
+public class Constants
+{
     /**
      * A flag to allow the use of reflection in the testing code to access
-     * private and protected members.  Setting this to false will cause
-     * some test cases to fail.  
-     */ 
+     * private and protected members. Setting this to false will cause some test
+     * cases to fail.
+     */
     public static final boolean ACCESSIBILITY = true;
 }
