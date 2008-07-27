@@ -44,22 +44,22 @@ import edu.internet2.middleware.signet.Subsystem;
 public abstract class PermissionSynchronizer extends SignetSynchronizer
 {
     /**
-     * DN of the subject whose permissions are being synchronized
+     * DN of the subject whose permissions are being synchronized.
      */
     private Name subject;
 
     /**
-     * Signet permissions function queries
+     * Signet permissions function queries.
      */
-    private Set functionQueries;
+    private Set  functionQueries;
 
     /**
-     * Signet permissions subsystem queries
+     * Signet permissions subsystem queries.
      */
-    private Set subsystemQueries;
+    private Set  subsystemQueries;
 
     /**
-     * Constructs a <code>PermissionSynchronizer</code>
+     * Constructs a <code>PermissionSynchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
@@ -72,12 +72,10 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      */
-    public PermissionSynchronizer(LdapContext ctx, Name subject,
-            SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options,
-            SubjectCache subjectCache)
+    public PermissionSynchronizer(LdapContext ctx, Name subject, SignetProvisionerConfiguration configuration,
+            SignetProvisionerOptions options, SubjectCache subjectCache)
     {
-        super(ctx,configuration,options, subjectCache);
+        super(ctx, configuration, options, subjectCache);
         setSubject(subject);
 
         //
@@ -88,7 +86,7 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
     }
 
     /**
-     * Get the DN of the subject
+//     * Get the DN of the subject.
      * 
      * @return DN of the subject
      */
@@ -98,7 +96,7 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
     }
 
     /**
-     * Set the DN of the subject
+     * Set the DN of the subject.
      * 
      * @param subject
      *            DN of the subject
@@ -116,7 +114,9 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * included.
      * 
      * @param permission
-     *            Permission
+     *            Permission totest for inclusion
+     * @param function
+     *            Function to test for inclusion
      * @return <code>true</code> if the permission is to be included, and
      *         <code>false</code> otherwise.
      */
@@ -189,6 +189,8 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * 
      * @param privilege
      *            Privilege holding the permission to be included
+     * @param function
+     *            Function to be included
      * @param status
      *            Either {@link #STATUS_NEW}, {@link #STATUS_MODIFIED},
      *            {@link #STATUS_UNCHANGED} or {@link #STATUS_UNKNOWN}.
@@ -197,8 +199,8 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected abstract void performInclude(Privilege privilege, Function function, int status)
-            throws NamingException, LdappcException;
+    protected abstract void performInclude(Privilege privilege, Function function, int status) throws NamingException,
+            LdappcException;
 
     /**
      * Perform any initialization prior to processing the set of permissions.
@@ -208,16 +210,15 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      */
-    protected abstract void initialize() throws NamingException,
-            LdappcException;
+    protected abstract void initialize() throws NamingException, LdappcException;
 
     /**
      * Synchronizes the privileges underlying permissions with those in the
      * directory. The privileges are necessary to provide the data needed to
      * identify the permission in the directory.
      * 
-     * @param privileges
-     *            Set of privileges
+     * @param assignments
+     *            Set of privilege assignments
      * @throws javax.naming.NamingException
      *             thrown if a Naming error occurs
      * @throws LdappcException
@@ -233,15 +234,18 @@ public abstract class PermissionSynchronizer extends SignetSynchronizer
         //
         // Get the set of privileges and iterate over them
         //
-        for (Assignment assignment : assignments) {
-            for (Privilege privilege : (Set<Privilege>) PrivilegeImpl.getPrivileges(assignment)) {
+        for (Assignment assignment : assignments)
+        {
+            for (Privilege privilege : (Set<Privilege>) PrivilegeImpl.getPrivileges(assignment))
+            {
                 //
                 // Get the permission
                 //
                 Permission permission = privilege.getPermission();
 
                 //
-                // If the permission is included, process it indicating whether or
+                // If the permission is included, process it indicating whether
+                // or
                 // not it should be provisioned
                 //
                 if (isIncluded(permission, assignment.getFunction()))
