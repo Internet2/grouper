@@ -50,16 +50,27 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.subject.Subject;
 
 /**
- * This synchronizes groups stored in the directory as entries
+ * This synchronizes groups stored in the directory as entries.
  */
 public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
 {
+    /**
+     * The name of the group being provisioned.
+     */
     private String            groupNameString;
+
+    /**
+     * The file writer for the updates.
+     */
     private BufferedWriter    updateWriter;
+
+    /**
+     * The members of the group.
+     */
     private AttributeModifier members;
 
     /**
-     * Constructs a <code>GroupStringMembershipSynchronizer</code>
+     * Constructs a <code>GroupStringMembershipSynchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to be used for synchronizing
@@ -74,11 +85,12 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      * @throws NamingException
+     *             Thrown if a naming exception occurs.
      * @throws LdappcConfigurationException
+     *             Thrown if the configuration file is not correct.
      */
-    public GroupStringMembershipSynchronizer(LdapContext ctx, String groupNameString,
-            BufferedWriter updateWriter, GrouperProvisionerConfiguration configuration,
-            GrouperProvisionerOptions options, SubjectCache subjectCache)
+    public GroupStringMembershipSynchronizer(LdapContext ctx, String groupNameString, BufferedWriter updateWriter,
+            GrouperProvisionerConfiguration configuration, GrouperProvisionerOptions options, SubjectCache subjectCache)
             throws NamingException, LdappcConfigurationException
     {
         //
@@ -149,8 +161,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
         }
 
         // DebugLog.info("Updating memberships for group " + groupNameString);
-        for (Map.Entry<String, LdapSearchFilter> entry : getConfiguration()
-                .getSourceSubjectLdapFilters().entrySet())
+        for (Map.Entry<String, LdapSearchFilter> entry : getConfiguration().getSourceSubjectLdapFilters().entrySet())
         {
             String sourceId = entry.getKey();
             LdapSearchFilter ldapSearchFilter = entry.getValue();
@@ -164,7 +175,8 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
             searchControls.setReturningAttributes(searchAttributes);
             searchControls.setReturningObjFlag(false);
             searchControls.setSearchScope(ldapSearchFilter.getScope());
-            searchControls.setTimeLimit(600000); // ten minutes
+            // ten minutes
+            searchControls.setTimeLimit(600000);
 
             //
             // Get the member list attribute name and object class
@@ -182,8 +194,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
             // search
             // filter with "*"
             //
-            String ldapFilter = LdapUtil
-                    .convertParameterToAsterisk(ldapSearchFilter.getFilter(), 0);
+            String ldapFilter = LdapUtil.convertParameterToAsterisk(ldapSearchFilter.getFilter(), 0);
 
             //
             // Build the actual filter expression for performing the search
@@ -191,8 +202,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
             String filterExpr = ldapFilter + "(" + listAttribute + "=" + groupNameString + ")";
             if (listObjectClass != null)
             {
-                filterExpr = filterExpr + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
-                        + listObjectClass + ")";
+                filterExpr = filterExpr + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + listObjectClass + ")";
             }
             filterExpr = "(&" + filterExpr + ")";
 
@@ -200,13 +210,11 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
             NamingEnumeration answer = null;
             try
             {
-                answer = getContext()
-                        .search(ldapSearchFilter.getBase(), filterExpr, searchControls);
+                answer = getContext().search(ldapSearchFilter.getBase(), filterExpr, searchControls);
             }
             catch (Exception e)
             {
-                throw new LdappcRuntimeException("unable to determine LDAP members for group "
-                        + groupNameString, e);
+                throw new LdappcRuntimeException("unable to determine LDAP members for group " + groupNameString, e);
             }
 
             try
@@ -220,8 +228,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
                     //
                     if (!searchResult.isRelative())
                     {
-                        throw new EntryNotFoundException(
-                                "Unable to resolve the reference found using " + filterExpr);
+                        throw new EntryNotFoundException("Unable to resolve the reference found using " + filterExpr);
                     }
 
                     //
@@ -249,6 +256,9 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
     /**
      * This commits any changes not already committed to the directory.
      * 
+     * @param caughtExceptions
+     *            vector of exceptions caught during processing.
+     * 
      * @throws NamingException
      *             thrown if a Naming error occurs
      * @throws LdappcException
@@ -267,8 +277,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
                 String value = (String) valueEnum.next();
                 try
                 {
-                    updateWriter.write(value + "\t" + modItem.getModificationOp() + "\t"
-                            + groupNameString + "\n");
+                    updateWriter.write(value + "\t" + modItem.getModificationOp() + "\t" + groupNameString + "\n");
                 }
                 catch (IOException e)
                 {
@@ -286,7 +295,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
      *            Set of Groups
      * @throws javax.naming.NamingException
      *             thrown if a Naming error occurs
-     * @throws MultiErrorException
+     * @throws NamingException
      *             thrown if one or more exceptions occurred that did not need
      *             to stop all processing
      * @throws LdappcException
@@ -326,8 +335,8 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
         //
         if (caughtExceptions.size() > 0)
         {
-            throw new MultiErrorException("Non-fatal errors occurred processing the members for "
-                    + groupNameString, (Exception[]) caughtExceptions.toArray(new Exception[0]));
+            throw new MultiErrorException("Non-fatal errors occurred processing the members for " + groupNameString,
+                    (Exception[]) caughtExceptions.toArray(new Exception[0]));
         }
     }
 
