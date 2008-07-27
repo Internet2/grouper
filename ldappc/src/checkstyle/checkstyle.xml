@@ -63,7 +63,10 @@ Code standard checking for Internet 2 code
         <module name="DoubleCheckedLocking"/>
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
-        <module name="HiddenField"/>
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+            <property name="ignoreSetter" value="true"/>
+        </module>
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
         <module name="MissingSwitchDefault"/>
@@ -76,9 +79,11 @@ Code standard checking for Internet 2 code
         <module name="VisibilityModifier"/>
         <module name="ArrayTypeStyle"/>
         <module name="UpperEll"/>
+<!--
         <module name="AbstractClassName">
             <property name="format" value="^Abstract.*$|^Base.*$"/>
         </module>
+-->
         <module name="AnonInnerLength"/>
         <module name="EmptyForInitializerPad"/>
         <module name="CovariantEquals"/>
