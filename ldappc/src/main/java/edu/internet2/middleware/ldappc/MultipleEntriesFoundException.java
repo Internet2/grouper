@@ -23,12 +23,14 @@ package edu.internet2.middleware.ldappc;
  */
 public class MultipleEntriesFoundException extends LdappcException
 {
+    /**
+     * Serial version UID. Needed because this class implements Serializable.
+     */
     public static final long serialVersionUID = 1;
 
     /**
-     * Constructs a new exception with null as its detail
-     * message. The cause is not initialized, and may subsequently be
-     * initialized by a call to
+     * Constructs a new exception with null as its detail message. The cause is
+     * not initialized, and may subsequently be initialized by a call to
      * {@link java.lang.Throwable#initCause(java.lang.Throwable)}.
      */
     public MultipleEntriesFoundException()
@@ -37,9 +39,8 @@ public class MultipleEntriesFoundException extends LdappcException
     }
 
     /**
-     * Constructs a new exception with the specified detail
-     * message. The cause is not initialized, and may subsequently be
-     * initialized by a call to
+     * Constructs a new exception with the specified detail message. The cause
+     * is not initialized, and may subsequently be initialized by a call to
      * {@link java.lang.Throwable#initCause(java.lang.Throwable)}.
      * 
      * @param message
@@ -53,9 +54,9 @@ public class MultipleEntriesFoundException extends LdappcException
     }
 
     /**
-     * Constructs a new exception with the specified detail
-     * message and cause. Note that the detail message associated with cause is
-     * not automatically incorporated in this exception's detail message.
+     * Constructs a new exception with the specified detail message and cause.
+     * Note that the detail message associated with cause is not automatically
+     * incorporated in this exception's detail message.
      * 
      * @param message
      *            the detail message (which is saved for later retrieval by the

@@ -28,12 +28,12 @@ public interface SignetProvisionerConfiguration extends
         ProvisionerConfiguration
 {
     /**
-     * Indicates storing the permissions listing as a string
+     * Indicates storing the permissions listing as a string.
      */
     public static final String PERMISSIONS_LISTING_STRING = "string";
 
     /**
-     * Indicates storing the permissions listing as eduPermission objects
+     * Indicates storing the permissions listing as eduPermission objects.
      */
     public static final String PERMISSIONS_LISTING_EDU_PERMISSION = "eduPermission";
 

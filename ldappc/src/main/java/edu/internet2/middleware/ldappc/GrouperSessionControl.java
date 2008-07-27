@@ -20,96 +20,102 @@ package edu.internet2.middleware.ldappc;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import  edu.internet2.middleware.grouper.GrouperSession;
-import  edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-
-import  edu.internet2.middleware.subject.Subject;
-
-//import  edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.subject.Subject;
 
 /**
- * Class for Starting and stopping a grouper session 
+ * Class for Starting and stopping a grouper session.
+ * 
  * @author Gil Singer
  */
-public class GrouperSessionControl 
+public class GrouperSessionControl
 {
     /**
      * Flag indicating whether a session has been started and not yet stopped.
      */
-    private boolean sessionGoing;
+    private boolean        sessionGoing;
 
     /**
-     * Group session
+     * Group session.
      */
     private GrouperSession session;
 
     /**
-     * The subject for the session
+     * The subject for the session.
      */
-    private Subject subject;
+    private Subject        subject;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public GrouperSessionControl()
     {
     }
-    
+
     /**
      * Start a GrouperSystem session.
+     * 
+     * @param subjectId
+     *            the subject ID.
+     * 
      * @return true if session started; else false
      */
     public boolean startSession(String subjectId)
     {
         boolean started = true;
-        try 
+        try
         {
-            //subject = SubjectFinder.findById(subjectId, "application", InternalSourceAdapter.ID);
-              
+            // subject = SubjectFinder.findById(subjectId, "application",
+            // InternalSourceAdapter.ID);
+
             GrouperSubjectRetriever grouperSubjectRetriever = new GrouperSubjectRetriever();
             subject = grouperSubjectRetriever.findSubjectById(subjectId);
-     
+
             if (subject == null)
             {
-                ErrorLog.error(this.getClass(), "Subject is null in GrouperSessionControl, check the subjectId:" + subjectId);
+                ErrorLog.error(this.getClass(), "Subject is null in GrouperSessionControl, check the subjectId:"
+                        + subjectId);
             }
 
-            try 
+            try
             {
                 session = GrouperSession.start(subject);
                 DebugLog.info("Started GrouperSession: " + session);
             }
-            catch (SessionException se) 
+            catch (SessionException se)
             {
-                ErrorLog.error(this.getClass(), "Failed to start GrouperSession for subjectId= " 
-                       + subjectId + ":    "  + se.getMessage());
+                ErrorLog.error(this.getClass(), "Failed to start GrouperSession for subjectId= " + subjectId + ":    "
+                        + se.getMessage());
                 started = false;
             }
             if (session == null)
             {
-                ErrorLog.error(this.getClass(), "Session is null in GrouperSessionControl");    
+                ErrorLog.error(this.getClass(), "Session is null in GrouperSessionControl");
             }
-    
+
         }
-        catch (Exception e) {
-            ErrorLog.error(this.getClass(), "Failed to find GrouperSession for subjectId: '" 
-            		+ subjectId + "', "  + ExceptionUtils.getFullStackTrace(e));
+        catch (Exception e)
+        {
+            ErrorLog.error(this.getClass(), "Failed to find GrouperSession for subjectId: '" + subjectId + "', "
+                    + ExceptionUtils.getFullStackTrace(e));
             started = false;
         }
         sessionGoing = started;
         return started;
     }
-        
+
     /**
      * Stop a Grouper session.
+     * 
      * @return true if session stopped; else false
      */
     public boolean stopSession()
     {
         boolean stopped = true;
-        try 
+        try
         {
             // Need to save session string before stopping it so that
             // we can print it's description. (Fixes GRP-14. KAH)
@@ -117,7 +123,7 @@ public class GrouperSessionControl
             session.stop();
             DebugLog.info("Stopped GrouperSession: " + sessionString);
         }
-        catch (SessionException se) 
+        catch (SessionException se)
         {
             ErrorLog.error(this.getClass(), "Failed to stop GrouperSession: " + se.getMessage());
             stopped = false;
@@ -128,6 +134,7 @@ public class GrouperSessionControl
 
     /**
      * Get the session.
+     * 
      * @return The session
      */
     public GrouperSession getSession()
@@ -136,7 +143,8 @@ public class GrouperSessionControl
     }
 
     /**
-     * Determine if the session is running
+     * Determine if the session is running.
+     * 
      * @return The session
      */
     public boolean isSessionGoing()
@@ -144,5 +152,4 @@ public class GrouperSessionControl
         return sessionGoing;
     }
 
-} 
-
+}

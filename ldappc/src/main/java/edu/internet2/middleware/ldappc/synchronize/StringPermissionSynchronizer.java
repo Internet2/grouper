@@ -46,22 +46,22 @@ import edu.internet2.middleware.signet.Privilege;
 public class StringPermissionSynchronizer extends PermissionSynchronizer
 {
     /**
-     * Delimiter to use in the string representation of the permission
+     * Delimiter to use in the string representation of the permission.
      */
     public static final String DELIMITER = ":";
 
     /**
-     * Holds the permission listing attribute modifications
+     * Holds the permission listing attribute modifications.
      */
-    private AttributeModifier permissionMods;
+    private AttributeModifier  permissionMods;
 
     /**
-     * Holds the objectClass modifications
+     * Holds the objectClass modifications.
      */
-    private AttributeModifier objectClassMods;
+    private AttributeModifier  objectClassMods;
 
     /**
-     * Constructs a <code>StringPermissionSynchronizer</code>
+     * Constructs a <code>StringPermissionSynchronizer</code>.
      * 
      * @param ctx
      *            Ldap context to use for provisioning
@@ -73,11 +73,14 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
      *            Signet provisioning options
      * @param subjectCache
      *            Subject cache to speed subject retrieval
+     * 
+     * @throws NamingException
+     *             Thrown when a naming exception occurs.
+     * @throws LdappcConfigurationException
+     *             Thrown if the configuration file is incorrect.
      */
-    public StringPermissionSynchronizer(LdapContext ctx, Name subject,
-            SignetProvisionerConfiguration configuration,
-            SignetProvisionerOptions options,
-            SubjectCache subjectCache)
+    public StringPermissionSynchronizer(LdapContext ctx, Name subject, SignetProvisionerConfiguration configuration,
+            SignetProvisionerOptions options, SubjectCache subjectCache)
             throws NamingException, LdappcConfigurationException
     {
         //
@@ -89,24 +92,20 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
         // Try to get the permissions listing string attribute name as it is
         // needed to initialize instance variables
         //
-        String listAttrName = configuration
-                .getPermissionsListingStringAttribute();
+        String listAttrName = configuration.getPermissionsListingStringAttribute();
         if (listAttrName == null)
         {
-            throw new LdappcConfigurationException(
-                    "The name of the attribute to store permission strings is null.");
+            throw new LdappcConfigurationException("The name of the attribute to store permission strings is null.");
         }
 
         //
         // Build the permission string "empty value" value. It must be prefixed
         // so it will be deleted if provisioned permissions are added
         //
-        String emptyValue = configuration
-                .getPermissionsListingStringEmptyValue();
+        String emptyValue = configuration.getPermissionsListingStringEmptyValue();
         if (emptyValue != null)
         {
-            emptyValue = configuration.getPermissionsListingStringPrefix()
-                    + DELIMITER
+            emptyValue = configuration.getPermissionsListingStringPrefix() + DELIMITER
                     + configuration.getPermissionsListingStringEmptyValue();
         }
 
@@ -126,6 +125,8 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
      * 
      * @param privilege
      *            Privilege holding the permission to be included
+     * @param function
+     *            The function to be included
      * @param status
      *            Either {@link #STATUS_NEW}, {@link #STATUS_MODIFIED},
      *            {@link #STATUS_UNCHANGED} or {@link #STATUS_UNKNOWN}.
@@ -134,10 +135,10 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
      * @throws LdappcException
      *             thrown if an error occurs
      * @see edu.internet2.middleware.ldappc.synchronize.PermissionSynchronizer#performInclude(Privilege,
-     *      int)
+     *      Function, int)
      */
-    protected void performInclude(Privilege privilege, Function function, int status)
-            throws NamingException, LdappcException
+    protected void performInclude(Privilege privilege, Function function, int status) throws NamingException,
+            LdappcException
     {
         //
         // Get the associated permission
@@ -149,31 +150,28 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
         // <prefix>:<SubsystemId>:<PermissionId>:<ScopeId> of the total string
         // <prefix>:<SubsystemId>:<PermissionId>:<ScopeId>:<LimitId>:<Limit>
         //
-        String commonPrefix = getConfiguration().getPermissionsListingStringPrefix()
-                + DELIMITER
-                + permission.getSubsystem().getId()
-                + DELIMITER
-                + function.getId()
-                + DELIMITER
-                + permission.getId()
-                + DELIMITER
-                + privilege.getScope().getId();
+        String commonPrefix = getConfiguration().getPermissionsListingStringPrefix() + DELIMITER
+                + permission.getSubsystem().getId() + DELIMITER + function.getId() + DELIMITER + permission.getId()
+                + DELIMITER + privilege.getScope().getId();
 
         //
         // Get the limit values and iterate over those.
         // If there are no limits, provision the prefix string.
         //
-        if (privilege.getLimitValues().size() == 0) {
+        if (privilege.getLimitValues().size() == 0)
+        {
             permissionMods.store(commonPrefix);
-        } else {
-            for (LimitValue limitValue : (Set<LimitValue>) privilege.getLimitValues()) {
+        }
+        else
+        {
+            for (LimitValue limitValue : (Set<LimitValue>) privilege.getLimitValues())
+            {
                 //
                 // Build the string
                 //
-                String permStr = commonPrefix + DELIMITER
-                        + limitValue.getLimit().getId() + DELIMITER
+                String permStr = commonPrefix + DELIMITER + limitValue.getLimit().getId() + DELIMITER
                         + limitValue.getValue();
-    
+
                 //
                 // Store the permission string in the attribute modifier
                 // (status doesn't improve things here so ignore it)
@@ -219,10 +217,8 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
         //
         // Get the existing values
         //
-        Attributes attributes = getContext().getAttributes(
-                getSubject(),
-                new String[] { permissionMods.getAttributeName(),
-                        objectClassMods.getAttributeName() });
+        Attributes attributes = getContext().getAttributes(getSubject(),
+                new String[] { permissionMods.getAttributeName(), objectClassMods.getAttributeName() });
 
         //
         // Initialize the permission listing attribute modifier
@@ -240,16 +236,14 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
             //
             // Need to make comparison case insensitive so make prefix lowercase
             //
-            String prefix = getConfiguration()
-                    .getPermissionsListingStringPrefix()
-                    + DELIMITER;
+            String prefix = getConfiguration().getPermissionsListingStringPrefix() + DELIMITER;
             prefix = prefix.toLowerCase();
 
             //
             // Compare prefix with the existing values
             //
             NamingEnumeration values = attribute.getAll();
-            while(values.hasMore())
+            while (values.hasMore())
             {
                 String value = (String) values.next();
                 if (value != null && !(value.toLowerCase().startsWith(prefix)))
@@ -263,8 +257,7 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
         // Populate the objectClass modifier if needed
         //
         objectClassMods.init();
-        String stringObjectClass = getConfiguration()
-                .getPermissionsListingStringObjectClass();
+        String stringObjectClass = getConfiguration().getPermissionsListingStringObjectClass();
         if (stringObjectClass != null)
         {
             attribute = attributes.get(objectClassMods.getAttributeName());
@@ -289,10 +282,8 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
         //
         // Determine how many modifications are to be performed
         //
-        ModificationItem[] permissionModItems = permissionMods
-                .getModifications();
-        ModificationItem[] objectClassModItems = objectClassMods
-                .getModifications();
+        ModificationItem[] permissionModItems = permissionMods.getModifications();
+        ModificationItem[] objectClassModItems = objectClassMods.getModifications();
         int modCnt = permissionModItems.length + objectClassModItems.length;
 
         //
@@ -312,13 +303,13 @@ public class StringPermissionSynchronizer extends PermissionSynchronizer
             //
             int modIndex = 0;
 
-            for(int i = 0; i < objectClassModItems.length; i++)
+            for (int i = 0; i < objectClassModItems.length; i++)
             {
                 mods[modIndex] = objectClassModItems[i];
                 modIndex++;
             }
 
-            for(int i = 0; i < permissionModItems.length; i++)
+            for (int i = 0; i < permissionModItems.length; i++)
             {
                 mods[modIndex] = permissionModItems[i];
                 modIndex++;
