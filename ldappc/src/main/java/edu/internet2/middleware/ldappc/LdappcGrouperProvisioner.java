@@ -18,7 +18,6 @@
 
 package edu.internet2.middleware.ldappc;
 
-
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
@@ -28,6 +27,7 @@ import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 /**
+ * <p>
  * This class uses two types of data for determining what data is to be
  * provisioned for Groups to the LDAP database: one for determining the general
  * categories of data to be provisioned (eg. groups, memberships, or
@@ -52,9 +52,8 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
 class LdappcGrouperProvisioner
 {
     /**
-     * The directory context
+     * The directory context.
      */
-
     private LdapContext                     ldapContext;
 
     /**
@@ -64,25 +63,28 @@ class LdappcGrouperProvisioner
     private GrouperProvisionerOptions       options;
 
     /**
-     * The grouper provisioner configuration
+     * The grouper provisioner configuration.
      */
     private GrouperProvisionerConfiguration configuration;
 
+    /**
+     * Cache of already found subjects.
+     */
     private SubjectCache                    subjectCache;
 
     /**
-     * Constructor
+     * Constructor.
      * 
      * @param options
      *            input that determines what data is to be provisioned.
      * @param subjectCache
      *            Subject cache to speed subject retrieval
      */
-    public LdappcGrouperProvisioner(GrouperProvisionerOptions options,
-            SubjectCache subjectCache)
+    public LdappcGrouperProvisioner(GrouperProvisionerOptions options, SubjectCache subjectCache)
     {
         this.options = options;
         this.configuration = ConfigManager.getInstance();
+        this.subjectCache = subjectCache;
 
         // Build the LDAP context
         try
@@ -93,29 +95,19 @@ class LdappcGrouperProvisioner
         {
             throw new LdappcRuntimeException(ne);
         }
-        
-        this.subjectCache = subjectCache;
     }
 
     /**
      * Perform provisioning of groups. Provisions groups based on the options
      * and the configuration
-     * 
-     * @param options
-     *            input that determines what data is to be provisioned.
-     * @param configuration
-     *            input that determines details of how data is to be
-     *            provisioned.
-     * @param ldapContext
-     *            the LDAP context.
      */
     public void provisionGroups()
     {
         //
         // Build a grouper provisioner and set the values
         //
-        GrouperProvisioner grouperProvisioner = new GrouperProvisioner(
-                configuration, options, ldapContext, subjectCache);
+        GrouperProvisioner grouperProvisioner = new GrouperProvisioner(configuration, options, ldapContext,
+                subjectCache);
         //
         // Provision groups.
         //
@@ -128,24 +120,25 @@ class LdappcGrouperProvisioner
         }
         catch (NameNotFoundException nnfe)
         {
-            ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: "
-                    + nnfe.getMessage() + "  Exception data: "
+            ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: " + nnfe.getMessage() + "  Exception data: "
                     + nnfe.toString());
         }
         catch (Exception e)
         {
-            ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: "
-                    + e.getMessage());
+            ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: " + e.getMessage());
         }
         finally
         {
             try
             {
-                if (null != ldapContext) ldapContext.close();
+                if (null != ldapContext)
+                {
+                    ldapContext.close();
+                }
             }
-            catch (Exception e2)
+            catch (NamingException e)
             {
-                // okay if can not close, may already have been closed.
+                // May have already been closed.
             }
         }
     }
