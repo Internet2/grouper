@@ -14,54 +14,51 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package edu.internet2.middleware.ldappc;
 
-
-
-import  edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
-import  edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.Subject;
 
-import  edu.internet2.middleware.subject.SubjectNotFoundException;
-import  edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Class for finding subjects.
+ * 
  * @author Gil Singer
  */
-public class GrouperSubjectRetriever 
+public class GrouperSubjectRetriever
 {
-
-    public GrouperSubjectRetriever()
-    {
-    }
-
     /**
-     * Find a subject by Id
-     * @param subjectId the subject id to search for.
+     * Find a subject by Id.
+     * 
+     * @param subjectId
+     *            the subject id to search for.
+     * 
+     * @return Subject retrieved from subject sources.
      */
-    public Subject findSubjectById(String subjectId) 
+    public Subject findSubjectById(String subjectId)
     {
         Subject subject = null;
-        try 
+        try
         {
-          subject = SubjectFinder.findById(subjectId);
-          DebugLog.debug(this.getClass(), "Found " + subjectId); // e.g. GrouperSystem
+            subject = SubjectFinder.findById(subjectId);
+            // e.g. GrouperSystem
+            DebugLog.debug(this.getClass(), "Found " + subjectId);
         }
-        catch (SubjectNotFoundException snfe) 
+        catch (SubjectNotFoundException snfe)
         {
-          ErrorLog.error(this.getClass(), snfe.getMessage());
+            ErrorLog.error(this.getClass(), snfe.getMessage());
         }
-        catch (SubjectNotUniqueException snue) 
+        catch (SubjectNotUniqueException snue)
         {
-          ErrorLog.error(this.getClass(), snue.getMessage());
+            ErrorLog.error(this.getClass(), snue.getMessage());
         }
         return subject;
-    } 
-
-} 
-
+    }
+}
