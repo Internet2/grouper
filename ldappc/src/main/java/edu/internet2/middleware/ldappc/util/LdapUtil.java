@@ -29,92 +29,97 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import edu.internet2.middleware.ldappc.ConfigManager;
-
 /**
  * This provides utility methods for interacting with a LDAP directory.
  */
-public class LdapUtil
+public final class LdapUtil
 {
     /**
-     * Space character (i.e., ' ')
+     * Object class attribute name.
      */
-    static final char SPACE = ' ';
+    public static final String OBJECT_CLASS_ATTRIBUTE    = "objectClass";
 
     /**
-     * LB Sign (i.e., '#')
+     * Empty name string for name parser.
      */
-    static final char LB_SIGN = '#';
+    public static final String EMPTY_NAME                = "";
 
     /**
-     * Comma (i.e., ',')
-     */
-    static final char COMMA = ',';
-
-    /**
-     * Plus Sign (i.e, '+')
-     */
-    static final char PLUS_SIGN = '+';
-
-    /**
-     * Double qoute (i.e., '"')
-     */
-    static final char DOUBLE_QUOTE = '"';
-
-    /**
-     * Backward slash (i.e., '\')
-     */
-    static final char BACKWARD_SLASH = '\\';
-
-    /**
-     * Less than (i.e., '<')
-     */
-    static final char LESS_THAN = '<';
-
-    /**
-     * Greater than (i.e., '>')
-     */
-    static final char GREATER_THAN = '>';
-
-    /**
-     * Semi-colon (i.e., ';')
-     */
-    static final char SEMI_COLON = ';';
-
-    /**
-     * Asterix (i.e., '*')
-     */
-    static final char ASTERIX = '*';
-
-    /**
-     * Left Parenthesis (i.e., '(')
-     */
-    static final char LEFT_PARENTHESIS = '(';
-
-    /**
-     * Right Parenthesis (i.e., ')')
-     */
-    static final char RIGHT_PARENTHESIS = ')';
-
-    /**
-     * Nul charcter
-     */
-    static final char NUL = '\u0000';
-
-    /**
-     * Object class attribute name
-     */
-    public static final String OBJECT_CLASS_ATTRIBUTE = "objectClass";
-
-    /**
-     * Empty name string for name parser
-     */
-    public static final String EMPTY_NAME = "";
-
-    /**
-     * Delimiter for multivalued RDNs
+     * Delimiter for multivalued RDNs.
      */
     public static final String MULTIVALUED_RDN_DELIMITER = "+";
+
+    /**
+     * Space character (i.e., ' ').
+     */
+    static final char          SPACE                     = ' ';
+
+    /**
+     * LB Sign (i.e., '#').
+     */
+    static final char          LB_SIGN                   = '#';
+
+    /**
+     * Comma (i.e., ',').
+     */
+    static final char          COMMA                     = ',';
+
+    /**
+     * Plus Sign (i.e, '+').
+     */
+    static final char          PLUS_SIGN                 = '+';
+
+    /**
+     * Double qoute (i.e., '"').
+     */
+    static final char          DOUBLE_QUOTE              = '"';
+
+    /**
+     * Backward slash (i.e., '\').
+     */
+    static final char          BACKWARD_SLASH            = '\\';
+
+    /**
+     * Less than (i.e., '<').
+     */
+    static final char          LESS_THAN                 = '<';
+
+    /**
+     * Greater than (i.e., '>').
+     */
+    static final char          GREATER_THAN              = '>';
+
+    /**
+     * Semi-colon (i.e., ';').
+     */
+    static final char          SEMI_COLON                = ';';
+
+    /**
+     * Asterix (i.e., '*').
+     */
+    static final char          ASTERIX                   = '*';
+
+    /**
+     * Left Parenthesis (i.e., '(').
+     */
+    static final char          LEFT_PARENTHESIS          = '(';
+
+    /**
+     * Right Parenthesis (i.e., ')').
+     */
+    static final char          RIGHT_PARENTHESIS         = ')';
+
+    /**
+     * Nul charcter.
+     */
+    static final char          NUL                       = '\u0000';
+
+    /**
+     * Prevent instantiation.
+     */
+    private LdapUtil()
+    {
+    }
 
     /**
      * This deletes the subcontext of <code>context</code> identified by
@@ -130,8 +135,7 @@ public class LdapUtil
      * @throws NamingException
      *             thrown if a naming error occurs
      */
-    static public boolean delete(DirContext context, Name dn)
-            throws NamingException
+    public static boolean delete(DirContext context, Name dn) throws NamingException
     {
         //
         // Init return value
@@ -146,7 +150,7 @@ public class LdapUtil
         {
             subContext = (DirContext) context.lookup(dn);
         }
-        catch(NamingException ne)
+        catch (NamingException ne)
         {
             success = false;
         }
@@ -175,8 +179,11 @@ public class LdapUtil
      * 
      * @param context
      *            Directory context
+     * 
+     * @throws NamingException
+     *             Thrown if the tree cannot be pruned.
      */
-    static public void prune(DirContext context) throws NamingException
+    public static void prune(DirContext context) throws NamingException
     {
         //
         // List each of the child context
@@ -186,7 +193,7 @@ public class LdapUtil
         //
         // Prune each child and then unbind the child
         //
-        while(childEnum.hasMore())
+        while (childEnum.hasMore())
         {
             //
             // Get the child
@@ -204,16 +211,16 @@ public class LdapUtil
     }
 
     /**
-     * This method converts '*','(',')' and the "null" character (i.e., 0x00)
-     * to be a forward slash (i.e., \) and the two hex character value as 
-     * defined in RFC2254. For example, the string "abc * efg" is converted 
-     * to "abc \2a efg".
+     * This method converts '*','(',')' and the "null" character (i.e., 0x00) to
+     * be a forward slash (i.e., \) and the two hex character value as defined
+     * in RFC2254. For example, the string "abc * efg" is converted to "abc \2a
+     * efg".
      * 
      * @param value
      *            String to make safe
      * @return Ldap filter value safe string
      */
-    static public String makeLdapFilterValueSafe(String value)
+    public static String makeLdapFilterValueSafe(String value)
     {
         StringBuffer safeBuf = new StringBuffer();
         if (value != null)
@@ -223,7 +230,7 @@ public class LdapUtil
             //
             char[] valueChars = value.toCharArray();
 
-            for(int i = 0; i < valueChars.length; i++)
+            for (int i = 0; i < valueChars.length; i++)
             {
                 //
                 // IMPORTANT
@@ -256,7 +263,7 @@ public class LdapUtil
             }
         }
 
-        return (value == null ? value : safeBuf.toString());
+        return value == null ? value : safeBuf.toString();
     }
 
     /**
@@ -267,7 +274,7 @@ public class LdapUtil
      *            String to make safe
      * @return LDAP name safe string
      */
-    static public String makeLdapNameSafe(String value)
+    public static String makeLdapNameSafe(String value)
     {
         //
         // Must escape the following characters with a "\"
@@ -289,8 +296,7 @@ public class LdapUtil
             // Determine index of beginning of trailing spaces
             //
             int trailingSpacesStart = valueChars.length;
-            while(trailingSpacesStart > 0
-                    && valueChars[trailingSpacesStart - 1] == SPACE)
+            while (trailingSpacesStart > 0 && valueChars[trailingSpacesStart - 1] == SPACE)
             {
                 trailingSpacesStart--;
             }
@@ -299,7 +305,7 @@ public class LdapUtil
             // Escape leading spaces and #
             //
             int index = 0;
-            for(index = 0; index < trailingSpacesStart; index++)
+            for (index = 0; index < trailingSpacesStart; index++)
             {
                 if (valueChars[index] == SPACE || valueChars[index] == LB_SIGN)
                 {
@@ -321,7 +327,7 @@ public class LdapUtil
             //
             // Escape ",", "+", """, "\", "<", ">" or ";"
             //
-            for(; index < trailingSpacesStart; index++)
+            for (; index < trailingSpacesStart; index++)
             {
                 //
                 // IMPORTANT
@@ -348,14 +354,14 @@ public class LdapUtil
             //
             // Escape trailing spaces
             //
-            for(; index < valueChars.length; index++)
+            for (; index < valueChars.length; index++)
             {
                 safeBuf.append(BACKWARD_SLASH);
                 safeBuf.append(valueChars[index]);
             }
         }
 
-        return (value == null ? value : safeBuf.toString());
+        return value == null ? value : safeBuf.toString();
     }
 
     /**
@@ -372,31 +378,23 @@ public class LdapUtil
      * @throws javax.naming.NamingException
      *             if a naming exception is encountered
      */
-    static public LdapContext getLdapContext(Hashtable environment,
-            Control[] controls) throws NamingException
+    public static LdapContext getLdapContext(Hashtable environment, Control[] controls) throws NamingException
     {
         /*
-        // 
-        // DEBUG: Display the environment
-        // 
-        java.util.Enumeration envKeys = environment.keys();
-        String key;
-        System.out
-                .println("DEBUG, Listing of Environmental variable for the LdapContext");
-        while(envKeys.hasMoreElements())
-        {
-            key = (String) envKeys.nextElement();
-            System.out.println("DEBUG, Key: " + key + " " + "value:"
-                    + environment.get(key));
-        }
-        */
-        
+         * // // DEBUG: Display the environment // java.util.Enumeration envKeys =
+         * environment.keys(); String key; System.out .println("DEBUG, Listing
+         * of Environmental variable for the LdapContext");
+         * while(envKeys.hasMoreElements()) { key = (String)
+         * envKeys.nextElement(); System.out.println("DEBUG, Key: " + key + " " +
+         * "value:" + environment.get(key)); }
+         */
+
         //
         // Clone the environment and add connection pooling.
         //
         Hashtable env = (Hashtable) environment.clone();
         env.put("com.sun.jndi.ldap.connect.pool", "true");
-        
+
         //
         // Create an LDAP context and return it.
         //
@@ -413,8 +411,7 @@ public class LdapUtil
      * @return A new ldap query filter with "{i}" replaced with "*", or an empty
      *         string if the filter is null.
      */
-    static public String convertParameterToAsterisk(String filter,
-            int parameterIndex)
+    public static String convertParameterToAsterisk(String filter, int parameterIndex)
     {
         String newFilter = "";
         if (filter != null)
