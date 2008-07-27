@@ -21,7 +21,6 @@ package edu.internet2.middleware.ldappc.util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -38,7 +37,7 @@ import java.util.Collections;
  * The resulting file overwrites the initial file. The intermediate batch files
  * are deleted.
  */
-public class ExternalSort
+public final class ExternalSort
 {
     /**
      * Default size in lines for a batch to be sorted in memory.
@@ -52,6 +51,13 @@ public class ExternalSort
     private static final String BATCH_EXTENSION    = "_batch";
 
     /**
+     * Prevent instantiation.
+     */
+    private ExternalSort()
+    {
+    }
+
+    /**
      * Main method to use for external testing of this routine. For some
      * systems, the batch size may need to be adjusted.
      * 
@@ -59,12 +65,11 @@ public class ExternalSort
      *            Command line args: filename - the file to be sorted; batchsize -
      *            the number of lines to be sorted in memory.
      */
-    public static void main(String args[])
+    public static void main(String[] args)
     {
         if (args.length != 2)
         {
-            System.err
-                    .println("Usage: java edu.internet2.middleware.ldappc.util.Sort filename batchsize");
+            System.err.println("Usage: java edu.internet2.middleware.ldappc.util.Sort filename batchsize");
             System.exit(1);
         }
 
@@ -87,6 +92,9 @@ public class ExternalSort
      * 
      * @param filename
      *            The file to be sorted.
+     * 
+     * @throws IOException
+     *             Thrown if a file cannot be read or written.
      */
     public static void sort(String filename) throws IOException
     {
@@ -101,6 +109,8 @@ public class ExternalSort
      * @param batchSize
      *            the batch size, that is, the number of lines to batch and sort
      *            in memory.
+     * @throws IOException
+     *             Thrown if a file cannot be read or written.
      */
     public static void sort(String filename, int batchSize) throws IOException
     {
@@ -120,7 +130,9 @@ public class ExternalSort
             {
                 String line = initFileReader.readLine();
                 if (line != null)
+                {
                     batch.add(line);
+                }
                 else
                 {
                     atEOF = true;
@@ -136,11 +148,12 @@ public class ExternalSort
             {
                 Collections.sort(batch);
 
-                FileWriter fw = new FileWriter(filename + BATCH_EXTENSION
-                        + numFiles);
+                FileWriter fw = new FileWriter(filename + BATCH_EXTENSION + numFiles);
                 BufferedWriter bw = new BufferedWriter(fw);
                 for (int i = 0; i < batch.size(); i++)
+                {
                     bw.append(batch.get(i) + "\n");
+                }
                 bw.close();
 
                 numFiles++;
@@ -158,7 +171,10 @@ public class ExternalSort
         // If any batch files were written, merge the batches, overwriting
         // the original file. Delete the batch files.
         //
-        if (numFiles > 0) mergeFiles(filename, numFiles);
+        if (numFiles > 0)
+        {
+            mergeFiles(filename, numFiles);
+        }
     }
 
     /**
@@ -169,6 +185,9 @@ public class ExternalSort
      *            the file to be written
      * @param numFiles
      *            the number of batch files to merge
+     * 
+     * @throws IOException
+     *             Thrown if a file cannot be created or written to.
      */
     private static void mergeFiles(String filename, int numFiles) throws IOException
     {
@@ -211,11 +230,13 @@ public class ExternalSort
             int minIndex = findMinimumLine(currentLines);
 
             if (minIndex < 0)
+            {
                 //
                 // If there is no minimum line then all files have been
                 // exhausted. Our work here is done.
                 //
                 filesExhausted = true;
+            }
             else
             {
                 //
@@ -223,8 +244,7 @@ public class ExternalSort
                 // line from the file that had the minimum.
                 //
                 bw.append(currentLines[minIndex] + "\n");
-                currentLines[minIndex] = mergeBufferedReaders[minIndex]
-                        .readLine();
+                currentLines[minIndex] = mergeBufferedReaders[minIndex].readLine();
             }
         }
 
@@ -266,8 +286,7 @@ public class ExternalSort
             String currentLine = currentLines[i];
             if (currentLine != null)
             {
-                if (minimumLineText == null
-                        || currentLine.compareTo(minimumLineText) < 0)
+                if (minimumLineText == null || currentLine.compareTo(minimumLineText) < 0)
                 {
                     minimumLineText = currentLine;
                     minIndex = i;
