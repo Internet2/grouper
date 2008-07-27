@@ -23,7 +23,10 @@ package edu.internet2.middleware.ldappc;
  */
 public class LdappcConfigurationException extends LdappcRuntimeException
 {
-    public static final long serialVersionUID = 1;
+    /**
+     * Need this because class implements Serializable.
+     */
+    public static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new configuration exception with null as its detail message. The

@@ -85,17 +85,17 @@ public class GrouperProvisioner extends Provisioner
     private static final int                SORT_BATCH_SIZE = 200000;
 
     /**
-     * Provisioning configuration
+     * Provisioning configuration.
      */
     private GrouperProvisionerConfiguration configuration;
 
     /**
-     * Provisioning options
+     * Provisioning options.
      */
     private GrouperProvisionerOptions       options;
 
     /**
-     * LDAP context for provisioning
+     * LDAP context for provisioning.
      */
     private LdapContext                     ldapCtx;
 
@@ -221,6 +221,8 @@ public class GrouperProvisioner extends Provisioner
      *            Grouper session for querying Grouper
      * @return {@link java.util.Set} of Groups, possibly empty, matching the
      *         defined subordinate stem and attribute value queries.
+     * @throws QueryException
+     *             thrown if grouper query can't be constructed.
      */
     protected Set<Group> buildQueryGroupList(GrouperSession session) throws QueryException
     {
@@ -315,8 +317,10 @@ public class GrouperProvisioner extends Provisioner
      * @param groups
      *            Set of Groups to be provisioned
      * 
-     * @throws javax.naming.NamingException
+     * @throws NamingException
      *             thrown if an error occured interacting with the directory.
+     * @throws MultiErrorException
+     *             thrown if we catch exceptions while doing provisioning.
      */
     protected void provisionMemberships(Set<Group> groups) throws NamingException, MultiErrorException
     {
@@ -678,7 +682,10 @@ public class GrouperProvisioner extends Provisioner
     private void updateSubject(String objectDN, boolean addMemberObjectClass, Set<String> adds, Set<String> dels,
             Set<String> reps)
     {
-        if (adds.size() == 0 && dels.size() == 0 && reps.size() == 0) return;
+        if (adds.size() == 0 && dels.size() == 0 && reps.size() == 0)
+        {
+            return;
+        }
 
         int size = (addMemberObjectClass ? 1 : 0) + (adds.size() > 0 ? 1 : 0) + (dels.size() > 0 ? 1 : 0)
                 + (reps.size() > 0 ? 1 : 0);

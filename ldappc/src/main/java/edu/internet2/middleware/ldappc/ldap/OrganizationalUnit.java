@@ -24,17 +24,17 @@ package edu.internet2.middleware.ldappc.ldap;
 public class OrganizationalUnit
 {
     /**
-     * Name of the OrganizationalUnit object class
+     * Name of the OrganizationalUnit object class.
      */
     public static final String OBJECT_CLASS = "organizationalUnit";
 
     /**
-     * Class to hold attribute constants
+     * Class to hold attribute constants.
      */
     public class Attribute
     {
         /**
-         * ou attribute
+         * ou attribute.
          */
         public static final String OU = "ou";
     }

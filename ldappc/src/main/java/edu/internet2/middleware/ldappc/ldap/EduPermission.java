@@ -24,47 +24,47 @@ package edu.internet2.middleware.ldappc.ldap;
 public class EduPermission
 {
     /**
-     * Name of the eduPermission object class
+     * Name of the eduPermission object class.
      */
     public static final String OBJECT_CLASS = "eduPermission";
 
     /**
-     * Class to hold attribute constants
+     * Class to hold attribute constants.
      */
     public class Attribute
     {
         /**
-         * eduPermissionSubsystemId attribute
+         * eduPermissionSubsystemId attribute.
          */
         public static final String EDU_PERMISSION_SUBSYSTEM_ID = "eduPermissionSubsystemId";
 
         /**
-         * eduPermissionFunctionId attribute
+         * eduPermissionFunctionId attribute.
          */
         public static final String EDU_PERMISSION_FUNCTION_ID = "eduPermissionFunctionId";
 
         /**
-         * eduPermissionId attribute
+         * eduPermissionId attribute.
          */
         public static final String EDU_PERMISSION_ID = "eduPermissionId";
 
         /**
-         * eduPermissionLimitId attribute
+         * eduPermissionLimitId attribute.
          */
         public static final String EDU_PERMISSION_LIMIT_ID = "eduPermissionLimitId";
 
         /**
-         * eduPermissionScopeId attribute
+         * eduPermissionScopeId attribute.
          */
         public static final String EDU_PERMISSION_SCOPE_ID = "eduPermissionScopeId";
 
         /**
-         * eduPermissionScopeName attribute
+         * eduPermissionScopeName attribute.
          */
         public static final String EDU_PERMISSION_SCOPE_NAME = "eduPermissionScopeName";
 
         /**
-         * eduPermissionLimit attribute
+         * eduPermissionLimit attribute.
          */
         public static final String EDU_PERMISSION_LIMIT = "eduPermissionLimit";
     }
