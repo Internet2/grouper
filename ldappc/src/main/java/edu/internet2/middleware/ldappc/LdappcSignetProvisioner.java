@@ -141,7 +141,8 @@ public class LdappcSignetProvisioner
         {
             try
             {
-                if (null != ldapContext) {
+                if (null != ldapContext)
+                {
                     ldapContext.close();
                 }
             }
