@@ -22,16 +22,10 @@ import  java.io.Writer;
 /** 
  * Basic <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: RegistryDAO.java,v 1.6 2008-06-21 04:16:12 mchyzer Exp $
+ * @version $Id: RegistryDAO.java,v 1.7 2008-07-27 07:37:25 mchyzer Exp $
  * @since   1.2.0
  */
 public interface RegistryDAO extends GrouperDAO {
-
- /**
-   * @since   1.2.0
-   */
-  public void initializeSchema()
-    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0

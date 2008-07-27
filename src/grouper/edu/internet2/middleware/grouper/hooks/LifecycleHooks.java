@@ -1,10 +1,11 @@
 /*
  * @author mchyzer
- * $Id: LifecycleHooks.java,v 1.1 2008-07-10 00:46:54 mchyzer Exp $
+ * $Id: LifecycleHooks.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleDdlInitBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleGrouperStartupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
@@ -25,6 +26,9 @@ public class LifecycleHooks {
 
   /** constant for method name for: hooksInit */
   public static final String METHOD_HOOKS_INIT = "hooksInit";
+
+  /** constant for method name for: ddlInit */
+  public static final String METHOD_DDL_INIT = "ddlInit";
 
   //*****  END GENERATED WITH GenerateMethodConstants.java *****//
   
@@ -55,4 +59,12 @@ public class LifecycleHooks {
     
   }
 
+  /**
+   * called when ddl is checking objects (you can add your own ddl object types here)
+   * @param hooksContext
+   * @param hooksLifecycleDdlInitBean
+   */
+  public void ddlInit(HooksContext hooksContext, HooksLifecycleDdlInitBean hooksLifecycleDdlInitBean) {
+    
+  }
 }

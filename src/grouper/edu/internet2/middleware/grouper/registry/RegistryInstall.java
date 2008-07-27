@@ -34,10 +34,11 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 
 /** 
- * Install the Groups Registry.
+ * Install the Groups Registry.  When there is a newly created (or truncated database),
+ * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -86,27 +87,27 @@ public class RegistryInstall {
             SchemaException
   {
     //note, no need for GrouperSession inverse of control
-    GroupType base    = GroupType.internal_createType(s, "base", false, false);
+    GroupType base    = GroupType.internal_createType(s, "base", false, false, false);
     // base attributes
-    base.internal_addField( s, "description",      FieldType.ATTRIBUTE, AccessPrivilege.READ, AccessPrivilege.ADMIN,  false );
-    base.internal_addField( s, "displayExtension", FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true  );
-    base.internal_addField( s, "displayName",      FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true  );
-    base.internal_addField( s, "extension",        FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true  );
-    base.internal_addField( s, "name",             FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true  );
+    base.internal_addField( s, "description",      FieldType.ATTRIBUTE, AccessPrivilege.READ, AccessPrivilege.ADMIN,  false, false );
+    base.internal_addField( s, "displayExtension", FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true, false  );
+    base.internal_addField( s, "displayName",      FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true, false  );
+    base.internal_addField( s, "extension",        FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true, false  );
+    base.internal_addField( s, "name",             FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true, false  );
     // base lists
-    base.internal_addField( s, "members", FieldType.LIST, AccessPrivilege.READ, AccessPrivilege.UPDATE, false );
+    base.internal_addField( s, "members", FieldType.LIST, AccessPrivilege.READ, AccessPrivilege.UPDATE, false, false );
     // reserve access privs
-    base.internal_addField( s, "admins",   FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false );
-    base.internal_addField( s, "optouts",  FieldType.ACCESS, AccessPrivilege.UPDATE, AccessPrivilege.UPDATE, false );
-    base.internal_addField( s, "optins",   FieldType.ACCESS, AccessPrivilege.UPDATE, AccessPrivilege.UPDATE, false );
-    base.internal_addField( s, "readers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false );
-    base.internal_addField( s, "updaters", FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false );
-    base.internal_addField( s, "viewers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false );
+    base.internal_addField( s, "admins",   FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false, false );
+    base.internal_addField( s, "optouts",  FieldType.ACCESS, AccessPrivilege.UPDATE, AccessPrivilege.UPDATE, false, false );
+    base.internal_addField( s, "optins",   FieldType.ACCESS, AccessPrivilege.UPDATE, AccessPrivilege.UPDATE, false, false );
+    base.internal_addField( s, "readers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false, false );
+    base.internal_addField( s, "updaters", FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false, false );
+    base.internal_addField( s, "viewers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false, false );
 
-    GroupType naming  = GroupType.internal_createType(s, "naming", false, true);
+    GroupType naming  = GroupType.internal_createType(s, "naming", false, true, false);
     // reserve naming privs
-    naming.internal_addField( s, "creators", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false);
-    naming.internal_addField( s, "stemmers", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false);
+    naming.internal_addField( s, "creators", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false, false);
+    naming.internal_addField( s, "stemmers", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false, false);
 
   } // private static void _installFieldsAndTypes(s)
 

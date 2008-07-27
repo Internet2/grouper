@@ -220,6 +220,15 @@ public class HibUtils {
   /**
    * execute some sql
    * @param sql can be insert, update, delete, or ddl
+   * @return the number of rows affected or 0 for ddl
+   */
+  public static int executeSql(final String sql) {
+    return executeSql(sql, null);
+  }
+
+  /**
+   * execute some sql
+   * @param sql can be insert, update, delete, or ddl
    * @param params prepared statement params
    * @return the number of rows affected or 0 for ddl
    */

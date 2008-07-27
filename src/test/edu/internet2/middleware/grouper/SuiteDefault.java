@@ -22,13 +22,14 @@ import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
+import edu.internet2.middleware.grouper.ddl.AllDdlTests;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.37 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.38 2008-07-27 07:37:24 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -38,6 +39,9 @@ public class SuiteDefault extends TestCase {
    */
   static public Test suite() {
     TestSuite suite = new TestSuite();
+    
+    //do this first so all tests are done on new ddl
+    suite.addTest(AllDdlTests.suite());
 
     suite.addTestSuite( GrouperVersionTest.class );
     suite.addTestSuite( Test_api_ChildGroupFilter.class );

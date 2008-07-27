@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.185 2008-07-21 21:02:00 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.186 2008-07-27 07:37:24 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -177,7 +177,6 @@
         <include name="**/*.java"/>      <!-- source -->
         <include name="**/*.hbm.xml"/>      <!-- hibernate mappings -->
         <include name="**/*.properties"/>   <!-- xml default export|import properties -->
-        <include name="**/Hib3ForeignKeys.xml"/>   <!-- foreign keys -->
       </fileset>
     </copy>
     <!-- build extensions -->
@@ -225,48 +224,6 @@
     </java>
   </target>
   <!-- target: db -->
-
-  <!-- target: db.init, change from schemaexport to compile if you dont want db blown away... -->
-  <target name="db.init" 
-          depends="init, schemaexport"
-          description="Initialize Groups Registry"
-  >
-    <record name="${db.init.log}" action="start"/>
-    <!-- CH already prompted in schemaexport -->
-    <java fork="true"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.registry.RegistryInstall"
-    >
-      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
-      </java>
-    <record name="${db.init.log}" action="stop"/>
-  </target>
-  <!-- target: db.init -->
-
-  <!-- target: db.init.test, change from schemaexport to compile if you dont want db blown away... -->
-  <target name="db.init.test" 
-          depends="init, schemaexport.test"
-          description="Initialize Test Groups Registry"
-  >
-    <!-- CH already prompted in schemaexport -->
-     
-      <record name="${db.init.log}" action="start"/>
-    <java fork="true"
-          classpathref="test.classpath"
-          classname="edu.internet2.middleware.grouper.registry.RegistryInstall"
-    >
-      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
-    </java>
-    <record name="${db.init.log}" action="stop"/>
-  </target>
-  <!-- target: db.init.test -->
-
-  <!-- target: db-init -->
-  <!-- TODO 20070329 deprecate post 1.2.0 -->
-  <target name="db-init">
-    <antcall target="db.init"/>
-  </target>
-  <!-- target: db-init -->
 
   <!-- target: db.reset -->
   <!-- reset the groups registry -->
@@ -693,33 +650,14 @@
           depends="init, compile"
           description="Generate SQL schema appropriate for configured database"
   >
-    <!-- CH example of prompting user with ant, then pass env var to init schema -->
-    <java fork="false"
-              maxmemory="${memory.max}"
-              classpathref="test.classpath"
-              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
-              failonerror="true"
-        />
-    
-    <input validargs="y,n"
-        addproperty="do.delete.export"
-      />
-      <condition property="do.abort.export">
-        <equals arg1="n" arg2="${do.delete.export}"/>
-      </condition>
-      <fail if="do.abort.export">Build aborted by user.</fail>
-    
     <record name="${schemaexport.log}" action="start"/>
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir.run}"/>
-    <java fork="true"
+    <java fork="true"  
           maxmemory="${memory.max}"
           classpathref="project.classpath"
           classname="edu.internet2.middleware.grouper.registry.RegistryInitializeSchema"
-          failonerror="true"
-    >
-    <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
-     </java>
+          failonerror="true" />
     <record name="${schemaexport.log}" action="stop"/>
   </target>
   <!-- target: schemaexport -->
@@ -730,22 +668,6 @@
           description="Generate Test SQL schema appropriate for configured database"
   >
     
-    <!-- CH example of prompting user with ant, then pass env var to init schema -->
-    <java fork="false"
-              maxmemory="${memory.max}"
-              classpathref="test.classpath"
-              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
-              failonerror="true"
-        />
-    
-    <input validargs="y,n"
-        addproperty="do.delete.exporttest"
-      />
-      <condition property="do.abort.exporttest">
-        <equals arg1="n" arg2="${do.delete.exporttest}"/>
-      </condition>
-      <fail if="do.abort.exporttest">Build aborted by user.</fail>
-
     <record name="${schemaexport.log}" action="start"/>
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir.run}"/>
@@ -754,47 +676,11 @@
           classpathref="test.classpath"
           classname="edu.internet2.middleware.grouper.registry.RegistryInitializeSchema"
           failonerror="true"
-    >
-      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
-    </java>
+    />
     <record name="${schemaexport.log}" action="stop"/>
   </target>
   <!-- target: schemaexport.test -->
 
-  <!-- target: addforeignkeys -->
-  <target name="addforeignkeys" 
-          depends="init, compile"
-          description="Adds the foreign keys to the database"
-  >
-    <java fork="false"
-               maxmemory="${memory.max}"
-               classpathref="test.classpath"
-               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
-               failonerror="true"
-         />
-     
-     <input validargs="y,n"
-         addproperty="do.delete.keys"
-       />
-       <condition property="do.abort.keys">
-         <equals arg1="n" arg2="${do.delete.keys}"/>
-       </condition>
-       <fail if="do.abort.keys">Build aborted by user.</fail>
-     
-    <record name="${schemaexport.log}" action="start"/>
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${dist.dir.run}"/>
-    <java fork="true"
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.registry.RegistryAddForeignKeys"
-          failonerror="true"
-    >
-      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
-    </java>
-    <record name="${schemaexport.log}" action="stop"/>
-  </target>
-  <!-- target: addforeignkeys -->
 
   <!-- target: serialver -->
   <target name="serialver" 
@@ -813,6 +699,24 @@
           depends="ensure.name"
           description="Apply sql file to Groups Registry [Pass -Dname=filename.sql]"
   >
+    
+    <!-- CH example of prompting user with ant, then pass env var to init schema -->
+    <java fork="false"
+              maxmemory="${memory.max}"
+              classpathref="test.classpath"
+              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+              failonerror="true"
+        />
+    
+    <input validargs="y,n"
+        addproperty="do.sql"
+      />
+      <condition property="do.abort.sql">
+        <equals arg1="n" arg2="${do.sql}"/>
+      </condition>
+      <fail if="do.abort.sql">Build aborted by user.</fail>
+
+    
     <property file="${conf.dir}/grouper.hibernate.properties"/>
     <sql  classpathref="project.classpath"
           driver="${hibernate.connection.driver_class}"
@@ -826,7 +730,7 @@
 
   <!-- target: test -->
   <target name="test" 
-          depends="test.compile, db.init.test"
+          depends="test.compile, schemaexport"
           description="Run Grouper Tests"
   >
     <echo/>

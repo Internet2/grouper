@@ -19,11 +19,13 @@ package edu.internet2.middleware.grouper;
 import  java.io.Serializable;
 import  java.util.*;
 
+import org.apache.commons.lang.StringUtils;
+
 /** 
  * Field Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.10 2007-01-04 17:17:45 blair Exp $    
+ * @version $Id: FieldType.java,v 1.11 2008-07-27 07:37:24 mchyzer Exp $    
  */
 public class FieldType implements Serializable {
 
@@ -56,6 +58,23 @@ public class FieldType implements Serializable {
   private FieldType(String type) {
     this.type = type;
   } // private FieldType(type)
+
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (obj instanceof FieldType) {
+      if (StringUtils.equals(this.type, ((FieldType)obj).type)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
 
   // PUBLIC CLASS METHODS //

@@ -12,6 +12,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -60,6 +62,12 @@ public class HibernateSession {
   private HibernateSession(HibernateSession parentHibernateSession,
       GrouperTransactionType grouperTransactionType) throws GrouperDAOException {
 
+    if (!GrouperDdlUtils.okToUseHibernate()) {
+      if (GrouperConfig.getPropertyBoolean("ddlutils.failIfNotRightVersion", true)) {
+        throw new RuntimeException("Database schema ddl is not up to date, or has issues, check logs and config ddl in grouper.properties and run: ant schemaexport");
+      }
+    }
+    
     this.immediateGrouperTransactionTypeDeclared = grouperTransactionType;
     
     //if parent is none, then make sure this is a new transaction (not dependent on none)

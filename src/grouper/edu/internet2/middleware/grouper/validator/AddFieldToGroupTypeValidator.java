@@ -22,7 +22,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddFieldToGroupTypeValidator.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: AddFieldToGroupTypeValidator.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
  * @since   1.2.0
  */
 public class AddFieldToGroupTypeValidator extends GrouperValidator {
@@ -30,9 +30,9 @@ public class AddFieldToGroupTypeValidator extends GrouperValidator {
   // PROTECTED CLASS METHODS //
 
   // @since   1.2.0
-  public static AddFieldToGroupTypeValidator validate(String name) {
+  public static AddFieldToGroupTypeValidator validate(String name, boolean allowExist) {
     AddFieldToGroupTypeValidator v = new AddFieldToGroupTypeValidator();
-    if ( GrouperDAOFactory.getFactory().getField().existsByName(name) ) {
+    if (!allowExist && GrouperDAOFactory.getFactory().getField().existsByName(name) ) {
       v.setErrorMessage(E.FIELD_ALREADY_EXISTS + name);
     }
     else {

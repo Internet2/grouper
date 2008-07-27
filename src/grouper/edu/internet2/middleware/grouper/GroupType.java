@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -60,7 +61,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.63 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.64 2008-07-27 07:37:24 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable {
 
@@ -143,7 +144,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     //note, no need for GrouperSession inverse of control
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupType type = internal_createType(s, name, true, false);
+    GroupType type = internal_createType(s, name, true, false, true);
     sw.stop();
     EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
     return type;
@@ -207,7 +208,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     if (!Privilege.isAccess(write)) {
       throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
     }
-    return this.internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required);
+    return this.internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, true);
   } // public Field addAttribute(s, name, read, write, required)
 
   /**
@@ -248,7 +249,7 @@ public class GroupType extends GrouperAPI implements Serializable {
     if (!Privilege.isAccess(write)) {
       throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
     }
-    return this.internal_addField(s, name, FieldType.LIST, read, write, false);
+    return this.internal_addField(s, name, FieldType.LIST, read, write, false, true);
   } // public Field addList(s, name, read, write)
 
   /*
@@ -392,11 +393,19 @@ public class GroupType extends GrouperAPI implements Serializable {
   } // public boolean isSystemType()
   
 
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
+  /**
+   * 
+   * @param s
+   * @param name
+   * @param isAssignable
+   * @param isInternal
+   * @param exceptionIfExists
+   * @return
+   * @throws InsufficientPrivilegeException
+   * @throws SchemaException
+   */
   public static GroupType internal_createType(
-    GrouperSession s, String name, boolean isAssignable, boolean isInternal)
+    GrouperSession s, String name, boolean isAssignable, boolean isInternal, boolean exceptionIfExists)
       throws  InsufficientPrivilegeException,
               SchemaException
   { 
@@ -408,9 +417,12 @@ public class GroupType extends GrouperAPI implements Serializable {
     }
     GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType();
     if ( dao.existsByName(name) ) {
-      String msg = E.GROUPTYPE_EXISTS + name;
-      LOG.error( msg);
-      throw new SchemaException(msg);
+      if (exceptionIfExists) {
+        String msg = E.GROUPTYPE_EXISTS + name;
+        LOG.error( msg);
+        throw new SchemaException(msg);
+      }
+      return GroupTypeFinder.find(name);
     }
     GroupType _gt = new GroupType();
     _gt.setCreateTime( new Date().getTime() );
@@ -433,11 +445,22 @@ public class GroupType extends GrouperAPI implements Serializable {
   } // protected static GroupType internal_createType(s, name, isAssignable, isInternal)
 
 
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
+  /**
+   * 
+   * @param s
+   * @param name
+   * @param type
+   * @param read
+   * @param write
+   * @param required
+   * @param exceptionIfExists
+   * @return the field
+   * @throws InsufficientPrivilegeException
+   * @throws SchemaException
+   */
   public Field internal_addField(
-    GrouperSession s, String name, FieldType type, Privilege read, Privilege write, boolean required
+    GrouperSession s, String name, FieldType type, Privilege read, 
+    Privilege write, boolean required, boolean exceptionIfExists
   )
     throws  InsufficientPrivilegeException,
             SchemaException
@@ -445,38 +468,61 @@ public class GroupType extends GrouperAPI implements Serializable {
     //note, no need for GrouperSession inverse of control
     StopWatch sw  = new StopWatch();
     sw.start();
-    AddFieldToGroupTypeValidator v = AddFieldToGroupTypeValidator.validate(name);
+    AddFieldToGroupTypeValidator v = AddFieldToGroupTypeValidator.validate(name, !exceptionIfExists);
     if (v.isInvalid()) {
       throw new SchemaException( v.getErrorMessage() );
     }
-
+    Field field = null;
+    try {
+      field = FieldFinder.find(name);
+    } catch (SchemaException e) {
+      //ignore, it probably doesnt exist
+    }
+    if (field != null) {
+      if (!type.equals(field.getType())) {
+        throw new SchemaException("field '" + name + "' does not have type: " + type + ", it has: " + field.getType());
+      }
+      if (field.getRequired() != required) {
+        throw new SchemaException("field '" + name + "' does not match required flag: " + required);
+      }
+      if (!read.equals(field.getReadPriv())) {
+        throw new SchemaException("field '" + name + "' does not have read privilege: " + read + ", it has: " + field.getReadPrivilege());
+      }
+      if (!write.equals(field.getWritePriv())) {
+        throw new SchemaException("field '" + name + "' does not have write privilege: " + write + ", it has: " + field.getWritePrivilege());
+      }
+      if (exceptionIfExists) {
+        throw new SchemaException("field exists: '" + name + "'");
+      }
+      return field;
+    }
     try {
       boolean nullable = true;
       if (required == true) {
         nullable = false;
       }
-      Field _f = new Field();
-      _f.setGroupTypeUuid( this.getUuid() );
-      _f.setIsNullable(nullable);
-      _f.setName(name);
-      _f.setReadPrivilege(read);
-      _f.setType(type);
-      _f.setUuid( GrouperUuid.getUuid() );
-      _f.setWritePrivilege(write);
+      field = new Field();
+      field.setGroupTypeUuid( this.getUuid() );
+      field.setIsNullable(nullable);
+      field.setName(name);
+      field.setReadPrivilege(read);
+      field.setType(type);
+      field.setUuid( GrouperUuid.getUuid() );
+      field.setWritePrivilege(write);
         
-      GrouperDAOFactory.getFactory().getGroupType().createField(_f);
+      GrouperDAOFactory.getFactory().getGroupType().createField(field);
 
       Set fields = this.getFields();
-      fields.add( _f );
+      fields.add( field );
 
       sw.stop();
       EventLog.info(
         s, 
-        M.GROUPTYPE_ADDFIELD + Quote.single(_f.getName()) + " ftype=" + Quote.single(type.toString()) 
+        M.GROUPTYPE_ADDFIELD + Quote.single(field.getName()) + " ftype=" + Quote.single(type.toString()) 
         + " gtype=" + Quote.single( this.getName() ),
         sw
       );
-      return _f;
+      return field;
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();

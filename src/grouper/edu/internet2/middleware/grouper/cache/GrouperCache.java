@@ -1,8 +1,16 @@
 /*
  * @author mchyzer
- * $Id: GrouperCache.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * $Id: GrouperCache.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.cache;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
@@ -15,6 +23,27 @@ import net.sf.ehcache.Element;
  */
 public class GrouperCache<K,V> {
 
+  /**
+   * values
+   * @return the collection of values
+   */
+  public Collection<V> values() {
+    Collection<V> result = new ArrayList<V>();
+    for (K key : this.keySet()) {
+      
+      result.add(this.get(key));
+      
+    }
+    return result;
+  }
+  
+  /**
+   * remove all in cache
+   */
+  public void clear() {
+    this.cache.removeAll();
+  }
+  
   /** cache that this wraps */
   private Cache cache = null;
   
@@ -71,6 +100,37 @@ public class GrouperCache<K,V> {
     return element == null ? null : (V)element.getObjectValue();
   }
 
+  /**
+   * see if the cache has this element in it.  This updates cache stats
+   * @param key
+   * @return true if contains key (though value still could be null)
+   */
+  public synchronized boolean containsKey(K key) {
+    Element element = this.cache.get(key);
+    return element != null;
+  }
+  
+  /**
+   * get a set of the keys in the cache
+   * @return the set of the keys, never returns null
+   */
+  public synchronized Set<K> keySet() {
+    List keyList = GrouperUtil.nonNull(this.cache.getKeys());
+    Set<K> result = new LinkedHashSet<K>(keyList);
+    return result;
+  }
+  
+  /**
+   * remove an item if it exists
+   * @param key
+   * @return the previous value associated or null (to match Map interface)
+   */
+  public synchronized V remove(K key) {
+    V result = this.get(key);
+    this.cache.remove(key);
+    return result;
+  }
+  
   /**
    * put a value into the cache, accept the default time to live for this cache
    * @param key

@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import  edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import  edu.internet2.middleware.subject.*;
@@ -36,7 +37,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.5 2008-07-27 07:37:24 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -54,6 +55,7 @@ public class GrouperTest extends TestCase {
    */
   public GrouperTest() {
     super();
+    GrouperStartup.startup();
   } // public GrouperTest()
 
   /** 
@@ -61,6 +63,7 @@ public class GrouperTest extends TestCase {
    */
   public GrouperTest(String name) {
     super(name);
+    GrouperStartup.startup();
   } // public GrouperTest()
 
 
