@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibUtilsMapping.java,v 1.3 2008-07-21 04:43:59 mchyzer Exp $
+ * $Id: HibUtilsMapping.java,v 1.4 2008-07-28 20:12:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -10,10 +10,11 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
-import org.hibernate.mapping.PropertyGeneration;
 import org.hibernate.mapping.SimpleValue;
 import org.hibernate.mapping.Value;
 
+import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -39,6 +40,11 @@ public class HibUtilsMapping {
     
     if (id == null) {
       return true;
+    }
+    
+    //see if object is hibernate versionable
+    if (object instanceof Hib3GrouperVersioned) {
+      return ((GrouperAPI)object).getHibernateVersionNumber() < 0;
     }
     
     //if null, then see if it is an assigned key

@@ -20,19 +20,47 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.16 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.17 2008-07-28 20:12:28 mchyzer Exp $
  * @since   @HEAD@
  */
+@GrouperIgnoreDbVersion @GrouperIgnoreClone
 public class Attribute extends GrouperAPI {
 
+  //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: attrName */
+  public static final String FIELD_ATTR_NAME = "attrName";
+
+  /** constant for field name for: dbVersion */
+  public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: groupUUID */
+  public static final String FIELD_GROUP_UUID = "groupUUID";
+
+  /** constant for field name for: id */
+  public static final String FIELD_ID = "id";
+
+  /** constant for field name for: value */
+  public static final String FIELD_VALUE = "value";
+
+  //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+  
   // PRIVATE INSTANCE VARIABLES //
   private String  attrName;
   private String  groupUUID;
   private String  id;
   private String  value;
+
+  /**
+   * 
+   */
+  public static final String TABLE_GROUPER_ATTRIBUTES = "grouper_attributes";
 
 
   // PUBLIC INSTANCE METHODS //

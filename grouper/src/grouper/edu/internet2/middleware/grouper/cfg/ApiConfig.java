@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper.cfg;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -26,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.9 2008-07-27 07:37:24 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.10 2008-07-28 20:12:28 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -52,6 +54,9 @@ public class ApiConfig implements Configuration {
   /** local config */
   private PropertiesConfiguration localCfg;
 
+  /** set some test config overrides */
+  public static final Map<String, String> testConfig = new HashMap<String, String>(); 
+  
   /**
    * Access Grouper API configuration.
    * <p/>
@@ -70,10 +75,16 @@ public class ApiConfig implements Configuration {
     throws  IllegalArgumentException
   {
     String val = null;
-    if (this.useLocal) {
+    
+    val = testConfig.get(property);
+    boolean foundValue = testConfig.containsKey(property);
+    if (!foundValue && this.useLocal) {
       val = this.localCfg.getProperty(property);
+      if (val != null) {
+        foundValue = true;
+      }
     }
-    if (val == null) {
+    if (!foundValue) {
       val = this.defaultCfg.getProperty(property);
     }
     return val == null ? null : val.trim();

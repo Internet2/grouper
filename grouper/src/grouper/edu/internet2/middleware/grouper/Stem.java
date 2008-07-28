@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -91,10 +92,22 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.159 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.160 2008-07-28 20:12:28 mchyzer Exp $
  */
-public class Stem extends GrouperAPI implements Owner {
+public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
+  /** table for stems table in the db */
+  public static final String TABLE_GROUPER_STEMS = "grouper_stems";
+
+  /** uuid col in db */
+  public static final String COLUMN_UUID = "uuid";
+  
+  /** old id col for id conversion */
+  public static final String COLUMN_OLD_ID = "old_id";
+  
+  /** old uuid id col for id conversion */
+  public static final String COLUMN_OLD_UUID = "old_uuid";
+ 
   /** param helper */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
@@ -128,9 +141,6 @@ public class Stem extends GrouperAPI implements Owner {
   /** constant for field name for: extension */
   public static final String FIELD_EXTENSION = "extension";
 
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
-
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
 
@@ -154,19 +164,18 @@ public class Stem extends GrouperAPI implements Owner {
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
-      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_ID, 
-      FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_NAME, 
-      FIELD_PARENT_UUID, FIELD_UUID);
+      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
+      FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, 
+      FIELD_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
-      FIELD_DB_VERSION, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, 
-      FIELD_EXTENSION, FIELD_ID, FIELD_MODIFIER_UUID, 
-      FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_NAME, 
-      FIELD_PARENT_UUID, FIELD_UUID);
+      FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
+      FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, 
+      FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -224,7 +233,6 @@ public class Stem extends GrouperAPI implements Owner {
   private String  displayExtension;
   private String  displayName;
   private String  extension;
-  private String  id;
   private String  modifierUUID;
   private String  modifySource;
   private long    modifyTime;
@@ -1689,13 +1697,6 @@ public class Stem extends GrouperAPI implements Owner {
   /**
    * @since   1.2.0
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public String getModifierUuid() {
     return this.modifierUUID;
   }
@@ -1791,14 +1792,6 @@ public class Stem extends GrouperAPI implements Owner {
    */
   public void setExtensionDb(String extension) {
     this.extension = extension;
-  
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public void setId(String id) {
-    this.id = id;
   
   }
 

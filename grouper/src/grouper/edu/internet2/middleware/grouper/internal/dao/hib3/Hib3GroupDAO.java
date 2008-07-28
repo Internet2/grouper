@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.15 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.16 2008-07-28 20:12:27 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -641,10 +641,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     while (it.hasNext()) {
       Object[] tuple = (Object[])it.next();
       Group group = (Group)tuple[0];
-      String groupId = group.getId();
+      String groupUuid = group.getUuid();
       Map currAttributes = null;
-      if (results.containsKey(groupId)) {
-        group = (Group)results.get(groupId);
+      if (results.containsKey(groupUuid)) {
+        group = (Group)results.get(groupUuid);
         currAttributes = group.getAttributesDb();
       } else {
         currAttributes = new HashMap();
@@ -653,7 +653,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       HibUtils.evict(hibernateSession, currAttribute, true);
       currAttributes.put(currAttribute.getAttrName(), currAttribute.getValue());
       group.setAttributes(currAttributes);
-      results.put(groupId, group);
+      results.put(groupUuid, group);
     }
     
     Set groups = new LinkedHashSet(results.values());

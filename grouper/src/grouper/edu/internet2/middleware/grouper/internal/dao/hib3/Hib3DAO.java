@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.12 2008-07-23 06:41:29 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.13 2008-07-28 20:12:27 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -109,7 +109,8 @@ public abstract class Hib3DAO {
         .addResource(resourceNameFromClassName(Hib3RegistrySubjectAttributeDAO.class))
         .addResource(resourceNameFromClassName(Hib3StemDAO.class))
         .addResource(resourceNameFromClassName(Hib3GrouperDdl.class))
-        .addResource(resourceNameFromClassName(Hib3GrouperLoaderLog.class));
+        .addResource(resourceNameFromClassName(Hib3GrouperLoaderLog.class))
+            .setInterceptor(new Hib3SessionInterceptor());
       
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
           LifecycleHooks.METHOD_HIBERNATE_INIT, HooksLifecycleHibInitBean.class, 

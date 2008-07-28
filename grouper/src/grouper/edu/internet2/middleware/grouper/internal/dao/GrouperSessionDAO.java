@@ -22,7 +22,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 /** 
  * Basic <code>GrouperSession</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GrouperSessionDAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: GrouperSessionDAO.java,v 1.7 2008-07-28 20:12:27 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GrouperSessionDAO extends GrouperDAO {
@@ -30,7 +30,7 @@ public interface GrouperSessionDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  String create(GrouperSession _s)
+  void create(GrouperSession _s)
     throws  GrouperDAOException;
 
   /**

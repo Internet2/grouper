@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.3 2008-07-28 20:12:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -21,10 +21,13 @@ public enum SubjectDdl implements DdlVersionable {
   V1 {
     /**
      * add the table grouper_loader_log for logging and detect and add columns
-     * @see SubjectDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
+     * @see SubjectDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, 
+      StringBuilder, boolean, int)
      */
     @Override
-    public void updateVersionFromPrevious(Database database) {
+    public void updateVersionFromPrevious(Database database, 
+        StringBuilder additionalScripts, boolean isDestinationVersion,
+        int buildingToVersion) {
 
       {
         Table subjectTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
@@ -62,13 +65,15 @@ public enum SubjectDdl implements DdlVersionable {
             Types.VARCHAR, "255", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, subjectTable.getName(), 
-            "searchattribute_value_idx", true, "value");
+            "searchattribute_value_idx", false, "value");
+
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, subjectTable.getName(), 
+            "searchattribute_id_name_idx", true, "subjectId", "name");
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, subjectTable.getName(), 
+            "searchattribute_name_idx", false, "name");
 
       }
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "subjectattribute", 
-          "fk_subjectattr_subjectid", "subject", "subjectId", "subjectId");
-
       
     }
   };
@@ -117,7 +122,23 @@ public enum SubjectDdl implements DdlVersionable {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database)
+   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, StringBuilder, boolean, int)
    */
-  public abstract void updateVersionFromPrevious(Database database);  
+  public abstract void updateVersionFromPrevious(Database database, 
+      StringBuilder additionalScripts, boolean isDestinationVersion,
+      int buildingToVersion);  
+  
+  /**
+   * add all foreign keys
+   * @param database ddlutils database object
+   * @param additionalScripts add additional scripts after the db ddl (e.g. sql).  scripts should be semicolon delimited
+   * @param buildingToVersion version it will end up with when done (usually largest version unless unit testing)
+   */
+  public void addAllForeignKeys(Database database, StringBuilder additionalScripts,
+      int buildingToVersion) {
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "subjectattribute", 
+        "fk_subjectattr_subjectid", "subject", "subjectId", "subjectId");
+
+  }
+
 }

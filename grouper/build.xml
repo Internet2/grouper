@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.186 2008-07-27 07:37:24 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.187 2008-07-28 20:12:28 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -224,6 +224,48 @@
     </java>
   </target>
   <!-- target: db -->
+
+  <!-- target: db.init, change from schemaexport to compile if you dont want db blown away... -->
+  <target name="db.init" 
+          depends="init, schemaexport"
+          description="Initialize Groups Registry"
+  >
+    <record name="${db.init.log}" action="start"/>
+    <!-- CH already prompted in schemaexport -->
+    <java fork="true"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.registry.RegistryInstall"
+    >
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+      </java>
+    <record name="${db.init.log}" action="stop"/>
+  </target>
+  <!-- target: db.init -->
+
+  <!-- target: db.init.test, change from schemaexport to compile if you dont want db blown away... -->
+  <target name="db.init.test" 
+          depends="init, schemaexport.test"
+          description="Initialize Test Groups Registry"
+  >
+    <!-- CH already prompted in schemaexport -->
+     
+      <record name="${db.init.log}" action="start"/>
+    <java fork="true"
+          classpathref="test.classpath"
+          classname="edu.internet2.middleware.grouper.registry.RegistryInstall"
+    >
+      <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+    </java>
+    <record name="${db.init.log}" action="stop"/>
+  </target>
+  <!-- target: db.init.test -->
+
+  <!-- target: db-init -->
+  <!-- TODO 20070329 deprecate post 1.2.0 -->
+  <target name="db-init">
+    <antcall target="db.init"/>
+  </target>
+  <!-- target: db-init -->
 
   <!-- target: db.reset -->
   <!-- reset the groups registry -->
