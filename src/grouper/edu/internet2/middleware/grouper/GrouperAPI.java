@@ -24,6 +24,7 @@ import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
@@ -34,10 +35,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.14 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.15 2008-07-28 20:12:28 mchyzer Exp $
  * @since   1.2.0
  */
-public abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle, GrouperCloneable {
+public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
 
   /** save the state when retrieving from DB */
   @GrouperIgnoreDbVersion
@@ -178,6 +179,31 @@ public abstract class GrouperAPI implements HibGrouperLifecycle, Lifecycle, Grou
    */
   @Override
   public abstract GrouperAPI clone();
+
+  /**
+   * hibernate increments with each insert/update (-1 means insert, 0+ means update)
+   */
+  @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  private long hibernateVersionNumber = -1;
+
+  /** constant name of field (and javabean property) for hibernateVersion */
+  public static final String FIELD_HIBERNATE_VERSION_NUMBER = "hibernateVersionNumber";
+  
+  /**
+   * hibernate increments with each insert/update (-1 means insert, 0+ means update)
+   * @return the hibernateVersion
+   */
+  public long getHibernateVersionNumber() {
+    return this.hibernateVersionNumber;
+  }
+
+  /**
+   * hibernate increments with each insert/update
+   * @param hibernateVersionNumber the hibernateVersion to set
+   */
+  public void setHibernateVersionNumber(long hibernateVersionNumber) {
+    this.hibernateVersionNumber = hibernateVersionNumber;
+  }
 
 } 
 

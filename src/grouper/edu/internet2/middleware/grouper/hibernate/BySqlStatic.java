@@ -43,6 +43,15 @@ public class BySqlStatic {
    */
   BySqlStatic() {}
 
+  /**
+   * execute some sql
+   * @param sql can be insert, update, delete, or ddl
+   * @return the number of rows affected or 0 for ddl
+   */
+  @SuppressWarnings("deprecation")
+  public int executeSql(final String sql) {
+    return executeSql(sql, null);
+  }
 
   /**
    * execute some sql

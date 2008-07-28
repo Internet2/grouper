@@ -5423,5 +5423,4 @@ public class GrouperUtil {
     }
     return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
   }
-
 }

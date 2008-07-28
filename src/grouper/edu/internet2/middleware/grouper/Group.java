@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
@@ -76,7 +77,6 @@ import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
-import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.M;
@@ -107,10 +107,22 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.197 2008-07-23 06:41:30 mchyzer Exp $
+ * @version $Id: Group.java,v 1.198 2008-07-28 20:12:28 mchyzer Exp $
  */
-public class Group extends GrouperAPI implements Owner {
+public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
+  /** name of the groups table in the db */
+  public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
+  
+  /** uuid col in db */
+  public static final String COLUMN_UUID = "uuid";
+  
+  /** old id col for id conversion */
+  public static final String COLUMN_OLD_ID = "old_id";
+  
+  /** old uuid id col for id conversion */
+  public static final String COLUMN_OLD_UUID = "old_uuid";
+  
   /**
    * if this is a composite group, get the composite object for this group
    * @return the composite group
@@ -354,7 +366,6 @@ public class Group extends GrouperAPI implements Owner {
   private long      createTime      = 0; // default to the epoch
   private String    creatorUUID;
   
-  private String    id;
   private String    modifierUUID;
   private String    modifySource;
   private long      modifyTime      = 0; // default to the epoch
@@ -387,9 +398,6 @@ public class Group extends GrouperAPI implements Owner {
   /** constant for field name for: dbVersion */
   public static final String FIELD_DB_VERSION = "dbVersion";
 
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
-
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
 
@@ -410,15 +418,15 @@ public class Group extends GrouperAPI implements Owner {
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
-      FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, 
-      FIELD_PARENT_UUID, FIELD_UUID);
+      FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_PARENT_UUID, 
+      FIELD_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
-      FIELD_DB_VERSION, FIELD_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, 
+      FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, 
       FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -3157,13 +3165,6 @@ public class Group extends GrouperAPI implements Owner {
   /**
    * @since   1.2.0
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public String getModifierUuid() {
     return this.modifierUUID;
   }
@@ -3313,14 +3314,6 @@ public class Group extends GrouperAPI implements Owner {
   public void setCreatorUuid(String creatorUUID) {
     this.creatorUUID = creatorUUID;
   
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public void setId(String id) {
-    this.id = id;
-
   }
 
   /**

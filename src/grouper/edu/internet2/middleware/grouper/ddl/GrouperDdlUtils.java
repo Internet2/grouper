@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.3 2008-07-27 07:37:24 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.4 2008-07-28 20:12:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -12,8 +12,10 @@ import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -69,7 +71,7 @@ public class GrouperDdlUtils {
    * @return true if ok
    */
   public static boolean okToUseHibernate() {
-    return insideBootstrap || everythingRightVersion || RegistryInitializeSchema.inInitSchema;
+    return justTesting || insideBootstrap || everythingRightVersion || RegistryInitializeSchema.inInitSchema;
   }
   
   /**
@@ -114,7 +116,10 @@ public class GrouperDdlUtils {
   private static boolean bootstrapDone = false;
   
   /** if everything is the right version */
-  private static boolean everythingRightVersion = true;
+  static boolean everythingRightVersion = true;
+  
+  /** set to true if versions will mismatch but we want to continue anyways... */
+  static boolean justTesting = false;
   
   /**
    * startup the process, if the version table is not there, print out that ddl
@@ -136,7 +141,7 @@ public class GrouperDdlUtils {
   
       bootstrapHelper(callFromCommandLine, false, !callFromCommandLine || compareFromDbDllVersion, 
           callFromCommandLine && RegistryInitializeSchema.isDropBeforeCreate(), 
-          callFromCommandLine && RegistryInitializeSchema.isWriteAndRunScript(), false, installDefaultGrouperData);
+          callFromCommandLine && RegistryInitializeSchema.isWriteAndRunScript(), false, installDefaultGrouperData, null);
     } catch (RuntimeException re) {
       everythingRightVersion = false;
       throw re;
@@ -147,6 +152,17 @@ public class GrouperDdlUtils {
   private static Set<String> alreadyInsertedForObjectName = new HashSet<String>();
   
   /**
+   * make a max version map
+   * @param maxVersion
+   * @return the map
+   */
+  static Map<String, DdlVersionable> maxVersionMap(DdlVersionable maxVersion) {
+    Map<String, DdlVersionable> result = new HashMap<String, DdlVersionable>();
+    result.put(maxVersion.getObjectName(), maxVersion);
+    return result;
+  }
+  
+  /**
    * helper method which is more easily testable
    * @param callFromCommandLine
    * @param fromUnitTest true if just testing this method
@@ -155,12 +171,17 @@ public class GrouperDdlUtils {
    * @param theWriteAndRunScript
    * @param dropOnly just drop stuff, e.g. for unit test
    * @param installDefaultGrouperData if registry install should be called afterwards
+   * @param maxVersions if unit testing, and not going to max, then associate object name
+   * with max version
+   * @return the script or null if none (for unit testing, this will also be written to file and logged etc)
    */
   @SuppressWarnings("unchecked")
-  static void bootstrapHelper(boolean callFromCommandLine, boolean fromUnitTest,
+  static String bootstrapHelper(boolean callFromCommandLine, boolean fromUnitTest,
       boolean theCompareFromDbVersion, boolean theDropBeforeCreate, boolean theWriteAndRunScript,
-      boolean dropOnly, boolean installDefaultGrouperData) {
+      boolean dropOnly, boolean installDefaultGrouperData, Map<String, DdlVersionable> maxVersions) {
         
+    String resultString = null;
+    
     try {
       insideBootstrap = true;
 
@@ -213,6 +234,11 @@ public class GrouperDdlUtils {
           //this is the version in java
           int javaVersion = retrieveDdlJavaVersion(objectName); 
           
+          //maybe override this if unit testing
+          if (maxVersions!=null && maxVersions.containsKey(objectName)) {
+            javaVersion = maxVersions.get(objectName).getVersion();
+          }
+          
           DdlVersionable ddlVersionable = retieveVersion(objectName, javaVersion);
           
           StringBuilder historyBuilder = retrieveHistory(objectName);
@@ -260,14 +286,9 @@ public class GrouperDdlUtils {
             continue;
           }
           
-          //shut down hibernate if not just testing
-          if (!fromUnitTest) {
-            everythingRightVersion = false;
-          }
-          
           //if the java is less than db, then grouper was rolled back... that might not be good
           if (javaVersion < dbVersion) {
-            LOG.warn("Java version of db object name: " + objectName + " is " 
+            LOG.error("Java version of db object name: " + objectName + " is " 
                 + javaVersion + " which is less than the dbVersion " + dbVersion
                 + ".  This means grouper was upgraded and rolled back?  Check in the enum "
                 + objectEnumClass.getName() + " for details on if things are compatible.");
@@ -275,6 +296,11 @@ public class GrouperDdlUtils {
             continue;
           }
   
+          //shut down hibernate if not just testing
+          if (!fromUnitTest) {
+            everythingRightVersion = false;
+          }
+          
           //pattern to get only certain objects (e.g. GROUPERLOADER% )
           String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
           //to be safe lets only deal with tables related to this object
@@ -282,21 +308,45 @@ public class GrouperDdlUtils {
           //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
   
           SqlBuilder sqlBuilder = platform.getSqlBuilder();
+
+          //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+          {
+            //it needs a name, just use "grouper"
+            Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+                grouperDb.getUser().toUpperCase(), null);
+            
+            Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+                grouperDb.getUser().toUpperCase(), null);
+            dropAllForeignKeys(newDatabase);
+  
+            String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
+          
+            if (!StringUtils.isBlank(script)) {
+              result.append("\n/* first drop all foreign keys */\n");
+              result.append(script);
+              result.append("\n/* end drop all foreign keys */\n\n");
+            }
+          }
           
           // if deleting all, lets delete all:
           if (theDropBeforeCreate) {
             //it needs a name, just use "grouper"
             Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                 grouperDb.getUser().toUpperCase(), null);
+            dropAllForeignKeys(oldDatabase);
+            
             Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                 grouperDb.getUser().toUpperCase(), null);
-            
+            dropAllForeignKeys(newDatabase);
+
             removeAllTables(newDatabase);
             
             String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
             
             if (!StringUtils.isBlank(script)) {
+              result.append("\n/* we are configured in grouper.properties to drop all tables */\n");
               result.append(script);
+              result.append("\n/* end drop all tables */\n\n");
             }
             
           }
@@ -316,21 +366,34 @@ public class GrouperDdlUtils {
                 //it needs a name, just use "grouper"
                 Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                     grouperDb.getUser().toUpperCase(), null);
+                dropAllForeignKeys(oldDatabase);
+                
                 Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                     grouperDb.getUser().toUpperCase(), null);
+                dropAllForeignKeys(newDatabase);
                 
                 if (theDropBeforeCreate) {
                   removeAllTables(oldDatabase);
                   removeAllTables(newDatabase);
                 }
                 
-                //get this to the previous version
-                upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, version-1);
+                //get this to the previous version, dont worry about additional scripts
+                upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, version-1, javaVersion, new StringBuilder());
+                
+                StringBuilder additionalScripts = new StringBuilder();
+                
                 //get this to the current version
-                upgradeDatabaseVersion(newDatabase, dbVersion, objectName, version);
+                upgradeDatabaseVersion(newDatabase, dbVersion, objectName, version, javaVersion, additionalScripts);
                 
                 script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
                     newDatabase);
+                
+                script = StringUtils.trimToEmpty(script);
+                
+                String additionalScriptsString = additionalScripts.toString();
+                if (!StringUtils.isBlank(additionalScriptsString)) {
+                  script += "\n" + additionalScriptsString;
+                }
                 
                 //String ddl = platform.getAlterTablesSql(connection, database);
               }
@@ -344,7 +407,7 @@ public class GrouperDdlUtils {
               boolean upgradeDdlTable = realDbVersion < version || theDropBeforeCreate;
     
               if (scriptNotBlank || upgradeDdlTable) {
-                result.append("/* " + summary + " */\n");
+                result.append("\n/* " + summary + " */\n");
               }
               
               if (scriptNotBlank) {
@@ -377,6 +440,51 @@ public class GrouperDdlUtils {
                 result.append("commit;\n\n");
               }
             }
+            
+            //now we need to add the foreign keys back in
+            //just get the first version since we need an instance, any instance
+            {
+              
+              //get the latest, doesnt really matter
+              ddlVersionable = retieveVersion(objectName, javaVersion);
+
+              //it needs a name, just use "grouper"
+              Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+                  grouperDb.getUser().toUpperCase(), null);
+              dropAllForeignKeys(oldDatabase);
+              
+              Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+                  grouperDb.getUser().toUpperCase(), null);
+              dropAllForeignKeys(newDatabase);
+              
+              //get this to the current version, dont worry about additional scripts
+              upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, javaVersion, javaVersion, new StringBuilder());
+              
+              //get this to the current version, dont worry about additional scripts
+              upgradeDatabaseVersion(newDatabase, dbVersion, objectName, javaVersion, javaVersion, new StringBuilder());
+
+              StringBuilder additionalScripts = new StringBuilder();
+              ddlVersionable.addAllForeignKeys(newDatabase, additionalScripts, javaVersion);
+
+              String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
+                  newDatabase);
+              
+              script = StringUtils.trimToEmpty(script);
+              
+              String additionalScriptsString = additionalScripts.toString();
+              if (!StringUtils.isBlank(additionalScriptsString)) {
+                script += "\n" + additionalScriptsString;
+              }
+
+              
+              if (!StringUtils.isBlank(script)) {
+                result.append("\n/* add back all the foriegn keys */\n");
+                result.append(script);
+                result.append("\n/* end add back all foreign keys */\n\n");
+              }
+            }
+   
+            
           }
         }
   
@@ -384,7 +492,7 @@ public class GrouperDdlUtils {
         GrouperUtil.closeQuietly(connection);
       }
   
-      String resultString = result.toString();
+      resultString = result.toString();
       
       if (StringUtils.isNotBlank(resultString)) {
   
@@ -402,7 +510,7 @@ public class GrouperDdlUtils {
         } else {
           System.err.println(logMessage);
         }
-
+        logMessage = "";
         if (theWriteAndRunScript) {
   
           PrintStream err = System.err;
@@ -439,9 +547,12 @@ public class GrouperDdlUtils {
   
             sqlExec.execute();
 
-            logMessage = "Script was executed successfully";
+            logMessage += "Script was executed successfully";
           } catch (Exception e) {
-            logMessage = "Error running script: " + ExceptionUtils.getFullStackTrace(e) + "\n";
+            logMessage += "Error running script: " + ExceptionUtils.getFullStackTrace(e) + "\n";
+            if (fromUnitTest) {
+              throw new RuntimeException("Error running script", e);
+            }
           } finally {
           
             newOutErr.flush();
@@ -455,7 +566,7 @@ public class GrouperDdlUtils {
           String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
   
           if (!StringUtils.isBlank(antOutput)) {
-            logMessage = antOutput + "\n";
+            logMessage += antOutput + "\n";
           }
           //if call from command line, print to screen
           if (LOG.isErrorEnabled() && !callFromCommandLine) {
@@ -497,6 +608,7 @@ public class GrouperDdlUtils {
     } finally {
       insideBootstrap = false;
     }
+    return resultString;
   }
 
   /**
@@ -824,9 +936,11 @@ public class GrouperDdlUtils {
    * @param baseDatabaseVersion
    * @param objectName
    * @param requestedVersion
+   * @param upgradeToVersion eventual upgrade version
+   * @param additionalScripts 
    */
   public static void upgradeDatabaseVersion(Database baseVersion, int baseDatabaseVersion, 
-      String objectName, int requestedVersion) {
+      String objectName, int requestedVersion, int upgradeToVersion, StringBuilder additionalScripts) {
     if (baseDatabaseVersion == requestedVersion) {
       return;
     }
@@ -835,7 +949,8 @@ public class GrouperDdlUtils {
       //get the enum
       DdlVersionable ddlVersionable = retieveVersion(objectName, version);
       //do an incremental update
-      ddlVersionable.updateVersionFromPrevious(baseVersion);
+      ddlVersionable.updateVersionFromPrevious(baseVersion, additionalScripts, 
+          version == requestedVersion, upgradeToVersion);
     }
   }
   
@@ -992,6 +1107,18 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * drop all foreign keys from a database
+   * @param database
+   */
+  public static void dropAllForeignKeys(Database database) {
+    for (Table table : GrouperUtil.nonNull(database.getTables())) {
+      for (ForeignKey foreignKey : GrouperUtil.nonNull(table.getForeignKeys())) {
+        table.removeForeignKey(foreignKey);
+      }
+    }
+  }
+  
+  /**
    * find table, if not exist, throw exception
    * @param database
    * @param tableName
@@ -1006,6 +1133,36 @@ public class GrouperDdlUtils {
     return table;
   }
   
+  /**
+   * find table, if not exist, throw exception
+   * @param database
+   * @param tableName
+   * @param columnName 
+   * @param exceptionIfNotFound 
+   * @return the table
+   */
+  public static Column ddlutilsFindColumn(Database database, String tableName, 
+      String columnName, boolean exceptionIfNotFound) {
+    
+    Table table = database.findTable(tableName);
+    if (table == null) {
+      if (exceptionIfNotFound) {
+        throw new RuntimeException("Cant find table: '" + tableName 
+            + "', perhaps you need to rollback your ddl version in the DB and sync up");
+      }
+      return null;
+    }
+    Column column = table.findColumn(columnName);
+    if (column == null) {
+      if (exceptionIfNotFound) {
+        throw new RuntimeException("Cant find column '" + columnName + "' in table '" + tableName + "'," +
+        		" perhaps you need to rollback your ddl version in the DB and sync up");
+      }
+      return null;
+    }
+    return column;
+  }
+
   /**
    * find column, if not exist, throw exception
    * @param table table to get column from
@@ -1039,6 +1196,24 @@ public class GrouperDdlUtils {
    */
   public static Column ddlutilsFindOrCreateColumn(Table table, String columnName, String description, 
       int typeCode, String size, boolean primaryKey, boolean required) {
+    return ddlutilsFindOrCreateColumn(table, columnName, description, 
+        typeCode, size, primaryKey, required, null);
+  }
+  
+  /**
+   * find or create column with various properties
+   * @param table 
+   * @param columnName 
+   * @param description not used, but eventually can be used for data dictionary
+   * @param typeCode from java.sql.Types
+   * @param size string, can be a simple int, or comma separated, see ddlutils docs
+   * @param primaryKey this should only be true for new tables
+   * @param required this should probably only be true for new tables (since ddlutils will copy to temp table)
+   * @param defaultValue is null for none, or something for default value
+   * @return the column
+   */
+  public static Column ddlutilsFindOrCreateColumn(Table table, String columnName, String description, 
+      int typeCode, String size, boolean primaryKey, boolean required, String defaultValue) {
 
     Column column = table.findColumn(columnName);
     
@@ -1053,8 +1228,63 @@ public class GrouperDdlUtils {
     column.setRequired(required);
     column.setDescription(description);
     column.setTypeCode(typeCode);
-    column.setSize(size);
+    if (!StringUtils.equals(size, column.getSize())) {
+      column.setSize(size);
+    }
+    if (defaultValue != null) {
+      column.setDefaultValue(defaultValue);
+    }
+
     return column;
+  }
+  
+  /**
+   * find and drop a column if it is there.   If table not there, thats ok
+   * also drop all related indexes
+   * @param database
+   * @param tableName
+   * @param columnName 
+   */
+  public static void ddlutilsDropColumn(Database database, String tableName, String columnName) {
+    Table table = database.findTable(tableName);
+    ddlutilsDropIndexes(table, columnName);
+    if (table != null) {
+      ddlutilsDropColumn(table, columnName);
+    }
+  }
+  
+  /**
+   * find and drop a column if it is there
+   * also drop all related indexes
+   * @param table 
+   * @param columnName 
+   */
+  public static void ddlutilsDropColumn(Table table, String columnName) {
+    
+    ddlutilsDropIndexes(table, columnName);
+    
+    Column column = table.findColumn(columnName);
+    
+    if (column != null) {
+      table.removeColumn(column);
+    }
+
+  }
+  
+  /**
+   * drop all indexes by column name (e.g. if removing column)
+   * @param table 
+   * @param columnName 
+   */
+  public static void ddlutilsDropIndexes(Table table, String columnName) {
+    for (Index index: table.getIndices()) {
+      for (IndexColumn indexColumn : index.getColumns()) {
+        if (StringUtils.equals(columnName, indexColumn.getName())) {
+          table.removeIndex(index);
+          break;
+        }
+      }
+    }
   }
   
 }

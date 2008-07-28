@@ -29,12 +29,11 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -44,10 +43,23 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.30 2008-07-21 04:43:56 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.31 2008-07-28 20:12:28 mchyzer Exp $    
  */
-public class Field extends GrouperAPI implements Serializable {
+public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
+  /** table name for fields */
+  public static final String TABLE_GROUPER_FIELDS = "grouper_fields";
+  
+  /** uuid col in db */
+  public static final String COLUMN_FIELD_UUID = "field_uuid";
+  
+  /** old id col for id conversion */
+  public static final String COLUMN_OLD_ID = "old_id";
+  
+  /** old uuid id col for id conversion */
+  public static final String COLUMN_OLD_FIELD_UUID = "old_field_uuid";
+  
+  
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: dbVersion */
@@ -55,9 +67,6 @@ public class Field extends GrouperAPI implements Serializable {
 
   /** constant for field name for: groupTypeUUID */
   public static final String FIELD_GROUP_TYPE_UUID = "groupTypeUUID";
-
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
 
   /** constant for field name for: isNullable */
   public static final String FIELD_IS_NULLABLE = "isNullable";
@@ -81,14 +90,14 @@ public class Field extends GrouperAPI implements Serializable {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_GROUP_TYPE_UUID, FIELD_ID, FIELD_IS_NULLABLE, FIELD_NAME, 
-      FIELD_READ_PRIVILEGE, FIELD_TYPE, FIELD_UUID, FIELD_WRITE_PRIVILEGE);
+      FIELD_GROUP_TYPE_UUID, FIELD_IS_NULLABLE, FIELD_NAME, FIELD_READ_PRIVILEGE, 
+      FIELD_TYPE, FIELD_UUID, FIELD_WRITE_PRIVILEGE);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_DB_VERSION, FIELD_GROUP_TYPE_UUID, FIELD_ID, FIELD_IS_NULLABLE, 
+      FIELD_DB_VERSION, FIELD_GROUP_TYPE_UUID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_IS_NULLABLE, 
       FIELD_NAME, FIELD_READ_PRIVILEGE, FIELD_TYPE, FIELD_UUID, 
       FIELD_WRITE_PRIVILEGE);
 
@@ -100,7 +109,6 @@ public class Field extends GrouperAPI implements Serializable {
   private GroupType cachedGroupType   = null;
   // PRIVATE INSTANCE VARIABLES //
   private String    groupTypeUUID;
-  private String    id;
   private boolean   isNullable;
   private String    name;
   private String    readPrivilege;
@@ -179,13 +187,6 @@ public class Field extends GrouperAPI implements Serializable {
   /**
    * @since   1.2.0
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public boolean getIsNullable() {
     return this.isNullable;
   }
@@ -239,13 +240,6 @@ public class Field extends GrouperAPI implements Serializable {
    */
   public void setGroupTypeUuid(String groupTypeUUID) {
     this.groupTypeUUID = groupTypeUUID;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public void setId(String id) {
-    this.id = id;
   }
 
   /**

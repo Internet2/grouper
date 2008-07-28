@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
 /**
  * Basic Hibernate <code>GrouperSession</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GrouperSessionDAO.java,v 1.5 2008-06-29 17:42:41 mchyzer Exp $
+ * @version $Id: Hib3GrouperSessionDAO.java,v 1.6 2008-07-28 20:12:27 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO {
@@ -37,11 +37,10 @@ public class Hib3GrouperSessionDAO extends Hib3DAO implements GrouperSessionDAO 
   /**
    * @since   @HEAD@
    */
-  public String create(GrouperSession _s)
+  public void create(GrouperSession _s)
     throws  GrouperDAOException {
     
     HibernateSession.byObjectStatic().save(_s);
-    return _s.getId();
   } // public String create(_s)
 
   /** 

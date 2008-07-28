@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -61,11 +62,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.56 2008-07-21 04:43:56 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.57 2008-07-28 20:12:28 mchyzer Exp $
  * @since   1.0
  */
-public class Composite extends GrouperAPI {
+public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
 
+  /** table for composites */
+  public static final String TABLE_GROUPER_COMPOSITES = "grouper_composites";
+
+  /** id col in db */
+  public static final String COLUMN_ID = "id";
+
+  /** uuid col in db */
+  public static final String COLUMN_UUID = "uuid";
+  
+  /** old id col for id conversion */
+  public static final String COLUMN_OLD_ID = "old_id";
+  
+  /** old uuid id col for id conversion */
+  public static final String COLUMN_OLD_UUID = "old_uuid";
+  
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -80,9 +96,6 @@ public class Composite extends GrouperAPI {
 
   /** constant for field name for: factorOwnerUUID */
   public static final String FIELD_FACTOR_OWNER_UUID = "factorOwnerUUID";
-
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
 
   /** constant for field name for: leftFactorUUID */
   public static final String FIELD_LEFT_FACTOR_UUID = "leftFactorUUID";
@@ -100,24 +113,23 @@ public class Composite extends GrouperAPI {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_FACTOR_OWNER_UUID, FIELD_ID, 
-      FIELD_LEFT_FACTOR_UUID, FIELD_RIGHT_FACTOR_UUID, FIELD_TYPE, FIELD_UUID);
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_FACTOR_OWNER_UUID, FIELD_LEFT_FACTOR_UUID, 
+      FIELD_RIGHT_FACTOR_UUID, FIELD_TYPE, FIELD_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_FACTOR_OWNER_UUID, 
-      FIELD_ID, FIELD_LEFT_FACTOR_UUID, FIELD_RIGHT_FACTOR_UUID, FIELD_TYPE, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_LEFT_FACTOR_UUID, FIELD_RIGHT_FACTOR_UUID, FIELD_TYPE, 
       FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
-
+  
   // PRIVATE INSTANCE VARIABLES //
   private long    createTime;
   private String  creatorUUID;
   private String  factorOwnerUUID;
-  private String  id;
   private String  leftFactorUUID;
   private String  rightFactorUUID;
   private String  type;
@@ -503,13 +515,6 @@ public class Composite extends GrouperAPI {
   /**
    * @since   1.2.0
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public String getLeftFactorUuid() {
     return this.leftFactorUUID;
   }
@@ -556,13 +561,6 @@ public class Composite extends GrouperAPI {
    */
   public void setFactorOwnerUuid(String factorOwnerUUID) {
     this.factorOwnerUUID = factorOwnerUUID;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public void setId(String id) {
-    this.id = id;
   }
 
   /**

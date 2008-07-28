@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3StemDAO.hbm.xml,v 1.6 2008-06-25 05:46:05 mchyzer Exp $ -->
+<!-- $Id: Hib3StemDAO.hbm.xml,v 1.7 2008-07-28 20:12:27 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="Stem" table="grouper_stems">
@@ -31,26 +31,18 @@
     <cache usage="read-write"/>
 
     <!-- id -->
-    <id name="id" 
+    <id name="uuid" column="id"
         type="string" 
-        unsaved-value="null"
         length="128"
     >
-      <generator class="uuid.hex"/>
+      <generator class="assigned" />
     </id>
     <!-- id -->
 
-    <!-- uuid -->
-    <property name="uuid"
-              type="string"
-    >
-      <column name="uuid"
-              length="128"
-              unique="true"
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <property name="hibernateVersionNumber" column="hibernate_version_number"
               not-null="true"
       />
-    </property>
-    <!-- uuid -->
 
     <!-- parentUuid -->
     <!-- [@since 1.2.0] Refers to parent stem's UUID, not ID -->

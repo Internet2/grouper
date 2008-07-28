@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionable.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: DdlVersionable.java,v 1.2 2008-07-28 20:12:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
  
@@ -11,6 +11,14 @@ import org.apache.ddlutils.model.Database;
  * enums which are ddl version need to implement this interface
  */
 public interface DdlVersionable {
+
+  /**
+   * add all foreign keys
+   * @param database ddlutils database object
+   * @param additionalScripts add additional scripts after the db ddl (e.g. sql).  scripts should be semicolon delimited
+   * @param buildingToVersion version we are building towards (in case unit testing)
+   */
+  public void addAllForeignKeys(Database database, StringBuilder additionalScripts, int buildingToVersion);
 
   /**
    * get the version of this enum
@@ -39,6 +47,10 @@ public interface DdlVersionable {
    * to the database object
    * that should be used to update from the previous version
    * @param database ddlutils database object
+   * @param additionalScripts add additional scripts after the db ddl (e.g. sql).  scripts should be semicolon delimited
+   * @param isDestinationVersion true if this is the version that we are shooting to arrive at
+   * @param buildingToVersion version we are building towards (in case unit testing)
    */
-  public void updateVersionFromPrevious(Database database);
+  public void updateVersionFromPrevious(Database database, StringBuilder additionalScripts, 
+      boolean isDestinationVersion, int buildingToVersion);
 }

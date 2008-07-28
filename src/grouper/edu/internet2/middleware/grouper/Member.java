@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
@@ -78,20 +79,29 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.107 2008-07-23 06:41:30 mchyzer Exp $
+ * @version $Id: Member.java,v 1.108 2008-07-28 20:12:28 mchyzer Exp $
  */
-public class Member extends GrouperAPI implements Serializable {
+public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
-  // PUBLIC CLASS CONSTANTS //
+  /** grouper_members table in the DB */
+  public static final String TABLE_GROUPER_MEMBERS = "grouper_members";
+
+  /** uuid col in db */
+  public static final String COLUMN_MEMBER_UUID = "member_uuid";
+  
+  /** old id col for id conversion */
+  public static final String COLUMN_OLD_ID = "old_id";
+  
+  /** old uuid id col for id conversion */
+  public static final String COLUMN_OLD_MEMBER_UUID = "old_member_uuid";
+  
+  /** serial version */
   public static final long serialVersionUID = 2348656645982471668L;
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: dbVersion */
   public static final String FIELD_DB_VERSION = "dbVersion";
-
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
 
   /** constant for field name for: memberUUID */
   public static final String FIELD_MEMBER_UUID = "memberUUID";
@@ -109,14 +119,13 @@ public class Member extends GrouperAPI implements Serializable {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ID, FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, 
-      FIELD_SUBJECT_TYPE_ID);
+      FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_DB_VERSION, FIELD_ID, FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, 
+      FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MEMBER_UUID, FIELD_SUBJECT_ID, 
       FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -131,10 +140,6 @@ public class Member extends GrouperAPI implements Serializable {
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private transient Subject subj  = null;
-
-
-  // PRIVATE INSTANCE VARIABLES //
-  private String  id;
 
 
   private String  memberUUID;
@@ -1496,13 +1501,6 @@ public class Member extends GrouperAPI implements Serializable {
   /**
    * @since   1.2.0
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public String getSubjectId() {
     return this.subjectID;
   }
@@ -1549,13 +1547,6 @@ public class Member extends GrouperAPI implements Serializable {
   {
     GrouperDAOFactory.getFactory().getMember().existsCachePut( this.getUuid(), true );
     return Lifecycle.NO_VETO;
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public void setId(String id) {
-    this.id = id;
   }
 
   /**

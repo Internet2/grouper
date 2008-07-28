@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksGrouperSessionBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.Realize;
@@ -70,17 +71,26 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.84 2008-07-21 04:43:56 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.85 2008-07-28 20:12:28 mchyzer Exp $
  */
-public class GrouperSession extends GrouperAPI {
+public class GrouperSession extends GrouperAPI implements Hib3GrouperVersioned {
 
+  /** table name for grouper_sessions */
+  public static final String TABLE_GROUPER_SESSIONS = "grouper_sessions";
+  
+  /** uuid col in db */
+  public static final String COLUMN_SESSION_UUID = "session_uuid";
+  
+  /** old id col for id conversion */
+  public static final String COLUMN_OLD_ID = "old_id";
+  
+  /** old uuid id col for id conversion */
+  public static final String COLUMN_OLD_SESSION_UUID = "old_session_uuid";
+  
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: dbVersion */
   public static final String FIELD_DB_VERSION = "dbVersion";
-
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
 
   /** constant for field name for: memberUUID */
   public static final String FIELD_MEMBER_UUID = "memberUUID";
@@ -98,13 +108,13 @@ public class GrouperSession extends GrouperAPI {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ID, FIELD_MEMBER_UUID, FIELD_START_TIME_LONG, FIELD_UUID);
+      FIELD_MEMBER_UUID, FIELD_START_TIME_LONG, FIELD_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_DB_VERSION, FIELD_ID, FIELD_MEMBER_UUID, FIELD_START_TIME_LONG, 
+      FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MEMBER_UUID, FIELD_START_TIME_LONG, 
       FIELD_SUBJECT, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -170,9 +180,6 @@ public class GrouperSession extends GrouperAPI {
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private GrouperSession  rootSession;
-
-  // PRIVATE INSTANCE VARIABLES //
-  private String          id;
 
   private String          memberUUID;
 
@@ -495,7 +502,7 @@ public class GrouperSession extends GrouperAPI {
   public void stop() 
     throws  SessionException
   {
-    if ( this.getId() != null ) { // We have a persistent session
+    if ( this.getHibernateVersionNumber() != -1 ) { // We have a persistent session
       StopWatch sw    = new StopWatch();
       sw.start();
       long      start = this.getStartTime().getTime();
@@ -592,13 +599,6 @@ public class GrouperSession extends GrouperAPI {
   /**
    * @since   1.2.0
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public String getMemberUuid() {
     return this.memberUUID;
   }
@@ -627,14 +627,6 @@ public class GrouperSession extends GrouperAPI {
       .append( this.getUuid()       )
       .toHashCode();
   } // public int hashCode()
-
-  /**
-   * @since   1.2.0
-   */
-  public void setId(String id) {
-    this.id = id;
-  
-  }
 
   /**
    * @since   1.2.0

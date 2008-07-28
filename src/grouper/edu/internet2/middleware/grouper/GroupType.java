@@ -34,16 +34,14 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
-import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
@@ -61,10 +59,22 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.64 2008-07-27 07:37:24 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.65 2008-07-28 20:12:28 mchyzer Exp $
  */
-public class GroupType extends GrouperAPI implements Serializable {
+public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned {
 
+  /** name of table for grouper_types */
+  public static final String TABLE_GROUPER_TYPES = "grouper_types";
+  
+  /** uuid col in db */
+  public static final String COLUMN_TYPE_UUID = "type_uuid";
+  
+  /** old id col for id conversion */
+  public static final String COLUMN_OLD_ID = "old_id";
+  
+  /** old uuid id col for id conversion */
+  public static final String COLUMN_OLD_TYPE_UUID = "old_type_uuid";
+ 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: createTime */
@@ -75,9 +85,6 @@ public class GroupType extends GrouperAPI implements Serializable {
 
   /** constant for field name for: dbVersion */
   public static final String FIELD_DB_VERSION = "dbVersion";
-
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
 
   /** constant for field name for: isAssignable */
   public static final String FIELD_IS_ASSIGNABLE = "isAssignable";
@@ -95,25 +102,23 @@ public class GroupType extends GrouperAPI implements Serializable {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_ID, FIELD_IS_ASSIGNABLE, 
-      FIELD_IS_INTERNAL, FIELD_NAME, FIELD_UUID);
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_IS_ASSIGNABLE, FIELD_IS_INTERNAL, 
+      FIELD_NAME, FIELD_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_ID,
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, 
       FIELD_IS_ASSIGNABLE, FIELD_IS_INTERNAL, FIELD_NAME, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
-  
-  // PUBLIC CLASS CONSTANTS //
+
+  /** */
   public static final long serialVersionUID = 8214760621248803096L;
 
 
-  // PUBLIC CLASS METHODS //
-
-  /*
+  /**
    * Create a new {@link GroupType}.  
    * <p/>
    * Create a new custom group type that can be assigned to existing or
@@ -160,7 +165,6 @@ public class GroupType extends GrouperAPI implements Serializable {
   @GrouperIgnoreClone
   private Set     fields;
   
-  private String  id;
   private boolean isAssignable  = true;
   private boolean isInternal    = false;
   private String  name;
@@ -581,14 +585,6 @@ public class GroupType extends GrouperAPI implements Serializable {
   /**
    * @since   1.2.0
    */ 
-  public String getId() {
-    return this.id;
-  }
-
-
-  /**
-   * @since   1.2.0
-   */ 
   public boolean getIsAssignable() {
     return this.isAssignable;
   }
@@ -651,15 +647,6 @@ public class GroupType extends GrouperAPI implements Serializable {
    */ 
   public void setFields(Set fields) {
     this.fields = fields;
-  
-  }
-
-
-  /**
-   * @since   1.2.0
-   */ 
-  public void setId(String id) {
-    this.id = id;
   
   }
 

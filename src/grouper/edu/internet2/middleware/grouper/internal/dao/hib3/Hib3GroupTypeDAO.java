@@ -36,13 +36,12 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.7 2008-07-28 20:12:27 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3GroupTypeDAO.class.getName();
-
 
   /**
    * @since   @HEAD@
