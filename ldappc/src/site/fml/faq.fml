@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <faqs title="Frequently Asked Questions">
+	<part id="Wiki">
+		<title>Wiki FAQ</title>
+		<faq id="wiki-faq">
+			<question>Where is the most recent FAQ?</question>
+			<answer>
+				<a href="https://wiki.internet2.edu/confluence/display/i2miCommon/Ldappc+FAQ">https://wiki.internet2.edu/confluence/display/i2miCommon/Ldappc+FAQ</a>
+			</answer>
+		</faq>
+	</part>
 	<part id="Running">
 		<title>Running Ldappc</title>
 		<faq id="running-ldappc">
