@@ -24,7 +24,7 @@
       <item name="User Manual" href="user-manual.html"/>
     </menu>
 
-	<menu ref="reports" collapse="false"/>
+	<menu ref="reports"/>
 
   </body>
 </project>
