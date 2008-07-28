@@ -6,6 +6,12 @@
   <publishDate position="navigation-bottom" format="dd MMM yyyy"/>
   <version position="left"/>
   <body>
+    <links>
+      <item name="Ldappc Wiki" href="https://wiki.internet2.edu/confluence/display/i2miCommon/Ldappc"/>
+      <item name="I2 Middleware" href="http://middleware.internet2.edu"/>
+      <item name="Internet2" href="http://www.internet2.edu"/>
+    </links>
+
     <menu name="Ldappc">
       <item name="Overview" href="index.html"/>
       <item name="Architecture" href="architecture.html"/>

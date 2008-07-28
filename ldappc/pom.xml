@@ -15,7 +15,7 @@
   -->
   <name>LDAP Provisioning Connector</name>
   <description>Ldappc provisions LDAP membership, group, and privilege data from Grouper and Signet.</description>
-  <url>https://wiki.internet2.edu/confluence/display/i2miCommon/Home</url>
+  <url>http://middleware.internet2.edu/dir/groups/grouper/${project.artifactId}/${project.version}/doc/</url>
 
   <!--
     Link to JIRA
