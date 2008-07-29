@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.9 2008-07-29 20:09:27 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.10 2008-07-29 20:34:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -359,99 +360,17 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
       
-      boolean isDestinationVersion = ddlVersionBean.isDestinationVersion();
+      addVersionNumberColumn(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES);
+      addVersionNumberColumn(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES);
+      addVersionNumberColumn(ddlVersionBean, GroupTypeTuple.TABLE_GROUPER_GROUPS_TYPES);
+      addVersionNumberColumn(ddlVersionBean, Field.TABLE_GROUPER_FIELDS);
+      addVersionNumberColumn(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS);
+      addVersionNumberColumn(ddlVersionBean, Group.TABLE_GROUPER_GROUPS);
+      addVersionNumberColumn(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS);
+      addVersionNumberColumn(ddlVersionBean, GrouperSession.TABLE_GROUPER_SESSIONS);
+      addVersionNumberColumn(ddlVersionBean, Stem.TABLE_GROUPER_STEMS);
+      addVersionNumberColumn(ddlVersionBean, GroupType.TABLE_GROUPER_TYPES);
       
-      StringBuilder additionalScripts = ddlVersionBean.getAdditionalScripts();
-
-      //if there is no uuid col, then forget it, or if there is a old_uuid col forget it
-      Table compositesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
-          Composite.TABLE_GROUPER_COMPOSITES);
-      
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, Composite.TABLE_GROUPER_COMPOSITES, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-        if (isDestinationVersion) {
-          additionalScripts.append("update grouper_composites set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
-        }
-      }
-
-      Table fieldsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
-          Field.TABLE_GROUPER_FIELDS);
-      
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, Field.TABLE_GROUPER_FIELDS, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-        if (isDestinationVersion) {
-          additionalScripts.append("update grouper_fields set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
-        }
-      }
-
-      Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
-          Membership.TABLE_GROUPER_MEMBERSHIPS);
-      
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-        if (isDestinationVersion) {
-          additionalScripts.append("update grouper_memberships set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
-        }
-      }
-
-      Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
-          Group.TABLE_GROUPER_GROUPS);
-      
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-        if (isDestinationVersion) {
-          additionalScripts.append("update grouper_groups set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
-        }
-      }
-
-      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, 
-          Member.TABLE_GROUPER_MEMBERS);
-      
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, Member.TABLE_GROUPER_MEMBERS, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-        if (isDestinationVersion) {
-          additionalScripts.append("update grouper_members set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
-        }
-      }
-
-      Table grouperSessionsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
-          GrouperSession.TABLE_GROUPER_SESSIONS);
-      
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSessionsTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-        if (isDestinationVersion) {
-          additionalScripts.append("update grouper_sessions set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
-        }
-      }
-
-      Table stemsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
-          Stem.TABLE_GROUPER_STEMS);
-      
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-        if (isDestinationVersion) {
-          additionalScripts.append("update grouper_stems set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
-        }
-      }
-
-      Table typesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
-          GroupType.TABLE_GROUPER_TYPES);
-      
-      if (GrouperDdlUtils.ddlutilsFindColumn(database, GroupType.TABLE_GROUPER_TYPES, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-        if (isDestinationVersion) {
-          additionalScripts.append("update grouper_types set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
-        }
-      }
-
     }
   },
   
@@ -1137,6 +1056,28 @@ public enum GrouperDdl implements DdlVersionable {
    * cache this
    */
   private static int currentVersion = -1;
+  
+  /**
+   * add version number col if not there
+   * @param ddlVersionBean 
+   * @param tableName
+   */
+  private static void addVersionNumberColumn(DdlVersionBean ddlVersionBean, String tableName) {
+    Database database = ddlVersionBean.getDatabase();
+
+    //if there is no uuid col, then forget it, or if there is a old_uuid col forget it
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database, tableName);
+    
+    if (GrouperDdlUtils.ddlutilsFindColumn(database, tableName, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
+      if (ddlVersionBean.isDestinationVersion()) {
+        ddlVersionBean.getAdditionalScripts().append(
+            "update " + tableName + " set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
+      }
+    }
+
+  }
   
   /**
    * keep the current version here, increment as things change

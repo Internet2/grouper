@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupTypeTupleDAO.hbm.xml,v 1.5 2008-06-25 05:46:05 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupTypeTupleDAO.hbm.xml,v 1.6 2008-07-29 20:34:24 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="GroupTypeTuple" table="grouper_groups_types">
@@ -39,6 +39,11 @@
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
+
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <property name="hibernateVersionNumber" column="hibernate_version_number"
+              not-null="true"
+      />
 
     <!-- groupUuid -->
     <!-- [@since 1.2.0] Refers to group's UUID, not ID -->
