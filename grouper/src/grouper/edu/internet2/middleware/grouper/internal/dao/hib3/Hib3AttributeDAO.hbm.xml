@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeDAO.hbm.xml,v 1.8 2008-07-28 20:12:27 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeDAO.hbm.xml,v 1.9 2008-07-29 20:34:24 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="Attribute" table="grouper_attributes">
@@ -39,6 +39,11 @@
       <generator class="uuid.hex"/>
     </id>
     <!-- id -->
+
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <property name="hibernateVersionNumber" column="hibernate_version_number"
+              not-null="true"
+      />
 
 <!--
   I had a unique index across `group_id`, `field_name` and `field_type` but

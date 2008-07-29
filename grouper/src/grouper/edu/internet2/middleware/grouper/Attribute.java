@@ -22,15 +22,16 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.17 2008-07-28 20:12:28 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.18 2008-07-29 20:34:24 mchyzer Exp $
  * @since   @HEAD@
  */
 @GrouperIgnoreDbVersion @GrouperIgnoreClone
-public class Attribute extends GrouperAPI {
+public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 

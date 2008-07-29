@@ -23,22 +23,26 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.4 2008-07-11 05:11:28 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.5 2008-07-29 20:34:24 mchyzer Exp $
  * @since   @HEAD@
  */
-public class GroupTypeTuple extends GrouperAPI {
+public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
+
+  /**
+   * 
+   */
+  public static final String TABLE_GROUPER_GROUPS_TYPES = "grouper_groups_types";
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
