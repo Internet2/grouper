@@ -47,19 +47,16 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.CompositeHooks;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
@@ -78,12 +75,26 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.101 2008-07-29 07:05:20 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.102 2008-07-29 20:09:27 mchyzer Exp $
  */
-public class Membership extends GrouperAPI {
+public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
   /** table name where memberships are stored */
   public static final String TABLE_GROUPER_MEMBERSHIPS = "grouper_memberships";
+  
+  /** id col in db */
+  public static final String COLUMN_ID = "id";
+
+  /** uuid col in db */
+  public static final String COLUMN_MEMBERSHIP_UUID = "membership_uuid";
+  
+  /** old id col for id conversion */
+  public static final String COLUMN_OLD_ID = "old_id";
+  
+  /** old uuid id col for id conversion */
+  public static final String COLUMN_OLD_MEMBERSHIP_UUID = "old_membership_uuid";
+  
+
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -98,9 +109,6 @@ public class Membership extends GrouperAPI {
 
   /** constant for field name for: depth */
   public static final String FIELD_DEPTH = "depth";
-
-  /** constant for field name for: id */
-  public static final String FIELD_ID = "id";
 
   /** constant for field name for: listName */
   public static final String FIELD_LIST_NAME = "listName";
@@ -130,22 +138,22 @@ public class Membership extends GrouperAPI {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_ID, 
-      FIELD_LIST_NAME, FIELD_LIST_TYPE, FIELD_MEMBER_UUID, FIELD_OWNER_UUID, 
-      FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, FIELD_VIA_UUID);
+      FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_LIST_NAME, 
+      FIELD_LIST_TYPE, FIELD_MEMBER_UUID, FIELD_OWNER_UUID, FIELD_PARENT_UUID, 
+      FIELD_TYPE, FIELD_UUID, FIELD_VIA_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_DEPTH, 
-      FIELD_ID, FIELD_LIST_NAME, FIELD_LIST_TYPE, FIELD_MEMBER_UUID, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_LIST_NAME, FIELD_LIST_TYPE, FIELD_MEMBER_UUID, 
       FIELD_OWNER_UUID, FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, 
       FIELD_VIA_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
-
-  // PUBLIC CLASS CONSTANTS //
+  
+  
   /** A member of a group (aka composite member) has either or both of
    * an immediate (direct) membership, or an effective (indirect) membership **/
   public static final String COMPOSITE = "composite";
@@ -187,8 +195,6 @@ public class Membership extends GrouperAPI {
   private String  creatorUUID;
 
   private int     depth       = 0;                              // reasonable default
-
-  private String  id;
 
   private String  listName;
 
@@ -829,13 +835,6 @@ public class Membership extends GrouperAPI {
   /**
    * @since   1.2.0
    */
-  public String getId() {
-    return this.id;
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public String getListName() {
     return this.listName;
   }
@@ -934,14 +933,6 @@ public class Membership extends GrouperAPI {
   /**
    * @since   1.2.0
    */
-  public void setId(String id) {
-    this.id = id;
-  
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public void setListName(String listName) {
     this.listName = listName;
   
@@ -1021,7 +1012,6 @@ public class Membership extends GrouperAPI {
       .append( "createTime",  this.getCreateTimeLong()  )
       .append( "creatorUuid", this.getCreatorUuid() )
       .append( "depth",       this.getDepth()       )
-      .append( "id",          this.getId()          )
       .append( "listName",    this.getListName()    )
       .append( "listType",    this.getListType()    )
       .append( "memberUuid",  this.getMemberUuid()  )

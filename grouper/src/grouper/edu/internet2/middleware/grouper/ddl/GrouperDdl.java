@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.8 2008-07-29 17:54:39 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.9 2008-07-29 20:09:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -30,6 +30,83 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public enum GrouperDdl implements DdlVersionable {
 
   /**
+   * delete backup cols if configured to and is exist
+   */
+  V7 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      //if not configured to drop, then leave alone
+      if (!GrouperConfig.getPropertyBoolean("ddlutils.dropBackupUuidCols", false)) {
+        return;
+      }
+
+      //only drop cols if there are there, and all of them (which means the conversion probably happened, and they
+      //havent been dropped yet)
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_OLD_TYPE_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_OLD_ID, false) != null) {
+        
+        GrouperDdlUtils.ddlutilsDropColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_OLD_TYPE_UUID, ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_OLD_ID, ddlVersionBean);
+      }
+      
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OLD_MEMBERSHIP_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OLD_ID, false) != null) {
+        
+        GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OLD_MEMBERSHIP_UUID, ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OLD_ID, ddlVersionBean);
+      }
+      
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_OLD_MEMBER_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_OLD_ID, false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_OLD_MEMBER_UUID, ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_OLD_ID, ddlVersionBean);
+      }
+
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_OLD_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_OLD_ID, false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_OLD_UUID, ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_OLD_ID, ddlVersionBean);
+      }
+
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_OLD_FIELD_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_OLD_ID, false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_OLD_FIELD_UUID, ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_OLD_ID, ddlVersionBean);
+        
+      }
+
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_OLD_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_OLD_ID, false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_OLD_UUID, ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_OLD_ID, ddlVersionBean);
+        
+      }
+
+      if(GrouperDdlUtils.ddlutilsFindColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_OLD_SESSION_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_OLD_ID, false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_OLD_SESSION_UUID, ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_OLD_ID, ddlVersionBean);
+      }
+
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_ID, false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_UUID, ddlVersionBean);
+        GrouperDdlUtils.ddlutilsDropColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_ID, ddlVersionBean);
+          
+      }
+
+      
+    }
+  },
+  
+  /**
    * delete uuid and backup cols if configured to and is exist
    */
   V6 {
@@ -42,11 +119,6 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
 
-      //if not configured to drop, then leave alone
-      if (!GrouperConfig.getPropertyBoolean("ddlutils.dropUuidCols", false)) {
-        return;
-      }
-
       //only drop cols if there are there, and all of them (which means the conversion probably happened, and they
       //havent been dropped yet)
       if (GrouperDdlUtils.ddlutilsFindColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_TYPE_UUID, false) != null
@@ -54,32 +126,31 @@ public enum GrouperDdl implements DdlVersionable {
           && GrouperDdlUtils.ddlutilsFindColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_OLD_ID, false) != null) {
         
         GrouperDdlUtils.ddlutilsDropColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_TYPE_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_OLD_TYPE_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, GroupType.TABLE_GROUPER_TYPES, GroupType.COLUMN_OLD_ID, ddlVersionBean);
+      }
+      
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_MEMBERSHIP_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OLD_MEMBERSHIP_UUID, false) != null
+          && GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OLD_ID, false) != null) {
+        
+        GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_MEMBERSHIP_UUID, ddlVersionBean);
       }
       
       if (GrouperDdlUtils.ddlutilsFindColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_MEMBER_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_OLD_MEMBER_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_OLD_ID, false) != null) {
         GrouperDdlUtils.ddlutilsDropColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_MEMBER_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_OLD_MEMBER_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_OLD_ID, ddlVersionBean);
       }
 
       if (GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_OLD_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_OLD_ID, false) != null) {
         GrouperDdlUtils.ddlutilsDropColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_OLD_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Group.TABLE_GROUPER_GROUPS, Group.COLUMN_OLD_ID, ddlVersionBean);
       }
 
       if (GrouperDdlUtils.ddlutilsFindColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_FIELD_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_OLD_FIELD_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_OLD_ID, false) != null) {
         GrouperDdlUtils.ddlutilsDropColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_FIELD_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_OLD_FIELD_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Field.TABLE_GROUPER_FIELDS, Field.COLUMN_OLD_ID, ddlVersionBean);
         
       }
 
@@ -87,8 +158,6 @@ public enum GrouperDdl implements DdlVersionable {
           && GrouperDdlUtils.ddlutilsFindColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_OLD_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_OLD_ID, false) != null) {
         GrouperDdlUtils.ddlutilsDropColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_OLD_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Composite.TABLE_GROUPER_COMPOSITES, Composite.COLUMN_OLD_ID, ddlVersionBean);
         
       }
 
@@ -96,16 +165,12 @@ public enum GrouperDdl implements DdlVersionable {
           && GrouperDdlUtils.ddlutilsFindColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_OLD_SESSION_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_OLD_ID, false) != null) {
         GrouperDdlUtils.ddlutilsDropColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_SESSION_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_OLD_SESSION_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, GrouperSession.TABLE_GROUPER_SESSIONS, GrouperSession.COLUMN_OLD_ID, ddlVersionBean);
       }
 
       if (GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_UUID, false) != null
           && GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_ID, false) != null) {
         GrouperDdlUtils.ddlutilsDropColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_UUID, ddlVersionBean);
-        GrouperDdlUtils.ddlutilsDropColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_ID, ddlVersionBean);
           
       }
 
@@ -134,6 +199,9 @@ public enum GrouperDdl implements DdlVersionable {
       Table compositesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
           Composite.TABLE_GROUPER_COMPOSITES);
       
+      Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS);
+      
       Table fieldsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
           Field.TABLE_GROUPER_FIELDS);
       
@@ -157,6 +225,9 @@ public enum GrouperDdl implements DdlVersionable {
       boolean needsCompositeConversion = needsCompositeIdConversion(database);
       
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
+      boolean needsMembershipConversion = needsMembershipIdConversion(database);
+      
+      //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       boolean needsFieldsConversion = needsFieldsIdConversion(database);
       
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
@@ -174,7 +245,7 @@ public enum GrouperDdl implements DdlVersionable {
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       boolean needsTypesConversion = needsTypesIdConversion(database);
       
-      boolean needsConversion = needsCompositeConversion || needsFieldsConversion 
+      boolean needsConversion = needsCompositeConversion || needsMembershipConversion || needsFieldsConversion 
         || needsGroupsConversion || needsMembersConversion || needsGrouperSessionsConversion 
         || needsStemsConversion || needsTypesConversion;
       
@@ -189,7 +260,19 @@ public enum GrouperDdl implements DdlVersionable {
           if (isDestinationVersion) {
 
             //update records, move the uuid to the id
-            additionalScripts.append("update grouper_composites set old_id = id, id = uuid, old_uuid = uuid;\n");
+            additionalScripts.append("update grouper_composites set old_id = id, id = uuid, old_uuid = uuid where uuid is not null;\n");
+          }          
+        }
+        
+        if (needsMembershipConversion) {
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_MEMBERSHIP_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          
+          if (isDestinationVersion) {
+
+            //update records, move the uuid to the id
+            additionalScripts.append("update grouper_memberships set old_id = id, id = membership_uuid, old_membership_uuid = membership_uuid where membership_uuid is not null;\n");
           }          
         }
         
@@ -200,7 +283,7 @@ public enum GrouperDdl implements DdlVersionable {
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
-            additionalScripts.append("update grouper_fields set old_id = id, id = field_uuid, old_field_uuid = field_uuid;\n");
+            additionalScripts.append("update grouper_fields set old_id = id, id = field_uuid, old_field_uuid = field_uuid where field_uuid is not null;\n");
           }          
         }
         
@@ -211,7 +294,7 @@ public enum GrouperDdl implements DdlVersionable {
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
-            additionalScripts.append("update grouper_groups set old_id = id, id = uuid, old_uuid = uuid;\n");
+            additionalScripts.append("update grouper_groups set old_id = id, id = uuid, old_uuid = uuid where uuid is not null;\n");
           }          
         }
 
@@ -222,7 +305,7 @@ public enum GrouperDdl implements DdlVersionable {
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
-            additionalScripts.append("update grouper_members set old_id = id, id = member_uuid, old_member_uuid = member_uuid;\n");
+            additionalScripts.append("update grouper_members set old_id = id, id = member_uuid, old_member_uuid = member_uuid where member_uuid is not null;\n");
           }          
         }
 
@@ -234,7 +317,7 @@ public enum GrouperDdl implements DdlVersionable {
           if (isDestinationVersion) {
 
             //update records, move the uuid to the id
-            additionalScripts.append("update grouper_sessions set old_id = id, id = session_uuid, old_session_uuid = session_uuid;\n");
+            additionalScripts.append("update grouper_sessions set old_id = id, id = session_uuid, old_session_uuid = session_uuid where session_uuid is not null;\n");
           }          
         }
 
@@ -245,7 +328,7 @@ public enum GrouperDdl implements DdlVersionable {
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
-            additionalScripts.append("update grouper_stems set old_id = id, id = uuid, old_uuid = uuid;\n");
+            additionalScripts.append("update grouper_stems set old_id = id, id = uuid, old_uuid = uuid where uuid is not null;\n");
           }          
         }
 
@@ -256,7 +339,7 @@ public enum GrouperDdl implements DdlVersionable {
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
-            additionalScripts.append("update grouper_types set old_id = id, id = type_uuid, old_type_uuid = type_uuid;\n");
+            additionalScripts.append("update grouper_types set old_id = id, id = type_uuid, old_type_uuid = type_uuid where type_uuid is not null;\n");
           }          
         }
         additionalScripts.append("commit;\n");
@@ -300,6 +383,17 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
         if (isDestinationVersion) {
           additionalScripts.append("update grouper_fields set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
+        }
+      }
+
+      Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS);
+      
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
+        if (isDestinationVersion) {
+          additionalScripts.append("update grouper_memberships set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
         }
       }
 
@@ -736,14 +830,25 @@ public enum GrouperDdl implements DdlVersionable {
       }
     
       {
-        GrouperDdlUtils.ddlutilsAddUniqueConstraint(Membership.TABLE_GROUPER_MEMBERSHIPS, "membership_uuid_unq", ddlVersionBean, "membership_uuid");
-
         Table membershipsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
             Membership.TABLE_GROUPER_MEMBERSHIPS, "keeps track of memberships and permissions");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "id", 
             "db id of this row", Types.VARCHAR, "128", true, true);
   
+        boolean needsConversion = needsMembersIdConversion(database);
+        
+        if (needsConversion || buildingToThisVersion ) {
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "membership_uuid", 
+              "grouper id for membership (used is foreign keys to this row)", 
+              Types.VARCHAR, "128", false, false);
+    
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+              "membership_uuid_idx", true, "membership_uuid");
+
+        }
+        
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "owner_id", 
             "group of the membership", Types.VARCHAR, "128", false, true);
   
@@ -772,10 +877,6 @@ public enum GrouperDdl implements DdlVersionable {
             "for effective membership, uuid of membership record from the group in " +
             "question to the parent group of the member", Types.VARCHAR, "128", false, false);
   
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "membership_uuid", 
-            "grouper id for membership (used is foreign keys to this row)", 
-            Types.VARCHAR, "128", false, true);
-  
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "creator_id", 
             "member uuid of the creator of this record", 
             Types.VARCHAR, "128", false, false);
@@ -784,9 +885,6 @@ public enum GrouperDdl implements DdlVersionable {
             "number of millis since 1970 that this record was created", 
             Types.BIGINT, "20", false, true);
   
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
-            "membership_uuid_idx", true, "membership_uuid");
-
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
             "membership_createtime_idx", false, "create_time");
 
@@ -822,7 +920,7 @@ public enum GrouperDdl implements DdlVersionable {
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
             "membership_owner_member_idx", false, "owner_id", "member_id",
-            "list_name", "list_type", "depth", "membership_uuid");
+            "list_name", "list_type", "depth");
         
       }
       {
@@ -1132,6 +1230,16 @@ public enum GrouperDdl implements DdlVersionable {
 
   /**
    * @param database
+   * @return true if needs composite conversion
+   */
+  private static boolean needsMembershipIdConversion(Database database) {
+    return GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_MEMBERSHIP_UUID, false) != null
+      && GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OLD_MEMBERSHIP_UUID, false) == null
+      && GrouperDdlUtils.ddlutilsFindColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_OLD_ID, false) == null;
+  }  
+
+  /**
+   * @param database
    * @return true if needs
    */
   private static boolean needsGrouperSessionsIdConversion(Database database) {
@@ -1208,7 +1316,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperUtil.toList("list_name", "list_type"),
         GrouperUtil.toList("name", "type"));
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
-        "fk_memberships_parent", Membership.TABLE_GROUPER_MEMBERSHIPS, "parent_membership", "membership_uuid");
+        "fk_memberships_parent", Membership.TABLE_GROUPER_MEMBERSHIPS, "parent_membership", "id");
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         "fk_memberships_creator_id", Member.TABLE_GROUPER_MEMBERS, "creator_id", memberIdCol);
 

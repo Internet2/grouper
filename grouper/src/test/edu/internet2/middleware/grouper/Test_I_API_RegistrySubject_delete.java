@@ -27,7 +27,7 @@ import  edu.internet2.middleware.subject.Subject;
 /**
  * Test <code>Group.delete()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_RegistrySubject_delete.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_RegistrySubject_delete.java,v 1.4 2008-07-29 20:09:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_RegistrySubject_delete extends GrouperTest {
@@ -52,8 +52,8 @@ public class Test_I_API_RegistrySubject_delete extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    //TestRunner.run(new Test_I_API_RegistrySubject_delete(""));
-    TestRunner.run(Test_I_API_RegistrySubject_delete.class);
+    TestRunner.run(new Test_I_API_RegistrySubject_delete("test_delete_failToDeleteNoLongerExistingRegistrySubject"));
+    //TestRunner.run(Test_I_API_RegistrySubject_delete.class);
   }
 
   // PRIVATE INSTANCE VARIABLES //

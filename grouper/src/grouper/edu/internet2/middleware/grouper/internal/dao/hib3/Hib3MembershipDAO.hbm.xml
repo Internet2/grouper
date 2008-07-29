@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.7 2008-06-25 05:46:05 mchyzer Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.8 2008-07-29 20:09:27 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
@@ -32,14 +32,20 @@
     <cache usage="read-write"/>
 
     <!-- id -->
-    <id name="id" 
+    <id name="uuid" 
+        column="id"
         type="string"
-        unsaved-value="null"
+        unsaved-value="none"
         length="128"
     >
-      <generator class="uuid.hex"/>
+      <generator class="assigned" />
     </id>
     <!-- id -->
+
+    <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
+    <property name="hibernateVersionNumber" column="hibernate_version_number"
+              not-null="true"
+      />
 
     <!-- ownerUuid -->
     <!-- [@since 1.2.0] Refers to owner's UUID, not ID -->
@@ -151,21 +157,6 @@
       />
     </property>
     <!-- parentUuid -->
-
-    <!-- uuid -->
-    <property 
-      name="uuid"
-      type="string"
-      update="true"
-    >
-      <column name="membership_uuid"
-              unique-key="members_idx"
-              unique="true"
-              length="128"
-              not-null="true"
-      />
-    </property>
-    <!-- uuid -->
 
     <!-- creatorUuid -->
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
