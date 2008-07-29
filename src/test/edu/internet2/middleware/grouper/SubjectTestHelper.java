@@ -24,7 +24,7 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.11 2008-07-29 07:05:20 mchyzer Exp $
  */
  public class SubjectTestHelper {
 
@@ -91,7 +91,7 @@ import  junit.framework.*;
     }
     catch (Exception e) {
       throw new RuntimeException(
-        "unable to run tests without subjects: " + e.getMessage()
+        "unable to run tests without subjects: " + e.getMessage(), e
       );
     }
   } // static

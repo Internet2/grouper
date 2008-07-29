@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.4 2008-07-28 20:12:27 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.5 2008-07-29 07:05:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -74,25 +74,38 @@ public class GrouperDdlUtils {
     return justTesting || insideBootstrap || everythingRightVersion || RegistryInitializeSchema.inInitSchema;
   }
   
+  /** cache the platform */
+  private static Platform cachedPlatform = null;
+  
   /**
    * retrieve the ddl utils platform
    * @return the platform object
    */
   public static Platform retrievePlatform() {
-    String ddlUtilsDbnameOverride = GrouperConfig.getProperty("ddlutils.dbname.override");
-    Platform platform = null;
-
-    //convenience to get the url, user, etc of the grouper db
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-
-    if (StringUtils.isBlank(ddlUtilsDbnameOverride)) {
-      platform = PlatformFactory.createNewPlatformInstance(grouperDb.getDriver(),
-          grouperDb.getUrl());
-    } else {
-      platform = PlatformFactory.createNewPlatformInstance(ddlUtilsDbnameOverride);
+    return retrievePlatform(true);
+  }
+  /**
+   * retrieve the ddl utils platform
+   * @param useCache if we should get from cache if it is available
+   * @return the platform object
+   */
+  public static Platform retrievePlatform(boolean useCache) {
+    
+    if (cachedPlatform == null || !useCache) {
+      
+      String ddlUtilsDbnameOverride = GrouperConfig.getProperty("ddlutils.dbname.override");
+  
+      //convenience to get the url, user, etc of the grouper db
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+  
+      if (StringUtils.isBlank(ddlUtilsDbnameOverride)) {
+        cachedPlatform = PlatformFactory.createNewPlatformInstance(grouperDb.getDriver(),
+            grouperDb.getUrl());
+      } else {
+        cachedPlatform = PlatformFactory.createNewPlatformInstance(ddlUtilsDbnameOverride);
+      }
     }
-
-    return platform;
+    return cachedPlatform;
   }
 
   /**
@@ -195,7 +208,7 @@ public class GrouperDdlUtils {
       FieldFinder.clearCache();
       GroupTypeFinder.clearCache();
       
-      Platform platform = retrievePlatform();
+      Platform platform = retrievePlatform(false);
       
       //this is in the config or just in the driver
       String dbname = platform.getName();
@@ -322,9 +335,9 @@ public class GrouperDdlUtils {
             String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
           
             if (!StringUtils.isBlank(script)) {
-              result.append("\n/* first drop all foreign keys */\n");
-              result.append(script);
-              result.append("\n/* end drop all foreign keys */\n\n");
+              //result.append("\n-- first drop all foreign keys\n");
+              result.append(script).append("\n");
+              //result.append("\n-- end drop all foreign keys\n\n");
             }
           }
           
@@ -344,9 +357,9 @@ public class GrouperDdlUtils {
             String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
             
             if (!StringUtils.isBlank(script)) {
-              result.append("\n/* we are configured in grouper.properties to drop all tables */\n");
-              result.append(script);
-              result.append("\n/* end drop all tables */\n\n");
+              //result.append("\n-- we are configured in grouper.properties to drop all tables \n");
+              result.append(script).append("\n");
+              //result.append("\n-- end drop all tables \n\n");
             }
             
           }
@@ -378,12 +391,12 @@ public class GrouperDdlUtils {
                 }
                 
                 //get this to the previous version, dont worry about additional scripts
-                upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, version-1, javaVersion, new StringBuilder());
+                upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, version-1, javaVersion, new StringBuilder(), result);
                 
                 StringBuilder additionalScripts = new StringBuilder();
                 
                 //get this to the current version
-                upgradeDatabaseVersion(newDatabase, dbVersion, objectName, version, javaVersion, additionalScripts);
+                upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, version, javaVersion, additionalScripts, result);
                 
                 script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
                     newDatabase);
@@ -407,7 +420,7 @@ public class GrouperDdlUtils {
               boolean upgradeDdlTable = realDbVersion < version || theDropBeforeCreate;
     
               if (scriptNotBlank || upgradeDdlTable) {
-                result.append("\n/* " + summary + " */\n");
+                //result.append("\n-- " + summary + " \n");
               }
               
               if (scriptNotBlank) {
@@ -458,10 +471,10 @@ public class GrouperDdlUtils {
               dropAllForeignKeys(newDatabase);
               
               //get this to the current version, dont worry about additional scripts
-              upgradeDatabaseVersion(oldDatabase, dbVersion, objectName, javaVersion, javaVersion, new StringBuilder());
+              upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, javaVersion, javaVersion, new StringBuilder(), result);
               
               //get this to the current version, dont worry about additional scripts
-              upgradeDatabaseVersion(newDatabase, dbVersion, objectName, javaVersion, javaVersion, new StringBuilder());
+              upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, javaVersion, javaVersion, new StringBuilder(), result);
 
               StringBuilder additionalScripts = new StringBuilder();
               ddlVersionable.addAllForeignKeys(newDatabase, additionalScripts, javaVersion);
@@ -478,9 +491,9 @@ public class GrouperDdlUtils {
 
               
               if (!StringUtils.isBlank(script)) {
-                result.append("\n/* add back all the foriegn keys */\n");
-                result.append(script);
-                result.append("\n/* end add back all foreign keys */\n\n");
+                //result.append("\n-- add back all the foreign keys */\n");
+                result.append(script).append("\n");
+                //result.append("\n-- end add back all foreign keys */\n\n");
               }
             }
    
@@ -768,6 +781,40 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * add a unique constraint if the table or col isnt there or has no rows.
+   * Note, call this before you add the table to the DB so we know if the table is already in the DB
+   * @param tableName
+   * @param constraintName 
+   * @param ddlVersionBean 
+   * @param columnNames
+   */
+  public static void ddlutilsAddUniqueConstraint(String tableName, String constraintName, DdlVersionBean ddlVersionBean, String... columnNames) {
+    Platform platform = retrievePlatform(); 
+
+    Database database = ddlVersionBean.getDatabase();
+    boolean containedTable = database.findTable(tableName) != null;
+
+    Database oldDatabase = ddlVersionBean.getOldDatabase();
+    
+    boolean oldDatabaseContainedTable = oldDatabase != null && oldDatabase.findTable(tableName, false) != null;
+    
+    //dont bother, we arent in the right spot... it probably already exists there, or can be added manually
+    if (containedTable || oldDatabaseContainedTable) {
+      return;
+    }
+
+    //lets add the constraint
+    if (StringUtils.contains(platform.getName().toLowerCase(), "oracle")) {
+      //if oracle, add that
+      ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + tableName 
+          + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + StringUtils.join(columnNames, ',') + ") ENABLE VALIDATE;\n");
+      
+    }
+    
+    //not sure if we need to add constraints for other dbs, unless adding foreign keys fails or there is another reason
+  }
+  
+  /**
    * get the object names from the 
    * @return the list of object names
    */
@@ -933,14 +980,17 @@ public class GrouperDdlUtils {
    * get a database object of a certain version based on the existing database, and tack on
    * all the enums up to the version we want (if any)
    * @param baseVersion
+   * @param oldVersion old version if there is one, null if not
    * @param baseDatabaseVersion
    * @param objectName
    * @param requestedVersion
    * @param upgradeToVersion eventual upgrade version
    * @param additionalScripts 
+   * @param fullScript so far
    */
-  public static void upgradeDatabaseVersion(Database baseVersion, int baseDatabaseVersion, 
-      String objectName, int requestedVersion, int upgradeToVersion, StringBuilder additionalScripts) {
+  public static void upgradeDatabaseVersion(Database baseVersion, Database oldVersion, int baseDatabaseVersion, 
+      String objectName, int requestedVersion, int upgradeToVersion, StringBuilder additionalScripts, 
+      StringBuilder fullScript) {
     if (baseDatabaseVersion == requestedVersion) {
       return;
     }
@@ -949,8 +999,9 @@ public class GrouperDdlUtils {
       //get the enum
       DdlVersionable ddlVersionable = retieveVersion(objectName, version);
       //do an incremental update
-      ddlVersionable.updateVersionFromPrevious(baseVersion, additionalScripts, 
-          version == requestedVersion, upgradeToVersion);
+      DdlVersionBean ddlVersionBean = new DdlVersionBean(oldVersion, baseVersion, additionalScripts, 
+          version == requestedVersion, upgradeToVersion, fullScript);
+      ddlVersionable.updateVersionFromPrevious(baseVersion, ddlVersionBean);
     }
   }
   

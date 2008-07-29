@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionable.java,v 1.2 2008-07-28 20:12:27 mchyzer Exp $
+ * $Id: DdlVersionable.java,v 1.3 2008-07-29 07:05:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
  
@@ -47,10 +47,7 @@ public interface DdlVersionable {
    * to the database object
    * that should be used to update from the previous version
    * @param database ddlutils database object
-   * @param additionalScripts add additional scripts after the db ddl (e.g. sql).  scripts should be semicolon delimited
-   * @param isDestinationVersion true if this is the version that we are shooting to arrive at
-   * @param buildingToVersion version we are building towards (in case unit testing)
+   * @param ddlVersionBean has references to stuff you need
    */
-  public void updateVersionFromPrevious(Database database, StringBuilder additionalScripts, 
-      boolean isDestinationVersion, int buildingToVersion);
+  public void updateVersionFromPrevious(Database database, DdlVersionBean ddlVersionBean);
 }
