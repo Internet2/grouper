@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.2 2008-07-28 20:12:28 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.3 2008-07-29 20:09:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -186,7 +186,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     HibernateSession.bySqlStatic().executeSql("update grouper_types set type_uuid = id");
     
     //now convert the data
-    ApiConfig.testConfig.put("ddlutils.dropUuidCols", "false");
+    ApiConfig.testConfig.put("ddlutils.dropBackupUuidCols", "false");
     GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null);
     
     //that should have created backup cols
@@ -194,10 +194,14 @@ public class GrouperDdlUtilsTest extends GrouperTest {
         "select count(*) from grouper_groups where old_uuid is not null");
     assertTrue("should have data: " + count, count > 0);
     
-    //should not have deleted existing cols
-    count = HibernateSession.bySqlStatic().select(int.class, 
+    //should have deleted existing cols
+    try {
+      HibernateSession.bySqlStatic().select(int.class, 
       "select count(*) from grouper_groups where uuid is not null");
-    assertTrue("should have data: " + count, count > 0);
+      fail("This column should not be there anymore");
+    } catch (Exception e) {
+      //good
+    }
     
     StemFinder.findByName(grouperSession, "edu");
     groupq = GroupFinder.findByName(grouperSession, "edu:testq");
@@ -207,7 +211,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertEquals("whatever", groups.getAttribute("test1"));
     
     //now delete the uuid cols
-    ApiConfig.testConfig.put("ddlutils.dropUuidCols", "true");
+    ApiConfig.testConfig.put("ddlutils.dropBackupUuidCols", "true");
     GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null);
     
     try {
@@ -227,7 +231,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertEquals("whatever", groups.getAttribute("test1"));
     
     //get ready for final test from scratch...
-    ApiConfig.testConfig.remove("ddlutils.dropUuidCols");
+    ApiConfig.testConfig.remove("ddlutils.dropBackupUuidCols");
     GrouperDdlUtils.everythingRightVersion = true;
     GrouperDdlUtils.justTesting = false;
 
