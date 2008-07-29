@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.6 2008-07-28 20:12:27 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.7 2008-07-29 07:05:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,11 +36,11 @@ public enum GrouperDdl implements DdlVersionable {
     
     /**
      * 
-     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, StringBuilder, boolean, int)
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
     @Override
-    public void updateVersionFromPrevious(Database database, StringBuilder additionalScripts, boolean isDestinationVersion,
-        int buildingToVersion) {
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
 
       //if not configured to drop, then leave alone
       if (!GrouperConfig.getPropertyBoolean("ddlutils.dropUuidCols", false)) {
@@ -119,11 +120,15 @@ public enum GrouperDdl implements DdlVersionable {
     
     /**
      * 
-     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, StringBuilder, boolean, int)
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
     @Override
-    public void updateVersionFromPrevious(Database database, StringBuilder additionalScripts, boolean isDestinationVersion,
-        int buildingToVersion) {
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      
+      boolean isDestinationVersion = ddlVersionBean.isDestinationVersion();
+      
+      StringBuilder additionalScripts = ddlVersionBean.getAdditionalScripts();
       
       //if there is no uuid col, then forget it, or if there is a old_uuid col forget it
       Table compositesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
@@ -264,8 +269,17 @@ public enum GrouperDdl implements DdlVersionable {
 
   /** add in the hibernate_version_number cols */
   V4 {
-    public void updateVersionFromPrevious(Database database, StringBuilder additionalScripts, boolean isDestinationVersion,
-        int buildingToVersion) {
+    
+    /**
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      
+      boolean isDestinationVersion = ddlVersionBean.isDestinationVersion();
+      
+      StringBuilder additionalScripts = ddlVersionBean.getAdditionalScripts();
+
       //if there is no uuid col, then forget it, or if there is a old_uuid col forget it
       Table compositesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
           Composite.TABLE_GROUPER_COMPOSITES);
@@ -354,11 +368,11 @@ public enum GrouperDdl implements DdlVersionable {
     
     /**
      * 
-     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, StringBuilder, boolean, int)
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
     @Override
-    public void updateVersionFromPrevious(Database database, StringBuilder additionalScripts, boolean isDestinationVersion,
-        int buildingToVersion) {
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
 
       //see if the grouper_ext_loader_log table is there
       Table grouploaderLogTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_loader_log", 
@@ -457,11 +471,13 @@ public enum GrouperDdl implements DdlVersionable {
     
     /**
      * 
-     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, StringBuilder, boolean, int)
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
     @Override
-    public void updateVersionFromPrevious(Database database, StringBuilder additionalScripts, boolean isDestinationVersion,
-        int buildingToVersion) {
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+      
+      int buildingToVersion = ddlVersionBean.getBuildingToVersion();
       
       boolean buildingToThisVersion = V4.getVersion() >= buildingToVersion;
       
@@ -549,6 +565,11 @@ public enum GrouperDdl implements DdlVersionable {
       }
 
       {
+
+        //do this before table so we know if the table is already there
+        GrouperDdlUtils.ddlutilsAddUniqueConstraint(Field.TABLE_GROUPER_FIELDS, "fields_name_unq", ddlVersionBean, "name");
+        GrouperDdlUtils.ddlutilsAddUniqueConstraint(Field.TABLE_GROUPER_FIELDS, "fields_name_type_unq", ddlVersionBean, "name", "type");
+
         Table fieldsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
             Field.TABLE_GROUPER_FIELDS, "describes fields related to types");
   
@@ -587,7 +608,7 @@ public enum GrouperDdl implements DdlVersionable {
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, fieldsTable.getName(), 
             "name_and_type", true, "name", "type");
-  
+        
       }
     
       {
@@ -715,8 +736,10 @@ public enum GrouperDdl implements DdlVersionable {
       }
     
       {
+        GrouperDdlUtils.ddlutilsAddUniqueConstraint(Membership.TABLE_GROUPER_MEMBERSHIPS, "membership_uuid_unq", ddlVersionBean, "membership_uuid");
+
         Table membershipsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            "grouper_memberships", "keeps track of memberships and permissions");
+            Membership.TABLE_GROUPER_MEMBERSHIPS, "keeps track of memberships and permissions");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "id", 
             "db id of this row", Types.VARCHAR, "128", true, true);
@@ -970,12 +993,11 @@ public enum GrouperDdl implements DdlVersionable {
   /** first version of grouper, make sure the ddl table is there */
   V1 {
     /**
-     * add the table grouper_loader_log for logging and detect and add columns
-     * @see edu.internet2.middleware.grouper.ddl.GrouperDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, StringBuilder, boolean, int)
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
      */
     @Override
-    public void updateVersionFromPrevious(Database database, StringBuilder additionalScripts, 
-        boolean isDestinationVersion, int buildingToVersion) {
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
 
       //see if the grouper_ext_loader_log table is there
       Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_ddl", 
@@ -1053,10 +1075,10 @@ public enum GrouperDdl implements DdlVersionable {
   private static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
   
   /**
-   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, StringBuilder, boolean, int)
+   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
    */
   public abstract void updateVersionFromPrevious(Database database, 
-      StringBuilder additionalScripts, boolean isDestinationVersion, int buildingToVersion);
+      DdlVersionBean ddlVersionBean);
 
   /**
    * @param database
@@ -1179,15 +1201,15 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_groups_types", 
         "fk_groups_types_type_uuid", "grouper_types", "type_uuid", typeIdCol);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_memberships", 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         "fk_memberships_member_id", Member.TABLE_GROUPER_MEMBERS, "member_id", memberIdCol);
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_memberships", 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         "fk_memberships_list_name_type", Field.TABLE_GROUPER_FIELDS, 
         GrouperUtil.toList("list_name", "list_type"),
         GrouperUtil.toList("name", "type"));
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_memberships", 
-        "fk_memberships_parent", "grouper_memberships", "parent_membership", "membership_uuid");
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_memberships", 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
+        "fk_memberships_parent", Membership.TABLE_GROUPER_MEMBERSHIPS, "parent_membership", "membership_uuid");
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         "fk_memberships_creator_id", Member.TABLE_GROUPER_MEMBERS, "creator_id", memberIdCol);
 
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, GrouperSession.TABLE_GROUPER_SESSIONS, 

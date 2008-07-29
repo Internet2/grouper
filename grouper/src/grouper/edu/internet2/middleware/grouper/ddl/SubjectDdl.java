@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.3 2008-07-28 20:12:27 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.4 2008-07-29 07:05:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -22,12 +22,10 @@ public enum SubjectDdl implements DdlVersionable {
     /**
      * add the table grouper_loader_log for logging and detect and add columns
      * @see SubjectDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, 
-      StringBuilder, boolean, int)
+      DdlVersionBean)
      */
     @Override
-    public void updateVersionFromPrevious(Database database, 
-        StringBuilder additionalScripts, boolean isDestinationVersion,
-        int buildingToVersion) {
+    public void updateVersionFromPrevious(Database database, DdlVersionBean ddlVersionBean) {
 
       {
         Table subjectTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
@@ -122,11 +120,10 @@ public enum SubjectDdl implements DdlVersionable {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, StringBuilder, boolean, int)
+   * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
    */
   public abstract void updateVersionFromPrevious(Database database, 
-      StringBuilder additionalScripts, boolean isDestinationVersion,
-      int buildingToVersion);  
+      DdlVersionBean ddlVersionBean);  
   
   /**
    * add all foreign keys

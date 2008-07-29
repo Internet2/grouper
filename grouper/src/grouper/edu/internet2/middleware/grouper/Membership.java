@@ -78,10 +78,13 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.100 2008-07-21 04:43:56 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.101 2008-07-29 07:05:20 mchyzer Exp $
  */
 public class Membership extends GrouperAPI {
 
+  /** table name where memberships are stored */
+  public static final String TABLE_GROUPER_MEMBERSHIPS = "grouper_memberships";
+  
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
   /** constant for field name for: createTimeLong */
