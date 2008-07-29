@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.5 2008-07-29 07:05:20 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.6 2008-07-29 17:54:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -9,6 +9,9 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -219,6 +222,8 @@ public class GrouperDdlUtils {
       GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
       
       Connection connection = null;
+      
+      String schema = grouperDb.getUser().toUpperCase();
   
       StringBuilder result = new StringBuilder();
       
@@ -323,23 +328,7 @@ public class GrouperDdlUtils {
           SqlBuilder sqlBuilder = platform.getSqlBuilder();
 
           //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-          {
-            //it needs a name, just use "grouper"
-            Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-                grouperDb.getUser().toUpperCase(), null);
-            
-            Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-                grouperDb.getUser().toUpperCase(), null);
-            dropAllForeignKeys(newDatabase);
-  
-            String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
-          
-            if (!StringUtils.isBlank(script)) {
-              //result.append("\n-- first drop all foreign keys\n");
-              result.append(script).append("\n");
-              //result.append("\n-- end drop all foreign keys\n\n");
-            }
-          }
+          dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, grouperDb.getUser().toUpperCase(), sqlBuilder, null, null, null, false, -1, result));
           
           // if deleting all, lets delete all:
           if (theDropBeforeCreate) {
@@ -391,12 +380,14 @@ public class GrouperDdlUtils {
                 }
                 
                 //get this to the previous version, dont worry about additional scripts
-                upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, version-1, javaVersion, new StringBuilder(), result);
+                upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, version-1, javaVersion, 
+                    new StringBuilder(), result, platform, connection, schema, sqlBuilder);
                 
                 StringBuilder additionalScripts = new StringBuilder();
                 
                 //get this to the current version
-                upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, version, javaVersion, additionalScripts, result);
+                upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, version, 
+                    javaVersion, additionalScripts, result, platform, connection, schema, sqlBuilder);
                 
                 script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
                     newDatabase);
@@ -471,10 +462,12 @@ public class GrouperDdlUtils {
               dropAllForeignKeys(newDatabase);
               
               //get this to the current version, dont worry about additional scripts
-              upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, javaVersion, javaVersion, new StringBuilder(), result);
+              upgradeDatabaseVersion(oldDatabase, null, dbVersion, objectName, javaVersion, javaVersion, 
+                  new StringBuilder(), result, platform, connection, schema, sqlBuilder);
               
               //get this to the current version, dont worry about additional scripts
-              upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, javaVersion, javaVersion, new StringBuilder(), result);
+              upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, javaVersion, 
+                  javaVersion, new StringBuilder(), result, platform, connection, schema, sqlBuilder);
 
               StringBuilder additionalScripts = new StringBuilder();
               ddlVersionable.addAllForeignKeys(newDatabase, additionalScripts, javaVersion);
@@ -624,6 +617,71 @@ public class GrouperDdlUtils {
     return resultString;
   }
 
+  /**
+   * drop all foreign keys (database dependent), and generate the script
+   * @param ddlVersionBean
+   */
+  private static void dropAllForeignKeysScript(DdlVersionBean ddlVersionBean) {
+    
+    Connection connection = ddlVersionBean.getConnection();
+    
+    Platform platform = ddlVersionBean.getPlatform();
+    
+    StringBuilder fullScript = ddlVersionBean.getFullScript();
+
+    if (platform.getName().toLowerCase().contains("oracle")) {
+      
+      //for oracle, get the foreign keys from user_constraints
+      String sql = "select TABLE_NAME, CONSTRAINT_NAME from user_constraints where table_name like ? " +
+      		"and constraint_type = 'R' order by table_name, constraint_name"; 
+      PreparedStatement statement = null;
+      ResultSet resultSet = null;
+      try {
+        statement = connection.prepareStatement(sql);
+        statement.setString(1, platform.getModelReader().getDefaultTablePattern());
+        resultSet = statement.executeQuery();
+        
+        while (resultSet.next()) {
+          //ALTER TABLE grouper_composites DROP constraint fk_composites_right_factor;
+          String tableName = resultSet.getString("TABLE_NAME");
+          String constraintName = resultSet.getString("CONSTRAINT_NAME");
+          String dropStatement = "ALTER TABLE " + tableName 
+            + " DROP constraint " + constraintName + ";\n";
+          fullScript.append(dropStatement);
+        }
+        
+      } catch (SQLException sqle) {
+        throw new RuntimeException(sqle);
+      } finally {
+        GrouperUtil.closeQuietly(resultSet);
+        GrouperUtil.closeQuietly(statement);
+      }
+      
+    } else {
+      String schemaUpper = ddlVersionBean.getSchema();
+      //just get from jdbc metadata
+      SqlBuilder sqlBuilder = ddlVersionBean.getSqlBuilder();
+      
+      String objectName = ddlVersionBean.getObjectName();
+      
+      //it needs a name, just use "grouper"
+      Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+          schemaUpper, null);
+      
+      Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+          schemaUpper, null);
+      dropAllForeignKeys(newDatabase);
+  
+      String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
+    
+      if (!StringUtils.isBlank(script)) {
+        //result.append("\n-- first drop all foreign keys\n");
+        fullScript.append(script).append("\n");
+        //result.append("\n-- end drop all foreign keys\n\n");
+      }
+    }  
+  }
+  
   /**
    * @param objectName
    * @param sqlBuilder
@@ -987,10 +1045,14 @@ public class GrouperDdlUtils {
    * @param upgradeToVersion eventual upgrade version
    * @param additionalScripts 
    * @param fullScript so far
+   * @param platform 
+   * @param connection 
+   * @param schema 
+   * @param sqlBuilder 
    */
   public static void upgradeDatabaseVersion(Database baseVersion, Database oldVersion, int baseDatabaseVersion, 
       String objectName, int requestedVersion, int upgradeToVersion, StringBuilder additionalScripts, 
-      StringBuilder fullScript) {
+      StringBuilder fullScript, Platform platform, Connection connection, String schema, SqlBuilder sqlBuilder) {
     if (baseDatabaseVersion == requestedVersion) {
       return;
     }
@@ -999,7 +1061,7 @@ public class GrouperDdlUtils {
       //get the enum
       DdlVersionable ddlVersionable = retieveVersion(objectName, version);
       //do an incremental update
-      DdlVersionBean ddlVersionBean = new DdlVersionBean(oldVersion, baseVersion, additionalScripts, 
+      DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldVersion, baseVersion, additionalScripts, 
           version == requestedVersion, upgradeToVersion, fullScript);
       ddlVersionable.updateVersionFromPrevious(baseVersion, ddlVersionBean);
     }
@@ -1158,7 +1220,7 @@ public class GrouperDdlUtils {
   }
   
   /**
-   * drop all foreign keys from a database
+   * drop all foreign keys from a ddlutils database object
    * @param database
    */
   public static void dropAllForeignKeys(Database database) {
@@ -1294,13 +1356,13 @@ public class GrouperDdlUtils {
    * also drop all related indexes
    * @param database
    * @param tableName
+   * @param ddlVersionBean 
    * @param columnName 
    */
-  public static void ddlutilsDropColumn(Database database, String tableName, String columnName) {
+  public static void ddlutilsDropColumn(Database database, String tableName, String columnName, DdlVersionBean ddlVersionBean) {
     Table table = database.findTable(tableName);
-    ddlutilsDropIndexes(table, columnName);
     if (table != null) {
-      ddlutilsDropColumn(table, columnName);
+      ddlutilsDropColumn(table, columnName, ddlVersionBean);
     }
   }
   
@@ -1309,8 +1371,9 @@ public class GrouperDdlUtils {
    * also drop all related indexes
    * @param table 
    * @param columnName 
+   * @param ddlVersionBean 
    */
-  public static void ddlutilsDropColumn(Table table, String columnName) {
+  public static void ddlutilsDropColumn(Table table, String columnName, DdlVersionBean ddlVersionBean) {
     
     ddlutilsDropIndexes(table, columnName);
     
@@ -1318,6 +1381,16 @@ public class GrouperDdlUtils {
     
     if (column != null) {
       table.removeColumn(column);
+      
+      //if we dont move this column to the end of the old table, then ddlutils will think we are moving it
+      Database oldDatabase = ddlVersionBean.getOldDatabase();
+      Table oldTable = oldDatabase == null ? null : oldDatabase.findTable(table.getName());
+      Column oldColumn = oldTable == null ? null : oldTable.findColumn(columnName);
+      if (oldColumn != null) {
+        //move to end
+        oldTable.removeColumn(oldColumn);
+        oldTable.addColumn(oldColumn);
+      }
     }
 
   }
@@ -1330,7 +1403,7 @@ public class GrouperDdlUtils {
   public static void ddlutilsDropIndexes(Table table, String columnName) {
     for (Index index: table.getIndices()) {
       for (IndexColumn indexColumn : index.getColumns()) {
-        if (StringUtils.equals(columnName, indexColumn.getName())) {
+        if (StringUtils.equalsIgnoreCase(columnName, indexColumn.getName())) {
           table.removeIndex(index);
           break;
         }

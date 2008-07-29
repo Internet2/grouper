@@ -1,10 +1,14 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionBean.java,v 1.1 2008-07-29 07:05:20 mchyzer Exp $
+ * $Id: DdlVersionBean.java,v 1.2 2008-07-29 17:54:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
+import java.sql.Connection;
+
+import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.platform.SqlBuilder;
 
 
 /**
@@ -12,6 +16,21 @@ import org.apache.ddlutils.model.Database;
  */
 public class DdlVersionBean {
 
+  /** ddl object name (e.g. Grouper or Subject) */
+  private String objectName;
+  
+  /** ddlutils platform */
+  private Platform platform;
+  
+  /** jdbc connection */
+  private Connection connection;
+  
+  /** upper cased schema */
+  private String schema;
+  
+  /** ddlutils sql builder */
+  private SqlBuilder sqlBuilder;
+  
   /** current state of the database (after modifications :) ).  Note, this is null if this is working on old db */
   private Database oldDatabase;
 
@@ -54,27 +73,6 @@ public class DdlVersionBean {
     
   }
   
-  /**
-   * construct
-   * @param oldDatabase
-   * @param database
-   * @param additionalScripts
-   * @param isDestinationVersion
-   * @param buildingToVersion
-   * @param fullScript
-   */
-  public DdlVersionBean(Database oldDatabase, Database database,
-      StringBuilder additionalScripts, boolean isDestinationVersion,
-      int buildingToVersion, StringBuilder fullScript) {
-    super();
-    this.oldDatabase = oldDatabase;
-    this.database = database;
-    this.additionalScripts = additionalScripts;
-    this.isDestinationVersion = isDestinationVersion;
-    this.buildingToVersion = buildingToVersion;
-    this.fullScript = fullScript;
-  }
-
 
   /**
    * current state of the database (after modifications :) ).  Note, this is null if this is working on old db
@@ -181,6 +179,128 @@ public class DdlVersionBean {
    */
   public void setFullScript(StringBuilder fullScript) {
     this.fullScript = fullScript;
+  }
+
+  
+  /**
+   * ddlutils platform
+   * @return the platform
+   */
+  public Platform getPlatform() {
+    return this.platform;
+  }
+
+  
+  /**
+   * ddlutils platform
+   * @param platform the platform to set
+   */
+  public void setPlatform(Platform platform) {
+    this.platform = platform;
+  }
+
+  
+  /**
+   * jdbc connection
+   * @return the connection
+   */
+  public Connection getConnection() {
+    return this.connection;
+  }
+
+  
+  /**
+   * jdbc connection
+   * @param connection the connection to set
+   */
+  public void setConnection(Connection connection) {
+    this.connection = connection;
+  }
+
+  
+  /**
+   * schema (uppercased)
+   * @return the schema
+   */
+  public String getSchema() {
+    return this.schema;
+  }
+
+  
+  /**
+   * schema (uppercased)
+   * @param schema the schema to set
+   */
+  public void setSchema(String schema) {
+    this.schema = schema;
+  }
+
+  
+  /**
+   * ddlutils schemabuilder
+   * @return the sqlBuilder
+   */
+  public SqlBuilder getSqlBuilder() {
+    return this.sqlBuilder;
+  }
+
+  
+  /**
+   * construct
+   * @param objectName
+   * @param platform
+   * @param connection
+   * @param schema
+   * @param sqlBuilder
+   * @param oldDatabase
+   * @param database
+   * @param additionalScripts
+   * @param isDestinationVersion
+   * @param buildingToVersion
+   * @param fullScript
+   */
+  public DdlVersionBean(String objectName, Platform platform, Connection connection,
+      String schema, SqlBuilder sqlBuilder, Database oldDatabase, Database database,
+      StringBuilder additionalScripts, boolean isDestinationVersion,
+      int buildingToVersion, StringBuilder fullScript) {
+    super();
+    this.objectName = objectName;
+    this.platform = platform;
+    this.connection = connection;
+    this.schema = schema;
+    this.sqlBuilder = sqlBuilder;
+    this.oldDatabase = oldDatabase;
+    this.database = database;
+    this.additionalScripts = additionalScripts;
+    this.isDestinationVersion = isDestinationVersion;
+    this.buildingToVersion = buildingToVersion;
+    this.fullScript = fullScript;
+  }
+
+  /**
+   * ddlutils schemabuilder
+   * @param sqlBuilder the sqlBuilder to set
+   */
+  public void setSqlBuilder(SqlBuilder sqlBuilder) {
+    this.sqlBuilder = sqlBuilder;
+  }
+
+  
+  /**
+   * ddl object name (e.g. Grouper or Subject)
+   * @return the objectName
+   */
+  public String getObjectName() {
+    return this.objectName;
+  }
+
+  
+  /**
+   * ddl object name (e.g. Grouper or Subject)
+   * @param objectName the objectName to set
+   */
+  public void setObjectName(String objectName) {
+    this.objectName = objectName;
   }
   
 }
