@@ -431,7 +431,17 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
         <version>2.2</version>
-      </plugin>
+        <configuration>
+          <instrumentation>
+            <ignores>
+              <ignore>edu.internet2.middleware.grouper.*</ignore>
+            </ignores>
+	    <excludes>
+               <exclude>edu/internet2/middleware/grouper/**/*.class</exclude>
+            </excludes>
+          </instrumentation>
+        </configuration>
+       </plugin>
     </plugins>
   </reporting>
 
