@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.7 2008-07-30 06:49:07 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.8 2008-07-30 21:02:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1364,18 +1364,20 @@ public class GrouperDdlUtils {
       column.setName(columnName);
       //just add to end of columns
       table.addColumn(column);
+      
+      //eave this stuff in here so it doesnt mess up existing columns and drop/create tables
+      column.setRequired(required);
+      column.setDescription(description);
+      column.setTypeCode(typeCode);
+      if (!StringUtils.equals(size, column.getSize())) {
+        column.setSize(size);
+      }
+      if (defaultValue != null) {
+        column.setDefaultValue(defaultValue);
+      }
     }
 
     column.setPrimaryKey(primaryKey);
-    column.setRequired(required);
-    column.setDescription(description);
-    column.setTypeCode(typeCode);
-    if (!StringUtils.equals(size, column.getSize())) {
-      column.setSize(size);
-    }
-    if (defaultValue != null) {
-      column.setDefaultValue(defaultValue);
-    }
 
     return column;
   }
