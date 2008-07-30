@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: ForeignKeysPoc.java,v 1.1 2008-07-29 17:54:39 mchyzer Exp $
+ * @author mchyzer $Id: ForeignKeysPoc.java,v 1.2 2008-07-30 06:49:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -49,7 +49,8 @@ public class ForeignKeysPoc {
     ResultSet fkData = null;
 
     try {
-      fkData = databaseMetaData.getImportedKeys(null, SCHEMA.toUpperCase(), "GROUPER_ATTRIBUTES");
+      //fkData = databaseMetaData.getTables(null, "public", "grouper_%", null);
+      fkData = databaseMetaData.getImportedKeys(null, null, null);
       ResultSetMetaData resultSetMetaData = fkData.getMetaData();
       int columnCount = resultSetMetaData.getColumnCount();
       int fk = 0;

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.10 2008-07-29 20:34:24 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.11 2008-07-30 06:49:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -250,13 +250,20 @@ public enum GrouperDdl implements DdlVersionable {
         || needsGroupsConversion || needsMembersConversion || needsGrouperSessionsConversion 
         || needsStemsConversion || needsTypesConversion;
       
+      boolean isPostgres = ddlVersionBean.getPlatform().getName().toLowerCase().contains("postgres");
+      
       //if we need any conversion, then drop all foreign keys
       if (needsConversion) {
         
         if (needsCompositeConversion) {
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          if (isDestinationVersion && isPostgres) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + compositesTable.getName() + " ADD COLUMN " + Composite.COLUMN_OLD_ID + " varchar(128);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + compositesTable.getName() + " ADD COLUMN " + Composite.COLUMN_OLD_UUID + " varchar(128);\n");
+          } else {
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          }
           
           if (isDestinationVersion) {
 
@@ -267,8 +274,13 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (needsMembershipConversion) {
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_MEMBERSHIP_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          if (isDestinationVersion && isPostgres) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + membershipsTable.getName() + " ADD COLUMN " + Membership.COLUMN_OLD_ID + " varchar(128);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + membershipsTable.getName() + " ADD COLUMN " + Membership.COLUMN_OLD_MEMBERSHIP_UUID + " varchar(128);\n");
+          } else {
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_MEMBERSHIP_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          }
           
           if (isDestinationVersion) {
 
@@ -279,8 +291,13 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (needsFieldsConversion) {
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_FIELD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          if (isDestinationVersion && isPostgres) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + fieldsTable.getName() + " ADD COLUMN " + Field.COLUMN_OLD_ID + " varchar(128);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + fieldsTable.getName() + " ADD COLUMN " + Field.COLUMN_OLD_FIELD_UUID + " varchar(128);\n");
+          } else {
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_FIELD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          }
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
@@ -290,8 +307,13 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (needsGroupsConversion) {
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          if (isDestinationVersion && isPostgres) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + groupsTable.getName() + " ADD COLUMN " + Group.COLUMN_OLD_ID + " varchar(128);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + groupsTable.getName() + " ADD COLUMN " + Group.COLUMN_OLD_UUID + " varchar(128);\n");
+          } else {
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          }
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
@@ -301,8 +323,13 @@ public enum GrouperDdl implements DdlVersionable {
 
         if (needsMembersConversion) {
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_MEMBER_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          if (isDestinationVersion && isPostgres) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + membersTable.getName() + " ADD COLUMN " + Member.COLUMN_OLD_ID + " varchar(128);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + membersTable.getName() + " ADD COLUMN " + Member.COLUMN_OLD_MEMBER_UUID + " varchar(128);\n");
+          } else {
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_MEMBER_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          }
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
@@ -312,9 +339,14 @@ public enum GrouperDdl implements DdlVersionable {
 
         if (needsGrouperSessionsConversion) {
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSessionsTable, GrouperSession.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSessionsTable, GrouperSession.COLUMN_OLD_SESSION_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
-
+          if (isDestinationVersion && isPostgres) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + grouperSessionsTable.getName() + " ADD COLUMN " + GrouperSession.COLUMN_OLD_ID + " varchar(128);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + grouperSessionsTable.getName() + " ADD COLUMN " + GrouperSession.COLUMN_OLD_SESSION_UUID + " varchar(128);\n");
+          } else {
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSessionsTable, GrouperSession.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSessionsTable, GrouperSession.COLUMN_OLD_SESSION_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          }
+          
           if (isDestinationVersion) {
 
             //update records, move the uuid to the id
@@ -324,8 +356,13 @@ public enum GrouperDdl implements DdlVersionable {
 
         if (needsStemsConversion) {
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          if (isDestinationVersion && isPostgres) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + stemsTable.getName() + " ADD COLUMN " + Stem.COLUMN_OLD_ID + " varchar(128);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + stemsTable.getName() + " ADD COLUMN " + Stem.COLUMN_OLD_UUID + " varchar(128);\n");
+          } else {
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          }
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
@@ -335,8 +372,13 @@ public enum GrouperDdl implements DdlVersionable {
 
         if (needsTypesConversion) {
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_TYPE_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          if (isDestinationVersion && isPostgres) {
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + typesTable.getName() + " ADD COLUMN " + GroupType.COLUMN_OLD_ID + " varchar(128);\n");
+            ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + typesTable.getName() + " ADD COLUMN " + GroupType.COLUMN_OLD_TYPE_UUID + " varchar(128);\n");
+          } else {
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
+            GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_TYPE_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+          }
           
           if (isDestinationVersion) {
             //update records, move the uuid to the id
@@ -1070,8 +1112,14 @@ public enum GrouperDdl implements DdlVersionable {
     
     if (GrouperDdlUtils.ddlutilsFindColumn(database, tableName, COLUMN_HIBERNATE_VERSION_NUMBER, false) == null) {
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false, "0");
-      if (ddlVersionBean.isDestinationVersion()) {
+      boolean destinationVersion = ddlVersionBean.isDestinationVersion();
+
+      if (destinationVersion && ddlVersionBean.getPlatform().getName().toLowerCase().contains("postgres")) {
+        ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + tableName + " ADD COLUMN hibernate_version_number bigint DEFAULT 0;\n");
+      } else {
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false);
+      }
+      if (destinationVersion) {
         ddlVersionBean.getAdditionalScripts().append(
             "update " + tableName + " set hibernate_version_number = 0 where hibernate_version_number is null;\ncommit;\n");
       }
