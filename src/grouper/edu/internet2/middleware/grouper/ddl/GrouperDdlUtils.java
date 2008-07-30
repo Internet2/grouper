@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.6 2008-07-29 17:54:39 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.7 2008-07-30 06:49:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -224,7 +224,12 @@ public class GrouperDdlUtils {
       Connection connection = null;
       
       String schema = grouperDb.getUser().toUpperCase();
-  
+      
+      //postgres needs lower I think
+      if (platform.getName().toLowerCase().contains("postgre")) {
+        schema = schema.toLowerCase();
+      }
+      
       StringBuilder result = new StringBuilder();
       
       try {
@@ -321,24 +326,36 @@ public class GrouperDdlUtils {
           
           //pattern to get only certain objects (e.g. GROUPERLOADER% )
           String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
+          
+          if (platform.getName().toLowerCase().contains("postgres")) {
+            defaultTablePattern = defaultTablePattern.toLowerCase();
+          }
+          
           //to be safe lets only deal with tables related to this object
           platform.getModelReader().setDefaultTablePattern(defaultTablePattern);
           //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
   
+          String ddlUtilsSchemaOverride = GrouperConfig.getProperty("ddlutils.schema");
+          if (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
+            platform.getModelReader().setDefaultSchemaPattern(ddlUtilsSchemaOverride);
+          } else {
+            platform.getModelReader().setDefaultSchemaPattern(schema);
+          }
+          
           SqlBuilder sqlBuilder = platform.getSqlBuilder();
 
           //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-          dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, grouperDb.getUser().toUpperCase(), sqlBuilder, null, null, null, false, -1, result));
+          dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result));
           
           // if deleting all, lets delete all:
           if (theDropBeforeCreate) {
             //it needs a name, just use "grouper"
             Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-                grouperDb.getUser().toUpperCase(), null);
+                null, null);
             dropAllForeignKeys(oldDatabase);
             
             Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-                grouperDb.getUser().toUpperCase(), null);
+                null, null);
             dropAllForeignKeys(newDatabase);
 
             removeAllTables(newDatabase);
@@ -367,11 +384,11 @@ public class GrouperDdlUtils {
                 
                 //it needs a name, just use "grouper"
                 Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-                    grouperDb.getUser().toUpperCase(), null);
+                    null, null);
                 dropAllForeignKeys(oldDatabase);
                 
                 Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-                    grouperDb.getUser().toUpperCase(), null);
+                    null, null);
                 dropAllForeignKeys(newDatabase);
                 
                 if (theDropBeforeCreate) {
@@ -454,11 +471,11 @@ public class GrouperDdlUtils {
 
               //it needs a name, just use "grouper"
               Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-                  grouperDb.getUser().toUpperCase(), null);
+                  null, null);
               dropAllForeignKeys(oldDatabase);
               
               Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-                  grouperDb.getUser().toUpperCase(), null);
+                  null, null);
               dropAllForeignKeys(newDatabase);
               
               //get this to the current version, dont worry about additional scripts
@@ -606,9 +623,16 @@ public class GrouperDdlUtils {
         try {
           RegistryInstall.main(new String[]{"internal"});
         } catch (RuntimeException e) {
-          
-          GrouperDdlUtils.everythingRightVersion = false;
-          throw e;
+          if (callFromCommandLine && !theWriteAndRunScript) {
+            String error = "ERROR: could not install grouper data, you need to run the script, then try again.  You can see the logs for specifics if you like";
+            System.err.println(error);
+            LOG.error(error, e);
+            System.exit(1);
+          } else {
+            
+            GrouperDdlUtils.everythingRightVersion = false;
+            throw e;
+          }
         }
       }
     } finally {
@@ -658,7 +682,6 @@ public class GrouperDdlUtils {
       }
       
     } else {
-      String schemaUpper = ddlVersionBean.getSchema();
       //just get from jdbc metadata
       SqlBuilder sqlBuilder = ddlVersionBean.getSqlBuilder();
       
@@ -666,10 +689,10 @@ public class GrouperDdlUtils {
       
       //it needs a name, just use "grouper"
       Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-          schemaUpper, null);
+          null, null);
       
       Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
-          schemaUpper, null);
+          null, null);
       dropAllForeignKeys(newDatabase);
   
       String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
@@ -855,7 +878,7 @@ public class GrouperDdlUtils {
     Database oldDatabase = ddlVersionBean.getOldDatabase();
     
     boolean oldDatabaseContainedTable = oldDatabase != null && oldDatabase.findTable(tableName, false) != null;
-    
+        
     //dont bother, we arent in the right spot... it probably already exists there, or can be added manually
     if (containedTable || oldDatabaseContainedTable) {
       return;
@@ -866,6 +889,12 @@ public class GrouperDdlUtils {
       //if oracle, add that
       ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + tableName 
           + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + StringUtils.join(columnNames, ',') + ") ENABLE VALIDATE;\n");
+      
+    } else if (StringUtils.contains(platform.getName().toLowerCase(), "postgres")) {
+      //postgres
+      //ALTER TABLE grouper_fields ADD CONSTRAINT whatever UNIQUE ("name");
+      ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + tableName 
+          + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + StringUtils.join(columnNames, ',') + ");\n");
       
     }
     

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionBean.java,v 1.2 2008-07-29 17:54:39 mchyzer Exp $
+ * $Id: DdlVersionBean.java,v 1.3 2008-07-30 06:49:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -25,7 +25,7 @@ public class DdlVersionBean {
   /** jdbc connection */
   private Connection connection;
   
-  /** upper cased schema */
+  /** schema */
   private String schema;
   
   /** ddlutils sql builder */
@@ -219,7 +219,7 @@ public class DdlVersionBean {
 
   
   /**
-   * schema (uppercased)
+   * schema
    * @return the schema
    */
   public String getSchema() {
@@ -228,7 +228,7 @@ public class DdlVersionBean {
 
   
   /**
-   * schema (uppercased)
+   * schema
    * @param schema the schema to set
    */
   public void setSchema(String schema) {
