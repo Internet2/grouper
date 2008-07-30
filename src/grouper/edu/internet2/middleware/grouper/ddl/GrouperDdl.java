@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.11 2008-07-30 06:49:07 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.12 2008-07-30 21:02:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -402,16 +402,16 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
       
-      addVersionNumberColumn(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES);
-      addVersionNumberColumn(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES);
-      addVersionNumberColumn(ddlVersionBean, GroupTypeTuple.TABLE_GROUPER_GROUPS_TYPES);
-      addVersionNumberColumn(ddlVersionBean, Field.TABLE_GROUPER_FIELDS);
-      addVersionNumberColumn(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS);
-      addVersionNumberColumn(ddlVersionBean, Group.TABLE_GROUPER_GROUPS);
-      addVersionNumberColumn(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS);
-      addVersionNumberColumn(ddlVersionBean, GrouperSession.TABLE_GROUPER_SESSIONS);
-      addVersionNumberColumn(ddlVersionBean, Stem.TABLE_GROUPER_STEMS);
-      addVersionNumberColumn(ddlVersionBean, GroupType.TABLE_GROUPER_TYPES);
+      versionNumberColumnAdd(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES);
+      versionNumberColumnAdd(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES);
+      versionNumberColumnAdd(ddlVersionBean, GroupTypeTuple.TABLE_GROUPER_GROUPS_TYPES);
+      versionNumberColumnAdd(ddlVersionBean, Field.TABLE_GROUPER_FIELDS);
+      versionNumberColumnAdd(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS);
+      versionNumberColumnAdd(ddlVersionBean, Group.TABLE_GROUPER_GROUPS);
+      versionNumberColumnAdd(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS);
+      versionNumberColumnAdd(ddlVersionBean, GrouperSession.TABLE_GROUPER_SESSIONS);
+      versionNumberColumnAdd(ddlVersionBean, Stem.TABLE_GROUPER_STEMS);
+      versionNumberColumnAdd(ddlVersionBean, GroupType.TABLE_GROUPER_TYPES);
       
     }
   },
@@ -559,6 +559,9 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_field_value_idx", false, "field_name", "value");
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_group_idx", false, "group_id");
+        
+        versionNumberColumnFindOrCreate(attributeTable);
+        
       }
       
       {
@@ -616,6 +619,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
             "composite_right_factor_idx", false, "right_factor");
 
+        versionNumberColumnFindOrCreate(compositeTable);
 
       }
 
@@ -664,6 +668,8 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, fieldsTable.getName(), 
             "name_and_type", true, "name", "type");
         
+        versionNumberColumnFindOrCreate(fieldsTable);
+
       }
     
       {
@@ -721,6 +727,8 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
             "group_modifytime_idx", false, "modify_time");
         
+        versionNumberColumnFindOrCreate(groupsTable);
+        
       }
     
       {
@@ -745,6 +753,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTypesTable.getName(), 
             "grouptypetuple_group_idx", false, "group_uuid");
         
+        versionNumberColumnFindOrCreate(groupsTypesTable);
       }
     
       {
@@ -788,6 +797,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), 
             "member_subjecttype_idx", false, "subject_type");
         
+        versionNumberColumnFindOrCreate(membersTable);
       }
     
       {
@@ -882,7 +892,9 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
             "membership_owner_member_idx", false, "owner_id", "member_id",
             "list_name", "list_type", "depth");
-        
+
+        versionNumberColumnFindOrCreate(membershipsTable);
+       
       }
       {
         Table sessionsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
@@ -914,6 +926,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, sessionsTable.getName(), 
             "session_member_idx", false, "member_id");
 
+        versionNumberColumnFindOrCreate(sessionsTable);
       }
       {
         Table stemsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
@@ -1003,6 +1016,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_parent_idx", false, "parent_stem");
 
+        versionNumberColumnFindOrCreate(stemsTable);
       }
       {
         Table typesTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
@@ -1045,6 +1059,7 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, typesTable.getName(), 
             "type_name_idx", true, "name");
 
+        versionNumberColumnFindOrCreate(typesTable);
       }
     }
   }, 
@@ -1104,7 +1119,7 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean 
    * @param tableName
    */
-  private static void addVersionNumberColumn(DdlVersionBean ddlVersionBean, String tableName) {
+  private static void versionNumberColumnAdd(DdlVersionBean ddlVersionBean, String tableName) {
     Database database = ddlVersionBean.getDatabase();
 
     //if there is no uuid col, then forget it, or if there is a old_uuid col forget it
@@ -1117,7 +1132,7 @@ public enum GrouperDdl implements DdlVersionable {
       if (destinationVersion && ddlVersionBean.getPlatform().getName().toLowerCase().contains("postgres")) {
         ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + tableName + " ADD COLUMN hibernate_version_number bigint DEFAULT 0;\n");
       } else {
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false);
+        versionNumberColumnFindOrCreate(table);
       }
       if (destinationVersion) {
         ddlVersionBean.getAdditionalScripts().append(
@@ -1125,6 +1140,13 @@ public enum GrouperDdl implements DdlVersionable {
       }
     }
 
+  }
+
+  /**
+   * @param table
+   */
+  private static void versionNumberColumnFindOrCreate(Table table) {
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false);
   }
   
   /**

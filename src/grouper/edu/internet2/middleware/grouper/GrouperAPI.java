@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.15 2008-07-28 20:12:28 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.16 2008-07-30 21:02:04 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
@@ -181,28 +181,33 @@ public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, L
   public abstract GrouperAPI clone();
 
   /**
-   * hibernate increments with each insert/update (-1 means insert, 0+ means update)
+   * hibernate increments with each insert/update (-1 means insert, 0+ means update, null means 0)
    */
   @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
-  private long hibernateVersionNumber = -1;
+  private Long hibernateVersionNumber = -1L;
 
   /** constant name of field (and javabean property) for hibernateVersion */
   public static final String FIELD_HIBERNATE_VERSION_NUMBER = "hibernateVersionNumber";
   
   /**
-   * hibernate increments with each insert/update (-1 means insert, 0+ means update)
+   * hibernate increments with each insert/update (-1 means insert, 0+ means update, null means 0)
    * @return the hibernateVersion
    */
-  public long getHibernateVersionNumber() {
+  public Long getHibernateVersionNumber() {
     return this.hibernateVersionNumber;
   }
 
   /**
-   * hibernate increments with each insert/update
+   * hibernate increments with each insert/update (-1 means insert, 0+ means update, null means 0)
    * @param hibernateVersionNumber the hibernateVersion to set
    */
-  public void setHibernateVersionNumber(long hibernateVersionNumber) {
+  public void setHibernateVersionNumber(Long hibernateVersionNumber) {
+    
+    //no nulls, set to 0
+    hibernateVersionNumber = hibernateVersionNumber == null ? 0 : hibernateVersionNumber;
+    
     this.hibernateVersionNumber = hibernateVersionNumber;
+    
   }
 
 } 
