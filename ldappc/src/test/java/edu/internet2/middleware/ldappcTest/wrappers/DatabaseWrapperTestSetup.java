@@ -113,19 +113,19 @@ public class DatabaseWrapperTestSetup extends TestSetup {
             }
         }
 
-        // Delete the grouper database.
-        if (useEmbeddedGrouper) {
-            File dbDir = new File(grouperDbTarget);
-            FileUtils.deleteDirectory(dbDir);
-        }
-
-        // Delete the signet database.
-        if (useEmbeddedSignet) {
-            File dbDir = new File(signetDbTarget);
-            FileUtils.deleteDirectory(dbDir);
-        }
-
-        super.tearDown();
+        if (false) {
+			// Delete the grouper database.
+			if (useEmbeddedGrouper) {
+				File dbDir = new File(grouperDbTarget);
+				FileUtils.deleteDirectory(dbDir);
+			}
+			// Delete the signet database.
+			if (useEmbeddedSignet) {
+				File dbDir = new File(signetDbTarget);
+				FileUtils.deleteDirectory(dbDir);
+			}
+		}
+		super.tearDown();
     }
 
     /**
