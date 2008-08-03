@@ -177,6 +177,14 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
             assertEquals("Number of modified groups for long test is bad.", 1, allGroupsSize);
 
             Date justBeforeTimeOfMod = new Date();
+            try {
+            	//
+                // Make sure group is modified *after* justBeforeTimeOfMod.
+            	//
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				fail("Unable to wait one second");
+			}
             Group testGroup31 = null;
             try
             {
@@ -187,7 +195,7 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
                 ErrorLog.error(getClass(), "Group not found: " + gnfe.getMessage());
             }
             
-            // Do simple modification instead of above, just change the group description.
+            // Do simple modification; just change the group description.
 
             String oldDesc = testGroup31.getDescription();
             String newDesc = oldDesc + "."; 
@@ -205,7 +213,7 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
             }
             
 
-            // The time of last modification of the group should now be the current time.
+            // The time of last modification of the group should now be after justBeforeTimeOfMod.
 
             //
             // Verify that groups were modified after the time right before the modification.
@@ -271,20 +279,10 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
             ErrorLog.error(getClass(), "Stem not found: " + snfe.getMessage());
         }
         GroupModifiedAfterFilter groupModifiedAfterFilter = new GroupModifiedAfterFilter(when, stem);
-        Set groupsModified = null;
-        Date dateModified = null;
+        Set<Group> groupsModified = null;
         try
         {
              groupsModified = groupModifiedAfterFilter.getResults(grouperSession);
-             Group group = null;
-             String name = null;
-             Iterator it = groupsModified.iterator(); 
-             while (it.hasNext())
-             {
-                 group = (Group) it.next();
-                 name = group.getName();
-                 dateModified = group.getModifyTime();
-             }
         }
         catch (QueryException qe)
         {
@@ -296,14 +294,7 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
         // Restrict search scope to reduce execution time.
         // override ldappc.xml file to require the groups to be in a particular stem.
         //
-        Set stemQueries = configManager.getGroupSubordinateStemQueries();
-        String stemQuery = null;
-
-        Iterator it = stemQueries.iterator();
-        while (it.hasNext())
-        {
-            stemQuery = (String)it.next();
-        }
+        Set<String> stemQueries = configManager.getGroupSubordinateStemQueries();
 
         //
         // Use reflection to call: configManager.resetGroupSubordinateStemQueries();
@@ -325,11 +316,6 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
         actualParams[0] = stemName;
         invokeMethod(fullClassName, methodName, formalParams, invokingInstance, actualParams);
 
-        Iterator it2 = stemQueries.iterator();
-        while (it2.hasNext())
-        {
-            stemQuery = (String)it2.next();
-        }
         return groupsModified.size(); 
     }
 
