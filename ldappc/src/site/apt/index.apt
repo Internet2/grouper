@@ -38,6 +38,8 @@
 *---------------------------------------+----------------------------------------------+
 | {{{design.html}Design}}               | for more detailed design information.        |
 *---------------------------------------+----------------------------------------------+
+| {{{examples.html}Design}}             | for configuration examples.                  |
+*---------------------------------------+----------------------------------------------+
 | {{{faq.html}FAQ}}                     | Frequently Asked Questions                   |
 *---------------------------------------+----------------------------------------------+
 | {{{ldap-guide.html}LDAP Guide}}       | for information about LDAP in general.       |
