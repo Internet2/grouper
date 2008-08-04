@@ -18,40 +18,32 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Set;
-import java.util.Iterator;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 
-import edu.internet2.middleware.subject.Subject;
-
-
-
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupModifiedAfterFilter;
+import edu.internet2.middleware.grouper.GroupModifyException;
 import edu.internet2.middleware.grouper.GroupNotFoundException;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.QueryException;
+import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemNotFoundException;
-import edu.internet2.middleware.grouper.SessionException;
-import edu.internet2.middleware.grouper.GroupModifiedAfterFilter;
-import edu.internet2.middleware.grouper.QueryException;
-import edu.internet2.middleware.grouper.GroupModifyException;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import edu.internet2.middleware.ldappc.LdappcProvisionControl;
-import edu.internet2.middleware.ldappc.LdappcRuntimeException;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.Constants;
-import edu.internet2.middleware.ldappc.GroupProcessor;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.InputOptions;
+import edu.internet2.middleware.ldappc.LdappcProvisionControl;
+import edu.internet2.middleware.ldappc.LdappcRuntimeException;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing creating members of a group so that other
@@ -65,11 +57,6 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
      * the grouper session
      */
     private GrouperSession grouperSession;
-
-    /**
-     * the group processor
-     */
-    private GroupProcessor groupProcessor;
 
     /**
      * the grouper session controller
@@ -102,8 +89,6 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
             fail("Could not start grouper session");
         }
         grouperSession = grouperSessionControl.getSession();
-
-        groupProcessor = new GroupProcessor(grouperSession);
     }
 
     /**

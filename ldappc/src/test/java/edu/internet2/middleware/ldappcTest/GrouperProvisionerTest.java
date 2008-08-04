@@ -18,18 +18,13 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SessionException;
-import edu.internet2.middleware.ldappc.GroupProcessor;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.LdappcProvisionControl;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
-import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -58,11 +53,6 @@ public class GrouperProvisionerTest extends BaseTestCase
      * the grouper session
      */
     private GrouperSession grouperSession;
-
-    /**
-     * the group processor
-     */
-    private GroupProcessor groupProcessor;
 
     /**
      * the grouper session controller
@@ -95,8 +85,6 @@ public class GrouperProvisionerTest extends BaseTestCase
             fail("Could not start grouper session");
         }
         grouperSession = grouperSessionControl.getSession();
-
-        groupProcessor = new GroupProcessor(grouperSession);
     }
 
     /**
