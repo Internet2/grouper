@@ -33,7 +33,6 @@ import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
 
-import edu.internet2.middleware.ldappc.GroupProcessor;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;

@@ -43,6 +43,7 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.GroupProcessor;
 import edu.internet2.middleware.ldappcTest.TestOptions;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
@@ -54,7 +55,6 @@ import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.StemProcessor;
-import edu.internet2.middleware.ldappc.GroupProcessor;
 import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.LdappcProvisionControl;
 

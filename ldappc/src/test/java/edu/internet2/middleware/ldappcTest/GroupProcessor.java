@@ -16,7 +16,7 @@
     limitations under the License.
  */
 
-package edu.internet2.middleware.ldappc;
+package edu.internet2.middleware.ldappcTest;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
