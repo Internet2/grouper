@@ -18,22 +18,42 @@
 package edu.internet2.middleware.grouper.cache;
 import java.net.URL;
 
-import  edu.internet2.middleware.grouper.cache.CacheStats;
-import  edu.internet2.middleware.grouper.cache.EhcacheStats;
-import  net.sf.ehcache.Cache;
-import  net.sf.ehcache.CacheManager;
-import  net.sf.ehcache.Statistics;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Statistics;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 
 /**
  * Base class for common cache operations.
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.7 2008-05-15 20:21:59 mchyzer Exp $
+ * @version $Id: EhcacheController.java,v 1.7.4.1 2008-08-04 20:01:11 mchyzer Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
 
+  /**
+   * singleton cache controller
+   */
+  private static EhcacheController ehcacheController = null;
+
+  /**
+   * utility cache controller if you dont want to create your own...
+   * @return ehcache controller
+   */
+  public static EhcacheController ehcacheController() {
+    if (ehcacheController == null) {
+      ehcacheController = new EhcacheController();
+    }
+    return ehcacheController;
+  }
  
+  /**
+   * manager
+   */
   private CacheManager mgr;
 
   /**
@@ -68,22 +88,98 @@ public class EhcacheController implements CacheController {
   }
 
   /**
+   * Retrieve a grouper cache (like a generic Map)
+   * @param name should be unique, prefix with fully qualified classname
+   * @return  Cache <i>name</i>.
+   * @throws  IllegalStateException if cache not found.
+   * @since   1.2.1
+   */
+  public GrouperCache getGrouperCache(String name) 
+    throws  IllegalStateException { 
+    //dont use defaults
+    return getGrouperCache(name, false, -1, false, -1, -1, false);
+  }
+  
+  /**
+   * Retrieve a GrouperCache which is a generic Map cache.  Note the defaults are only used
+   * in the first invocation of the cache retrieval.
+   * @param name should be unique, prefix with fully qualified classname
+   * @param useDefaultIfNotInConfigFile use the defaults if not in the config file
+   * @param defaultMaxElementsInMemory if not in config file, this is max elements in memory
+   * @param defaultEternal if not in config file,  true to never expire stuff
+   * @param defaultTimeToIdleSeconds  if not in config file, time where if not accessed, will expire
+   * @param defaultTimeToLiveSeconds  if not in config file, time where even if accessed, will expire
+   * @param defaultOverflowToDisk  if not in config file, if it should go to disk in overflow
+   * @return  Cache <i>name</i>.
+   * @throws  IllegalStateException if cache not found.
+   * @since   1.2.1
+   */
+  public GrouperCache getGrouperCache(String name, boolean useDefaultIfNotInConfigFile,
+      int defaultMaxElementsInMemory, 
+      boolean defaultEternal, int defaultTimeToIdleSeconds, 
+      int defaultTimeToLiveSeconds, boolean defaultOverflowToDisk) 
+    throws  IllegalStateException { 
+    return new GrouperCache(this.getCache(name, useDefaultIfNotInConfigFile, 
+        defaultMaxElementsInMemory, defaultEternal, defaultTimeToIdleSeconds, 
+        defaultTimeToLiveSeconds, defaultOverflowToDisk));
+  }
+  
+  /**
+   * Note, this might be better to be used from GrouperCache
+   * @param name should be unique, prefix with fully qualified classname
    * @return  Cache <i>name</i>.
    * @throws  IllegalStateException if cache not found.
    * @since   1.2.1
    */
   public Cache getCache(String name) 
-    throws  IllegalStateException
-  { 
+    throws  IllegalStateException { 
+    //dont use defaults
+    return getCache(name, false, -1, false, -1, -1, false);
+  }
+  
+  /**
+   * Note, this might be better to be used from GrouperCache
+   * @param name should be unique, prefix with fully qualified classname
+   * @param useDefaultIfNotInConfigFile use the defaults if not in the config file
+   * @param defaultMaxElementsInMemory if not in config file, this is max elements in memory
+   * @param defaultEternal if not in config file,  true to never expire stuff
+   * @param defaultTimeToIdleSeconds  if not in config file, time where if not accessed, will expire
+   * @param defaultTimeToLiveSeconds  if not in config file, time where even if accessed, will expire
+   * @param defaultOverflowToDisk  if not in config file, if it should go to disk in overflow
+   * @return  Cache <i>name</i>.
+   * @throws  IllegalStateException if cache not found.
+   * @since   1.2.1
+   */
+  public Cache getCache(String name, boolean useDefaultIfNotInConfigFile,
+      int defaultMaxElementsInMemory, 
+      boolean defaultEternal, int defaultTimeToIdleSeconds, 
+      int defaultTimeToLiveSeconds, boolean defaultOverflowToDisk) 
+    throws  IllegalStateException { 
     this.initialize();
     if (this.mgr.cacheExists(name) ) {
       return this.mgr.getCache(name);
     }
-    throw new IllegalStateException( "cache not found: " + name + " make sure the cache" +
-    		" config is correct, the resource: /grouper.ehcache.xml");
+    if (useDefaultIfNotInConfigFile) {
+      LOG.info("cache not configured explicitly: " + name + ", to override default values, " +
+      		"configure in the resource /grouper.ehcache.xml.  Default values are:" +
+      		"maxElementsInMemory: " + defaultMaxElementsInMemory + ", eternal: " + defaultEternal
+      		+ ", timeToIdleSeconds: " + defaultTimeToIdleSeconds + ", timeToLiveSeconds: " 
+      		+ defaultTimeToLiveSeconds + ", overFlowToDisk: " + defaultOverflowToDisk);
+      Cache cache = new Cache(name, defaultMaxElementsInMemory, defaultOverflowToDisk, 
+          defaultEternal, defaultTimeToLiveSeconds, defaultTimeToIdleSeconds);
+      this.mgr.addCache(cache);
+      return cache;
+    }
+    
+    throw new IllegalStateException("cache not found: " + name + " make sure the cache" +
+        " config is correct, the resource: /grouper.ehcache.xml");
   }
 
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(EhcacheController.class);
+
   /**
+   * @param cache 
    * @return  ehcache statistics for <i>cache</i>.
    * @since   1.2.1
    */
