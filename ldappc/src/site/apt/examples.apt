@@ -100,3 +100,20 @@ Basic Grouper Example
 
 </ldappc>
 ---
+
+Attribute-based Grouper Query Example
+
+  The following XML snippet would replace the "<group-queries>" element in the example above to query by presence
+  of a value of an attribute instead of by entire stems.  The example below will provision any group into LDAP
+  whose extended attribute "includeInLdap" is equal to either "true" or "test".
+
+---
+    <group-queries>
+      <attribute-matching-queries>
+        <attribute-list>
+          <attribute name="includeInLdap" value="true" />
+          <attribute name="includeInLdap" value="test" />
+        </attribute-list>
+      </attribute-matching-queries>
+    </group-queries>
+---
