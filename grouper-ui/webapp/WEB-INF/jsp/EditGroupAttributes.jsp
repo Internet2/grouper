@@ -34,6 +34,10 @@ Can save and
 	<tiles:put name="listless" value="TRUE"/>
 </tiles:insert>
 </c:if>
+<c:if test="${!empty areRequiredAttributes}">
+<tr class="formTableRow">
+<td></td><td  class="formTableLeft"><span class="requiredAttrInfo"><grouper:message bundle="${nav}" key="attribute.required.info"/></span></td><td></td></tr>
+</c:if>
 <tr class="formTableRow">
 <td colspan="3">
  <html:submit styleClass="blueButton" property="submit.save" value="${navMap['groups.action.attr-save']}"/>
