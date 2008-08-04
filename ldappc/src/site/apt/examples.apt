@@ -23,6 +23,27 @@
   
 Basic Grouper Example
 
+  The following example will provision groups in the stems "testStem" and "qsuob" into LDAP
+  under "ou=testGrouper,dc=example,dc=edu".
+  The groups will be provisioned in a flat fashion, i.e. no hierarchy. The name of a group will
+  become the cn of the group in LDAP, e.g. qsuob:su:clubs:gliding for the Gliding Club from the
+  Quick Start database. The object class of the groups will be "groupOfNames".
+  The DN values of the members will be provisioned into the group in the "member" attribute.
+  The LOGINID of the members will be populated into the group in the "hasMember" attribute, and
+  the name of any included groups will be included in the "hasMember" attribute as well.
+  This will also add the auxiliary class "eduMember" to the group.
+  Any values in the extended attribute "aci" in the group will be provisioned into the "aci" attribute
+  in LDAP, allowing for access control in a crude fashion.
+  
+  The example will also provision the group names to which each member belongs into their DN entry
+  in the "isMemberOf" attribute. This will add the auxiliary class "eduMember" to the member's DN entry.
+  
+  The member subjects' DNs will be retrieved from LDAP querying by LOGINID.
+  
+  The password for the LDAP access will be gotten by looking for the "security_credentials" property
+  in the ldappc.properties file. This enables version control to be used for this configuration file
+  without storing your password in a version control system.
+
 ---
 <?xml version="1.0" encoding="utf-8"?>
 <ldappc>
@@ -51,18 +72,17 @@ Basic Grouper Example
       </group-attribute-mapping>
     </groups>
     <memberships>
-      <member-groups-list 
-        list-object-class="eduMember" 
-        list-attribute="isMemberOf"
-        naming-attribute="name" />
+      <member-groups-list list-object-class="eduMember" 
+                          list-attribute="isMemberOf"
+                          naming-attribute="name" />
     </memberships>
   </grouper>
 
   <source-subject-identifiers>
     <source-subject-identifier source="qsuob" subject-attribute="LOGINID" >
       <ldap-search base="ou=uob,dc=example,dc=edu" 
-        scope="subtree_scope" 
-        filter="(uid={0})" />
+                   scope="onelevel_scope" 
+                   filter="(uid={0})" />
     </source-subject-identifier>
   </source-subject-identifiers>
 
