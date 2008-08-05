@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.CallbackException;
@@ -29,6 +30,7 @@ import org.hibernate.classic.Lifecycle;
 
 import edu.internet2.middleware.grouper.ErrorLog;
 import edu.internet2.middleware.grouper.MemberNotFoundException;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -43,16 +45,21 @@ import edu.internet2.middleware.subject.Subject;
  * Basic Hibernate <code>Member</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.4 2008-02-19 22:13:10 tzeller Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.4.6.1 2008-08-05 13:32:38 isgwb Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
 
 
-  private static        HashMap<String, Boolean>    existsCache     = new HashMap<String, Boolean>();
+  private static        GrouperCache<String, Boolean>    existsCache     =  
+	  new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists",
+	        1000, false, 30, 120, false); 
+	  
   private               String                      id;
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
-  private static        HashMap<String, MemberDTO>  uuid2dtoCache   = new HashMap<String, MemberDTO>();
+  private static        GrouperCache<String, MemberDTO>  uuid2dtoCache   = 
+	  new GrouperCache<String, MemberDTO>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.find",
+		        1000, false, 30, 120, false);
   private               String                      subjectID;
   private               String                      subjectSourceID;
   private               String                      subjectTypeID;
@@ -345,7 +352,7 @@ public class Hib3MemberDAO extends Hib3DAO implements Lifecycle,MemberDAO {
       .setParameter( "subject", "GrouperSystem" )
       .executeUpdate()
       ;
-    existsCache = new HashMap<String, Boolean>();
+    existsCache.clear();
   } 
 
 } 
