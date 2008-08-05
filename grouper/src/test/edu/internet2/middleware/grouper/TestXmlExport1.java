@@ -22,7 +22,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport1.java,v 1.8 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestXmlExport1.java,v 1.8.8.1 2008-08-05 14:06:37 isgwb Exp $
  * @since   1.1.0
  */
 public class TestXmlExport1 extends TestCase {
@@ -52,7 +52,7 @@ public class TestXmlExport1 extends TestCase {
         custom
       );  
       Properties  options = xml.internal_getOptions();
-      Assert.assertTrue("13 set options", options.size() == 13);
+      Assert.assertTrue("14 set options", options.size() == 14);
       String k = "export.metadata";
       String v = "false";
       T.string(k, v, options.getProperty(k));
@@ -90,6 +90,9 @@ public class TestXmlExport1 extends TestCase {
       v = "true";
       T.string(k, v, options.getProperty(k));
       k = "export.privs.for-parents";
+      v = "false";
+      T.string(k, v, options.getProperty(k));
+      k = "export.data.fail-on-unresolvable-subject";
       v = "false";
       T.string(k, v, options.getProperty(k));
     }

@@ -41,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.100 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: XmlExporter.java,v 1.100.8.1 2008-08-05 14:06:37 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -60,7 +60,7 @@ public class XmlExporter {
   private Properties      options;
   private Date            startTime;
   private XmlWriter       xml           = null;
-
+  private Map<String, Boolean> badSubjects = new HashMap<String, Boolean>();
 
   // CONSTRUCTORS //
 
@@ -154,6 +154,11 @@ public class XmlExporter {
    * <td>false</td>
    * <td>If true and only exporting a partial hierarchy then privileges for parent stems will be exported.</td>
    * </tr>
+   * <td>export.data.fail-on-unresolvable-subject</td>
+   * <td>true/false</td>
+   * <td>false</td>
+   * <td>If true and there is a problem resolving a subject attribute abort.</td>
+   * </tr>
    * <tr>
    * <td>export.subject-attributes.source.&lt;source name&gt;.&lt;subject type&gt;</td>
    * <td>Space separated list of attribute names</td>
@@ -226,6 +231,9 @@ public class XmlExporter {
     }
     catch (Exception e) {
       LOG.fatal("unable to export to xml: " + e.getMessage());
+      try {
+      exporter.xml.internal_close();
+      }catch(IOException ioe){}
       System.exit(1);
     }
     finally {
@@ -376,7 +384,7 @@ public class XmlExporter {
     sb.append( "</immediate>" );
     sb.append( GrouperConfig.NL );
     sb.append( this.internal_groupToXML( ms.getGroup(), true ) );
-    sb.append( this.internal_subjectToXML( ms.getMember().getSubject(), GrouperConfig.EMPTY_STRING ) );
+    sb.append( this.internal_subjectToXML( new LazySubject(ms), GrouperConfig.EMPTY_STRING ) );
     sb.append( "</membership>" );
     sb.append( GrouperConfig.NL );
     return sb.toString();
@@ -390,10 +398,26 @@ public class XmlExporter {
     // TODO 20070521 rename/refactor "immediate"
     // TODO 20070521 this method is far too large
     StringBuffer sb = new StringBuffer();
+    boolean subjectOk=true;
     sb.append("<subject ");
     // TODO 20070521 i don't like how we treat groups different here
     if ( "group".equals( subj.getType().getName() ) ) {
-      sb.append( "identifier="  + Quote.single( XML.escape( this._fixGroupName( subj.getName() ) ) ) );
+      try {
+    	  sb.append( "identifier="  + Quote.single( XML.escape( this._fixGroupName( subj.getName() ) ) ) );
+      }catch(RuntimeException e) {
+    	  subjectOk=false;
+    	  if(_isFailOnUnresolvableSubjectEnabled()) {
+    		  throw(e);
+    	  }else{
+    		  sb.append( "identifier="  + Quote.single(""))	;
+    		  Boolean bad = badSubjects.get(subj.getId()); 
+	      	  if(Boolean.TRUE.equals(bad)) {
+    			  LOG.error("Subject error: " + subj.getId(),e);
+    		  }else{
+    			  badSubjects.put(subj.getId(), Boolean.TRUE);
+    		  }
+    	  }
+      }
       sb.append( " type="       + Quote.single( XML.escape( subj.getType().getName() ) ) );
       sb.append( " source="     + Quote.single( XML.escape( subj.getSource().getId() ) ) );
       sb.append( immediate );
@@ -408,31 +432,54 @@ public class XmlExporter {
     sb.append( GrouperConfig.NL );
    
     // TODO 20070521 move to own method? 
-    Iterator it = this._getExportAttributes(subj);
-    if (it == null) {
-      sb.append( "/>" );
-    }
-    else {
-      sb.append( ">" );
-      sb.append( GrouperConfig.NL );
-
-      String    attr;
-      Iterator  itAttr;
-      Set       values;
-      while (it.hasNext()) {
-        attr    = (String) it.next();
-        values  = subj.getAttributeValues(attr);
-        sb.append( "<subjectAttribute name=" + Quote.single( XML.escape(attr) ) + ">" );
-        sb.append( GrouperConfig.NL );
-        itAttr = values.iterator();
-        while (itAttr.hasNext()) {
-          sb.append( "<value>" + XML.escape( (String) itAttr.next() ) + "</value>" );
-        }
-        sb.append( "</subjectAttribute>" );
-        sb.append( GrouperConfig.NL );
-      }
-
-      sb.append( "</subject>" );
+    if(subjectOk) {
+	    Iterator it = this._getExportAttributes(subj);
+	    if (it == null) {
+	      sb.append( "/>" );
+	    }
+	    else {
+	      sb.append( ">" );
+	      sb.append( GrouperConfig.NL );
+	
+	      String    attr;
+	      Iterator  itAttr;
+	      Set       values;
+	      while (it.hasNext()) {
+	        attr    = (String) it.next();
+	        try {
+	        values  = subj.getAttributeValues(attr);
+	        sb.append( "<subjectAttribute name=" + Quote.single( XML.escape(attr) ) + ">" );
+	        sb.append( GrouperConfig.NL );
+	        if(values!=null) {
+		        itAttr = values.iterator();
+		        while (itAttr.hasNext()) {
+		          sb.append( "<value>" + XML.escape( (String) itAttr.next() ) + "</value>" );
+		        }
+	        }
+	        sb.append( "</subjectAttribute>" );
+	        sb.append( GrouperConfig.NL );
+	        }catch(RuntimeException e) {
+	          subjectOk=false;
+	      	  if(_isFailOnUnresolvableSubjectEnabled()) {
+	      		  throw(e);
+	      	  }else{
+	      		  sb.append("<!-- Error: Subject.getAttributeValues:" + e.getMessage() +"-->");
+	      		  sb.append( GrouperConfig.NL );
+	      		Boolean bad = badSubjects.get(subj.getId()); 
+	      		if(Boolean.TRUE.equals(bad)) {
+	      			  LOG.error("Subject error: " + subj.getId(),e);
+	    		  }else{
+	    			  badSubjects.put(subj.getId(), Boolean.TRUE);
+	    		  }
+	      		  
+	      	  }
+	        }
+	      }
+	
+	      sb.append( "</subject>" );
+	    }
+    }else{
+    	sb.append( "/>" );
     }
 
     sb.append( GrouperConfig.NL );
@@ -630,7 +677,7 @@ public class XmlExporter {
             if (counter == 1) {
               this.xml.internal_puts("<exportOnly/>");
             }
-            this.xml.internal_puts( this.internal_subjectToXML( ( (Member) obj).getSubject(), GrouperConfig.EMPTY_STRING ) );
+            this.xml.internal_puts( this.internal_subjectToXML(  new LazySubject((Member) obj), GrouperConfig.EMPTY_STRING ) );
           } 
           else if (obj instanceof Membership) {
             if (counter == 1) {
@@ -784,6 +831,11 @@ public class XmlExporter {
   private boolean _isParentPrivsExportEnabled() {
     return XmlUtils.internal_getBooleanOption(this.options, "export.privs.for-parents");
   } // private boolean _isParentPrivsExportEnabled()
+  
+  // @since   1.3.1
+  private boolean _isFailOnUnresolvableSubjectEnabled() {
+    return XmlUtils.internal_getBooleanOption(this.options, "export.data.fail-on-unresolvable-subject");
+  } // private boolean _isFailOnUnresolvableSubjectEnabled()
 
   // @since   1.1.0
   private boolean _isStemInternalAttrsExportEnabled() {
@@ -1187,7 +1239,7 @@ public class XmlExporter {
     throws  IOException,
             SubjectNotFoundException
   {
-    Subject subj    = m.getSubject();
+    Subject subj    = new LazySubject(m);
     String  idAttr  = "id";
     String  id      = subj.getId();
     if (subj.getType().getName().equals("group")) {
@@ -1333,7 +1385,7 @@ public class XmlExporter {
           isImmediate = true;
         }
       }
-      subj = member.getMember().getSubject();
+      subj = new LazySubject(member);
       this.xml.internal_puts( this.internal_subjectToXML( subj, " immediate=" + Quote.single(isImmediate) + " " ) );
     }
   } 

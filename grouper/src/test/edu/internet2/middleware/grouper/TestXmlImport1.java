@@ -24,7 +24,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport1.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestXmlImport1.java,v 1.6.8.1 2008-08-05 14:06:37 isgwb Exp $
  * @since   1.0
  */
 public class TestXmlImport1 extends TestCase {
@@ -57,7 +57,7 @@ public class TestXmlImport1 extends TestCase {
       Assert.assertTrue("xml instanceof XmlImporter", xml instanceof XmlImporter);
       Properties options = xml.internal_getOptions();
       Assert.assertNotNull("options !null", options);
-      T.amount("set options", 6, options.size());
+      T.amount("set options", 7, options.size());
       String k = "import.metadata.group-types";
       String v = "false";
       T.string(k, v, options.getProperty(k));
@@ -75,6 +75,9 @@ public class TestXmlImport1 extends TestCase {
       T.string(k, v, options.getProperty(k));
       k = "import.data.privileges";
       v = "add";
+      T.string(k, v, options.getProperty(k));
+      k = "import.data.fail-on-unresolvable-subject";
+      v = "false";
       T.string(k, v, options.getProperty(k));
     }
     catch (Exception e) {

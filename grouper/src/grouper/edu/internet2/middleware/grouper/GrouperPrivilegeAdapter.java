@@ -23,7 +23,7 @@ import  java.util.*;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.17 2007-11-06 16:52:15 isgwb Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.17.8.1 2008-08-05 14:06:37 isgwb Exp $
  * @since   1.1.0
  */
 class GrouperPrivilegeAdapter {
@@ -73,6 +73,7 @@ class GrouperPrivilegeAdapter {
     Set         privs   = new LinkedHashSet();
     boolean     revoke  = true;
     Privilege localP = null;
+    Subject mSubj = new LazySubject(m);
     while (it.hasNext()) {
       ms = new Membership();
       ms.setDTO( (MembershipDTO) it.next() );
@@ -86,7 +87,7 @@ class GrouperPrivilegeAdapter {
       //Since we are getting everything, could get members or custom lists which do not correspond to privileges
       if(localP==null) continue;
       try {
-        if (!SubjectHelper.eq(m.getSubject(), subj)) {
+        if (!SubjectHelper.eq(mSubj, subj)) {
           owner   = m.getSubject();
           revoke  = false;
         }

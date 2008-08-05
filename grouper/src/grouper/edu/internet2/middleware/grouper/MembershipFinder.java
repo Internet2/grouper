@@ -34,7 +34,7 @@ import  java.util.Set;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.91 2008-01-19 05:41:00 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.91.6.1 2008-08-05 14:06:37 isgwb Exp $
  */
 public class MembershipFinder {
   
@@ -335,13 +335,16 @@ public class MembershipFinder {
     MemberDAO     dao   = GrouperDAOFactory.getFactory().getMember();
     MemberDTO     _m;
     MembershipDTO ms;
+    Membership mbs;
     Set           subjs = new LinkedHashSet();
     Iterator      it    = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( o.getUuid(), f ).iterator();
     while (it.hasNext()) {
       ms = (MembershipDTO) it.next();
+      mbs=new Membership();
+      mbs.setSession(s);
+      mbs.setDTO(ms);
       try {
-        _m = dao.findByUuid( ms.getMemberUuid() );
-        subjs.add( SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() ) );
+    	  subjs.add ( new LazySubject(mbs) );
       }
       catch (Exception e) {
         // @exception MemberNotFoundException

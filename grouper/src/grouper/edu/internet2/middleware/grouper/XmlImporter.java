@@ -52,7 +52,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.107 2008-05-06 21:30:50 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.107.4.1 2008-08-05 14:06:37 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -604,6 +604,11 @@ public class XmlImporter {
   private boolean _isUpdatingAttributes() {
     return XmlUtils.internal_getBooleanOption(this.options, "import.data.update-attributes");
   } // private boolean _isUpdatingAttributes()
+  
+//@since   1.3.1
+  private boolean _isFailOnUnresolvableSubjectEnabled() {
+    return XmlUtils.internal_getBooleanOption(this.options, "import.data.fail-on-unresolvable-subject");
+  } // private boolean _isFailOnUnresolvableSubjectEnabled()
 
   // @since   1.1.0
   private void _load(Stem ns, Document doc) 
@@ -784,12 +789,23 @@ public class XmlImporter {
             SubjectNotUniqueException
   {
     if ( this._isSubjectElementImmediate(el) ) {
-      Subject subj = this._findSubject( 
-        el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
-      );
+      Subject subj = null;
+      try {
+	      subj=this._findSubject( 
+	        el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
+	      );
+      }catch(SubjectNotFoundException e) {
+    	  if(_isFailOnUnresolvableSubjectEnabled()) {
+    		  throw e;
+    	  }else {
+    		  LOG.error("Could not grant " + p.getName() + " to " + g.getName() + " for subject id=" + el.getAttribute("id"),e);
+    		  return;
+    	  }
+      }
       if ( !XmlUtils.internal_hasImmediatePrivilege( subj, g, p.getName() ) ) {
         g.grantPriv(subj, p);
       }
+      
     }
   } // private void _processAccessPrivListGrantPriv(g, p, el)
 
@@ -1119,9 +1135,20 @@ public class XmlImporter {
             SubjectNotUniqueException
   {
     if ( this._isSubjectElementImmediate(el) ) {
-      Subject subj = this._findSubject( 
-        el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
-      );
+      Subject subj = null;
+      try {
+	      subj=this._findSubject( 
+	        el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
+	      );
+      }catch(SubjectNotFoundException e) {
+    	  if(_isFailOnUnresolvableSubjectEnabled()) {
+    		  throw e;
+    	  }else {
+    		  LOG.error("Could not add member to field " + f.getName() + " of " + g.getName() + " for subject id=" + el.getAttribute("id"),e);
+    		  return;
+    	  }
+      }
+     
       if ( !g.hasImmediateMember(subj, f) ) {
         g.addMember(subj, f);
       }
@@ -1157,8 +1184,9 @@ public class XmlImporter {
         Iterator it = g.getImmediateMembers(f).iterator();
         while (it.hasNext()) {
           Member m = (Member) it.next();
-          Subject subj = m.getSubject();
-          g.deleteMember(subj, f);
+          Subject subj = new LazySubject(m);
+          	g.deleteMember(subj, f);
+          
           //g.deleteMember( ( (Member) it.next() ).getSubject() );
         }
       }
@@ -1298,9 +1326,20 @@ public class XmlImporter {
             SubjectNotUniqueException
   {
     if ( this._isSubjectElementImmediate(el) ) {
-      Subject subj = this._findSubject( 
-        el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
-      );
+      Subject subj = null;
+      try {
+	      subj=this._findSubject( 
+	        el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
+	      );
+      }catch(SubjectNotFoundException e) {
+    	  if(_isFailOnUnresolvableSubjectEnabled()) {
+    		  throw e;
+    	  }else {
+    		  LOG.error("Could not grant " + p.getName() + " to " + ns.getName() + " for subject id=" + el.getAttribute("id"),e);
+    		  return;
+    	  }
+      }
+      
       if ( !XmlUtils.internal_hasImmediatePrivilege( subj, ns, p.getName() ) ) {
         ns.grantPriv(subj, p);
       }
