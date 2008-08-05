@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperComparator;
+import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
@@ -75,7 +76,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.17 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.17.2.1 2008-08-05 16:17:00 isgwb Exp $
  */
 
 /**
@@ -570,6 +571,17 @@ public abstract class LowLevelGrouperCapableAction
 			session.setAttribute("navExceptionHelper", neh);
 		}
 		return neh;
+	}
+	
+	protected void addMessage(Message msg,HttpServletRequest request) {
+		List messages = (List)request.getAttribute("messages");
+		Message m = (Message)request.getAttribute("message");
+		if(messages==null) {
+			messages=new ArrayList();
+			if(m!=null) messages.add(m);
+			request.setAttribute("messages",messages);
+		}
+		messages.add(msg);
 	}
 }
 

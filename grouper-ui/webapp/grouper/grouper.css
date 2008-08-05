@@ -538,6 +538,10 @@ div.Message {
   color: #000099;
 }
 
+div.WarningMessage {
+  color: #8B4513;
+}
+
 div.genericListHeader {
   color: #666666;
   padding-left: 20px;

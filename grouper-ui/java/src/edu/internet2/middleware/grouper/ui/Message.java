@@ -23,7 +23,7 @@ package edu.internet2.middleware.grouper.ui;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: Message.java,v 1.4 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: Message.java,v 1.4.6.1 2008-08-05 16:17:00 isgwb Exp $
  */
 public class Message {
 	private String message = "";
@@ -31,6 +31,7 @@ public class Message {
 	private String[] args = null;
 
 	private boolean isError = false;
+	private boolean isWarning = false;
 
 	private static String[] nullArgs = null;
 
@@ -131,8 +132,9 @@ public class Message {
 	 * @return Returns the containerId.
 	 */
 	public String getContainerId() {
-		if(!isError) return "Message";
-		return "ErrorMessage";
+		if(!isError && !isWarning) return "Message";
+		if(isError) return "ErrorMessage";
+		return "WarningMessage";
 	}
 
 	/**
@@ -163,5 +165,22 @@ public class Message {
 	 */
 	public void setError(boolean isError) {
 		this.isError = isError;
+		if(isError) isWarning=false;
+	}
+	
+	/**
+	 * @return boolean isWarning.
+	 */
+	public boolean isWarning() {
+		return isWarning;
+	}
+
+	/**
+	 * @param isWarming
+	 *            boolean.
+	 */
+	public void setWarning(boolean isWarning) {
+		this.isWarning = isWarning;
+		if(isWarning) isError=false;
 	}
 }
