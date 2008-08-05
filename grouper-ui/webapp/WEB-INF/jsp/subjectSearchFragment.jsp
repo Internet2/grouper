@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: subjectSearchFragment.jsp,v 1.8 2008-04-12 03:51:00 mchyzer Exp $
+  @version $Id: subjectSearchFragment.jsp,v 1.8.4.1 2008-08-05 14:32:58 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -73,7 +73,8 @@
         </tr>
         <c:set var="insertFragmentKey" value="subject.search.form-fragment.${source.id}" />
         <c:set var="insertFragment" value="${mediaMap[insertFragmentKey]}" /> <%
- if (!pageContext.getAttribute("insertFragment").toString().matches("^\\?\\?.*")) {
+
+        if ((pageContext.getAttribute("insertFragment").toString().length() > 0) && (!pageContext.getAttribute("insertFragment").toString().matches("^\\?\\?.*"))) { 
  %> <tr <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="${advancedMode}"/> ><td class="formTableLeft">&nbsp;</td><td><table class="formSubtable" style="margin-left: 30px"><tiles:insert definition="${insertFragment}" /></table></td></tr> <%
  }
  %> <c:remove var="checked" />
