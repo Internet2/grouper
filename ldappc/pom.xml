@@ -132,6 +132,13 @@
     Configure the deploy location for the site documentation.
   -->
   <distributionManagement>
+    <!--
+    <repository>
+      <id>deployment-directory</id>
+      <name>Deployment Repository</name>
+      <url>file://deployment-repository</url>
+    </repository>
+    -->
     <site>
       <id>website</id>
       <url>scpexe://middleware.internet2.edu/dir/groups/grouper/ldappc/${pom.version}/doc</url>
