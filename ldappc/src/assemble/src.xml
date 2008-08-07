@@ -19,6 +19,7 @@
         <exclude>**/target/**</exclude>
         <exclude>cobertura.ser</exclude>
         <exclude>**/logs/*.log*</exclude>
+        <exclude>**/lib/**</exclude>
       </excludes>
     </fileSet>
   </fileSets>
