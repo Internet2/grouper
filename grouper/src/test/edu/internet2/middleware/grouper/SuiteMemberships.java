@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberships.java,v 1.8 2007-02-14 20:55:35 blair Exp $
+ * @version $Id: SuiteMemberships.java,v 1.8.8.1 2008-08-08 20:37:58 shilen Exp $
  */
 public class SuiteMemberships extends TestCase {
 
@@ -29,6 +29,8 @@ public class SuiteMemberships extends TestCase {
     suite.addTestSuite( TestMembership0.class );  // eff mship uuid does not change
     suite.addTestSuite( TestMembership1.class );  // parent and child memberships
     suite.addTestSuite( TestMembership2.class );  // creation time and creator
+    suite.addTestSuite( TestMembership3.class );  // test of effective memberships without composite groups
+    suite.addTestSuite( TestMembership4.class );  // test of effective memberships with composite groups
     suite.addTestSuite(TestMembership.class);
     return suite;
   } // static public Test suite()

@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership1.java,v 1.3 2007-01-04 17:17:46 blair Exp $
+ * @version $Id: TestMembership1.java,v 1.3.8.1 2008-08-08 20:37:58 shilen Exp $
  */
 public class TestMembership1 extends TestCase {
 
@@ -70,10 +70,10 @@ public class TestMembership1 extends TestCase {
 
       // subjA  -> gA
       // gA     -> gB
-      // subjA  -> gA -> g (parent: gA -> gB)
+      // subjA  -> gB (parent: gA -> gB)
       // gB     -> gC
-      // gA     -> gB -> gC (parent: gB -> gC)
-      // subjA  -> gA -> B -> gC (parent: gA -> gB)
+      // gA     -> gC (parent: gB -> gC)
+      // subjA  -> gC (parent: gA -> gC)
 
       // Parents and children
       List mships = new ArrayList( msGB_GC.getChildMemberships() );
@@ -85,16 +85,11 @@ public class TestMembership1 extends TestCase {
       );
 
       mships = new ArrayList( msGA_GB.getChildMemberships() );
-      T.amount("gA -> gB children", 2, mships.size());
+      T.amount("gA -> gB children", 1, mships.size());
       Membership childGB_0 = (Membership) mships.get(0);
-      Membership childGB_1 = (Membership) mships.get(1);
       Assert.assertTrue(
         "subjA -> gB parent is gA -> gB",
         childGB_0.getParentMembership().equals(msGA_GB)
-      );
-      Assert.assertTrue(
-        "subjA -> gC parent is gA -> gB",
-        childGB_1.getParentMembership().equals(msGA_GB)
       );
 
       mships = new ArrayList( msSA_GA.getChildMemberships() );

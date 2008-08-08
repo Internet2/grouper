@@ -21,6 +21,7 @@ import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import  edu.internet2.middleware.grouper.internal.dto.CompositeDTO;
 import  edu.internet2.middleware.grouper.internal.dto.GroupDTO;
+import  edu.internet2.middleware.grouper.internal.dto.GrouperDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MemberDTO;
 import  edu.internet2.middleware.grouper.internal.dto.MembershipDTO;
 import  edu.internet2.middleware.grouper.internal.dto.StemDTO;
@@ -34,7 +35,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.8 2008-04-03 18:09:43 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.8.4.1 2008-08-08 20:37:58 shilen Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -196,167 +197,216 @@ public class DefaultMemberOf extends BaseMemberOf {
 
   // Add m's hasMembers to o
   // @since   1.2.0
-  private Set _addHasMembersToOwner(Set hasMembers) 
+  private Set _addHasMembersToOwner(Set<MembershipDTO> hasMembers) 
     throws  IllegalStateException
   {
-    Set           mships      = new LinkedHashSet();
+    Set<MembershipDTO> mships = new LinkedHashSet();
     MembershipDTO hasMS;
-    MembershipDTO _ms;
-    Iterator      it          = hasMembers.iterator();
+    Iterator<MembershipDTO> it = hasMembers.iterator();
+
     // cache values outside of iterator
-    int           depth       = this.getMembershipDTO().getDepth();
-    String        listName    = this.getMembershipDTO().getListName();
-    String        listType    = this.getMembershipDTO().getListType();
-    String        memberUUID  = this.getSession().getMember().getUuid();
-    String        msUUID      = this.getMembershipDTO().getUuid();
-    String        ownerUUID   = this.getMembershipDTO().getOwnerUuid();
+    String ownerUUID = this.getMembershipDTO().getOwnerUuid();
+    String creatorUUID = this.getSession().getMember().getUuid();
+    String listName = this.getMembershipDTO().getListName();
+    String listType = this.getMembershipDTO().getListType();
+
+
     while (it.hasNext()) {
-      hasMS = (MembershipDTO) it.next();
-
-      _ms = new MembershipDTO();
-      _ms.setCreatorUuid(memberUUID);
-      _ms.setDepth(depth + hasMS.getDepth() + 1);
-      _ms.setListName(listName);
-      _ms.setListType(listType);
-      _ms.setMemberUuid( hasMS.getMemberUuid() );
-      _ms.setOwnerUuid(ownerUUID);
-      _ms.setType(Membership.EFFECTIVE);
-      if ( hasMS.getDepth() == 0 ) {
-        _ms.setViaUuid( hasMS.getOwnerUuid() );  // hasMember m was immediate
-        _ms.setParentUuid(msUUID);
+      hasMS = it.next();
+      if (hasMS.getDepth() == 0) {
+        Set<MembershipDTO> newAdditions = _addHasMembersRecursively(this.getMembershipDTO(), hasMS, 
+          this.getMembershipDTO(), hasMembers, ownerUUID, creatorUUID, listName, listType, false);
+        mships.addAll(newAdditions);
       }
-      else {
-        _ms.setViaUuid( hasMS.getViaUuid() ); // hasMember m was effective
-        if ( hasMS.getParentUuid() != null ) {
-          _ms.setParentUuid( hasMS.getParentUuid() );
-        }
-        else {
-          _ms.setParentUuid( hasMS.getUuid() );
-        }
-      }
-      GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
-      if (v.isInvalid()) {
-        throw new IllegalStateException( v.getErrorMessage() );
-      }
-
-      mships.add(_ms);
     }
+
     return mships;
   } // private Set _addHasMembersToOwner(hasMembers)
 
-  /**
-   * Add members of <i>member</i> to where <i>group</i> is a member.
-   * @param   isMember  <i>Set</i> of <i>MembershipDTO</i> objects.
-   * @since   1.2.0
-   */
-  private Set _addHasMembersToWhereGroupIsMember(Set isMember, Set hasMembers) 
-    throws  IllegalStateException
-  {
-    Set mships = new LinkedHashSet();
+  private Set _addHasMembersRecursively(MembershipDTO startMembership, 
+    MembershipDTO currentMembership, MembershipDTO parentMembership, Set<MembershipDTO> hasMembers, 
+    String ownerUUID, String creatorUUID, String listName, String listType,
+    boolean isStartMembershipViaGroupComposite) {
 
-    // Add the members of m to where g is a member but only if f == "members"
-    if (this.getField().equals(Group.getDefaultList())) {
-      MembershipDTO _ms;
-      MembershipDTO hasMS;
-      MembershipDTO isMS;
-      Iterator      itHM; 
-      Iterator      itIM    = isMember.iterator();
-      while (itIM.hasNext()) {
-        isMS = (MembershipDTO) itIM.next();
-        
-        itHM = hasMembers.iterator();
-        while (itHM.hasNext()) {
-          hasMS = (MembershipDTO) itHM.next();
+    MembershipDTO _newMembership = new MembershipDTO();
+    _newMembership.setCreatorUuid(creatorUUID);
+    _newMembership.setListName(listName);
+    _newMembership.setListType(listType);
+    _newMembership.setOwnerUuid(ownerUUID);
+    _newMembership.setType(Membership.EFFECTIVE);
+    _newMembership.setMemberUuid(currentMembership.getMemberUuid());
 
-          _ms = new MembershipDTO()
-            .setCreatorUuid( this.getSession().getMember().getUuid() )
-            .setDepth( isMS.getDepth() + hasMS.getDepth() + 2 )
-            .setListName( isMS.getListName() )
-            .setListType( isMS.getListType() )
-            .setMemberUuid( hasMS.getMemberUuid() )
-            .setOwnerUuid( isMS.getOwnerUuid() )
-            .setType(Membership.EFFECTIVE)
-            ;
-          if ( hasMS.getDepth() == 0 ) { // hasMember m was immediate
-            _ms.setViaUuid( hasMS.getOwnerUuid() )
-              .setParentUuid( isMS.getUuid() )
-              ;
-          }
-          else { // hasMember m was effective
-            _ms.setViaUuid( hasMS.getViaUuid() );
-            if ( hasMS.getParentUuid() != null ) {
-              _ms.setParentUuid( hasMS.getParentUuid() );
-            }
-            else {
-              _ms.setParentUuid( hasMS.getUuid() );
-            }
-          }
-          GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
-          if (v.isInvalid()) {
-            throw new IllegalStateException( v.getErrorMessage() );
-          }
-
-          mships.add(_ms);
-        }
-      }
+    if (isStartMembershipViaGroupComposite) {
+      _newMembership.setDepth(startMembership.getDepth());
+      _newMembership.setParentUuid(parentMembership.getParentUuid());
+    } else {
+      _newMembership.setDepth(parentMembership.getDepth() + 1);
+      _newMembership.setParentUuid(parentMembership.getUuid());
     }
 
-    return mships;
-  } 
+    
+    if (isStartMembershipViaGroupComposite) {
+      _newMembership.setViaUuid(startMembership.getViaUuid());
+    } else if (currentMembership.getDepth() == 0) {
+      _newMembership.setViaUuid(currentMembership.getOwnerUuid());
+    } else {
+      _newMembership.setViaUuid(currentMembership.getViaUuid());
+    }
+    
+    GrouperValidator v = EffectiveMembershipValidator.validate(_newMembership);
+    if (v.isInvalid()) {
+      throw new IllegalStateException( v.getErrorMessage() );
+    }
+
+    Set<MembershipDTO> newMemberships = new LinkedHashSet();
+    newMemberships.add(_newMembership);
+
+    Iterator<MembershipDTO> it = hasMembers.iterator();
+    while (it.hasNext()) {
+      MembershipDTO hasMS = it.next();
+      if (hasMS.getParentUuid() != null && hasMS.getParentUuid().equals(currentMembership.getUuid())) {
+        Set<MembershipDTO> newAdditions = _addHasMembersRecursively(startMembership, hasMS, _newMembership, 
+          hasMembers, ownerUUID, creatorUUID, listName, listType, isStartMembershipViaGroupComposite);
+        newMemberships.addAll(newAdditions);
+      }
+    }
+    
+    return newMemberships;
+  }
+
+
 
   /**
-   * Add the member of each <code>isMember</code> membership to where the group is a member.
-   * @param   isMember  <i>Set</i> of <i>MembershipDTO</i> objects.
+   * Add members of <i>member</i> to where <i>group</i> is a member.
+   * @param   isMember    <i>Set</i> of <i>MembershipDTO</i> objects.
+   * @param   hasMember   <i>Set</i> of <i>MembershipDTO</i> objects.
+   * @param   isComposite <i>boolean</i> true if adding a composite membership
    * @since   1.2.0
    */
-  private Set _addMemberToWhereGroupIsMember(Set isMember) 
+  private Set _addHasMembersToWhereGroupIsMember(Set<MembershipDTO> isMember, Set<MembershipDTO> hasMembers, boolean isComposite) 
     throws  IllegalStateException
   {
-    Set mships = new LinkedHashSet();
+    Set<MembershipDTO> mships = new LinkedHashSet();
 
-    // Add m to where g is a member if f == "members"
-    if ( this.getField().equals( Group.getDefaultList() ) ) {
-      MembershipDTO isMS;
-      Iterator      itIM  = isMember.iterator();
-      MembershipDTO _ms;
-      while (itIM.hasNext()) {
-        //isMS = (MembershipDTO) ( (Membership) isIt.next() ).getDTO();
-        isMS = (MembershipDTO) itIM.next();
+    String creatorUUID  = this.getSession().getMember().getUuid();
+    MembershipDTO hasMS;
+    MembershipDTO isMS;
+    MembershipDTO _ms = null;
+    Iterator<MembershipDTO> itHM; 
+    Iterator<MembershipDTO> itIM = isMember.iterator();
+    while (itIM.hasNext()) {
+      isMS = itIM.next();
 
-        _ms = new MembershipDTO()
-          .setCreatorUuid( this.getSession().getMember().getUuid() )
-          .setDepth( isMS.getDepth() + this.getMembershipDTO().getDepth() + 1 )
-          .setListName( isMS.getListName() )
-          .setListType( isMS.getListType() )
-          .setMemberUuid( this.getMembershipDTO().getMemberUuid() )
-          .setOwnerUuid( isMS.getOwnerUuid() )
-          .setType(Membership.EFFECTIVE)
-          ;
-        if ( this.getMembershipDTO().getDepth() == 0 ) { // this memberhsip was immediate
-          _ms.setViaUuid( this.getMembershipDTO().getOwnerUuid() )
-            .setParentUuid( isMS.getUuid() )
-            ;
+      boolean isViaGroupComposite = isViaGroupComposite(isMS);
+
+      String ownerUUID = isMS.getOwnerUuid();
+      String listName = isMS.getListName();
+      String listType = isMS.getListType();
+      String type = isMS.getType();
+      String uuid = isMS.getUuid();
+      int depth = isMS.getDepth();
+
+      if (!isComposite && !type.equals(Membership.COMPOSITE)) {
+        _ms = new MembershipDTO();
+        _ms.setCreatorUuid( creatorUUID );
+        if (isViaGroupComposite) {
+          _ms.setDepth( depth );
+          _ms.setViaUuid( isMS.getViaUuid() );
+          _ms.setParentUuid( isMS.getParentUuid() );
+        } else {
+          _ms.setDepth( depth + 1 );
+          _ms.setViaUuid( this.getMembershipDTO().getOwnerUuid() );
+          _ms.setParentUuid( uuid );
         }
-        else { // that membership was effective
-          _ms.setViaUuid( this.getMembershipDTO().getViaUuid() ); 
-          if ( this.getMembershipDTO().getParentUuid() != null ) {
-            _ms.setParentUuid( this.getMembershipDTO().getParentUuid() );
-          }
-          else {
-            _ms.setParentUuid( this.getMembershipDTO().getUuid() );
-          }
-        }
+        _ms.setListName( listName );
+        _ms.setListType( listType );
+        _ms.setMemberUuid( this.getMembershipDTO().getMemberUuid() );
+        _ms.setOwnerUuid( ownerUUID );
+        _ms.setType(Membership.EFFECTIVE);
+
         GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
         if (v.isInvalid()) {
           throw new IllegalStateException( v.getErrorMessage() );
         }
 
         mships.add(_ms);
+      } else if (!isComposite && type.equals(Membership.COMPOSITE)) {
+          _ms = new MembershipDTO();
+          _ms.setCreatorUuid( creatorUUID );
+          _ms.setDepth(0);
+          _ms.setListName( listName );
+          _ms.setListType( listType );
+          _ms.setMemberUuid( this.getMembershipDTO().getMemberUuid() );
+          _ms.setOwnerUuid( ownerUUID );
+          _ms.setParentUuid(null);
+          _ms.setType(Membership.COMPOSITE);
+          _ms.setViaUuid( isMS.getViaUuid() );
+    
+          GrouperValidator v = CompositeMembershipValidator.validate(_ms);
+          if (v.isInvalid()) {
+            throw new IllegalStateException( v.getErrorMessage() );
+          }
+          mships.add(_ms);
+      }
+
+      itHM = hasMembers.iterator();
+
+      while (itHM.hasNext()) {
+        hasMS = itHM.next();
+        if (type.equals(Membership.COMPOSITE)) {
+          _ms = new MembershipDTO();
+          _ms.setCreatorUuid( creatorUUID );
+          _ms.setDepth(0);
+          _ms.setListName( listName );
+          _ms.setListType( listType );
+          _ms.setMemberUuid( hasMS.getMemberUuid() );
+          _ms.setOwnerUuid( isMS.getOwnerUuid() );
+          _ms.setParentUuid(null);
+          _ms.setType(Membership.COMPOSITE);
+          _ms.setViaUuid( isMS.getViaUuid() );
+    
+          GrouperValidator v = CompositeMembershipValidator.validate(_ms);
+          if (v.isInvalid()) {
+            throw new IllegalStateException( v.getErrorMessage() );
+          }
+          mships.add(_ms);
+        } else {
+          if (hasMS.getDepth() == 0) {
+            if (isComposite) {
+              Set<MembershipDTO> newAdditions = _addHasMembersRecursively(isMS, hasMS, isMS, hasMembers,
+                  ownerUUID, creatorUUID, listName, listType, isViaGroupComposite);
+              mships.addAll(newAdditions);
+            } else {
+              Set<MembershipDTO> newAdditions = _addHasMembersRecursively(isMS, hasMS, _ms, hasMembers,
+                  ownerUUID, creatorUUID, listName, listType, isViaGroupComposite);
+              mships.addAll(newAdditions);
+            }
+          }
+        }
       }
     }
 
     return mships;
   } 
+
+  private boolean isViaGroupComposite(MembershipDTO membership) 
+    throws IllegalStateException {
+
+    String uuid = membership.getViaUuid();
+    if (uuid == null) {
+      return false;
+    }
+
+    try {
+      GroupDTO group = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
+      GrouperDAOFactory.getFactory().getComposite().findAsOwner(group);
+      return true;
+    } catch (CompositeNotFoundException e) {
+      return false;
+    } catch (GroupNotFoundException e) {
+      return false;
+    }
+  }
 
   // @since   1.2.0
   private Set _createNewCompositeMembershipObjects(Set memberUUIDs) 
@@ -412,7 +462,8 @@ public class DefaultMemberOf extends BaseMemberOf {
     this.addEffectiveSaves( 
       this._addHasMembersToWhereGroupIsMember(
         GrouperDAOFactory.getFactory().getMembership().findAllByMember( this.getGroup().toMember().getUuid() ), 
-        composites
+        composites,
+        true
       )
     );
 
@@ -478,20 +529,23 @@ public class DefaultMemberOf extends BaseMemberOf {
     this.setMembershipDTO(_ms);
     this.setSession(s);
 
-    Set results = new LinkedHashSet();
-    // If we are working on a group, where is it a member
-    Set isMember = new LinkedHashSet();
-    if ( this.getGroup() != null ) {
-      isMember = GrouperDAOFactory.getFactory().getMembership().findAllByMember( this.getGroup().toMember().getUuid() );
-    }
+    Set<GrouperDTO> results = new LinkedHashSet();
+
     // Members of _m if owner is a group
-    Set hasMembers = this._findMembersOfMember();
-    // Add _m to where owner is member if f == "members"
-    results.addAll( this._addMemberToWhereGroupIsMember(isMember) );
+    Set<MembershipDTO> hasMembers = this._findMembersOfMember();
+
+    // If we are working on a group, where is it a member and f = "members"
+    Set<MembershipDTO> isMember = new LinkedHashSet();
+    if (this.getGroup() != null && this.getField().equals(Group.getDefaultList())) {
+      isMember = GrouperDAOFactory.getFactory().getMembership().findAllByMember( this.getGroup().toMember().getUuid() );
+
+      // Add _m and members of _m to where owner is member
+      results.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers, false) );
+
+    }
+
     // Add members of _m to owner
     results.addAll( this._addHasMembersToOwner(hasMembers) );
-    // Add members of _m to where owner is member if f == "members"
-    results.addAll( this._addHasMembersToWhereGroupIsMember(isMember, hasMembers) );
 
     this.addEffectiveSaves(results);
 
@@ -564,7 +618,7 @@ public class DefaultMemberOf extends BaseMemberOf {
 
   // Find m's hasMembers
   private Set _findMembersOfMember() {
-    Set hasMembers = new LinkedHashSet();
+    Set<MembershipDTO> hasMembers = new LinkedHashSet();
     if (this.getMemberDTO().getSubjectTypeId().equals("group")) {
       hasMembers = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField(
         this.getMemberDTO().getSubjectId(), Group.getDefaultList()
