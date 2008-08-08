@@ -110,14 +110,19 @@ pre {
 }
 #leftColumn {
   margin: 10px 0 0 5px;
-  border: 1px solid #999999;
-  background-color: #eeeef4;
+/*  border: 1px solid #999999;*/
+/*  background-color: #eeeef4;*/
+  border: none;
+  background-color: #ffffff;
+  width: 17em;
 }
 #navcolumn h5 {
   font-size: smaller;
   border-bottom: 1px solid #aaaaaa;
   padding-top: 2px;
   color: #000000;
+  background-color: #ffffff;
+  margin-top: 0.25em;
 }
 
 table.bodyTable th {
