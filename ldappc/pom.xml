@@ -136,11 +136,11 @@
   <distributionManagement>
     <repository>
       <id>internet2_website</id>
-      <url>scpexe://${deployHost}/home/htdocs/middleware.internet2.edu/dir/groups/grouper/ldappc/dist</url>
+      <url>scpexe://${deployHost}${deployPath}/ldappc/dist</url>
     </repository>
     <site>
       <id>internet2_website</id>
-      <url>scpexe://${deployHost}/home/htdocs/middleware.internet2.edu/dir/groups/grouper/ldappc/doc/${pom.version}</url>
+      <url>scpexe://${deployHost}${deployPath}/ldappc/doc/${pom.version}</url>
     </site>
   </distributionManagement>
 
@@ -302,6 +302,7 @@
         <version>2.0-beta-7</version>
         <configuration>
           <locales>en</locales>
+	  <outputEncoding>UTF-8</outputEncoding>
         </configuration>
       </plugin>
 
@@ -695,5 +696,6 @@
     <skipDeploy>true</skipDeploy>
     <skipSite>true</skipSite>
     <skipSource>true</skipSource>
+    <deployPath>/home/htdocs/middleware.internet2.edu/dir/groups/grouper</deployPath>
   </properties>
 </project>
