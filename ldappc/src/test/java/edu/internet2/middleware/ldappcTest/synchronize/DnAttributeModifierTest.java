@@ -18,19 +18,13 @@
 
 package edu.internet2.middleware.ldappcTest.synchronize;
 
-import java.util.Date;
-
 import javax.naming.NameParser;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
-import javax.naming.ldap.LdapContext;
-
-import junit.framework.TestCase;
 
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.synchronize.DnAttributeModifier;

@@ -18,24 +18,16 @@
 
 package edu.internet2.middleware.ldappcTest.dbBuilder;
 
-import junit.framework.TestCase;
-
-
-import edu.internet2.middleware.subject.Subject;
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
-
-
-
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
-
-
-import javax.naming.NamingException;
-import javax.naming.ldap.LdapContext;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing creating a stem and group so that other

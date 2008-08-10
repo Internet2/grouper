@@ -18,17 +18,13 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-
-import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
-import edu.internet2.middleware.ldappcTest.AllJUnitTests;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 
 /**
  * Class for making sure a connection can be make to the Hsql database.

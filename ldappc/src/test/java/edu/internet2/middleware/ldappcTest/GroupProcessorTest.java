@@ -18,31 +18,23 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
+import java.util.Set;
 
-import edu.internet2.middleware.subject.Subject;
-
-
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupNotFoundException;
-import edu.internet2.middleware.grouper.MemberAddException;
 import edu.internet2.middleware.grouper.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.MemberAddException;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
-
-import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-
-import java.util.Set;
-import java.util.Iterator;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Class for testing creating members of a group so that other

@@ -19,7 +19,6 @@ limitations under the License.
 package edu.internet2.middleware.ldappcTest.dbBuilder;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Vector;
 
 import javax.naming.ContextNotEmptyException;

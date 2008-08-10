@@ -25,7 +25,6 @@ import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
-import edu.internet2.middleware.ldappcTest.GrouperProvisionerTest;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.subject.Subject;
 

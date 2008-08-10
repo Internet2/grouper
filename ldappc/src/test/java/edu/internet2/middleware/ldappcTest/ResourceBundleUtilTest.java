@@ -18,10 +18,7 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * Class for making sure a connection can be make to the Hsql database.

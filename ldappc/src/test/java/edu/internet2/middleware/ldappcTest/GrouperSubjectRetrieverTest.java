@@ -18,10 +18,7 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-
 import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
 import edu.internet2.middleware.subject.Subject;
 
 /**

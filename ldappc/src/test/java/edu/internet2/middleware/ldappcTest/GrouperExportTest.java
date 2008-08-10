@@ -18,25 +18,20 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-
-import edu.internet2.middleware.subject.Subject;
-
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SessionException;
-import edu.internet2.middleware.grouper.XmlExporter;
-import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-
 import java.util.Properties;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.XmlExporter;
+import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
+import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for doing a Grouper export

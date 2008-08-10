@@ -25,8 +25,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 
-import junit.framework.TestCase;
-
 import edu.internet2.middleware.ldappc.synchronize.AttributeModifier;
 import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;

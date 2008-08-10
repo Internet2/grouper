@@ -18,13 +18,10 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * Class for testing the GrouperSessionControl class

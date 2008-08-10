@@ -18,12 +18,9 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
+import java.util.List;
 
 import edu.internet2.middleware.ldappc.SignetSubjectRetriever;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
-
-import java.util.List;
 
 /**
  * Class for doing a simple LDAP search

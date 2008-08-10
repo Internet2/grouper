@@ -26,7 +26,6 @@ import java.util.Set;
 import javax.naming.Context;
 import javax.naming.directory.SearchControls;
 
-import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;

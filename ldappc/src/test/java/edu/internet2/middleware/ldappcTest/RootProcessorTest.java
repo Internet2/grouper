@@ -18,20 +18,14 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-
-
-import edu.internet2.middleware.ldappc.ConfigManager;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
+import java.util.Hashtable;
 
 import javax.naming.Context;
-
 import javax.naming.NamingException;
-
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import java.util.Hashtable;
+import edu.internet2.middleware.ldappc.ConfigManager;
 
 /**
  * Class for testing the RootProcessor class

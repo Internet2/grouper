@@ -18,25 +18,18 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
+import java.util.Hashtable;
 
-import edu.internet2.middleware.ldappc.ConfigManager;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
-
-import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
-
-import javax.naming.directory.Attribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.SearchResult;
-import javax.naming.directory.ModificationItem;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchResult;
 
-import java.util.Hashtable;
+import edu.internet2.middleware.ldappc.ConfigManager;
 
 /**
  * Class for doing a simple LDAP search

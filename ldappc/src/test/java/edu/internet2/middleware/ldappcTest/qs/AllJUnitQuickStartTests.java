@@ -21,7 +21,6 @@ package edu.internet2.middleware.ldappcTest.qs;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import edu.internet2.middleware.ldappcTest.SkeletonTest;
 
 /**
  * This class builds a TestSuite out of the individual test classes

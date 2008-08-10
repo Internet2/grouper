@@ -18,16 +18,11 @@
 
 package edu.internet2.middleware.ldappcTest;
 
-import junit.framework.TestCase;
-
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
-
-
-import java.util.GregorianCalendar;
-import java.util.Calendar;
 
 /**
  * InputOptionsTest verifies that arguments input to the InputOptions class constructor

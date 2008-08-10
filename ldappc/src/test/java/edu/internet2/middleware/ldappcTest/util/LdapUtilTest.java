@@ -18,9 +18,6 @@
 
 package edu.internet2.middleware.ldappcTest.util;
 
-import junit.framework.TestCase;
-
-
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;

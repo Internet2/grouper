@@ -18,69 +18,40 @@
 
 package edu.internet2.middleware.ldappcTest.qs;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.SearchControls;
-import javax.naming.ldap.LdapContext;
-
-import junit.framework.TestCase;
-import junit.framework.AssertionFailedError;
-
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
-import edu.internet2.middleware.ldappcTest.GroupProcessor;
-import edu.internet2.middleware.ldappcTest.TestOptions;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
-
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
-import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappc.Ldappc;
-import edu.internet2.middleware.ldappc.ConfigManager;
-import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
-import edu.internet2.middleware.ldappc.GrouperSessionControl;
-import edu.internet2.middleware.ldappc.StemProcessor;
-import edu.internet2.middleware.ldappc.InputOptions;
-import edu.internet2.middleware.ldappc.LdappcProvisionControl;
-
-import edu.internet2.middleware.grouper.AttributeNotFoundException;
-import edu.internet2.middleware.grouper.GroupNameFilter;
-import edu.internet2.middleware.grouper.GrouperQuery;
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
-import edu.internet2.middleware.grouper.GroupAddException;
-import edu.internet2.middleware.grouper.GroupDeleteException;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.MemberNotFoundException;
-import edu.internet2.middleware.grouper.MemberAddException;
-import edu.internet2.middleware.grouper.MemberDeleteException;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.SessionException;
-import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.UnionFilter;
-
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+
+import edu.internet2.middleware.grouper.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupNameFilter;
+import edu.internet2.middleware.grouper.GrouperQuery;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.ldappc.ConfigManager;
+import edu.internet2.middleware.ldappc.GrouperSessionControl;
+import edu.internet2.middleware.ldappc.Ldappc;
+import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.ldappc.util.LdapUtil;
+import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.DisplayTest;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * Class for testing TODO FINISH
  */
