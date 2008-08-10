@@ -36,7 +36,6 @@ import javax.naming.ldap.LdapContext;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
 import edu.internet2.middleware.signet.Signet;
@@ -261,9 +260,9 @@ public class SignetSubjectProvisioner
         //
         // Get the LDAP search filter for the source
         //
-        ConfigManager configuration = ConfigManager.getInstance();
-        LdapSearchFilter filter = configuration.getSourceSubjectLdapFilter(sourceId); 
-        String sourceNameAttr = configuration.getSourceSubjectNamingAttribute(sourceId);
+//        ConfigManager configuration = ConfigManager.getInstance();
+//        LdapSearchFilter filter = configuration.getSourceSubjectLdapFilter(sourceId); 
+//        String sourceNameAttr = configuration.getSourceSubjectNamingAttribute(sourceId);
 //        String subjectIdentifier = subject.getAttributeValue(sourceNameAttr);
         String subjectIdentifier = subject.getAttributeValue("subjectAuthId");
 

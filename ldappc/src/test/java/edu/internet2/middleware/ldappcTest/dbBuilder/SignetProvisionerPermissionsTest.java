@@ -31,12 +31,10 @@ import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 import edu.internet2.middleware.signet.Limit;
 import edu.internet2.middleware.signet.LimitValue;
-import edu.internet2.middleware.signet.Permission;
 import edu.internet2.middleware.signet.Privilege;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
-import edu.internet2.middleware.signet.tree.TreeNode;
 
 /**
  * Class for testing provisioning permissions.
@@ -166,8 +164,8 @@ public class SignetProvisionerPermissionsTest extends BaseTestCase {
         Iterator it = privileges.iterator();
         while (it.hasNext()) {
             privilege = (Privilege) it.next();
-            Permission permission = privilege.getPermission();
-            TreeNode scope = privilege.getScope();
+//            Permission permission = privilege.getPermission();
+//            TreeNode scope = privilege.getScope();
             Set limitValues = privilege.getLimitValues();
             LimitValue limitValue = null;
             Limit limit = null;
