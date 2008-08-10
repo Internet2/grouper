@@ -45,7 +45,6 @@ public final class ResourceBundleUtil
     static
     {
         Locale currentLocale;
-        ResourceBundle messages;
         currentLocale = Locale.getDefault();
         bundle = ResourceBundle.getBundle(LDAPPC_PROPERTIES_FILE, currentLocale);
     }
