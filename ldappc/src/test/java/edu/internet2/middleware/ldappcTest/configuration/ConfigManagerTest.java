@@ -728,7 +728,7 @@ public class ConfigManagerTest extends BaseTestCase
             //
             // Get the configuration manager and validate all of the entries
             //
-            ConfigManager cm = ConfigManager.load(ConfigManager.getSystemResourceURL(INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE, true).toString());
+            ConfigManager.load(ConfigManager.getSystemResourceURL(INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE, true).toString());
 //            ConfigManager cm = ConfigManager.load(INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE);
             fail("Test failed : File without ldappc element parsed without error.");
         }

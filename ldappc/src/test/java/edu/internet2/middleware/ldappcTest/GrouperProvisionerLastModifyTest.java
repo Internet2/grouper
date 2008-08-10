@@ -268,7 +268,8 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
         // Restrict search scope to reduce execution time.
         // override ldappc.xml file to require the groups to be in a particular stem.
         //
-        Set<String> stemQueries = configManager.getGroupSubordinateStemQueries();
+        // Why are we calling this?
+        configManager.getGroupSubordinateStemQueries();
 
         //
         // Use reflection to call: configManager.resetGroupSubordinateStemQueries();
@@ -305,7 +306,6 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
         String methodName = "setLastModifyTime";
         Class[] formalParams = new Class[1];
         formalParams[0] = Date.class;
-        InputOptions invokingInstance = options;
         //actualParams = new Date[];
         Object[] actualParams = null;
         actualParams = new Object[1];

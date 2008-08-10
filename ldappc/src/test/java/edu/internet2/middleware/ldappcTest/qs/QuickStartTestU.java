@@ -372,16 +372,6 @@ public class QuickStartTestU extends BaseTestCase
             ConfigManager cm = ConfigManager.getInstance();
             String rdnAttr = ConfigManager.getInstance().getGroupDnRdnAttribute();
 
-            //
-            // Get  the LDAP entry attribute containing the list of Members names which
-            // belong to the Group. 
-            // Explicitly, get the group-members-name-list element's
-            // attribute, list-attribute (e.g. "hasMember").
-            //
-            String groupMembersNameListAttr = cm.getGroupMembersNameListAttribute();
-            // Get a Map of source names to subject attribute names
-            Map groupMembersNameListNamingAttributes = cm.getGroupMembersNameListNamingAttributes();
-
             // Get a HashMap containing a list of groups as keys with values of a list
             // of names of members.
             HashMap groupAndMembers = hasMemberSearch();
@@ -396,7 +386,7 @@ public class QuickStartTestU extends BaseTestCase
                 //
                 group = (Group) groups.next();
                 String groupRdn = rdnAttr + "=" + LdapUtil.makeLdapNameSafe(group.getName());
-                String groupDn = groupRdn + "," + grouperGroupRootDn;
+
                 //
                 // Get membership process it
                 //
@@ -559,7 +549,6 @@ public class QuickStartTestU extends BaseTestCase
     private HashMap hasMemberSearch() 
     {
         HashMap groupAndMembers = new HashMap();
-        HashSet members = new HashSet();
         // Specify the attributes to match
         Attributes matchAttrs = new BasicAttributes(true); // ignore attribute name case
         matchAttrs.put(new BasicAttribute("hasMember"));

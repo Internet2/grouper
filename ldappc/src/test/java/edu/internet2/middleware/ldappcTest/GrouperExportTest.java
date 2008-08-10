@@ -181,10 +181,9 @@ public class GrouperExportTest extends BaseTestCase
             assertEquals("GrouperSystem", subject.getName());
         }
         
-        GrouperSession grouperSession = null;
         try
         {
-            grouperSession = GrouperSession.start(subject);
+            GrouperSession.start(subject);
         }
         catch(SessionException se)
         {

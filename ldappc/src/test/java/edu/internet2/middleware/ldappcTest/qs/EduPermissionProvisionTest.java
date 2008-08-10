@@ -219,7 +219,6 @@ public class EduPermissionProvisionTest extends BaseTestCase
             //
             // Iterate through the groups building set of names
             //
-            String rdnAttr = ConfigManager.getInstance().getGroupDnRdnAttribute();
             Map<Name, Map<String, Set<String>>> signetPermissions = new HashMap<Name, Map<String, Set<String>>>();
             for (AssignmentImpl assignment : signetAssignments) {
                 SignetSubject privSubj = assignment.getGrantee();

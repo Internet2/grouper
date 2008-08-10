@@ -245,7 +245,7 @@ public class GroupProcessorTest extends BaseTestCase
         //
         try
         { 
-            Group testGroup31Member = GroupFinder.findByUuid(grouperSession, testGroup21.getUuid());
+            GroupFinder.findByUuid(grouperSession, testGroup21.getUuid());
         } 
         catch (GroupNotFoundException mnfe)
         {

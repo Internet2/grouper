@@ -20,7 +20,6 @@ package edu.internet2.middleware.ldappcTest;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -190,11 +189,11 @@ public class HsqlConnectionTest extends BaseTestCase
             }
             */
 
-            //ResultSet rs = st.executeQuery("select * from Subject");
+            //st.executeQuery("select * from Subject");
             // or
-            //ResultSet rs = st.executeQuery("select * from individual");
+            //st.executeQuery("select * from individual");
               
-            ResultSet rs = st.executeQuery("select * from " + subjectOrIndividual);
+            st.executeQuery("select * from " + subjectOrIndividual);
         }
         catch(SQLException se)
         {

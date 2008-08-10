@@ -221,7 +221,6 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
             //
             // Iterate through the groups building set of names
             //
-            String rdnAttr = ConfigManager.getInstance().getGroupDnRdnAttribute();
             Set<Name> grouperGroupNames = new HashSet<Name>();
             for (Group group : provisionedGroups) {
                 grouperGroupNames.add(buildGroupDn(group));
@@ -335,11 +334,6 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
             String[] ldapAttrArray = (String[]) ldapAttributes.toArray(new String[0]);
 
             //
-            // Get the RDN attribute name
-            //
-            String rdnAttr = configuration.getGroupDnRdnAttribute();
-
-            //
             // For each group, make sure grouper attribute value matches the
             // ldap attribute value
             //
@@ -391,18 +385,6 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
      */
     public void internalTestProvisionedGroupNameMembershipList() {
         DisplayTest.showRunTitle("Verifying provisioned group name membership list");
-
-        String rdnAttr = configuration.getGroupDnRdnAttribute();
-
-        //
-        // Get the LDAP entry attribute containing the list of Members names
-        // which belong to the Group.
-        // Explicitly, get the group-members-name-list element's
-        // attribute, list-attribute (e.g. "hasMember").
-        //
-        String groupMembersNameListAttr = configuration.getGroupMembersNameListAttribute();
-        // Get a Map of source names to subject attribute names
-        Map groupMembersNameListNamingAttributes = configuration.getGroupMembersNameListNamingAttributes();
 
         // Get a HashMap containing a list of groups as keys with values of a
         // list of names of members.
