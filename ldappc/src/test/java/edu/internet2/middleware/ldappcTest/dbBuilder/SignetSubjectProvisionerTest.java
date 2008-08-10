@@ -26,7 +26,6 @@ import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing creating a stem and group so that other
@@ -44,11 +43,6 @@ public class SignetSubjectProvisionerTest extends BaseTestCase
      */
 
     private SignetSubjectProvisioner signetSubjectProvisioner;
-
-    /**
-     * a subject
-     */
-    private Subject subject;
     
     /**
      * Ldap Context

@@ -34,7 +34,6 @@ import edu.internet2.middleware.signet.choice.Choice;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for examining Signet data
@@ -43,11 +42,6 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class SignetUtil extends TestCase
 {
-    /**
-     * a subject
-     */
-    private Subject subject;
-
     /**
      * Constructor
      */

@@ -21,13 +21,11 @@ package edu.internet2.middleware.ldappcTest.dbBuilder;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing creating a stem and group so that other
@@ -45,21 +43,6 @@ public class GrouperSubjectProvisionerTest extends BaseTestCase
      */
 
     private GrouperSubjectProvisioner grouperSubjectProvisioner;
-
-    /**
-     * a subject
-     */
-    private Subject subject;
-    
-    /**
-     * the grouper session
-     */
-    private GrouperSession grouperSession;
-
-    /**
-     * the grouper session controller
-     */
-    private GrouperSessionControl grouperSessionControl;
 
 
     /**
@@ -83,8 +66,6 @@ public class GrouperSubjectProvisionerTest extends BaseTestCase
         {
             fail("Could not start grouper session");
         }
-        grouperSession = grouperSessionControl.getSession();
-
 
         LdapContext ctx = null;
         try

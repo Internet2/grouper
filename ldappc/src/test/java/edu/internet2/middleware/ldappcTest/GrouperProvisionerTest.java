@@ -25,7 +25,6 @@ import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.LdappcProvisionControl;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing creating members of a group so that other
@@ -53,16 +52,6 @@ public class GrouperProvisionerTest extends BaseTestCase
      * the grouper session
      */
     private GrouperSession grouperSession;
-
-    /**
-     * the grouper session controller
-     */
-    private GrouperSessionControl grouperSessionControl;
-
-    /**
-     * a subject
-     */
-    private Subject subject;
 
     /**
      * Constructor

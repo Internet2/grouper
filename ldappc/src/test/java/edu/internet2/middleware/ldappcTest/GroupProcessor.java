@@ -51,7 +51,7 @@ public class GroupProcessor
     {
         this.grouperSession = grouperSession;
 
-        if (grouperSession == null)
+        if (this.grouperSession == null)
         {
             ErrorLog.fatal(this.getClass(), "DEBUG in GroupProcessor constructor, grouperSession is NULL.");
         }

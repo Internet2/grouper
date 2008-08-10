@@ -30,7 +30,6 @@ import edu.internet2.middleware.grouper.MemberAddException;
 import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
-import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -66,16 +65,6 @@ public class GroupProcessorTest extends BaseTestCase
      * the group processor
      */
     private GroupProcessor groupProcessor;
-
-    /**
-     * the grouper session controller
-     */
-    private GrouperSessionControl grouperSessionControl;
-
-    /**
-     * the grouper subject retriever
-     */
-    private GrouperSubjectRetriever grouperSubjectRetriever;
 
     /**
      * a subject

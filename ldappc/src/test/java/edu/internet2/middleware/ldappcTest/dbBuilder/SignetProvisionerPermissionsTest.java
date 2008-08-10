@@ -37,7 +37,6 @@ import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetRuntimeException;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
 import edu.internet2.middleware.signet.tree.TreeNode;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * Class for testing provisioning permissions.
@@ -49,11 +48,6 @@ public class SignetProvisionerPermissionsTest extends BaseTestCase {
      * the LdappcSignetProvisioner instance
      */
     private LdappcSignetProvisioner ldappcSignetProvisioner;
-
-    /**
-     * a subject
-     */
-    private Subject                 subject;
 
     /**
      * the input options
