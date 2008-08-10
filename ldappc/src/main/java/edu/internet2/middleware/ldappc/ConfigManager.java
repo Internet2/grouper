@@ -953,7 +953,7 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      * for creating subordinate stem queries. It is used only for testing to
      * override the ldappc.xml file values.
      */
-    private void resetGroupSubordinateStemQueries()
+    public void resetGroupSubordinateStemQueries()
     {
         groupSubordinateStemQueries = new HashSet();
     }
