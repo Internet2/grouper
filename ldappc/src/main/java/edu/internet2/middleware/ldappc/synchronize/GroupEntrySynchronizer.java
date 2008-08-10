@@ -295,28 +295,6 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
     }
 
     /**
-     * Returns a boolean indicating if an attribute is a <i>must</i> (i.e.,
-     * required) attribute. If the ldap schema is not available, this method
-     * returns the default value provided. This is a wrapper around
-     * {@link Synchronizer#isAttributeRequired(LdapContext, Name, String, String,boolean)}.
-     * 
-     * @param objectClass
-     *            Object class of the attribute
-     * @param attribute
-     *            Attribute name
-     * @param isRequired
-     *            Default value returned if the ldap schema is not available
-     * @return <code>true</code> if the attribute is required, and
-     *         <code>false</code> otherwise.
-     * @throws NamingException
-     *             thrown if a Naming error occurs.
-     */
-    private boolean isAttrRequired(String objectClass, String attribute, boolean isRequired) throws NamingException
-    {
-        return isAttributeRequired(getContext(), getRoot(), objectClass, attribute, isRequired);
-    }
-
-    /**
      * This identifies the underlying group as one that must remain or, if need
      * be, must be added to the subject's LDAP entry. If the group has already
      * been provisioned to the entry, it will remain within the subject's LDAP
