@@ -163,7 +163,7 @@ public class GroupStringMembershipSynchronizer extends GrouperSynchronizer
         // DebugLog.info("Updating memberships for group " + groupNameString);
         for (Map.Entry<String, LdapSearchFilter> entry : getConfiguration().getSourceSubjectLdapFilters().entrySet())
         {
-            String sourceId = entry.getKey();
+            //String sourceId = entry.getKey();
             LdapSearchFilter ldapSearchFilter = entry.getValue();
 
             // set search result attributes
