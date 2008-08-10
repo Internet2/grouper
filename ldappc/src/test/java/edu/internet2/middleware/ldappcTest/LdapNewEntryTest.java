@@ -121,6 +121,8 @@ public class LdapNewEntryTest extends BaseTestCase
             while (list.hasMore()) 
             {
                 javax.naming.NameClassPair nc = (javax.naming.NameClassPair)list.next();
+                // Do something with nc.
+                nc.getClass();
             }
         }
         catch(NamingException ne)
@@ -143,6 +145,8 @@ public class LdapNewEntryTest extends BaseTestCase
             while (list.hasMore()) 
             {
                 javax.naming.NameClassPair nc = (javax.naming.NameClassPair)list.next();
+                // Do something with nc.
+                nc.getClass();
             }
         }
         catch(NamingException ne)
@@ -188,6 +192,8 @@ public class LdapNewEntryTest extends BaseTestCase
             while (listBindings.hasMore()) 
             {
                 javax.naming.NameClassPair nc = (javax.naming.NameClassPair)listBindings.next();
+                // Do something with nc.
+                nc.getClass();
             }
         }
         catch(NamingException ne)
@@ -199,6 +205,8 @@ public class LdapNewEntryTest extends BaseTestCase
         try
         {
             NamingEnumeration list = ctx.list(administrator);
+            // Do something with list.
+            list.getClass();
             ctx.unbind("ou=testOrgUnit2," + AllJUnitTests.DN_TEST_BASE);
             ctx.unbind("cn=testPerson," + AllJUnitTests.DN_TEST_BASE);
         }
@@ -298,6 +306,8 @@ public class LdapNewEntryTest extends BaseTestCase
                 while (namingEnumeration.hasMore()) 
                 {
                     binding = (Binding)namingEnumeration.next();
+                    // Do something with binding.
+                    binding.getClass();
                     //System.out.println("DEBUG in LdapNewEntryTest,binding=" + binding);
                 }
             }    
