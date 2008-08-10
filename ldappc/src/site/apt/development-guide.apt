@@ -16,75 +16,39 @@
 ~~ limitations under the License.
 
  -----
- Deployment Guide
+ Development Guide
  -----
 
-  This document describes how to deploy the Ldappc program.
+  This document describes how to modify and/or update the Ldappc program.
 
   To run this program you will need a working Grouper and/or Signet installation,
   and an LDAP directory to provision.
 
-  The Ldappc program is available in both binary and source distribution files,
-  or you may check out the source from CVS.  Unless you make changes to the source,
-  or wish to run the test suite against your own directory there is no need to
-  download the source distribution.
-  
-  This page describes a binary installation. See {development-guide.html} for
-  information on downloading and deploying from the source distribution, and
-  on how to make changes to ldappc's source code.
+  To develop the Ldappc program you will need a source source distribution, available
+  as a download, or you may check out the source from CVS.
 
-Table of Contents
+{Table of Contents}
 
 %{toc}
 
-{Binary Installation}
+{Source Installation}
 
-  The binary distribution file is available as a compressed tar file or as a zip file.
-  Download either and unpack it into the directory of your choice.
-  This will create a subdirectory of <<<ldappc-theVersionNumber>>>, which will
-  be referred to as the installation directory.  All commands should be run from the
-  installation directory.
+  The source distribution file is available as a compressed tar file or as a zip file.
+  The source is also available from the Internet2 CVS repository by anonymous check out.  See the
+  {{{source-repository.html}source repository}} for instructions on accessing the
+  source from CVS.
 
-  The directory structure created in the installation directory is as follows:
+  The source distribution file contains the site documentation in the site directory.
+  If you check out the source from CVS, you will have to build the site documentation yourself.
 
-*------------------------+------------------------------------------------+
-| <<Directory>>          | <<Discussion>>                                 |
-*------------------------+------------------------------------------------+
-| <<<bin>>>              | Runner scripts                                 |
-*------------------------+------------------------------------------------+
-| <<<\ \ \ ldappc.bat>>> | Windows runner script                          |
-*------------------------+------------------------------------------------+
-| <<<\ \ \ ldappc.sh>>>  | UN*X runner script                             |
-*------------------------+------------------------------------------------+
-| <<<conf>>>             | Sample config files: ldappc.xml file template  |
-*------------------------+------------------------------------------------+
-| <<<lib>>>              | Jar files, including ldappc jar                |
-*------------------------+------------------------------------------------+
-| <<<LICENSE.txt>>>      | License file                                   |
-*------------------------+------------------------------------------------+
-| <<<logs>>>             | Log files                                      |
-*------------------------+------------------------------------------------+
-| <<<README.txt>>>       | Readme file                                    |
-*------------------------+------------------------------------------------+
-| <<<site>>>             | Documentation files, including project reports |
-*------------------------+------------------------------------------------+
-| <<<\ \ \ apidoc ...>>> | Javadoc files                                  |
-*------------------------+------------------------------------------------+
-| <<<\ \ \ index.html>>> | Main site documentation file                   |
-*------------------------+------------------------------------------------+
-| <<<\ \ \ supplement>>> | Doc file integrated with Javadoc files         |
-*------------------------+------------------------------------------------+
-| <<<\ \ \ ...>>>        | Additional documentation files                 |
-*------------------------+------------------------------------------------+
-
-  You will need to copy the jdbc driver jar for your database into the lib directory.
-
-  See the {{{user-manual.html}user manual}} for information on configuring and running
-  the Ldappc program.
+  If you download the distribution file and unpack it in a directory of your choice, you will
+  see a subdirectory titled <<<ldappc-theVersionNumber>>>. If you download the source from CVS,
+  the directory will just be called <<<ldappc>>>. In either case, this directory will be called the
+  installation directory.  All commands should be run from the installation directory.
 
 * {Prerequisites}
 
-  The following are required to run Ldappc.
+  The following are required to build Ldappc from source.
 
 ** {Java JDK 1.5 or Later}
 
@@ -93,11 +57,26 @@ Table of Contents
   Sun JDK is recommended for Windows and UN*X systems.  The Apple JDK is recommended for
   Mac OS X.
 
+** {Maven}
+
+  The ldappc project uses Apache Maven as its build environment.  The project was built using
+  version 2.0.9, but later versions should also work.  Maven may already be installed on your
+  system, but if not, it can be obtained from {{http://maven.apache.org}},
+  and installed.  The mvn command must be in your path.
+
+  Discussion of Maven is beyond the scope of this document.  See {{http://maven.apache.org}}
+  for more information.
+
 ** {LDAP Server}
 
   You will need an LDAP server as a provisioning destination for Ldappc.  Any standard
   LDAP server should work.  To our knowledge, Ldappc has been run with Sun Directory Server,
   OpenLDAP, Fedora Directory Server, and Apache Directory Server.
+
+  By default, the built-in tests are done against embedded Grouper and Signet databases, and
+  an embedded copy of the Apache Directory Server, but if you wish to test against your own
+  database and/or LDAP server, you can edit the <<<ldappc*.xml>>>, and <<<ldappc.properties>>>
+  files in the <<<src/test/resources>>> directory to reflect this.
 
   See {{{Configuring_LDAP}Configuring LDAP}} for details.
 
@@ -106,8 +85,9 @@ Table of Contents
   The first step in the installation is to unpack the installation archive
   file to an installation directory of your choice.
   This will create a subdirectory of <<<ldappc-theVersionNumber>>>, which will
-  be referred to as the installation directory.  All commands must be run from
-  the installation directory.
+  be referred to as the installation directory.  If you checked out the source from CVS,
+  the directory will be called <<<ldappc>>>, but it will still be referred to as the installation
+  directory.  All commands must be run from the installation directory.
 
 ** {The Maven Repository}
 
@@ -286,7 +266,7 @@ mvn site package -Pdistribution
   Make sure that you have the <<<JAVA_HOME>>> environment variable set
   to point to the JDK1.5.  The code has been tested with JDK1.5 only.
 
-* {Optional Advanced User Testing Configuration}
+* {Optional Advanced User Testing Configurations}
 
   The test configuration files are in the <<<src/test/resources>>> directory
   and are set up to allow overriding a variety of defaults for testing.

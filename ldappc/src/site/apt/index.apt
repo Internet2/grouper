@@ -31,20 +31,28 @@
 
   See:
 
-*---------------------------------------+----------------------------------------------+
-| {{{architecture.html}Architecture}}   | for information about the code architecture. |
-*---------------------------------------+----------------------------------------------+
+*---------------------------------------+-------------------------------------------------------------------------------------------------+
 | {{{deployment-guide.html}Deployment Guide}} | for information on deploying the code for development purposes or as an end-user product. |
-*---------------------------------------+----------------------------------------------+
-| {{{design.html}Design}}               | for more detailed design information.        |
-*---------------------------------------+----------------------------------------------+
-| {{{examples.html}Examples}}           | for configuration examples.                  |
-*---------------------------------------+----------------------------------------------+
-| {{{faq.html}FAQ}}                     | Frequently Asked Questions                   |
-*---------------------------------------+----------------------------------------------+
-| {{{ldap-guide.html}LDAP Guide}}       | for information about LDAP in general.       |
-*---------------------------------------+---------------------------------------------------+
-| {{{release-notes.html}Release Notes}} | for the release notes for this version of ldappc. |
-*---------------------------------------+---------------------------------------------------+
-| {{{user-manual.html}User Manual}}     | for information on using the product.        |
-*---------------------------------------+----------------------------------------------+
+*---------------------------------------+-------------------------------------------------------------------------------------------------+
+| {{{deployment-guide.html}Deployment Guide}} | for information on making changes to Ldappc. |
+*---------------------------------------+----------------------------------------------------+
+| {{{examples.html}Examples}}           | for configuration examples.                        |
+*---------------------------------------+----------------------------------------------------+
+| {{{faq.html}FAQ}}                     | Frequently Asked Questions                         |
+*---------------------------------------+----------------------------------------------------+
+| {{{release-notes.html}Release Notes}} | for the release notes for this version of ldappc.  |
+*---------------------------------------+----------------------------------------------------+
+| {{{user-manual.html}User Manual}}     | for information on using the product.              |
+*---------------------------------------+----------------------------------------------------+
+
+  Also see the design documents:
+  
+*---------------------------------------+----------------------------------------------------+
+| {{{architecture.html}Architecture}}   | for information about the code architecture.       |
+*---------------------------------------+----------------------------------------------------+
+| {{{design.html}Design}}               | for more detailed design information.              |
+*---------------------------------------+----------------------------------------------------+
+| {{{ldap-guide.html}LDAP Guide}}       | for information about LDAP in general.             |
+*---------------------------------------+----------------------------------------------------+
+| {{{maven-resources.html}Maven Resources}} | for references to information about Maven.     |
+*---------------------------------------+----------------------------------------------------+
