@@ -290,7 +290,7 @@ public class InputOptions implements GrouperProvisionerOptions, SignetProvisione
      */
     private void setConfigManagerLocation(String configManagerLocation)
     {
-        this.configManagerLocation = configManagerLocation;
+        this.configManagerLocation = "file:" + configManagerLocation;
     }
 
     /**
