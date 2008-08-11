@@ -339,3 +339,29 @@ Ldappc Processing
   parsed DN strings.  This ensures that DNs will always compare correctly.  For example,
   the two DNs <first=fred+last=flintstone,ou=bedrock> and <last=flintstone+first=fred,ou=bedrock>
   will compare equal.
+
+Performance Tuning
+
+  There are several ways in which the time required for a provision cycle can be reduced.
+  The groups and source-subject-identifier elements each have an initial-cache-size attribute,
+  which can be used to perform an initial allocation of the hash tables used to store groups
+  to be deleted and subjects retrieved from the Subject API. Setting these values to a prime number
+  larger than the number of groups or subjects can reduce the run time.
+
+  Another important consideration is the number of lookups done in the Subject API.
+  If the Subject ID in Grouper is stored in the LDAP directory and is indexed, which is highly recommended,
+  then the Subject API need not be queried to retrieve search criteria for the LDAP object.
+  This can speed up run times considerably. Specifying:
+
+---
+<source-subject-identifier source="example"
+                           subject-attribute="id"
+                           initial-cache-size="170001">
+    <ldap-search base="ou=people,dc=example,dc=edu"
+                 scope="onelevel_scope"
+                 filter="(&(subjectId={0})(objectclass=eduPerson))" />
+</source-subject-identifier>
+---
+
+  will search the directory by criteria directly available from Grouper.
+ 
