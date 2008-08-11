@@ -356,7 +356,7 @@ Performance Tuning
 ---
 <source-subject-identifier source="example"
                            subject-attribute="id"
-                           initial-cache-size="170001">
+                           initial-cache-size="170003">
     <ldap-search base="ou=people,dc=example,dc=edu"
                  scope="onelevel_scope"
                  filter="(&(subjectId={0})(objectclass=eduPerson))" />
