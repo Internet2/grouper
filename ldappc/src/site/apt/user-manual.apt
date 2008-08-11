@@ -364,4 +364,12 @@ Performance Tuning
 ---
 
   will search the directory by criteria directly available from Grouper.
- 
+
+  There is a GetNextPrime class in ldappc which can be used to find the smallest prime greater than or equal to
+  a particular integer. You can run
+
+---
+java -cp lib/ldappc-theVersionNumber.jar edu.internet2.middleware.ldappc.util.GetNextPrime 300000
+---
+
+  and it will print the value "300007", which is the smallest prime greater than or equal to "300000".
