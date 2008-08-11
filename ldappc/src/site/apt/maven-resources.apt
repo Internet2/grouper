@@ -27,13 +27,14 @@
   
   For information on Maven, see:
   
-*------------------------------------+-------------------------+
-| {{http://maven.apache.org}}        | The main Maven web site |
-|                                    | Download Maven here     |
-*------------------------------------+--------------------------------------------+
-| {{http://maven.apache.org/doxia/}} | The Doxia web site                         |
-|                                    | Documents Maven's APT documentation format |
-*------------------------------------+-----------------------------------------------------------------------------------+
-| {{http://www.sonatype.com/book}}   | Maven: The Definitive Guide                                                       |
-|                                    | The best single book about Maven, available in browsable HTML or downloadable PDF |
-*------------------------------------+-----------------------------------------------------------------------------------+
+*---+---+
+| {{http://maven.apache.org}} | The main Maven web site |
+| | Download Maven here, and read documentation about plugins and other configuration. |
+*---+---+
+| {{http://maven.apache.org/doxia/}} | The Doxia web site |
+| | Documents Maven's APT documentation format. |
+*---+---+
+| {{http://www.sonatype.com/book}}   | Maven: The Definitive Guide |
+| | The best single book about Maven, available in browsable HTML or downloadable PDF. |
+| | This book is in beta format now, and will soon be published by O'Reilly. |
+*---+---+
