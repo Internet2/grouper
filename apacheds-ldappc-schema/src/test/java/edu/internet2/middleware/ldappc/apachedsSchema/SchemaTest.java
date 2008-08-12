@@ -104,7 +104,7 @@ public class SchemaTest extends AbstractServerTest {
                 isEduMemberFound = true;
             }
 
-            if (id.indexOf("1.3.6.1.4.1.5923.1.1.123456789") != -1) {
+            if (id.indexOf("1.3.6.1.4.1.5923.1.8") != -1) {
                 isEduPermissionFound = true;
             }
 
