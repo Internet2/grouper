@@ -87,6 +87,12 @@
 
   If the "-interval" parameter is present, the Program will continue to operate
   until killed; otherwise, it performs one provisioning cycle and terminates.
+  
+  If the "-configManager" option is present, the configuration is read from the specified file,
+  otherwise it will read it from the <<<ldappc.xml>>> and <<<ldappc.properties>>> files in
+  the class path.  Since the <<<conf>>> directory is included in the class path, that is
+  where the <<<ldappc.xml>>> and <<<ldappc.properties>>> files are generally placed.
+  (The <<<ldappc.properties>>> file is optional and contains the LDAP password.)
 
 {The Configuration File}
 
