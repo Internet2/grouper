@@ -282,7 +282,7 @@
   language preferences>. Deployers will need to select attribute names 
   appropriately for their environment.
 
-  The provisioning process assumes that attribute values returned from the Ldap server
+  The provisioning process assumes that attribute values returned from the LDAP server
   via Java JNDI are strings.  It is possible that some attribute values are not returned as strings.
   This is dependent on the directory server and the JNDI service provider. For example,
   Sun's LDAP provider uses byte arrays to represent attribute values with non-string 
