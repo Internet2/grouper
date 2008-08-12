@@ -30,6 +30,8 @@
   {{{development-guide.html}development guide}} for information on downloading and
   deploying from the source distribution, and on how to make changes to ldappc's source code.
 
+  Contents
+  
 %{toc}
 
 {Prerequisites}

@@ -21,6 +21,8 @@
 
   This document describes how to configure the <<<ldappc.xml>>> file.
   
+  Contents
+  
 %{toc}
   
 {Top Level Elements}

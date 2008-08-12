@@ -21,7 +21,11 @@
 
   This document describes some sample configuration files for the Ldappc program.
   
-Basic Grouper Example
+  Contents
+  
+%{toc}
+  
+{Basic Grouper Example}
 
   The following example will provision groups in the stems "testStem" and "qsuob" into LDAP
   under "ou=testGrouper,dc=example,dc=edu".
@@ -101,7 +105,7 @@ Basic Grouper Example
 </ldappc>
 ---
 
-Attribute-based Grouper Query Example
+{Attribute-based Grouper Query Example}
 
   The following XML snippet would replace the "<group-queries>" element in the example above to query by presence
   of a value of an attribute instead of by entire stems.  The example below will provision any group into LDAP
