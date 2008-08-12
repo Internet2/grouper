@@ -22,57 +22,43 @@
   This document describes the experimental <eduPermission> object class
   designed for use by the Ldappc program to provision Signet Permissions
   into an LDAP directory as objects rather than as coded permission strings.
+  
+  This object class was initially described in
+  {{{../supplement/ldapConnectorRfq_8-15-06.html#eduPermission}Request for Quote -
+  LDAP Connector for Grouper & Signet}}.
 
-  <<NOTE>>: The following OID has been registered for the eduPermission objectclass: <<1.3.6.1.4.1.5923.1.8>>
+Introduction
 
-  draft-barton-eduPermission-oc-01\
-  Tom Barton\
-  29 February 2006\
-  Comments to: tbarton at uchicago dot edu\
-  expires 29 August 2006
+  The {{{http://signet.internet2.edu}Signet Privilege Management Toolkit}}
+  produces XML documents that express a set of permissions assigned to each
+  of a set of subjects. These documents are used by "provisioning connectors"
+  or systems integration software to map permissions into suitable representations
+  in application contexts.
 
-  <<eduPermission Object Class>>
-
-  Abstract: An LDAP objectclass is defined to faciliate the expression of\
-  permissions managed by the Signet Privilege Management Toolkit(TM).
-
-1. Introduction
-
-  The Signet Privilege Management Toolkit ([1]) produces XML documents that\
-  express a set of permissions assigned to each of a set of subjects. These\
-  documents are used by "provisioning connectors" or systems integration\
-  software to map permissions into suitable representations in application\
-  contexts.
-
-  It is convenient for some or all permissions to be presented in an LDAP\
-  directory to support LDAP-enabled applications, or to enable an\
-  LDAP-integrated SAML Attribute Authority to provide corresponding attribute\
+  It is convenient for some or all permissions to be presented in an LDAP
+  directory to support LDAP-enabled applications, or to enable an
+  LDAP-integrated SAML Attribute Authority to provide corresponding attribute
   assertions to SAML Service Providers, in accord with its operational policy.
 
-  This document presents a specification for representing Signet permissions in\
-  LDAP. It takes the approach of attaching a subentry representing (a portion\
-  of) each permission to the entry granted the permission. How that entry is\
-  identified is outside of the scope of this document (although it's a\
-  straightforward application of the Subject API that's included with the\
-  Signet Privilege Management Toolkit).
+  This document presents a specification for representing Signet permissions in
+  LDAP. It takes the approach of attaching a subentry representing a portion
+  of each permission to the entry granted the permission. How that entry is
+  identified is outside of the scope of this document, although it's a
+  straightforward application of the Subject API that's included with the
+  Signet Privilege Management Toolkit.
 
-  The objectclass for such subentries is specified in section 2.
+  The object class for such subentries is specified below.
 
-  The RDN of each eduPermission object is the triple of\
-  eduPermissionSubsytemId, eduPermissionId, and eduPermissionLimitId. One\
-  subentry instance is emplaced for each unique combination of these three\
-  attributes in a Signet permissions document scoped to the subject to whom the\
-  permissions are being granted.
+  The RDN of each eduPermission object is the quadruple of
+  eduPermissionSubsytemId, eduPermissionFunctionId, eduPermissionId, and
+  eduPermissionLimitId. One subentry instance is emplaced for each unique
+  combination of these three attributes in a Signet permissions document
+  scoped to the subject to whom the permissions are being granted.
 
-2. eduPermission Objectclass
+The eduPermission Objectclass
 
-  \<need to insert a representation of the permissions doc element structure,\
+  \<need to insert a representation of the permissions doc element structure,
   including cardinality, and talk about how it's mapped to this objectclass\>
 
   The eduPermission object class is defined in the
-  {{{eduPermission/eduPermission.schema}eduPermission.schema}} file.
-
-3. References
-
-  [1] http://signet.internet2.edu
-  [2] https://wiki.internet2.edu/confluence/display/i2miCommon/Ldappc
+  {{{eduPermission.schema}eduPermission.schema}} file.
