@@ -153,9 +153,9 @@
 
   * <<structure>>: defines the DN naming structure for groups. Required.\
     Its value must be either "flat" or "bushy".
-    This will either provision all groups into the same root DN using the name of the group as the RDN,
-    e.g. <<<my:stem:value:subordinate:group-name>>>, or it will populate the groups in a hierarchical
-    fashion, e.g. <<<cn=group\-name,ou=subordinate,ou=value,ou=stem,ou=my,>>><root-dn>.
+    This will either provision all groups into the same root DN using the name of the group as the RDN
+    (e.g. <<<my:stem:value:subordinate:group-name>>>) or it will populate the groups in a hierarchical
+    fashion (e.g. <<<cn=group\-name,ou=subordinate,ou=value,ou=stem,ou=my,>>><root-dn>).
     
   * <<root-dn>>: the object to be used as the root for storing the provisioned groups
     (e.g. <<<ou=grouper,ou=groups,dc=example,dc=edu>>>). Required.
@@ -419,7 +419,7 @@
     provisioning process, then an error may occur.
 
   * <<string-attribute>>: the LDAP entry attribute in which to store permissions if stored-as is set to "string"
-    (e.g., permissionStrings).  This attribute is required if stored-as is "string", otherwise it is ignored.
+    (e.g., permission strings).  This attribute is required if stored-as is "string", otherwise it is ignored.
 
   * <<string-prefix>>: the prefix to use when storing permissions as strings. Optional.\
     This prefix is inserted at the beginning of each permissions string.
@@ -505,10 +505,10 @@
   * <<initial-cache-size>>: specifies the initial cache size to use for caching subject DNs by subject ID. Optional.\
     Specifying a larger number than the number of subjects should give better performance.
 
-  * <<source>>: the Subject Source ID (e.g., "g:gsa").
+  * <<source>>: the Subject Source ID (e.g., <<<g:gsa>>>).
 
-  * <<subject-attribute>>: The name of the Subject naming attribute to be used (e.g., "account"). Required.\
-    If a value other than "id" (the subject ID) is specified, the performance will suffer as an extra Subjec
+  * <<subject-attribute>>: The name of the Subject naming attribute to be used (e.g., <<<account>>>). Required.\
+    If a value other than "id" (the subject ID) is specified, the performance will suffer as an extra Subject
     lookup will need to be performed.
     It is strongly recommended that the subject ID be in the subject's directory object and that it be indexed.
 
@@ -520,14 +520,77 @@
 
   * <<scope>>: the scope of the search. Required.\
     The valid values are, ignoring case, the names of the JNDI scope constants
-    defined in the class javax.naming.directory.SearchContext.
+    defined in the class <<javax.naming.directory.SearchContext>>.
     These are "object_scope", "onelevel_scope", and "subtree_scope".
     For most flat people branches, "onelevel_scope" is a good choice.
 
-  * <<filter>>: the parameterized search filter (e.g., "(&(uid=\{0\})(objectclass=ucPerson)))". Required.\
+  * <<filter>>: the parameterized search filter (e.g., <<<"(&(uid=\{0\})(objectclass=ucPerson))">>>). Required.\
     The string "\{0\}" will be replaced by the value of Subject's attribute identified by subject-attribute in
     the source-subject-identifier element.
   
 {Configuring the LDAP Connection}
 
-  TBD.
+  The \<ldap\> element specifies the connection parameters for connecting to LDAP
+  to provision the information from Grouper and/or Signet.
+  
+---
+<?xml version="1.0" encoding="utf-8"?>
+<ldappc>
+    ...
+    <ldap>
+        <context>
+            <parameter-list>
+                <parameter name="ldapContextParam" value="someValue"/>
+                ...
+            </parameter-list>
+        </context>
+    </ldap>
+</ldappc>
+---
+
+  The \<parameter\> elements will be aggregated into a set and used to connect to LDAP.
+  The parameter names must be the same, ignoring case, as  the equivalent JNDI constant
+  defined in the class <<javax.naming.LdapContext>> (e.g., a parameter name of "provider_url"
+  for <<javax.naming.LdapContext.PROVIDER_URL>>).
+  
+  Typical parameters are:
+  
+  * <<initial_context_factory>>: the fully qualified class name of a context factory (e.g., <<<com.sun.jndi.ldap.LdapCtxFactory>>>).
+
+  * <<provider_url>>: the URL for the LDAP provider (e.g., <<<ldap://localhost:389/o=JNDITutorial>>>).
+
+  * <<security_authentication>>: the value of "none", "simple", "strong", or a provider-specific string (e.g., <<<simple>>>).
+
+  * <<security_principal>>: the name of the user/program doing the authentication (e.g., <<<cn=S. User,ou=NewHires,o=JNDITutorial>>>).
+
+  * <<security_credentials>>: the credentials of the user/program doing the authentication (e.g., <<<mysecret>>>).
+    Usually a password of some sort.
+  
+    A special check is made for the "security_credentials" parameter and if its value is "GetFromPropertiesFile"
+    the property "securityCredentials" is retrieved from the <<<ldappc.properties>>> file and, if present, used
+    as the password for LDAP rather than including the password in the <<<ldappc.xml>>> file.  This enables
+    you to keep your main configuration data in version control while keeping the password separate.
+    
+  []
+  
+  The following is a typical example.
+  
+---
+<?xml version="1.0" encoding="utf-8"?>
+<ldappc>
+    ...
+    <ldap>
+        <context>
+            <parameter-list>
+                <parameter name="initial_context_factory" value="com.sun.jndi.ldap.LdapCtxFactory" />
+                <parameter name="provider_url" value="ldaps://directory.example.edu:636" />
+                <parameter name="security_authentication" value="simple" />
+                <parameter name="security_principal" value="cn=ldappc-agent,ou=agents,dc=example,dc=edu" />
+                <parameter name="security_credentials" value="GetFromPropertiesFile" />
+            </parameter-list>
+        </context>
+    </ldap>
+</ldappc>
+---
+
+  That's all there is to it.
