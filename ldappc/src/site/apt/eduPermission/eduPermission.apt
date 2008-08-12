@@ -61,4 +61,4 @@ The eduPermission Objectclass
   including cardinality, and talk about how it's mapped to this objectclass\>
 
   The eduPermission object class is defined in the
-  {{{eduPermission.schema}eduPermission.schema}} file.
+  {{{./eduPermission.schema}eduPermission.schema}} file.
