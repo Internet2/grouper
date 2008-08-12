@@ -77,6 +77,8 @@ fi
 # Add all the jars in the lib directory to the classpath.
 for f in lib/*.jar; do CLASSPATH=${CLASSPATH}:${f}; done
 
+export CLASSPATH
+
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
   [ -n "$CLASSPATH" ] && CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
