@@ -22,6 +22,10 @@
   This document describes how to use the Ldappc program. This document is not
   yet complete. The discussion that is provided is limited to some of the
   program documentation and does not currently include discussion of the API.
+  
+  This document also does not cover configuring the Grouper, Signet, and Subject API
+  instances that Ldappc uses.  See the {{{deployment-guide.html}deployment guide}}
+  for information on configuring those aspects.
 
   The user instructs the program on what actions to take using two separate
   mechanisms, command line input and a configuration file. The command line
@@ -150,7 +154,9 @@
   permissions are stored within the directory. There are two supported storage
   methods. One method stores each of the Subject's permissions as a child
   <eduPermission> entry of the Subject's directory entry. This method
-  requires the <eduPermission> schema to be available to the directory
+  requires the
+  {{{eduPermission/eduPermission.html}<eduPermission>}}
+  schema to be available to the directory
   server. The other method stores the permissions in a string format within an
   attribute of the Subject's directory entry. The attribute to be used on the
   Subject's directory entry and part of the string format are defined here.
@@ -226,7 +232,7 @@
   element defines the Group entry
   attribute where this list is maintained. It has a child element,
   \<source\-subject\-name\-mapping\>, that defines, by Subject source,
-  the Subject attribute whose value is the indentifier stored in the list
+  the Subject attribute whose value is the identifier stored in the list
   (e.g., loginId attribute). If the \<group\-members\-name\-list\>
   element is not defined, then this membership list is not maintained.
 
@@ -243,7 +249,7 @@
 
 *** {Provisioning Group Attributes}
 
-  The \<groups\> element also provides a means of provisioning
+  The \<groups\> element also provides a means of provisioning arbitrary
   attribute values of the Group to the Group's directory entry. This is
   accomplished using the optional
   {{{annotated-ldappc.xml.html#Provisioning_Other_Group_Attributes_into_Groups}\<group\-attribute\-mapping\>}}
@@ -266,20 +272,20 @@
 * {Attributes}
 
   The provisioning process expects the attribute name used to
-  query for the attribute values is the name returned by the Ldap server.
+  query for the attribute values is the name returned by the LDAP server.
   Depending on the attribute name defined in the configuration file this may not be the case.  
-  For example, there are many Ldap servers (e.g., OpenLDAP) that support synonyms for
+  For example, there are many LDAP servers (e.g., OpenLDAP) that support synonyms for
   attribute names. If a synonym is used, the server may return the canonical name 
   rather than the synonym. Unexpected errors may occur in
   the provisioning process in this situation. This same issue arises if the
-  Ldap server being used supports <attribute subclassing> or <attribute
+  LDAP server being used supports <attribute subclassing> or <attribute
   language preferences>. Deployers will need to select attribute names 
   appropriately for their environment.
 
   The provisioning process assumes that attribute values returned from the Ldap server
   via Java JNDI are strings.  It is possible that some attribute values are not returned as strings.
   This is dependent on the directory server and the JNDI service provider. For example,
-  Sun's LDAP provider uses byte arrays to represent attribute values with nonstring 
+  Sun's LDAP provider uses byte arrays to represent attribute values with non-string 
   attribute syntaxes, and strings are used to represent values of all other syntaxes. In the
   case of Sun's LDAP provider the number of attribute values represented as byte arrays is 
   minimal and shouldn't present a problem to the deployer (see the
@@ -308,7 +314,7 @@
   are defined in the configuration file. It adds and deletes values from these
   attributes and entries based completely on the data selected from within
   Grouper or Signet. For example, any existing data in an attribute prior to
-  the provisioning process is disregarded by the provisioning process. There is
+  the provisioning process is discarded by the provisioning process. There is
   one exception to this. When provisioning permissions as strings, the
   provisioning process only assumes ownership of the attribute values that
   start with the prefix defined in the \<permissions\-listing\>
@@ -320,7 +326,7 @@
   Grouper, a privileged subject no longer exists in Signet, or the
   \<group\-queries\> or \<permissions\-queries\> elements
   are altered. This process considers any entry found using the filters defined
-  in the \<source-subject-identifiers\> element with the <{0}>
+  in the \<source-subject-identifiers\> element with the <\{0\}>
   parameter replaced by <*> and having the appropriate attribute
   populated as an entry that previously had data provisioned. These entries are
   updated be consistent with the provisioned memberships or permissions.
@@ -331,27 +337,30 @@
   categories selected on the command line us provided in the <<<conf>>> directory as
   <<<ldappcTemplate.xml>>>. The user should first copy this file into the config
   directory and name it <<<ldappc.xml>>>. Then modify it according to the
-  instructions therein.
+  instructions therein, creating an <<<ldappc.properties>>> file to hold the LDAP
+  password, if desired.
 
 {Ldappc Processing}
 
+  A few words must be said about LDAP behavior and performance.
+
 * {Value Comparisons}
 
-  The provisioning process needs to compare attribute values in order to determine
-  the data to be stored in an attribute, and to determine how to updated an attribute
+  The provisioning process needs to compare attribute values to determine
+  the data to be stored in an attribute, and how to update that attribute
   efficiently.  The provisioning process uses a case insensitive string comparison of
   values to determine equality. This can possibly effect the performance of the
   provisioning process or the accuracy of the data stored in the directory.  Each
   situation is described below. 
 
   The provisioning process attempts to minimize the number of updates made
-  to the directory.  To do this requires comparing the current set of data stored
+  to the directory.  This requires comparing the current set of data stored
   in an attribute with the set of data being provisioned to that attribute.
   The number and type of modifications identified for the attribute are based on 
   examining the differences in the two data sets.  The comparison of the two 
   data sets is performed by the provisioning process using a case insensitive 
   comparison of the value strings.  This is performed in the Java application, and
-  does not utilize any Ldap compare functionality provided by the directory.
+  does not utilize any LDAP compare functionality provided by the directory.
   As such, if the directory should modify provisioned data in any way when stored (e.g., 
   store it in a standard format, remove leading or trailing spaces), the
   provisioning process may perform unnecessary updates on the attribute as it 
@@ -378,13 +387,13 @@
 {Performance Tuning}
 
   There are several ways in which the time required for a provision cycle can be reduced.
-  The groups and source-subject-identifier elements each have an initial-cache-size attribute,
+  The \<groups\> and \<source\-subject\-identifier\> elements each have an \<initial-cache-size\> attribute,
   which can be used to perform an initial allocation of the hash tables used to store groups
   to be deleted and subjects retrieved from the Subject API. Setting these values to a prime number
   larger than the number of groups or subjects can reduce the run time.
 
   Another important consideration is the number of lookups done in the Subject API.
-  If the Subject ID in Grouper is stored in the LDAP directory and is indexed, which is highly recommended,
+  If the Subject ID in Grouper or Signet is stored in the LDAP directory and is indexed, which is highly recommended,
   then the Subject API need not be queried to retrieve search criteria for the LDAP object.
   This can speed up run times considerably. Specifying:
 
@@ -398,10 +407,12 @@
 </source-subject-identifier>
 ---
 
+  where "subjectId" is the LDAP attribute containing the Grouper or Signet subject ID,
   will search the directory by criteria directly available from Grouper.
 
-  There is a GetNextPrime class in ldappc which can be used to find the smallest prime greater than or equal to
-  a particular integer. You can run
+  To help in finding prime numbers, there is a <<GetNextPrime>> class in Ldappc which
+  can be used to find the smallest prime greater than or equal to a particular integer.
+  You can run
 
 ---
 java -cp lib/ldappc-theVersionNumber.jar edu.internet2.middleware.ldappc.util.GetNextPrime 300000
