@@ -31,19 +31,21 @@
 
   See:
 
-*---------------------------------------+-------------------------------------------------------------------------------------------------+
+*---+---+
+| {{{annotated-ldappc.xml.html}Annotated Configuration File}} | for in-depth discussion of the configuration options. |
+*---+---+
 | {{{deployment-guide.html}Deployment Guide}} | for information on deploying the code for development purposes or as an end-user product. |
-*---------------------------------------+-------------------------------------------------------------------------------------------------+
+*---+---+
 | {{{deployment-guide.html}Deployment Guide}} | for information on making changes to Ldappc. |
-*---------------------------------------+----------------------------------------------------+
-| {{{examples.html}Examples}}           | for configuration examples.                        |
-*---------------------------------------+----------------------------------------------------+
-| {{{faq.html}FAQ}}                     | Frequently Asked Questions                         |
-*---------------------------------------+----------------------------------------------------+
-| {{{release-notes.html}Release Notes}} | for the release notes for this version of ldappc.  |
-*---------------------------------------+----------------------------------------------------+
-| {{{user-manual.html}User Manual}}     | for information on using the product.              |
-*---------------------------------------+----------------------------------------------------+
+*---+---+
+| {{{examples.html}Examples}} | for configuration examples. |
+*---+---+
+| {{{faq.html}FAQ}} | Frequently Asked Questions |
+*---+---+
+| {{{release-notes.html}Release Notes}} | for the release notes for this version of ldappc. |
+*---+---+
+| {{{user-manual.html}User Manual}} | for information on using the product. |
+*---+---+
 
   Also see the design documents:
   
