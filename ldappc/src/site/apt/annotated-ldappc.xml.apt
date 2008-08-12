@@ -475,7 +475,58 @@
 
 {Mapping Grouper and Signet Subjects into the LDAP Directory}
 
-  TBD.
+  You must specify for each Subject Source how a Subject's LDAP entry is located.
+  This is done using the \<source-subject-identifiers\> element.
+
+---
+<?xml version="1.0" encoding="utf-8"?>
+<ldappc>
+    ...
+    <source-subject-identifiers>
+        <source-subject-identifier source="mySource"
+                                   subject-attribute="id"
+                                   initial-cache-size="350007">
+            <ldap-search base="ou=people,dc=example,dc=edu"
+                         scope="onelevel_scope"
+                         filter="(&(examplePersonId={0})(objectclass=examplePerson)))" />
+        </source-subject-identifier>
+        ...
+    </source-subject-identifiers>
+    ...
+</ldappc>
+---
+
+  The \<source-subject-identifiers\> element contains one or more \<source-subject-identifier\> elements.
+
+  The \<source-subject-identifier\> element identifies for a given Subject Source
+  the Subject naming attribute to be used for identifying Subjects in the directory,
+  and an LDAP search filter that will uniquely identify Subjects for the Source using the given naming attribute value.
+  
+  * <<initial-cache-size>>: specifies the initial cache size to use for caching subject DNs by subject ID. Optional.\
+    Specifying a larger number than the number of subjects should give better performance.
+
+  * <<source>>: the Subject Source ID (e.g., "g:gsa").
+
+  * <<subject-attribute>>: The name of the Subject naming attribute to be used (e.g., "account"). Required.\
+    If a value other than "id" (the subject ID) is specified, the performance will suffer as an extra Subjec
+    lookup will need to be performed.
+    It is strongly recommended that the subject ID be in the subject's directory object and that it be indexed.
+
+  []
+
+  Each \<source-subject-identifier\> element contains exactly one \<ldap-search\> element, with the following attributes.
+  
+  * <<base>>: the base DN of the context or object to search (e.g., <<<ou=people,dc=example,dc=edu>>>). Required.
+
+  * <<scope>>: the scope of the search. Required.\
+    The valid values are, ignoring case, the names of the JNDI scope constants
+    defined in the class javax.naming.directory.SearchContext.
+    These are "object_scope", "onelevel_scope", and "subtree_scope".
+    For most flat people branches, "onelevel_scope" is a good choice.
+
+  * <<filter>>: the parameterized search filter (e.g., "(&(uid=\{0\})(objectclass=ucPerson)))". Required.\
+    The string "\{0\}" will be replaced by the value of Subject's attribute identified by subject-attribute in
+    the source-subject-identifier element.
   
 {Configuring the LDAP Connection}
 
