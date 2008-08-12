@@ -609,7 +609,9 @@
             *      the authentication (e.g., "cn=S. User,ou=NewHires,o=JNDITutorial").
             *
             *   security_credentials - Specifies the credentials of the user/program 
-            *      doing the authentication (e.g., mysecret).
+            *      doing the authentication (e.g., mysecret).  If the value is
+            *      "GetFromPropertiesFile" the value will be retrieved from the
+            *      "securityCredentials" property in the ldappc.properties file.
         -->
         <context><!-- Exactly 1 required -->
 
@@ -624,7 +626,7 @@
 
                 <parameter name="security_principal" value="" />
 
-                <parameter name="security_credentials" value="" />
+                <parameter name="security_credentials" value="GetFromPropertiesFile" />
 
             </parameter-list>
 
