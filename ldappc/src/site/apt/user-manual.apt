@@ -425,3 +425,35 @@ java -cp lib/ldappc-theVersionNumber.jar edu.internet2.middleware.ldappc.util.Ge
 ---
 
   and it will print the value "300007", which is the smallest prime greater than or equal to "300000".
+
+{Common Problems}
+
+  The following is a list of possible causes why the program may fail
+  due to incorrect setup.
+
+  If one sees error messages concerning a credential
+  problem, this may indicate an error in the set up of the LDAP
+  server or may simply indicate that you have incorrect values for
+  the "<<<security_principal>>>" and "<<<security_credentials>>>" parameters in the
+  <<<ldappc.xml>>> or <<<ldappc.properties>>> files.
+
+  A failure will occur if required LDAP object classes and/or attributes
+  referred to in <<<ldappc.xml>>> are not present either in the LDAP schemas provided
+  in the LDAP server's directory or referenced by the server configuration.
+
+  Make sure the values of the source attribute on the \<source\-subject\-identifier\>
+  match the values of the id tag in the source tag in the <<<sources.xml>>> file.
+
+  If one is used to using two separate <<<sources.xml>>> files for Grouper and
+  Signet, realize that this will cause a problem if attempted with Ldappc.
+  Ldappc needs a single <<<sources.xml>>> file in its classpath; if two appear,
+  only the first would be used.  Therefore, if you are using both Grouper and Signet,
+  you must combine the two <<<sources.xml>>> files into a single file.
+
+  If you get the message "Class file has wrong version 49.0, should be 48.",
+  this indicates that one is trying to use some classes that compiled under JDK 1.4
+  with others that compiled under JDK 1.5. make sure that your value of JAVA_HOME
+  refers to a JDK1.5 installation.
+
+  See the {{{deployment-guide.html}deployment guide}} for more information about
+  some of these issues.
