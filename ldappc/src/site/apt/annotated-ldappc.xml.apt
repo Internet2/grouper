@@ -59,11 +59,7 @@
 <ldappc>
     <grouper>
         <group-queries>...</group-queries>
-
-        <!-- Specify if you are provisioning groups -->
         <groups ...>...</groups>
-
-        <!-- Specify if you are provisioning memberships -->
         <memberships>...</memberships>
     </grouper>
     ...
@@ -367,5 +363,120 @@
 
 {Provisioning from Signet}
 
-  Not finished yet.
+  The following is the structure of the \<signet\> element.
+  This is used to provision Permissions from Signet.
+
+---
+<?xml version="1.0" encoding="utf-8"?>
+<ldappc>
+    ...
+    <signet>
+        <permissions-listing ... />
+        <permissions-queries>...</permissions-queries>
+    </signet>
+    ...
+</ldappc>
+---
+
+  The \<signet\> element contains two elements:
+
+  * <<permissions-listing>>: defines how permissions are stored when provisioned. Required.
+
+  * <<permissions-queries>>: selects which permissions are provisioned. Optional.
+
+* {Provisioning Permissions}
+
+  The \<permissions-listing\> element defines how provisioned permissions are stored in a Subject's LDAP entry.
+
+---
+<?xml version="1.0" encoding="utf-8"?>
+<ldappc>
+    ...
+    <signet>
+        <permissions-listing stored-as="string"
+                             string-object-class="eduPerson"
+                             string-attribute="eduPersonEntitlement"
+                             string-prefix="urn:mace:example.edu:permission:"
+                             string-list-empty-value="" />
+        ...
+    </signet>
+    ...
+</ldappc>
+---
+
+  The method storing provisioned permissions is wholly defined by the following attributes.
+
+  * <<stored-as>>: Defines how the permissions are stored. Required.\
+    Its value must be one of "string" or "eduPermission".
+    The value "string" provisions Permissions coded as strings into an attribute in the
+    Subject's LDAP entry.
+    The value "eduPermission" provisions Permissions as eduPermission sub-objects under
+    the Subject's LDAP entry.
+
+  * <<string-object-class>>: the object  class to add to the Member's subject LDAP entry in order to
+    support the string-attribute. Optional.\
+    Please note that if this object class has required attributes not populated by the 
+    provisioning process, then an error may occur.
+
+  * <<string-attribute>>: the LDAP entry attribute in which to store permissions if stored-as is set to "string"
+    (e.g., permissionStrings).  This attribute is required if stored-as is "string", otherwise it is ignored.
+
+  * <<string-prefix>>: the prefix to use when storing permissions as strings. Optional.\
+    This prefix is inserted at the beginning of each permissions string.
+
+  * <<string-list-empty-value>>: the value to be placed in the list-attribute if no permission strings are stored there. Optional.\
+    If list-attribute is optional (i.e., a MAY attribute), this value is most likely not needed.
+    If list-attribute is required (i.e., a MUST attribute), then this value should be defined.
+    This attribute is only used when stored-as is "string".
+
+* {Specifying Permissions to be Provisioned}
+
+  The \<permissions-queries\> element is an optional element identifying the queries
+  used to select Permissions for provisioning.
+  All active Permissions meeting one or more of criteria below are selected for provisioning.
+  If the \<permissions-queries\> element is not supplied, then all active Permissions are provisioned.
+
+---
+<?xml version="1.0" encoding="utf-8"?>
+<ldappc>
+    ...
+    <signet>
+        ...
+        <permissions-queries>
+            <subsystem-queries>
+                <subsystem-list>
+                    <subsystem id="mySubsystemId" />
+                    ...
+                </subsystem-list>
+            </subsystem-queries>
+
+            <function-queries>
+                <function-list>
+                    <function id="myFunctionId" />
+                    ...
+                </function-list>
+            </function-queries>
+        </permissions-queries>
+    </signet>
+    ...
+</ldappc>
+---
+
+  The \<subsystem-queries\> and \<function-queries\> elements have the following elements:
   
+  * <<subsystem>>: the <<id>> attribute selects all active Permissions associated with the identified subsystem.
+  
+  * <<function>>: the <<id>> attribute selects all active Permissions associated with the identified function.
+  
+  []
+  
+  One or both of the \<subsystem-queries\> or \<function-queries\> elements must be specified.
+  The results are aggregated.
+
+{Mapping Grouper and Signet Subjects into the LDAP Directory}
+
+  TBD.
+  
+{Configuring the LDAP Connection}
+
+  TBD.
