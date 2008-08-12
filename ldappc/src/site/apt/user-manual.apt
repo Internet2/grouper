@@ -29,7 +29,11 @@
   database. The configuration file determines the details of how the data is to
   be provisioned. The sections below describe these two mechanisms.
 
-Command Line Input
+  Contents
+  
+%{toc}
+
+{Command Line Input}
 
   The command line parameters are meant to enable a site to decide to provision
   groups, memberships, or permissions independently. The command line is not
@@ -80,36 +84,40 @@ Command Line Input
   If the "-interval" parameter is present, the Program will continue to operate
   until killed; otherwise, it performs one provisioning cycle and terminates.
 
-The Configuration File
+{The Configuration File}
 
   Most of the details concerning the configuration file are contained in a
   configuration file template discussed below. This section describes some
   important concepts in how the configuration file gets used and describes some
   details not discussed in the template.
 
-* Configuration Overview
+* {Configuration Overview}
 
   The configuration file is an XML document organized by configuration elements
   necessary for provisioning Grouper data, elements necessary for provisioning
   Signet data, and elements common to both. An overview of the configuration
-  file is provided below. The reader should view the configuration file
-  template for specific details. The configuration file is designed such that
-  users only need to defined those elements specific to their situation. For
+  file is provided below. The reader should view the
+  {{{annotated-ldappc.xml.html}annotated configuration file}}
+  for specific details. The configuration file is designed such that
+  users only need to define those elements specific to their situation. For
   example, in a environment which utilizes only Grouper and not Signet, the
   Signet configuration elements can be removed (or commented out) from the
   configuration file.
 
-* Common Configuration Elements
+* {Common Configuration Elements}
 
   There are two configuration elements common to both Signet and Grouper. They
-  are the <<<ldap>>> and <<<source-subject-identifiers>>>
-  elements. The <<<ldap>>> element defines the values necessary to
+  are the \<ldap\> and \<source\-subject\-identifiers\> elements.
+  
+  The {{{annotated-ldappc.xml.html#Configuring_the_LDAP_Connection}\<ldap\>}}
+  element defines the values necessary to
   interact with the LDAP directory where provisioned data will reside.
   Currently this is limited to the parameters necessary to connect with the
   directory. The parameters are based on JNDI, and their values may vary
   according to the directory server being used.
 
-  The <<<source-subject-identifiers>>> element identifies for each
+  The {{{annotated-ldappc.xml.html#Mapping_Grouper_and_Signet_Subjects_into_the_LDAP_Directory}\<source\-subject\-identifiers\>}}
+  element identifies for each
   Subject source how the provisioner locates the directory entry for a given
   Subject. Within both Grouper and Signet, Subjects can originate from multiple
   sources. When provisioning data for a Subject (either memberships or
@@ -124,15 +132,21 @@ The Configuration File
   The LDAP context parameter list section defines the LDAP connection.
   The parameters listed will be passed to the LDAP connection. If the <<<security_credentials>>>
   parameter is "GetFromPropertiesFile", then the password to connect to LDAP
-  will be read from the <<<ldappc.properties>>> file in the <<<security_credentials>>> property.
+  will be read from the <<<ldappc.properties>>> file in the <<<securityCredentials>>> property.
   This allows the password to be kept in a separate file and not checked into a version
-  control system, for example.
+  control system.
 
-* Signet Configuration Elements
+* {Signet Configuration Elements}
 
-  The <<<signet>>> element contains the configuration elements needed
-  for provisioning Signet permissions. There is one required element,
-  <<<permissions-listing>>>. This element defines how provisioned
+  The {{{annotated-ldappc.xml.html#Provisioning_from_Signet}\<signet\>}}
+  element contains the configuration elements needed
+  for provisioning Signet permissions.
+
+** {Provisioning Permissions}
+
+  There is one required element,
+  {{{annotated-ldappc.xml.html#Provisioning_Permissions}\<permissions\-listing\>}}.
+  This element defines how provisioned
   permissions are stored within the directory. There are two supported storage
   methods. One method stores each of the Subject's permissions as a child
   <eduPermission> entry of the Subject's directory entry. This method
@@ -141,42 +155,51 @@ The Configuration File
   attribute of the Subject's directory entry. The attribute to be used on the
   Subject's directory entry and part of the string format are defined here.
 
+** {Selecting Permissions to Provision}
+
   There are two methods for identifying the permissions to be provisioned.
   Either all active permissions can be provisioned, or permissions can be
   further limited by permission characteristics. The optional
-  <<<permissions-queries>>> element defines the characteristics to use
+  {{{annotated-ldappc.xml.html#Specifying_Permissions_to_be_Provisioned}\<permissions\-queries\>}}
+  element defines the characteristics to use
   for selecting permissions to be provisioned. Two characteristics, functions
-  and subsystems, are supported. The <<<subsystem-queries>>> element
+  and subsystems, are supported. The \<subsystem\-queries\> element
   defines the subsystems to limit permissions. A permission must be associated
   with at least one of the subsystems for it to be selected for provisioning.
-  The <<<function-queries>>> element identifies the functions to limit
+  The \<function\-queries\> element identifies the functions to limit
   permissions. A permission must be associated with at least one of the
   functions for it to be selected for provisioning. If both the
-  <<<subsystem-queries>>> and <<<function-queries>>> elements
+  \<subsystem\-queries\> and \<function\-queries\> elements
   are defined, a permission only needs to satisfy one of those to be selected
   for provisioning.
 
-* Grouper Configuration Elements
+* {Grouper Configuration Elements}
 
-  The <<<grouper>>> element contains the configuration elements for
+  The {{{annotated-ldappc.xml.html#Provisioning_from_Grouper}\<grouper\>}}
+  element contains the configuration elements for
   Grouper. Whether provisioning memberships or groups, the provisioner takes a
-  group centric approach for selecting the provisioned data. In particular, the
+  group-centric approach for selecting the provisioned data. In particular, the
   provisioner selects a set of groups. This set of groups either is the
   collection of groups to provision, or the membership of these selected groups
   defines the memberships to be provisioned. The provisioner selects groups
   based on subordinate stem or attribute value matching queries. The
-  <<<group-queries>>> element contains the definitions of the queries
+  {{{annotated-ldappc.xml.html#Specifying_Groups_to_be_Provisioned}\<group\-queries\>}}
+  element contains the definitions of the queries
   to use when selecting the groups that define the provisioning data.
 
   Either groups, memberships or both may be provisioned when provisioning
-  Grouper data. The <<<grouper>>> element splits the configuration
-  items for groups and memberships into the elements <<<groups>>> and
-  <<<memberships>>> respectively. The user need only define the
+  Grouper data. The \<grouper\> element splits the configuration
+  items for groups and memberships into the elements \<groups\> and
+  \<memberships\> respectively. The user need only define the
   element or elements necessary for the data being provisioned. Each is
   described further below.
 
+** {Provisioning Groups}
+
   Provisioning groups requires the provisioner to create new or maintain
-  existing Group directory entries. The <<<groups>>> element defines
+  existing Group directory entries. The
+  {{{annotated-ldappc.xml.html#Provisioning_LDAP_Groups}\<groups\>}}
+  element defines
   the needed information for this. This element identifies the root entry in
   the directory under which all group entries are maintained. It must be noted
   that the provisioner owns all entries under this root element. In particular,
@@ -189,46 +212,58 @@ The Configuration File
   organizationalUnit entries is created under the root entry for each element
   of the Group's stem, the Group entry is created under the parent stem's OU
   entry, and the RDN is set to the Group's extension. It should be noted that
-  the attribute name of the RDN of the Group may not be <ou>. This
+  the attribute name of the RDN of the Group cannot be <ou>. This
   prevents naming collisions between stem entries and the group entry when the
   "bushy" structure is used.
 
-  The <<<groups>>> element defines two methods of storing membership
+*** {Provisioning Member Names}
+
+  The \<groups\> element defines two methods of storing membership
   information in a Group's directory entry. They can be used simultaneously.
   The first is to maintain an attribute with the list of members identified by
   an attribute value from the associated Subject found via the Grouper API. The
-  <<<group-members-name-list>>> element defines the Group entry
+  {{{annotated-ldappc.xml.html#Provisioning_Member_Names_into_Groups}\<group\-members\-name\-list\>}}
+  element defines the Group entry
   attribute where this list is maintained. It has a child element,
-  <<<source-subject-name-mapping>>>, that defines, by Subject source,
+  \<source\-subject\-name\-mapping\>, that defines, by Subject source,
   the Subject attribute whose value is the indentifier stored in the list
-  (e.g., loginId attribute). If the <<<group-members-name-list>>>
+  (e.g., loginId attribute). If the \<group\-members\-name\-list\>
   element is not defined, then this membership list is not maintained.
+
+*** {Provisioning Member DNs}
 
   The second storage method is to store the DN of the associated directory
   entry for each member. The directory entry for each member is identified
-  using the information from the <<<source-subject-identifiers>>>
-  element (see above). The existence of the <<<group-members-dn-list>>>
+  using the information from the \<source\-subject\-identifiers\>
+  element (see above). The existence of the
+  {{{annotated-ldappc.xml.html#Provisioning_Member_DNs_into_Groups}\<group\-members\-dn\-list\>}}
   element identifies that the DN list is to be maintained and defines the
   attribute to hold the DN list. If an entry cannot be found for a member, no
   DN is included in the membership list for that member.
 
-  The <<<groups>>> element also provides a means of provisioning
+*** {Provisioning Group Attributes}
+
+  The \<groups\> element also provides a means of provisioning
   attribute values of the Group to the Group's directory entry. This is
-  accomplished using the optional <<<group-attribute-mapping>>>
+  accomplished using the optional
+  {{{annotated-ldappc.xml.html#Provisioning_Other_Group_Attributes_into_Groups}\<group\-attribute\-mapping\>}}
   element. This element maps a selected set of Group attributes to the
   corresponding directory entry attributes. The value from the Group attribute
   is provisioned to the directory entry attribute.
 
-  The <<<memberships>>> element contains the configuration items
+** {Provisioning Memberships}
+
+  The {{{annotated-ldappc.xml.html#Provisioning_a_Membership_Attribute}\<memberships\>}}
+  element contains the configuration items
   related to provisioning memberships. It currently has only one child element,
-  <<<member-groups-list>>>. The <<<member-groups-list>>>
+  \<member\-groups\-list\>. The \<member\-groups\-list\>
   element defines how the list of Groups to which a member belongs is
   maintained. This list is maintained on the member's associated directory
-  entry. The <<<member-groups-list>>> element defines the attribute on
+  entry. The \<member\-groups\-list\> element defines the attribute on
   the entry where the list is stored. It also defines the Group attribute whose
   value is used to identify the Group within the list.
 
-* Attributes
+* {Attributes}
 
   The provisioning process expects the attribute name used to
   query for the attribute values is the name returned by the Ldap server.
@@ -251,16 +286,16 @@ The Configuration File
   {{{http://java.sun.com/products/jndi/tutorial/ldap/misc/attrs.html}Java JNDI Tutorial}}
   for more details).  Deployers will need to select attributes appropriate for their environment.
 
-* Configuration Side Effects
+* {Configuration Side Effects}
 
   It is important to understand the possible side effects of modifying the
   configuration file after the initial provisioning. When provisioning groups
   or memberships, the selection of groups completely determines the data being
   provisioned. Modifying the selection parameters (e.g., modifying the
-  <<<group-queries>>> element) can result in a group or membership no
+  \<group\-queries\> element) can result in a group or membership no
   longer being included in the directory even though the group or membership
   still exists within Grouper. The same issue exists when provisioning
-  permissions. Modifying the <<<permissions-queries>>> element can
+  permissions. Modifying the \<permissions\-queries\> element can
   significantly alter the permissions to be provisioned.
 
   Many of the configuration elements allow a directory entry attribute to be
@@ -276,21 +311,21 @@ The Configuration File
   the provisioning process is disregarded by the provisioning process. There is
   one exception to this. When provisioning permissions as strings, the
   provisioning process only assumes ownership of the attribute values that
-  start with the prefix defined in the <<<permissions-listing>>>
+  start with the prefix defined in the \<permissions\-listing\>
   element in the configuration file
 
   The membership and permissions provisioning processes remove any previously
   provisioned memberships or permissions stored on directory entries that are
   no longer valid. This can occur for example if a Group is deleted from
   Grouper, a privileged subject no longer exists in Signet, or the
-  <<<group-queries>>> or <<<permissions-queries>>> elements
+  \<group\-queries\> or \<permissions\-queries\> elements
   are altered. This process considers any entry found using the filters defined
-  in the <<<source-subject-identifiers>>> element with the <{0}>
+  in the \<source-subject-identifiers\> element with the <{0}>
   parameter replaced by <*> and having the appropriate attribute
   populated as an entry that previously had data provisioned. These entries are
   updated be consistent with the provisioned memberships or permissions.
 
-* The Configuration File Template
+* {The Configuration File Template}
 
   A template for creating the configuration file that controls how the data
   categories selected on the command line us provided in the <<<conf>>> directory as
@@ -298,9 +333,9 @@ The Configuration File
   directory and name it <<<ldappc.xml>>>. Then modify it according to the
   instructions therein.
 
-Ldappc Processing
+{Ldappc Processing}
 
-* Value Comparisons
+* {Value Comparisons}
 
   The provisioning process needs to compare attribute values in order to determine
   the data to be stored in an attribute, and to determine how to updated an attribute
@@ -340,7 +375,7 @@ Ldappc Processing
   the two DNs <first=fred+last=flintstone,ou=bedrock> and <last=flintstone+first=fred,ou=bedrock>
   will compare equal.
 
-Performance Tuning
+{Performance Tuning}
 
   There are several ways in which the time required for a provision cycle can be reduced.
   The groups and source-subject-identifier elements each have an initial-cache-size attribute,
