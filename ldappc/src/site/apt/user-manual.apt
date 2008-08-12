@@ -408,7 +408,7 @@
 ---
 
   where "subjectId" is the LDAP attribute containing the Grouper or Signet subject ID,
-  will search the directory by criteria directly available from Grouper.
+  will search the directory using criteria directly available from Grouper.
 
   To help in finding prime numbers, there is a <<GetNextPrime>> class in Ldappc which
   can be used to find the smallest prime greater than or equal to a particular integer.
