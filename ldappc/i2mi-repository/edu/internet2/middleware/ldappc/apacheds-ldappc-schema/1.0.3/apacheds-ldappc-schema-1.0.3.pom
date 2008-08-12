@@ -4,9 +4,21 @@
   <groupId>edu.internet2.middleware.ldappc</groupId>
   <artifactId>apacheds-ldappc-schema</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <name>Schema Project</name>
   <url>http://directory.apache.org/</url>
+
+  <!--
+    This assumes that this project and ldappc are checked out
+    from version control under the same directory.
+  -->
+  <distributionManagement>
+    <repository>
+      <id>i2mi</id>
+      <name>Internet2 Middleware Initiative Repository</name>
+      <url>file://${basedir}/../ldappc/i2mi-repository</url>
+    </repository>
+  </distributionManagement>
 
   <dependencies>
     <dependency>
