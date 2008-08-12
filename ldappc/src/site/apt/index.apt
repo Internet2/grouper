@@ -36,7 +36,7 @@
 *---+---+
 | {{{deployment-guide.html}Deployment Guide}} | for information on deploying the code for development purposes or as an end-user product. |
 *---+---+
-| {{{deployment-guide.html}Deployment Guide}} | for information on making changes to Ldappc. |
+| {{{development-guide.html}Development Guide}} | for information on making changes to Ldappc. |
 *---+---+
 | {{{examples.html}Examples}} | for configuration examples. |
 *---+---+
