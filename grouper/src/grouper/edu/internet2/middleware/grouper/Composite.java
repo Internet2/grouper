@@ -40,7 +40,7 @@ import  org.apache.commons.lang.time.*;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.49 2008-03-24 20:15:36 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.49.4.1 2008-08-13 21:03:27 shilen Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -300,6 +300,9 @@ public class Composite extends GrouperAPI {
     
       // TODO 20070524 do i need to call "Composite.internal_update(msOwner)"?  i
       //               certainly hope not and so far the tests suggest no. 
+
+      // 20080813 - Looks like we do need to call this actually....
+      Composite.internal_update(msOwner);
     }
   }
 
@@ -369,14 +372,60 @@ public class Composite extends GrouperAPI {
       g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this._getDTO().getFactorOwnerUuid() ) ); 
       mof.addComposite( this.getSession(), g, this );
   
-      Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
+      Set<MembershipDTO> cur = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
         ( (GroupDTO) g.getDTO() ).getUuid(), Group.getDefaultList()  // current mships
       );
-      Set should    = mof.getEffectiveSaves();    // What mships should be
-      Set deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
-      deletes.removeAll(should);
-      Set adds      = new LinkedHashSet(should);  // adds     = should - cur
-      adds.removeAll(cur);
+      Set shouldBeforeFilter = mof.getEffectiveSaves();    // What mships should be before filtering
+
+      Set<MembershipDTO> should = new LinkedHashSet();    // What mships should be after filtering
+
+      // filter out memberships that have a different owner than the composite group.
+      Iterator<MembershipDTO> shouldIterator = shouldBeforeFilter.iterator();
+      while (shouldIterator.hasNext()) {
+        MembershipDTO shouldMembership = shouldIterator.next();
+        if (shouldMembership.getOwnerUuid().equals(this._getDTO().getFactorOwnerUuid())) {
+          should.add(shouldMembership);
+        }
+      }
+
+      Set<MembershipDTO> deletes   = new LinkedHashSet();     // deletes  = cur - should
+      Iterator<MembershipDTO> curIterator = cur.iterator();
+      while (curIterator.hasNext()) {
+        MembershipDTO curMembership = curIterator.next();
+        boolean found = false;
+        shouldIterator = should.iterator();
+        while (shouldIterator.hasNext()) {
+          MembershipDTO shouldMembership = shouldIterator.next();
+          if (shouldMembership.getMemberUuid().equals(curMembership.getMemberUuid())) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          deletes.add(curMembership);
+        }
+      }
+
+
+      Set<MembershipDTO> adds      = new LinkedHashSet();  // adds     = should - cur
+      shouldIterator = should.iterator();
+      while (shouldIterator.hasNext()) {
+        MembershipDTO shouldMembership = shouldIterator.next();
+        boolean found = false;
+        curIterator = cur.iterator();
+        while (curIterator.hasNext()) {
+          MembershipDTO curMembership = curIterator.next();
+          if (shouldMembership.getMemberUuid().equals(curMembership.getMemberUuid())) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          adds.add(shouldMembership);
+        }
+      }
+
+
       Map modified  = new HashMap();
       modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, adds.iterator() );
       modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, deletes.iterator() );
@@ -387,8 +436,9 @@ public class Composite extends GrouperAPI {
         GrouperDAOFactory.getFactory().getComposite().update(adds, deletes, modGroups, modStems);
         sw.stop();
         EventLog.compositeUpdate(this, adds, deletes, sw);
-        _updateComposites( this.getSession(), deletes);
-        _updateComposites( this.getSession(), adds);
+        //_updateComposites( this.getSession(), deletes);
+        //_updateComposites( this.getSession(), adds);
+        Composite.internal_update(g);
       }
     }
     catch (GroupNotFoundException eGNF) {

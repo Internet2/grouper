@@ -46,7 +46,7 @@ public class TestMembership4 extends TestCase {
     try {
       Date    before   = DateHelper.getPastDate();
 
-      R       r     = R.populateRegistry(1, 19, 4);
+      R       r     = R.populateRegistry(1, 22, 4);
       Group   gA    = r.getGroup("a", "a");
       Group   gB    = r.getGroup("a", "b");
       Group   gC    = r.getGroup("a", "c");
@@ -64,12 +64,16 @@ public class TestMembership4 extends TestCase {
       Group   gO    = r.getGroup("a", "o");
       Group   gP    = r.getGroup("a", "p");
       Group   gQ    = r.getGroup("a", "q");
+      Group   gR    = r.getGroup("a", "r");
+      Group   gS    = r.getGroup("a", "s");
+      Group   gT    = r.getGroup("a", "t");
       Subject subjA = r.getSubject("a");
       Subject subjB = r.getSubject("b");
       Subject subjC = r.getSubject("c");
       Subject subjD = r.getSubject("d");
 
       gA.addMember(subjB);
+      gT.addMember(gP.toSubject());
       gD.addCompositeMember(CompositeType.UNION, gB, gC);
       gP.addCompositeMember(CompositeType.UNION, gD, gO);
       gB.addMember(gA.toSubject());
@@ -85,6 +89,8 @@ public class TestMembership4 extends TestCase {
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
       gQ.addMember(subjD);
       gH.addMember(gQ.toSubject());
+      gR.addMember(gS.toSubject());
+      gF.addMember(gR.toSubject());
 
       // SB -> gA
       verifyImmediateMembership(r.rs, "SB -> gA", gA, subjB);
@@ -122,8 +128,17 @@ public class TestMembership4 extends TestCase {
       // gQ -> gE
       verifyCompositeMembership(r.rs, "gQ -> gE", gE, gQ.toSubject());
 
+      // gR -> gE
+      verifyCompositeMembership(r.rs, "gR -> gE", gE, gR.toSubject());
+
+      // gS -> gE
+      verifyCompositeMembership(r.rs, "gS -> gE", gE, gS.toSubject());
+
       // gH -> gF
       verifyImmediateMembership(r.rs, "gH -> gF", gF, gH.toSubject());
+
+      // gR -> gF
+      verifyImmediateMembership(r.rs, "gR -> gF", gF, gR.toSubject());
 
       // SA -> gF (parent: gH -> gF) (depth: 1)
       verifyEffectiveMembership(r.rs, "SA -> gF", gF, subjA, gH, 1, gF, gH.toSubject(), null, 0);
@@ -133,6 +148,9 @@ public class TestMembership4 extends TestCase {
 
       // gQ -> gF (parent: gH -> gF) (depth: 1)
       verifyEffectiveMembership(r.rs, "gQ -> gF", gF, gQ.toSubject(), gH, 1, gF, gH.toSubject(), null, 0);
+
+      // gS -> gF (parent: gR -> gF) (depth: 1)
+      verifyEffectiveMembership(r.rs, "gS -> gF", gF, gS.toSubject(), gR, 1, gF, gR.toSubject(), null, 0);
 
       // gD -> gG
       verifyImmediateMembership(r.rs, "gD -> gG", gG, gD.toSubject());
@@ -179,6 +197,12 @@ public class TestMembership4 extends TestCase {
       // gQ -> gI
       verifyCompositeMembership(r.rs, "gQ -> gI", gI, gQ.toSubject());
 
+      // gR -> gI
+      verifyCompositeMembership(r.rs, "gR -> gI", gI, gR.toSubject());
+
+      // gS -> gI
+      verifyCompositeMembership(r.rs, "gS -> gI", gI, gS.toSubject());
+
       // gE -> gJ
       verifyImmediateMembership(r.rs, "gE -> gJ", gJ, gE.toSubject());
 
@@ -202,6 +226,12 @@ public class TestMembership4 extends TestCase {
 
       // gQ -> gJ (parent: gE -> gJ) (depth: 1)
       verifyEffectiveMembership(r.rs, "gQ -> gJ", gJ, gQ.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
+
+      // gR -> gJ (parent: gE -> gJ) (depth: 1)
+      verifyEffectiveMembership(r.rs, "gR -> gJ", gJ, gR.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
+
+      // gS -> gJ (parent: gE -> gJ) (depth: 1)
+      verifyEffectiveMembership(r.rs, "gS -> gJ", gJ, gS.toSubject(), gE, 1, gJ, gE.toSubject(), null, 0);
 
       // SC -> gK
       verifyImmediateMembership(r.rs, "SC -> gK", gK, subjC);
@@ -236,6 +266,12 @@ public class TestMembership4 extends TestCase {
       // gQ -> gL (parent: gI -> gL) (depth: 1)
       verifyEffectiveMembership(r.rs, "gQ -> gL", gL, gQ.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
 
+      // gR -> gL (parent: gI -> gL) (depth: 1)
+      verifyEffectiveMembership(r.rs, "gR -> gL", gL, gR.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
+
+      // gS -> gL (parent: gI -> gL) (depth: 1)
+      verifyEffectiveMembership(r.rs, "gS -> gL", gL, gS.toSubject(), gI, 1, gL, gI.toSubject(), null, 0);
+
       // gJ -> gM
       verifyImmediateMembership(r.rs, "gJ -> gM", gM, gJ.toSubject());
 
@@ -263,6 +299,12 @@ public class TestMembership4 extends TestCase {
       // gE -> gM (parent: gJ -> gM) (depth: 1)
       verifyEffectiveMembership(r.rs, "gE -> gM", gM, gE.toSubject(), gJ, 1, gM, gJ.toSubject(), null, 0);
 
+      // gR -> gM (parent: gE -> gM) (depth: 2)
+      verifyEffectiveMembership(r.rs, "gR -> gM", gM, gR.toSubject(), gE, 2, gM, gE.toSubject(), gJ, 1);
+
+      // gS -> gM (parent: gE -> gM) (depth: 2)
+      verifyEffectiveMembership(r.rs, "gS -> gM", gM, gS.toSubject(), gE, 2, gM, gE.toSubject(), gJ, 1);
+
       // gG -> gN
       verifyImmediateMembership(r.rs, "gG -> gN", gN, gG.toSubject());
 
@@ -283,6 +325,18 @@ public class TestMembership4 extends TestCase {
 
       // SD -> gQ
       verifyImmediateMembership(r.rs, "SD -> gQ", gQ, subjD);
+
+      // gS -> gR
+      verifyImmediateMembership(r.rs, "gS -> gR", gR, gS.toSubject());
+
+      // gP -> gT
+      verifyImmediateMembership(r.rs, "gP -> gT", gT, gP.toSubject());
+
+      // gA -> gT (parent: gP -> gT) (depth: 1)
+      verifyEffectiveMembership(r.rs, "gA -> gT", gT, gA.toSubject(), gP, 1, gT, gP.toSubject(), null, 0);
+
+      // SB -> gT (parent: gP -> gT) (depth: 1)
+      verifyEffectiveMembership(r.rs, "SB -> gT", gT, subjB, gP, 1, gT, gP.toSubject(), null, 0);
 
 
       // verify the total number of memberships
@@ -312,7 +366,7 @@ public class TestMembership4 extends TestCase {
       }
 */
 
-      T.amount("Number of memberships", 66, allMemberships.size());
+      T.amount("Number of memberships", 82, allMemberships.size());
 
       r.rs.stop();
     }
