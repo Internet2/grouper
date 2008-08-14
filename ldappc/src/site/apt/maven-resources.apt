@@ -38,6 +38,6 @@
 | | The best single book about Maven, available in browsable HTML or downloadable PDF. |
 | | This book is in beta format now, and will soon be published by O'Reilly. |
 *---+---+
-| {{http://m2eclipse.sonatype.org/update}} | M2eclipse: maven integration with the Eclipse IDE |
+| {{http://m2eclipse.sonatype.org}} | Maven integration with the Eclipse IDE |
 | | Essential for building Ldappc within Eclipse. |
 *---+---+
