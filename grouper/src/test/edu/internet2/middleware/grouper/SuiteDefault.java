@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.AllUtilTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.39 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.40 2008-08-14 15:44:37 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -43,7 +43,7 @@ public class SuiteDefault extends TestCase {
     //do this first so all tests are done on new ddl
     suite.addTest(AllDdlTests.suite());
 
-    //suite.addTestSuite( GrouperVersionTest.class );
+    suite.addTestSuite( GrouperVersionTest.class );
     suite.addTestSuite( Test_api_ChildGroupFilter.class );
     suite.addTestSuite( Test_api_ChildStemFilter.class );
     suite.addTestSuite( Test_api_Group.class );
