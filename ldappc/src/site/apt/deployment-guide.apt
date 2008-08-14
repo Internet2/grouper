@@ -164,7 +164,24 @@ index   eduPersonEntitlement  eq
 
   If one uses "uniqueMember" instead of "member" in the <<<ldappc.xml>>> file, then one would
   want to replace "member" above with "uniqueMember".
+  
+* {Configure Logging}
+
+  The <<<log4j.properties>>> file in the <<<conf>>> directory contains the standard Log4J
+  configuration to log Ldappc's operation. By default, log files will be written to the
+  <<<logs>>> directory. You should review this file and make sure it is appropriate for
+  you installation. 
 
 {Final Steps}
 
-  TBD.
+  If you want to run Ldappc from the installation directory you are finished.  See
+  the {{{user-manual.html}user manual}} for instructions on running Ldappc.
+  
+  If you want to move it to a different directory, you will need the <<<bin>>> directory,
+  the <<<conf>>> directory, the <<<lib>>> directory, and the <<<logs>>> directory.
+  
+  If you don't want these directories under a common directory, you may need to edit
+  the <<<log4j.properties>>> file and the runner script(s) in the <<<bin>>> directory
+  to reflect the desired locations.
+
+  In general, though, these steps should suffice for most installations.
