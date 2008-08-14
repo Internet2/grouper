@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.2 2008-08-14 06:35:48 mchyzer Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -311,8 +311,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       _ms = new Membership();
       _ms.setCreatorUuid(memberUUID);
       _ms.setDepth(depth + hasMS.getDepth() + 1);
-      _ms.setListName(listName);
-      _ms.setListType(listType);
+      _ms.setFieldId(FieldFinder.findFieldId(listName, listType));
       _ms.setMemberUuid( hasMS.getMemberUuid() );
       _ms.setOwnerUuid(ownerUUID);
       _ms.setType(Membership.EFFECTIVE);
@@ -366,8 +365,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           _ms = new Membership();
           _ms.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
           _ms.setDepth( isMS.getDepth() + hasMS.getDepth() + 2 );
-          _ms.setListName( isMS.getListName() );
-          _ms.setListType( isMS.getListType() );
+          _ms.setFieldId(FieldFinder.findFieldId(isMS.getListName(), isMS.getListType()));
           _ms.setMemberUuid( hasMS.getMemberUuid() );
           _ms.setOwnerUuid( isMS.getOwnerUuid() );
           _ms.setType(Membership.EFFECTIVE);
@@ -419,8 +417,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         _ms = new Membership();
         _ms.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
         _ms.setDepth( isMS.getDepth() + this.getMembership().getDepth() + 1 );
-        _ms.setListName( isMS.getListName() );
-        _ms.setListType( isMS.getListType() );
+        _ms.setFieldId(FieldFinder.findFieldId(isMS.getListName(), isMS.getListType()));
         _ms.setMember(this.getMember());
         _ms.setMemberUuid( this.getMembership().getMemberUuid() );
         _ms.setOwnerUuid( isMS.getOwnerUuid() );
@@ -462,8 +459,9 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       _ms = new Membership();
       _ms.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
       _ms.setDepth(0);
-      _ms.setListName( this.getField().getName() );
-      _ms.setListType( this.getField().getType().toString() );
+      _ms.setFieldId(FieldFinder.findFieldId(this.getField().getName(), 
+          this.getField().getType().toString()));
+
       _ms.setMemberUuid( (String) it.next() );
       _ms.setOwnerUuid( this.getOwnerUuid() );
       _ms.setParentUuid(null);
@@ -553,8 +551,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           throws GrouperSessionException {
         Membership _ms = new Membership();
         _ms.setCreatorUuid( grouperSession.getMember().getUuid() );
-        _ms.setListName( f.getName() );
-        _ms.setListType( f.getType().toString() );
+        _ms.setFieldId(FieldFinder.findFieldId(f.getName(), 
+            f.getType().toString()));
         _ms.setMemberUuid( _m.getUuid() );
         _ms.setOwnerUuid( DefaultMemberOf.this.getOwnerUuid() );
 

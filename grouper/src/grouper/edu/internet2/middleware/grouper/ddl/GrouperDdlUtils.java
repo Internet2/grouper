@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.8 2008-07-30 21:02:04 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.9 2008-08-14 06:35:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -200,7 +200,7 @@ public class GrouperDdlUtils {
     
     try {
       insideBootstrap = true;
-
+  
       //clear out for this run (in case testing, might call this multiple times)
       alreadyInsertedForObjectName.clear();
       
@@ -343,7 +343,7 @@ public class GrouperDdlUtils {
           }
           
           SqlBuilder sqlBuilder = platform.getSqlBuilder();
-
+  
           //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
           dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result));
           
@@ -357,7 +357,7 @@ public class GrouperDdlUtils {
             Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                 null, null);
             dropAllForeignKeys(newDatabase);
-
+  
             removeAllTables(newDatabase);
             
             String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
@@ -445,7 +445,7 @@ public class GrouperDdlUtils {
                 if ((!containsDbRecord(objectName) || (version == 1 && theDropBeforeCreate)) 
                     && !alreadyInsertedForObjectName.contains(objectName)) {
                 
-                  result.append("insert into grouper_ddl (id, object_name, db_version, " +
+                  result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
                   		"last_updated, history) values ('" + GrouperUuid.getUuid() 
                       +  "', '" + objectName + "', 1, '" + timestamp + "', \n'" + historyString + "');\n");
                   //dont insert again for this object
@@ -453,7 +453,7 @@ public class GrouperDdlUtils {
   
                 } else {
                   
-                  result.append("update grouper_ddl set db_version = " + version 
+                  result.append("\nupdate grouper_ddl set db_version = " + version 
                       + ", last_updated = '" + timestamp + "', \nhistory = '" + historyString 
                       + "' where object_name = '" + objectName + "';\n");
   
@@ -468,7 +468,7 @@ public class GrouperDdlUtils {
               
               //get the latest, doesnt really matter
               ddlVersionable = retieveVersion(objectName, javaVersion);
-
+  
               //it needs a name, just use "grouper"
               Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
                   null, null);
@@ -485,10 +485,14 @@ public class GrouperDdlUtils {
               //get this to the current version, dont worry about additional scripts
               upgradeDatabaseVersion(newDatabase, oldDatabase, dbVersion, objectName, javaVersion, 
                   javaVersion, new StringBuilder(), result, platform, connection, schema, sqlBuilder);
-
+  
               StringBuilder additionalScripts = new StringBuilder();
-              ddlVersionable.addAllForeignKeys(newDatabase, additionalScripts, javaVersion);
-
+              
+              DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, 
+                  sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result);
+              
+              ddlVersionable.addAllForeignKeys(ddlVersionBean);
+  
               String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
                   newDatabase);
               
@@ -498,7 +502,7 @@ public class GrouperDdlUtils {
               if (!StringUtils.isBlank(additionalScriptsString)) {
                 script += "\n" + additionalScriptsString;
               }
-
+  
               
               if (!StringUtils.isBlank(script)) {
                 //result.append("\n-- add back all the foreign keys */\n");
@@ -506,7 +510,7 @@ public class GrouperDdlUtils {
                 //result.append("\n-- end add back all foreign keys */\n\n");
               }
             }
-   
+  
             
           }
         }
@@ -556,7 +560,7 @@ public class GrouperDdlUtils {
           sqlExec.setUrl(grouperDb.getUrl());
           sqlExec.setUserid(grouperDb.getUser());
           sqlExec.setPassword(grouperDb.getPass());
-
+  
           Project project = new GrouperAntProject();
   
           //tell output where to go
@@ -569,8 +573,8 @@ public class GrouperDdlUtils {
             sqlExec.setProject(project);
   
             sqlExec.execute();
-
-            logMessage += "Script was executed successfully";
+  
+            logMessage += "Script was executed successfully\n";
           } catch (Exception e) {
             logMessage += "Error running script: " + ExceptionUtils.getFullStackTrace(e) + "\n";
             if (fromUnitTest) {
@@ -624,9 +628,9 @@ public class GrouperDdlUtils {
           RegistryInstall.main(new String[]{"internal"});
         } catch (RuntimeException e) {
           if (callFromCommandLine && !theWriteAndRunScript) {
-            String error = "ERROR: could not install grouper data, you need to run the script, then try again.  You can see the logs for specifics if you like";
+            String error = "ERROR: could not install grouper data, you need to run the SQL script, then try again.  The specifics are not logged: " + e.getMessage();
             System.err.println(error);
-            LOG.error(error, e);
+            LOG.error(error);
             System.exit(1);
           } else {
             
@@ -640,12 +644,218 @@ public class GrouperDdlUtils {
     }
     return resultString;
   }
+  /**
+   * <pre>
+   * helper method to run custom db ddl, which is more easily testable
+   * TODO consolidate this code with the bootstrap code in the DdlVersionBean or somewhere
+   * Here is an example:
+   * 
+   *     GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+   * 
+   *       public void changeDatabase(DdlVersionBean ddlVersionBean) {
+   *         
+   *         Database database = ddlVersionBean.getDatabase();
+   *         {
+   *           Table attributesTable = database.findTable(Attribute.TABLE_GROUPER_ATTRIBUTES);
+   *           Column attributesFieldIdColumn = attributesTable.findColumn(Attribute.COLUMN_FIELD_ID);
+   *           attributesTable.removeColumn(attributesFieldIdColumn);
+   *         }
+   *         
+   *         {
+   *           Table membershipsTable = database.findTable(Membership.TABLE_GROUPER_MEMBERSHIPS);
+   *           Column membershipsFieldIdColumn = membershipsTable.findColumn(Membership.COLUMN_FIELD_ID);
+   *           membershipsTable.removeColumn(membershipsFieldIdColumn);
+   *         }
+   *         
+   *       }
+   *       
+   *     });
+   * 
+   * 
+   * </pre>
+   * @param objectName (from enum of ddl utils type)
+   * @param ddlUtilsChangeDatabase is the callback to change the database
+   */
+  @SuppressWarnings("unchecked")
+  public static String changeDatabase(String objectName, DdlUtilsChangeDatabase ddlUtilsChangeDatabase) {
+        
+    String resultString = null;
+    
+    try {
+      insideBootstrap = true;
+
+      //clear out cache of object versions since if multiple calls from unit tests, can get bad data
+      cachedDdls = null;
+      
+      //if we are messing with ddl, lets clear caches
+      FieldFinder.clearCache();
+      GroupTypeFinder.clearCache();
+      
+      Platform platform = retrievePlatform(false);
+      
+      //convenience to get the url, user, etc of the grouper db, helps get db connection
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+      
+      Connection connection = null;
+      
+      String schema = grouperDb.getUser().toUpperCase();
+      
+      //postgres needs lower I think
+      if (platform.getName().toLowerCase().contains("postgre")) {
+        schema = schema.toLowerCase();
+      }
+      
+      StringBuilder result = new StringBuilder();
+      
+      try {
+        connection = grouperDb.connection();
+  
+        //this is the version in java
+        int javaVersion = retrieveDdlJavaVersion(objectName); 
+        
+        DdlVersionable ddlVersionable = retieveVersion(objectName, javaVersion);
+        
+        //pattern to get only certain objects (e.g. GROUPERLOADER% )
+        String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
+        
+        if (platform.getName().toLowerCase().contains("postgres")) {
+          defaultTablePattern = defaultTablePattern.toLowerCase();
+        }
+        
+        //to be safe lets only deal with tables related to this object
+        platform.getModelReader().setDefaultTablePattern(defaultTablePattern);
+        //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+
+        String ddlUtilsSchemaOverride = GrouperConfig.getProperty("ddlutils.schema");
+        if (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
+          platform.getModelReader().setDefaultSchemaPattern(ddlUtilsSchemaOverride);
+        } else {
+          platform.getModelReader().setDefaultSchemaPattern(schema);
+        }
+        
+        SqlBuilder sqlBuilder = platform.getSqlBuilder();
+
+        //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+        dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result));
+        
+        //it needs a name, just use "grouper"
+        Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+            null, null);
+        dropAllForeignKeys(oldDatabase);
+          
+        Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+            null, null);
+        dropAllForeignKeys(newDatabase);
+
+        StringBuilder additionalScripts = new StringBuilder();
+        //callback
+        DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, -1, result);
+        ddlUtilsChangeDatabase.changeDatabase(ddlVersionBean);
+        
+        String script = convertChangesToString(objectName, sqlBuilder, oldDatabase, newDatabase);
+          
+        if (!StringUtils.isBlank(script)) {
+          //result.append("\n-- we are configured in grouper.properties to drop all tables \n");
+          result.append(script).append("\n");
+          //result.append("\n-- end drop all tables \n\n");
+        }
+        
+        if (additionalScripts.length() > 0) {
+          result.append(additionalScripts).append("\n");
+          additionalScripts = new StringBuilder();
+          ddlVersionBean.setAdditionalScripts(additionalScripts);
+        }
+        //add back in the foreign keys
+        ddlVersionable.addAllForeignKeys(ddlVersionBean);
+          
+      } finally {
+        GrouperUtil.closeQuietly(connection);
+      }
+  
+      resultString = result.toString();
+      
+      String scriptDirName = GrouperConfig.getProperty("ddlutils.directory.for.scripts");
+      
+      File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
+      GrouperUtil.saveStringIntoFile(scriptFile, resultString);
+
+      String logMessage = "Ran this DDL:\n" + scriptFile.getAbsolutePath();
+      if (LOG.isErrorEnabled()) {
+        LOG.error(logMessage);
+      } else {
+        System.err.println(logMessage);
+      }
+      logMessage = "";
+
+      PrintStream err = System.err;
+      PrintStream out = System.out;
+      InputStream in = System.in;
+
+      //dont let ant mess up or close the streams
+      ByteArrayOutputStream baosOutErr = new ByteArrayOutputStream();
+      PrintStream newOutErr = new PrintStream(baosOutErr);
+
+      System.setErr(newOutErr);
+      System.setOut(newOutErr);
+      
+      SQLExec sqlExec = new SQLExec();
+      
+      sqlExec.setSrc(scriptFile);
+      
+      sqlExec.setDriver(grouperDb.getDriver());
+
+      sqlExec.setUrl(grouperDb.getUrl());
+      sqlExec.setUserid(grouperDb.getUser());
+      sqlExec.setPassword(grouperDb.getPass());
+
+      Project project = new GrouperAntProject();
+
+      //tell output where to go
+      DefaultLogger defaultLogger = new DefaultLogger();
+      defaultLogger.setErrorPrintStream(newOutErr);
+      defaultLogger.setOutputPrintStream(newOutErr);
+      project.addBuildListener(defaultLogger);
+      
+      try {
+        sqlExec.setProject(project);
+
+        sqlExec.execute();
+
+        logMessage += "Script was executed successfully\n";
+      } catch (Exception e) {
+        throw new RuntimeException("Error running script", e);
+      } finally {
+      
+        newOutErr.flush();
+        newOutErr.close();
+        
+        System.setErr(err);
+        System.setOut(out);
+        System.setIn(in);
+      }
+      
+      String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
+
+      if (!StringUtils.isBlank(antOutput)) {
+        logMessage += antOutput + "\n";
+      }
+      //if call from command line, print to screen
+      if (LOG.isErrorEnabled()) {
+        LOG.error(logMessage);
+      } else {
+        System.out.println(logMessage);
+      }
+    } finally {
+      insideBootstrap = false;
+    }
+    return resultString;
+  }
 
   /**
    * drop all foreign keys (database dependent), and generate the script
    * @param ddlVersionBean
    */
-  private static void dropAllForeignKeysScript(DdlVersionBean ddlVersionBean) {
+  public static void dropAllForeignKeysScript(DdlVersionBean ddlVersionBean) {
     
     Connection connection = ddlVersionBean.getConnection();
     
@@ -832,7 +1042,9 @@ public class GrouperDdlUtils {
         }
       } catch (Exception e) {
         //just log, maybe the table isnt there
-        LOG.error("maybe the grouper_ddl table isnt there... if that is the reason its ok.", e);
+        LOG.error("maybe the grouper_ddl table isnt there... if that is the reason its ok. " + e.getMessage());
+        //send this as info, since most of the time it isnt needed
+        LOG.info("ddl issue: ", e);
       }
     
       cachedDdls = GrouperUtil.defaultIfNull(cachedDdls, new ArrayList<Hib3GrouperDdl>());

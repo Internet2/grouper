@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.7 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.8 2008-08-14 06:35:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -119,10 +119,10 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   {
     ByHqlStatic qry = HibernateSession.byHqlStatic();
     if      ( f.getType().equals(FieldType.ATTRIBUTE) ) {
-      qry.createQuery("from Attribute as a where a.attrName = :name");
+      qry.createQuery("select a from Attribute as a, Field as field where field.name = :name and field.uuid = a.fieldId");
     }
     else if ( f.getType().equals(FieldType.LIST) )      {
-      qry.createQuery("from Membership as ms where ms.listName = :name");
+      qry.createQuery("select ms from Membership as ms, Field as field where field.name = :name and field.uuid = ms.groupId");
     } else {
       throw new SchemaException( f.getType().toString() );
     }

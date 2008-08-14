@@ -75,15 +75,35 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.102 2008-07-29 20:09:27 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.103 2008-08-14 06:35:47 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
+
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 1L;
 
   /** table name where memberships are stored */
   public static final String TABLE_GROUPER_MEMBERSHIPS = "grouper_memberships";
   
   /** id col in db */
   public static final String COLUMN_ID = "id";
+
+  /** id col in db */
+  public static final String COLUMN_FIELD_ID = "field_id";
+
+  /** list_name col in db */
+  public static final String COLUMN_LIST_NAME = "list_name";
+
+  /** list_type col in db */
+  public static final String COLUMN_LIST_TYPE = "list_type";
+
+  /** old_list_name col in db */
+  public static final String COLUMN_OLD_LIST_NAME = "old_list_name";
+
+  /** old_list_type col in db */
+  public static final String COLUMN_OLD_LIST_TYPE = "old_list_type";
 
   /** uuid col in db */
   public static final String COLUMN_MEMBERSHIP_UUID = "membership_uuid";
@@ -110,11 +130,8 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   /** constant for field name for: depth */
   public static final String FIELD_DEPTH = "depth";
 
-  /** constant for field name for: listName */
-  public static final String FIELD_LIST_NAME = "listName";
-
-  /** constant for field name for: listType */
-  public static final String FIELD_LIST_TYPE = "listType";
+  /** constant for field name for: fieldId */
+  public static final String FIELD_FIELD_ID = "fieldId";
 
   /** constant for field name for: memberUUID */
   public static final String FIELD_MEMBER_UUID = "memberUUID";
@@ -138,18 +155,18 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_LIST_NAME, 
-      FIELD_LIST_TYPE, FIELD_MEMBER_UUID, FIELD_OWNER_UUID, FIELD_PARENT_UUID, 
-      FIELD_TYPE, FIELD_UUID, FIELD_VIA_UUID);
+      FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_FIELD_ID, 
+      FIELD_MEMBER_UUID, FIELD_OWNER_UUID, 
+      FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, FIELD_VIA_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_DEPTH, 
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_LIST_NAME, FIELD_LIST_TYPE, FIELD_MEMBER_UUID, 
-      FIELD_OWNER_UUID, FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, 
-      FIELD_VIA_UUID);
+      FIELD_FIELD_ID, FIELD_HIBERNATE_VERSION_NUMBER,
+      FIELD_MEMBER_UUID, FIELD_OWNER_UUID, FIELD_PARENT_UUID, FIELD_TYPE, 
+      FIELD_UUID, FIELD_VIA_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -196,10 +213,6 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
   private int     depth       = 0;                              // reasonable default
 
-  private String  listName;
-
-  private String  listType;
-
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
@@ -241,6 +254,11 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   private String  uuid        = GrouperUuid.getUuid(); // reasonable default
 
   private String  viaUUID     = null;                           // reasonable default
+
+  /**
+   * id of the field which is the list name and type
+   */
+  private String fieldId;
 
   /** 
    * Get child memberships of this membership. 
@@ -768,7 +786,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
   //@since   1.3.0
   private Group getGroupFromCache(String uuid) {
-	  Element el = this.cc.getCache(CACHE_GET_GROUP).get(uuid);
+	  Element el = cc.getCache(CACHE_GET_GROUP).get(uuid);
 	    if (el != null) {
 	      return (Group) el.getObjectValue();
 	    }
@@ -777,7 +795,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   
   //@since   1.3.0
   private Stem getStemFromCache(String uuid) {
-	  Element el = this.cc.getCache(CACHE_GET_STEM).get(uuid);
+	  Element el = cc.getCache(CACHE_GET_STEM).get(uuid);
 	    if (el != null) {
 	      return (Stem) el.getObjectValue();
 	    }
@@ -786,12 +804,12 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   
   //@since   1.3.0
   private void putGroupInCache(Group g) {
-	  this.cc.getCache(CACHE_GET_GROUP).put( new Element( g.getUuid(),g) );
+	  cc.getCache(CACHE_GET_GROUP).put( new Element( g.getUuid(),g) );
   }
   
   //@since   1.3.0
   private void putStemInCache(Stem stem) {
-	  this.cc.getCache(CACHE_GET_STEM).put( new Element( stem.getUuid(),stem) );
+	  cc.getCache(CACHE_GET_STEM).put( new Element( stem.getUuid(),stem) );
   }
 
   // PUBLIC INSTANCE METHODS //
@@ -836,14 +854,28 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    * @since   1.2.0
    */
   public String getListName() {
-    return this.listName;
+    Field field = this.getField();
+    return field == null ? null : field.getName();
+  }
+  
+  /**
+   * get the field based on field id (if there is one there)
+   * @return the field or null if not there
+   */
+  private Field getField() {
+    if (StringUtils.isBlank(this.fieldId)) {
+      return null;
+    }
+    Field field = FieldFinder.findById(this.fieldId);
+    return field;
   }
 
   /**
    * @since   1.2.0
    */
   public String getListType() {
-    return this.listType;
+    Field field = this.getField();
+    return field == null ? null : field.getTypeString();
   }
 
   /**
@@ -929,27 +961,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     this.depth = depth;
   
   }
-
-  /**
-   * @since   1.2.0
-   */
-  public void setListName(String listName) {
-    this.listName = listName;
   
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public void setListType(String listType) {
-    this.listType = listType;
-  
-  
-  /**
-   * @since   1.2.0
-   */
-  }
-
   /**
    * @since   1.3.0
    */
@@ -1139,6 +1151,22 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public Membership clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
+  /**
+   * id of the field which is the list name and type
+   * @return the field id
+   */
+  public String getFieldId() {
+    return fieldId;
+  }
+
+  /**
+   * id of the field which is the list name and type
+   * @param fieldId1
+   */
+  public void setFieldId(String fieldId1) {
+    this.fieldId = fieldId1;
   }
 
   

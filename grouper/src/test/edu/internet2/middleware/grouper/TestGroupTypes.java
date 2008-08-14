@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGroupTypes.java,v 1.11 2008-08-14 06:35:47 mchyzer Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 
@@ -723,7 +723,9 @@ public class TestGroupTypes extends GrouperTest {
         } 
       }
       catch (Exception e) {
-        Assert.fail("could not delete LIST: " + e.getMessage());
+        String error = "could not delete LIST: " + e.getMessage();
+        LOG.error(error, e);
+        Assert.fail(error);
       }
     }
     catch (Exception e) {

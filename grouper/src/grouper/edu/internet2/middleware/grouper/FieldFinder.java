@@ -16,11 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.Map;
-import  java.util.Set;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.39 2008-07-27 07:37:24 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.40 2008-08-14 06:35:47 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -41,10 +41,44 @@ public class FieldFinder {
    */
   private static GrouperCache<String, Field> fieldCache = new GrouperCache<String, Field>(
       FieldFinder.class.getName() + ".fieldCache", 10000, false, 60*10, 60*10, false);
-  
 
+  /**
+   * 
+   * @param name
+   * @param type
+   * @return
+   */
+  public static String findFieldId(String name, String type) {
+    //if both null then we are all set
+    if (StringUtils.isBlank(name) && StringUtils.isBlank(type)) {
+      return null;
+    }
+    //either both blank, or both filled in
+    if (StringUtils.isBlank(name) || StringUtils.isBlank(type)) {
+      throw new RuntimeException("Name or type cannot be blank: '" + name + "', '" + type + "'");
+    }
+    
+    try {
+      Field field = FieldFinder.find(name);
+      if (!StringUtils.equals(field.getTypeString(), type)) {
+        throw new RuntimeException("Field with name '" + name + "' should have type: '" + type 
+            + "' but instead has type: '" + field.getTypeString() + "'");
+      }
+      return field.getUuid();
+    } catch (SchemaException se) {
+      throw new RuntimeException("Problem finding attribute name: " + name, se);
+    }
 
-  // PUBLIC CLASS METHODS //
+  }
+
+  /**
+   * find the field id or null if the name is empty.  Runtime exception if problem
+   * @param attrName
+   * @return the field uuid
+   */
+  public static String findFieldIdForAttribute(String attrName) {
+    return findFieldId(attrName, "attribute");
+  }
 
   /**
    * Get the specified field.
@@ -65,6 +99,29 @@ public class FieldFinder {
       return fieldCache.get(name);
     }
     throw new SchemaException("field not found: " + name);
+  } 
+
+  /**
+   * Get the specified field by id.
+   * @param   fieldId  fieldId
+   * @return the field or null if fieldId is blank.  will throw runtime exception if the field is not found
+   */
+  public static Field findById(String fieldId) {
+    if (StringUtils.isBlank(fieldId)) {
+      return null;
+    }
+    for (Field field : fieldCache.values()) {
+      if (StringUtils.equals(fieldId, field.getUuid())) {
+        return field;
+      }
+    }
+    internal_updateKnownFields();
+    for (Field field : fieldCache.values()) {
+      if (StringUtils.equals(fieldId, field.getUuid())) {
+        return field;
+      }
+    }
+    throw new RuntimeException("Cant find field with id: '" + fieldId + "'");
   } 
 
   /**

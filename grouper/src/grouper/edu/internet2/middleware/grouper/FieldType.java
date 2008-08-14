@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
  * Field Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.11 2008-07-27 07:37:24 mchyzer Exp $    
+ * @version $Id: FieldType.java,v 1.12 2008-08-14 06:35:47 mchyzer Exp $    
  */
 public class FieldType implements Serializable {
 
@@ -69,9 +69,7 @@ public class FieldType implements Serializable {
       return false;
     }
     if (obj instanceof FieldType) {
-      if (StringUtils.equals(this.type, ((FieldType)obj).type)) {
-        return true;
-      }
+      return StringUtils.equals(this.type, ((FieldType)obj).type);
     }
     return false;
   }
@@ -92,6 +90,11 @@ public class FieldType implements Serializable {
   Object readResolve() {
     return getInstance(type);
   } // Object readResolve()
+
+
+  public String getType() {
+    return type;
+  }
 
 }
 

@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.7 2008-07-28 20:12:27 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.8 2008-08-14 06:35:47 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -122,7 +122,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
       .setString("uuid", uuid)
       .uniqueResult(GroupType.class);
     if (groupType == null) {
-      throw new SchemaException();
+      throw new SchemaException("Group type with uuid: '" + uuid + "' cant be found");
     }
     return groupType;
   } 

@@ -19,23 +19,22 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 
-import  edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
-import  edu.internet2.middleware.grouper.internal.dao.FieldDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GroupDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
-import  edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import  edu.internet2.middleware.grouper.internal.dao.MemberDAO;
-import  edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import  edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
-import  edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
-import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
+import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
+import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
+import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
+import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
+import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.6 2008-08-14 06:35:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -56,11 +55,6 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   public GroupDAO getGroup() {
     return new Hib3GroupDAO();
   }
-
-  // @since   @HEAD@
-  public GrouperSessionDAO getGrouperSession() {
-    return new Hib3GrouperSessionDAO();
-  } 
 
   // @since   @HEAD@
   public GroupTypeDAO getGroupType() {

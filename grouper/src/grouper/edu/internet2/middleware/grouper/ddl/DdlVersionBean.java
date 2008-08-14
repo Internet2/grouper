@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionBean.java,v 1.3 2008-07-30 06:49:07 mchyzer Exp $
+ * $Id: DdlVersionBean.java,v 1.4 2008-08-14 06:35:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -44,6 +44,13 @@ public class DdlVersionBean {
    * be an intermediate build
    */
   private boolean isDestinationVersion;
+
+  /**
+   * @return true if postgres
+   */
+  public boolean isPostgres() {
+    return this.getPlatform().getName().toLowerCase().contains("postgres");
+  }
   
   /**
    * the eventual version we are build to

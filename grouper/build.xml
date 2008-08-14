@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.187 2008-07-28 20:12:28 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.188 2008-08-14 06:35:48 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -318,37 +318,6 @@
   </target>
   <!-- target: dist -->
 
-  <!-- target: dist.lib -->
-  <target name="dist.lib"
-          depends="init" 
-          description="Create jar of Grouper 3rd party libraries"
-    >
-    <!-- ugly, i know -->
-    <unzip dest="${build.dir.lib}">
-      <fileset dir="${lib.dir}">
-        <include name="*.jar"/>
-      </fileset>
-    </unzip>
-    <!-- be sure to include _java/lib/README_ -->
-    <copy file="${lib.dir}/README.txt" 
-          tofile="${build.dir.lib}/README.txt"
-    />
-    <jar  jarfile="${dist.dir}/lib/${app.name}-lib-${DSTAMP}.jar" 
-          basedir="${build.dir.lib}"
-    />
-    <copy file="${dist.dir}/lib/${app.name}-lib-${DSTAMP}.jar" 
-          tofile="${dist.dir}/lib/${app.name}-lib.jar" 
-    />
-  </target>
-  <!-- target: dist.lib -->
-
-  <!-- target: dist-lib -->
-  <!-- TODO 20070329 deprecate post 1.2.0 -->
-  <target name="dist-lib">
-    <antcall target="dist.lib"/>
-  </target>
-  <!-- target: dist-lib -->
-
   <!-- target: eg.bootstrap -->
   <!-- run example bootstrap programs -->
   <target name="eg.bootstrap"
@@ -394,7 +363,7 @@
 
   <!-- target: findbugs -->
   <target name="findbugs" 
-          depends="dist, dist.lib"
+          depends="dist"
   >
     <taskdef  name="findbugs"       classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
     <property name="findbugs.home"  location="${user.home}/Applications/findbugs"/>

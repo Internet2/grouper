@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.4 2008-07-29 07:05:20 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.5 2008-08-14 06:35:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -131,8 +131,8 @@ public enum SubjectDdl implements DdlVersionable {
    * @param additionalScripts add additional scripts after the db ddl (e.g. sql).  scripts should be semicolon delimited
    * @param buildingToVersion version it will end up with when done (usually largest version unless unit testing)
    */
-  public void addAllForeignKeys(Database database, StringBuilder additionalScripts,
-      int buildingToVersion) {
+  public void addAllForeignKeys(DdlVersionBean ddlVersionBean) {
+    Database database = ddlVersionBean.getDatabase();
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "subjectattribute", 
         "fk_subjectattr_subjectid", "subject", "subjectId", "subjectId");
 

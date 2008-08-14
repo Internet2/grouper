@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 
@@ -206,10 +207,10 @@ public class ByHqlStatic {
       
       return result;
     } catch (GrouperDAOException e) {
-      LOG.error("Exception in uniqueResult: (" + returnType + "), " + this, e);
+      GrouperUtil.injectInException(e, "Exception in uniqueResult: (" + returnType + "), " + this);
       throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in uniqueResult: " + this, e);
+      GrouperUtil.injectInException(e, "Exception in uniqueResult: (" + returnType + "), " + this);
       throw e;
     }
     

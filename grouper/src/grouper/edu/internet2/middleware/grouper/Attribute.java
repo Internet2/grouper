@@ -16,18 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.18 2008-07-29 20:34:24 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.19 2008-08-14 06:35:47 mchyzer Exp $
  * @since   @HEAD@
  */
 @GrouperIgnoreDbVersion @GrouperIgnoreClone
@@ -35,11 +37,11 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
-  /** constant for field name for: attrName */
-  public static final String FIELD_ATTR_NAME = "attrName";
-
   /** constant for field name for: dbVersion */
   public static final String FIELD_DB_VERSION = "dbVersion";
+
+  /** constant for field name for: fieldId */
+  public static final String FIELD_FIELD_ID = "fieldId";
 
   /** constant for field name for: groupUUID */
   public static final String FIELD_GROUP_UUID = "groupUUID";
@@ -53,7 +55,10 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
   // PRIVATE INSTANCE VARIABLES //
-  private String  attrName;
+  
+  /** id of the field which is the attribute name */
+  private String  fieldId;
+
   private String  groupUUID;
   private String  id;
   private String  value;
@@ -62,6 +67,16 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
    * 
    */
   public static final String TABLE_GROUPER_ATTRIBUTES = "grouper_attributes";
+
+  /** column field_id col in db */
+  public static final String COLUMN_FIELD_ID = "field_id";
+
+  /** column field_name col in db */
+  public static final String COLUMN_FIELD_NAME = "field_name";
+
+  /** column old_field_name col in db */
+  public static final String COLUMN_OLD_FIELD_NAME = "old_field_name";
+
 
 
   // PUBLIC INSTANCE METHODS //
@@ -112,7 +127,15 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
 
   // @since   @HEAD@
   public String getAttrName() {
-    return this.attrName;
+    if (StringUtils.isBlank(this.fieldId)) {
+      return null;
+    }
+    Field field = FieldFinder.findById(this.fieldId);
+    if (!field.isAttributeName()) {
+      throw new RuntimeException("Field is not an attribute name, id: " + this.fieldId
+          + ", instead it is: " + field.getTypeString());
+    }
+    return field.getName();
   }
   // @since   @HEAD@
   public String getGroupUuid() {
@@ -126,25 +149,18 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
   public String getValue() {
     return this.value;
   }
+
   // @since   @HEAD@
-  public Attribute setAttrName(String attrName) {
-    this.attrName = attrName;
-    return this;
-  }
-  // @since   @HEAD@
-  public Attribute setGroupUuid(String groupUUID) {
+  public void setGroupUuid(String groupUUID) {
     this.groupUUID = groupUUID;
-    return this;
   }
   // @since   @HEAD@
-  public Attribute setId(String id) {
+  public void setId(String id) {
     this.id = id;
-    return this;
   }
   // @since   @HEAD@
-  public Attribute setValue(String value) {
+  public void setValue(String value) {
     this.value = value;
-    return this;
   }
 
   /**
@@ -153,6 +169,22 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public Attribute clone() {
     throw new RuntimeException("Clone not supported");
+  }
+
+  /**
+   * id of the field which is the attribute name
+   * @return the field id
+   */
+  public String getFieldId() {
+    return fieldId;
+  }
+
+  /**
+   * id of the field which is the attribute name
+   * @param fieldId1
+   */
+  public void setFieldId(String fieldId1) {
+    this.fieldId = fieldId1;
   }
 
 } 
