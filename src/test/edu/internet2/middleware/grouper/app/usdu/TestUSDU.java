@@ -1,9 +1,13 @@
 package edu.internet2.middleware.grouper.app.usdu;
 
+import java.util.List;
 import java.util.Set;
+
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
@@ -16,6 +20,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.T;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -36,6 +41,16 @@ public class TestUSDU extends GrouperTest {
    */
   private static final Log LOG = LogFactory.getLog(TestUSDU.class);
 
+  public TestUSDU() {
+    super();
+    // TODO Auto-generated constructor stub
+  }
+
+  public TestUSDU(String name) {
+    super(name);
+    // TODO Auto-generated constructor stub
+  }
+
   protected void setUp() {
 
     LOG.debug("setUp");
@@ -47,19 +62,29 @@ public class TestUSDU extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(TestUSDU.class);
+    TestRunner.run(new TestUSDU("testNamingPrivilege"));
+  }
+
   private void deleteSubject(Subject subject) throws InterruptedException {
     
     //CH 20080720, I converted this to latest, but didnt test it
-    RegistrySubjectDAO dao = GrouperDAOFactory.getFactory().getRegistrySubject();
-    RegistrySubject registrySubject = new RegistrySubject();
-    registrySubject.setId(subject.getId());
-    registrySubject.setName(subject.getName());
-    registrySubject.setTypeString(subject.getType().getName());
-    dao.delete(registrySubject);
+    List<RegistrySubject> registrySubjects = HibernateSession.byCriteriaStatic()
+      .list(RegistrySubject.class, Restrictions.eq("id", subject.getId()));
+    if (registrySubjects.size() > 0) {
+      
+      RegistrySubjectDAO dao = GrouperDAOFactory.getFactory().getRegistrySubject();
+      dao.delete(registrySubjects.get(0));
+    }
 
     // must be longer than timeToIdleSeconds and timeToLiveSeconds in
     // src/test/conf/grouper.ehcache.xml
-    Thread.sleep(1100);
+    Thread.sleep(11000);
 
     try {
       SubjectFinder.findById(subject.getId());

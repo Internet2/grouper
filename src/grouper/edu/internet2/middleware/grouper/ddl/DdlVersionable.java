@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionable.java,v 1.3 2008-07-29 07:05:20 mchyzer Exp $
+ * $Id: DdlVersionable.java,v 1.4 2008-08-14 06:35:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
  
@@ -14,11 +14,9 @@ public interface DdlVersionable {
 
   /**
    * add all foreign keys
-   * @param database ddlutils database object
-   * @param additionalScripts add additional scripts after the db ddl (e.g. sql).  scripts should be semicolon delimited
-   * @param buildingToVersion version we are building towards (in case unit testing)
+   * @param ddlVersionBean
    */
-  public void addAllForeignKeys(Database database, StringBuilder additionalScripts, int buildingToVersion);
+  public void addAllForeignKeys(DdlVersionBean ddlVersionBean);
 
   /**
    * get the version of this enum

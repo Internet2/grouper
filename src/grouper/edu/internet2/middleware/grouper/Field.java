@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.io.Serializable;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -43,7 +42,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.31 2008-07-28 20:12:28 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.32 2008-08-14 06:35:47 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -131,7 +130,8 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
         this.cachedGroupType = type;
       }
       catch (SchemaException eS) {
-        throw new IllegalStateException( "unable to fetch GroupType: " + eS.getMessage() );
+        throw new IllegalStateException( "unable to fetch GroupType: '" 
+            + this.getGroupTypeUuid() + "', " + eS.getMessage() );
       }
     }
     return this.cachedGroupType;
@@ -287,6 +287,14 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   public void setTypeString(String type) {
     this.type = type;
   
+  }
+
+  /**
+   * see if this field is an attribute name
+   * @return true if so
+   */
+  public boolean isAttributeName() {
+    return FieldType.ATTRIBUTE.equals(this.getType());
   }
 
   /**

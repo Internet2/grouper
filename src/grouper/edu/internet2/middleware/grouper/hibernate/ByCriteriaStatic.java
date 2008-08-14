@@ -198,10 +198,10 @@ public class ByCriteriaStatic {
       
       return result;
     } catch (GrouperDAOException e) {
-      LOG.error("Exception in list: (" + returnType + "), " + this, e);
+      GrouperUtil.injectInException(e, "Exception in list: (" + returnType + "), " + this);
       throw e;
     } catch (RuntimeException e) {
-      LOG.error("Exception in list: (" + returnType + "), " + this, e);
+      GrouperUtil.injectInException(e, "Exception in list: (" + returnType + "), " + this);
       throw e;
     }
     

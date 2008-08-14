@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.8 2008-07-29 20:09:27 mchyzer Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.9 2008-08-14 06:35:47 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
@@ -77,33 +77,10 @@
     </property>
     <!-- memberUuid -->
 
-    <!-- listName -->
-    <property name="listName"
-              type="string"
-              update="false"
-    >
-      <column name="list_name"
-              not-null="true"
-              length="32"
-              unique-key="members_idx"
-              index="membership_owner_list_type_idx, membership_member_list_idx"
-      />
-    </property>
-    <!-- listName -->
-
-    <!-- listType -->
-    <property name="listType"
-              type="string"
-              update="false"
-    >
-      <column name="list_type"
-              not-null="true"
-              length="32"
-              unique-key="members_idx"
-              index="membership_owner_list_type_idx, membership_member_list_idx"
-      />
-    </property>
-    <!-- listType -->
+    <!-- fieldId -->
+    <property name="fieldId" length="128"
+          column="field_id" type="string" />
+    <!-- fieldId -->
 
     <!-- type -->
     <property name="type"

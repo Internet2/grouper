@@ -21,16 +21,10 @@ import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
-import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
-import edu.internet2.middleware.grouper.internal.dao.GrouperSessionDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
@@ -45,7 +39,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.2 2008-08-14 06:35:48 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -104,11 +98,6 @@ public abstract class GrouperDAOFactory {
    * @since   1.2.0
    */
   public abstract GroupDAO getGroup();
-
-  /**
-   * @since   1.2.0
-   */
-  public abstract GrouperSessionDAO getGrouperSession();
 
   /**
    * @since   1.2.0

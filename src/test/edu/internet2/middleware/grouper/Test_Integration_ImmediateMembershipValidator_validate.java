@@ -23,7 +23,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.8 2008-08-14 06:35:47 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -72,7 +72,8 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setDepth(0);
       _ms.setViaUuid(null);
       _ms.setParentUuid(null);
-      _ms.setListName("members");
+      _ms.setFieldId(FieldFinder.findFieldId("members", 
+          FieldType.LIST.getType()));
       _ms.setOwnerUuid(null);
       _ms.setMemberUuid( g.toMember().getUuid() );
       try {
@@ -99,7 +100,8 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setDepth(0);
       _ms.setViaUuid(null);
       _ms.setParentUuid(null);
-      _ms.setListName("members");
+      _ms.setFieldId(FieldFinder.findFieldId("members", 
+          FieldType.LIST.getType()));
       _ms.setOwnerUuid( g.getUuid() );
       _ms.setMemberUuid(null);
       try {
@@ -126,7 +128,8 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setDepth(0);
       _ms.setViaUuid(null);
       _ms.setParentUuid(null);
-      _ms.setListName("members");
+      _ms.setFieldId(FieldFinder.findFieldId("members", 
+          FieldType.LIST.getType()));
       _ms.setOwnerUuid( g.getUuid() );
       _ms.setMemberUuid( g.toMember().getUuid() );
       GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
@@ -152,7 +155,8 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setDepth(0);
       _ms.setViaUuid(null);
       _ms.setParentUuid(null);
-      _ms.setListName("members");
+      _ms.setFieldId(FieldFinder.findFieldId("members", 
+          FieldType.LIST.getType()));
       _ms.setOwnerUuid( g.getUuid() );
       _ms.setMemberUuid( m.getUuid() );
       GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
@@ -176,7 +180,8 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setDepth(0);
       _ms.setViaUuid(null);
       _ms.setParentUuid(null);
-      _ms.setListName("members");
+      _ms.setFieldId(FieldFinder.findFieldId("members", 
+          FieldType.LIST.getType()));
       _ms.setOwnerUuid( g.getUuid() );
       _ms.setMemberUuid( m.getUuid() );
       GrouperValidator v = ImmediateMembershipValidator.validate(_ms);

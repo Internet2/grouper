@@ -28,6 +28,7 @@ import java.util.Set;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Attribute;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
@@ -50,7 +51,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.16 2008-07-28 20:12:27 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.17 2008-08-14 06:35:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -252,9 +253,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             //if (strategy1) {
                //CH 2008022: change to 3 joins to improve performance
               List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
-                  "select g, a from Group as g, Attribute as a," +
+                  "select g, a from Group as g, Attribute as a, Field as field, " +
                   "Attribute as a2 where a.groupUuid = g.uuid " +
-                  "and a.groupUuid = a2.groupUuid and a2.attrName = :field and lower(a2.value) like :value"
+                  "and a.groupUuid = a2.groupUuid and field.uuid = a2.fieldId and field.name = :field and lower(a2.value) like :value"
                 ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateAttr")
                 .setString("field", attr)
                 .setString( "value", "%" + val.toLowerCase() + "%" ).list(Object[].class);
@@ -288,11 +289,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           public Object callback(HibernateSession hibernateSession) {
             List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
                 "select g, a from Group as g, Attribute as a where a.groupUuid in " +
-                "(select a2.groupUuid from Attribute as a2 where " +
-                  "   (a2.attrName = 'name'              and lower(a2.value) like :value) " +
-                  "or (a2.attrName = 'displayName'       and lower(a2.value) like :value) " +
-                  "or (a2.attrName = 'extension'         and lower(a2.value) like :value) " +
-                  "or (a2.attrName = 'displayExtension'  and lower(a2.value) like :value) " +
+                "(select a2.groupUuid from Attribute as a2, Field as field where " +
+                  "   ((field.name = 'name'              and lower(a2.value) like :value) " +
+                  "or (field.name = 'displayName'       and lower(a2.value) like :value) " +
+                  "or (field.name = 'extension'         and lower(a2.value) like :value) " +
+                  "or (field.name = 'displayExtension'  and lower(a2.value) like :value))  " +
+                  "and field.uuid = a2.fieldId and field.typeString = 'attribute' " +
                 ") " + "and a.groupUuid = g.uuid"
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateName")
               .setString( "value", "%" + name.toLowerCase() + "%" ).list(Object[].class);
@@ -432,7 +434,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             GroupNotFoundException {
     Attribute a = HibernateSession.byHqlStatic()
-      .createQuery("from Attribute as a where a.attrName = :field and a.value like :value")
+      .createQuery("select a from Attribute as a, Field field where field.typeString = 'attribute'" +
+      		" and field.name = :field and a.value like :value and a.fieldId = field.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByAttribute")
       .setString("field", attr).setString("value", val).uniqueResult(Attribute.class);
@@ -451,8 +454,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             GroupNotFoundException {
     
     Group group = HibernateSession.byHqlStatic()
-      .createQuery("select g from Attribute as a, Group as g where a.groupUuid = g.uuid " +
-      		"and a.attrName = 'name' and a.value = :value")
+      .createQuery("select g from Attribute as a, Group as g, Field as field where a.groupUuid = g.uuid " +
+      		"and field.name = 'name' and a.value = :value and field.typeString = 'attribute' and a.fieldId = field.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByName")
       .setString("value", name).uniqueResult(Group.class);
@@ -618,7 +621,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     while (it.hasNext()) {
       kv = (Map.Entry) it.next();
       Attribute attributeDto = new Attribute(); 
-      attributeDto.setAttrName( (String) kv.getKey() );
+      attributeDto.setFieldId( FieldFinder.findFieldIdForAttribute((String) kv.getKey() ));
       attributeDto.setGroupUuid(group.getUuid());
       attributeDto.setValue( (String) kv.getValue() );
       byObject.save(attributeDto);
@@ -678,9 +681,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           public Object callback(HibernateSession hibernateSession) {
 
             List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
-                "select g, a from Group as g, Attribute as a," +
+                "select g, a from Group as g, Attribute as a, Field field, " +
                 "Attribute as a2 where a.groupUuid = g.uuid " +
-                "and a.groupUuid = a2.groupUuid and a2.attrName = :field and a2.value = :value"
+                "and a.groupUuid = a2.groupUuid and field.name = :field and a2.value = :value " +
+                "and field.uuid = a2.fieldId and field.typeString = 'attribute'"
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAttr")
               .setString("field", attr).setString( "value", val ).list(Object[].class);
 

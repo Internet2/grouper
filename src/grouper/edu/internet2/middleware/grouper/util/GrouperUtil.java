@@ -1884,7 +1884,7 @@ public class GrouperUtil {
         
       } catch (RuntimeException re) {
         throw new RuntimeException("Problem cloning field: " + object.getClass() 
-              + ", " + fieldName + ", " + fieldValueClass);
+              + ", " + fieldName + ", " + fieldValueClass, re);
       }
     }
   }
