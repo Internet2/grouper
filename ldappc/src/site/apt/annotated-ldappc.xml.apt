@@ -39,13 +39,13 @@
 </ldappc>
 ---
 
-  * <<grouper>>: provisions Grouper data. Optional.
+  * {{{Provisioning_from_Grouper}<<grouper>>}}: provisions Grouper data. Optional.
   
-  * <<signet>>: provisions Signet data. Optional.
+  * {{{Provisioning_from_Signet}<<signet>>}}: provisions Signet data. Optional.
   
-  * <<source-subject-identifiers>>: maps Grouper/Signet subjects into LDAP. Required.
+  * {{{Mapping_Grouper_and_Signet_Subjects_into_the_LDAP_Directory}<<source-subject-identifiers>>}}: maps Grouper/Signet subjects into LDAP. Required.
   
-  * <<ldap>>: specifies LDAP connection information. Required.
+  * {{{Configuring_the_LDAP_Connection}<<ldap>>}}: specifies LDAP connection information. Required.
   
   []
   
@@ -68,11 +68,11 @@
 </ldappc>
 ---
 
-  * <<group-queries>>: defines which groups are selected for the provisioning. Required.
+  * {{{Specifying_Groups_to_be_Provisioned}<<group-queries>>}}: defines which groups are selected for the provisioning. Required.
   
-  * <<groups>>: defines how to provision groups. Optional.
+  * {{{Provisioning_LDAP_Groups}<<groups>>}}: defines how to provision groups. Optional.
   
-  * <<memberships>>: defines how to provision memberships. Optional.
+  * {{{Provisioning_a_Membership_Attribute}<<memberships>>}}: defines how to provision memberships. Optional.
   
   []
 
@@ -182,13 +182,13 @@
   
   The \<groups\> element contains the following optional elements.
   
-  * <<group-members-dn-list>>: specifies the attribute in which the list of member DNs is maintained. Optional.\
+  * {{{Provisioning_Member_DNs_into_Groups}<<group-members-dn-list>>}}: specifies the attribute in which the list of member DNs is maintained. Optional.\
     If this element is NOT present, the list is NOT maintained.
 
-  * <<group-members-name-list>>: specifies the attribute in which the list of member names is maintained. Optional.\
+  * {{{Provisioning_Member_Names_into_Groups}<<group-members-name-list>>}}: specifies the attribute in which the list of member names is maintained. Optional.\
     If this element is NOT present, the list is NOT maintained.
 
-  * <<group-attribute-mapping>>: specifies which group attributes are mapped to the group's directory entry. Optional.\
+  * {{{Provisioning_Other_Group_Attributes_into_Groups}<<group-attribute-mapping>>}}: specifies which group attributes are mapped to the group's directory entry. Optional.\
     If this element is NOT present, then attributes are NOT maintained.
 
 ** {Provisioning Member DNs into Groups}
@@ -382,9 +382,9 @@
 
   The \<signet\> element contains two elements:
 
-  * <<permissions-listing>>: defines how permissions are stored when provisioned. Required.
+  * {{{Provisioning_Permissions}<<permissions-listing>>}}: defines how permissions are stored when provisioned. Required.
 
-  * <<permissions-queries>>: selects which permissions are provisioned. Optional.
+  * {{{Specifying_Permissions_to_be_Provisioned}<<permissions-queries>>}}: selects which permissions are provisioned. Optional.
 
 * {Provisioning Permissions}
 
