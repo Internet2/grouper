@@ -164,7 +164,6 @@ public class GroupProcessor
     public boolean addMember(Group group, Subject subject)
     {
         boolean added = false;
-        Member member = null;
         if (subject == null)
         {
             ErrorLog.error(this.getClass(), "Trying to add a member with a null subject.");
@@ -191,7 +190,7 @@ public class GroupProcessor
         }
         else
         {
-            ErrorLog.error(this.getClass(), "Error attempting to to add a member, " + member.toString()
+            ErrorLog.error(this.getClass(), "Error attempting to to add a member, " + subject.toString()
                     + ", to an non-existent group.");
         }
         return added;
