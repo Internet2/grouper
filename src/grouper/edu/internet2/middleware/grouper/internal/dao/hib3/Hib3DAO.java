@@ -35,11 +35,12 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.rijndael.Morph;
 
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.14 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.15 2008-08-17 15:33:02 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -93,6 +94,13 @@ public abstract class Hib3DAO {
       InputStream in  = Hib3DAO.class.getResourceAsStream(GrouperConfig.HIBERNATE_CF);  
       Properties  p   = new Properties();
       p.load(in);
+      
+      //unencrypt pass
+      if (p.containsKey("hibernate.connection.password")) {
+        String newPass = Morph.decrypt(p.getProperty("hibernate.connection.password"));
+        p.setProperty("hibernate.connection.password", newPass);
+      }
+      
       // And now load all configuration information
       CFG = new Configuration()
         .addProperties(p)
