@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HelperGrouperJdbcSourceAdapter.java,v 1.1 2008-08-17 15:33:02 mchyzer Exp $
+ * $Id: HelperGrouperJdbcSourceAdapter.java,v 1.2 2008-08-17 16:12:42 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
@@ -33,7 +33,6 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
-import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 import edu.internet2.middleware.subject.provider.Search;
 
 
@@ -43,7 +42,7 @@ import edu.internet2.middleware.subject.provider.Search;
  */
 public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
 
-  private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
+  private static Log log = LogFactory.getLog(HelperGrouperJdbcSourceAdapter.class);
   
   protected String nameAttributeName;
   protected String subjectIDAttributeName;
@@ -53,14 +52,14 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
   protected DataSource dataSource;
 
     /**
-     * Allocates new JDBCSourceAdapter;
+     * Allocates new HelperGrouperJdbcSourceAdapter;
      */
     public HelperGrouperJdbcSourceAdapter() {
         super();
     }
     
     /**
-     * Allocates new JDBCSourceAdapter;
+     * Allocates new HelperGrouperJdbcSourceAdapter;
      * 
      * @param id
      * @param name
@@ -108,13 +107,11 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
             conn = this.dataSource.getConnection();
             stmt = prepareStatement(search, conn);
             ResultSet rs = getSqlResults(id, stmt, search);
-            subject = createUniqueSubject(rs, search,  id, search.getParam("sql"));
-        } catch (SubjectNotFoundException snfe) {
-          throw snfe;
-        } catch (SubjectNotUniqueException snue) {
-          throw snue;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), e);
+            subject = createUniqueSubject(rs, search,  id);
+        } catch (InvalidQueryException nqe) {
+            log.error("InvalidQueryException occurred: " + nqe.getMessage() + ", " + search.getParam("sql"), nqe);
+        } catch (SQLException ex) {
+            log.error("SQLException occurred: " + ex.getMessage() + ", " + search.getParam("sql"), ex);
         } finally {
             closeStatement(stmt);
             closeConnection(conn);
@@ -145,11 +142,13 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
                 return result;
             }
             while (rs.next()) {
-                Subject subject = createSubject(rs, search.getParam("sql"));
+                Subject subject = createSubject(rs);
                 result.add(subject);
             }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
+        } catch (InvalidQueryException nqe) {
+            log.error("InvalidQueryException occurred: " + nqe.getMessage() + ", " + search.getParam("sql"), nqe);
+        } catch (SQLException ex) {
+            log.error("SQLException occurred: " + ex.getMessage() + ", " + search.getParam("sql"), ex);
         } finally {
             closeStatement(stmt);
             closeConnection(conn);
@@ -163,40 +162,23 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
      * @param rs
      * @return
      */
-    private Subject createSubject(ResultSet rs, String sql) throws SQLException {
+    private Subject createSubject(ResultSet rs) {
         String name = "";
         String subjectID = "";
         String description = "";
         GrouperJdbcSubject subject = null;
-        subjectID = retrieveString(rs, subjectIDAttributeName, "SubjectID_AttributeType", sql);
-        name = retrieveString(rs, nameAttributeName, "Name_AttributeType", sql);
-        if (!descriptionAttributeName.equals("")) {
-            description = retrieveString(rs, descriptionAttributeName, "Description_AttributeType", sql);
+        try {
+            subjectID = rs.getString(subjectIDAttributeName);
+            name = rs.getString(nameAttributeName);
+            if (!descriptionAttributeName.equals("")) {
+                description = rs.getString(descriptionAttributeName);
+            }
+            Map attributes = loadAttributes(rs);
+            subject = new GrouperJdbcSubject(subjectID,name, description, this.getSubjectType(), this, attributes);
+        } catch (SQLException ex) {
+            log.error("SQLException occurred: " + ex.getMessage(), ex);
         }
-        Map attributes = loadAttributes(rs);
-        subject = new GrouperJdbcSubject(subjectID,name, description, this.getSubjectType(), this, attributes);
         return subject;
-    }
-    
-    /**
-     * retrieve a param from resultset
-     * @param rs
-     * @param name
-     * @param sql
-     * @return the value
-     */
-    private String retrieveString(ResultSet rs, String name, String varName, String sql) throws SQLException {
-      try {
-        String result = rs.getString(name);
-        return result;
-      } catch (SQLException se) {
-        //TODO inject error message
-        log.error("Error retrieving column name: '" + name + "' in source: " + this.getId() 
-            + ", in query: " + sql + ", " + se.getMessage() 
-            + ", maybe the column configured in " + varName + " does not exist as a query column");
-        throw se;
-
-      }
     }
     
     /**
@@ -209,18 +191,23 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
      * @throws SubjectNotFoundException
      * @throws SubjectNotUniqueException
      */
-    private Subject createUniqueSubject(ResultSet rs, Search search, String searchValue, String sql)
-    throws SubjectNotFoundException,SubjectNotUniqueException, SQLException {
+    private Subject createUniqueSubject(ResultSet rs, Search search, String searchValue)
+    throws SubjectNotFoundException,SubjectNotUniqueException {
         Subject subject =null;
-        if (rs == null || !rs.next()) {
-            String errMsg = "No results: " + search.getSearchType() +
-                    " searchValue: " + searchValue;
-            throw new SubjectNotFoundException( errMsg);
-        }
-        subject = createSubject(rs, sql);
-        if (rs.next()) {
-            String errMsg ="Search is not unique:" + rs.getString(subjectIDAttributeName) + "\n";
-            throw new SubjectNotUniqueException( errMsg );
+        try {
+            if (rs == null || !rs.next()) {
+                String errMsg = "No results: " + search.getSearchType() +
+                        " searchValue: " + searchValue;
+                throw new SubjectNotFoundException( errMsg);
+            }
+            subject = createSubject(rs);
+            if (rs.next()) {
+                String errMsg ="Search is not unique:" + rs.getString(subjectIDAttributeName) + "\n";
+                throw new SubjectNotUniqueException( errMsg );
+            }
+            
+        } catch (SQLException ex) {
+            log.error("SQLException occurred: " + ex.getMessage(), ex);
         }
         return subject;
         
@@ -239,18 +226,22 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
     throws InvalidQueryException, SQLException {
         String sql = search.getParam("sql");
         if (sql == null) {
-          throw new InvalidQueryException("No sql parameter for search type " + search.getSearchType() + ", source: " + this.getId());
+            log.error("No sql parameter for search type " + search.getSearchType());
+            return null; // Should throw an exception here, but we don't have one yet.
         }
         if (sql.contains("%TERM%")) {
-          throw new InvalidQueryException("%TERM%. Possibly old style SQL query, source: " + this.getId() + ", sql: " + sql);
+            log.debug("%TERM% detected. Possible old style SQL query");
+            throw new InvalidQueryException("%TERM%. Possibly old style SQL query");
         }
         if (search.getParam("numParameters") == null) {
-            throw new InvalidQueryException("No numParameters parameter specified, source: " + this.getId() + ", sql: " + sql);
+            log.debug("No numParameters parameter specified.");
+            throw new InvalidQueryException("No numParameters parameter specified.");
         }
         try {
             Integer.parseInt(search.getParam("numParameters"));
         } catch (NumberFormatException e) {
-            throw new InvalidQueryException("Non-numeric numParameters parameter specified, source: " + this.getId() + ", sql: " + sql);
+            log.debug("Non-numeric numParameters parameter specified.");
+            throw new InvalidQueryException("Non-numeric numParameters parameter specified.");
         }
         PreparedStatement stmt = conn.prepareStatement(sql);
         return stmt;
@@ -269,14 +260,7 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
            throws SQLException {
         ResultSet rs = null;
         for (int i = 1; i <= Integer.parseInt(search.getParam("numParameters")); i++) {
-          try {
             stmt.setString(i, searchValue);
-          } catch (SQLException e) {
-            //TODO inject error message, remove dupe if caught in parent... (dupe query)
-            log.error("Error setting param: " + i + " in source: " + this.getId() + ", in query: " + search.getParam("sql") + ", " + e.getMessage() 
-                + ", maybe not enough question marks (bind variables) are in query, or the param 'numParameters' in sources.xml for that query is incorrect");
-            throw e;
-          }
         }
         rs = stmt.executeQuery();
         return rs;
@@ -285,34 +269,38 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
     /**
      * Loads attributes for the argument subject.
      */
-    protected Map loadAttributes(ResultSet rs) throws SQLException {
+    protected Map loadAttributes(ResultSet rs) {
         Map attributes = new HashMap();
-        ResultSetMetaData rsmd = rs.getMetaData();
-        int colCount = rsmd.getColumnCount();
-        String[] colNames = new String[colCount];
-        for (int i=0; i < colCount; i++) {
-            colNames[i] = rsmd.getColumnName(i+1);
-        }
-        for (int i=0; i < colCount; i++ ) {
-            String name = colNames[i];
-            if (name.toLowerCase().equals(subjectIDAttributeName.toLowerCase())) {
-                continue;
+        try {
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int colCount = rsmd.getColumnCount();
+            String[] colNames = new String[colCount];
+            for (int i=0; i < colCount; i++) {
+                colNames[i] = rsmd.getColumnName(i+1);
             }
-            if (name.toLowerCase().equals(nameAttributeName.toLowerCase())) {
-                continue;
+            for (int i=0; i < colCount; i++ ) {
+                String name = colNames[i];
+                if (name.toLowerCase().equals(subjectIDAttributeName.toLowerCase())) {
+                    continue;
+                }
+                if (name.toLowerCase().equals(nameAttributeName.toLowerCase())) {
+                    continue;
+                }
+                if (name.toLowerCase().equals(descriptionAttributeName.toLowerCase())){
+                    continue;
+                }
+                String value = rs.getString(i+1);
+                Set values = (Set)attributes.get(name);
+                if (values == null) {
+                    values = new HashSet();
+                    attributes.put(name, values);
+                }
+                values.add(value);
             }
-            if (name.toLowerCase().equals(descriptionAttributeName.toLowerCase())){
-                continue;
-            }
-            String value = rs.getString(i+1);
-            Set values = (Set)attributes.get(name);
-            if (values == null) {
-                values = new HashSet();
-                attributes.put(name, values);
-            }
-            values.add(value);
-        }
 
+        } catch (SQLException ex) {
+            log.error("SQLException occurred: " + ex.getMessage(), ex);
+        }
         return attributes;
     }
     
@@ -328,7 +316,7 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
             setupDataSource(props);
         } catch (Exception ex) {
             throw new SourceUnavailableException(
-                    "Unable to init JDBC source, source: " + this.getId(), ex);
+                    "Unable to init JDBC source", ex);
         }
     }
     
@@ -341,8 +329,9 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
             Class.forName(driver).newInstance();
             log.debug("Loading JDBC driver: " + driver);
         } catch (Exception ex) {
+            log.error("Error loading JDBC driver: " + ex.getMessage(), ex);
             throw new SourceUnavailableException(
-                    "Error loading JDBC driver: " + driver + ", source: " + this.getId(), ex);
+                    "Error loading JDBC driver: " + driver, ex);
         }
         log.info("JDBC driver loaded.");
     }
@@ -374,8 +363,10 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
             connFactory = new DriverManagerConnectionFactory(dbUrl, dbUser, dbPwd);
             log.debug("Connection factory initialized.");
         } catch (Exception ex) {
+            log.error(
+                    "Error initializing connection factory: " + ex.getMessage(), ex);
             throw new SourceUnavailableException(
-                    "Error initializing connection factory: " + dbUrl + ", source: " + this.getId(), ex);
+                    "Error initializing connection factory: " + dbUrl, ex);
         }
         
         try {
@@ -390,22 +381,24 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
                     readOnly,
                     true);
         } catch (Exception ex) {
+            log.error(
+                    "Error initializing poolable connection factory: " + ex.getMessage(), ex);
             throw new SourceUnavailableException(
-                    "Error initializing poolable connection factory, source: " + this.getId(), ex);
+                    "Error initializing poolable connection factory", ex);
         }
         this.dataSource = new PoolingDataSource(objectPool);
         log.info("Data Source initialized.");
         nameAttributeName = props.getProperty("Name_AttributeType");
         if (nameAttributeName==null) {
-            throw new SourceUnavailableException("Name_AttributeType not defined, source: " + this.getId());
+            log.error("Name_AttributeType not defined");
         }
         subjectIDAttributeName = props.getProperty("SubjectID_AttributeType");
         if (subjectIDAttributeName==null) {
-          throw new SourceUnavailableException("SubjectID_AttributeType not defined, source: " + this.getId());
+            log.error("SubjectID_AttributeType not defined");
         }
         descriptionAttributeName = props.getProperty("Description_AttributeType");
         if (descriptionAttributeName==null) {
-          throw new SourceUnavailableException("Description_AttributeType not defined, source: " + this.getId());
+            log.error("Description_AttributeType not defined");
         }
     }
     
@@ -456,7 +449,4 @@ public class HelperGrouperJdbcSourceAdapter extends BaseSourceAdapter {
   public String getSubjectTypeString() {
     return subjectTypeString;
   }
-
-  
-  
 }
