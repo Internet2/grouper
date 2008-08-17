@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderConfig.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
+ * $Id: GrouperLoaderConfig.java,v 1.3 2008-08-17 15:33:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.rijndael.Morph;
 
 
 /**
@@ -209,7 +210,8 @@ public class GrouperLoaderConfig {
         		+ ".pass, db." + name + ".url, db." + name + ".driver");
       }
     }
-    
+    //might be in external file
+    pass = Morph.decrypt(pass);
     GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(user, pass, url, driver);
     return grouperLoaderDb;
   }
