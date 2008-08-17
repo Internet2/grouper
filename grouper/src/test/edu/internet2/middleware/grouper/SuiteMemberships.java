@@ -20,7 +20,7 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberships.java,v 1.8.8.1 2008-08-08 20:37:58 shilen Exp $
+ * @version $Id: SuiteMemberships.java,v 1.8.8.2 2008-08-17 23:52:57 shilen Exp $
  */
 public class SuiteMemberships extends TestCase {
 
@@ -31,6 +31,8 @@ public class SuiteMemberships extends TestCase {
     suite.addTestSuite( TestMembership2.class );  // creation time and creator
     suite.addTestSuite( TestMembership3.class );  // test of effective memberships without composite groups
     suite.addTestSuite( TestMembership4.class );  // test of effective memberships with composite groups
+    suite.addTestSuite( TestMembership5.class );  // test of effective memberships with access privileges
+    suite.addTestSuite( TestMembership6.class );  // test of effective memberships with access and naming privileges and composite groups
     suite.addTestSuite(TestMembership.class);
     return suite;
   } // static public Test suite()

@@ -40,7 +40,7 @@ import  org.apache.commons.lang.time.*;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.49.4.1 2008-08-13 21:03:27 shilen Exp $
+ * @version $Id: Composite.java,v 1.49.4.2 2008-08-17 23:52:57 shilen Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -171,6 +171,12 @@ public class Composite extends GrouperAPI {
     catch (GroupNotFoundException eShouldNotHappen) {
       ErrorLog.fatal( Composite.class, "error processing composite updates: " + eShouldNotHappen.getMessage() );  
     }
+    catch (StemNotFoundException eShouldNotHappen) {
+      ErrorLog.fatal( Composite.class, "error processing composite updates: " + eShouldNotHappen.getMessage() );  
+    }
+    catch (SchemaException eShouldNotHappen) {
+      ErrorLog.fatal( Composite.class, "error processing composite updates: " + eShouldNotHappen.getMessage() );  
+    }
   }
 
 
@@ -248,7 +254,7 @@ public class Composite extends GrouperAPI {
    * @since   1.2.0
    */
   private static void _updateWhereFactorOwnersAreImmediateMembers(Group g, Set factorOwners) 
-    throws  GroupNotFoundException
+    throws  GroupNotFoundException, SchemaException, StemNotFoundException
   {
     Group           factorOwner;
     String          factorOwnerUuid;
@@ -269,40 +275,55 @@ public class Composite extends GrouperAPI {
    * @since   1.2.0
    */
   private static void _updateWhereFactorOwnerIsImmediateMember(Group factorOwner)
-    throws  GroupNotFoundException
+    throws  GroupNotFoundException, SchemaException, StemNotFoundException
   {
     MemberDTO       _m        = (MemberDTO) factorOwner.toMember().getDTO();
     DefaultMemberOf mof;
     MembershipDTO   _ms;
-    Group           msOwner;
 
     // Find everywhere where the factor owner is an immediate member, delete the
     // membership and then recreate it.
-    Iterator it = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(
-      factorOwner.toMember().getUuid(), Group.getDefaultList()
-    ).iterator();
+    Set<MembershipDTO> allMembers = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMember(
+      factorOwner.toMember().getUuid());
+    Iterator<MembershipDTO> it = allMembers.iterator();
     while (it.hasNext()) {
       _ms     = (MembershipDTO) it.next();
-      msOwner = new Group();
-      msOwner.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) );
-      msOwner.setSession( factorOwner.getSession() );
+      Field f = FieldFinder.find(_ms.getListName());
 
-      // TODO 20070524 ideally i wouldn't delete and then re-add the membership.  bad programmer.  
-      //               i *should* identify where there have been changes and then only
-      //               update *those* memberships.
-      mof = new DefaultMemberOf();
-      mof.deleteImmediate( factorOwner.getSession(), msOwner, _ms, _m );
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
+      if ( !FieldType.NAMING.equals( f.getType() ) ) {
+        Group msOwner = new Group();
+        msOwner.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) );
+        msOwner.setSession( factorOwner.getSession() );
 
-      mof = new DefaultMemberOf();
-      mof.addImmediate( factorOwner.getSession(), msOwner, Group.getDefaultList(), _m );
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
+        // TODO 20070524 ideally i wouldn't delete and then re-add the membership.  bad programmer.  
+        //               i *should* identify where there have been changes and then only
+        //               update *those* memberships.
+        mof = new DefaultMemberOf();
+        mof.deleteImmediate( factorOwner.getSession(), msOwner, _ms, _m );
+        GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+        mof = new DefaultMemberOf();
+        mof.addImmediate( factorOwner.getSession(), msOwner, f, _m );
+        GrouperDAOFactory.getFactory().getMembership().update(mof);
     
-      // TODO 20070524 do i need to call "Composite.internal_update(msOwner)"?  i
-      //               certainly hope not and so far the tests suggest no. 
+        // TODO 20070524 do i need to call "Composite.internal_update(msOwner)"?  i
+        //               certainly hope not and so far the tests suggest no. 
 
-      // 20080813 - Looks like we do need to call this actually....
-      Composite.internal_update(msOwner);
+        // 20080813 - Looks like we do need to call this actually....
+        Composite.internal_update(msOwner);
+      } else {
+        Stem msOwner = new Stem();
+        msOwner.setDTO( GrouperDAOFactory.getFactory().getStem().findByUuid( _ms.getOwnerUuid() ) );
+        msOwner.setSession( factorOwner.getSession() );
+
+        mof = new DefaultMemberOf();
+        mof.deleteImmediate( factorOwner.getSession(), msOwner, _ms, _m );
+        GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+        mof = new DefaultMemberOf();
+        mof.addImmediate( factorOwner.getSession(), msOwner, f, _m );
+        GrouperDAOFactory.getFactory().getMembership().update(mof);
+      }
     }
   }
 
@@ -366,7 +387,6 @@ public class Composite extends GrouperAPI {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
-
       Group     g   = new Group();
       DefaultMemberOf  mof = new DefaultMemberOf();
       g.setDTO( GrouperDAOFactory.getFactory().getGroup().findByUuid( this._getDTO().getFactorOwnerUuid() ) ); 

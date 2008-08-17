@@ -29,7 +29,7 @@ import  java.util.Set;
  * Basic <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.9 2008-01-09 14:07:01 isgwb Exp $
+ * @version $Id: MembershipDAO.java,v 1.9.6.1 2008-08-17 23:52:57 shilen Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -133,6 +133,12 @@ public interface MembershipDAO extends GrouperDAO {
    * @since   1.2.0
    */
   Set findAllImmediateByMemberAndField(String memberUUID, Field f) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.3.1
+   */
+  Set findAllImmediateByMember(String memberUUID) 
     throws  GrouperDAOException;
 
   /**

@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.10.4.3 2008-07-01 03:05:52 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.10.4.4 2008-08-17 23:52:57 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -451,6 +451,29 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     return mships;
   }
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set findAllImmediateByMember(String memberUUID) 
+    throws  GrouperDAOException
+  {
+    Set mships = new LinkedHashSet();
+    List<Hib3MembershipDAO> hib3MembershipDAOs = HibernateSession.byHqlStatic()
+      .createQuery(
+        "from Hib3MembershipDAO as ms where  "
+        + "     ms.memberUuid = :member           "
+        + "and  ms.type       = :type             ")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllImmediateByMember")
+      .setString( "member", memberUUID             )
+      .setString( "type",   Membership.IMMEDIATE   )
+      .list(Hib3MembershipDAO.class);
+    for (Hib3MembershipDAO hib3MembershipDAO : hib3MembershipDAOs) {
+      mships.add( MembershipDTO.getDTO( hib3MembershipDAO ) );
+    }
+    return mships;
+  } 
 
   /**
    * @since   @HEAD@

@@ -42,7 +42,7 @@ public class TestMembership3 extends TestCase {
   }
 
   public void testEffectiveMemberships() {
-    LOG.info("testParentsAndChildren");
+    LOG.info("testEffectiveMemberships");
     try {
       Date    before   = DateHelper.getPastDate();
 
