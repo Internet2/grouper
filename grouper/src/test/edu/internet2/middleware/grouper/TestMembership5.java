@@ -62,7 +62,7 @@ public class TestMembership5 extends TestCase {
     LOG.debug("tearDown");
   }
 
-  public void testEffectiveMemberships() {
+  public void testEffectiveMembershipsWithPrivileges() {
     LOG.info("testEffectiveMembershipsWithPrivileges");
     try {
       before   = DateHelper.getPastDate();
@@ -159,100 +159,100 @@ public class TestMembership5 extends TestCase {
 
   public  void verifyMemberships() throws Exception {
     // SA -> gA
-    verifyImmediateMembership(r.rs, "SA -> gA", gA, subjA, fieldUpdaters);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "SA -> gA", gA, subjA, fieldUpdaters);
 
     // gB -> gA
-    verifyImmediateMembership(r.rs, "gB -> gA", gA, gB.toSubject(), fieldUpdaters);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gB -> gA", gA, gB.toSubject(), fieldUpdaters);
 
     // gD -> gA (parent: gB -> gA) (depth: 1)
-    verifyEffectiveMembership(r.rs, "gD -> gA", gA, gD.toSubject(), gB, 1, gA, gB.toSubject(), null, 0, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gA", gA, gD.toSubject(), gB, 1, gA, gB.toSubject(), null, 0, fieldUpdaters);
 
     // gE -> gA (parent: gB -> gA) (depth: 1)
-    verifyEffectiveMembership(r.rs, "gE -> gA", gA, gE.toSubject(), gB, 1, gA, gB.toSubject(), null, 0, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gE -> gA", gA, gE.toSubject(), gB, 1, gA, gB.toSubject(), null, 0, fieldUpdaters);
 
     // SB -> gA (parent: gB -> gA) (depth: 1)
-    verifyEffectiveMembership(r.rs, "SB -> gA", gA, subjB, gB, 1, gA, gB.toSubject(), null, 0, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SB -> gA", gA, subjB, gB, 1, gA, gB.toSubject(), null, 0, fieldUpdaters);
 
     // SD -> gA (parent: gD -> gA) (depth: 2)
-    verifyEffectiveMembership(r.rs, "SD -> gA", gA, subjD, gD, 2, gA, gD.toSubject(), gB, 1, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gA", gA, subjD, gD, 2, gA, gD.toSubject(), gB, 1, fieldUpdaters);
 
     // gF -> gA (parent: gD -> gA) (depth: 2)
-    verifyEffectiveMembership(r.rs, "gF -> gA", gA, gF.toSubject(), gD, 2, gA, gD.toSubject(), gB, 1, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gF -> gA", gA, gF.toSubject(), gD, 2, gA, gD.toSubject(), gB, 1, fieldUpdaters);
 
     // gC -> gB
-    verifyImmediateMembership(r.rs, "gC -> gB", gB, gC.toSubject(), fieldUpdaters);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gC -> gB", gB, gC.toSubject(), fieldUpdaters);
 
     // gD -> gB
-    verifyImmediateMembership(r.rs, "gD -> gB", gB, gD.toSubject(), fieldMembers);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gD -> gB", gB, gD.toSubject(), fieldMembers);
 
     // gE -> gB
-    verifyImmediateMembership(r.rs, "gE -> gB", gB, gE.toSubject(), fieldMembers);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gE -> gB", gB, gE.toSubject(), fieldMembers);
 
     // SB -> gB
-    verifyImmediateMembership(r.rs, "SB -> gB", gB, subjB, fieldMembers);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "SB -> gB", gB, subjB, fieldMembers);
 
     // gF -> gB (parent: gD -> gB) (depth: 1)
-    verifyEffectiveMembership(r.rs, "gF -> gB", gB, gF.toSubject(), gD, 1, gB, gD.toSubject(), null, 0, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gF -> gB", gB, gF.toSubject(), gD, 1, gB, gD.toSubject(), null, 0, fieldMembers);
 
     // SD -> gB (parent: gD -> gB) (depth: 1)
-    verifyEffectiveMembership(r.rs, "SD -> gB", gB, subjD, gD, 1, gB, gD.toSubject(), null, 0, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gB", gB, subjD, gD, 1, gB, gD.toSubject(), null, 0, fieldMembers);
 
     // gF -> gD
-    verifyImmediateMembership(r.rs, "gF -> gD", gD, gF.toSubject(), fieldMembers);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gF -> gD", gD, gF.toSubject(), fieldMembers);
 
     // SD -> gD
-    verifyImmediateMembership(r.rs, "SD -> gD", gD, subjD, fieldMembers);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "SD -> gD", gD, subjD, fieldMembers);
 
     // SC -> gE
-    verifyImmediateMembership(r.rs, "SC -> gE", gE, subjC, fieldUpdaters);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "SC -> gE", gE, subjC, fieldUpdaters);
 
     // gG -> gE
-    verifyImmediateMembership(r.rs, "gG -> gE", gE, gG.toSubject(), fieldUpdaters);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gG -> gE", gE, gG.toSubject(), fieldUpdaters);
 
     // gB -> gH
-    verifyImmediateMembership(r.rs, "gB -> gH", gH, gB.toSubject(), fieldMembers);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gB -> gH", gH, gB.toSubject(), fieldMembers);
 
     // gD -> gH (parent: gB -> gH) (depth: 1)
-    verifyEffectiveMembership(r.rs, "gD -> gH", gH, gD.toSubject(), gB, 1, gH, gB.toSubject(), null, 0, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gH", gH, gD.toSubject(), gB, 1, gH, gB.toSubject(), null, 0, fieldMembers);
 
     // gE -> gH (parent: gB -> gH) (depth: 1)
-    verifyEffectiveMembership(r.rs, "gE -> gH", gH, gE.toSubject(), gB, 1, gH, gB.toSubject(), null, 0, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gE -> gH", gH, gE.toSubject(), gB, 1, gH, gB.toSubject(), null, 0, fieldMembers);
 
     // SB -> gH (parent: gB -> gH) (depth: 1)
-    verifyEffectiveMembership(r.rs, "SB -> gH", gH, subjB, gB, 1, gH, gB.toSubject(), null, 0, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SB -> gH", gH, subjB, gB, 1, gH, gB.toSubject(), null, 0, fieldMembers);
 
     // SD -> gH (parent: gD -> gH) (depth: 2)
-    verifyEffectiveMembership(r.rs, "SD -> gH", gH, subjD, gD, 2, gH, gD.toSubject(), gB, 1, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gH", gH, subjD, gD, 2, gH, gD.toSubject(), gB, 1, fieldMembers);
 
     // gF -> gH (parent: gD -> gH) (depth: 2)
-    verifyEffectiveMembership(r.rs, "gF -> gH", gH, gF.toSubject(), gD, 2, gH, gD.toSubject(), gB, 1, fieldMembers);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gF -> gH", gH, gF.toSubject(), gD, 2, gH, gD.toSubject(), gB, 1, fieldMembers);
 
     // gH -> gI
-    verifyImmediateMembership(r.rs, "gH -> gI", gI, gH.toSubject(), fieldUpdaters);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gH -> gI", gI, gH.toSubject(), fieldUpdaters);
 
     // gB -> gI (parent: gH -> gI) (depth: 1)
-    verifyEffectiveMembership(r.rs, "gB -> gI", gI, gB.toSubject(), gH, 1, gI, gH.toSubject(), null, 0, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gB -> gI", gI, gB.toSubject(), gH, 1, gI, gH.toSubject(), null, 0, fieldUpdaters);
 
     // gD -> gI (parent: gB -> gI) (depth: 2)
-    verifyEffectiveMembership(r.rs, "gD -> gI", gI, gD.toSubject(), gB, 2, gI, gB.toSubject(), gH, 1, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gD -> gI", gI, gD.toSubject(), gB, 2, gI, gB.toSubject(), gH, 1, fieldUpdaters);
 
     // gE -> gI (parent: gB -> gI) (depth: 2)
-    verifyEffectiveMembership(r.rs, "gE -> gI", gI, gE.toSubject(), gB, 2, gI, gB.toSubject(), gH, 1, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gE -> gI", gI, gE.toSubject(), gB, 2, gI, gB.toSubject(), gH, 1, fieldUpdaters);
 
     // SB -> gI (parent: gB -> gI) (depth: 2)
-    verifyEffectiveMembership(r.rs, "SB -> gI", gI, subjB, gB, 2, gI, gB.toSubject(), gH, 1, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SB -> gI", gI, subjB, gB, 2, gI, gB.toSubject(), gH, 1, fieldUpdaters);
 
     // SD -> gI (parent: gD -> gI) (depth: 3)
-    verifyEffectiveMembership(r.rs, "SD -> gI", gI, subjD, gD, 3, gI, gD.toSubject(), gB, 2, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SD -> gI", gI, subjD, gD, 3, gI, gD.toSubject(), gB, 2, fieldUpdaters);
 
     // gF -> gI (parent: gD -> gI) (depth: 3)
-    verifyEffectiveMembership(r.rs, "gF -> gI", gI, gF.toSubject(), gD, 3, gI, gD.toSubject(), gB, 2, fieldUpdaters);
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "gF -> gI", gI, gF.toSubject(), gD, 3, gI, gD.toSubject(), gB, 2, fieldUpdaters);
 
     // gA -> gJ
-    verifyImmediateMembership(r.rs, "gA -> gJ", gJ, gA.toSubject(), fieldMembers);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gA -> gJ", gJ, gA.toSubject(), fieldMembers);
 
     // gA -> gK
-    verifyImmediateMembership(r.rs, "gA -> gK", gK, gA.toSubject(), fieldUpdaters);
+    MembershipTestHelper.verifyImmediateMembership(r.rs, "gA -> gK", gK, gA.toSubject(), fieldUpdaters);
 
 
     // verify the total number of list memberships
@@ -262,94 +262,6 @@ public class TestMembership5 extends TestCase {
     // verify the total number of update privileges
     Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
     T.amount("Number of update privileges", 18, updateMemberships.size());
-  }
-
-  private Membership findImmediateMembership(GrouperSession s, Group g, Subject subj, Field f) {
-
-    Membership mship = null;
-
-    try {
-      mship = MembershipFinder.findImmediateMembership(s, g, subj, f);
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    return mship;
-  }
-
-  private Membership findEffectiveMembership(GrouperSession s, Group g, Subject subj, Group via, int depth, Field f) {
-    Membership mship = null;
-    try {
-      Set<Membership> memberships = MembershipFinder.findEffectiveMemberships(s, g, subj, 
-        f, via, depth);
-
-      Iterator<Membership> it = memberships.iterator();
-      if (it.hasNext()) {
-        mship = it.next();
-      }
-    } catch (Exception e) {
-      // do nothing
-    }
-
-    return mship;
-  }
-
-  private void verifyImmediateMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Field f) {
-
-    // first verify that the membership exists
-    Membership childMembership = findImmediateMembership(s, childGroup, childSubject, f);
-    Assert.assertNotNull(comment + ": find membership", childMembership);
-
-    
-    // second verify that there's no via_id
-    Group viaGroup = null;
-    try {
-      viaGroup = childMembership.getViaGroup();
-    } catch (GroupNotFoundException e) {
-      // do nothing
-    }
-
-    Assert.assertNull(comment + ": find via group", viaGroup);
-
-
-    // third verify that there's no parent membership
-    Membership parentMembership = null;
-    try {
-      parentMembership = childMembership.getParentMembership();
-    } catch (MembershipNotFoundException e) {
-      // do nothing
-    }
-
-    Assert.assertNull(comment + ": find parent membership", parentMembership);
-  }
-
-  private void verifyEffectiveMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Group childVia, 
-    int childDepth, Group parentGroup, Subject parentSubject, Group parentVia, int parentDepth, Field f) {
-
-    // first verify that the membership exists
-    Membership childMembership = findEffectiveMembership(s, childGroup, childSubject, childVia, childDepth, f);
-    Assert.assertNotNull(comment + ": find membership", childMembership);
-
-
-    // second verify that the parent membership exists based on data from the method parameters
-    Membership parentMembership = null;
-    if (parentDepth == 0) {
-      parentMembership = findImmediateMembership(s, parentGroup, parentSubject, f);
-    } else {
-      parentMembership = findEffectiveMembership(s, parentGroup, parentSubject, parentVia, parentDepth, f);
-    }
-
-    Assert.assertNotNull(comment + ": find parent membership", parentMembership);
-
-
-    // third verify that the parent membership of the child is correct
-    boolean parentCheck = false;
-    try {
-      parentCheck = parentMembership.equals(childMembership.getParentMembership());
-    } catch (MembershipNotFoundException e) {
-      // do nothing
-    }
-    Assert.assertTrue(comment + ": verify parent membership", parentCheck);
   }
 
 }
