@@ -1,10 +1,11 @@
 /*
  * @author mchyzer
- * $Id: GrouperJdbcSourceAdapter.java,v 1.1 2008-08-17 15:33:02 mchyzer Exp $
+ * $Id: GrouperJdbcSourceAdapter.java,v 1.2 2008-08-18 06:15:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.subj;
 
 import edu.internet2.middleware.subject.provider.HelperGrouperJdbcSourceAdapter;
+
 
 
 /**

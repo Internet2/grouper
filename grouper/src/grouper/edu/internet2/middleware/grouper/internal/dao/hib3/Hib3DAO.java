@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.util.rijndael.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.15 2008-08-17 15:33:02 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.16 2008-08-18 06:15:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -97,7 +97,7 @@ public abstract class Hib3DAO {
       
       //unencrypt pass
       if (p.containsKey("hibernate.connection.password")) {
-        String newPass = Morph.decrypt(p.getProperty("hibernate.connection.password"));
+        String newPass = Morph.decryptIfFile(p.getProperty("hibernate.connection.password"));
         p.setProperty("hibernate.connection.password", newPass);
       }
       

@@ -5423,4 +5423,26 @@ public class GrouperUtil {
     }
     return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
   }
+
+  /**
+   * if the input is a file, read string from file.  if not, or if disabled from grouper.properties, return the input
+   * @param in
+   * @return the result
+   */
+  public static String readFromFileIfFile(String in) {
+    //convert both slashes to file slashes
+    if (File.separatorChar == '/') {
+      in = StringUtils.replace(in, "\\", "/");
+    } else {
+      in = StringUtils.replace(in, "/", "\\");
+    }
+    
+    //see if it is a file reference
+    if (in.indexOf(File.separatorChar) != -1 && !GrouperConfig.getPropertyBoolean("grouper.encrypt.disableExternalFileLookup", false)) {
+      //read the contents of the file into a string
+      in = readFileIntoString(new File(in));
+    }
+    return in;
+  
+  }
 }

@@ -25,11 +25,12 @@ import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
+import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.40 2008-08-14 15:44:37 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.41 2008-08-18 06:15:58 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -92,6 +93,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest(AllUsduTests.suite());
     suite.addTest(AllHooksTests.suite());
     suite.addTest(AllUtilTests.suite());
+    suite.addTest(AllRijndaelTests.suite());
 
     return suite;
   }
