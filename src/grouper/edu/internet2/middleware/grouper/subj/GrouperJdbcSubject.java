@@ -1,6 +1,6 @@
 /*--
-$Id: GrouperJdbcSubject.java,v 1.1 2008-08-17 15:33:02 mchyzer Exp $
-$Date: 2008-08-17 15:33:02 $
+$Id: GrouperJdbcSubject.java,v 1.2 2008-08-18 06:15:58 mchyzer Exp $
+$Date: 2008-08-18 06:15:58 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -17,7 +17,6 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.provider.HelperGrouperJdbcSourceAdapter;
 
 
 /**
@@ -26,10 +25,10 @@ import edu.internet2.middleware.subject.provider.HelperGrouperJdbcSourceAdapter;
 public class GrouperJdbcSubject
         implements Subject {
     
-    
+    /** */
     private static Log log = LogFactory.getLog(GrouperJdbcSubject.class);
     
-    protected HelperGrouperJdbcSourceAdapter adapter;
+    protected GrouperJdbcSourceAdapter adapter;
     
     protected String id;
     protected String name;
@@ -47,11 +46,16 @@ public class GrouperJdbcSubject
       attributes = null;
     }
 
-        /*
-         * Constructor called by SourceManager.
-         */
+    /**
+     * 
+     * @param id
+     * @param name
+     * @param description
+     * @param type
+     * @param adapter
+     */
     public GrouperJdbcSubject(String id, String name, String description,
-            SubjectType type, HelperGrouperJdbcSourceAdapter adapter) {
+            SubjectType type, GrouperJdbcSourceAdapter adapter) {
         log.debug("Name = "  + name);
         this.id = id;
         this.name = name;
@@ -72,7 +76,7 @@ public class GrouperJdbcSubject
      * @param attributes The subject attributes
      */
     public GrouperJdbcSubject(String id, String name, String description,
-            SubjectType type, HelperGrouperJdbcSourceAdapter adapter,
+            SubjectType type, GrouperJdbcSourceAdapter adapter,
             Map attributes)
     {
       this(id, name, description, type, adapter);

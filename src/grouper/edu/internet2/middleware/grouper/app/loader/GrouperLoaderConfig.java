@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderConfig.java,v 1.3 2008-08-17 15:33:02 mchyzer Exp $
+ * $Id: GrouperLoaderConfig.java,v 1.4 2008-08-18 06:15:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -211,7 +211,7 @@ public class GrouperLoaderConfig {
       }
     }
     //might be in external file
-    pass = Morph.decrypt(pass);
+    pass = Morph.decryptIfFile(pass);
     GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(user, pass, url, driver);
     return grouperLoaderDb;
   }

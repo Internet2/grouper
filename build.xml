@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.188 2008-08-14 06:35:48 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.189 2008-08-18 06:15:58 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -500,6 +500,24 @@
       </not>
       <then>
         <copy file="bin/grouperloader.example.sh" tofile="bin/grouperloader.sh" />
+      </then>
+    </if>
+    
+    <!-- if there is no encrypt bat/sh, copy from example -->
+    <if>
+      <not>
+        <available file="bin/encrypt.bat" />
+      </not>
+      <then>
+        <copy file="bin/encrypt.example.bat" tofile="bin/encrypt.bat" />
+      </then>
+    </if>
+    <if>
+      <not>
+        <available file="bin/encrypt.sh" />
+      </not>
+      <then>
+        <copy file="bin/encrypt.example.sh" tofile="bin/encrypt.sh" />
       </then>
     </if>
     
