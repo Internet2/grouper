@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.8 2007-08-30 15:52:22 blair Exp $
+$Id: sources.xml,v 1.9 2008-08-18 06:26:10 mchyzer Exp $
 -->
 
 <sources>
@@ -19,7 +19,7 @@ $Id: sources.xml,v 1.8 2007-08-30 15:52:22 blair Exp $
   </source>
   <!-- Group Subject Resolver -->
 
-  <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
+  <source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter">
     <id>jdbc</id>
     <name>JDBC Source Adapter</name>
     <type>person</type>
