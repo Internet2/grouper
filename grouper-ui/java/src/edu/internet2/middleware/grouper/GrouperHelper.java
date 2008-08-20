@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.49 2008-04-15 13:43:21 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.49.4.1 2008-08-20 13:12:13 isgwb Exp $
  */
 
 
@@ -430,6 +430,7 @@ public class GrouperHelper {
 				}
 			} else {
 				stem = groupOrStem.getStem();
+				if(stem.isRootStem()) privs.remove("CREATE");
 			}
 			if (privs == null)
 				privs = superPrivs;
