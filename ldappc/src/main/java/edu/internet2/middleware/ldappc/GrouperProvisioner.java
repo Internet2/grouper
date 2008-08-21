@@ -852,18 +852,12 @@ public class GrouperProvisioner extends Provisioner
         // Iterate over the sourceFilterMap to build list of subjects for each
         // source
         //
-        for (Map.Entry<String, LdapSearchFilter> entry : sourceFilterMap.entrySet())
+        for (LdapSearchFilter filter : sourceFilterMap.values())
         {
-            //
-            // Get the source id and associated filter
-            //
-            String source = entry.getKey();
-            LdapSearchFilter filter = entry.getValue();
-
             //
             // Add the subjectDns for this source
             //
-            addSubjectDnSet(subjectDns, subjectObjectDns, filter, source);
+            addSubjectDnSet(subjectDns, subjectObjectDns, filter);
         }
     }
 
@@ -878,13 +872,10 @@ public class GrouperProvisioner extends Provisioner
      *            Set of DNs with list object class
      * @param filter
      *            Ldap search filter defined for a source
-     * @param source
-     *            source ID for the subject
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    private void addSubjectDnSet(Set<Name> subjectDns, Set<String> subjectObjectDns, LdapSearchFilter filter,
-            String source) throws NamingException
+    private void addSubjectDnSet(Set<Name> subjectDns, Set<String> subjectObjectDns, LdapSearchFilter filter) throws NamingException
     {
         //
         // Build the search control
