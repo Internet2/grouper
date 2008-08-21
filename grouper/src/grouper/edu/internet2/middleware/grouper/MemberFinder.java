@@ -28,7 +28,7 @@ import  edu.internet2.middleware.subject.*;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.49 2008-02-19 22:13:11 tzeller Exp $
+ * @version $Id: MemberFinder.java,v 1.49.6.1 2008-08-21 08:08:17 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -173,7 +173,13 @@ public class MemberFinder {
       throw new MemberNotFoundException();
     }
     Member m = new Member();
-    m.setDTO( internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) );
+    String sourceId = null;
+    if (subj instanceof LazySubject) {
+      sourceId = ((LazySubject)subj).getSourceId();
+    } else {
+      sourceId = subj.getSource().getId();
+    }
+    m.setDTO( internal_findOrCreateBySubject( subj.getId(), sourceId, subj.getType().getName() ) );
     return m;
   } // protected static Member internal_findBySubject(subj)
 
