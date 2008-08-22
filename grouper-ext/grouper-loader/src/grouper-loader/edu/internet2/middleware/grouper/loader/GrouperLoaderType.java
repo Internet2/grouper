@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.5 2008-05-14 05:39:48 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.5.2.1 2008-08-22 17:09:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader;
 
@@ -347,7 +347,7 @@ public enum GrouperLoaderType {
     // must not have value if not required or optional
     if (hasValue && !isRequired && !isOptional) {
       LOG.error("Attribute '" + attributeName + "' is not required or optional, " +
-      		"but is set to '" + attributeValue + "' for loader type: " 
+          "but is set to '" + attributeValue + "' for loader type: " 
           + this.name() + ", groupName: " + group.getName());
     }
     return attributeValue;
@@ -460,10 +460,10 @@ public enum GrouperLoaderType {
       
       
       //here are members to remove
-      final Set<Subject> subjectsToRemove = new HashSet<Subject>();
+      final Set<Member> membersToRemove = new HashSet<Member>();
       //first remove members
       for (Member member : currentMembers) {
-        subjectsToRemove.add(member.getSubject());
+        membersToRemove.add(member);
       }
       
       //now the currentMembers is full of members to remove, and the grouperLoaderResultset is full
@@ -476,12 +476,12 @@ public enum GrouperLoaderType {
           
           try {
             //first remove members
-            for (Subject subject : subjectsToRemove) {
+            for (Member member : membersToRemove) {
               try {
-                group.deleteMember(subject);
+                group.deleteMember(member);
               } catch (Exception e) {
-                GrouperUtil.injectInException(e, "Problem with " 
-                    + GrouperLoaderUtils.subjectToString(subject) + ", ");
+                GrouperUtil.injectInException(e, "Problem deleting member: " 
+                    + member + ", ");
                 throw e;
               }
             }
@@ -508,7 +508,7 @@ public enum GrouperLoaderType {
         
       });
       hib3GrouploaderLog.setInsertCount(subjectsToAdd.size());
-      hib3GrouploaderLog.setDeleteCount(subjectsToRemove.size());
+      hib3GrouploaderLog.setDeleteCount(membersToRemove.size());
       hib3GrouploaderLog.setStatus(status.name());
     } catch (Exception e) {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());

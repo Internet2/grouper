@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderUtils.java,v 1.3 2008-05-13 07:11:04 mchyzer Exp $
+ * $Id: GrouperLoaderUtils.java,v 1.3.2.1 2008-08-22 17:09:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.loader.util;
 
@@ -254,7 +254,12 @@ public class GrouperLoaderUtils {
     if (subject == null) {
       return null;
     }
-    return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
+    try {
+      return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
+    } catch (RuntimeException e) {
+      //might be subject not found if lazy subject
+      return subject.toString();
+    }
   }
   
 }
