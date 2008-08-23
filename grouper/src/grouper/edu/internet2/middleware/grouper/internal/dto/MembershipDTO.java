@@ -28,7 +28,7 @@ import  org.apache.commons.lang.builder.*;
  * Basic <code>Membership</code> DTO.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: MembershipDTO.java,v 1.6 2008-01-09 14:07:01 isgwb Exp $
+ * @version $Id: MembershipDTO.java,v 1.6.6.1 2008-08-23 18:48:46 shilen Exp $
  * @since   1.2.0
  */
 public class MembershipDTO implements GrouperDTO {
@@ -67,9 +67,9 @@ public class MembershipDTO implements GrouperDTO {
       .append( this.getListName(),   that.getListName()   )
       .append( this.getListType(),   that.getListType()   )
       .append( this.getMemberUuid(), that.getMemberUuid() )
-      .append( this.getUuid(),       that.getUuid()       )
       .append( this.getOwnerUuid(),  that.getOwnerUuid()  )
       .append( this.getViaUuid(),    that.getViaUuid()    )
+      .append( this.getParentUuid(), that.getParentUuid() )
       .isEquals();
   } // public boolean equals(other)
 
@@ -194,9 +194,9 @@ public class MembershipDTO implements GrouperDTO {
       .append( this.getListName()   )
       .append( this.getListType()   )
       .append( this.getMemberUuid() )
-      .append( this.getUuid()       )
       .append( this.getOwnerUuid()  )
       .append( this.getViaUuid()    )
+      .append( this.getParentUuid() )
       .toHashCode();
   } // public int hashCode()
 

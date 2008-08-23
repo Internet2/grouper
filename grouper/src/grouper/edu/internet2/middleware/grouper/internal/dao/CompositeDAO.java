@@ -25,7 +25,7 @@ import  java.util.Set;
  * Basic <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.4 2007-04-19 19:23:21 blair Exp $
+ * @version $Id: CompositeDAO.java,v 1.4.8.1 2008-08-23 18:48:46 shilen Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
@@ -51,6 +51,12 @@ public interface CompositeDAO extends GrouperDAO {
     throws  CompositeNotFoundException,
             GrouperDAOException
             ;
+
+  /**
+   * @since   1.3.1
+   */
+  Set<CompositeDTO> getAllComposites()
+    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0

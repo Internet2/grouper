@@ -35,10 +35,12 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.8.4.1 2008-08-08 20:37:58 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.8.4.2 2008-08-23 18:48:46 shilen Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
+
+  private boolean validateImmediateMembership = true;
 
   // PUBLIC INSTANCE METHODS //
  
@@ -80,6 +82,16 @@ public class DefaultMemberOf extends BaseMemberOf {
   } 
 
   /**
+   * @since   1.3.1
+   */
+  public void addImmediateWithoutValidation(GrouperSession s, Group g, Field f, MemberDTO _m)
+    throws  IllegalStateException 
+  {
+    this.validateImmediateMembership = false;
+    addImmediate(s, g, f, _m);
+  } 
+
+  /**
    * @since   1.2.0
    */
   public void addImmediate(GrouperSession s, Stem ns, Field f, MemberDTO _m)
@@ -88,6 +100,16 @@ public class DefaultMemberOf extends BaseMemberOf {
     this.setStem(ns);
     this._evaluateAddImmediateMembership(s, f, _m);
   }
+
+  /**
+   * @since   1.3.1
+   */
+  public void addImmediateWithoutValidation(GrouperSession s, Stem ns, Field f, MemberDTO _m)
+    throws  IllegalStateException 
+  {
+    this.validateImmediateMembership = false;
+    addImmediate(s, ns, f, _m);
+  } 
 
   /**
    * @since   1.2.0
@@ -513,9 +535,11 @@ public class DefaultMemberOf extends BaseMemberOf {
     _ms.setMemberUuid( _m.getUuid() );
     _ms.setOwnerUuid( this.getOwnerUuid() );
 
-    GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
-    if (v.isInvalid()) {
-      throw new IllegalStateException( v.getErrorMessage() );
+    if (this.validateImmediateMembership == true) {
+      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
+      if (v.isInvalid()) {
+        throw new IllegalStateException( v.getErrorMessage() );
+      }
     }
 
     try {

@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +48,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Membership</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.10.4.4 2008-08-17 23:52:57 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.10.4.5 2008-08-23 18:48:46 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -474,6 +475,49 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     return mships;
   } 
+
+  /**
+   * @since   @HEAD@
+   */
+  public List<MembershipDTO> findAllByOwner(String ownerUUID)
+    throws  GrouperDAOException
+  {
+    List<MembershipDTO> mships = new LinkedList<MembershipDTO>();
+    List<Hib3MembershipDAO> hib3MembershipDAOs = HibernateSession.byHqlStatic()
+      .createQuery(
+        "from Hib3MembershipDAO as ms where ms.ownerUuid = :owner")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllByOwner")
+      .setString("owner", ownerUUID)
+      .list(Hib3MembershipDAO.class);
+    for (Hib3MembershipDAO hib3MembershipDAO : hib3MembershipDAOs) {
+      mships.add(MembershipDTO.getDTO(hib3MembershipDAO));
+    }
+    return mships;
+  }
+
+  /**
+   * @since   @HEAD@
+   */
+  public List<MembershipDTO> findAllMembershipsWithInvalidOwners()
+    throws  GrouperDAOException
+  {
+    List<MembershipDTO> mships = new LinkedList<MembershipDTO>();
+    List<Hib3MembershipDAO> hib3MembershipDAOs = HibernateSession.byHqlStatic()
+      .createQuery(
+        "from Hib3MembershipDAO as ms where  "
+        + "     ms.ownerUuid not in " 
+        + "        (select g.uuid from Hib3GroupDAO g) "
+        + "     and ms.ownerUuid not in "
+        + "        (select ns.uuid from Hib3StemDAO ns)")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllMembershipsWithInvalidOwners")
+      .list(Hib3MembershipDAO.class);
+    for (Hib3MembershipDAO hib3MembershipDAO : hib3MembershipDAOs) {
+      mships.add(MembershipDTO.getDTO(hib3MembershipDAO));
+    }
+    return mships;
+  }
 
   /**
    * @since   @HEAD@

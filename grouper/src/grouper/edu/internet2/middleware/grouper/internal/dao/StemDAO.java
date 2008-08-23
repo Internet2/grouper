@@ -29,7 +29,7 @@ import  java.util.Set;
  * Basic <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.8 2007-08-27 15:53:52 blair Exp $
+ * @version $Id: StemDAO.java,v 1.8.8.1 2008-08-23 18:48:46 shilen Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -136,6 +136,12 @@ public interface StemDAO extends GrouperDAO {
             StemNotFoundException
             ;
 
+  /**
+   * @since   1.3.1
+   */
+  Set<StemDTO> getAllStems()
+    throws  GrouperDAOException;
+ 
   /**
    * @since   1.2.0
    */

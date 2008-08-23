@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.internal.util.Rosetta;
  * Basic Hibernate <code>Composite</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.3 2008-03-19 20:43:24 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.3.4.1 2008-08-23 18:48:46 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
@@ -117,6 +117,24 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
     }
     return CompositeDTO.getDTO(dao);
   } // public CompositeDTO findByUuid(uuid)
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<CompositeDTO> getAllComposites()
+    throws  GrouperDAOException
+  {
+    Set<CompositeDTO> composites = new LinkedHashSet<CompositeDTO>();
+    List<CompositeDAO> compositeDAOs = HibernateSession.byHqlStatic()
+      .createQuery("from Hib3CompositeDAO as c")
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllComposites")
+          .list(CompositeDAO.class);
+    for (CompositeDAO compositeDAO : compositeDAOs) {
+        composites.add(CompositeDTO.getDTO(compositeDAO));
+    }
+    return composites;
+  }
 
   /**
    * @since   @HEAD@

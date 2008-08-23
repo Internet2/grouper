@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Basic Hibernate <code>Stem</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.6 2008-04-03 18:09:43 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.6.4.1 2008-08-23 18:48:46 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -537,6 +537,29 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throw new GrouperDAOException( error, e );
     }
   } 
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<StemDTO> getAllStems()
+    throws  GrouperDAOException {
+    Set<StemDTO> stems = new LinkedHashSet<StemDTO>();
+    try {
+      List<Hib3StemDAO> hib3StemDAOs = HibernateSession.byHqlStatic()
+        .createQuery("from Hib3StemDAO as ns")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllStems")
+        .list(Hib3StemDAO.class);
+      for (Hib3StemDAO hib3StemDAO : hib3StemDAOs) {
+        stems.add(StemDTO.getDTO(hib3StemDAO));
+      } 
+    } 
+    catch (GrouperDAOException e) {
+      String error = "Problem getting all stems: " + e.getMessage();
+      throw new GrouperDAOException(error, e);
+    }
+    return stems;
+  }
 
   /**
    * @since   @HEAD@

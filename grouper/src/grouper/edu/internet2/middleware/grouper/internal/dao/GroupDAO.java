@@ -28,7 +28,7 @@ import  java.util.Set;
  * Basic <code>Group</code> DAO interface.
  * <p><b>WARNING: THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b></p>
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.8 2008-03-20 16:40:22 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.8.4.1 2008-08-23 18:48:46 shilen Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -148,6 +148,12 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
+
+  /**
+   * @since   1.3.1
+   */
+  Set<GroupDTO> getAllGroups()
+    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0
