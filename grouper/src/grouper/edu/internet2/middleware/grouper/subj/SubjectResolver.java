@@ -28,10 +28,15 @@ import  java.util.Set;
  * Subject resolution interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectResolver.java,v 1.3 2007-08-27 15:58:24 blair Exp $
+ * @version $Id: SubjectResolver.java,v 1.3.8.1 2008-08-23 05:45:25 mchyzer Exp $
  * @since   1.2.1
  */
 public interface SubjectResolver {
+
+  /**
+   * clear caches (e.g. for testing)
+   */
+  public void clearCache();
 
 
   /**

@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.181.4.1 2008-08-21 08:08:17 mchyzer Exp $
+ * @version $Id: Group.java,v 1.181.4.2 2008-08-23 05:45:25 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner {
 
@@ -1132,7 +1132,7 @@ public class Group extends GrouperAPI implements Owner {
   } 
 
   public boolean equals(Object other) {
-    if (this == other) {
+    if (this == other) { 
       return true;
     }
     if (!(other instanceof Group)) {

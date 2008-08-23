@@ -32,7 +32,7 @@ import  org.apache.commons.collections.keyvalue.MultiKey;
  * Decorator that provides caching for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingResolver.java,v 1.7 2007-08-27 15:58:24 blair Exp $
+ * @version $Id: CachingResolver.java,v 1.7.8.1 2008-08-23 05:45:25 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingResolver extends SubjectResolverDecorator {
@@ -276,6 +276,13 @@ public class CachingResolver extends SubjectResolverDecorator {
     this.cc.getCache(CACHE_FINDALL).put( new Element( new MultiKey(query, source), subjects ) );
   }
 
+  /**
+   * clear caches (e.g. for testing)
+   */
+  public void clearCache() {
+    this.cc.flushCache();
+  }
+  
   /**
    * Put subject into cache for <code>findByIdentifier(...)</code>.
    * @since   1.2.1

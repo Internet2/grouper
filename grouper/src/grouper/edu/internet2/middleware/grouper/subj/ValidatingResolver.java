@@ -29,7 +29,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingResolver.java,v 1.6 2007-08-27 16:40:16 blair Exp $
+ * @version $Id: ValidatingResolver.java,v 1.6.8.1 2008-08-23 05:45:25 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingResolver extends SubjectResolverDecorator {
@@ -180,6 +180,15 @@ public class ValidatingResolver extends SubjectResolverDecorator {
   {
     this.param.notNullString(subjectType, "null Subject Type");
     return super.getDecoratedResolver().getSources(subjectType);
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#clearCache()
+   */
+  public void clearCache() {
+    super.getDecoratedResolver().clearCache();
   }
 
 }

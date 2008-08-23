@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.6 2008-03-26 04:42:39 mchyzer Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.6.4.1 2008-08-23 05:45:25 mchyzer Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
@@ -285,6 +285,13 @@ public class SourcesXmlResolver implements SubjectResolver {
       return subjects.get(0);
     }
     throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() );
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.subj.SubjectResolver#clearCache()
+   */
+  public void clearCache() {
   }
 
 }
