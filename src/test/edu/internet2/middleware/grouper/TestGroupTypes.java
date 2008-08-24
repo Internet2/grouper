@@ -18,6 +18,9 @@
 package edu.internet2.middleware.grouper;
 import  java.util.*;
 import  junit.framework.*;
+import junit.textui.TestRunner;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
 import  org.apache.commons.logging.*;
 
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
@@ -32,13 +35,20 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.11 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: TestGroupTypes.java,v 1.12 2008-08-24 04:47:11 mchyzer Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 
   // Private Class Constants
   private static final Log LOG = LogFactory.getLog(TestGroupTypes.class);
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGroupTypes("testDeleteUnusedCustomList"));
+  }
 
   public TestGroupTypes(String name) {
     super(name);
@@ -725,7 +735,7 @@ public class TestGroupTypes extends GrouperTest {
       catch (Exception e) {
         String error = "could not delete LIST: " + e.getMessage();
         LOG.error(error, e);
-        Assert.fail(error);
+        Assert.fail(error + ", " + ExceptionUtils.getFullStackTrace(e));
       }
     }
     catch (Exception e) {
