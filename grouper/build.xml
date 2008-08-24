@@ -1,6 +1,13 @@
-<!-- $Id: build.xml,v 1.181 2008-06-17 12:34:12 khuxtable Exp $ -->
+<!-- $Id: build.xml,v 1.181.2.1 2008-08-24 21:47:14 shilen Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
+
+  <!-- ant contrib allows conditionals in ant scripts -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${basedir}/libAnt/ant-contrib-1.0b3.jar" />
+    </classpath>
+  </taskdef>
 
   <!-- PROPERTIES -->
 
@@ -509,6 +516,25 @@
                   property="test.classpath.string" 
                   refid="test.classpath"
     />
+
+    <!-- if there is no findbadmemberships bat/sh, copy from example -->
+    <if>
+      <not>
+        <available file="bin/findbadmemberships.bat" />
+      </not>
+      <then>
+        <copy file="bin/findbadmemberships.example.bat" tofile="bin/findbadmemberships.bat" />
+      </then>
+    </if> 
+    <if>  
+      <not>
+        <available file="bin/findbadmemberships.sh" />
+      </not>
+      <then>
+        <copy file="bin/findbadmemberships.example.sh" tofile="bin/findbadmemberships.sh" />
+      </then>
+    </if> 
+
   </target>
   <!-- target: init -->
 
