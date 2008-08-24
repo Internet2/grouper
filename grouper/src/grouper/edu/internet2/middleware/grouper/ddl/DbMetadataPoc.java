@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: DbMetadataPoc.java,v 1.1 2008-08-24 03:24:37 mchyzer Exp $
+ * @author mchyzer $Id: DbMetadataPoc.java,v 1.2 2008-08-24 06:10:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -12,6 +12,7 @@ import java.sql.SQLException;
 
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * this is a proof of concept which shows foreign keys printed from jdbc metadata.
@@ -92,11 +93,30 @@ public class DbMetadataPoc {
     Connection connection = DriverManager.getConnection(URL, SCHEMA, PASS);
 
     DatabaseMetaData databaseMetaData = connection.getMetaData();
+    ResultSet resultSet = null;
+    try {
+      System.out.println("Schemas: ");
+      resultSet = databaseMetaData.getSchemas();
+      ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+      int columnCount = resultSetMetaData.getColumnCount();
+      int index = 0;
+      while (resultSet.next()) {
+        System.out.println(index++ + ": ");
+
+        for (int i = 1; i <= columnCount; i++) {
+          System.out.println("  " + resultSetMetaData.getColumnName(i) + ": "
+              + resultSet.getString(i));
+        }
+      }
+    } finally {
+      GrouperUtil.closeQuietly(resultSet);
+    }
     ResultSet fkData = null;
 
     try {
-      fkData = databaseMetaData.getTables(null, SCHEMA.toUpperCase(), "GROUPER_%", null);
+      fkData = databaseMetaData.getTables(null, null, "GROUPER_%", null);
       ResultSetMetaData resultSetMetaData = fkData.getMetaData();
+      System.out.println("Schema name: " + resultSetMetaData.getSchemaName(1));
       int columnCount = resultSetMetaData.getColumnCount();
       int fk = 0;
       while (fkData.next()) {

@@ -215,6 +215,7 @@ public class HibernateSession {
    *           if there is a problem, will preserve runtime exceptions so they are
    *           thrown to the caller
    */
+  @SuppressWarnings("deprecation")
   public static Object callbackHibernateSession(
       GrouperTransactionType grouperTransactionType, HibernateHandler hibernateHandler)
       throws GrouperDAOException {
