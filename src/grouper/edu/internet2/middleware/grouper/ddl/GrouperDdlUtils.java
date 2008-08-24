@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.10 2008-08-24 03:24:37 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.11 2008-08-24 06:10:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -765,23 +765,12 @@ public class GrouperDdlUtils {
         
         DdlVersionable ddlVersionable = retieveVersion(objectName, javaVersion);
         
-        //pattern to get only certain objects (e.g. GROUPERLOADER% )
-        String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
-        
-        if (platform.getName().toLowerCase().contains("postgres")) {
-          defaultTablePattern = defaultTablePattern.toLowerCase();
-        }
+        DbMetadataBean dbMetadataBean = findDbMetadataBean(ddlVersionable);
         
         //to be safe lets only deal with tables related to this object
-        platform.getModelReader().setDefaultTablePattern(defaultTablePattern);
+        platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
         //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-
-        String ddlUtilsSchemaOverride = GrouperConfig.getProperty("ddlutils.schema");
-        if (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
-          platform.getModelReader().setDefaultSchemaPattern(ddlUtilsSchemaOverride);
-        } else {
-          platform.getModelReader().setDefaultSchemaPattern(schema);
-        }
+        platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
         
         SqlBuilder sqlBuilder = platform.getSqlBuilder();
 
@@ -1667,7 +1656,6 @@ public class GrouperDdlUtils {
    * @param ddlVersionBean 
    */
   public static void ddlutilsDropColumn(Table table, String columnName, DdlVersionBean ddlVersionBean) {
-    
     ddlutilsDropIndexes(table, columnName);
     
     Column column = table.findColumn(columnName);
@@ -1694,6 +1682,9 @@ public class GrouperDdlUtils {
    * @param columnName 
    */
   public static void ddlutilsDropIndexes(Table table, String columnName) {
+    if (table == null) {
+      return;
+    }
     for (Index index: table.getIndices()) {
       for (IndexColumn indexColumn : index.getColumns()) {
         if (StringUtils.equalsIgnoreCase(columnName, indexColumn.getName())) {
@@ -1776,8 +1767,17 @@ public class GrouperDdlUtils {
       extraSchema = "public";
     }
   
+    final boolean isHsqldb = platform.getName().toLowerCase().contains("hsql");
+    //seems like this is best...
+    if (isHsqldb) {
+      extraSchema = null;
+    }
+    
     if (!tableThere) {
       
+      if (isHsqldb) {
+        schema = null;
+      }
       if (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
         schema = ddlUtilsSchemaOverride;
       } 
@@ -1787,13 +1787,13 @@ public class GrouperDdlUtils {
     } else {
       
       //lets do some trial and error to see what the values should be (since case sensitive)
-      final String[] defaultTablePatterns = new String[]{defaultTablePattern, defaultTablePattern.toLowerCase(), 
-          defaultTablePattern.toUpperCase()};
+      final Set<String> defaultTablePatterns = GrouperUtil.toSet(defaultTablePattern, defaultTablePattern.toLowerCase(), 
+          defaultTablePattern.toUpperCase());
   
-      final String[] schemas = new String[]{
+      final Set<String> schemas = GrouperUtil.toSet(
           ddlUtilsSchemaOverride, ddlUtilsSchemaOverride.toLowerCase(), ddlUtilsSchemaOverride.toUpperCase(),
-          schema, schema.toLowerCase(), schema.toUpperCase(), 
-          extraSchema, extraSchema.toLowerCase(), extraSchema.toUpperCase()};
+          schema, StringUtils.lowerCase(schema), StringUtils.upperCase(schema), 
+          extraSchema, StringUtils.lowerCase(extraSchema), StringUtils.lowerCase(extraSchema));
       
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
   
@@ -1803,7 +1803,8 @@ public class GrouperDdlUtils {
           //try all combinations
           for (String theDefaultTablePattern : defaultTablePatterns) {
             for (String theSchema : schemas) {
-              if (StringUtils.isBlank(theDefaultTablePattern) || StringUtils.isBlank(theSchema)) {
+              boolean hsqlSchemaOk = theSchema == null && isHsqldb;
+              if (StringUtils.isBlank(theDefaultTablePattern) || (!hsqlSchemaOk && StringUtils.isBlank(theSchema))) {
                 continue;
               }
               Connection connection = hibernateSession.getSession().connection();
