@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.14 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.15 2008-08-24 04:47:11 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -65,6 +65,9 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   /** logger */
   private static final Log LOG = LogFactory.getLog(WheelAccessResolver.class);
 
+  /** only log this once... */
+  private static boolean loggedWheelGroupMissing = false;
+  
   /**
    * @param resolver resolver
    * @since   1.2.1
@@ -87,11 +90,20 @@ public class WheelAccessResolver extends AccessResolverDecorator {
                           );
       }
       catch (Exception e) {
-    	//OK, so wheel group does not exist. Not fatal...
-    	LOG.error("Initialisation error with wheel group name '" + wheelName 
-    	    + "': " + e.getClass().getSimpleName() 
-    	    + "\n" + ExceptionUtils.getFullStackTrace(e));
-    	this.useWheel=false;
+        
+        String error = "Initialisation error with wheel group name '" + wheelName 
+          + "': " + e.getClass().getSimpleName() 
+          + "\n" + ExceptionUtils.getFullStackTrace(e);
+
+        //only log this once as error
+        if (!loggedWheelGroupMissing) {
+        	//OK, so wheel group does not exist. Not fatal...
+          LOG.error(error);
+          loggedWheelGroupMissing = true;
+        } else {
+          LOG.info(error);
+        }
+        this.useWheel=false;
       }
     }
   }

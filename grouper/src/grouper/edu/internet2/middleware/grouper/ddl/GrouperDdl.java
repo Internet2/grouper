@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.15 2008-08-24 03:24:37 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.16 2008-08-24 04:47:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
@@ -195,7 +196,7 @@ public enum GrouperDdl implements DdlVersionable {
               GrouperUtil.closeQuietly(statement);
             }
             String idCol = uuidStillExists ? "field_uuid" : "id";
-            String query = "select " + idCol + ", name, type from grouper_fields";
+            String query = "select " + idCol + ", name, type, id from grouper_fields";
             try {
               statement = connection.prepareStatement(query);
               resultSet = statement.executeQuery();
@@ -204,6 +205,14 @@ public enum GrouperDdl implements DdlVersionable {
                 String uuid = resultSet.getString(1);
                 String name = resultSet.getString(2);
                 String type = resultSet.getString(3);
+                String id = resultSet.getString(4);
+                
+                //use id if uuid is blank
+                uuid = GrouperUtil.defaultIfBlank(uuid, id);
+                
+                if (StringUtils.isBlank(uuid)) {
+                  throw new RuntimeException("Something is wrong, why is uuid blank??? '" + name + "', '" + type + "', '" + query + "'");
+                }
                 
                 //attributes work on the attributes table, and non-attributes work on the memberships table
                 if (FieldType.ATTRIBUTE.getType().equals(type)) {

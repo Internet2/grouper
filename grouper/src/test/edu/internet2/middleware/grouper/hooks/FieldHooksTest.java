@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: FieldHooksTest.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: FieldHooksTest.java,v 1.5 2008-08-24 04:47:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -176,10 +176,11 @@ public class FieldHooksTest extends GrouperTest {
 
     group.addType(this.groupType);
     
-    //add the attribute
-    group.setAttribute(GroupAttributeNameValidationHook.TEST_ATTRIBUTE_NAME, "whatever");
-    
     try {
+      //put this in try/catch in case storing on setters
+      //add the attribute
+      group.setAttribute(GroupAttributeNameValidationHook.TEST_ATTRIBUTE_NAME, "whatever");
+      
       group.store();
       fail("Should veto this invalid name");
     } catch (HookVeto hv) {
