@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.181.2.1 2008-08-24 21:47:14 shilen Exp $ -->
+<!-- $Id: build.xml,v 1.181.2.2 2008-08-24 21:57:34 shilen Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -534,6 +534,11 @@
         <copy file="bin/findbadmemberships.example.sh" tofile="bin/findbadmemberships.sh" />
       </then>
     </if> 
+
+    <!-- fix line endings and permissions of scripts -->
+    <fixcrlf srcdir="bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="bin" eol="dos" includes="*.bat" />
+    <chmod dir="bin" includes="*.sh,*.bat" perm="ugo+rx"/>
 
   </target>
   <!-- target: init -->
