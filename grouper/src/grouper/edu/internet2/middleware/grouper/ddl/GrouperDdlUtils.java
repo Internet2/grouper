@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.9 2008-08-14 06:35:47 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.10 2008-08-24 03:24:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -9,8 +9,10 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,11 +49,15 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleDdlInitBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
@@ -62,6 +68,54 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class GrouperDdlUtils {
+
+  /**
+   * bean 
+   */
+  public static class DbMetadataBean {
+    /** default table pattern, prefix in db metadata to retrieve objects */
+    private String defaultTablePattern;
+  
+    /** schema to use for db metadata */
+    private String schema;
+  
+    /**
+     * default table pattern, prefix in db metadata to retrieve objects
+     * @return string
+     */
+    public String getDefaultTablePattern() {
+      return this.defaultTablePattern;
+    }
+  
+    
+    /**
+     * default table pattern, prefix in db metadata to retrieve objects
+     * @param defaultTablePattern1
+     */
+    public void setDefaultTablePattern(String defaultTablePattern1) {
+      this.defaultTablePattern = defaultTablePattern1;
+    }
+  
+    /**
+     * schema to use for db metadata
+     * @return the schema to use for db metadata
+     */
+    public String getSchema() {
+      return this.schema;
+    }
+  
+    /**
+     * schema to use for db metadata
+     * @param schema1
+     */
+    public void setSchema(String schema1) {
+      this.schema = schema1;
+    }
+  }
+  /**
+   * 
+   */
+  private static final String DB_OBJECT_PREFIX = "grouper";
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperDdlUtils.class);
@@ -239,6 +293,12 @@ public class GrouperDdlUtils {
         
         for (String objectName : objectNames) {
   
+          if (StringUtils.equals("GrouperLoader", objectName)) {
+            LOG.warn("GrouperLoader should not be in the Grouper_ddl table, deleting");
+            HibernateSession.bySqlStatic().executeSql("delete from grouper_ddl where object_name = 'GrouperLoader'");
+            continue;
+          }
+          
           Class<Enum> objectEnumClass = null;
           
           try {
@@ -251,7 +311,7 @@ public class GrouperDdlUtils {
               throw e;
             }
             //this is probably ok I guess, since the UI tables might not have logic in ws or whatever...
-            LOG.warn("This might be ok, since the DDL isnt managed from this app, but here is the issue for ddl app '" + objectName + "' " + e.getMessage());
+            LOG.warn("This might be ok, since the DDL isnt managed from this app, but here is the issue for ddl app '" + objectName + "' " + e.getMessage(), e);
           }
           
           //this is the version in java
@@ -324,24 +384,13 @@ public class GrouperDdlUtils {
             everythingRightVersion = false;
           }
           
-          //pattern to get only certain objects (e.g. GROUPERLOADER% )
-          String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
-          
-          if (platform.getName().toLowerCase().contains("postgres")) {
-            defaultTablePattern = defaultTablePattern.toLowerCase();
-          }
+          DbMetadataBean dbMetadataBean = findDbMetadataBean(ddlVersionable);
           
           //to be safe lets only deal with tables related to this object
-          platform.getModelReader().setDefaultTablePattern(defaultTablePattern);
+          platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
           //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
-  
-          String ddlUtilsSchemaOverride = GrouperConfig.getProperty("ddlutils.schema");
-          if (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
-            platform.getModelReader().setDefaultSchemaPattern(ddlUtilsSchemaOverride);
-          } else {
-            platform.getModelReader().setDefaultSchemaPattern(schema);
-          }
-          
+          platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+            
           SqlBuilder sqlBuilder = platform.getSqlBuilder();
   
           //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
@@ -350,11 +399,11 @@ public class GrouperDdlUtils {
           // if deleting all, lets delete all:
           if (theDropBeforeCreate) {
             //it needs a name, just use "grouper"
-            Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+            Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
                 null, null);
             dropAllForeignKeys(oldDatabase);
             
-            Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+            Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
                 null, null);
             dropAllForeignKeys(newDatabase);
   
@@ -383,11 +432,11 @@ public class GrouperDdlUtils {
               if (StringUtils.isBlank(script)) {
                 
                 //it needs a name, just use "grouper"
-                Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+                Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
                     null, null);
                 dropAllForeignKeys(oldDatabase);
                 
-                Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+                Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
                     null, null);
                 dropAllForeignKeys(newDatabase);
                 
@@ -470,11 +519,11 @@ public class GrouperDdlUtils {
               ddlVersionable = retieveVersion(objectName, javaVersion);
   
               //it needs a name, just use "grouper"
-              Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+              Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
                   null, null);
               dropAllForeignKeys(oldDatabase);
               
-              Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+              Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
                   null, null);
               dropAllForeignKeys(newDatabase);
               
@@ -528,7 +577,7 @@ public class GrouperDdlUtils {
         File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
         GrouperUtil.saveStringIntoFile(scriptFile, resultString);
   
-        String logMessage = "Grouper database schema DDL requires updates, script file is:\n" + scriptFile.getAbsolutePath();
+        String logMessage = "Grouper database schema DDL requires updates\n(should run script manually and carefully, in sections, verify data before drop statements, backup/export important data before starting, follow change log on confluence, dont run exact same script in multiple envs - generate a new one for each env),\nscript file is:\n" + scriptFile.getAbsolutePath();
         if (LOG.isErrorEnabled()) {
           LOG.error(logMessage);
           if (callFromCommandLine) {
@@ -675,6 +724,7 @@ public class GrouperDdlUtils {
    * </pre>
    * @param objectName (from enum of ddl utils type)
    * @param ddlUtilsChangeDatabase is the callback to change the database
+   * @return string
    */
   @SuppressWarnings("unchecked")
   public static String changeDatabase(String objectName, DdlUtilsChangeDatabase ddlUtilsChangeDatabase) {
@@ -694,7 +744,7 @@ public class GrouperDdlUtils {
       Platform platform = retrievePlatform(false);
       
       //convenience to get the url, user, etc of the grouper db, helps get db connection
-      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile(DB_OBJECT_PREFIX);
       
       Connection connection = null;
       
@@ -739,11 +789,11 @@ public class GrouperDdlUtils {
         dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result));
         
         //it needs a name, just use "grouper"
-        Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+        Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
             null, null);
         dropAllForeignKeys(oldDatabase);
           
-        Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+        Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
             null, null);
         dropAllForeignKeys(newDatabase);
 
@@ -898,10 +948,10 @@ public class GrouperDdlUtils {
       String objectName = ddlVersionBean.getObjectName();
       
       //it needs a name, just use "grouper"
-      Database oldDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+      Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
           null, null);
       
-      Database newDatabase = platform.readModelFromDatabase(connection, "grouper", null,
+      Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
           null, null);
       dropAllForeignKeys(newDatabase);
   
@@ -1652,6 +1702,157 @@ public class GrouperDdlUtils {
         }
       }
     }
+  }
+  /**
+   * see if tables are there (at least the grouper groups one)
+   * @param expectRecords 
+   * @param expectTrue pritn exception if expecting true
+   * @return true if everything ok, false if not
+   */
+  public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue) {
+    return assertTablesThere(expectRecords, expectTrue, "grouper_stems");
+  }
+  /**
+   * see if tables are there (at least the grouper groups one)
+   * @param expectRecords 
+   * @param expectTrue pritn exception if expecting true
+   * @param tableName 
+   * @return true if everything ok, false if not
+   */
+  public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue, String tableName) {
+    try {
+      //first, see if tables are there
+      int count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from " + tableName);
+      if (!expectRecords) {
+        return true;
+      }
+      return count > 0;
+    } catch (RuntimeException e) {
+      if (expectTrue) {
+        throw e;
+      }
+      return false;
+    }
+  
+  }
+  /**
+   * find the correct metadata for the DB
+   * @param ddlVersionable
+   * @return the metadatabean
+   */
+  public static GrouperDdlUtils.DbMetadataBean findDbMetadataBean(DdlVersionable ddlVersionable) {
+    final GrouperDdlUtils.DbMetadataBean dbMetadataBean = new GrouperDdlUtils.DbMetadataBean();
+
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    String schema = grouperDb.getUser().toUpperCase();
+  
+  //    if (true) {
+  //      dbMetadataBean.setDefaultTablePattern(ddlVersionable.getDefaultTablePattern());
+  //      dbMetadataBean.setSchema(schema);
+  //      return dbMetadataBean;
+  //    }
+
+    //see if the table is there
+    final String sampleTablename = ddlVersionable.getSampleTablename();
+    boolean tableThere = assertTablesThere(false, false, sampleTablename);
+    
+    //pattern to get only certain objects (e.g. GROUPERLOADER% )
+    String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
+    
+    Platform platform = retrievePlatform(false);
+  
+    String ddlUtilsSchemaOverride = StringUtils.trimToEmpty(GrouperConfig.getProperty("ddlutils.schema"));
+  
+    //in postgres, try public
+    String extraSchema = "";
+    
+    //postgres needs lower I think
+    if (platform.getName().toLowerCase().contains("postgre")) {
+      schema = schema.toLowerCase();
+      defaultTablePattern = defaultTablePattern.toLowerCase();
+      extraSchema = "public";
+    }
+  
+    if (!tableThere) {
+      
+      if (!StringUtils.isBlank(ddlUtilsSchemaOverride)) {
+        schema = ddlUtilsSchemaOverride;
+      } 
+      dbMetadataBean.setSchema(schema);
+      dbMetadataBean.setDefaultTablePattern(defaultTablePattern);
+      
+    } else {
+      
+      //lets do some trial and error to see what the values should be (since case sensitive)
+      final String[] defaultTablePatterns = new String[]{defaultTablePattern, defaultTablePattern.toLowerCase(), 
+          defaultTablePattern.toUpperCase()};
+  
+      final String[] schemas = new String[]{
+          ddlUtilsSchemaOverride, ddlUtilsSchemaOverride.toLowerCase(), ddlUtilsSchemaOverride.toUpperCase(),
+          schema, schema.toLowerCase(), schema.toUpperCase(), 
+          extraSchema, extraSchema.toLowerCase(), extraSchema.toUpperCase()};
+      
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+  
+        @SuppressWarnings("deprecation")
+        public Object callback(HibernateSession hibernateSession)
+            throws GrouperDAOException {
+          //try all combinations
+          for (String theDefaultTablePattern : defaultTablePatterns) {
+            for (String theSchema : schemas) {
+              if (StringUtils.isBlank(theDefaultTablePattern) || StringUtils.isBlank(theSchema)) {
+                continue;
+              }
+              Connection connection = hibernateSession.getSession().connection();
+              
+              DatabaseMetaData databaseMetaData = null;
+              ResultSet fkData = null;
+  
+              try {
+                databaseMetaData = connection.getMetaData();
+                fkData = databaseMetaData.getTables(null, theSchema, theDefaultTablePattern, null);
+                ResultSetMetaData resultSetMetaData = fkData.getMetaData();
+                int columnCount = resultSetMetaData.getColumnCount();
+                @SuppressWarnings("unused")
+                int fk = 0;
+                while (fkData.next()) {
+                  //System.out.println(fk++ + ": ");
+  
+                  for (int i = 1; i <= columnCount; i++) {
+                    //System.out.println("  " + resultSetMetaData.getColumnName(i) + ": "
+                      //  + fkData.getString(i));
+                    if (StringUtils.equalsIgnoreCase("TABLE_NAME", resultSetMetaData.getColumnName(i))) {
+                      if (StringUtils.equalsIgnoreCase(sampleTablename, fkData.getString(i))) {
+                        //we found it!
+                        dbMetadataBean.setSchema(theSchema);
+                        dbMetadataBean.setDefaultTablePattern(theDefaultTablePattern);
+                        return null;
+                      }
+                    }
+                  }
+                }
+              } catch (Exception e) {
+                throw new RuntimeException("Problem with db connection", e);
+              } finally {
+                GrouperUtil.closeQuietly(fkData);
+                if (hibernateSession.isTransactionActive()) {
+                  hibernateSession.rollback(GrouperRollbackType.ROLLBACK_NOW);
+                }
+              }
+            }
+          }
+          //it never found the connection criteria!
+          throw new RuntimeException("The table: '" + sampleTablename + "' exists, but " +
+              "cant find it with DB metadata... is the ddlutils.schema set correctly");
+        }
+        
+      });
+    }
+    return dbMetadataBean;
+    
   }
   
 }

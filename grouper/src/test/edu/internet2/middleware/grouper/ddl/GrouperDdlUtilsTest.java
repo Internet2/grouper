@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.4 2008-08-14 06:35:48 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.5 2008-08-24 03:24:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -51,62 +52,39 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testFieldIdUpgrade"));
+    TestRunner.run(new GrouperDdlUtilsTest("findDdlMetadataBean"));
   }
 
   /**
-   * see if tables are there (at least the grouper groups one)
-   * @param expectRecords 
-   * @param expectTrue pritn exception if expecting true
-   * @return true if everything ok, false if not
+   * test
    */
-  private static boolean assertTablesThere(boolean expectRecords, boolean expectTrue) {
-    return assertTablesThere(expectRecords, expectTrue, "grouper_stems");
+  public void findDdlMetadataBean() {
+    //make sure we can find the ddl metadata bean
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(GrouperDdl.V1);
+    assertNotNull(dbMetadataBean);
+    dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(SubjectDdl.V1);
+    assertNotNull(dbMetadataBean);
+    
   }
   
-  /**
-   * see if tables are there (at least the grouper groups one)
-   * @param expectRecords 
-   * @param expectTrue pritn exception if expecting true
-   * @param tableName 
-   * @return true if everything ok, false if not
-   */
-  private static boolean assertTablesThere(boolean expectRecords, boolean expectTrue, String tableName) {
-    try {
-      //first, see if tables are there
-      int count = HibernateSession.bySqlStatic().select(int.class, 
-          "select count(*) from " + tableName);
-      if (!expectRecords) {
-        return true;
-      }
-      return count > 0;
-    } catch (RuntimeException e) {
-      if (expectTrue) {
-        throw e;
-      }
-      return false;
-    }
-
-  }
-
   /**
    * 
    */
   public void testBootstrapHelper() {
     
-    assertTrue("Starting out, tables should be there", assertTablesThere(false, true));
+    assertTrue("Starting out, tables should be there", GrouperDdlUtils.assertTablesThere(false, true));
     
     //now lets remove all tables and object
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null);
     
-    assertFalse("Just removed tables, shouldnt be there", assertTablesThere(false, false));
+    assertFalse("Just removed tables, shouldnt be there", GrouperDdlUtils.assertTablesThere(false, false));
 
     //lets add all tables and object
     GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null);
     
     //if we init data, the root stem should be there...
     assertTrue("Just added all tables, and registry init, it should be there", 
-        assertTablesThere(true, true));
+        GrouperDdlUtils.assertTablesThere(true, true));
 
     //should also have at least two rows in ddl
     int count = HibernateSession.bySqlStatic().select(int.class, 
@@ -117,7 +95,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //try again, everything should be there (even not from junit)
     GrouperDdlUtils.bootstrapHelper(false, false, true, false, false, false, false, null);
     
-    assertTrue("Should not change anything", assertTablesThere(true, true));
+    assertTrue("Should not change anything", GrouperDdlUtils.assertTablesThere(true, true));
 
     //at this point, hibernate should not be shut off
     assertTrue("at this point, hibernate should not be shut off", 
@@ -145,9 +123,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.justTesting = true;
     
     //now we should have the ddl table...
-    assertTablesThere(true, true, "grouper_ddl");
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
     //but no other tables
-    assertTablesThere(false, false);
+    GrouperDdlUtils.assertTablesThere(false, false);
   
     //get up to v4...  note if cols are added, they should be added pre-v4 also...
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, 
@@ -158,9 +136,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       "select count(*) from grouper_groups where uuid is not null");
     
     //now we should have the ddl table of course...
-    assertTablesThere(true, true, "grouper_ddl");
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
     //and all other tables
-    assertTablesThere(false, true);
+    GrouperDdlUtils.assertTablesThere(false, true);
   
     //add a group, type, stem, member, etc.
     super.setUp();
@@ -260,9 +238,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.justTesting = true;
     
     //now we should have the ddl table...
-    assertTablesThere(true, true, "grouper_ddl");
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
     //but no other tables
-    assertTablesThere(false, false);
+    GrouperDdlUtils.assertTablesThere(false, false);
 
     //get up to v4...  note if cols are added, they should be added pre-v4 also...
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, 
@@ -300,9 +278,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     }
     
     //now we should have the ddl table of course...
-    assertTablesThere(true, true, "grouper_ddl");
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
     //and all other tables
-    assertTablesThere(false, true);
+    GrouperDdlUtils.assertTablesThere(false, true);
 
     //add a group, type, stem, member, etc.
     super.setUp();
@@ -467,18 +445,18 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.justTesting = true;
     
     //now we should have the ddl table...
-    assertTablesThere(true, true, "grouper_ddl");
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
     //but has other tables
-    assertTablesThere(false, false);
+    GrouperDdlUtils.assertTablesThere(false, false);
   
     //get up to v4...  note grouper_sessions will be added...
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, 
         GrouperDdlUtils.maxVersionMap(GrouperDdl.V4));
     
     //now we should have the grouper_sessions table of course...
-    assertTablesThere(false, true, "grouper_sessions");
+    GrouperDdlUtils.assertTablesThere(false, true, "grouper_sessions");
     //but no other tables
-    assertTablesThere(false, true);
+    GrouperDdlUtils.assertTablesThere(false, true);
   
     //add a group, type, stem, member, etc.
     super.setUp();
@@ -486,9 +464,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null);
     
     //now we should not have the grouper_sessions table of course...
-    assertTablesThere(false, false, "grouper_sessions");
+    GrouperDdlUtils.assertTablesThere(false, false, "grouper_sessions");
     //but has other tables
-    assertTablesThere(false, true);
+    GrouperDdlUtils.assertTablesThere(false, true);
 
     //that should have dropped grouper_sessions
     GrouperDdlUtils.everythingRightVersion = true;

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.5 2008-08-14 06:35:47 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.6 2008-08-24 03:24:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -127,9 +127,7 @@ public enum SubjectDdl implements DdlVersionable {
   
   /**
    * add all foreign keys
-   * @param database ddlutils database object
-   * @param additionalScripts add additional scripts after the db ddl (e.g. sql).  scripts should be semicolon delimited
-   * @param buildingToVersion version it will end up with when done (usually largest version unless unit testing)
+   * @param ddlVersionBean 
    */
   public void addAllForeignKeys(DdlVersionBean ddlVersionBean) {
     Database database = ddlVersionBean.getDatabase();
@@ -137,5 +135,14 @@ public enum SubjectDdl implements DdlVersionable {
         "fk_subjectattr_subjectid", "subject", "subjectId", "subjectId");
 
   }
+  
+  /**
+   * an example table name so we can hone in on the exact metadata
+   * @return the table name
+   */
+  public String getSampleTablename() {
+    return "SUBJECT";
+  }
+
 
 }

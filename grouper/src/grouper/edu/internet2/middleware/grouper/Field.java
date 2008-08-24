@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.32 2008-08-14 06:35:47 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.33 2008-08-24 03:24:37 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -261,7 +261,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
    * @since   1.2.0
    */
   public void setReadPrivilege(Privilege readPrivilege) {
-    this.setReadPrivilege( readPrivilege.getName() );
+    this.readPrivilege = readPrivilege.getName();
   
   }
 
@@ -277,7 +277,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
    * @since   1.2.0
    */
   public void setType(FieldType type) {
-    this.setTypeString( type.toString() );
+    this.type = type.toString();
   
   }
 
@@ -309,7 +309,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
    * @since   1.2.0
    */
   public void setWritePrivilege(Privilege writePrivilege) {
-    this.setWritePrivilege( writePrivilege.getName() );
+    this.writePrivilege = writePrivilege.getName();
   
   }
 
