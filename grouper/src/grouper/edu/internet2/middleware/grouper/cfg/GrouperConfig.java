@@ -26,7 +26,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.2 2008-08-24 06:16:29 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -227,7 +227,7 @@ public class GrouperConfig {
     String val = getProperty(property);
 
     //if no val, then return the default value
-    if (StringUtils.isBlank(property)) {
+    if (StringUtils.isBlank(val)) {
       return defaultValue;
     }
     return val;

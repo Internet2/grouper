@@ -1,12 +1,16 @@
 /*
  * @author mchyzer
- * $Id: MorphTest.java,v 1.1 2008-08-18 06:15:58 mchyzer Exp $
+ * $Id: MorphTest.java,v 1.2 2008-08-24 06:16:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util.rijndael;
+
+import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 
 
 
@@ -32,13 +36,14 @@ public class MorphTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-
+    TestRunner.run(MorphTest.class);
   }
 
   /**
    * 
    */
   public void testMorph() {
+    ApiConfig.testConfig.put("grouper.encrypt.key", "ert234mN54");
     String morphed = Morph.encrypt("whatever");
     assertFalse(StringUtils.equals(morphed, "whatever"));
     String unmorphed = Morph.decrypt(morphed);
