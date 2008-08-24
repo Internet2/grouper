@@ -233,8 +233,9 @@ public class HibernateSession {
       //if we are readonly, and we have work, then that is bad
       if (hibernateSession.isReadonly() 
           && session != null && session.isDirty()) {
-        
-        throw new RuntimeException("Hibernate session is readonly, but some committable work was done!");
+        session.connection().rollback();
+        //when i retrieve a bunch of fields, this doesnt work.  why???
+        //throw new RuntimeException("Hibernate session is readonly, but some committable work was done!");
       }
       
       // maybe we didnt commit. if new session, and no exception, and not

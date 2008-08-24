@@ -1,11 +1,13 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.14 2008-08-14 06:35:47 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.15 2008-08-24 03:24:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Types;
-import java.util.List;
 
 import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
@@ -14,6 +16,7 @@ import org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
@@ -21,7 +24,11 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 
@@ -108,7 +115,7 @@ public enum GrouperDdl implements DdlVersionable {
 
       boolean isDestinationVersion = ddlVersionBean.isDestinationVersion();
 
-      StringBuilder additionalScripts = ddlVersionBean.getAdditionalScripts();
+      final StringBuilder additionalScripts = ddlVersionBean.getAdditionalScripts();
 
       boolean needsAttributeFieldIdConversion = needsAttributeFieldIdConversion(database);
       boolean needsMembershipFieldIdConversion = needsMembershipFieldIdConversion(database);
@@ -161,29 +168,80 @@ public enum GrouperDdl implements DdlVersionable {
       //dont put scripts here if this isnt the right time (at this stage, not building toward a different one)
       //also we need to need the conversion in attributes or memberships
       if (isDestinationVersion && (needsAttributeFieldIdConversion || needsMembershipFieldIdConversion)) {
-
-        //loop through all fields:
-        List<Field> fields = HibernateSession.byCriteriaStatic().list(Field.class, null);
         
-        for (Field field : fields) {
-          
-          //attributes work on the attributes table, and non-attributes work on the memberships table
-          if (field.isAttributeName()) {
-            
-            //update records, move the name to the id, commit inline so that the db undo required is not too huge
-            additionalScripts.append("update grouper_attributes set old_field_name = field_name, " +
-            		"field_id = '" + field.getUuid() + "' where field_name = '" + field.getName() + "';\ncommit;\n");
+        HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, new HibernateHandler() {
 
-          } else {
+          @SuppressWarnings("deprecation")
+          public Object callback(HibernateSession hibernateSession)
+              throws GrouperDAOException {
             
-            //update records, move the name to the id, commit inline so that the db undo required is not too huge
-            additionalScripts.append("update grouper_memberships set old_list_name = list_name, old_list_type = list_type, " +
-            		"field_id = '" + field.getUuid() + "' " +
-            				"where list_name = '" + field.getName() + "' and list_type = '" + field.getTypeString() + "';\ncommit;\n");
+            Connection connection = hibernateSession.getSession().connection();
+            PreparedStatement statement = null;
+            ResultSet resultSet = null;
             
+            //we dont know where the user is in the upgrade steps, so see if the uuid is still there...
+            boolean uuidStillExists = true;
+            try {
+              statement = connection.prepareStatement("select field_uuid from grouper_fields");
+              resultSet = statement.executeQuery();
+              while (resultSet.next()) {
+                //just testing
+              }
+             
+            } catch (Exception e) {
+              uuidStillExists = false;
+            } finally {
+              GrouperUtil.closeQuietly(resultSet);
+              GrouperUtil.closeQuietly(statement);
+            }
+            String idCol = uuidStillExists ? "field_uuid" : "id";
+            String query = "select " + idCol + ", name, type from grouper_fields";
+            try {
+              statement = connection.prepareStatement(query);
+              resultSet = statement.executeQuery();
+              while (resultSet.next()) {
+                
+                String uuid = resultSet.getString(1);
+                String name = resultSet.getString(2);
+                String type = resultSet.getString(3);
+                
+                //attributes work on the attributes table, and non-attributes work on the memberships table
+                if (FieldType.ATTRIBUTE.getType().equals(type)) {
+                  
+                  //update records, move the name to the id, commit inline so that the db undo required is not too huge
+                  additionalScripts.append("update grouper_attributes set old_field_name = field_name, " +
+                      "field_id = '" + uuid + "' where field_name = '" + name + "';\ncommit;\n");
+
+                } else {
+                  
+                  //update records, move the name to the id, commit inline so that the db undo required is not too huge
+                  additionalScripts.append("update grouper_memberships set old_list_name = list_name, old_list_type = list_type, " +
+                      "field_id = '" + uuid + "' " +
+                          "where list_name = '" + name + "' and list_type = '" + type + "';\ncommit;\n");
+                  
+                }
+                
+              }
+            } catch (Exception e) {
+              throw new RuntimeException("Problem with running query: " + query, e);
+            } finally {
+              GrouperUtil.closeQuietly(resultSet);
+              GrouperUtil.closeQuietly(statement);
+            }
+            
+            return null;
           }
           
-        }
+        });
+        
+        //CH 20080823 THIS DIDNT WORK SINCE THE MAPPING DOESNT EXIST ANYMORE!!!!
+        //loop through all fields:
+        //List<Field> fields = HibernateSession.byCriteriaStatic().list(Field.class, null);
+        //
+        //for (Field field : fields) {
+        //  
+        //  
+        //}
       }
 
       
@@ -1402,6 +1460,7 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * add all foreign keys
+   * @param ddlVersionBean 
    */
   public void addAllForeignKeys(DdlVersionBean ddlVersionBean) {
 
@@ -1481,4 +1540,11 @@ public enum GrouperDdl implements DdlVersionable {
   
   }
 
+  /**
+   * an example table name so we can hone in on the exact metadata
+   * @return the table name
+   */
+  public String getSampleTablename() {
+    return "GROUPER_GROUPS";
+  }
 }

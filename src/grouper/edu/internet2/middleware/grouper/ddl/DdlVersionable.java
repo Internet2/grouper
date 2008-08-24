@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionable.java,v 1.4 2008-08-14 06:35:47 mchyzer Exp $
+ * $Id: DdlVersionable.java,v 1.5 2008-08-24 03:24:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
  
@@ -39,6 +39,12 @@ public interface DdlVersionable {
    * </pre>
    */
   public String getDefaultTablePattern();
+  
+  /**
+   * an example table name so we can hone in on the exact metadata
+   * @return the table name
+   */
+  public String getSampleTablename();
   
   /**
    * check to see if the changes are already made, and then add the changes
