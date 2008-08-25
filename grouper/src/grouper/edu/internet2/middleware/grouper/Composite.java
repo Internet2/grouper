@@ -40,7 +40,7 @@ import  org.apache.commons.lang.time.*;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.49.4.2 2008-08-17 23:52:57 shilen Exp $
+ * @version $Id: Composite.java,v 1.49.4.3 2008-08-25 01:39:24 shilen Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -408,43 +408,11 @@ public class Composite extends GrouperAPI {
         }
       }
 
-      Set<MembershipDTO> deletes   = new LinkedHashSet();     // deletes  = cur - should
-      Iterator<MembershipDTO> curIterator = cur.iterator();
-      while (curIterator.hasNext()) {
-        MembershipDTO curMembership = curIterator.next();
-        boolean found = false;
-        shouldIterator = should.iterator();
-        while (shouldIterator.hasNext()) {
-          MembershipDTO shouldMembership = shouldIterator.next();
-          if (shouldMembership.getMemberUuid().equals(curMembership.getMemberUuid())) {
-            found = true;
-            break;
-          }
-        }
-        if (!found) {
-          deletes.add(curMembership);
-        }
-      }
+      Set<MembershipDTO> deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
+      deletes.removeAll(should);
 
-
-      Set<MembershipDTO> adds      = new LinkedHashSet();  // adds     = should - cur
-      shouldIterator = should.iterator();
-      while (shouldIterator.hasNext()) {
-        MembershipDTO shouldMembership = shouldIterator.next();
-        boolean found = false;
-        curIterator = cur.iterator();
-        while (curIterator.hasNext()) {
-          MembershipDTO curMembership = curIterator.next();
-          if (shouldMembership.getMemberUuid().equals(curMembership.getMemberUuid())) {
-            found = true;
-            break;
-          }
-        }
-        if (!found) {
-          adds.add(shouldMembership);
-        }
-      }
-
+      Set<MembershipDTO> adds      = new LinkedHashSet(should);  // adds     = should - cur
+      adds.removeAll(cur);
 
       Map modified  = new HashMap();
       modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, adds.iterator() );
