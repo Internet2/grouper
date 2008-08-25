@@ -21,21 +21,29 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.registry.RegistryInstall;
 
 
 /**
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.40 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.41 2008-08-25 01:17:11 mchyzer Exp $
  */
 public class FieldFinder {
 
+  /**
+   * logger 
+   */
+  private static final Log LOG = LogFactory.getLog(FieldFinder.class);
   /** 
    * every 10 minutes, get new elements
    */
@@ -166,9 +174,11 @@ public class FieldFinder {
   // @since   1.2.0
   // TODO 20070531 split and test.
   public static void internal_updateKnownFields() {
+
+    GrouperStartup.startup();
     Field f;
     Set   fieldsInRegistry = findAll();
-
+    
     // find fields to add to the cache
     Iterator it = fieldsInRegistry.iterator();
     while (it.hasNext()) {

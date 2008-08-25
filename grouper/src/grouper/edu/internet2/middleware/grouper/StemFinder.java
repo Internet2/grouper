@@ -29,12 +29,14 @@ import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.registry.RegistryInstall;
 
 /**
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.49 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: StemFinder.java,v 1.50 2008-08-25 01:17:11 mchyzer Exp $
  */
 public class StemFinder {
 
@@ -79,8 +81,8 @@ public class StemFinder {
    * @throws  GrouperRuntimeException
    */
   public static Stem findRootStem(GrouperSession s) 
-    throws  GrouperRuntimeException
-  {
+    throws  GrouperRuntimeException  {
+    GrouperStartup.startup();
     GrouperSession.validate(s);
     try {
       return StemFinder.findByName(s, Stem.ROOT_INT);
