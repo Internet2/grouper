@@ -27,7 +27,7 @@ import  junit.framework.*;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.7 2008-08-25 01:17:11 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
@@ -36,6 +36,12 @@ public class TestField extends TestCase {
   }
 
   protected void setUp () {
+    try {
+      FieldFinder.find("viewers");
+      
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 

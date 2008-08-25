@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.3 2008-08-25 01:17:11 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -56,6 +56,9 @@ public class RegistryInstall {
           try {
             _installFieldsAndTypes(grouperSession);
             _installGroupsAndStems(grouperSession);
+            if (LOG.isWarnEnabled()) {
+              LOG.warn("Registry was initted (default fields, types, stem, etc inserted)");
+            }
           } catch (Exception e) {
             throw new GrouperSessionException(e);
           }
