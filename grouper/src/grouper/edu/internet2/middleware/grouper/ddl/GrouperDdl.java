@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.16 2008-08-24 04:47:11 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.17 2008-08-26 04:54:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.Types;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.ddlutils.model.Column;
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
 
@@ -83,6 +82,16 @@ public enum GrouperDdl implements DdlVersionable {
     public void updateVersionFromPrevious(Database database, 
         DdlVersionBean ddlVersionBean) {
 
+      Table attributesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Attribute.TABLE_GROUPER_ATTRIBUTES);
+
+      addAttributeFieldIndexes(database, attributesTable);
+
+      Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS);
+
+      addMembershipFieldIndexes(database, membershipsTable);
+
       //only drop cols if there are there, and all of them (which means the conversion probably happened, and they
       //havent been dropped yet)
       if (GrouperDdlUtils.ddlutilsFindColumn(database, Attribute.TABLE_GROUPER_ATTRIBUTES, Attribute.COLUMN_FIELD_NAME, false) != null
@@ -129,40 +138,22 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributesTable, Attribute.COLUMN_OLD_FIELD_NAME, "temp col for old field name", 
             Types.VARCHAR, "32", false, false);
         
-        //start with a default that it is not required if the col doesnt already exist (dont want to
-        //have ddl utils copy all the cols all over the place
-        boolean requiredField = false;
-        //if the col is there, set it to whatever it alerady is
-        Column fieldIdCol = attributesTable.findColumn(Membership.COLUMN_FIELD_ID);
-        if (fieldIdCol != null) {
-          requiredField = fieldIdCol.isRequired();
-        }
-        
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributesTable, Attribute.COLUMN_FIELD_ID, 
-            "foreign key to field by id", Types.VARCHAR, "128", false, requiredField);
+            "foreign key to field by id", Types.VARCHAR, "128", false, false);
       }
 
       if (needsMembershipFieldIdConversion) {
         
         Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Membership.TABLE_GROUPER_MEMBERSHIPS);
-        
+
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_LIST_NAME, "temp col for old list name", 
             Types.VARCHAR, "32", false, false);
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_LIST_TYPE, "temp col for old list type", 
             Types.VARCHAR, "32", false, false);
 
-        //start with a default that it is not required if the col doesnt already exist (dont want to
-        //have ddl utils copy all the cols all over the place
-        boolean requiredField = false;
-        //if the col is there, set it to whatever it alerady is
-        Column fieldIdCol = membershipsTable.findColumn(Membership.COLUMN_FIELD_ID);
-        if (fieldIdCol != null) {
-          requiredField = fieldIdCol.isRequired();
-        }
-        
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_FIELD_ID, 
-            "foreign key to field by id", Types.VARCHAR, "128", false, requiredField);
+            "foreign key to field by id", Types.VARCHAR, "128", false, false);
         
       }
       
@@ -432,6 +423,8 @@ public enum GrouperDdl implements DdlVersionable {
       
       StringBuilder additionalScripts = ddlVersionBean.getAdditionalScripts();
       
+      GrouperDdlUtils.ddlutilsDropIndexes(GrouperDdlUtils.ddlutilsFindTable(database, 
+          Composite.TABLE_GROUPER_COMPOSITES), Composite.COLUMN_UUID);
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       if (needsCompositeIdConversion(database)) {
 
@@ -440,14 +433,15 @@ public enum GrouperDdl implements DdlVersionable {
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
-        
         if (isDestinationVersion) {
 
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_composites set old_id = id, id = uuid, old_uuid = uuid, uuid = null where uuid is not null;\ncommit;\n");
+          additionalScripts.append("update grouper_composites set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ';\ncommit;\n");
         }          
       }
       
+      GrouperDdlUtils.ddlutilsDropIndexes(GrouperDdlUtils.ddlutilsFindTable(database, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS), Membership.COLUMN_MEMBERSHIP_UUID);
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       if (needsMembershipIdConversion(database)) {
         
@@ -460,10 +454,12 @@ public enum GrouperDdl implements DdlVersionable {
         if (isDestinationVersion) {
 
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_memberships set old_id = id, id = membership_uuid, old_membership_uuid = membership_uuid, membership_uuid = null where membership_uuid is not null;\ncommit;\n");
+          additionalScripts.append("update grouper_memberships set old_id = id, id = membership_uuid, old_membership_uuid = membership_uuid, membership_uuid = ' ' where membership_uuid != ' ';\ncommit;\n");
         }          
       }
       
+      GrouperDdlUtils.ddlutilsDropIndexes(GrouperDdlUtils.ddlutilsFindTable(database, 
+          Field.TABLE_GROUPER_FIELDS), Field.COLUMN_FIELD_UUID);
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       if (needsFieldsIdConversion(database)) {
         
@@ -474,10 +470,12 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_fields set old_id = id, id = field_uuid, old_field_uuid = field_uuid, field_uuid = null where field_uuid is not null;\ncommit;\n");
+          additionalScripts.append("update grouper_fields set old_id = id, id = field_uuid, old_field_uuid = field_uuid, field_uuid = ' ' where field_uuid != ' ';\ncommit;\n");
         }          
       }
       
+      GrouperDdlUtils.ddlutilsDropIndexes(GrouperDdlUtils.ddlutilsFindTable(database, 
+          Group.TABLE_GROUPER_GROUPS), Group.COLUMN_UUID);
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       if (needsGroupsIdConversion(database)) {
         
@@ -489,10 +487,12 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_groups set old_id = id, id = uuid, old_uuid = uuid, uuid = null where uuid is not null;\ncommit;\n");
+          additionalScripts.append("update grouper_groups set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ';\ncommit;\n");
         }          
       }
 
+      GrouperDdlUtils.ddlutilsDropIndexes(GrouperDdlUtils.ddlutilsFindTable(database, 
+          Member.TABLE_GROUPER_MEMBERS), Member.COLUMN_MEMBER_UUID);
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       if (needsMembersIdConversion(database)) {
         
@@ -504,10 +504,12 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_members set old_id = id, id = member_uuid, old_member_uuid = member_uuid, member_uuid = null where member_uuid is not null;\ncommit;\n");
+          additionalScripts.append("update grouper_members set old_id = id, id = member_uuid, old_member_uuid = member_uuid, member_uuid = ' ' where member_uuid != ' ';\ncommit;\n");
         }          
       }
 
+      GrouperDdlUtils.ddlutilsDropIndexes(GrouperDdlUtils.ddlutilsFindTable(database, 
+          Stem.TABLE_GROUPER_STEMS), Stem.COLUMN_UUID);
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       if (needsStemIdConversion(database)) {
         
@@ -519,10 +521,12 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_stems set old_id = id, id = uuid, old_uuid = uuid, uuid = null where uuid is not null;\ncommit;\n");
+          additionalScripts.append("update grouper_stems set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ';\ncommit;\n");
         }          
       }
 
+      GrouperDdlUtils.ddlutilsDropIndexes(GrouperDdlUtils.ddlutilsFindTable(database, 
+          GroupType.TABLE_GROUPER_TYPES), GroupType.COLUMN_TYPE_UUID);
       //we need conversion if there is a uuid col, and not an old_uuid col or old_id col
       if (needsTypesIdConversion(database)) {
         
@@ -534,7 +538,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_types set old_id = id, id = type_uuid, old_type_uuid = type_uuid, type_uuid = null where type_uuid is not null;\ncommit;\n");
+          additionalScripts.append("update grouper_types set old_id = id, id = type_uuid, old_type_uuid = type_uuid, type_uuid = ' ' where type_uuid != ' ';\ncommit;\n");
         }          
       }
     }
@@ -714,9 +718,7 @@ public enum GrouperDdl implements DdlVersionable {
   
         //dont add foreign keys if col not there
         if (attributeTable.findColumn(Attribute.COLUMN_FIELD_ID) != null) {
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_uniq_idx", true, "group_id", Attribute.COLUMN_FIELD_ID);
-        
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_field_value_idx", false, Attribute.COLUMN_FIELD_ID, "value");
+          addAttributeFieldIndexes(database, attributeTable);
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_value_idx", false, "value");
@@ -1045,15 +1047,7 @@ public enum GrouperDdl implements DdlVersionable {
         //dont add foreign keys if col not there
         if (membershipsTable.findColumn(Membership.COLUMN_FIELD_ID) != null) {
 
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
-              "membership_member_list_idx", false, "member_id", "field_id");
-
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
-              "membership_owner_field_type_idx", false, "owner_id", "field_id", "mship_type");
-
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
-              "membership_owner_member_idx", false, "owner_id", "member_id",
-              "field_id", "depth");
+          addMembershipFieldIndexes(database, membershipsTable);
 
         }
 
@@ -1233,6 +1227,7 @@ public enum GrouperDdl implements DdlVersionable {
         versionNumberColumnFindOrCreate(typesTable);
       }
     }
+
   }, 
   
   /** first version of grouper, make sure the ddl table is there */
@@ -1556,4 +1551,31 @@ public enum GrouperDdl implements DdlVersionable {
   public String getSampleTablename() {
     return "GROUPER_GROUPS";
   }
+  
+  /**
+   * @param database
+   * @param attributeTable
+   */
+  private static void addAttributeFieldIndexes(Database database, Table attributeTable) {
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_uniq_idx", true, "group_id", Attribute.COLUMN_FIELD_ID);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_field_value_idx", false, Attribute.COLUMN_FIELD_ID, "value");
+  }
+
+  /**
+   * @param database
+   * @param membershipsTable
+   */
+  private static void addMembershipFieldIndexes(Database database, Table membershipsTable) {
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+        "membership_member_list_idx", false, "member_id", "field_id");
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+        "membership_owner_field_type_idx", false, "owner_id", "field_id", "mship_type");
+
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+        "membership_owner_member_idx", false, "owner_id", "member_id",
+        "field_id", "depth");
+  }
+
 }

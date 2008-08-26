@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.3 2008-08-26 04:54:32 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -53,8 +53,11 @@ public class RegistryInitializeSchema {
       
       GrouperStartup.startup();
       
+      String prompt = "schemaexport all tables (dropThenCreate=" + (isDropBeforeCreate() ? "T" : "F")
+       + ",writeAndRunScript=" + (isWriteAndRunScript() ? "T" : "F") + ")";
+      
       //make sure it is ok to change db
-      GrouperUtil.promptUserAboutDbChanges("schemaexport all tables", true);
+      GrouperUtil.promptUserAboutDbChanges(prompt, true);
   
       //run the bootstrap
       GrouperDdlUtils.bootstrap(true, isInstallGrouperData());

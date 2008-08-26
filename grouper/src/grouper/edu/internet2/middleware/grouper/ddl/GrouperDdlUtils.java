@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.11 2008-08-24 06:10:35 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.12 2008-08-26 04:54:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -904,9 +904,9 @@ public class GrouperDdlUtils {
 
     if (platform.getName().toLowerCase().contains("oracle")) {
       
-      //for oracle, get the foreign keys from user_constraints
+      //for oracle, get the foreign keys from user_constraints, and drop check constraints while we are at it
       String sql = "select TABLE_NAME, CONSTRAINT_NAME from user_constraints where table_name like ? " +
-      		"and constraint_type = 'R' order by table_name, constraint_name"; 
+      		"and constraint_type in ('R','U') order by table_name, constraint_name"; 
       PreparedStatement statement = null;
       ResultSet resultSet = null;
       try {
