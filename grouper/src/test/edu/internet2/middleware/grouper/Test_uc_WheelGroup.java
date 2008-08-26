@@ -36,7 +36,7 @@ import  edu.internet2.middleware.subject.*;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.13 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.14 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -184,26 +184,16 @@ public class Test_uc_WheelGroup extends GrouperTest {
   {
     GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
     s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "true" );
-    GrouperSession s2 = GrouperSession.staticGrouperSession();
     Member  mA  = MemberFinder.findBySubject(s, subjA);
-    GrouperSession s3 = GrouperSession.staticGrouperSession();
     Group   g   = GroupFinder.findByUuid( s, wheel.getUuid() );
-    GrouperSession s4 = GrouperSession.staticGrouperSession();
     //WheelAccessResolver caches wheel group membership
     //so doing a pre-check breaks the subsequent ADMIN check
     assertFalse( "does not have ADMIN", g.hasAdmin(subjA) );
-    GrouperSession s5 = GrouperSession.staticGrouperSession();
     assertFalse( "cannot ADMIN", mA.canAdmin(g) );
-    GrouperSession s6 = GrouperSession.staticGrouperSession();
-    try {
-    	Thread.currentThread().sleep(3000);
-    }catch(InterruptedException e){}
+    s.getAccessResolver().flushCache();
     g.addMember(subjA);
-    GrouperSession s7 = GrouperSession.staticGrouperSession();
     assertTrue( "now has ADMIN", g.hasAdmin(subjA) );
-    GrouperSession s8 = GrouperSession.staticGrouperSession();
     assertTrue( "now can ADMIN", mA.canAdmin(g) );
-    GrouperSession s9 = GrouperSession.staticGrouperSession();
 
     s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   } 

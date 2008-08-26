@@ -67,8 +67,8 @@ public class TestUSDU extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    //TestRunner.run(TestUSDU.class);
-    TestRunner.run(new TestUSDU("testNamingPrivilege"));
+    TestRunner.run(TestUSDU.class);
+    //TestRunner.run(new TestUSDU("testNamingPrivilege"));
   }
 
   private void deleteSubject(Subject subject) throws InterruptedException {
@@ -82,9 +82,7 @@ public class TestUSDU extends GrouperTest {
       dao.delete(registrySubjects.get(0));
     }
 
-    // must be longer than timeToIdleSeconds and timeToLiveSeconds in
-    // src/test/conf/grouper.ehcache.xml
-    Thread.sleep(11000);
+    SubjectFinder.flushCache();
 
     try {
       SubjectFinder.findById(subject.getId());

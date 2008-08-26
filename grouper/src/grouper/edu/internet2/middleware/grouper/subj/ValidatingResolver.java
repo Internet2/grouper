@@ -29,13 +29,19 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link SubjectResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingResolver.java,v 1.6 2007-08-27 16:40:16 blair Exp $
+ * @version $Id: ValidatingResolver.java,v 1.7 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingResolver extends SubjectResolverDecorator {
 
   private ParameterHelper param;
 
+  /**
+   * flush the cache (e.g. for testing)
+   */
+  public void flushCache() {
+    super.getDecoratedResolver().flushCache();
+  }
 
 
   /**
