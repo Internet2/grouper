@@ -21,7 +21,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.13 2008-07-21 18:47:13 mchyzer Exp $
+ * @version $Id: T.java,v 1.14 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.0
  */
 public class T extends GrouperTest {
@@ -46,7 +46,10 @@ public class T extends GrouperTest {
 
   // @since   1.0
   public static void e(Exception e) {
-    new GrouperTest().unexpectedException(e);
+    //CH 20080826 This hides exceptions, just throw
+    //new GrouperTest().unexpectedException(e);
+    LOG.error("Error in test", e);
+    throw new RuntimeException(e);
   } // protected static void unexpectedException(e)
 
   // @since   1.1.0

@@ -35,7 +35,7 @@ import  java.util.Set;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.39 2008-07-21 04:43:56 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.40 2008-08-26 21:11:51 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -72,6 +72,13 @@ public class SubjectFinder {
     return getResolver().find(id);
   } 
 
+  /**
+   * flush the cache (e.g. for testing)
+   */
+  public static void flushCache() {
+    getResolver().flushCache();
+  }
+  
   /**
    * Search within all configured sources providing <i>type</i> for subject with identified by <i>id</i>.
    * <pre class="eg">

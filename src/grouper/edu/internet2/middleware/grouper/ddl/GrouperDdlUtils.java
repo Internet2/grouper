@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.12 2008-08-26 04:54:32 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.13 2008-08-26 21:11:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -622,12 +622,13 @@ public class GrouperDdlUtils {
             sqlExec.setProject(project);
   
             sqlExec.execute();
-  
+
             logMessage += "Script was executed successfully\n";
           } catch (Exception e) {
-            logMessage += "Error running script: " + ExceptionUtils.getFullStackTrace(e) + "\n";
+            String error = "Error running script: " + scriptFile.getAbsolutePath();
+            logMessage += error + ", " + ExceptionUtils.getFullStackTrace(e) + "\n";
             if (fromUnitTest) {
-              throw new RuntimeException("Error running script", e);
+              throw new RuntimeException(error, e);
             }
           } finally {
           

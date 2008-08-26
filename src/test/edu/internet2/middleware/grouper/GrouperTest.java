@@ -25,6 +25,7 @@ import  edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import  edu.internet2.middleware.subject.*;
 import  java.util.Date;
 import  junit.framework.*;
@@ -37,7 +38,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.5 2008-07-27 07:37:24 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.6 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -55,6 +56,8 @@ public class GrouperTest extends TestCase {
    */
   public GrouperTest() {
     super();
+    //let the database release...
+    GrouperUtil.sleep(100);
     GrouperStartup.startup();
   } // public GrouperTest()
 
@@ -63,6 +66,8 @@ public class GrouperTest extends TestCase {
    */
   public GrouperTest(String name) {
     super(name);
+    //let the database release...
+    GrouperUtil.sleep(100);
     GrouperStartup.startup();
   } // public GrouperTest()
 
@@ -498,6 +503,7 @@ public class GrouperTest extends TestCase {
    */
   public void unexpectedException(Exception e) {
     e.printStackTrace();
+    LOG.error("Error in test", e);
     fail( "UNEXPECTED EXCEPTION: " + ExceptionUtils.getFullStackTrace(e) );
   } // public void unexpectedException(e)
 

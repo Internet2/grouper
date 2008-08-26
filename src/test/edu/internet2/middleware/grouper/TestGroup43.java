@@ -16,19 +16,29 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import  edu.internet2.middleware.subject.*;
 import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.12 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGroup43.java,v 1.13 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
 
+  /**
+   * main
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGroup43("testGroupModifyAttributesUpdatedAfterAddingImmediateMember"));
+  }
+  
   private static final Log LOG = LogFactory.getLog(TestGroup43.class);
 
   public TestGroup43(String name) {
@@ -54,11 +64,16 @@ public class TestGroup43 extends GrouperTest {
       Group   gA    = r.getGroup("a", "a");
       Subject subjA = r.getSubject("a");
 
+      GrouperUtil.sleep(50);
+      
       long    orig  = gA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(50);
+
       gA.addMember(subjA);
       long    post  = new java.util.Date().getTime();
-      assertTrue( "gA modify time updated", gA.getModifyTime().getTime() > orig );
+      assertTrue( "gA modify time updated: " + gA.getModifyTime().getTime() 
+          + ", " + orig, gA.getModifyTime().getTime() > orig );
       assertTrue( "gA modifyTime >= pre",    gA.getModifyTime().getTime() >= pre );
       assertTrue( "gA modifyTime <= post",   gA.getModifyTime().getTime() <= post );
 
@@ -107,6 +122,9 @@ public class TestGroup43 extends GrouperTest {
 
       gA.addMember( gB.toSubject() );
       long  pre   = new java.util.Date().getTime();
+      
+      GrouperUtil.sleep(50);
+
       gB.addMember(subjA);
       long  post  = new java.util.Date().getTime();
 
@@ -136,6 +154,8 @@ public class TestGroup43 extends GrouperTest {
       gB.addMember(subjA);
 
       long  pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(50);
+
       gB.deleteMember(subjA);
       long  post  = new java.util.Date().getTime();
 
@@ -173,7 +193,8 @@ public class TestGroup43 extends GrouperTest {
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
       long    pre   = new java.util.Date().getTime();
-      //Thread.sleep(1); // TODO 20070522 hack
+      GrouperUtil.sleep(50);
+
       gA.addMember(subjC);
       long    post  = new java.util.Date().getTime();
 
@@ -205,6 +226,8 @@ public class TestGroup43 extends GrouperTest {
 
       long    orig  = gA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(50);
+
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
       long    mtime = gA.getModifyTime().getTime();
@@ -230,6 +253,8 @@ public class TestGroup43 extends GrouperTest {
 
       long    orig  = gA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(50);
+
       gA.revokePriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
       long    mtime = gA.getModifyTime().getTime();
@@ -239,7 +264,7 @@ public class TestGroup43 extends GrouperTest {
       r.rs.stop();
     }
     catch (Exception e) {
-      T.e(e);
+      throw new RuntimeException(e);
     }
   } // public void testGroupModifyAttributesUpdatedAfterRevokingImmediatePriv()
 
@@ -254,6 +279,9 @@ public class TestGroup43 extends GrouperTest {
       gA.addMember( gB.toSubject() );
 
       long pre = new java.util.Date().getTime();
+      
+      GrouperUtil.sleep(50);
+
       gB.grantPriv(subjA, AccessPrivilege.ADMIN);
 
       // load group in new session so we don't (potentially) get stale data
@@ -282,6 +310,9 @@ public class TestGroup43 extends GrouperTest {
       gB.grantPriv(subjA, AccessPrivilege.ADMIN);
 
       long pre = new java.util.Date().getTime();
+      
+      GrouperUtil.sleep(50);
+      
       gB.revokePriv(subjA, AccessPrivilege.ADMIN);
 
       // load group in new session so we don't (potentially) get stale data

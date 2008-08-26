@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.15 2008-08-24 04:47:11 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.16 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -275,6 +275,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
    */
   public void flushCache() {
+    this.cc.flushCache();
     super.getDecoratedResolver().flushCache();
   }            
 }

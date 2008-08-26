@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.17 2008-08-26 04:54:32 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.18 2008-08-26 21:11:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -436,7 +436,7 @@ public enum GrouperDdl implements DdlVersionable {
         if (isDestinationVersion) {
 
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_composites set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ';\ncommit;\n");
+          additionalScripts.append("update grouper_composites set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ' and uuid is not null;\ncommit;\n");
         }          
       }
       
@@ -454,7 +454,7 @@ public enum GrouperDdl implements DdlVersionable {
         if (isDestinationVersion) {
 
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_memberships set old_id = id, id = membership_uuid, old_membership_uuid = membership_uuid, membership_uuid = ' ' where membership_uuid != ' ';\ncommit;\n");
+          additionalScripts.append("update grouper_memberships set old_id = id, id = membership_uuid, old_membership_uuid = membership_uuid, membership_uuid = ' ' where membership_uuid != ' ' and membership_uuid is not null;\ncommit;\n");
         }          
       }
       
@@ -470,7 +470,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_fields set old_id = id, id = field_uuid, old_field_uuid = field_uuid, field_uuid = ' ' where field_uuid != ' ';\ncommit;\n");
+          additionalScripts.append("update grouper_fields set old_id = id, id = field_uuid, old_field_uuid = field_uuid, field_uuid = ' ' where field_uuid != ' ' and field_uuid is not null;\ncommit;\n");
         }          
       }
       
@@ -487,7 +487,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_groups set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ';\ncommit;\n");
+          additionalScripts.append("update grouper_groups set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ' and uuid is not null;\ncommit;\n");
         }          
       }
 
@@ -504,7 +504,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_members set old_id = id, id = member_uuid, old_member_uuid = member_uuid, member_uuid = ' ' where member_uuid != ' ';\ncommit;\n");
+          additionalScripts.append("update grouper_members set old_id = id, id = member_uuid, old_member_uuid = member_uuid, member_uuid = ' ' where member_uuid != ' ' and member_uuid is not null;\ncommit;\n");
         }          
       }
 
@@ -521,7 +521,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_stems set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ';\ncommit;\n");
+          additionalScripts.append("update grouper_stems set old_id = id, id = uuid, old_uuid = uuid, uuid = ' ' where uuid != ' ' and uuid is not null;\ncommit;\n");
         }          
       }
 
@@ -538,7 +538,7 @@ public enum GrouperDdl implements DdlVersionable {
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
-          additionalScripts.append("update grouper_types set old_id = id, id = type_uuid, old_type_uuid = type_uuid, type_uuid = ' ' where type_uuid != ' ';\ncommit;\n");
+          additionalScripts.append("update grouper_types set old_id = id, id = type_uuid, old_type_uuid = type_uuid, type_uuid = ' ' where type_uuid != ' ' and type_uuid is not null;\ncommit;\n");
         }          
       }
     }

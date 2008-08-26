@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.6 2008-08-24 04:47:11 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.7 2008-08-26 21:11:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -52,7 +52,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testFieldIdUpgrade"));
+    TestRunner.run(new GrouperDdlUtilsTest("testGrouperSessionDrop"));
   }
 
   /**

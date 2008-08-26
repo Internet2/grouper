@@ -38,11 +38,16 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.7 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.8 2008-08-26 21:11:51 mchyzer Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
 
+  /**
+   * flush the cache (e.g. for testing)
+   */
+  public void flushCache() {
+  }
 
   /**
    * logger 

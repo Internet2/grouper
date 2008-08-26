@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.190 2008-08-25 01:17:11 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.191 2008-08-26 21:11:51 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -730,14 +730,14 @@
             haltonerror="yes"
             haltonfailure="yes"
             maxmemory="${memory.max}"
-            printsummary="yes"
+            printsummary="withOutAndErr"
             showoutput="yes"
     >
       <jvmarg value="-Dgrouper.allow.db.changes=true"/>
       <classpath  refid="test.classpath"/>
       <formatter  type="xml"/>
       <test       name="edu.internet2.middleware.grouper.SuiteDefault"
-                  todir="${dist.dir.test}"
+                  todir="${dist.dir.test}" 
       />
     </junit>
     <!-- TODO 20061228 Switch to batchtest once I've migrated the tests
