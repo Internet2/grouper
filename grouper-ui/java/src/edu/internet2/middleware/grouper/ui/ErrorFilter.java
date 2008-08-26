@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  *  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ErrorFilter.java,v 1.3 2008-05-09 02:32:59 mchyzer Exp $
+ * @version $Id: ErrorFilter.java,v 1.4 2008-08-26 16:41:48 mchyzer Exp $
  */
 
 public class ErrorFilter implements Filter {
@@ -148,9 +148,16 @@ public class ErrorFilter implements Filter {
 			NavExceptionHelper neh=LowLevelGrouperCapableAction.getExceptionHelper(session);
 			String msg = neh.getMessage((UnrecoverableErrorException)cause);
 			request.setAttribute("seriousError",msg);
+			//for some reason this has to be able the getRequestDispatcher...
+      boolean committed = response.isCommitted();
 			RequestDispatcher rd = request.getRequestDispatcher("/filterError.do");
 			try {
-				rd.include(request, response);
+        if (!committed) {
+			    response.setContentType("text/html");
+          rd.forward(request, response);
+			  } else {
+			    rd.include(request, response);
+			  }
 			}catch(Throwable tt) {
 				LOG.error("Failed to include error page:\n" + NavExceptionHelper.toLog(tt));
 				response.sendError(500);
