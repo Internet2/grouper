@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.10 2008-07-28 20:12:28 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.11 2008-08-26 04:54:32 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -120,6 +120,8 @@ public class ApiConfig implements Configuration {
     File grouperPropertiesFile = GrouperUtil.fileFromResourceName("grouper.properties");
     String propertiesFileLocation = grouperPropertiesFile == null ? "not found" : grouperPropertiesFile.getAbsolutePath(); 
     System.err.println("grouper.properties read from: " + propertiesFileLocation);
+    System.err.println("Grouper current directory is: " + new File("").getAbsolutePath());
+    GrouperUtil.printLogDir();    
   }
   
   /**

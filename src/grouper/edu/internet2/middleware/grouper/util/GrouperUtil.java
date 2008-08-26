@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,6 +58,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.log4j.Appender;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
@@ -77,6 +83,99 @@ public class GrouperUtil {
 
   /** keep a cache of db change whitelists */
   private static Set<MultiKey> dbChangeWhitelist = new HashSet<MultiKey>();
+  
+  /**
+   * store if we are writing default logs to console
+   */
+  private static Boolean printGrouperLogsToConsole = null;
+
+  /**
+   * if the grouper logs go to the console or not
+   * @return if 
+   */
+  public static boolean isPrintGrouperLogsToConsole() {
+    if (printGrouperLogsToConsole == null) {
+      printLogDir();
+    }
+    return printGrouperLogsToConsole;
+  }
+  
+  /**
+   * print the log dir to the console so the logs are easy to find 
+   */
+  public static void printLogDir() {
+    //only do this once
+    if (printGrouperLogsToConsole != null) {
+      return;
+    }
+    printGrouperLogsToConsole = false;
+    Log rootLogger = LogFactory.getLog("edu.internet2.middleware.grouper");
+    StringBuilder rootLoggerAppender = new StringBuilder();
+    boolean writesLogs = false;
+    
+    //get log4j file
+    File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");
+    
+    if (log4jFile == null) {
+      System.err.println("Grouper warning, cannot find log4j.properties in the classpath!");
+    }
+    
+    //location for log message
+    String log4jLocation = log4jFile == null ? null : log4jFile.getAbsolutePath();
+    
+    if (rootLogger instanceof Log4JLogger) {
+      Logger log4jLogger = ((Log4JLogger)rootLogger).getLogger();
+      Enumeration allAppenders = log4jLogger.getAllAppenders();
+      if (allAppenders!=null) {
+        while (allAppenders.hasMoreElements()) {
+          writesLogs = true;
+          Appender appender = (Appender) allAppenders.nextElement();
+          if (appender instanceof ConsoleAppender) {
+            printGrouperLogsToConsole = true;
+            rootLoggerAppender.append("console, ");
+          } else if (appender instanceof FileAppender) {
+            File logFile = new File(((FileAppender)appender).getFile());
+            if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
+              System.err.println("Grouper error, parent dir of log file doesnt exist: " + logFile.getAbsolutePath());
+            }
+            rootLoggerAppender.append(logFile.getAbsolutePath()).append(", ");
+          } else {
+            rootLoggerAppender.append("appender type: " + appender.getClass().getSimpleName()).append(", ");
+          }
+        }
+      }
+      if (!writesLogs || !rootLogger.isErrorEnabled()) {
+        System.err.println("Grouper warning, it is detected that you are not logging errors for " +
+        		"package edu.internet2.middleware.grouper, you should enable logging at " +
+        		"least at the WARN level in file: " + log4jLocation);
+      } else {
+        if (rootLogger.isErrorEnabled() && !rootLogger.isWarnEnabled()) {
+          System.err.println("Grouper warning, it is detected that you are logging " +
+          		"edu.internet2.middleware.grouper as ERROR and not WARN level.  It is " +
+          		"recommended to log at at least WARN level in file: " + log4jLocation);
+        }
+        String logLevel = null;
+        if (rootLogger.isTraceEnabled()) {
+          logLevel = "TRACE";
+        } else if (rootLogger.isDebugEnabled()) {
+          logLevel = "DEBUG";
+        } else if (rootLogger.isInfoEnabled()) {
+          logLevel = "INFO";
+        } else if (rootLogger.isWarnEnabled()) {
+          logLevel = "WARN";
+        } else if (rootLogger.isErrorEnabled()) {
+          logLevel = "ERROR";
+        } else if (rootLogger.isFatalEnabled()) {
+          logLevel = "FATAL";
+        }
+        System.err.println("Grouper is logging to file: " + rootLoggerAppender + "at min level " 
+            + logLevel + " for package: edu.internet2.middleware.grouper, based on properties file: " 
+            + log4jLocation ); 
+      }
+    } else {
+      System.err.println("Grouper logs are not using log4j: " + (rootLogger == null ? null : rootLogger.getClass()));
+    }
+  }
   
   /**
    * return the suffix after a char.  If the char doesnt exist, just return the string
