@@ -20,19 +20,25 @@ import  junit.framework.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberships.java,v 1.8.8.2 2008-08-17 23:52:57 shilen Exp $
+ * @version $Id: SuiteMemberships.java,v 1.8.8.3 2008-08-26 18:06:06 shilen Exp $
  */
 public class SuiteMemberships extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite( TestMembership0.class );  // eff mship uuid does not change
-    suite.addTestSuite( TestMembership1.class );  // parent and child memberships
-    suite.addTestSuite( TestMembership2.class );  // creation time and creator
-    suite.addTestSuite( TestMembership3.class );  // test of effective memberships without composite groups
-    suite.addTestSuite( TestMembership4.class );  // test of effective memberships with composite groups
-    suite.addTestSuite( TestMembership5.class );  // test of effective memberships with access privileges
-    suite.addTestSuite( TestMembership6.class );  // test of effective memberships with access and naming privileges and composite groups
+    suite.addTestSuite(TestMembership0.class);  // eff mship uuid does not change
+    suite.addTestSuite(TestMembership1.class);  // parent and child memberships
+    suite.addTestSuite(TestMembership2.class);  // creation time and creator
+    suite.addTestSuite(TestMembership3.class);  // test of effective memberships without composite groups
+    suite.addTestSuite(TestMembership4.class);  // test of effective memberships with composite groups
+    suite.addTestSuite(TestMembership5.class);  // test of effective memberships with access privileges
+    suite.addTestSuite(TestMembership6.class);  // test of effective memberships with access and naming privileges and composite groups
+
+    suite.addTestSuite(TestFindBadMemberships0.class); // test with effective memberships without composite groups
+    suite.addTestSuite(TestFindBadMemberships1.class); // test with effective memberships with composite groups
+    suite.addTestSuite(TestFindBadMemberships2.class); // test with effective memberships with access privileges
+    suite.addTestSuite(TestFindBadMemberships3.class); // test with effective memberships with access and naming privileges and composite groups
+
     suite.addTestSuite(TestMembership.class);
     return suite;
   } // static public Test suite()

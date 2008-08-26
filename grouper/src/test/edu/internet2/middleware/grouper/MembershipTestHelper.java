@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.8.8.1 2008-08-18 19:00:27 shilen Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.8.8.2 2008-08-26 18:06:06 shilen Exp $
  */
 public class MembershipTestHelper {
 
@@ -450,7 +450,7 @@ public class MembershipTestHelper {
     return mship;
   }   
     
-  private static Membership findCompositeMembership(GrouperSession s, Group g, Subject subj) {
+  protected static Membership findCompositeMembership(GrouperSession s, Group g, Subject subj) {
     
     Membership mship = null;
       
@@ -463,7 +463,7 @@ public class MembershipTestHelper {
     return mship;
   }      
     
-  private static Membership findEffectiveMembership(GrouperSession s, Group g, Subject subj, Group via, int depth, Field f) {
+  protected static Membership findEffectiveMembership(GrouperSession s, Group g, Subject subj, Group via, int depth, Field f) {
     Membership mship = null;
     try {
       Set<Membership> memberships = MembershipFinder.findEffectiveMemberships(s, g, subj,
@@ -480,7 +480,7 @@ public class MembershipTestHelper {
     return mship;
   }
 
-  private static Membership findEffectiveMembership(GrouperSession s, Stem stem, Subject subj, Group via, int depth, Field f) {
+  protected static Membership findEffectiveMembership(GrouperSession s, Stem stem, Subject subj, Group via, int depth, Field f) {
   
     Membership mship = null;
     
@@ -668,6 +668,53 @@ public class MembershipTestHelper {
     Assert.assertTrue(comment + ": verify parent membership", parentCheck);
   }
 
+  protected static void checkBadGroupMemberships(String comment, Set<Group> goodGroups, Set<Group> badGroups) {
+    Iterator<Group> goodIterator = goodGroups.iterator();
+    while (goodIterator.hasNext()) {
+      Group g = goodIterator.next();
+      String curComment = comment + " - " + g.getName();
+      try {
+        Assert.assertTrue(curComment, FindBadMemberships.checkGroup(g));
+      } catch (Exception e) {
+        Assert.fail(curComment + " - got exception: " + e.getMessage());
+      }
+    }
+
+    Iterator<Group> badIterator = badGroups.iterator();
+    while (badIterator.hasNext()) {
+      Group g = badIterator.next();
+      String curComment = comment + " - " + g.getName();
+      try {
+        Assert.assertFalse(curComment, FindBadMemberships.checkGroup(g));
+      } catch (Exception e) {
+        Assert.fail(curComment + " - got exception: " + e.getMessage());
+      }
+    }
+  }
+
+  protected static void checkBadStemMemberships(String comment, Set<Stem> goodStems, Set<Stem> badStems) {
+    Iterator<Stem> goodIterator = goodStems.iterator();
+    while (goodIterator.hasNext()) {
+      Stem ns = goodIterator.next();
+      String curComment = comment + " - " + ns.getName();
+      try {
+        Assert.assertTrue(curComment, FindBadMemberships.checkStem(ns));
+      } catch (Exception e) {
+        Assert.fail(curComment + " - got exception: " + e.getMessage());
+      }
+    }
+
+    Iterator<Stem> badIterator = badStems.iterator();
+    while (badIterator.hasNext()) {
+      Stem ns = badIterator.next();
+      String curComment = comment + " - " + ns.getName();
+      try {
+        Assert.assertFalse(curComment, FindBadMemberships.checkStem(ns));
+      } catch (Exception e) {
+        Assert.fail(curComment + " - got exception: " + e.getMessage());
+      }
+    }
+  }
 
 
 }

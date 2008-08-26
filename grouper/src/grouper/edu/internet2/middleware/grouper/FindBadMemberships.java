@@ -71,6 +71,9 @@ public class FindBadMemberships {
   // File name for GSH script
   private static final String gshScriptFilename = "findbadmemberships.gsh";
 
+  // Whether to print memberships errors to standard out.
+  private static boolean printErrorsToSTOUT = false;
+
   // map list names to corresponding privileges, a better way probably exists
   private static Map<String, String> list2priv = new HashMap<String, String>();
   static {
@@ -113,6 +116,9 @@ public class FindBadMemberships {
       printUsage(options);
       System.exit(1);
     }
+
+    // maybe this should go to a log file instead?
+    printErrorsToSTOUT = true;
 
     try {
       if (line.hasOption("all")) {
@@ -171,8 +177,8 @@ public class FindBadMemberships {
    * 
    * @return number of errors found
    */
-  private static int checkMembershipsWithInvalidOwners() {
-    System.out.println("Querying all memberships with invalid owners");
+  protected static int checkMembershipsWithInvalidOwners() {
+    //System.out.println("Querying all memberships with invalid owners");
     List<MembershipDTO> invalid = GrouperDAOFactory.getFactory().getMembership().findAllMembershipsWithInvalidOwners();
     Iterator<MembershipDTO> invalidIterator = invalid.iterator();
     while (invalidIterator.hasNext()) {
@@ -231,7 +237,7 @@ public class FindBadMemberships {
    * @throws MemberNotFoundException
    * @throws SchemaException
    */
-  private static boolean checkStem(String stemName) throws SessionException, StemNotFoundException, 
+  protected static boolean checkStem(String stemName) throws SessionException, StemNotFoundException, 
     MemberNotFoundException, SchemaException {
     GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
     StemDTO stemDTO = GrouperDAOFactory.getFactory().getStem().findByName(stemName);
@@ -251,8 +257,8 @@ public class FindBadMemberships {
    * @throws MemberNotFoundException
    * @throws SchemaException
    */
-  private static boolean checkStem(Stem stem) throws MemberNotFoundException, SchemaException {
-    //System.out.println("Checking stem: " + stem.getName());
+  protected static boolean checkStem(Stem stem) throws MemberNotFoundException, SchemaException {
+    //System.out.println("Checking stem: " + stem.getName() + " - " + stem.getUuid());
     String ownerUUID = stem.getUuid();
 
     // get all memberships for this stem.
@@ -411,7 +417,7 @@ public class FindBadMemberships {
    * @throws MemberNotFoundException
    * @throws SchemaException
    */
-  private static boolean checkGroup(String groupName) throws SessionException, GroupNotFoundException,
+  protected static boolean checkGroup(String groupName) throws SessionException, GroupNotFoundException,
     MemberNotFoundException, SchemaException {
     GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
     GroupDTO groupDTO = GrouperDAOFactory.getFactory().getGroup().findByName(groupName);
@@ -432,8 +438,8 @@ public class FindBadMemberships {
    * @throws GroupNotFoundException
    * @throws SchemaException
    */
-  private static boolean checkGroup(Group group) throws MemberNotFoundException, GroupNotFoundException, SchemaException {
-    //System.out.println("Checking group: " + group.getName());
+  protected static boolean checkGroup(Group group) throws MemberNotFoundException, GroupNotFoundException, SchemaException {
+    //System.out.println("Checking group: " + group.getName() + " - " + group.getUuid());
     String ownerUUID = group.getUuid();
 
     // get all memberships for this group.
@@ -681,7 +687,9 @@ public class FindBadMemberships {
    * @throws GroupNotFoundException
    */
   private static void foundError(Group group, Composite c, List<MembershipDTO> current) throws GroupNotFoundException {
-    System.out.println("FOUND BAD MEMBERSHIP: Bad membership in group with uuid=" + group.getUuid() + " and name=" + group.getName() + ".");
+    if (printErrorsToSTOUT) {
+      System.out.println("FOUND BAD MEMBERSHIP: Bad membership in group with uuid=" + group.getUuid() + " and name=" + group.getName() + ".");
+    }
 
     Iterator<MembershipDTO> currentIterator = current.iterator();
     while (currentIterator.hasNext()) {
@@ -736,7 +744,9 @@ public class FindBadMemberships {
    * @param current memberships for the stem
    */
   private static void foundError(Stem stem, List<MembershipDTO> current) {
-    System.out.println("FOUND BAD MEMBERSHIP: Bad membership in stem with uuid=" + stem.getUuid() + " and name=" + stem.getName() + ".");
+    if (printErrorsToSTOUT) {
+      System.out.println("FOUND BAD MEMBERSHIP: Bad membership in stem with uuid=" + stem.getUuid() + " and name=" + stem.getName() + ".");
+    }
 
     Iterator<MembershipDTO> currentIterator = current.iterator();
     while (currentIterator.hasNext()) {
@@ -768,7 +778,9 @@ public class FindBadMemberships {
    * @param ms is the bad membership
    */
   private static void foundError(MembershipDTO ms) {
-    System.out.println("FOUND BAD MEMBERSHIP: Membership with uuid=" + ms.getUuid() + " has invalid owner with uuid=" + ms.getOwnerUuid() + ".");
+    if (printErrorsToSTOUT) {
+      System.out.println("FOUND BAD MEMBERSHIP: Membership with uuid=" + ms.getUuid() + " has invalid owner with uuid=" + ms.getOwnerUuid() + ".");
+    }
     logSqlScript("delete from grouper_memberships where membership_uuid='" + ms.getUuid() + "';");
   }
 
