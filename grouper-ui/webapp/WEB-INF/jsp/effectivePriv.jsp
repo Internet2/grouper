@@ -2,10 +2,11 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePriv.jsp,v 1.6 2008-04-03 13:30:21 isgwb Exp $
+  @version $Id: effectivePriv.jsp,v 1.6.4.1 2008-08-27 15:03:13 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
+
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:set target="${params}" property="subjectId" value="${subject.id}"/>
 <c:set target="${params}" property="subjectType" value="${subject.subjectType}"/>
@@ -80,14 +81,14 @@
 		</c:choose>
 		<c:out value="${linkSeparator}" escapeXml="false"/>
 		<c:set target="${params}" property="listField" value="${listField}"/>
-		
+		<c:set target="${subject}" property="privMap" value="${privMap}"/>
 			<tiles:insert definition="dynamicTileDef" flush="false">
 				  <tiles:put name="viewObject" beanName="subject"/>
 				  <tiles:put name="view" value="hasPrivilege"/>
-				  <tiles:put name="params" beanName="params"/>
+				  <tiles:put name="linkParams" beanName="params"/>
 		  		  <tiles:put name="linkTitle" beanName="linkTitle"/>
 				  <tiles:put name="memberPage" beanName="memberPage"/>
-				  <tiles:put name="privMap" beanName="privMap"/>
+
 				  <tiles:put name="linkSeparator" beanName="linkSeparator"/>
 				</tiles:insert>
 	
