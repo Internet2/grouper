@@ -83,6 +83,14 @@
   but it will still be referred to as the installation directory.
   All commands must be run from the installation directory.
 
+** {The Maven Project Object Model (POM) File}
+
+  The build descriptor for Maven is called a Project Object Model (POM), and
+  is in the <<<pom.xml>>> file in the installation directory.
+  This file is a descriptive file outlining the project's dependencies, build requirements,
+  site documentation, and anything else related to the project.
+  See the {{{maven-resources.html}Maven resources}} page for more information.
+
 ** {The Maven Repository}
 
   Maven uses a local artifact repository in your home directory to store dependent jars used
@@ -156,9 +164,10 @@ mvn site package -Poracle10,mysql5.1
   to include both database drivers.
 
   These commands will run Maven and have it build the site documentation, run the
-  test suite, and package Ldappc for running from the installation directory.
+  test suite against embedded databases and directory,
+  and package Ldappc for running from the installation directory.
 
-  This creates the site documentation in the <<<target/site directory>>>, creates an Ldappc jar
+  This command creates the site documentation in the <<<target/site directory>>>, creates an Ldappc jar
   in <<<target/ldappc-theVersionNumber.jar>>>, and creates a directory containing all the dependent jars,
   including the Ldappc jar, in the <<<lib>>> directory.
 
@@ -188,6 +197,18 @@ mvn package
   
 ---
 mvn test
+---
+
+  To only build the site documentation, run the command
+  
+---
+mvn site
+---
+
+  To only build the javadoc, run the command
+  
+---
+mvn javadoc:javadoc
 ---
 
 ** {Expected Results}
@@ -221,8 +242,8 @@ mvn site package -Pmysql5.1,deploy
 
 * {Building a Distribution}
 
-  There are two separate profiles for building Ldappc distributions: a "<<<deploy>>>" profile, which simply
-  creates a distribution suitable for running, and a "<<<distribution>>>" profile, which generates the binary
+  There are two separate profiles for building Ldappc distributions: a "deploy" profile, which simply
+  creates a distribution suitable for running, and a "distribution" profile, which generates the binary
   distribution, the source distribution, and a site distribution, which last just contains the site documentation.
 
 ** {Generating the distributions}
@@ -239,12 +260,6 @@ mvn site package -Pdistribution
   The distribution files will be in the target directory, along with the Ldappc jar.
   They will have names of the form <<<ldappc-theVersionNumber-theDistributionType.fileType>>>,
   e.g. <<<ldappc-1.2.0-src.tar.gz>>>, or <<<ldappc-1.2.0-bin.zip>>>.
-
-* {Optional Advanced User Testing Configurations}
-
-  The test configuration files are in the <<<src/test/resources>>> directory.
-  The later section, {{{The_Build_Configuration}The Build Configuration}}
-  describes these configuration files.
 
 {Directory Structure}
 
@@ -314,7 +329,7 @@ mvn site package -Pdistribution
 *------------------------------+--------------------------------------------------------------------+
 | <<<\ \ \ \ \ \ \ \ \ edu/internet2/middleware/ldappcTest ...>>>  | Directory for ldappc test code |
 *------------------------------+--------------------------------------------------------------------+
-| <<<\ \ \ \ \ \ resources>>>  | Test resource files (configuration: ldappc.xml, etc.)              |
+| <<<\ \ \ \ \ \ resources>>>  | Test resource files (configuration: ldappc.xml, sources.xml, etc.) |
 *------------------------------+--------------------------------------------------------------------+
 | <<<target>>>                 | Top level directory build contents           |
 *------------------------------+----------------------------------------------+
@@ -377,13 +392,13 @@ mvn site package -Pdistribution
   Guide.  The <<<LICENSE.txt>>> file contains the license for this code.  If you check this project out from
   CVS, there may also be Eclipse project files, e.g. <<<.classpath>>> and <<<.project>>> files.
 
-{The Build Configuration}
+{Configuring the Build}
 
   A Maven <<<pom.xml>>> (Project Object Model) file is provided along with the source code.
   It describes the requirements to compile the code, execute a set of JUnit test cases,
   and package the project for use or distribution.
 
-  The JUnit test cases are included in a <suite>, called <<edu.internet2.middleware.ldappcTest.AllJUnitTests>>,
+  The JUnit test cases are included in a <suite>, called <<<edu.internet2.middleware.ldappcTest.AllJUnitTests>>>,
   that wraps embedded Grouper and Signet databases, and an embedded Apache Directory Server around
   the tests.
 
@@ -391,38 +406,106 @@ mvn site package -Pdistribution
   to ensure that the site's Grouper and/or Signet databases and the site's LDAP directory
   are running before executing Ldappc.
 
-  The <<<pom.xml>>> file is set up to allow the user to specify database jar dependencies.
-  However, for installation and initial testing, most readers can safely skip reading
-  the rest of this section.
+* {Adding Jars to the Build}
 
-{The Schema Files}
+  To add a jar to the build, you must install it into your local Maven repository,
+  and you must add it to the project's dependencies in the <<<pom.xml>>> file.
+  To do this, it is necessary to understand a bit about how Maven names artifacts.
 
-  Most of the schema files needed by Ldappc will be provided by the LDAP server that the
-  user deploys.  In addition, the user may need to set up the LDAP server to include extra
-  object classes and/or attributes such as <eduPerson>, <eduMember> and/or <eduPermission>.
-  See the <<<testDb/ldap/ldappc.schema>>> for details.  If you are running against the
-  built-in Apache Directory Server this will not be necessary.
+  In the \<dependencies\> section  of the <<<pom.xml>>> file
+  you will find a sequence of \<dependency\> elements,
+  each specifying an attribute "coordinate" and a requirement scope.
+  
+  <<Note:>> some of the following descriptive text is taken from online Maven documentation
+  at {{http://maven.apache.org}} and is given in fuller detail there.
+  
+  In Maven terms, an attribute coordinate consists of the following:
+  
+  * <<groupId>>: the organization, package, or group for the attribute,
+    e.g. <<<edu.internet2.middleware.signet>>>;
+  
+  * <<attributeId>>: the actual name of the artifact jar,
+    e.g. <<<signet-api>>>;
+  
+  * <<version>>: the version of the artifact, e.g. <<<1.3.0>>>, <<<5.4.2-alpha-3>>>, or <<<1.2.2-RC03>>>.
+  
+  []
+  
+  In addition, you will see
+  
+  * <<type>>: the type of the artifact, e.g. a <<<jar>>>, <<<war>>>, <<<ear>>>, <<<pom>>>, etc;
+  
+  * <<classifier>>: an arbitrary text string representing any difference in build environment,
+    e.g. <<<win32>>>, <<<macosx>>>, or <<<linux>>> to distinguish
+    between being built using jni for Windows, Mac, or Linux.\
+    This is optional and is not commonly used except when using SWT.
+  
+  []
+  
+  The other element in the \<dependency\> element is the <scope>, indicating the
+  build phase for which the artifact is required. The main scopes are:
+  
+  * <<compile>>: the default scope, used if none is specified.
+    Compile dependencies are available in all classpaths.
+    Furthermore, those dependencies are propagated to dependent projects.
 
-{The <<<sources.xml>>> File}
+  * <<runtime>>: this scope indicates that the dependency is not required for compilation,
+    but is for execution.
+    It is in the runtime and test classpaths, but not the compile classpath.
 
-  To use Ldappc, a single <<<sources.xml>>> file is required.
-  Therefore, instead of using the separate <<<sources.xml>>> files for
-  Grouper and Signet for the test cases, these must be combined into
-  a single <<<sources.xml>>> file, such as the one in the <<<conf>>> directory.
-  Production users must also create a single <<<sources.xml>>> file to define the
-  location and SQL and/or LDAP commands for all data sources.
+  * <<test>>: this scope indicates that the dependency is not required for normal use of the application,
+    and is only available for the test compilation and execution phases.
 
-{Javadoc and Site Documentation}
+  []
 
-  Unless you are reading a printed copy of this document, you must already
-  have navigated to the Javadoc and do not need read to further in this section.
+  When installing a jar to your local repository, you must specify its groupId, its artifactId,
+  its version, and its type, which is called <packaging> in the install command.
+  
+  Generally, the command looks like:
+  
+---
+mvn install:install-file -DgroupId=my.group.id -DartifactId=my-artifact-id \
+    -Dversion=my-version -Dpackaging=jar -Dfile=path-to-jar-file
+---
 
-  The distribution files come with a directory, <<<site>>>, that contains the generated
-  Javadoc directories in the <<<site/apidocs>>> directory.  The Maven "<<<site>>>" goal
-  can be used to recreate the site documentation from the src directory.  If you just
-  wish to generate the Javadoc files, the "<<<javadoc:javadoc>>>" goal can be used instead.
+  The file will be copied into your local repository and you can then insert a new \<dependency\>
+  element of the form:
+  
+---
+    <dependency>
+      <groupId>my.group.id</groupId>
+      <artifactId>my-artifact-id</artifactId>
+      <version>my-version</version>
+      <type>jar</type>
+    </dependency>
+---
 
-{Testing}
+  If the jar is only needed to run the test suite you can also add
+  
+---
+      <scope>test</scope>
+---
+
+  Since you won't likely be installing an artifact if it already exists in the central Maven
+  repository ({{http://repo1.maven.org/maven2}}) you will have to determine a reasonable
+  groupId value for the artifact. Generally, the recommendation is to use the base package name
+  for the artifact. The artifactId is generally the jar file name minus any version information,
+  and the version information goes into the version.
+  
+  If you are deploying your own jar and it has dependencies, you should take the time to
+  construct a simple Maven my-artifact-id.pom file with dependencies. That way you only need to
+  specify your main jar in the Ldappc dependencies and Maven's transitive dependency resolution
+  will pull in any dependencies required for run time.
+  
+  If you do this, you need to add the pom file to the Maven install command, which becomes
+  
+---
+mvn install:install-file -DgroupId=my.group.id -DartifactId=my-artifact-id \
+    -Dversion=my-version -Dpackaging=jar -Dfile=path-to-jar-file \
+    -DpomFile=path-to-pom-file
+---
+
+* {Testing}
 
   The distribution includes a set of JUnit test cases.  These test cases
   are dependent on the use of databases built into the deployment package.
@@ -455,9 +538,21 @@ testDb
             signet.script
 ---
 
-* {Configuring Databases}
+  The configuration files for running the tests are located in the
+  <<<src/test/resources>>> directory, which is a Maven standard.
+  The Ldappc configuration files as well as those for the embedded
+  Grouper and Signet instances are in this directory.
 
-  It is not necessary to read this section for installation and initial testing.
+** {The sources.xml File}
+
+  To use Ldappc, a single <<<sources.xml>>> file is required.
+  Therefore, instead of using the separate <<<sources.xml>>> files for
+  Grouper and Signet for the test cases, these must be combined into
+  a single <<<sources.xml>>> file, such as the one in the <<<conf>>> directory.
+  Production users must also create a single <<<sources.xml>>> file to define the
+  location and SQL and/or LDAP commands for all data sources.
+
+** {Configuring Your Own Databases}
 
   To run using one's own databases, some changes are required.  You will need
   to edit the configuration files for Grouper, Signet, the Subject API, and the
@@ -502,7 +597,7 @@ hibernate.connection.username = sa
 hibernate.connection.password =
 ---
 
-* {Configuring LDAP}
+** {Configuring LDAP}
 
   If you use an external LDAP for testing, the <<<ldappc.schema>>> and <<<kitneduperson.schema>>>
   files in the <<<testDb/ldap>>> directory must be added to the LDAP configuration before starting it.
@@ -513,6 +608,10 @@ hibernate.connection.password =
 include yourInstallationDirectory/testDb/ldap/ldappc.schema
 include yourInstallationDirectory/testDb/ldap/kitneduperson.schema
 ---
+
+  The <<<ldappc.schema>>> file provides the <eduMember>, <eduPermission>, and <eduPerson>
+  object classes. The <<<kitneduperson.schema>>> file provides the <kitnEduPerson>
+  object class, which is used in the test data to provide some extra attributes.
 
   For efficient use of the LDAP directory, it is recommed that at least the following
   entries are indexed when setting up the ldap server.
@@ -542,7 +641,7 @@ index   eduPersonEntitlement  eq
   parameter <<<useEmbeddedLdap>>> in <<<src/test/resources/ldappc.properties>>> must be set
   to <<<false>>>.
 
-** {Setting up the LDAP Directory Test Data Content}
+*** {Setting up the LDAP Directory Test Data Content}
 
   To set up the LDAP directory with the data needed for testing the
   distribution, change to the test data directory and execute a
