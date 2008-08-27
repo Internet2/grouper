@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.191 2008-08-26 21:11:51 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.192 2008-08-27 01:31:20 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -766,6 +766,11 @@
       <classpath  refid="test.classpath"/>
       <include name="**/*.java" />
     </javac>
+    <copy todir="${build.dir.test}">
+      <fileset dir="${src.dir.test}">
+        <include name="**/*.gsh"/>      <!-- source -->
+      </fileset>
+   </copy>
 	<!--copy over test specific conf-->
 	<mkdir dir="${build.dir.test}/conf"/>
 	<copy todir="${build.dir.test}/conf">

@@ -26,7 +26,7 @@ import  org.apache.commons.logging.*;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.13 2008-08-26 21:11:51 mchyzer Exp $
+ * @version $Id: TestGroup43.java,v 1.14 2008-08-27 01:31:20 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -309,9 +309,10 @@ public class TestGroup43 extends GrouperTest {
       gA.addMember( gB.toSubject() );
       gB.grantPriv(subjA, AccessPrivilege.ADMIN);
 
+      GrouperUtil.sleep(50);
+
       long pre = new java.util.Date().getTime();
       
-      GrouperUtil.sleep(50);
       
       gB.revokePriv(subjA, AccessPrivilege.ADMIN);
 

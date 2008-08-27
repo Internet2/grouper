@@ -38,7 +38,7 @@ import  org.apache.commons.logging.*;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.6 2008-08-26 21:11:51 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.7 2008-08-27 01:31:20 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -57,7 +57,6 @@ public class GrouperTest extends TestCase {
   public GrouperTest() {
     super();
     //let the database release...
-    GrouperUtil.sleep(100);
     GrouperStartup.startup();
   } // public GrouperTest()
 
@@ -67,7 +66,6 @@ public class GrouperTest extends TestCase {
   public GrouperTest(String name) {
     super(name);
     //let the database release...
-    GrouperUtil.sleep(100);
     GrouperStartup.startup();
   } // public GrouperTest()
 
@@ -520,6 +518,8 @@ public class GrouperTest extends TestCase {
 
   // @since   1.2.0
   protected void setUp () {
+    //take a bit of time so that hsqldb can release the connection...
+    //GrouperUtil.sleep(100);
     LOG.debug("setUp");
     RegistryReset.reset();
   } 
