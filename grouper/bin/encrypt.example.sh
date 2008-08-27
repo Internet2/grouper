@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# if not in bin dir, but in grouper_home, then cd to bin
+# if not in bin dir, but in grouper_home then cd to bin
 [ -e bin/encrypt.example.sh ] && cd bin
 
 [ -e encrypt.sh ] || echo "Cant find encrypt.sh.  Are you in the grouper_home dir or grouper_home\bin dir?"
