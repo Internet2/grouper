@@ -152,6 +152,7 @@ public class FindBadMemberships {
     if (gshScript == null && sqlScript == null) {
       System.out.println("No membership errors found.");
     } else {
+      /*
       System.out.println("Membership errors have been found.  Do the following to resolve the errors:");
 
       if (sqlScript != null) {
@@ -168,6 +169,7 @@ public class FindBadMemberships {
         System.out.println();
         System.out.println("Be sure to execute the SQL script before the GSH script.");
       }
+      */
     }
     System.exit(0);
   }
@@ -390,7 +392,8 @@ public class FindBadMemberships {
     Iterator<GrouperDTO> shouldBeforeFilterIterator = shouldBeforeFilter.iterator();
     while (shouldBeforeFilterIterator.hasNext()) {
       MembershipDTO shouldMembership = (MembershipDTO)shouldBeforeFilterIterator.next();
-      if (shouldMembership.getOwnerUuid().equals(ownerUUID)) {
+      if (shouldMembership.getOwnerUuid().equals(ownerUUID) && 
+        shouldMembership.getType().equals(Membership.COMPOSITE)) {
         should.add(shouldMembership);
       }
     }
@@ -496,7 +499,8 @@ public class FindBadMemberships {
       Iterator<GrouperDTO> shouldBeforeFilterIterator = shouldBeforeFilter.iterator();
       while (shouldBeforeFilterIterator.hasNext()) {
         MembershipDTO shouldMembership = (MembershipDTO)shouldBeforeFilterIterator.next();
-        if (shouldMembership.getOwnerUuid().equals(ownerUUID) && shouldMembership.getType().equals(Membership.EFFECTIVE)) {
+        if (shouldMembership.getOwnerUuid().equals(ownerUUID) && shouldMembership.getType().equals(Membership.EFFECTIVE) &&
+          shouldMembership.getListName().equals(currentMembership.getListName())) {
           should.add(shouldMembership);
         }
         if (shouldMembership.getOwnerUuid().equals(ownerUUID) && shouldMembership.getType().equals(Membership.IMMEDIATE)) {
@@ -653,6 +657,7 @@ public class FindBadMemberships {
     System.out.println();
     System.out.print("This script will find bad effective and composite memberships in your Grouper database.  ");
     System.out.print("It will not make any modifications to the Grouper database.  ");
+    /*
     System.out.println("If bad memberships are found, this script will create two files.");
     System.out.println();
     System.out.println("1.  " + sqlScriptFilename + " - An SQL script that removes bad memberships.");
@@ -664,6 +669,7 @@ public class FindBadMemberships {
     System.out.println("2.  Apply the SQL script to your database.");
     System.out.println("3.  Run the GSH script AFTER you have applied the SQL script.");
     System.out.println("4.  You may then re-run this script to verify that your memberships are correct.");
+    */
     System.out.println();
   }
 
@@ -699,9 +705,13 @@ public class FindBadMemberships {
           Field f = FieldFinder.find(ms.getListName());
           MemberDTO m = GrouperDAOFactory.getFactory().getMember().findByUuid(ms.getMemberUuid());
           String subjectId = m.getSubjectId();
-          if (FieldType.LIST.equals(f.getType())) {
+          if (f.equals(Group.getDefaultList())) {
             logGshScript("delMember(\"" + group.getName() + "\", \"" + subjectId + "\")");
             logGshScript("addMember(\"" + group.getName() + "\", \"" + subjectId + "\")");
+          } else if (FieldType.LIST.equals(f.getType())) {
+            String fieldString = "FieldFinder.find(\"" + ms.getListName() + "\")";
+            logGshScript("delMember(\"" + group.getName() + "\", \"" + subjectId + "\", " + fieldString + ")");
+            logGshScript("addMember(\"" + group.getName() + "\", \"" + subjectId + "\", " + fieldString + ")");
           } else {
             String privilegeString = getPrivilegeString(f);
             logGshScript("revokePriv(\"" + group.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")");
