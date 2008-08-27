@@ -40,7 +40,7 @@ import  org.apache.commons.lang.time.*;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.49.4.3 2008-08-25 01:39:24 shilen Exp $
+ * @version $Id: Composite.java,v 1.49.4.4 2008-08-27 13:59:26 shilen Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI {
@@ -403,7 +403,8 @@ public class Composite extends GrouperAPI {
       Iterator<MembershipDTO> shouldIterator = shouldBeforeFilter.iterator();
       while (shouldIterator.hasNext()) {
         MembershipDTO shouldMembership = shouldIterator.next();
-        if (shouldMembership.getOwnerUuid().equals(this._getDTO().getFactorOwnerUuid())) {
+        if (shouldMembership.getOwnerUuid().equals(this._getDTO().getFactorOwnerUuid()) &&
+          shouldMembership.getType().equals(Membership.COMPOSITE)) {
           should.add(shouldMembership);
         }
       }
