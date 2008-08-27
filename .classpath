@@ -7,7 +7,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jug-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jta-1.0.1B.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/hsqldb-1.7.2.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-math-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/subject-0.3.0-rc1-cvs.jar"/>
@@ -44,5 +43,6 @@
 	<classpathentry kind="lib" path="lib/commons-discovery-0.4.jar"/>
 	<classpathentry kind="lib" path="lib/invoker.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-2.0.8.jar"/>
+	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
