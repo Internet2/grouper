@@ -28,7 +28,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.55.4.1 2008-06-30 15:16:41 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.55.4.2 2008-08-28 08:32:30 isgwb Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -88,6 +88,7 @@ public class GrouperConfig {
 
   // PROTECTED CLASS CONSTANTS //
   protected static final String ALL           = "GrouperAll";
+  protected static final String ALL_NAME           = "EveryEntity";
   protected static final String ATTR_C        = "createSubject";
   protected static final String ATTR_CT       = "createTime";
   protected static final String ATTR_D        = "description";
@@ -110,10 +111,12 @@ public class GrouperConfig {
   protected static final String MSLSED        = "memberships.log.stem.effective.del";
   protected static final String NL            = System.getProperty("line.separator");
   protected static final String ROOT          = "GrouperSystem";
+  protected static final String ROOT_NAME          = "GrouperSysAdmin";
   protected static final String SCGAC         = "stems.create.grant.all.create";
   protected static final String SCGAS         = "stems.create.grant.all.stem";
   protected static final String SCII          = "subjects.cache.id.interface";
   protected static final String SCIDFRI       = "subjects.cache.identifier.interface";
+  protected static final String WHEEL_NAME          = "SysAdmin";
 
   /** if tooltips should be substituted in messages */
   public static final String MESSAGES_USE_TOOLTIPS = "messages.use.tooltips";

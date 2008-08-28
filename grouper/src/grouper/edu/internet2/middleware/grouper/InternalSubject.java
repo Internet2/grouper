@@ -26,7 +26,7 @@ import  org.apache.commons.lang.builder.ToStringBuilder;
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.10 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: InternalSubject.java,v 1.10.8.1 2008-08-28 08:32:30 isgwb Exp $
  */
 public class InternalSubject implements Subject {
 
@@ -51,6 +51,11 @@ public class InternalSubject implements Subject {
     this.desc     = name;
     this.id       = id;
     this.name     = name;
+    Map values = new HashMap();
+    Set set = new HashSet();
+    set.add(name);
+    values.put("v", set);
+    attrs.put("name", values);
   } // protected InternalSubject(id, name, adapter)
 
 

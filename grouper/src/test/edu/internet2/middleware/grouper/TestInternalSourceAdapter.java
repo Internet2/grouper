@@ -25,7 +25,7 @@ import  org.apache.commons.logging.*;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.6 2007-01-08 16:43:56 blair Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.6.8.1 2008-08-28 08:32:30 isgwb Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
@@ -129,7 +129,9 @@ public class TestInternalSourceAdapter extends TestCase {
         subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      
+      //Remove assertion so that name can be configured
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",
         subj.getType().getName().equals("application")
@@ -159,7 +161,9 @@ public class TestInternalSourceAdapter extends TestCase {
         subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      
+      //Remove assertion so that name can be configured
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",
         subj.getType().getName().equals("application")
@@ -196,7 +200,9 @@ public class TestInternalSourceAdapter extends TestCase {
         subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      
+      //Remove assertion so that name can be configured
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",
         subj.getType().getName().equals("application")
@@ -226,7 +232,9 @@ public class TestInternalSourceAdapter extends TestCase {
         subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      
+      //Remove assertion so that name can be configured
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",
         subj.getType().getName().equals("application")
@@ -253,7 +261,7 @@ public class TestInternalSourceAdapter extends TestCase {
     try { 
       Subject subj  = sa.getSubject(id);
       Map     attrs = subj.getAttributes();
-      Assert.assertTrue("zero attrs", attrs.size() == 0);
+      Assert.assertTrue("zero attrs", attrs.size() == 1);
       String  val   = subj.getAttributeValue("foo");
       Assert.assertTrue(
         "no attr (" + val + ")", val.equals("")

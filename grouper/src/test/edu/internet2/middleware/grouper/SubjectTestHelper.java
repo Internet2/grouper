@@ -23,7 +23,7 @@ import  junit.framework.*;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.7.8.1 2008-08-28 08:32:30 isgwb Exp $
  */
  class SubjectTestHelper {
 
@@ -135,7 +135,10 @@ import  junit.framework.*;
       Assert.assertTrue(
         "subj instanceof Subject", subj instanceof Subject
       );
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+    //This is only likely to be true for InternalSubject  but
+      //we are now allowing the name to be configured, so do not 
+      //do a name check
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       return subj;
     }
     catch (SubjectNotFoundException e) {
@@ -182,7 +185,11 @@ import  junit.framework.*;
       Assert.assertTrue(
         "subj instanceof Subject", subj instanceof Subject
       );
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      
+      //This is only likely to be true for InternalSubject  but
+      //we are now allowing the name to be configured, so do not 
+      //do a name check
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",subj.getType().getName().equals(type)
       );

@@ -23,7 +23,7 @@ import  junit.framework.*;
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.8 2007-03-16 18:16:04 blair Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.8.8.1 2008-08-28 08:32:30 isgwb Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
 
@@ -110,7 +110,8 @@ public class TestSubjectFinderInternal extends TestCase {
         subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      //Configurable names means we should not assert this any longer
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",
         subj.getType().getName().equals("application")
@@ -155,7 +156,8 @@ public class TestSubjectFinderInternal extends TestCase {
         subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      //Configurable names means we should no longer make assertion
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",
         subj.getType().getName().equals(type)
@@ -184,7 +186,8 @@ public class TestSubjectFinderInternal extends TestCase {
         subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      //Configurable names means we should no longer make assertion
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",
         subj.getType().getName().equals("application")
@@ -229,7 +232,8 @@ public class TestSubjectFinderInternal extends TestCase {
         subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
-      Assert.assertTrue("subj name", subj.getName().equals(id));
+      //Configurable names means we should no longer make assertion
+      //Assert.assertTrue("subj name", subj.getName().equals(id));
       Assert.assertTrue(
         "subj type",
         subj.getType().getName().equals(type)
