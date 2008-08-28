@@ -35,7 +35,7 @@ import  java.util.Set;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.8.4.2 2008-08-23 18:48:46 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.8.4.3 2008-08-28 20:49:41 shilen Exp $
  * @since   1.2.0
  */
 public class DefaultMemberOf extends BaseMemberOf {
@@ -232,12 +232,13 @@ public class DefaultMemberOf extends BaseMemberOf {
     String listName = this.getMembershipDTO().getListName();
     String listType = this.getMembershipDTO().getListType();
 
-
+    Map<String, Set> parentToChildrenMap = _getParentToChildrenMap(hasMembers);
+   
     while (it.hasNext()) {
       hasMS = it.next();
       if (hasMS.getDepth() == 0) {
         Set<MembershipDTO> newAdditions = _addHasMembersRecursively(this.getMembershipDTO(), hasMS, 
-          this.getMembershipDTO(), hasMembers, ownerUUID, creatorUUID, listName, listType, false);
+          this.getMembershipDTO(), parentToChildrenMap, ownerUUID, creatorUUID, listName, listType, false);
         mships.addAll(newAdditions);
       }
     }
@@ -245,8 +246,33 @@ public class DefaultMemberOf extends BaseMemberOf {
     return mships;
   } // private Set _addHasMembersToOwner(hasMembers)
 
+
+  // Given a set of memberships, return a map that will allow retrieval of 
+  // the children of a parent membership.
+  private Map<String, Set> _getParentToChildrenMap(Set<MembershipDTO> members) {
+    Map<String, Set> parentToChildrenMap = new HashMap<String, Set>();
+
+    Iterator<MembershipDTO> iterator = members.iterator();
+    while (iterator.hasNext()) {
+      MembershipDTO m = iterator.next();
+      String parentUUID = m.getParentUuid();
+
+      if (parentUUID != null && !parentUUID.equals("")) {
+        Set<MembershipDTO> children = parentToChildrenMap.get(parentUUID);
+        if (children == null) {
+          children = new LinkedHashSet<MembershipDTO>();
+        }
+
+        children.add(m);
+        parentToChildrenMap.put(parentUUID, children);
+      }
+    }
+
+    return parentToChildrenMap;
+  }
+
   private Set _addHasMembersRecursively(MembershipDTO startMembership, 
-    MembershipDTO currentMembership, MembershipDTO parentMembership, Set<MembershipDTO> hasMembers, 
+    MembershipDTO currentMembership, MembershipDTO parentMembership, Map<String, Set> parentToChildrenMap, 
     String ownerUUID, String creatorUUID, String listName, String listType,
     boolean isStartMembershipViaGroupComposite) {
 
@@ -283,12 +309,13 @@ public class DefaultMemberOf extends BaseMemberOf {
     Set<MembershipDTO> newMemberships = new LinkedHashSet();
     newMemberships.add(_newMembership);
 
-    Iterator<MembershipDTO> it = hasMembers.iterator();
-    while (it.hasNext()) {
-      MembershipDTO hasMS = it.next();
-      if (hasMS.getParentUuid() != null && hasMS.getParentUuid().equals(currentMembership.getUuid())) {
+    Set<MembershipDTO> children = parentToChildrenMap.get(currentMembership.getUuid());
+    if (children != null) {
+      Iterator<MembershipDTO> it = children.iterator();
+      while (it.hasNext()) {
+        MembershipDTO hasMS = it.next();
         Set<MembershipDTO> newAdditions = _addHasMembersRecursively(startMembership, hasMS, _newMembership, 
-          hasMembers, ownerUUID, creatorUUID, listName, listType, isStartMembershipViaGroupComposite);
+          parentToChildrenMap, ownerUUID, creatorUUID, listName, listType, isStartMembershipViaGroupComposite);
         newMemberships.addAll(newAdditions);
       }
     }
@@ -314,8 +341,19 @@ public class DefaultMemberOf extends BaseMemberOf {
     MembershipDTO hasMS;
     MembershipDTO isMS;
     MembershipDTO _ms = null;
-    Iterator<MembershipDTO> itHM; 
     Iterator<MembershipDTO> itIM = isMember.iterator();
+    Map<String, Set> parentToChildrenMap = _getParentToChildrenMap(hasMembers);
+
+    // lets get all the hasMembers with a depth of 0 before the while loop
+    Set<MembershipDTO> hasMembersZeroDepth = new LinkedHashSet<MembershipDTO>();
+    Iterator<MembershipDTO> iterator = hasMembers.iterator();
+    while (iterator.hasNext()) {
+      MembershipDTO m = iterator.next();
+      if (m.getDepth() == 0) {
+        hasMembersZeroDepth.add(m);
+      }
+    }
+
     while (itIM.hasNext()) {
       isMS = itIM.next();
 
@@ -371,11 +409,10 @@ public class DefaultMemberOf extends BaseMemberOf {
           mships.add(_ms);
       }
 
-      itHM = hasMembers.iterator();
-
-      while (itHM.hasNext()) {
-        hasMS = itHM.next();
-        if (type.equals(Membership.COMPOSITE)) {
+      if (type.equals(Membership.COMPOSITE)) {
+        Iterator<MembershipDTO> itHM = hasMembers.iterator();
+        while (itHM.hasNext()) {
+          hasMS = itHM.next();
           _ms = new MembershipDTO();
           _ms.setCreatorUuid( creatorUUID );
           _ms.setDepth(0);
@@ -392,17 +429,19 @@ public class DefaultMemberOf extends BaseMemberOf {
             throw new IllegalStateException( v.getErrorMessage() );
           }
           mships.add(_ms);
-        } else {
-          if (hasMS.getDepth() == 0) {
-            if (isComposite) {
-              Set<MembershipDTO> newAdditions = _addHasMembersRecursively(isMS, hasMS, isMS, hasMembers,
-                  ownerUUID, creatorUUID, listName, listType, isViaGroupComposite);
-              mships.addAll(newAdditions);
-            } else {
-              Set<MembershipDTO> newAdditions = _addHasMembersRecursively(isMS, hasMS, _ms, hasMembers,
-                  ownerUUID, creatorUUID, listName, listType, isViaGroupComposite);
-              mships.addAll(newAdditions);
-            }
+        } 
+      } else {
+        Iterator<MembershipDTO> itHM = hasMembersZeroDepth.iterator();
+        while (itHM.hasNext()) {
+          hasMS = itHM.next();
+          if (isComposite) {
+            Set<MembershipDTO> newAdditions = _addHasMembersRecursively(isMS, hasMS, isMS, parentToChildrenMap,
+                ownerUUID, creatorUUID, listName, listType, isViaGroupComposite);
+            mships.addAll(newAdditions);
+          } else {
+            Set<MembershipDTO> newAdditions = _addHasMembersRecursively(isMS, hasMS, _ms, parentToChildrenMap,
+                ownerUUID, creatorUUID, listName, listType, isViaGroupComposite);
+            mships.addAll(newAdditions);
           }
         }
       }
