@@ -92,6 +92,8 @@
 				<fileset dir="${grouper.folder}">
 					<include name="contrib/**/*"/>
 					<include name="sql/**/*"/>
+					<include name="libAnt/**/*"/>
+					<include name="bin/**/*"/>
 					<include name="ext/**/*"/>
 					<include name="LICENSE"/>
 					<include name="README"/>
