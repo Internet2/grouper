@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.49.4.2 2008-09-02 09:07:22 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.49.4.3 2008-09-02 13:26:08 isgwb Exp $
  */
 
 
@@ -105,7 +105,7 @@ public class GrouperHelper {
 	private static String[] groupPrivs = { "ADMIN", "UPDATE","READ","VIEW","OPTIN","OPTOUT" };
 	
 //	Privs which relate to Groups - access privileges + member
-	private static String[] groupPrivsWithMember = { "MEMBER", "UPDATE","READ","VIEW","OPTIN","OPTOUT"};
+	private static String[] groupPrivsWithMember = { "MEMBER", "ADMIN", "UPDATE","READ","VIEW","OPTIN","OPTOUT"};
 	
 	//Privs which relate to Stems - naming privileges
 	//CH 20080324 change for UI from:  "STEM", "CREATE" 
