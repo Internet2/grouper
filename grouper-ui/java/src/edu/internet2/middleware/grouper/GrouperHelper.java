@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.49.4.1 2008-08-20 13:12:13 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.49.4.2 2008-09-02 09:07:22 isgwb Exp $
  */
 
 
@@ -2925,7 +2925,11 @@ public class GrouperHelper {
 	}
 	
 	public static boolean isDirect(LazySubject ls) {
-		return ls.getMembership().getDepth()==0;
+		Membership ms = ls.getMembership();
+		//This is a hack, but will have to look at ramifications
+		//later
+		if(ms==null) return false;
+		return ms.getDepth()==0;
 	}
 	
 	/*public static List query(String sql) throws Exception{
