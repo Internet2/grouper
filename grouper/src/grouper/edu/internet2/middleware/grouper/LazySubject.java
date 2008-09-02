@@ -30,7 +30,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.2.6.2 2008-08-21 08:08:17 mchyzer Exp $
+ * @version $Id: LazySubject.java,v 1.2.6.3 2008-09-02 09:06:19 isgwb Exp $
  */
 
 public class LazySubject implements Subject {
@@ -228,6 +228,14 @@ public class LazySubject implements Subject {
 	   */
 	private Member getMember() {
 		return member;
+	}
+	
+	//2008/09/02 - Gary
+	//I've added this back in because I use it in the UI and there 
+	//isn't an easy work around. I'll change the UI code to ensure
+	//that it copes with the possible null if we instantiated with a Member
+	protected Membership getMembership() {
+		return membership;
 	}
 
 	/**
