@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperVersion.java,v 1.1 2008-04-28 21:20:15 mchyzer Exp $
+ * $Id: GrouperVersion.java,v 1.1.4.1 2008-09-03 06:28:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -22,7 +22,7 @@ public class GrouperVersion {
    * update this before each
    * non-release-candidate release (e.g. in preparation for it)
    */
-  public static final String GROUPER_VERSION = "1.3.0";
+  public static final String GROUPER_VERSION = "1.3.1";
   
   /** major number */
   private int major;
