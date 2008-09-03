@@ -8,5 +8,6 @@ edu.internet2.middleware.grouper.ws.rest.group
 edu.internet2.middleware.grouper.ws.rest.member
 edu.internet2.middleware.grouper.ws.rest.method
 edu.internet2.middleware.grouper.ws.rest.stem
+edu.internet2.middleware.grouper.ws.security
 edu.internet2.middleware.grouper.ws.soap
 edu.internet2.middleware.grouper.ws.util
