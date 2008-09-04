@@ -23,7 +23,7 @@ package edu.internet2.middleware.grouper.ui;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: Message.java,v 1.4.6.1 2008-08-05 16:17:00 isgwb Exp $
+ * @version $Id: Message.java,v 1.4.6.2 2008-09-04 20:14:27 isgwb Exp $
  */
 public class Message {
 	private String message = "";
@@ -176,7 +176,7 @@ public class Message {
 	}
 
 	/**
-	 * @param isWarming
+	 * @param isWarning
 	 *            boolean.
 	 */
 	public void setWarning(boolean isWarning) {
