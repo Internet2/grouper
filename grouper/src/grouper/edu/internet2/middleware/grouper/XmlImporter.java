@@ -52,7 +52,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.107.4.1 2008-08-05 14:06:37 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.107.4.2 2008-09-04 11:15:27 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -116,6 +116,14 @@ public class XmlImporter {
    * <td>true/false</td>
    * <td>true</td>
    * <td>If true overwrite attributes on pre-existing groups when importing.</td>
+   * </tr>
+   * <tr>
+   * <td>import.data.fail-on-unresolvable-subject</td>
+   * <td>true/false</td>
+   * <td>false</td>
+   * <td>If true, and the import file references a subject which cannot be resolved 
+   * abort the import, otherwise, log the problem and continue.
+   * </td>
    * </tr>
    * <tr>
    * <td>import.data.lists</td>

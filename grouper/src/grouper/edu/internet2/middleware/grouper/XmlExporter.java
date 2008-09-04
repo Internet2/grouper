@@ -41,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.100.8.1 2008-08-05 14:06:37 isgwb Exp $
+ * @version $Id: XmlExporter.java,v 1.100.8.2 2008-09-04 11:15:27 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -176,6 +176,14 @@ public class XmlExporter {
    * <td>Space separated list of attribute names</td>
    * <td>?</td>
    * <td>Specifies any attributes that should be exported with a Subject given the Subject Type.</td>
+   * </tr>
+   * <tr>
+   * <td>export.data.fail-on-unresolvable-subject;</td>
+   * <td>true/false</td>
+   * <td>false</td>
+   * <td>If true and subject attributes are configured to be exported and a subject
+   * cannot be resolved abort the export, otherwise log the problem, write an XML comment
+   * and continue exporting</td>
    * </tr>
    * </table>
    * @param   s           Perform export within this session.
