@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.2 2008-04-02 08:11:14 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.2.2.1 2008-09-04 05:43:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -13,9 +13,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.internal.dto.RegistrySubjectDTO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
@@ -76,6 +78,7 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleClientType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.TcpCaptureServer;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /**
@@ -97,17 +100,17 @@ public class SampleCapture {
     
 //    captureRampart();
     
-//    captureAddMember();
-//    captureDeleteMember();
+    captureAddMember();
+    captureDeleteMember();
     captureHasMember();
-//    captureGetGroups();
-//    captureGetMembers();
-//    captureFindGroups();
-//    captureFindStems();
-//    captureStemDelete();
-//    captureStemSave();
-//    captureGroupDelete();
-//    captureGroupSave();
+    captureGetGroups();
+    captureGetMembers();
+    captureFindGroups();
+    captureFindStems();
+    captureStemDelete();
+    captureStemSave();
+    captureGroupDelete();
+    captureGroupSave();
   }
 
   /** certain data has to exist for samples to run */
@@ -115,8 +118,45 @@ public class SampleCapture {
     GrouperSession grouperSession = null;
     try {
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem");
+      
+      try {
+        SubjectFinder.findById("10039438");
+      } catch (SubjectNotFoundException snfe) {
+        GrouperDAOFactory.getFactory().getRegistrySubject().create(
+            new RegistrySubjectDTO()
+              .setId("10039438")
+              .setName("10039438")
+              .setType("person")
+          );
+      }
+      
       Subject subject1 = SubjectFinder.findById("10039438");
+
+      try {
+        SubjectFinder.findById("10021368");
+      } catch (SubjectNotFoundException snfe) {
+        GrouperDAOFactory.getFactory().getRegistrySubject().create(
+            new RegistrySubjectDTO()
+              .setId("10021368")
+              .setName("10021368")
+              .setType("person")
+          );
+      }
+      
       Subject subject2 = SubjectFinder.findById("10021368");
+      
+      try {
+        SubjectFinder.findById("mchyzer");
+      } catch (SubjectNotFoundException snfe) {
+        GrouperDAOFactory.getFactory().getRegistrySubject().create(
+            new RegistrySubjectDTO()
+              .setId("mchyzer")
+              .setName("mchyzer")
+              .setType("person")
+          );
+      }
+      Subject mchyzer = SubjectFinder.findById("mchyzer");
+      
       grouperSession = GrouperSession.start(grouperSystemSubject);
       
       Stem.saveStem(grouperSession, "aStem", null,"aStem", "a stem",  "a stem description", null, false);
@@ -134,6 +174,13 @@ public class SampleCapture {
       aGroup2.addMember(grouperSystemSubject, false);
       aGroup2.addMember(subject1, false);
       aGroup2.addMember(subject2, false);
+       
+      Group webServiceActAsGroup = Group.saveGroup(grouperSession, "etc:webServiceActAsGroup", 
+          null,"etc:webServiceActAsGroup", 
+          "webServiceActAsGroup","webServiceActAsGroup",   null, true);
+      
+      webServiceActAsGroup.addMember(mchyzer, false);
+      
       
       //anything else?
       
@@ -374,6 +421,11 @@ public class SampleCapture {
         Class<? extends WsSample> clientClass, 
         String samplesFolderName, String fileNameInfo, Object format) {
     try {
+      
+      //give the old server time to shut down?
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException ie) {}
       
       String formatString = format == null ? "" : ("_" + ((Enum<?>)format).name());
       

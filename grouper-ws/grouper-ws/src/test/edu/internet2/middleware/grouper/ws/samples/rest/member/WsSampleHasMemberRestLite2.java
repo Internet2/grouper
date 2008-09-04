@@ -34,7 +34,7 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/members/sources/qsuob/subjectId/10021368");
+            + "/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/10021368");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 

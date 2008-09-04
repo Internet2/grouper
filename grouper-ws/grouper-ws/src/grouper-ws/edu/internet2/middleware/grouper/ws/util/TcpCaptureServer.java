@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: TcpCaptureServer.java,v 1.1 2008-03-24 20:19:49 mchyzer Exp $
+ * @author mchyzer $Id: TcpCaptureServer.java,v 1.1.2.1 2008-09-04 05:43:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -10,13 +10,12 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
-
 import java.net.ServerSocket;
 import java.net.Socket;
-
 import java.util.Date;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.net.telnet.TelnetClient;
 
 /**
  * A TCP capture server listening on the port, forwards requests to another
@@ -46,6 +45,20 @@ public class TcpCaptureServer {
   public Thread startServer(final int portListen, final int portConnect,
       boolean executeInThread) {
     if (executeInThread) {
+      if (TcpCaptureServer.this.debug) {
+
+        TelnetClient telnetClient = new TelnetClient();
+        try {
+          telnetClient.connect("localhost", portListen);
+          telnetClient.disconnect();
+          System.err.println("Connected successfully to port: " + portListen);
+        } catch (Exception e) {
+          System.err.println("Couldn't connect successfully to port: " + portListen +", " + e.getMessage());
+        }
+        
+        System.err.println("Socket thread called from: " + ExceptionUtils.getFullStackTrace(new RuntimeException()));
+      }
+      
       Thread thread = new Thread(new Runnable() {
 
         public void run() {
@@ -55,10 +68,10 @@ public class TcpCaptureServer {
       thread.start();
 
       return thread;
-    }
+    } 
 
     this.startServer(portListen, portConnect);
-
+    
     return null;
   }
 
@@ -81,21 +94,36 @@ public class TcpCaptureServer {
        */
       int id = 0;
 
+      if (TcpCaptureServer.this.debug) {
+        System.err.println("Starting server on port: " + portListen);
+      }
+      
       //for now just do this once
       //      while (true) {
       // now listen for connections
+      sock.setSoTimeout(20000);
       Socket client = sock.accept();
 
+      if (TcpCaptureServer.this.debug) {
+        System.err.println("Servicing connection on port: " + portListen);
+      }
+      
       // service the connection 
       ServiceConnection(client, id++, portConnect);
 
       //      }
     } catch (IOException ioe) {
-      System.err.println(ioe);
+
+      System.err.println("Problem with port: " + portListen + ", " + ioe);
       this.error = ExceptionUtils.getFullStackTrace(ioe);
+    
     } finally {
       if (sock != null) {
         try {
+          
+          if (TcpCaptureServer.this.debug) {
+            System.err.println("Closing port: " + portListen);
+          }
           sock.close();
         } catch (IOException ioe) {
           ioe.printStackTrace();
@@ -275,6 +303,7 @@ public class TcpCaptureServer {
         }
       } catch (IOException ioee) {
         System.err.println(ioee);
+        ioee.printStackTrace();
       }
     } // end try
   } // end ServiceConnection

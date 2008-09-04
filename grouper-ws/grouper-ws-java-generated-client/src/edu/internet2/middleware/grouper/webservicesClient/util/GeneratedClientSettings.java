@@ -1,27 +1,51 @@
 /*
- * @author mchyzer $Id: GeneratedClientSettings.java,v 1.4 2008-04-02 08:11:17 mchyzer Exp $
+ * @author mchyzer $Id: GeneratedClientSettings.java,v 1.4.2.1 2008-09-04 05:42:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.webservicesClient.util;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Properties;
 
 
 /**
  * generated client settings
  */
 public class GeneratedClientSettings {
+  
+  /** properties for testing */
+  static Properties properties = null;
+  
+  static {
+    try {
+      // create and load default properties
+      properties = new Properties();
+      InputStream in = GeneratedClientSettings.class.getResourceAsStream ("/grouper-ws-generated.properties");
+      properties.load(in);
+      in.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+    
+  }
+  
     /** client version.  keep this updated as the version changes */
-    public static final String VERSION = "v1_3_000";
+    public static String VERSION = properties.getProperty("ws.testing.version");
 
     /** user to login as */
-    public static final String USER = "GrouperSystem";
+    public static String USER = properties.getProperty("ws.testing.user");
 
     /** user to login as */
-    public static final String PASS = "pass";
+    public static String PASS = properties.getProperty("ws.testing.pass");
 
     /** url prefix */
-    public static final String URL = "http://localhost:8093/grouper-ws/services/GrouperService";
+    public static String URL = properties.getProperty("ws.testing.httpPrefix") + 
+      "://" + properties.getProperty("ws.testing.host") + ":" 
+      + properties.getProperty("ws.testing.port") + "/" 
+      + properties.getProperty("ws.testing.appName") 
+      + "/services/GrouperService";
 
     /**
      * make sure a array is non null.  If null, then return an empty array.

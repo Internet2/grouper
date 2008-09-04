@@ -401,7 +401,7 @@ public class GrouperServiceJ2ee implements Filter {
       }
 
       if (countNoExceptions == 0) {
-        throw new RuntimeException("Problems seeing is web service user '"
+        throw new RuntimeException("Problems seeing if web service user '"
             + loggedInSubject + "' can actAs the other subject: '" + actAsSubject + "'");
       }
       // if not an effective member
