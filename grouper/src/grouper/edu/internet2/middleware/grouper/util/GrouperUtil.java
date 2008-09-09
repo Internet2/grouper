@@ -134,11 +134,16 @@ public class GrouperUtil {
             printGrouperLogsToConsole = true;
             rootLoggerAppender.append("console, ");
           } else if (appender instanceof FileAppender) {
-            File logFile = new File(((FileAppender)appender).getFile());
-            if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
-              System.err.println("Grouper error, parent dir of log file doesnt exist: " + logFile.getAbsolutePath());
+            String path = ((FileAppender)appender).getFile();
+            if (StringUtils.isBlank(path)) {
+              System.err.println("Grouper error, file appender path is empty, maybe dir doesnt exist");
+            } else {
+              File logFile = new File(path);
+              if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
+                System.err.println("Grouper error, parent dir of log file doesnt exist: " + logFile.getAbsolutePath());
+              }
+              rootLoggerAppender.append(logFile.getAbsolutePath()).append(", ");
             }
-            rootLoggerAppender.append(logFile.getAbsolutePath()).append(", ");
           } else {
             rootLoggerAppender.append("appender type: " + appender.getClass().getSimpleName()).append(", ");
           }
