@@ -78,7 +78,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.51 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.52 2008-09-09 20:03:40 mchyzer Exp $
  */
 
 
@@ -128,7 +128,7 @@ public class GrouperHelper {
 	private static String[] groupPrivs = { "ADMIN", "UPDATE","READ","VIEW","OPTIN","OPTOUT" };
 	
 //	Privs which relate to Groups - access privileges + member
-	private static String[] groupPrivsWithMember = { "MEMBER", "UPDATE","READ","VIEW","OPTIN","OPTOUT"};
+	private static String[] groupPrivsWithMember = { "MEMBER", "ADMIN", "UPDATE","READ","VIEW","OPTIN","OPTOUT"};
 	
 	//Privs which relate to Stems - naming privileges
 	//CH 20080324 change for UI from:  "STEM", "CREATE" 
@@ -453,6 +453,7 @@ public class GrouperHelper {
 				}
 			} else {
 				stem = groupOrStem.getStem();
+				if(stem.isRootStem()) privs.remove("CREATE");
 			}
 			if (privs == null)
 				privs = superPrivs;
@@ -2948,7 +2949,11 @@ public class GrouperHelper {
 	}
 	
 	public static boolean isDirect(LazySubject ls) {
-		return ls.getMembership().getDepth()==0;
+		Membership ms = ls.getMembership();
+		//This is a hack, but will have to look at ramifications
+		//later
+		if(ms==null) return false;
+		return ms.getDepth()==0;
 	}
 	
 	/*public static List query(String sql) throws Exception{

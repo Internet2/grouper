@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperComparator;
+import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
@@ -75,7 +76,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.19 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.20 2008-09-09 20:03:41 mchyzer Exp $
  */
 
 /**
@@ -575,6 +576,17 @@ public abstract class LowLevelGrouperCapableAction
 			session.setAttribute("navExceptionHelper", neh);
 		}
 		return neh;
+	}
+	
+	protected void addMessage(Message msg,HttpServletRequest request) {
+		List messages = (List)request.getAttribute("messages");
+		Message m = (Message)request.getAttribute("message");
+		if(messages==null) {
+			messages=new ArrayList();
+			if(m!=null) messages.add(m);
+			request.setAttribute("messages",messages);
+		}
+		messages.add(msg);
 	}
 }
 

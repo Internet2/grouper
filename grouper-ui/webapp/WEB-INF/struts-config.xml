@@ -733,6 +733,8 @@
       <forward name="GroupMembers" path="/populateGroupMembers.do"
                redirect="false"/>
       <forward name="GroupSummary" path="/populateGroupSummary.do"
+               redirect="false"/> 
+      <forward name="EditAttributes" path="/populateEditGroupAttributes.do"
                redirect="false"/>
     </action>
     

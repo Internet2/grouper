@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +38,9 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.ui.Message;
 
 /**
@@ -100,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.11 2008-07-07 06:26:12 mchyzer Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.12 2008-09-09 20:03:41 mchyzer Exp $
  */
 public class SaveGroupAttributesAction extends GrouperCapableAction {
 
@@ -109,6 +112,7 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
   static final private String FORWARD_GroupMembers = "GroupMembers";
   static final private String FORWARD_FindNewMembers = "FindNewMembers";
   static final private String FORWARD_GroupSummary = "GroupSummary";
+  static final private String FORWARD_EditAttributes = "EditAttributes";
 
   //------------------------------------------------------------ Action Methods
 
@@ -142,10 +146,17 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       		attr = request.getParameter("attr." + field.getName());
       		groupAttr = group.getAttribute(field.getName());
       		if(attr!=null && !attr.equals(groupAttr)) {
-      			if("".equals(attr)) group.deleteAttribute(field.getName());
-      			else {
-      			  group.setAttribute(field.getName(),attr);
+      			if("".equals(attr)) {
+      				try {
+      					group.deleteAttribute(field.getName());
+      				}catch(GroupModifyException e) {
+      					Map fieldMap = (Map)GrouperHelper.getFieldsAsMap(getNavResources(request)).get(field.getName());
+      					Message message = new Message("error.group.save-attributes.delete",(String)fieldMap.get("displayName"),true);
+      					request.setAttribute("message",message);
+      					return mapping.findForward(FORWARD_EditAttributes);
+      				}
       			}
+      			else group.setAttribute(field.getName(),attr);
       		}
       	}
         group.store();

@@ -12,7 +12,7 @@ change definition for this --%>
                <tiles:insert attribute="title" />
             </div>
 			
-            <c:if test="${!empty message}">
+            <c:if test="${!empty message || !empty messages}">
                     <tiles:insert attribute="messageArea" />   
             </c:if>
             <!--content-->
