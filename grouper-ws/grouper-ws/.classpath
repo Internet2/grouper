@@ -101,5 +101,7 @@
 	<classpathentry kind="lib" path="lib/grouper/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/mail-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/smtp.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/commons-cli-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/grouper-ws/commons-net.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
