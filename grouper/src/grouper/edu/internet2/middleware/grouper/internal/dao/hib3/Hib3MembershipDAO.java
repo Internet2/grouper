@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.19 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.20 2008-09-10 05:45:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -369,6 +369,61 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setString( "owner",  ownerUUID              )
       .setString( "member", memberUUID             )
       .listSet(Membership.class);
+  }
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<Membership> findAllImmediateByMember(String memberUUID) 
+    throws  GrouperDAOException
+  {
+     Set<Membership> mships = HibernateSession.byHqlStatic()
+      .createQuery(
+        "from Membership as ms where  "
+        + "     ms.memberUuid = :member           "
+        + "and  ms.type       = :type             ")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllImmediateByMember")
+      .setString( "member", memberUUID             )
+      .setString( "type",   Membership.IMMEDIATE   )
+      .listSet(Membership.class);
+    return mships;
+  } 
+
+  /**
+   * @since   @HEAD@
+   */
+  public List<Membership> findAllByOwner(String ownerUUID)
+    throws  GrouperDAOException
+  {
+    List<Membership> mships = HibernateSession.byHqlStatic()
+      .createQuery(
+        "from Membership as ms where ms.ownerUuid = :owner")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllByOwner")
+      .setString("owner", ownerUUID)
+      .list(Membership.class);
+    return mships;
+  }
+
+
+  /**
+   * @since   @HEAD@
+   */
+  public List<Membership> findAllMembershipsWithInvalidOwners()
+    throws  GrouperDAOException
+  {
+    List<Membership> mships = HibernateSession.byHqlStatic()
+      .createQuery(
+        "from Membership as ms where  "
+        + "     ms.ownerUuid not in " 
+        + "        (select g.uuid from Group g) "
+        + "     and ms.ownerUuid not in "
+        + "        (select ns.uuid from Stem ns)")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllMembershipsWithInvalidOwners")
+      .list(Membership.class);
+    return mships;
   }
 
   /**

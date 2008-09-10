@@ -16,7 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import  edu.internet2.middleware.subject.*;
@@ -32,37 +34,74 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: LazySubject.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
  */
 
 public class LazySubject implements Subject {
 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+ @Override
+  public String toString() {
+   try {
+     Member theMember = this.getMember();
+     return "'" + theMember.getSubjectId() + "'/'"
+     + theMember.getSubjectTypeId() + "'/'" + theMember.getSubjectSourceId() + "'";
+   } catch (Exception e) {
+     return "LazySubject with member uuid: " + this.member.getUuid();
+     
+   }
+  }
+
+/** membership if built from membership */
  private Membership membership;
+ 
+ /** member if built from it or already retrieved it */
+ private Member member;
+ 
+ /** subject if it has lazily retrieved it already */
  private Subject subject;
+ private SubjectType subjectType = new LazySubjectType();
+ private Source subjectSource = new LazySource();
+ boolean unresolvable = false;
 
 
   // CONSTRUCTORS //
   public LazySubject(Membership ms) 
   {
     this.membership = ms;
-  } // protected LazySubject(ms)
+    try {
+    	this.member = ms.getMember();
+    }catch(MemberNotFoundException e) {
+    	throw new GrouperRuntimeException(e);
+    }
+  } 
 
+  /**
+   * 
+   * @param m
+   */
+  public LazySubject(Member member) {
+	  this.member=member;
+  }
   
-  
-  /* (non-Javadoc)
+  /**
  * @see edu.internet2.middleware.subject.Subject#getAttributes()
  */
 public Map getAttributes() {
 	try {
 		return getSubject().getAttributes();
 	}catch(Exception e) {
+		unresolvable=true;
 		throw new GrouperRuntimeException(e);
 	}
 }
 
 
 	
-	/* (non-Javadoc)
+	/**
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
 	 */
 	public String getAttributeValue(String name) {
@@ -75,7 +114,7 @@ public Map getAttributes() {
 	
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
 	 */
 	public Set getAttributeValues(String name) {
@@ -88,7 +127,7 @@ public Map getAttributes() {
 	
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see edu.internet2.middleware.subject.Subject#getDescription()
 	 */
 	public String getDescription() {
@@ -101,12 +140,12 @@ public Map getAttributes() {
 	
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see edu.internet2.middleware.subject.Subject#getId()
 	 */
 	public String getId() {
 		try {
-			return membership.getMember().getSubjectId();
+			return member.getSubjectId();
 		}catch(Exception e) {
 			throw new GrouperRuntimeException(e);
 		}
@@ -114,7 +153,7 @@ public Map getAttributes() {
 	
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see edu.internet2.middleware.subject.Subject#getName()
 	 */
 	public String getName() {
@@ -127,56 +166,164 @@ public Map getAttributes() {
 	
 	
 	
-	/* (non-Javadoc)
+	/**
 	 * @see edu.internet2.middleware.subject.Subject#getSource()
 	 */
 	public Source getSource() {
-		try {
-			return membership.getMember().getSubjectSource();
-		}catch(Exception e) {
-			throw new GrouperRuntimeException(e);
+		return subjectSource;
 		}
+	
+  /** get the source id 
+   * @return the soruce id */
+  public String getSourceId() {
+    return this.member.getSubjectSourceId();
 	}
 	
-	/* (non-Javadoc)
+	/**
 	 * @see edu.internet2.middleware.subject.Subject#getType()
 	 */
 	public SubjectType getType() {
-		try {
-			return membership.getMember().getSubjectType();
-		}catch(Exception e) {
-			throw new GrouperRuntimeException(e);
+    return subjectType;
 		}
-	}
 	
+	/**
+	 * 
+	 * @return the subject
+	 * @throws SubjectNotFoundException
+	 * @throws MemberNotFoundException
+	 */
 	private Subject getSubject() throws SubjectNotFoundException,MemberNotFoundException{
-		  if(subject==null) subject=membership.getMember().getSubject();
+		  if(subject==null) subject=member.getSubject();
 		  return subject;
 	 }
 	
+	/**
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	public boolean equals(Object other) {
 		if(other instanceof LazySubject) {
-			return membership.getMemberUuid().equals(((LazySubject)other).getMembership().getMemberUuid());
+			return member.getUuid().equals(((LazySubject)other).getMember().getUuid());
 		}
 	    return SubjectHelper.eq(this, other);
 	  } // public boolean equals(other)
 	
 	/**
+	   * @return the hashcode
 	   * @since 1.3.0
 	   */ 
 	  public int hashCode() {
 	    return new HashCodeBuilder()
 	      .append(  this.getId()              )
-	      .append(  this.getSource().getId()  )
-	      .append(  this.getType().getName()  )
+	      .append(  member.getSubjectSourceId()
+	    		  )
+	      .append(  member.getSubjectTypeId()  )
 	      .toHashCode()
 	      ;
-	  } // public int hashCode()
+	  }
+	
+	  /**
+	   * 
+	   * @return
+	   */
+	private Member getMember() {
+		return member;
+	}
 	
 	public Membership getMembership() {
 		return membership;
 	}
-  
 
-} // public class LazySubject implements Subject
+	/**
+	 * Circumvent the need to instantiate a Subject to get a source id
+	 * @since 1.3.1
+	 *
+	 */
+	class LazySource implements Source {
+		private Source source;
+		LazySource() {
+			
+		}
+		
+		/**
+		 * 
+		 * @return source
+		 */
+		private Source getSource() {
+			if(source!=null) return source;
+			try {
+				source=SubjectFinder.getSource(getId());
+			}catch(SourceUnavailableException e) {
+				throw new GrouperRuntimeException(e);
+	}
+			return source;
+		}
+  
+		public String getId() {
+			// TODO Auto-generated method stub
+			return member.getSubjectSourceId();
+		}
+
+		public String getName() {
+			// TODO Auto-generated method stub
+			return getSource().getName();
+		}
+
+		public Subject getSubject(String id) throws SubjectNotFoundException,
+				SubjectNotUniqueException {
+			// TODO Auto-generated method stub
+			return getSource().getSubject(id);
+		}
+
+		public Subject getSubjectByIdentifier(String id)
+				throws SubjectNotFoundException, SubjectNotUniqueException {
+			// TODO Auto-generated method stub
+			return getSource().getSubjectByIdentifier(id);
+		}
+
+		public Set getSubjectTypes() {
+			// TODO Auto-generated method stub
+			return getSource().getSubjectTypes();
+		}
+
+		public void init() throws SourceUnavailableException {
+			getSource().init();
+			
+		}
+
+		public Set search(String query) {
+			// TODO Auto-generated method stub
+			return getSource().search(query);
+		}
+
+		public void setId(String id) {
+			getSource().setId(id);
+			
+		}
+
+		public void setName(String name) {
+			// TODO Auto-generated method stub
+			getSource().setName(name);
+			
+		}
+		
+	}
+	
+	/**
+	 * Circumvent the need to instantiate an actual Subject just to get the type
+	 * @since 1.3.1
+	 */
+	class LazySubjectType extends SubjectType{
+
+		LazySubjectType() {
+			
+		}
+		
+		public String getName() {
+			// TODO Auto-generated method stub
+			return member.getSubjectTypeId();
+		}
+		
+	}
+}
 

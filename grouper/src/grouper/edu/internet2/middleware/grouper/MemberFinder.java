@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -37,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.54 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.55 2008-09-10 05:45:59 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -183,7 +184,16 @@ public class MemberFinder {
     if (subj == null) {
       throw new MemberNotFoundException();
     }
-    Member m = internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) ;
+    
+    String sourceId = null;
+    if (subj instanceof LazySubject) {
+      sourceId = ((LazySubject)subj).getSourceId();
+    } else {
+      sourceId = subj.getSource().getId();
+    }
+    Member m = internal_findOrCreateBySubject( subj.getId(), sourceId, subj.getType().getName() ) ;
+    
+    //Member m = internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) ;
     return m;
   } // public static Member internal_findBySubject(subj)
 

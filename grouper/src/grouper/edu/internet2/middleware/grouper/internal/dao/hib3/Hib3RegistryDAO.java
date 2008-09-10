@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -44,7 +45,7 @@ import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.7 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.8 2008-09-10 05:45:58 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {
@@ -95,6 +96,8 @@ class Hib3RegistryDAO implements RegistryDAO {
 
       // add foreign keys and write the ddl to the outputFile.
       addForeignKeys(fw);
+      
+      System.out.println("Sql written to: " + new File(outputFile).getCanonicalPath());
     }
     catch (Exception e) {
       throw new GrouperDAOException( e.getMessage(), e );

@@ -16,21 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Iterator;
+import java.util.Set;
+
+import junit.framework.Assert;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.misc.FindBadMemberships;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.10 2008-09-10 05:45:58 mchyzer Exp $
  */
 public class MembershipTestHelper {
 
@@ -420,6 +429,300 @@ public class MembershipTestHelper {
       Assert.fail(eSNF.getMessage());
     }
   } // private static void _testEff(gms, mms)
+
+  private static Membership findImmediateMembership(GrouperSession s, Group g, Subject subj, Field f) {
+
+    Membership mship = null;
+
+    try {
+      mship = MembershipFinder.findImmediateMembership(s, g, subj, f);
+    } catch (Exception e) {
+      // do nothing
+    }
+      
+    return mship;
+  }     
+        
+  private static Membership findImmediateMembership(GrouperSession s, Stem stem, Subject subj, Field f) {
+    
+    Membership mship = null;
+    
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      mship = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+          stem.getUuid(), m.getUuid(), f, Membership.IMMEDIATE
+        );
+    } catch (Exception e) {
+      mship = null;
+    }
+    
+    return mship;
+  }   
+    
+  protected static Membership findCompositeMembership(GrouperSession s, Group g, Subject subj) {
+    
+    Membership mship = null;
+      
+    try {
+      mship = MembershipFinder.findCompositeMembership(s, g, subj);
+    } catch (Exception e) {
+      // do nothing
+    }   
+        
+    return mship;
+  }      
+    
+  protected static Membership findEffectiveMembership(GrouperSession s, Group g, Subject subj, Group via, int depth, Field f) {
+    Membership mship = null;
+    try {
+      Set<Membership> memberships = MembershipFinder.findEffectiveMemberships(s, g, subj,
+        f, via, depth);
+  
+      Iterator<Membership> it = memberships.iterator();
+      if (it.hasNext()) {
+        mship = it.next();
+      }
+    } catch (Exception e) {
+      // do nothing
+    }
+    
+    return mship;
+  }
+
+  protected static Membership findEffectiveMembership(GrouperSession s, Stem stem, Subject subj, Group via, int depth, Field f) {
+  
+    Membership mship = null;
+    
+    try {
+      Member m = MemberFinder.findBySubject(s, subj);
+      Iterator<Membership> it = GrouperDAOFactory.getFactory().getMembership().findAllEffective(
+        stem.getUuid(), m.getUuid(), f, via.getUuid(), depth).iterator();
+        
+      if (it.hasNext()) {
+        mship = it.next();
+      } 
+    } catch (Exception e) {
+      mship = null;
+    } 
+    
+    return mship;
+  } 
+  
+  protected static void verifyImmediateMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Field f) {
+  
+    // first verify that the membership exists
+    Membership childMembership = findImmediateMembership(s, childGroup, childSubject, f);
+    Assert.assertNotNull(comment + ": find membership", childMembership);
+    
+
+    // second verify that there's no via_id
+    Group viaGroup = null;
+    try {
+      viaGroup = childMembership.getViaGroup();
+    } catch (GroupNotFoundException e) {
+      // do nothing
+    }
+
+    Assert.assertNull(comment + ": find via group", viaGroup);
+
+
+    // third verify that there's no parent membership
+    Membership parentMembership = null;
+    try {
+      parentMembership = childMembership.getParentMembership();
+    } catch (MembershipNotFoundException e) {
+      // do nothing
+    }
+
+    Assert.assertNull(comment + ": find parent membership", parentMembership);
+  }
+
+  protected static void verifyImmediateMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject) {
+    verifyImmediateMembership(s, comment, childGroup, childSubject, Group.getDefaultList());
+  }
+
+  protected static void verifyImmediateMembership(GrouperSession s, String comment, Stem childStem, Subject childSubject, Field f) {
+
+    // first verify that the membership exists
+    Membership childMembership = findImmediateMembership(s, childStem, childSubject, f);
+    Assert.assertNotNull(comment + ": find membership", childMembership);
+
+
+    // second verify that there's no via_id
+    Group viaGroup = null;
+    try {
+      viaGroup = childMembership.getViaGroup();
+    } catch (GroupNotFoundException e) {
+      // do nothing
+    }
+
+    Assert.assertNull(comment + ": find via group", viaGroup);
+
+
+    // third verify that there's no parent membership
+    Membership parentMembership = null;
+    try {
+      parentMembership = childMembership.getParentMembership();
+    } catch (MembershipNotFoundException e) {
+      // do nothing
+    }
+
+    Assert.assertNull(comment + ": find parent membership", parentMembership);
+  }
+
+
+  protected static void verifyCompositeMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject) {
+    
+    // first verify that the membership exists
+    Membership childMembership = findCompositeMembership(s, childGroup, childSubject);
+    Assert.assertNotNull(comment + ": find membership", childMembership);
+
+    
+    // second verify the via_id
+    Composite c = null;
+    try { 
+      c = childMembership.getViaComposite();
+    } catch (CompositeNotFoundException e) {
+      // do nothing
+    }
+    
+    Assert.assertNotNull(comment + ": find via_id", c);
+    
+    Group viaGroup = null;
+    try {
+      viaGroup = c.getOwnerGroup(); 
+    } catch (GroupNotFoundException e) {
+      // do nothing
+    }
+
+    Assert.assertNotNull(comment + ": find owner group of via_id", viaGroup);
+
+    Assert.assertEquals(comment + ": verify via_id", childGroup.getName(), viaGroup.getName());
+
+
+    // third verify that there's no parent membership
+    Membership parentMembership = null;
+    try {
+      parentMembership = childMembership.getParentMembership();
+    } catch (MembershipNotFoundException e) {
+      // do nothing
+    }
+
+    Assert.assertNull(comment + ": find parent membership", parentMembership);
+  }
+
+  protected static void verifyEffectiveMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Group childVia,
+    int childDepth, Group parentGroup, Subject parentSubject, Group parentVia, int parentDepth, Field f) {
+
+    // first verify that the membership exists
+    Membership childMembership = findEffectiveMembership(s, childGroup, childSubject, childVia, childDepth, f);
+    Assert.assertNotNull(comment + ": find membership", childMembership);
+
+
+    // second verify that the parent membership exists based on data from the method parameters
+    Membership parentMembership = null;
+    if (parentDepth == 0) {
+      parentMembership = findImmediateMembership(s, parentGroup, parentSubject, f);
+    } else {
+      parentMembership = findEffectiveMembership(s, parentGroup, parentSubject, parentVia, parentDepth, f);
+    }
+
+    Assert.assertNotNull(comment + ": find parent membership", parentMembership);
+
+
+    // third verify that the parent membership of the child is correct
+    boolean parentCheck = false;
+    try {
+      parentCheck = parentMembership.equals(childMembership.getParentMembership());
+    } catch (MembershipNotFoundException e) {
+      // do nothing
+    }
+    Assert.assertTrue(comment + ": verify parent membership", parentCheck);
+  }
+
+  protected static void verifyEffectiveMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Group childVia,
+    int childDepth, Group parentGroup, Subject parentSubject, Group parentVia, int parentDepth) {
+    verifyEffectiveMembership(s, comment, childGroup, childSubject, childVia, childDepth, parentGroup, parentSubject,
+      parentVia, parentDepth, Group.getDefaultList());
+  }
+
+  protected static void verifyEffectiveMembership(GrouperSession s, String comment, Stem childStem, Subject childSubject, Group childVia,
+    int childDepth, Stem parentStem, Subject parentSubject, Group parentVia, int parentDepth, Field f) {
+
+    // first verify that the membership exists
+    Membership childMembership = findEffectiveMembership(s, childStem, childSubject, childVia, childDepth, f);
+    Assert.assertNotNull(comment + ": find membership", childMembership);
+
+
+    // second verify that the parent membership exists based on data from the method parameters
+    Membership parentMembership = null;
+    if (parentDepth == 0) {
+      parentMembership = findImmediateMembership(s, parentStem, parentSubject, f);
+    } else {
+      parentMembership = findEffectiveMembership(s, parentStem, parentSubject, parentVia, parentDepth, f);
+    }
+
+    Assert.assertNotNull(comment + ": find parent membership", parentMembership);
+
+
+    // third verify that the parent membership of the child is correct
+    boolean parentCheck = false;
+    try {
+      parentCheck = parentMembership.equals(childMembership.getParentMembership());
+    } catch (MembershipNotFoundException e) {
+      // do nothing
+    }
+    Assert.assertTrue(comment + ": verify parent membership", parentCheck);
+  }
+
+  protected static void checkBadGroupMemberships(String comment, Set<Group> goodGroups, Set<Group> badGroups) {
+    Iterator<Group> goodIterator = goodGroups.iterator();
+    while (goodIterator.hasNext()) {
+      Group g = goodIterator.next();
+      String curComment = comment + " - " + g.getName();
+      try {
+        Assert.assertTrue(curComment, FindBadMemberships.checkGroup(g));
+      } catch (Exception e) {
+        Assert.fail(curComment + " - got exception: " + e.getMessage());
+      }
+    }
+
+    Iterator<Group> badIterator = badGroups.iterator();
+    while (badIterator.hasNext()) {
+      Group g = badIterator.next();
+      String curComment = comment + " - " + g.getName();
+      try {
+        Assert.assertFalse(curComment, FindBadMemberships.checkGroup(g));
+      } catch (Exception e) {
+        Assert.fail(curComment + " - got exception: " + e.getMessage());
+      }
+    }
+  }
+
+  protected static void checkBadStemMemberships(String comment, Set<Stem> goodStems, Set<Stem> badStems) {
+    Iterator<Stem> goodIterator = goodStems.iterator();
+    while (goodIterator.hasNext()) {
+      Stem ns = goodIterator.next();
+      String curComment = comment + " - " + ns.getName();
+      try {
+        Assert.assertTrue(curComment, FindBadMemberships.checkStem(ns));
+      } catch (Exception e) {
+        Assert.fail(curComment + " - got exception: " + e.getMessage());
+      }
+    }
+
+    Iterator<Stem> badIterator = badStems.iterator();
+    while (badIterator.hasNext()) {
+      Stem ns = badIterator.next();
+      String curComment = comment + " - " + ns.getName();
+      try {
+        Assert.assertFalse(curComment, FindBadMemberships.checkStem(ns));
+      } catch (Exception e) {
+        Assert.fail(curComment + " - got exception: " + e.getMessage());
+      }
+    }
+  }
+
 
 }
 

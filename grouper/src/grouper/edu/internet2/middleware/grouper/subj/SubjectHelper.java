@@ -24,7 +24,7 @@ import edu.internet2.middleware.subject.Subject;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.2 2008-09-10 05:45:59 mchyzer Exp $
  */
 public class SubjectHelper {
 
@@ -61,6 +61,7 @@ public class SubjectHelper {
  
   // @since   1.2.0
   public static String getPretty(Member _m) {
+    
     return  Quote.single( _m.getSubjectId() ) // don't bother grabbing the name.  names aren't consistent, after all.
             + SUBJECT_DELIM
             + Quote.single( _m.getSubjectTypeId() ) 
@@ -70,6 +71,9 @@ public class SubjectHelper {
  
   // @since   1.2.0
   public static String getPretty(Subject subj) {
+    if (subj instanceof LazySubject) {
+      return subj.toString();
+    }
     return  Quote.single( subj.getId() )
             + SUBJECT_DELIM
             + Quote.single( subj.getType().getName() ) 

@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.10 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.11 2008-09-10 05:45:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -447,6 +447,26 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throw new GrouperDAOException( error, e );
     }
   } 
+
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<Stem> getAllStems()
+    throws  GrouperDAOException {
+    try {
+      Set<Stem> stems = HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllStems")
+        .listSet(Stem.class);
+      return stems;
+    } 
+    catch (GrouperDAOException e) {
+      String error = "Problem getting all stems: " + e.getMessage();
+      throw new GrouperDAOException(error, e);
+    }
+  }
 
   /** 
    * @since   @HEAD@

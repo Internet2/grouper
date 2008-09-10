@@ -5525,7 +5525,12 @@ public class GrouperUtil {
     if (subject == null) {
       return null;
     }
-    return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
+    try {
+      return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSource().getId();
+    } catch (RuntimeException e) {
+      //might be subject not found if lazy subject
+      return subject.toString();
+    }
   }
 
   /**

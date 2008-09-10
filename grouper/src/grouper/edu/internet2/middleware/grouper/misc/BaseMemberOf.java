@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.Stem;
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: BaseMemberOf.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
@@ -94,7 +94,7 @@ public abstract class BaseMemberOf implements MemberOf {
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
-  protected Set<GrouperAPI> addDelete(GrouperAPI dto) {
+  public Set<GrouperAPI> addDelete(GrouperAPI dto) {
     this.deletes.add(dto);
     return this.deletes;
   }
@@ -114,7 +114,7 @@ public abstract class BaseMemberOf implements MemberOf {
     return this.effSaves;
   }
   // @since   1.2.0
-  protected Set<GrouperAPI> addSave(GrouperAPI dto) {
+  public Set<GrouperAPI> addSave(GrouperAPI dto) {
     this.saves.add(dto);
     return this.saves;
   }

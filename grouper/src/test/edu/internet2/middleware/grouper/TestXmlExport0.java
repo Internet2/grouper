@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.xml.XmlExporter;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport0.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestXmlExport0.java,v 1.10 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.0
  */
 public class TestXmlExport0 extends TestCase {
@@ -56,7 +56,7 @@ public class TestXmlExport0 extends TestCase {
       Assert.assertTrue("xml instanceof XmlExporter", xml instanceof XmlExporter);
       Properties options = xml.internal_getOptions();
       Assert.assertNotNull("options !null", options);
-      Assert.assertTrue("13 set options", options.size() == 13);
+      Assert.assertTrue("14 set options", options.size() == 14);
       String k = "export.metadata";
       String v = "true";
       T.string(k, v, options.getProperty(k));
@@ -94,6 +94,9 @@ public class TestXmlExport0 extends TestCase {
       v = "true";
       T.string(k, v, options.getProperty(k));
       k = "export.privs.for-parents";
+      v = "false";
+      T.string(k, v, options.getProperty(k));
+      k = "export.data.fail-on-unresolvable-subject";
       v = "false";
       T.string(k, v, options.getProperty(k));
     }

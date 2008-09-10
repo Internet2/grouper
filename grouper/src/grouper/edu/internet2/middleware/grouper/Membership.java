@@ -75,7 +75,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.103 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.104 2008-09-10 05:45:59 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -830,9 +830,9 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       .append( this.getListName(),   that.getListName()   )
       .append( this.getListType(),   that.getListType()   )
       .append( this.getMemberUuid(), that.getMemberUuid() )
-      .append( this.getUuid(),       that.getUuid()       )
       .append( this.getOwnerUuid(),  that.getOwnerUuid()  )
       .append( this.getViaUuid(),    that.getViaUuid()    )
+      .append( this.getParentUuid(),    that.getParentUuid()    )
       .isEquals();
   } // public boolean equals(other)
 
@@ -917,9 +917,9 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       .append( this.getListName()   )
       .append( this.getListType()   )
       .append( this.getMemberUuid() )
-      .append( this.getUuid()       )
       .append( this.getOwnerUuid()  )
       .append( this.getViaUuid()    )
+      .append( this.getParentUuid()    )
       .toHashCode();
   } // public int hashCode()
 
