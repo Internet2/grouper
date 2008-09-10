@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.11 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.12 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -170,6 +170,12 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException,
             GroupNotFoundException
             ;
+
+  /**
+   * @since   1.3.1
+   */
+  Set<Group> getAllGroups()
+    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0

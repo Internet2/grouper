@@ -16,6 +16,31 @@
  */
 
 package edu.internet2.middleware.grouper.xml;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Vector;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.CharacterData;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
@@ -48,34 +73,20 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import  edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
-import  edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
-import  edu.internet2.middleware.subject.*;
-import  java.io.IOException;
-import  java.text.DateFormat;
-import  java.text.SimpleDateFormat;
-import  java.text.ParseException;
-import  java.util.ArrayList;
-import  java.util.Collection;
-import  java.util.Date;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.LinkedHashSet;
-import  java.util.List;
-import  java.util.Map;
-import  java.util.Properties;
-import  java.util.Set;
-import  java.util.Vector;
-import  org.apache.commons.logging.*;
-import  org.w3c.dom.*;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Utility class for importing data in XML import into the Groups Registry.
@@ -88,7 +99,7 @@ import  org.w3c.dom.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -152,6 +163,14 @@ public class XmlImporter {
    * <td>true/false</td>
    * <td>true</td>
    * <td>If true overwrite attributes on pre-existing groups when importing.</td>
+   * </tr>
+   * <tr>
+   * <td>import.data.fail-on-unresolvable-subject</td>
+   * <td>true/false</td>
+   * <td>false</td>
+   * <td>If true, and the import file references a subject which cannot be resolved 
+   * abort the import, otherwise, log the problem and continue.
+   * </td>
    * </tr>
    * <tr>
    * <td>import.data.lists</td>
@@ -664,6 +683,11 @@ public class XmlImporter {
     return XmlUtils.internal_getBooleanOption(this.options, "import.data.update-attributes");
   } // private boolean _isUpdatingAttributes()
 
+//@since   1.3.1
+  private boolean _isFailOnUnresolvableSubjectEnabled() {
+    return XmlUtils.internal_getBooleanOption(this.options, "import.data.fail-on-unresolvable-subject");
+  } // private boolean _isFailOnUnresolvableSubjectEnabled()
+
   // @since   1.1.0
   private void _load(final Stem ns, final Document doc) 
     throws  GrouperException,
@@ -865,9 +889,19 @@ public class XmlImporter {
             SubjectNotUniqueException
   {
     if ( this._isSubjectElementImmediate(el) ) {
-      Subject subj = this._findSubject( 
+      Subject subj = null;
+      try {
+	      subj=this._findSubject( 
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
+      }catch(SubjectNotFoundException e) {
+    	  if(_isFailOnUnresolvableSubjectEnabled()) {
+    		  throw e;
+    	  }else {
+    		  LOG.error("Could not grant " + p.getName() + " to " + g.getName() + " for subject id=" + el.getAttribute("id"),e);
+    		  return;
+    	  }
+      }
       if ( !XmlUtils.internal_hasImmediatePrivilege( subj, g, p.getName() ) ) {
         g.grantPriv(subj, p);
       }
@@ -1204,9 +1238,20 @@ public class XmlImporter {
             SubjectNotUniqueException
   {
     if ( this._isSubjectElementImmediate(el) ) {
-      Subject subj = this._findSubject( 
+      Subject subj = null;
+      try {
+	      subj=this._findSubject( 
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
+      }catch(SubjectNotFoundException e) {
+    	  if(_isFailOnUnresolvableSubjectEnabled()) {
+    		  throw e;
+    	  }else {
+    		  LOG.error("Could not add member to field " + f.getName() + " of " + g.getName() + " for subject id=" + el.getAttribute("id"),e);
+    		  return;
+    	  }
+      }
+     
       if ( !g.hasImmediateMember(subj, f) ) {
         g.addMember(subj, f);
       }
@@ -1242,7 +1287,7 @@ public class XmlImporter {
         Iterator it = g.getImmediateMembers(f).iterator();
         while (it.hasNext()) {
           Member m = (Member) it.next();
-          Subject subj = m.getSubject();
+          Subject subj = new LazySubject(m);
           g.deleteMember(subj, f);
           //g.deleteMember( ( (Member) it.next() ).getSubject() );
         }
@@ -1383,9 +1428,20 @@ public class XmlImporter {
             SubjectNotUniqueException
   {
     if ( this._isSubjectElementImmediate(el) ) {
-      Subject subj = this._findSubject( 
+      Subject subj = null;
+      try {
+	      subj=this._findSubject( 
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
+      }catch(SubjectNotFoundException e) {
+    	  if(_isFailOnUnresolvableSubjectEnabled()) {
+    		  throw e;
+    	  }else {
+    		  LOG.error("Could not grant " + p.getName() + " to " + ns.getName() + " for subject id=" + el.getAttribute("id"),e);
+    		  return;
+    	  }
+      }
+      
       if ( !XmlUtils.internal_hasImmediatePrivilege( subj, ns, p.getName() ) ) {
         ns.grantPriv(subj, p);
       }

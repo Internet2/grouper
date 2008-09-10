@@ -31,20 +31,20 @@ import  org.apache.commons.logging.*;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: XmlUtils.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.1.0
  */
-class XmlUtils {
+public class XmlUtils {
 
   // PROTECTED CLASS CONSTANTS //
-  protected static final String SPECIAL_STAR      = "*";  // this seems to indicate relative import
+  public static final String SPECIAL_STAR      = "*";  // this seems to indicate relative import
                                                           // if at beginning of idfr but not at end
 
 
   // PROTECTED CLASS METHODS //
   
   // @since   1.2.0
-  protected static boolean internal_getBooleanOption(Properties opts, String key) {
+  public static boolean internal_getBooleanOption(Properties opts, String key) {
     return Boolean.valueOf( opts.getProperty(key, "false") ).booleanValue();
   }
 

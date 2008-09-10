@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -36,16 +37,23 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.8 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.9 2008-09-10 05:45:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
+  private static        GrouperCache<String, Boolean>    existsCache     =  
+    new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists",
+          1000, false, 30, 120, false); 
+    
 
-  private static        HashMap<String, Boolean>    existsCache     = new HashMap<String, Boolean>();
+  
+  
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
   //TODO, move this to ehcache?
-  private static        HashMap<String, Member>  uuid2dtoCache   = new HashMap<String, Member>();
+  private static        GrouperCache<String, Member>  uuid2dtoCache   = 
+    new GrouperCache<String, Member>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.find",
+            1000, false, 30, 120, false);
   /**
    * @since   @HEAD@
    */
@@ -220,7 +228,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       .setString( "subject", "GrouperSystem" )
       .executeUpdate()
       ;
-    existsCache = new HashMap<String, Boolean>();
+    existsCache.clear();
   } 
 
 } 

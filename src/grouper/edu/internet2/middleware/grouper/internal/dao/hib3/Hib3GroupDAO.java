@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.17 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.18 2008-09-10 05:45:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -488,6 +488,27 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     return dto;
   } 
+
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<Group> getAllGroups()
+    throws  GrouperDAOException {
+    
+    try {
+      Set<Group> groups = HibernateSession.byHqlStatic()
+        .createQuery("from Group as g")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllGroups")
+        .listSet(Group.class);
+      return groups;
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem getting all groups: " + e.getMessage();
+      throw new GrouperDAOException(error, e);
+    }
+  }
 
   /**
    * @since   @HEAD@

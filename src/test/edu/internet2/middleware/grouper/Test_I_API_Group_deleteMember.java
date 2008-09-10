@@ -16,16 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteException;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import  edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteMember.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_deleteMember.java,v 1.5 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteMember extends GrouperTest {
@@ -36,14 +45,44 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new Test_I_API_Group_deleteMember("test_DeleteSubjectsRemovedFromFactorsFromWhereTheyAreEffective"));
+    TestRunner.run(new Test_I_API_Group_deleteMember("test_DeleteUnresolvableSubject"));
   }
 
-  // PRIVATE INSTANCE VARIABLES //
-  private Group           gA, gB, gC, gD;
+  /**
+   * 
+   */
+  private Group           gA;
+  /**
+   * 
+   */
+  private Group gB;
+
+  /**
+   * 
+   */
+  private Group gC;
+  
+  /**
+   * 
+   */
+  private Group gD;
+  /**
+   * 
+   */
   private Stem            parent;
+  /**
+   * 
+   */
   private GrouperSession  s;
-  private Subject         subjX, subjY;
+  /**
+   * 
+   */
+  private Subject         subjX;
+  
+  /**
+   * 
+   */
+  private Subject subjY;
 
 
 
@@ -63,6 +102,10 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
     super(name);
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   */
   public void setUp() {
     super.setUp();
     try {    
@@ -80,6 +123,10 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
     }
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   */
   public void tearDown() {
     try {
       s.stop();
@@ -126,6 +173,55 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
     assertTrue(  "gD has gC",     gD.hasMember( gC.toSubject() ) ); 
     assertFalse( "gD !has subjX", gD.hasMember(subjX) ); 
     assertTrue(  "gD has subjY",  gD.hasMember(subjY) ); 
+  }
+
+
+  /**
+   * From <a href="https://bugs.internet2.edu/jira/browse/GRP-2">jira:grouper:#2</a>.
+   * <pre>
+   * 1. I created a Group A with a single subject X.
+   * 2. I created a Group B with a single subject Y.
+   * 3. I created a Group C that is union of A and B. It has members X and Y.
+   * 4. I created a Group D with a single subject Group C. Indirectly it has members X and Y.
+   * 5. I removed subject X from Group A. This resulted in subject X no longer in being member
+   *    of Group C as expected, but subject X remained a member of D.     
+   * </pre>
+   * @throws GrouperDAOException 
+   * @throws MemberAddException 
+   * @throws InsufficientPrivilegeException 
+   * @throws SubjectNotUniqueException 
+   * @throws MemberDeleteException 
+   * @throws MemberNotFoundException 
+   * @since   1.2.0
+   */
+  public void test_DeleteUnresolvableSubject() throws GrouperDAOException, MemberAddException, 
+      InsufficientPrivilegeException, SubjectNotUniqueException, MemberDeleteException, MemberNotFoundException {
+    gA.addMember(subjX);
+    
+    //RegistrySubjectDAO registrySubjectDAO = GrouperDAOFactory.getFactory().getRegistrySubject().find("subjX", "person");
+    RegistrySubject registrySubject = new RegistrySubject();
+    registrySubject.setId(subjX.getId());
+    registrySubject.setName(subjX.getName());
+    registrySubject.setTypeString(subjX.getType().getName());
+    GrouperDAOFactory.getFactory().getRegistrySubject().delete(registrySubject);
+
+    Member memberX = MemberFinder.findBySubject(s, subjX);
+    
+    //clear cache
+    SubjectFinder.flushCache();
+    
+    //lets try to resolve
+    try {
+      SubjectFinder.findById(subjX.getId());
+      throw new RuntimeException("Why is subject: " + subjX.getId() + " found??? Probably a caching problem!");
+    } catch (SubjectNotFoundException snfe) {
+      //good
+    }
+    
+    // should be able to delete an unresolvable subject
+    gA.deleteMember(memberX);
+    
+    assertFalse("shouldnt be a member anymore", gA.hasMember(subjX));
   }
 
 } 

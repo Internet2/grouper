@@ -86,6 +86,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddCompositeMemberValidator;
 import edu.internet2.middleware.grouper.validator.CanOptinValidator;
@@ -107,7 +108,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.198 2008-07-28 20:12:28 mchyzer Exp $
+ * @version $Id: Group.java,v 1.199 2008-09-10 05:45:59 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -1060,6 +1061,80 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       throw new MemberDeleteException(eS);
     }
   } // public void deleteCompositeMember()
+
+  /** 
+   * Delete a member from this group, and member must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(member);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   member  Delete this {@link Member}
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   */
+  public void deleteMember(Member member)
+    throws  InsufficientPrivilegeException, MemberDeleteException {
+    try {
+      this.deleteMember(member, getDefaultList());
+    }
+    catch (SchemaException eS) {
+      throw new MemberDeleteException(eS.getMessage(), eS);
+    }
+  } // public void deleteMember(subj)
+
+  /** 
+   * Delete a member from this group, and member must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(m, f);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   member  Delete this {@link Member}.
+   * @param   f     Delete subject from this {@link Field}.
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   * @throws  SchemaException
+   */
+  public void deleteMember(Member member, Field f) 
+      throws  InsufficientPrivilegeException, MemberDeleteException, SchemaException {
+    
+    Subject lazySubject = new LazySubject(member);
+    
+    deleteMember(lazySubject, f);
+    
+  }
+
 
   /** 
    * Delete a subject from this group, and subject must be immediate

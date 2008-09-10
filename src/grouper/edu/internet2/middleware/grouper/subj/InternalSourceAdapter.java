@@ -31,7 +31,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -44,6 +44,8 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   private Subject all     = null;
   private Subject root    = null;
   private Set     _types  = new LinkedHashSet();
+  private String allName = getAllName();
+  private String rootName = getRootName();
 
 
   // CONSTRUCTORS //
@@ -149,7 +151,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   public Set search(String searchValue) {
     Set results = new LinkedHashSet();
     try {
-      results.add(this._resolveSubject(searchValue));
+      results.add(this._resolveSubject(searchValue,true));
     }
     catch (SubjectNotFoundException eSNF) {
       // Ignore 
@@ -161,23 +163,51 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
   // PRIVATE INSTANCE METHODS //
 
   // Resolve an internal subject
-  private Subject _resolveSubject(String qry) 
+  private Subject _resolveSubject(String qry) throws SubjectNotFoundException{
+	  return _resolveSubject(qry,false);
+  }
+  
+  
+  private Subject _resolveSubject(String qry,boolean fuzzy) 
     throws  SubjectNotFoundException
   {
-    if      (qry.equals(GrouperConfig.ALL)) {
+    if(qry.equals(GrouperConfig.ALL) || (fuzzy && (
+    		qry.equalsIgnoreCase(allName) || qry.equalsIgnoreCase(GrouperConfig.ALL)
+    	)	
+    	))
+    		 {
       if (this.all == null) {
-        this.all = new InternalSubject(qry, qry, this);
+        this.all = new InternalSubject(GrouperConfig.ALL, allName, this);
       }
       return this.all;
     }
-    else if (qry.equals(GrouperConfig.ROOT)) {
+    else if (qry.equals(GrouperConfig.ROOT)|| (fuzzy && (
+    		qry.equalsIgnoreCase(rootName) || qry.equalsIgnoreCase(GrouperConfig.ROOT)
+    		)
+	))	 {
       if (this.root == null) {
-        this.root = new InternalSubject(qry, qry, this);
+        this.root = new InternalSubject(GrouperConfig.ROOT, rootName, this);
       }
       return this.root;
     }
     throw new SubjectNotFoundException("subject not found: " + qry);
   } // private Subject _resolveSubject(qry)
+  
+  private String getAllName() {
+	  String name = GrouperConfig.getProperty("subject.internal.grouperall.name");
+	  if(name==null || "".equals(name)) {
+		  name = GrouperConfig.ALL_NAME;
+	  }
+	  return name;
+  }
+  
+  private String getRootName() {
+	  String name = GrouperConfig.getProperty("subject.internal.groupersystem.name");
+	  if(name==null || "".equals(name)) {
+		  name = GrouperConfig.ROOT_NAME;
+	  }
+	  return name;
+  }
 
 } // public class InternalSourceAdapter
 

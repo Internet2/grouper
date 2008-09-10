@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.192 2008-08-27 01:31:20 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.193 2008-09-10 05:45:59 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -443,6 +443,30 @@
                   refid="test.classpath"
     />
     
+
+    <!-- if there is no findbadmemberships bat/sh, copy from example -->
+    <if>
+      <not>
+        <available file="bin/findbadmemberships.bat" />
+      </not>
+      <then>
+        <copy file="bin/findbadmemberships.example.bat" tofile="bin/findbadmemberships.bat" />
+      </then>
+    </if> 
+    <if>  
+      <not>
+        <available file="bin/findbadmemberships.sh" />
+      </not>
+      <then>
+        <copy file="bin/findbadmemberships.example.sh" tofile="bin/findbadmemberships.sh" />
+      </then>
+    </if> 
+
+    <!-- fix line endings and permissions of scripts -->
+    <fixcrlf srcdir="bin" eol="unix" includes="*.sh" />
+    <fixcrlf srcdir="bin" eol="dos" includes="*.bat" />
+    <chmod dir="bin" includes="*.sh,*.bat" perm="ugo+rx"/>
+
     <!-- if there is no loader bat/sh, copy from example -->
     <if>
       <not>

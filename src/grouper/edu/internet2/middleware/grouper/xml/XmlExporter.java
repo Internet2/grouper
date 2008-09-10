@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -273,6 +273,9 @@ public class XmlExporter {
     }
     catch (Exception e) {
       LOG.fatal("unable to export to xml: " + e.getMessage());
+      try {
+      exporter.xml.internal_close();
+      }catch(IOException ioe){}
       System.exit(1);
     }
     finally {

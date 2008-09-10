@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
@@ -28,7 +29,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.12 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: MembershipDAO.java,v 1.13 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -132,6 +133,24 @@ public interface MembershipDAO extends GrouperDAO {
    * @since   1.2.0
    */
   Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.3.1
+   */
+  Set findAllImmediateByMember(String memberUUID) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.3.1
+   */
+  List<Membership> findAllByOwner(String ownerUUID)
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.3.1
+   */
+  List<Membership> findAllMembershipsWithInvalidOwners()
     throws  GrouperDAOException;
 
   /**

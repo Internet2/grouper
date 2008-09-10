@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 /** 
  * Basic <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.7 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: CompositeDAO.java,v 1.8 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
@@ -51,6 +51,12 @@ public interface CompositeDAO extends GrouperDAO {
     throws  CompositeNotFoundException,
             GrouperDAOException
             ;
+
+  /**
+   * @since   1.3.1
+   */
+  Set<Composite> getAllComposites()
+    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0

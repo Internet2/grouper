@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.xml.XmlImporter;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport1.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestXmlImport1.java,v 1.8 2008-09-10 05:45:58 mchyzer Exp $
  * @since   1.0
  */
 public class TestXmlImport1 extends TestCase {
@@ -60,7 +60,7 @@ public class TestXmlImport1 extends TestCase {
       Assert.assertTrue("xml instanceof XmlImporter", xml instanceof XmlImporter);
       Properties options = xml.internal_getOptions();
       Assert.assertNotNull("options !null", options);
-      T.amount("set options", 6, options.size());
+      T.amount("set options", 7, options.size());
       String k = "import.metadata.group-types";
       String v = "false";
       T.string(k, v, options.getProperty(k));
@@ -78,6 +78,9 @@ public class TestXmlImport1 extends TestCase {
       T.string(k, v, options.getProperty(k));
       k = "import.data.privileges";
       v = "add";
+      T.string(k, v, options.getProperty(k));
+      k = "import.data.fail-on-unresolvable-subject";
+      v = "false";
       T.string(k, v, options.getProperty(k));
     }
     catch (Exception e) {

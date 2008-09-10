@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.3 2008-07-27 07:37:24 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.4 2008-09-10 05:45:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -460,10 +460,10 @@ public enum GrouperLoaderType {
       
       
       //here are members to remove
-      final Set<Subject> subjectsToRemove = new HashSet<Subject>();
+      final Set<Member> membersToRemove = new HashSet<Member>();
       //first remove members
       for (Member member : currentMembers) {
-        subjectsToRemove.add(member.getSubject());
+        membersToRemove.add(member);
       }
       
       //now the currentMembers is full of members to remove, and the grouperLoaderResultset is full
@@ -476,12 +476,12 @@ public enum GrouperLoaderType {
           
           try {
             //first remove members
-            for (Subject subject : subjectsToRemove) {
+            for (Member member : membersToRemove) {
               try {
-                group.deleteMember(subject);
+                group.deleteMember(member);
               } catch (Exception e) {
-                GrouperUtil.injectInException(e, "Problem with " 
-                    + GrouperUtil.subjectToString(subject) + ", ");
+                GrouperUtil.injectInException(e, "Problem deleting member: " 
+                    + member + ", ");
                 throw e;
               }
             }
@@ -508,7 +508,7 @@ public enum GrouperLoaderType {
         
       });
       hib3GrouploaderLog.setInsertCount(subjectsToAdd.size());
-      hib3GrouploaderLog.setDeleteCount(subjectsToRemove.size());
+      hib3GrouploaderLog.setDeleteCount(membersToRemove.size());
       hib3GrouploaderLog.setStatus(status.name());
     } catch (Exception e) {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());

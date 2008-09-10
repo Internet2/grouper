@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.95 2008-07-21 04:43:56 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.96 2008-09-10 05:45:59 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -334,14 +334,15 @@ public class MembershipFinder {
     GrouperSession.validate(s);
     MemberDAO     dao   = GrouperDAOFactory.getFactory().getMember();
     Member     _m;
-    Membership ms;
+    Membership mbs;
     Set           subjs = new LinkedHashSet();
     Iterator      it    = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( o.getUuid(), f ).iterator();
     while (it.hasNext()) {
-      ms = (Membership) it.next();
+      mbs = (Membership) it.next();
       try {
-        _m = dao.findByUuid( ms.getMemberUuid() );
-        subjs.add( SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() ) );
+    	  subjs.add ( new LazySubject(mbs) );
+        //_m = dao.findByUuid( ms.getMemberUuid() );
+        //subjs.add( SubjectFinder.findById( _m.getSubjectId(), _m.getSubjectTypeId(), _m.getSubjectSourceId() ) );
       }
       catch (Exception e) {
         // @exception MemberNotFoundException

@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.7 2008-09-10 05:45:58 mchyzer Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
@@ -93,6 +93,21 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
     }
     return dto;
   } // public Composite findByUuid(uuid)
+
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<Composite> getAllComposites()
+    throws  GrouperDAOException
+  {
+     Set<Composite> composites = HibernateSession.byHqlStatic()
+      .createQuery("from Composite as c")
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllComposites")
+          .listSet(Composite.class);
+    return composites;
+  }
 
   /**
    * @since   @HEAD@

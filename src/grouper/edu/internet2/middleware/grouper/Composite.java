@@ -62,7 +62,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.57 2008-07-28 20:12:28 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.58 2008-09-10 05:45:59 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
@@ -445,10 +445,24 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
       Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
         g.getUuid(), Group.getDefaultList()  // current mships
       );
-      Set should    = mof.getEffectiveSaves();    // What mships should be
-      Set deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
+      Set shouldBeforeFilter = mof.getEffectiveSaves();    // What mships should be before filtering
+
+      Set<Membership> should = new LinkedHashSet();    // What mships should be after filtering
+
+      // filter out memberships that have a different owner than the composite group.
+      Iterator<Membership> shouldIterator = shouldBeforeFilter.iterator();
+      while (shouldIterator.hasNext()) {
+        Membership shouldMembership = shouldIterator.next();
+        if (shouldMembership.getOwnerUuid().equals(this.getFactorOwnerUuid()) &&
+          shouldMembership.getType().equals(Membership.COMPOSITE)) {
+          should.add(shouldMembership);
+        }
+      }
+
+      Set<Membership> deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
       deletes.removeAll(should);
-      Set adds      = new LinkedHashSet(should);  // adds     = should - cur
+
+      Set<Membership> adds      = new LinkedHashSet(should);  // adds     = should - cur
       adds.removeAll(cur);
       Map modified  = new HashMap();
       modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, adds.iterator() );
@@ -460,8 +474,9 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
         GrouperDAOFactory.getFactory().getComposite().update(adds, deletes, modGroups, modStems);
         sw.stop();
         EventLog.compositeUpdate(this, adds, deletes, sw);
-        _updateComposites( GrouperSession.staticGrouperSession(), deletes);
-        _updateComposites( GrouperSession.staticGrouperSession(), adds);
+        //_updateComposites( GrouperSession.staticGrouperSession(), deletes);
+        //_updateComposites( GrouperSession.staticGrouperSession(), adds);
+        Composite.internal_update(g);
       }
     }
     catch (GroupNotFoundException eGNF) {

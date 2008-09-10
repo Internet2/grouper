@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.Owner;
+import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -46,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.2 2008-09-10 05:45:59 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -100,6 +101,7 @@ public class GrouperPrivilegeAdapter {
         Set         privs   = new LinkedHashSet();
         boolean     revoke  = true;
         Privilege localP = null;
+        Subject mSubj = new LazySubject(m);
         while (it.hasNext()) {
           ms = (Membership) it.next() ;
           if(p!=null) {
@@ -111,7 +113,7 @@ public class GrouperPrivilegeAdapter {
           //Since we are getting everything, could get members or custom lists which do not correspond to privileges
           if(localP==null) continue;
           try {
-            if (!SubjectHelper.eq(m.getSubject(), subj)) {
+            if (!SubjectHelper.eq(mSubj, subj)) {
               owner   = m.getSubject();
               revoke  = false;
             }
