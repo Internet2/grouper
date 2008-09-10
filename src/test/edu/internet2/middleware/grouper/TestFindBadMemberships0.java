@@ -114,6 +114,7 @@ public class TestFindBadMemberships0 extends TestCase {
       MembershipTestHelper.checkBadGroupMemberships("gE -> gI deleted", goodGroups, badGroups);
 
       // gE -> gI gets added back with the wrong parent uuid.
+      gEgI.setHibernateVersionNumber(-1L);
       gEgI.setParentUuid(gCgI.getUuid());
       mof = new DefaultMemberOf();
       mof.addSave(gEgI);
@@ -126,6 +127,7 @@ public class TestFindBadMemberships0 extends TestCase {
       mof = new DefaultMemberOf();
       mof.addDelete(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
+      gEgI.setHibernateVersionNumber(-1L);
       gEgI.setParentUuid(gEgIParent);
       gEgI.setViaUuid(gC.getUuid());
       mof = new DefaultMemberOf();
@@ -139,6 +141,7 @@ public class TestFindBadMemberships0 extends TestCase {
       mof = new DefaultMemberOf();
       mof.addDelete(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
+      gEgI.setHibernateVersionNumber(-1L);
       gEgI.setViaUuid(gD.getUuid());
       gEgI.setMemberUuid(gD.toMember().getUuid());
       mof = new DefaultMemberOf();
@@ -152,6 +155,7 @@ public class TestFindBadMemberships0 extends TestCase {
       mof = new DefaultMemberOf();
       mof.addDelete(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
+      gEgI.setHibernateVersionNumber(-1L);
       gEgI.setMemberUuid(gE.toMember().getUuid());
       mof = new DefaultMemberOf();
       mof.addSave(gEgI);
@@ -162,6 +166,7 @@ public class TestFindBadMemberships0 extends TestCase {
 
       // gE -> gI gets duplicate membership
       mof = new DefaultMemberOf();
+      gEgI.setHibernateVersionNumber(-1L);
       gEgI.setUuid("testUuid");
       mof.addSave(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);

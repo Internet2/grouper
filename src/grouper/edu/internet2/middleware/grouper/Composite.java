@@ -33,6 +33,8 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
@@ -62,7 +64,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.58 2008-09-10 05:45:59 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.59 2008-09-10 14:29:40 shilen Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
@@ -242,6 +244,12 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
     catch (GroupNotFoundException eShouldNotHappen) {
       LOG.fatal("error processing composite updates: " + eShouldNotHappen.getMessage() );  
     }
+    catch (StemNotFoundException eShouldNotHappen) {
+      LOG.fatal("error processing composite updates: " + eShouldNotHappen.getMessage() );  
+    }
+    catch (SchemaException eShouldNotHappen) {
+      LOG.fatal("error processing composite updates: " + eShouldNotHappen.getMessage() );  
+    }
   }
 
   /** logger */
@@ -336,7 +344,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
    * @since   1.2.0
    */
   private static void _updateWhereFactorOwnersAreImmediateMembers(Group g, Set factorOwners) 
-    throws  GroupNotFoundException
+    throws  GroupNotFoundException, SchemaException, StemNotFoundException
   {
     Group           factorOwner;
     String          factorOwnerUuid;
@@ -355,35 +363,49 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
    * @since   1.2.0
    */
   private static void _updateWhereFactorOwnerIsImmediateMember(Group factorOwner)
-    throws  GroupNotFoundException
+    throws  GroupNotFoundException, SchemaException, StemNotFoundException
   {
     Member       _m        = (Member) factorOwner.toMember();
     DefaultMemberOf mof;
     Membership   _ms;
-    Group           msOwner;
 
     // Find everywhere where the factor owner is an immediate member, delete the
     // membership and then recreate it.
-    Iterator it = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(
-      factorOwner.toMember().getUuid(), Group.getDefaultList()
-    ).iterator();
+    Iterator it = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMember(
+      factorOwner.toMember().getUuid()).iterator();
     while (it.hasNext()) {
       _ms     = (Membership) it.next();
-      msOwner =  GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) ;
+      Field f = FieldFinder.find(_ms.getListName());
+      if (!FieldType.NAMING.equals(f.getType())) {
+        Group msOwner =  GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) ;
 
-      // TODO 20070524 ideally i wouldn't delete and then re-add the membership.  bad programmer.  
-      //               i *should* identify where there have been changes and then only
-      //               update *those* memberships.
-      mof = new DefaultMemberOf();
-      mof.deleteImmediate( GrouperSession.staticGrouperSession(), msOwner, _ms, _m );
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
+        // TODO 20070524 ideally i wouldn't delete and then re-add the membership.  bad programmer.  
+        //               i *should* identify where there have been changes and then only
+        //               update *those* memberships.
+        mof = new DefaultMemberOf();
+        mof.deleteImmediate( GrouperSession.staticGrouperSession(), msOwner, _ms, _m );
+        GrouperDAOFactory.getFactory().getMembership().update(mof);
 
-      mof = new DefaultMemberOf();
-      mof.addImmediate( GrouperSession.staticGrouperSession(), msOwner, Group.getDefaultList(), _m );
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
-    
-      // TODO 20070524 do i need to call "Composite.internal_update(msOwner)"?  i
-      //               certainly hope not and so far the tests suggest no. 
+        mof = new DefaultMemberOf();
+        mof.addImmediate( GrouperSession.staticGrouperSession(), msOwner, f, _m );
+        GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+        // TODO 20070524 do i need to call "Composite.internal_update(msOwner)"?  i
+        //               certainly hope not and so far the tests suggest no. 
+
+        // 20080813 - Looks like we do need to call this actually....
+        Composite.internal_update(msOwner);
+      } else {
+        Stem msOwner = GrouperDAOFactory.getFactory().getStem().findByUuid(_ms.getOwnerUuid());
+
+        mof = new DefaultMemberOf();
+        mof.deleteImmediate(GrouperSession.staticGrouperSession(), msOwner, _ms, _m);
+        GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+        mof = new DefaultMemberOf();
+        mof.addImmediate(GrouperSession.staticGrouperSession(), msOwner, f, _m);
+        GrouperDAOFactory.getFactory().getMembership().update(mof);
+      }
     }
   }
 

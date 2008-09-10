@@ -150,6 +150,7 @@ public class TestFindBadMemberships1 extends TestCase {
       Membership SBgE = MembershipTestHelper.findCompositeMembership(r.rs, 
           gE, subjB);
       mof = new DefaultMemberOf();
+      SBgE.setHibernateVersionNumber(-1L);
       SBgE.setUuid("testuuid");
       mof.addSave(SBgE);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
