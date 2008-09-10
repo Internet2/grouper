@@ -114,6 +114,7 @@ public class TestFindBadMemberships3 extends TestCase {
       // create a membership with an invalid owner
       Membership invalid = MembershipTestHelper.findEffectiveMembership(r.rs, gG, gD.toSubject(), gE, 1, 
             FieldFinder.find("updaters"));
+      invalid.setHibernateVersionNumber(-1L);
       invalid.setOwnerUuid("invalid1");
       invalid.setUuid("invalid1");
       DefaultMemberOf mof = new DefaultMemberOf();
@@ -122,6 +123,7 @@ public class TestFindBadMemberships3 extends TestCase {
       Assert.assertEquals("There should be 1 invalid membership", 1, FindBadMemberships.checkMembershipsWithInvalidOwners());
 
       // create another membership with an invalid owner
+      invalid.setHibernateVersionNumber(-1L);
       invalid.setOwnerUuid("invalid2");
       invalid.setUuid("invalid2");
       mof = new DefaultMemberOf();

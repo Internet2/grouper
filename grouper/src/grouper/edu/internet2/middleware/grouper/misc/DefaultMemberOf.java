@@ -53,7 +53,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.3 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.4 2008-09-10 14:29:40 shilen Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -697,6 +697,9 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           results.addAll( DefaultMemberOf.this._addHasMembersToWhereGroupIsMember(isMember, hasMembers, false) );
 
         }
+
+        // Add members of _m to owner
+        results.addAll(DefaultMemberOf.this._addHasMembersToOwner(hasMembers));
 
         DefaultMemberOf.this.addEffectiveSaves(results);
 
