@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.3 2008-08-25 01:17:11 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.4 2008-09-13 03:16:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
@@ -62,13 +63,19 @@ public class GrouperStartup {
       needsInit = true;
     }
     if (needsInit) {
-      try {
-        
-        RegistryInstall.main(new String[]{"internal"});
-        
-      } catch (Exception e) {
-        String error = "Couldnt auto-create data: " + e.getMessage();
-        LOG.error(error);
+      if (GrouperConfig.getPropertyBoolean("registry.autoinit", true)) {
+        try {
+          
+          RegistryInstall.install();
+          
+        } catch (Exception e) {
+          String error = "Couldnt auto-create data: " + e.getMessage();
+          LOG.fatal(error);
+        }
+      } else {
+        LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
+        		"But the registry needs to be auto-initted.  Please init the registry with GSH: registryInstall()  " +
+        		"Initting means adding some default data like the root stem, built in fields, etc.");
       }
     }
 

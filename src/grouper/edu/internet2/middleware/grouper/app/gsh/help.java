@@ -12,7 +12,7 @@ import  bsh.*;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: help.java,v 1.2 2008-09-13 03:16:54 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -60,6 +60,7 @@ public class help {
     i.println("* p(command)"                                          );
     i.println("* quit"                                                );
     i.println("* resetRegistry()"                                     );
+    i.println("* registryInstall()     will insert default Grouper data if not there, e.g. root stem");
     i.println("* revokePriv(name, subject id, Privilege)"             );
     i.println("* setGroupAttr(stem, attr, value)"                     );
     i.println("* setStemAttr(stem, attr, value)"                      );

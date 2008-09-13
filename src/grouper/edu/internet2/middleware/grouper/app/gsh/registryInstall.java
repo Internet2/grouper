@@ -6,23 +6,23 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.registry.RegistryInstall;
 
 /**
- * Reset Groups Registry to default state.
+ * Install default data in the registry if it is not already there
  * <p/>
  * @author  blair christensen.
- * @version $Id: resetRegistry.java,v 1.2 2008-09-13 03:16:54 mchyzer Exp $
+ * @version $Id: registryInstall.java,v 1.1 2008-09-13 03:16:54 mchyzer Exp $
  * @since   0.0.1
  */
-public class resetRegistry {
+public class registryInstall {
 
   // PUBLIC CLASS METHODS //
 
   /**
-   * Reset Groups Registry to default state.
+   * Install default data in the registry if it is not already there
    * <p/>
    * @param   i     BeanShell interpreter.
    * @param   stack BeanShell call stack.
@@ -31,8 +31,8 @@ public class resetRegistry {
    */
   public static String invoke(Interpreter i, CallStack stack) {
     GrouperShell.setOurCommand(i, true);
-    RegistryReset.reset();
-    return "Registry reset: all data deleted, and default data inserted, e.g. root stem";    
+    RegistryInstall.install();
+    return "Registry installed: default data inserted if it was not already there, e.g. root stem";    
   } // public static boolean invoke(i, stack, name)
 
 } // public class resetRegistry

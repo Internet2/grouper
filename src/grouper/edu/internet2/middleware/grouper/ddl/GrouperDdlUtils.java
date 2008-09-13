@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.13 2008-08-26 21:11:51 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.14 2008-09-13 03:16:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -675,12 +675,12 @@ public class GrouperDdlUtils {
       }
       if (installDefaultGrouperData) {
         try {
-          RegistryInstall.main(new String[]{"internal"});
+          RegistryInstall.install();
         } catch (RuntimeException e) {
           if (callFromCommandLine && !theWriteAndRunScript) {
-            String error = "ERROR: could not install grouper data, you need to run the SQL script, then try again.  The specifics are not logged: " + e.getMessage();
+            String error = "FATAL: could not install grouper data, you need to run the SQL script, then try again.  The specifics are not logged: " + e.getMessage();
             System.err.println(error);
-            LOG.error(error);
+            LOG.fatal(error);
             System.exit(1);
           } else {
             

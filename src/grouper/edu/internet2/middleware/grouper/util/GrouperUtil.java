@@ -101,6 +101,19 @@ public class GrouperUtil {
   }
   
   /**
+   * get canonical path of file
+   * @param file
+   * @return the path
+   */
+  public static String fileCanonicalPath(File file) {
+    try {
+      return file.getCanonicalPath();
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+  
+  /**
    * print the log dir to the console so the logs are easy to find 
    */
   public static void printLogDir() {
@@ -121,7 +134,7 @@ public class GrouperUtil {
     }
     
     //location for log message
-    String log4jLocation = log4jFile == null ? null : log4jFile.getAbsolutePath();
+    String log4jLocation = log4jFile == null ? null : fileCanonicalPath(log4jFile);
     
     if (rootLogger instanceof Log4JLogger) {
       Logger log4jLogger = ((Log4JLogger)rootLogger).getLogger();

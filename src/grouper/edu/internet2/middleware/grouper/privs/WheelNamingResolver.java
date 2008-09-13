@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.8 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.9 2008-09-13 03:16:54 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -56,6 +56,7 @@ public class WheelNamingResolver extends NamingResolverDecorator {
   private static final Log LOG = LogFactory.getLog(WheelNamingResolver.class);
 
   /**
+   * @param resolver 
    * @since   1.2.1
    */
   public WheelNamingResolver(NamingResolver resolver) {
@@ -64,17 +65,21 @@ public class WheelNamingResolver extends NamingResolverDecorator {
     this.useWheel = Boolean.valueOf( this.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue();
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
+      String wheelGroupName = "";
       try {
+        wheelGroupName = this.getConfig( GrouperConfig.PROP_WHEEL_GROUP );
         this.wheelSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
         this.wheelGroup = GroupFinder.findByName(
                             //dont replace the current grouper session
                             this.wheelSession,
-                            this.getConfig( GrouperConfig.PROP_WHEEL_GROUP )
+                            wheelGroupName
                           );
       }
       catch (Exception e) {
-    	//OK, so wheel group does not exist. Not fatal...
-      	LOG.error("Initialisation error: " + e.getClass().getSimpleName());
+        
+    	  //OK, so wheel group does not exist. Not fatal...
+      	String error = "Cant find wheel group '" + wheelGroupName + "': " + e.getClass().getSimpleName();
+    	  LOG.error(error, e);
         this.useWheel=false;  
       }
     }
