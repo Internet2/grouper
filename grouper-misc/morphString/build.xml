@@ -10,6 +10,8 @@
 
     <property name="main.sourceDir" value="src/java" />
 
+    <property name="main.confDir" value="conf" />
+
     <property name="main.lib" value="lib" />
 
     <property name="main.binDir" value="dist/bin" />
@@ -59,6 +61,9 @@
         <include name="**/*.java"/>      <!-- source -->
         <include name="**/*.txt"/>      <!-- txt -->
         <include name="**/*.html"/>      <!-- html -->
+      </fileset>
+      <fileset dir="${main.confDir}">
+        <include name="*.example.properties"/>      <!-- sample config -->
       </fileset>
     </copy>
     <jar jarfile="${main.jarFile}" duplicate="fail" manifest="misc/MANIFEST.MF">
