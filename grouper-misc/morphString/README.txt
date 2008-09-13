@@ -1,0 +1,5 @@
+- checkout morphString
+- copy morphString.example.properties to morphString.properties
+- put in an encrypt.key
+- run the tests
+- build the dist target
