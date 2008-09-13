@@ -12,11 +12,14 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -24,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.2 2008-09-13 03:16:54 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -69,6 +72,15 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
+    GrouperStartup.startup();
+    //turn on logging
+    Log bshLogger = LogFactory.getLog("bsh");
+    if (bshLogger.isTraceEnabled()) {
+      Interpreter.TRACE = true;
+    }
+    if (bshLogger.isDebugEnabled()) {
+      Interpreter.DEBUG = true;
+    }
     exitOnFailure = true;
     try {
       grouperShellHelper(args);
@@ -94,6 +106,7 @@ public class GrouperShell {
     String propertiesFileLocation = propertiesFile == null ? " [cant find grouper.hibernate.properties]" :
       propertiesFile.getAbsolutePath();
     System.out.println("Connecting to: " + user + "@" + url + "\n    based on " + propertiesFileLocation);
+    System.out.println("Type help() for instructions, or visit: https://wiki.internet2.edu/confluence/x/oFk");
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GSH);
     
@@ -212,7 +225,7 @@ public class GrouperShell {
   } // protected static void setHistory(i, cnt, cmd)
 
   // @since   0.0.1
-  protected static void setOurCommand(Interpreter i, boolean b) {
+  public static void setOurCommand(Interpreter i, boolean b) {
     try {
       GrouperShell.set(i, GSH_OURS, Boolean.valueOf(b));
     }
@@ -234,11 +247,15 @@ public class GrouperShell {
       this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper.app.gsh\")");
       this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper.app.misc\")");
       this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper.privs\")");
+      //this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper.registry\")");
       this.i.eval(  "importCommands(\"edu.internet2.middleware.subject\")");
       this.i.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")");
       this.i.eval(  "import edu.internet2.middleware.grouper.*;");
+      this.i.eval(  "import edu.internet2.middleware.grouper.app.gsh.*;");
+      this.i.eval(  "import edu.internet2.middleware.grouper.app.misc.*;");
       this.i.eval(  "import edu.internet2.middleware.grouper.privs.*;");
       this.i.eval(  "import edu.internet2.middleware.grouper.misc.*;");
+      //this.i.eval(  "import edu.internet2.middleware.grouper.registry.*;");
       this.i.eval(  "import edu.internet2.middleware.subject.*;");
       this.i.eval(  "import edu.internet2.middleware.subject.provider.*;");
       

@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.160 2008-07-28 20:12:28 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.161 2008-09-13 03:16:54 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -1192,11 +1192,40 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * @throws GrouperRuntimeException is problem
    */
   public static Stem internal_addRootStem(GrouperSession s) 
-    throws  GrouperRuntimeException
-  {
+    throws  GrouperRuntimeException {
+    Stem root = null;
+    try {
+      root = StemFinder.findByName(s, ROOT_INT);
+    } catch (StemNotFoundException snfe) {
+    
+    }
+    
+    //dont add twice!
+    if (root != null) {
+      
+      if (!StringUtils.equals(root.getDisplayExtensionDb(), ROOT_INT)) {
+        throw new RuntimeException("Root display extension should be '" 
+            + ROOT_INT + "' but is: '" + root.getDisplayExtensionDb() + "'" );
+      }
+      if (!StringUtils.equals(root.getDisplayNameDb(), ROOT_INT)) {
+        throw new RuntimeException("Root display name should be '" 
+            + ROOT_INT + "' but is: '" + root.getDisplayNameDb() + "'" );
+      }
+      if (!StringUtils.equals(root.getExtensionDb(), ROOT_INT)) {
+        throw new RuntimeException("Root extension should be '" 
+            + ROOT_INT + "' but is: '" + root.getExtensionDb() + "'" );
+      }
+      if (!StringUtils.equals(root.getNameDb(), ROOT_INT)) {
+        throw new RuntimeException("Root name should be '" 
+            + ROOT_INT + "' but is: '" + root.getNameDb() + "'" );
+      }
+      
+      return root;
+    }
+    
     //note, no need for GrouperSession inverse of control
     try {
-      Stem root = new Stem();
+      root = new Stem();
       root.setCreatorUuid( s.getMember().getUuid() );
       root.setCreateTimeLong( new Date().getTime() );
       root.setDisplayExtensionDb(ROOT_INT);

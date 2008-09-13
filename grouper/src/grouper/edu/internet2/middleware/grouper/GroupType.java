@@ -59,7 +59,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.65 2008-07-28 20:12:28 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.66 2008-09-13 03:16:54 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned {
 
@@ -450,7 +450,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
-   * 
+   * add a field if it is not already there
    * @param s
    * @param name
    * @param type

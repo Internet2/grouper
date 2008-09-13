@@ -38,13 +38,22 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.3 2008-08-25 01:17:11 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.4 2008-09-13 03:16:54 mchyzer Exp $    
  */
 public class RegistryInstall {
 
-  // PUBLIC CLASS METHODS //
 
+  /**
+   * @param args
+   */
   public static void main(String[] args) {
+    install();
+  }
+
+  /**
+   * install the registry if it is not already installeds
+   */
+  public static void install() {
     // Install group types, fields and privileges
     try {
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject(), false );
@@ -78,17 +87,22 @@ public class RegistryInstall {
       LOG.fatal(msg);
       throw new GrouperRuntimeException(msg, throwable);
     }
-  }
 
+  }
+  
   /** logger */
   private static final Log LOG = LogFactory.getLog(RegistryInstall.class);
 
 
-  // PRIVATE CLASS METHODS //
+  /**
+   * 
+   * @param s
+   * @throws InsufficientPrivilegeException
+   * @throws SchemaException
+   */
   private static void _installFieldsAndTypes(GrouperSession s) 
     throws  InsufficientPrivilegeException,
-            SchemaException
-  {
+            SchemaException {
     //note, no need for GrouperSession inverse of control
     GroupType base    = GroupType.internal_createType(s, "base", false, false, false);
     // base attributes
@@ -114,6 +128,11 @@ public class RegistryInstall {
 
   } // private static void _installFieldsAndTypes(s)
 
+  /**
+   * 
+   * @param s
+   * @throws GrouperRuntimeException
+   */
   private static void _installGroupsAndStems(GrouperSession s) 
     throws  GrouperRuntimeException
   {
