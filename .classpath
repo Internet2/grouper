@@ -44,5 +44,6 @@
 	<classpathentry kind="lib" path="lib/invoker.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib/morphString.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
