@@ -1,5 +1,7 @@
 package edu.internet2.middleware.morphString;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -10,7 +12,7 @@ import java.util.Properties;
  * retrieve properties.
  * <p />
  * 
- * @version $Id: MorphPropertyFileUtils.java,v 1.1 2008-09-13 18:51:48 mchyzer Exp $
+ * @version $Id: MorphPropertyFileUtils.java,v 1.2 2008-09-14 04:53:55 mchyzer Exp $
  * @author mchyzer
  */
 public class MorphPropertyFileUtils {
@@ -77,7 +79,7 @@ public class MorphPropertyFileUtils {
    * retrieve a property from the properties file
    * @return the value
    */
-  private synchronized static Properties retrieveProperties() {
+  public synchronized static Properties retrieveProperties() {
     
     if (properties == null) {
     
@@ -89,8 +91,9 @@ public class MorphPropertyFileUtils {
         if (inputStream == null) {
           throw new RuntimeException("Cant find resource file on classpath: " + propertiesFileLocation);
         }
-        properties = new Properties();
-        properties.load(inputStream);
+        Properties tempProperties = new Properties();
+        tempProperties.load(inputStream);
+        properties = tempProperties;
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       } finally {
@@ -108,5 +111,36 @@ public class MorphPropertyFileUtils {
     return properties;
   }
   
+  /**
+   * retrieve a property from the properties file
+   * @param filePath 
+   * @return the value
+   */
+  public synchronized static Properties retrievePropertiesFromFile(String filePath) {
+    
+    InputStream inputStream = null;
+    File file = new File(filePath);
+
+    try {
+      if (!file.exists()) {
+        throw new RuntimeException("Cant find file on classpath: " + MorphStringUtils.fileCanonicalPath(file));
+      }
+      inputStream = new FileInputStream(file);
+      Properties tempProperties = new Properties();
+      tempProperties.load(inputStream);
+      properties = tempProperties;
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem reading file: " + MorphStringUtils.fileCanonicalPath(file), ioe);
+    } finally {
+      if (inputStream != null) {
+        try {
+          inputStream.close();
+        } catch (IOException e) {
+          //swallow
+        }
+      }
+    }
+    return properties;
+  }
 
 }

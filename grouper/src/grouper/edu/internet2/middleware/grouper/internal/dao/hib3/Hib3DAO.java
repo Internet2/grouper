@@ -35,12 +35,12 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.util.rijndael.Morph;
+import edu.internet2.middleware.morphString.Morph;
 
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.16 2008-08-18 06:15:58 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.17 2008-09-14 04:54:00 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {

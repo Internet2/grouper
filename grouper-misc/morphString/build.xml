@@ -65,6 +65,9 @@
       <fileset dir="${main.confDir}">
         <include name="*.example.properties"/>      <!-- sample config -->
       </fileset>
+      <fileset dir="${basedir}">
+        <include name="README.txt"/>      <!-- sample config -->
+      </fileset>
     </copy>
     <jar jarfile="${main.jarFile}" duplicate="fail" manifest="misc/MANIFEST.MF">
       <fileset dir="${main.binDir}" />

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: Encrypt.java,v 1.1 2008-09-13 18:51:48 mchyzer Exp $
+ * @author mchyzer $Id: Encrypt.java,v 1.2 2008-09-14 04:53:55 mchyzer Exp $
  */
 package edu.internet2.middleware.morphString;
 
@@ -23,6 +23,30 @@ public class Encrypt {
 
     //allow this in case the other way messes up for some reason
     boolean dontMask = (args.length == 1 && MorphStringUtils.equals("dontMask", args[0]));
+    
+    //see if config file can be found
+    try {
+      MorphPropertyFileUtils.retrieveProperties();
+    } catch (Exception e) {
+      //probably cant find them, prompt to find config file
+      System.out.print("Enter the location of morphString.properties: ");
+      
+      //  open up standard input 
+      BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); 
+
+      //  read the username from the command-line; need to use try/catch with the 
+      //  readLine() method 
+      String configLocation = null;
+      try { 
+        configLocation = br.readLine(); 
+      } catch (IOException ioe) { 
+         System.out.println("IO error trying to read config file location! " + MorphStringUtils.getFullStackTrace(ioe));
+         System.exit(1); 
+      } 
+      MorphPropertyFileUtils.retrievePropertiesFromFile(MorphStringUtils.trimToEmpty(configLocation));
+      
+    }
+    
     encryptInput(dontMask);
 
   }
@@ -33,11 +57,11 @@ public class Encrypt {
    */
   public static void encryptInput(boolean dontMask) {
     String passwordString = null;
-    String prompt = "Enter the string to encrypt: ";
-    System.out.print(prompt);
+    String prompt = "Type the string to encrypt (note: pasting might echo it back): ";
 
     if (dontMask) {
 
+      System.out.print(prompt);
       //  open up standard input 
       BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); 
 
@@ -76,6 +100,7 @@ public class Encrypt {
 
   public static final char[] password(InputStream in, String prompt) throws IOException {
     MaskingThread maskingthread = new MaskingThread(prompt);
+
     Thread thread = new Thread(maskingthread);
     thread.start();
 
@@ -135,8 +160,9 @@ public class Encrypt {
     /** stop */
     private volatile boolean stop;
 
-    /** echo char */
-    private char echochar = '*';
+    /** echo char, this doesnt work correctly, so make a space so people dont notice...  
+     * prints out too many */
+    private char echochar = ' ';
 
     /**
      *@param prompt The prompt displayed to the user

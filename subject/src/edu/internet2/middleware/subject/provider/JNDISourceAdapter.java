@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISourceAdapter.java,v 1.8 2008-05-22 14:08:17 isgwb Exp $
-$Date: 2008-05-22 14:08:17 $
+$Id: JNDISourceAdapter.java,v 1.9 2008-09-14 04:54:05 mchyzer Exp $
+$Date: 2008-09-14 04:54:05 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -33,6 +33,7 @@ import javax.naming.directory.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -214,7 +215,11 @@ public class JNDISourceAdapter
         environment.put(Context.PROVIDER_URL, props.getProperty("PROVIDER_URL") );
         environment.put(Context.SECURITY_AUTHENTICATION, props.getProperty("SECURITY_AUTHENTICATION"));
         environment.put(Context.SECURITY_PRINCIPAL, props.getProperty("SECURITY_PRINCIPAL") );
-        environment.put(Context.SECURITY_CREDENTIALS,props.getProperty("SECURITY_CREDENTIALS"));
+        
+        String password = props.getProperty("SECURITY_CREDENTIALS");
+        password = Morph.decryptIfFile(password);
+        
+        environment.put(Context.SECURITY_CREDENTIALS,password);
         if (props.getProperty("SECURITY_PROTOCOL")!= null) {
             environment.put(Context.SECURITY_PROTOCOL, "ssl");
         }

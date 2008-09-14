@@ -12,7 +12,7 @@ import  bsh.*;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.2 2008-09-13 03:16:54 mchyzer Exp $
+ * @version $Id: help.java,v 1.3 2008-09-14 04:54:00 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -28,7 +28,11 @@ public class help {
    */
   public static void invoke(Interpreter i, CallStack stack) {
     GrouperShell.setOurCommand(i, true);
+    i.println("Visit the wiki for more GSH documentation:");
+    i.println("  https://wiki.internet2.edu/confluence/display/GrouperWG/GrouperShell+(gsh)");
+    i.println("Also see the Java BeanShell docs: http://www.beanshell.org/manual/contents.html");
     i.println("# COMMANDS"                                            );
+    i.println("* var = method(args)    Invoke any Grouper API method" );
     i.println("* addComposite(group, type, left group, right group)"  );
     i.println("* addGroup(parent, extension, displayExtension)"       );
     i.println("* addMember(group, subject id)"                        );
@@ -77,6 +81,10 @@ public class help {
     i.println("* GSH_DEBUG"                                           );
     i.println("* GSH_DEVEL"                                           );
     i.println("* GSH_TIMER"                                           );
+    i.println("Note: you cannot encrypt passwords with GSH since the passwords end up in the GSH history.  To encrypt passwords, issue the command:");
+    i.println("  C:\\mchyzer\\isc\\dev\\grouper-qs-1.2.0\\grouper>java -jar lib\\morphString.jar");
+    i.println("  Enter the location of morphString.properties: conf/morphString.properties");
+
   } // public static void invoke(i, stack)
 
 } // public class help

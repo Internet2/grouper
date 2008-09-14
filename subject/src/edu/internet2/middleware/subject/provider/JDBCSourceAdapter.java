@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.8 2008-05-07 18:29:02 mchyzer Exp $
-$Date: 2008-05-07 18:29:02 $
+$Id: JDBCSourceAdapter.java,v 1.9 2008-09-14 04:54:05 mchyzer Exp $
+$Date: 2008-09-14 04:54:05 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -29,11 +29,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.StackKeyedObjectPoolFactory;
 
-import edu.internet2.middleware.subject.InvalidQueryException;
+import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.InvalidQueryRuntimeException;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 
 /**
@@ -44,11 +46,19 @@ public class JDBCSourceAdapter
     
 	private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
 	
+  /** name attribute name */
 	protected String nameAttributeName;
+  
+  /** subject id attribute name */
 	protected String subjectIDAttributeName;
+
+  /** decsription attribute name */
 	protected String descriptionAttributeName;
+  
+  /** subject type string */
 	protected String subjectTypeString;
 
+  /** data source */
 	protected DataSource dataSource;
 
     /**
@@ -89,12 +99,13 @@ public class JDBCSourceAdapter
      * 
      * @param id
      * @param searchType
-     * @return
+     * @return subject
      * @throws SubjectNotFoundException
      * @throws SubjectNotUniqueException
+     * @throws InvalidQueryRuntimeException 
      */
     private Subject uniqueSearch(String id, String searchType)
-    throws SubjectNotFoundException, SubjectNotUniqueException  {
+    throws SubjectNotFoundException, SubjectNotUniqueException, InvalidQueryRuntimeException  {
         Subject subject = null;
         Search search = getSearch(searchType);
         if (search == null) {
@@ -107,11 +118,9 @@ public class JDBCSourceAdapter
             conn = this.dataSource.getConnection();
             stmt = prepareStatement(search, conn);
             ResultSet rs = getSqlResults(id, stmt, search);
-            subject = createUniqueSubject(rs, search,  id);
-        } catch (InvalidQueryException nqe) {
-            log.error("InvalidQueryException occurred: " + nqe.getMessage() + ", " + search.getParam("sql"), nqe);
+            subject = createUniqueSubject(rs, search,  id, search.getParam("sql"));
         } catch (SQLException ex) {
-            log.error("SQLException occurred: " + ex.getMessage() + ", " + search.getParam("sql"), ex);
+            log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
         } finally {
             closeStatement(stmt);
             closeConnection(conn);
@@ -142,13 +151,14 @@ public class JDBCSourceAdapter
                 return result;
             }
             while (rs.next()) {
-                Subject subject = createSubject(rs);
+                Subject subject = createSubject(rs, search.getParam("sql"));
                 result.add(subject);
             }
-        } catch (InvalidQueryException nqe) {
-            log.error("InvalidQueryException occurred: " + nqe.getMessage() + ", " + search.getParam("sql"), nqe);
+        } catch (InvalidQueryRuntimeException nqe) {
+          //shouldnt this throw???
+          log.error(nqe.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), nqe);
         } catch (SQLException ex) {
-            log.error("SQLException occurred: " + ex.getMessage() + ", " + search.getParam("sql"), ex);
+            log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
         } finally {
             closeStatement(stmt);
             closeConnection(conn);
@@ -160,25 +170,49 @@ public class JDBCSourceAdapter
      * Create a subject from the current row in the resultSet
      * 
      * @param rs
-     * @return
+     * @param sql 
+     * @return subject
+     * @throws SQLException 
      */
-    private Subject createSubject(ResultSet rs) {
+    private Subject createSubject(ResultSet rs, String sql) throws SQLException {
         String name = "";
         String subjectID = "";
         String description = "";
         JDBCSubject subject = null;
         try {
-            subjectID = rs.getString(subjectIDAttributeName);
-            name = rs.getString(nameAttributeName);
-            if (!descriptionAttributeName.equals("")) {
-                description = rs.getString(descriptionAttributeName);
-            }
-            Map attributes = loadAttributes(rs);
-            subject = new JDBCSubject(subjectID,name, description, this.getSubjectType(), this, attributes);
+          subjectID = retrieveString(rs, subjectIDAttributeName, "SubjectID_AttributeType", sql);
+          name = retrieveString(rs, nameAttributeName, "Name_AttributeType", sql);
+          if (!descriptionAttributeName.equals("")) {
+            description = retrieveString(rs, descriptionAttributeName, "Description_AttributeType", sql);
+          }
+          Map attributes = loadAttributes(rs);
+          subject = new JDBCSubject(subjectID,name, description, this.getSubjectType(), this, attributes);
         } catch (SQLException ex) {
-            log.error("SQLException occurred: " + ex.getMessage(), ex);
-        }
+            log.error("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
+        }    
         return subject;
+    }
+    
+    /**
+     * retrieve a param from resultset
+     * @param rs
+     * @param name
+     * @param varName 
+     * @param sql
+     * @return the value
+     * @throws SQLException 
+     */
+    private String retrieveString(ResultSet rs, String name, String varName, String sql) throws SQLException {
+      try {
+        String result = rs.getString(name);
+        return result;
+      } catch (SQLException se) {
+      SubjectUtils.injectInException(se, "Error retrieving column name: '" + name + "' in source: " + this.getId() 
+            + ", in query: " + sql + ", " + se.getMessage() 
+            + ", maybe the column configured in " + varName + " does not exist as a query column");
+        throw se;
+
+      }
     }
     
     /**
@@ -187,28 +221,29 @@ public class JDBCSourceAdapter
      * @param rs
      * @param search
      * @param searchValue
-     * @return
+     * @param sql 
+     * @return subject
      * @throws SubjectNotFoundException
      * @throws SubjectNotUniqueException
+     * @throws SQLException 
      */
-    private Subject createUniqueSubject(ResultSet rs, Search search, String searchValue)
-    throws SubjectNotFoundException,SubjectNotUniqueException {
+    private Subject createUniqueSubject(ResultSet rs, Search search, String searchValue, String sql)
+    throws SubjectNotFoundException,SubjectNotUniqueException, SQLException {
         Subject subject =null;
         try {
-            if (rs == null || !rs.next()) {
-                String errMsg = "No results: " + search.getSearchType() +
-                        " searchValue: " + searchValue;
-                throw new SubjectNotFoundException( errMsg);
-            }
-            subject = createSubject(rs);
-            if (rs.next()) {
-                String errMsg ="Search is not unique:" + rs.getString(subjectIDAttributeName) + "\n";
-                throw new SubjectNotUniqueException( errMsg );
-            }
-            
+          if (rs == null || !rs.next()) {
+            String errMsg = "No results: " + search.getSearchType() +
+                    " searchValue: " + searchValue;
+            throw new SubjectNotFoundException( errMsg);
+          }
+          subject = createSubject(rs, sql);
+          if (rs.next()) {
+            String errMsg ="Search is not unique:" + rs.getString(subjectIDAttributeName) + "\n";
+            throw new SubjectNotUniqueException( errMsg );
+          }
         } catch (SQLException ex) {
-            log.error("SQLException occurred: " + ex.getMessage(), ex);
-        }
+            log.error("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
+        } 
         return subject;
         
     }
@@ -218,30 +253,26 @@ public class JDBCSourceAdapter
      * 
      * @param search
      * @param conn
-     * @return
-     * @throws InvalidQueryException
+     * @return the prepared statement
+     * @throws InvalidQueryRuntimeException
      * @throws SQLException
      */
     protected PreparedStatement prepareStatement(Search search, Connection conn)
-    throws InvalidQueryException, SQLException {
+    throws InvalidQueryRuntimeException, SQLException {
         String sql = search.getParam("sql");
         if (sql == null) {
-            log.error("No sql parameter for search type " + search.getSearchType());
-            return null; // Should throw an exception here, but we don't have one yet.
+          throw new InvalidQueryRuntimeException("No sql parameter for search type " + search.getSearchType() + ", source: " + this.getId());
         }
         if (sql.contains("%TERM%")) {
-            log.debug("%TERM% detected. Possible old style SQL query");
-            throw new InvalidQueryException("%TERM%. Possibly old style SQL query");
+          throw new InvalidQueryRuntimeException("%TERM%. Possibly old style SQL query, source: " + this.getId() + ", sql: " + sql);
         }
         if (search.getParam("numParameters") == null) {
-            log.debug("No numParameters parameter specified.");
-            throw new InvalidQueryException("No numParameters parameter specified.");
+            throw new InvalidQueryRuntimeException("No numParameters parameter specified, source: " + this.getId() + ", sql: " + sql);
         }
         try {
             Integer.parseInt(search.getParam("numParameters"));
         } catch (NumberFormatException e) {
-            log.debug("Non-numeric numParameters parameter specified.");
-            throw new InvalidQueryException("Non-numeric numParameters parameter specified.");
+            throw new InvalidQueryRuntimeException("Non-numeric numParameters parameter specified, source: " + this.getId() + ", sql: " + sql);
         }
         PreparedStatement stmt = conn.prepareStatement(sql);
         return stmt;
@@ -260,7 +291,13 @@ public class JDBCSourceAdapter
            throws SQLException {
         ResultSet rs = null;
         for (int i = 1; i <= Integer.parseInt(search.getParam("numParameters")); i++) {
+          try {
             stmt.setString(i, searchValue);
+          } catch (SQLException e) {
+            SubjectUtils.injectInException(e, "Error setting param: " + i + " in source: " + this.getId() + ", in query: " + search.getParam("sql") + ", " + e.getMessage() 
+                + ", maybe not enough question marks (bind variables) are in query, or the param 'numParameters' in sources.xml for that query is incorrect");
+            throw e;
+          }
         }
         rs = stmt.executeQuery();
         return rs;
@@ -268,39 +305,42 @@ public class JDBCSourceAdapter
 
     /**
      * Loads attributes for the argument subject.
+     * @param rs 
+     * @return attributes
+     * @throws SQLException 
      */
-    protected Map loadAttributes(ResultSet rs) {
+    protected Map loadAttributes(ResultSet rs) throws SQLException {
         Map attributes = new HashMap();
         try {
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int colCount = rsmd.getColumnCount();
-            String[] colNames = new String[colCount];
-            for (int i=0; i < colCount; i++) {
-                colNames[i] = rsmd.getColumnName(i+1);
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int colCount = rsmd.getColumnCount();
+        String[] colNames = new String[colCount];
+        for (int i=0; i < colCount; i++) {
+            colNames[i] = rsmd.getColumnName(i+1);
+        }
+        for (int i=0; i < colCount; i++ ) {
+            String name = colNames[i];
+            if (name.toLowerCase().equals(subjectIDAttributeName.toLowerCase())) {
+                continue;
             }
-            for (int i=0; i < colCount; i++ ) {
-                String name = colNames[i];
-                if (name.toLowerCase().equals(subjectIDAttributeName.toLowerCase())) {
-                    continue;
-                }
-                if (name.toLowerCase().equals(nameAttributeName.toLowerCase())) {
-                    continue;
-                }
-                if (name.toLowerCase().equals(descriptionAttributeName.toLowerCase())){
-                    continue;
-                }
-                String value = rs.getString(i+1);
-                Set values = (Set)attributes.get(name);
-                if (values == null) {
-                    values = new HashSet();
-                    attributes.put(name, values);
-                }
-                values.add(value);
+            if (name.toLowerCase().equals(nameAttributeName.toLowerCase())) {
+                continue;
             }
-
+            if (name.toLowerCase().equals(descriptionAttributeName.toLowerCase())){
+                continue;
+            }
+            String value = rs.getString(i+1);
+            Set values = (Set)attributes.get(name);
+            if (values == null) {
+                values = new HashSet();
+                attributes.put(name, values);
+            }
+            values.add(value);
+          }
         } catch (SQLException ex) {
             log.error("SQLException occurred: " + ex.getMessage(), ex);
         }
+
         return attributes;
     }
     
@@ -316,12 +356,14 @@ public class JDBCSourceAdapter
             setupDataSource(props);
         } catch (Exception ex) {
             throw new SourceUnavailableException(
-                    "Unable to init JDBC source", ex);
+                    "Unable to init JDBC source, source: " + this.getId(), ex);
         }
     }
     
     /**
      * Loads the the JDBC driver.
+     * @param driver 
+     * @throws SourceUnavailableException 
      */
     protected void loadDriver(String driver)
     throws SourceUnavailableException {
@@ -329,15 +371,15 @@ public class JDBCSourceAdapter
             Class.forName(driver).newInstance();
             log.debug("Loading JDBC driver: " + driver);
         } catch (Exception ex) {
-            log.error("Error loading JDBC driver: " + ex.getMessage(), ex);
             throw new SourceUnavailableException(
-                    "Error loading JDBC driver: " + driver, ex);
+                    "Error loading JDBC driver: " + driver + ", source: " + this.getId(), ex);
         }
         log.info("JDBC driver loaded.");
     }
     
     /**
      * DataSource connection pool setup.
+     * @param props 
      * @throws SourceUnavailableException
      */
     protected void setupDataSource(Properties props)
@@ -353,27 +395,25 @@ public class JDBCSourceAdapter
         objectPool.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_BLOCK);
         
         ConnectionFactory connFactory = null;
-        PoolableConnectionFactory poolConnFactory = null;
         String dbUrl = null;
         try {
             log.debug("Initializing connection factory.");
             dbUrl = props.getProperty("dbUrl");
             String dbUser = props.getProperty("dbUser");
             String dbPwd = props.getProperty("dbPwd");
+            dbPwd = Morph.decryptIfFile(dbPwd);
             connFactory = new DriverManagerConnectionFactory(dbUrl, dbUser, dbPwd);
             log.debug("Connection factory initialized.");
         } catch (Exception ex) {
-            log.error(
-                    "Error initializing connection factory: " + ex.getMessage(), ex);
             throw new SourceUnavailableException(
-                    "Error initializing connection factory: " + dbUrl, ex);
+                    "Error initializing connection factory: " + dbUrl + ", source: " + this.getId(), ex);
         }
         
         try {
             boolean readOnly =
                     "true".equals(props.getProperty("readOnly", "true"));
             // StackKeyedObjectPoolFactory supports PreparedStatement pooling.
-            poolConnFactory = new PoolableConnectionFactory(
+            new PoolableConnectionFactory(
                     connFactory,
                     objectPool,
                     new StackKeyedObjectPoolFactory(),
@@ -381,27 +421,29 @@ public class JDBCSourceAdapter
                     readOnly,
                     true);
         } catch (Exception ex) {
-            log.error(
-                    "Error initializing poolable connection factory: " + ex.getMessage(), ex);
             throw new SourceUnavailableException(
-                    "Error initializing poolable connection factory", ex);
+                    "Error initializing poolable connection factory, source: " + this.getId(), ex);
         }
         this.dataSource = new PoolingDataSource(objectPool);
         log.info("Data Source initialized.");
         nameAttributeName = props.getProperty("Name_AttributeType");
         if (nameAttributeName==null) {
-            log.error("Name_AttributeType not defined");
+            throw new SourceUnavailableException("Name_AttributeType not defined, source: " + this.getId());
         }
         subjectIDAttributeName = props.getProperty("SubjectID_AttributeType");
         if (subjectIDAttributeName==null) {
-            log.error("SubjectID_AttributeType not defined");
+          throw new SourceUnavailableException("SubjectID_AttributeType not defined, source: " + this.getId());
         }
         descriptionAttributeName = props.getProperty("Description_AttributeType");
         if (descriptionAttributeName==null) {
-            log.error("Description_AttributeType not defined");
+          throw new SourceUnavailableException("Description_AttributeType not defined, source: " + this.getId());
         }
     }
     
+    /**
+     * 
+     * @param conn
+     */
     protected void closeConnection(Connection conn) {
         if (conn != null) {
             try {
@@ -412,6 +454,10 @@ public class JDBCSourceAdapter
         }
     }
     
+    /**
+     * 
+     * @param stmt
+     */
     protected void closeStatement(PreparedStatement stmt) {
         if (stmt != null) {
             try {

@@ -94,7 +94,7 @@
     </junit>
   </target>
   <!-- test -->
-    
+
 
 	<!-- Compile classes -->
 	<target name="compile" depends="init">

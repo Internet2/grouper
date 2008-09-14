@@ -126,15 +126,6 @@ public class GrouperUtil {
     StringBuilder rootLoggerAppender = new StringBuilder();
     boolean writesLogs = false;
     
-    //get log4j file
-    File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");
-    
-    if (log4jFile == null) {
-      System.err.println("Grouper warning, cannot find log4j.properties in the classpath!");
-    }
-    
-    //location for log message
-    String log4jLocation = log4jFile == null ? null : fileCanonicalPath(log4jFile);
     
     if (rootLogger instanceof Log4JLogger) {
       Logger log4jLogger = ((Log4JLogger)rootLogger).getLogger();
@@ -165,12 +156,12 @@ public class GrouperUtil {
       if (!writesLogs || !rootLogger.isErrorEnabled()) {
         System.err.println("Grouper warning, it is detected that you are not logging errors for " +
         		"package edu.internet2.middleware.grouper, you should enable logging at " +
-        		"least at the WARN level in file: " + log4jLocation);
+        		"least at the WARN level in log4j.properties");
       } else {
         if (rootLogger.isErrorEnabled() && !rootLogger.isWarnEnabled()) {
           System.err.println("Grouper warning, it is detected that you are logging " +
           		"edu.internet2.middleware.grouper as ERROR and not WARN level.  It is " +
-          		"recommended to log at at least WARN level in file: " + log4jLocation);
+          		"recommended to log at at least WARN level in log4j.properties");
         }
         String logLevel = null;
         if (rootLogger.isTraceEnabled()) {
@@ -186,9 +177,8 @@ public class GrouperUtil {
         } else if (rootLogger.isFatalEnabled()) {
           logLevel = "FATAL";
         }
-        System.err.println("Grouper is logging to file: " + rootLoggerAppender + "at min level " 
-            + logLevel + " for package: edu.internet2.middleware.grouper, based on properties file: " 
-            + log4jLocation ); 
+        System.err.println("Grouper is logging to file:   " + rootLoggerAppender + "at min level " 
+            + logLevel + " for package: edu.internet2.middleware.grouper, based on log4j.properties"); 
       }
     } else {
       System.err.println("Grouper logs are not using log4j: " + (rootLogger == null ? null : rootLogger.getClass()));

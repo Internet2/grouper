@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
 /**
  * ExceptionUtils from commons, and some other useful classes, used for websec in oracle
  * and other external plugin type java programs
- * @version $Id: MorphStringUtils.java,v 1.1 2008-09-13 18:51:48 mchyzer Exp $
+ * @version $Id: MorphStringUtils.java,v 1.2 2008-09-14 04:53:55 mchyzer Exp $
  * @author mchyzer
  */
 public class MorphStringUtils {
@@ -2936,4 +2936,18 @@ public class MorphStringUtils {
       return true;
   }
 
+  /**
+   * get canonical path of file
+   * @param file
+   * @return the path
+   */
+  public static String fileCanonicalPath(File file) {
+    try {
+      return file.getCanonicalPath();
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
+
+  
 }
