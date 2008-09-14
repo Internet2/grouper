@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderConfig.java,v 1.4 2008-08-18 06:15:58 mchyzer Exp $
+ * $Id: GrouperLoaderConfig.java,v 1.5 2008-09-14 04:54:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -11,7 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.util.rijndael.Morph;
+import edu.internet2.middleware.morphString.Morph;
 
 
 /**

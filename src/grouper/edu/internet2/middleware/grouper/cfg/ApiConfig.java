@@ -19,6 +19,9 @@ package edu.internet2.middleware.grouper.cfg;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -28,7 +31,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.11 2008-08-26 04:54:32 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.12 2008-09-14 04:54:00 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -118,10 +121,28 @@ public class ApiConfig implements Configuration {
     }
     printedConfigLocation = true;
     File grouperPropertiesFile = GrouperUtil.fileFromResourceName("grouper.properties");
-    String propertiesFileLocation = grouperPropertiesFile == null ? "not found" : grouperPropertiesFile.getAbsolutePath(); 
-    System.err.println("grouper.properties read from: " + propertiesFileLocation);
-    System.err.println("Grouper current directory is: " + new File("").getAbsolutePath());
+    String propertiesFileLocation = grouperPropertiesFile == null ? "not found" 
+        : GrouperUtil.fileCanonicalPath(grouperPropertiesFile); 
+    System.out.println("grouper.properties read from: " + propertiesFileLocation);
+    System.out.println("Grouper current directory is: " + new File("").getAbsolutePath());
+    File hibPropertiesFile = GrouperUtil.fileFromResourceName("grouper.hibernate.properties");
+    String hibPropertiesFileLocation = hibPropertiesFile == null ? " [cant find grouper.hibernate.properties]" :
+      GrouperUtil.fileCanonicalPath(hibPropertiesFile);
+    System.out.println("grouper.hibernate.properties: " + hibPropertiesFileLocation);
+    
+    //get log4j file
+    File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");
+    String log4jFileLocation = log4jFile == null ? " [cant find log4j.properties]" :
+      GrouperUtil.fileCanonicalPath(log4jFile);
+    System.out.println("log4j.properties read from:   " + log4jFileLocation);
+    
+    
     GrouperUtil.printLogDir();    
+    Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
+    String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
+    String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+    System.out.println("grouper.hibernate.properties: " + user + "@" + url);
+
   }
   
   /**

@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.2 2008-09-13 03:16:54 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.3 2008-09-14 04:54:00 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -99,14 +99,7 @@ public class GrouperShell {
    */
   static void grouperShellHelper(String args[]) throws GrouperShellException {
     
-    Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
-    File propertiesFile = GrouperUtil.fileFromResourceName("grouper.hibernate.properties");
-    String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
-    String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
-    String propertiesFileLocation = propertiesFile == null ? " [cant find grouper.hibernate.properties]" :
-      propertiesFile.getAbsolutePath();
-    System.out.println("Connecting to: " + user + "@" + url + "\n    based on " + propertiesFileLocation);
-    System.out.println("Type help() for instructions, or visit: https://wiki.internet2.edu/confluence/x/oFk");
+    System.out.println("Type help() for instructions");
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GSH);
     
