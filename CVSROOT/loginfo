@@ -28,6 +28,7 @@
 ^grouper-ui/   /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu
 ^grouper-ws/   /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu
 ^grouper-ext/   /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu
+^grouper-misc/   /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu
 ^subject    /usr/bin/activitymail -df %{sVv} -t subject-commit@listhost.uchicago.edu
 ^i2mi-common/  /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu
 ^ldappc/  /usr/bin/activitymail -df %{sVv} -t grouper-commit@listhost.uchicago.edu
