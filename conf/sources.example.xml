@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.example.xml,v 1.2 2008-08-18 06:26:10 mchyzer Exp $
+$Id: sources.example.xml,v 1.3 2008-09-16 05:11:53 mchyzer Exp $
 -->
 
 <sources>
@@ -23,6 +23,14 @@ $Id: sources.example.xml,v 1.2 2008-08-18 06:26:10 mchyzer Exp $
     <id>example</id>
     <name>Example JDBC Source Adapter</name>
      <type>person</type>
+     <!-- edu.internet2.middleware.subject.provider.C3p0JdbcConnectionProvider (default)
+          edu.internet2.middleware.subject.provider.DbcpJdbcConnectionProvider (legacy) 
+          edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider 
+            (same settings as grouper.hibernate.properties, the driver, url, pass, maxActive, maxIdle, maxWait are forbidden -->
+     <init-param>
+       <param-name>jdbcConnectionProvider</param-name>
+       <param-value></param-value>
+     </init-param>
      <init-param>
        <param-name>maxActive</param-name>
        <param-value>16</param-value>

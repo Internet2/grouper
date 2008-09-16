@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.PlatformFactory;
 import org.apache.ddlutils.io.DatabaseIO;
@@ -45,7 +44,7 @@ import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.8 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.9 2008-09-16 05:11:54 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {
@@ -142,13 +141,10 @@ class Hib3RegistryDAO implements RegistryDAO {
 
     try {
       Hib3DaoConfig config = new Hib3DaoConfig();
-      BasicDataSource ds = new BasicDataSource();
-      ds.setUrl(config.getProperty("hibernate.connection.url"));
-      ds.setDriverClassName(config.getProperty("hibernate.connection.driver_class"));
-      ds.setUsername(config.getProperty("hibernate.connection.username"));
-      ds.setPassword(config.getProperty("hibernate.connection.password"));
 
-      Platform platform = PlatformFactory.createNewPlatformInstance(ds);
+      Platform platform = PlatformFactory.createNewPlatformInstance(config.getProperty("hibernate.connection.driver_class"), config.getProperty("hibernate.connection.url"));
+      platform.setUsername(config.getProperty("hibernate.connection.username"));
+      platform.setPassword(config.getProperty("hibernate.connection.password"));
 
       if (Hib3DAO.class.getResource("Hib3ForeignKeys.xml") == null) {
         throw new RuntimeException("Cannot find resource Hib3ForeignKeys.xml.");
@@ -177,13 +173,11 @@ class Hib3RegistryDAO implements RegistryDAO {
 
     try {
       Hib3DaoConfig config = new Hib3DaoConfig();
-      BasicDataSource ds = new BasicDataSource();
-      ds.setUrl(config.getProperty("hibernate.connection.url"));
-      ds.setDriverClassName(config.getProperty("hibernate.connection.driver_class"));
-      ds.setUsername(config.getProperty("hibernate.connection.username"));
-      ds.setPassword(config.getProperty("hibernate.connection.password"));
-
-      Platform platform = PlatformFactory.createNewPlatformInstance(ds);
+      
+      Platform platform = PlatformFactory.createNewPlatformInstance(config.getProperty("hibernate.connection.driver_class"), 
+          config.getProperty("hibernate.connection.url"));
+      platform.setUsername(config.getProperty("hibernate.connection.username"));
+      platform.setPassword(config.getProperty("hibernate.connection.password"));
 
       if (Hib3DAO.class.getResource("Hib3ForeignKeys.xml") == null) {
         throw new RuntimeException("Cannot find resource Hib3ForeignKeys.xml.");
