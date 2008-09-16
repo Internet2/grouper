@@ -12,10 +12,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/subject-0.3.0-rc1-cvs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-dbcp.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-digester.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-pool.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/odmg.jar"/>

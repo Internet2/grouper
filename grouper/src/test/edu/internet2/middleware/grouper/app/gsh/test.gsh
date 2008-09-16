@@ -1,6 +1,6 @@
 #
 # GrouperShell Tests
-# $Id: test.gsh,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+# $Id: test.gsh,v 1.2 2008-09-16 05:11:53 mchyzer Exp $
 #
 
 #
@@ -27,7 +27,8 @@ subjNameA = "subject a"
 #
 #
 assertTrue( "gsh version " + version    , version().equals(version)               )
-assertTrue( "reset registry"            , resetRegistry()                         )
+assertTrue("resetRegistry is not null", resetRegistry() != null);
+assertTrue("registryInstall is not null", registryInstall() != null);
 assertTrue( "3 sources"                 , getSources().size() == 3                )
 subjGS    = findSubject(subjIdGS)
 assertTrue( "subjGS !null"              , subjGS != null                          )

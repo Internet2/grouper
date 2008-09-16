@@ -20,11 +20,16 @@ package edu.internet2.middleware.subject.provider;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Unit tests for JDBCSourceAdapter.
@@ -47,11 +52,23 @@ public class JDBCSourceAdapterTest
      * Setup the fixture.
      */
     protected void setUp() {
+      this.setUp(null);
+    }
 
+      
+    /**
+     * Setup the fixture.
+     * @param jdbcConnectionProviderString 
+     */
+    protected void setUp(String jdbcConnectionProviderString) {
         source = new JDBCSourceAdapter("jdbc", "JDBC Subject Source");
+        //note, this might be null
+        if (!StringUtils.isBlank(jdbcConnectionProviderString)) {
+          source.addInitParam("jdbcConnectionProvider", jdbcConnectionProviderString);
+        }
         source.addInitParam("maxActive", "4");
         source.addInitParam("maxIdle", "4");
-        source.addInitParam("maxWait", "1");
+        source.addInitParam("maxWait", "30");
         source.addInitParam("dbDriver", "org.hsqldb.jdbcDriver");
         source.addInitParam("dbUrl", "jdbc:hsqldb:file:testDB/hsqldb/subject");
         source.addInitParam("dbUser", "sa");
@@ -114,7 +131,7 @@ public class JDBCSourceAdapterTest
         try {
             source.init();
         } catch (SourceUnavailableException e) {
-            fail("JDBCSourceAdapter not available: " + e);
+            fail("JDBCSourceAdapter not available: " + ExceptionUtils.getFullStackTrace(e));
         }
     }
 
@@ -122,7 +139,8 @@ public class JDBCSourceAdapterTest
      * The main method for running the test.
      */
     public static void main(String args[]) {
-        junit.textui.TestRunner.run(JDBCSourceAdapterTest.class);
+      TestRunner.run(JDBCSourceAdapterTest.class);
+      //TestRunner.run(new JDBCSourceAdapterTest("testGenericSearchThread"));
     }
 
     /**
@@ -177,29 +195,100 @@ public class JDBCSourceAdapterTest
     }
 
     /**
-     * A test of Subject search capability.
+     * test search on all pooling strategies
+     * @throws Throwable 
      */
-    public void testGenericSearch() {
+    public void testGenericSearchThread() throws Throwable {
+      String[] jdbcConnectionProviders = new String[]{
+          DbcpJdbcConnectionProvider.class.getName(),
+          C3p0JdbcConnectionProvider.class.getName()
+      };
+      int numberOfThreads = 50;
+      Thread[] threads = new Thread[numberOfThreads];
+      final Throwable[] throwables = new Throwable[1];
+      for (final String jdbcConnectionProvider : jdbcConnectionProviders) {
+        
+        try {
+          this.setUp(jdbcConnectionProvider);
+          //test pooling
+          for (int i=0;i<numberOfThreads;i++) {
+            threads[i] = new Thread(new Runnable() {
+
+              public void run() {
+                try {
+                  JDBCSourceAdapterTest.this.genericSearchHelper(jdbcConnectionProvider);
+                } catch (Throwable t) {
+                  throwables[0] = t;
+                }
+              }
+              
+            });
+            threads[i].start();
+            
+          }
+          //wait for all the threads
+          for (int i=0;i<numberOfThreads;i++) { 
+            threads[i].join();
+          }
+          //see if any had exceptions
+          if (throwables[0] != null) {
+            throw throwables[0];
+          }
+        } catch (Throwable re) {
+          SubjectUtils.injectInException(re, "Problem with jdbcConnectionProvider: " 
+              + jdbcConnectionProvider);
+          throw re;
+        }
+      }
+    }
+    /**
+     * test search on all pooling strategies
+     * @throws Throwable 
+     */
+    public void testGenericSearch() throws Throwable {
+      String[] jdbcConnectionProviders = new String[]{
+          DbcpJdbcConnectionProvider.class.getName(),
+          C3p0JdbcConnectionProvider.class.getName()
+      };      
+    for (String jdbcConnectionProvider : jdbcConnectionProviders) {
+    
+      try {
+        this.setUp(jdbcConnectionProvider);
+        JDBCSourceAdapterTest.this.genericSearchHelper(jdbcConnectionProvider);
+      } catch (Throwable re) {
+        SubjectUtils.injectInException(re, "Problem with jdbcConnectionProvider: " 
+            + jdbcConnectionProvider);
+        throw re;
+      }
+    }      
+      
+    }
+    
+    /**
+     * A test of Subject search capability.
+     * @param jdbcConnectionProvider 
+     */
+    public void genericSearchHelper(String jdbcConnectionProvider) {
         Set set = null;
         Subject subject = null;
 
         // In the test subject database, IDs are not included in generic search.
         set = source.search("1012");
-        assertEquals("Searching value = 1012, result size", 0, set.size());
+        assertEquals("Searching value = 1012, result size: " + jdbcConnectionProvider, 0, set.size());
 
         set = source.search("babl");
-        assertEquals("Searching value = babl, result size", 1, set.size());
+        assertEquals("Searching value = babl, result size: " + jdbcConnectionProvider, 1, set.size());
         subject = ((Subject[]) set.toArray(new Subject[0]))[0];
-        assertEquals("Searching value = babl", "1012", subject.getId());
+        assertEquals("Searching value = babl: " + jdbcConnectionProvider, "1012", subject.getId());
 
         set = source.search("barry");
-        assertEquals("Searching value = barry, result size", 12, set.size());
+        assertEquals("Searching value = barry, result size: " + jdbcConnectionProvider, 12, set.size());
 
         set = source.search("beth%porter");
-        assertEquals("Searching value = beth%porter, result size", 1, set
+        assertEquals("Searching value = beth%porter, result size: " + jdbcConnectionProvider, 1, set
                 .size());
         subject = ((Subject[]) set.toArray(new Subject[0]))[0];
-        assertEquals("Searching value = beth%porter, id", "1119", subject
+        assertEquals("Searching value = beth%porter, id: " + jdbcConnectionProvider, "1119", subject
                 .getId());
     }
 

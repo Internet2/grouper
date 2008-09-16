@@ -1,6 +1,6 @@
 /*--
-$Id: BaseSourceAdapter.java,v 1.5 2007-03-11 15:48:30 khuxtable Exp $
-$Date: 2007-03-11 15:48:30 $
+$Id: BaseSourceAdapter.java,v 1.6 2008-09-16 05:12:09 mchyzer Exp $
+$Date: 2008-09-16 05:12:09 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -34,12 +34,12 @@ public abstract class BaseSourceAdapter
     
     protected String id = null;
     protected String name = null;
-    protected Set types = new HashSet();
+    protected Set<SubjectType> types = new HashSet<SubjectType>();
     protected SubjectType type = null;
     protected Properties params = new Properties();
     //The three different kinds of searches: 
-    protected HashMap searches = new HashMap();
-    protected Set attributes = new HashSet();
+    protected HashMap<String, Search> searches = new HashMap<String, Search>();
+    protected Set<String> attributes = new HashSet();
     
     /**
      * Default constructor.
@@ -87,7 +87,7 @@ public abstract class BaseSourceAdapter
     /**
      * {@inheritDoc}
      */
-    public Set getSubjectTypes() {
+    public Set<SubjectType> getSubjectTypes() {
         return types;
     }
     
@@ -189,7 +189,7 @@ public abstract class BaseSourceAdapter
         this.searches = searches;
     }
     
-    protected HashMap getSearches() {
+    protected HashMap<String, Search> getSearches() {
         return this.searches;
     }
     

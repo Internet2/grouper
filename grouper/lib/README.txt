@@ -78,14 +78,14 @@ persistence and query service for Java."
 * License:  LGPL
 * Updated:  20070828
 
-# hsqldb-1.7.2.11.jar
+# hsqldb.jar
 
 "Lightweight 100% Java SQL Database Engine"
 
-* Version:  1.7.2.11
+* Version:  1.8.0.10
 * Source:   <http://hsqldb.sourceforge.net/>
 * License:  Hypersonic License
-* Updated:  ?
+* Updated:  2008/08/26
 
 # i2mi-common-0.1.0.jar
 
@@ -224,5 +224,23 @@ runs the sql from the new ddl strategy
 * Updated 2008/07/27
 
 ---
-$Id: README.txt,v 1.18 2008-07-27 07:42:41 mchyzer Exp $
+
+# morphString.jar
+
+encrypts strings for passwords, and looks up the values from files
+
+* License: Internet2
+* Updated 2008/09/14
+
+---
+
+# c3p0-0.9.1.2.jar
+
+db pooling
+
+* License: LGPL
+* Updated 2008/02/17
+
+---
+$Id: README.txt,v 1.19 2008-09-16 05:11:53 mchyzer Exp $
 

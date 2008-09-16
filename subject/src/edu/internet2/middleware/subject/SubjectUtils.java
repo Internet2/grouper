@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectUtils.java,v 1.1 2008-09-14 04:54:05 mchyzer Exp $
+ * $Id: SubjectUtils.java,v 1.2 2008-09-16 05:12:09 mchyzer Exp $
  */
 package edu.internet2.middleware.subject;
 
@@ -1448,6 +1448,27 @@ public class SubjectUtils {
   	}
   	return false;
   
+  }
+
+  /**
+   * genericized method to see if first is null, if so then return second, else first.
+   * @param <T>
+   * @param theValue first input
+   * @param defaultIfTheValueIsNull second input
+   * @return the first if not null, second if no
+   */
+  public static <T> T defaultIfNull(T theValue, T defaultIfTheValueIsNull) {
+    return theValue != null ? theValue : defaultIfTheValueIsNull;
+  }
+
+  /**
+   * return the string or the other if the first is blank
+   * @param string
+   * @param defaultStringIfBlank
+   * @return the string or the default one
+   */
+  public static String defaultIfBlank(String string, String defaultStringIfBlank) {
+    return StringUtils.isBlank(string) ? defaultStringIfBlank : string;
   }
 
 }

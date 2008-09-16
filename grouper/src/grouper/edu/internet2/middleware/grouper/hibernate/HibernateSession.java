@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -201,7 +202,120 @@ public class HibernateSession {
     // get the second to last index
     return (HibernateSession) GrouperUtil.get(hibSet, size - 1);
   }
+  /**
+   * dont call this method unless you know what you are doing
+   * @param grouperTransactionType
+   * @return the hiberate session for internal purposes
+   * @throws GrouperDAOException
+   */
+  public static HibernateSession _internal_hibernateSession(GrouperTransactionType grouperTransactionType) throws GrouperDAOException {
+    HibernateSession hibernateSession = new HibernateSession(staticHibernateSession(), grouperTransactionType);
+    return hibernateSession;
+  }
+  
+  /**
+   * end a hibernate session.  dont call this unless you know what you are doing
+   * @param hibernateSession 
+   * @throws SQLException 
+   */
+  @SuppressWarnings("deprecation")
+  public static void _internal_hibernateSessionEnd(HibernateSession hibernateSession) throws SQLException {
+    
+    //since we have long running transactions, we need to flush our work,
+    //and disassociate objects with the session...
+    Session session = hibernateSession.activeHibernateSession().immediateSession;
 
+    //if we are readonly, and we have work, then that is bad
+    if (hibernateSession.isReadonly() 
+        && session != null && session.isDirty()) {
+      session.connection().rollback();
+      //when i retrieve a bunch of fields, this doesnt work.  why???
+      //throw new RuntimeException("Hibernate session is readonly, but some committable work was done!");
+    }
+    
+    // maybe we didnt commit. if new session, and no exception, and not
+    // committed or rolledback,
+    // then commit.
+    if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()
+        && hibernateSession.immediateTransaction.isActive()) {
+      hibernateSession.immediateTransaction.commit();
+
+    } else {
+      //only do this if a nested transaction
+      
+      if (session != null && !hibernateSession.isNewHibernateSession()) {
+        //put all the queries on the wire
+        session.flush();
+
+        //clear out session to avoid duplicate objects in session
+        session.clear();
+      }
+    }
+    
+  }
+
+  /**
+   * catch and handle an exception while working with hibernate session.  Dont call this if you dont know what you are doing.
+   * @param hibernateSession
+   * @param e 
+   * @throws GrouperDAOException 
+   */
+  public static void _internal_hibernateSessionCatch(HibernateSession hibernateSession, Throwable e) throws GrouperDAOException {
+    // maybe we didnt rollback. if new session, and exception, and not
+    // committed or rolledback,
+    // then rollback.
+    //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
+    if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
+      if (hibernateSession.immediateTransaction.isActive()) {
+        hibernateSession.immediateTransaction.rollback();
+      }
+    }
+    String errorString = "Problem in HibernateSession: " + hibernateSession;
+    // rethrow
+    if (e instanceof GrouperDAOException) {
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString);
+      }
+      throw (GrouperDAOException) e;
+    }
+    // if hibernate exception, repackage
+    if (e instanceof HibernateException) {
+      throw new GrouperDAOException(errorString, e);
+    }
+    if (e instanceof HookVeto) {
+      throw (HookVeto)e;
+    }
+    // if runtime, then rethrow
+    if (e instanceof RuntimeException) {
+      if (!GrouperUtil.injectInException(e, errorString)) {
+        LOG.error(errorString);
+      }
+      throw (RuntimeException) e;
+    }
+    // if exception and not handled, convert to GrouperDaoException
+    throw new GrouperDAOException(errorString, e);
+
+  }
+  
+  /**
+   * finally block from hibernate session (dont call unless you know what you are doing
+   * @param hibernateSession
+   */
+  public static void _internal_hibernateSessionFinally(HibernateSession hibernateSession) {
+    if (hibernateSession != null) {
+      // take out of threadlocal stack
+      removeStaticHibernateSession(hibernateSession);
+      // take out of threadlocal if supposed to
+      if (hibernateSession.isNewHibernateSession()) {
+        // we should close the hibernate session if we opened it, and if not
+        // already closed
+        // transaction is already closed...
+        closeSessionIfNotClosed(hibernateSession.immediateSession);
+      }
+    }
+
+  }
+  
   /**
    * call this to send a callback for the hibernate session object. cant use
    * inverse of control for this since it runs it
@@ -220,91 +334,20 @@ public class HibernateSession {
       GrouperTransactionType grouperTransactionType, HibernateHandler hibernateHandler)
       throws GrouperDAOException {
     Object ret = null;
-    HibernateSession hibernateSession = staticHibernateSession();
+    HibernateSession hibernateSession = null;
 
     try {
-      hibernateSession = new HibernateSession(hibernateSession, grouperTransactionType);
+      
+      hibernateSession = _internal_hibernateSession(grouperTransactionType);
       
       ret = hibernateHandler.callback(hibernateSession);
 
-      //since we have long running transactions, we need to flush our work,
-      //and disassociate objects with the session...
-      Session session = hibernateSession.activeHibernateSession().immediateSession;
-
-      //if we are readonly, and we have work, then that is bad
-      if (hibernateSession.isReadonly() 
-          && session != null && session.isDirty()) {
-        session.connection().rollback();
-        //when i retrieve a bunch of fields, this doesnt work.  why???
-        //throw new RuntimeException("Hibernate session is readonly, but some committable work was done!");
-      }
-      
-      // maybe we didnt commit. if new session, and no exception, and not
-      // committed or rolledback,
-      // then commit.
-      if (hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()
-          && hibernateSession.immediateTransaction.isActive()) {
-        hibernateSession.immediateTransaction.commit();
-
-      } else {
-        //only do this if a nested transaction
-        
-        if (session != null && !hibernateSession.isNewHibernateSession()) {
-          //put all the queries on the wire
-          session.flush();
-  
-          //clear out session to avoid duplicate objects in session
-          session.clear();
-        }
-      }
+      _internal_hibernateSessionEnd(hibernateSession);
 
     } catch (Throwable e) {
-      // maybe we didnt rollback. if new session, and exception, and not
-      // committed or rolledback,
-      // then rollback.
-      //CH 20080220: should we always rollback?  or if not rollback, flush and clear?
-      if (hibernateSession != null && hibernateSession.isNewHibernateSession() && !hibernateSession.isReadonly()) {
-        if (hibernateSession.immediateTransaction.isActive()) {
-          hibernateSession.immediateTransaction.rollback();
-        }
-      }
-      String errorString = "Problem in HibernateSession: " + hibernateSession;
-      // rethrow
-      if (e instanceof GrouperDAOException) {
-        if (!GrouperUtil.injectInException(e, errorString)) {
-          LOG.error(errorString);
-        }
-        throw (GrouperDAOException) e;
-      }
-      // if hibernate exception, repackage
-      if (e instanceof HibernateException) {
-        throw new GrouperDAOException(errorString, e);
-      }
-      if (e instanceof HookVeto) {
-        throw (HookVeto)e;
-      }
-      // if runtime, then rethrow
-      if (e instanceof RuntimeException) {
-        if (!GrouperUtil.injectInException(e, errorString)) {
-          LOG.error(errorString);
-        }
-        throw (RuntimeException) e;
-      }
-      // if exception and not handled, convert to GrouperDaoException
-      throw new GrouperDAOException(errorString, e);
-
+      _internal_hibernateSessionCatch(hibernateSession, e);
     } finally {
-      if (hibernateSession != null) {
-        // take out of threadlocal stack
-        removeStaticHibernateSession(hibernateSession);
-        // take out of threadlocal if supposed to
-        if (hibernateSession.isNewHibernateSession()) {
-          // we should close the hibernate session if we opened it, and if not
-          // already closed
-          // transaction is already closed...
-          closeSessionIfNotClosed(hibernateSession.immediateSession);
-        }
-      }
+      _internal_hibernateSessionFinally(hibernateSession);
     }
     return ret;
 

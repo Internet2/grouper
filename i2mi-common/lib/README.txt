@@ -36,19 +36,6 @@ augment the Java Collections Framework."
 * License:  Apache License, Version 2.0
 * Updated:  20060807
 
-# commons-dbcp-1.2.1.jar
-
-"There are several Database Connection Pools already available,
-both within Jakarta products and elsewhere. This Commons package
-provides an opportunity to coordinate the efforts required to create
-and maintain an efficient, feature-rich package under the ASF
-license."
-
-* Version:  1.2.1
-* Source:   <http://jakarta.apache.org/commons/dbcp/>
-* License:  Apache License, Version 2.0
-* Updated:  20060807
-
 # commons-digester-1.7.jar
 
 "Basically, the Digester package lets you configure an XML -> Java object
@@ -60,22 +47,13 @@ particular pattern of nested XML elements is recognized."
 * License:  Apache Software License, Version 2.0
 * Updated:  20060807
 
-# commons-logging-1.1.jar
+# commons-logging.jar
 
 "Commons-Logging is a wrapper around a variety of logging API
 implementations."
 
-* Version:  1.1
+* Version:  1.1.1
 * Source:   <http://jakarta.apache.org/commons/logging/>
-* License:  Apache License, Version 2.0
-* Updated:  20060807
-
-# commons-pool-1.3.jar
-
-"Pool provides an Object-pooling API"
-
-* Version:  1.3
-* Source:   <http://jakarta.apache.org/commons/pool/>
 * License:  Apache License, Version 2.0
 * Updated:  20060807
 
@@ -118,7 +96,23 @@ Framework and with full support for DOM, SAX and JAXP."
 * License:  LGPL (see local file hibernate.license.txt)
 * Updated:  20061207
 
+# c3p0-0.9.1.2.jar
+
+db pooling
+
+* License: LGPL
+* Updated 2008/09/15
+
+# hsqldb.jar
+
+"Lightweight 100% Java SQL Database Engine"
+
+* Version:  1.8.0.10
+* Source:   <http://hsqldb.sourceforge.net/>
+* License:  Hypersonic License
+* Updated:  2008/08/26
+
 ---
 
-$Id: README.txt,v 1.3 2006-12-08 01:43:16 ddonn Exp $
+$Id: README.txt,v 1.4 2008-09-16 05:12:01 mchyzer Exp $
 

@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.9 2008-09-14 04:54:05 mchyzer Exp $
-$Date: 2008-09-14 04:54:05 $
+$Id: JDBCSourceAdapter.java,v 1.10 2008-09-16 05:12:09 mchyzer Exp $
+$Date: 2008-09-16 05:12:09 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -20,14 +20,9 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.ConnectionFactory;
-import org.apache.commons.dbcp.DriverManagerConnectionFactory;
-import org.apache.commons.dbcp.PoolableConnectionFactory;
-import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.commons.pool.impl.StackKeyedObjectPoolFactory;
 
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryRuntimeException;
@@ -44,6 +39,7 @@ import edu.internet2.middleware.subject.SubjectUtils;
 public class JDBCSourceAdapter
         extends BaseSourceAdapter {
     
+  /** logger */
 	private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
 	
   /** name attribute name */
@@ -58,9 +54,9 @@ public class JDBCSourceAdapter
   /** subject type string */
 	protected String subjectTypeString;
 
-  /** data source */
-	protected DataSource dataSource;
-
+	/** keep a reference to the object which gets our connections for us */
+	private JdbcConnectionProvider jdbcConnectionProvider = null;
+	
     /**
      * Allocates new JDBCSourceAdapter;
      */
@@ -114,16 +110,26 @@ public class JDBCSourceAdapter
         }
         Connection conn = null;
         PreparedStatement stmt = null;
+        JdbcConnectionBean jdbcConnectionBean = null;
         try {
-            conn = this.dataSource.getConnection();
+            jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
+            conn = jdbcConnectionBean.connection();
             stmt = prepareStatement(search, conn);
             ResultSet rs = getSqlResults(id, stmt, search);
             subject = createUniqueSubject(rs, search,  id, search.getParam("sql"));
+            jdbcConnectionBean.doneWithConnection();
         } catch (SQLException ex) {
-            log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
+          try {
+            jdbcConnectionBean.doneWithConnectionError(ex);
+          } catch (RuntimeException e) {
+            log.error(e);
+          }
+          log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
         } finally {
             closeStatement(stmt);
-            closeConnection(conn);
+            if (jdbcConnectionBean != null) {
+              jdbcConnectionBean.doneWithConnectionFinally();
+            }
         }
         if (subject == null) {
             throw new SubjectNotFoundException("Subject " + id + " not found.");
@@ -134,7 +140,7 @@ public class JDBCSourceAdapter
     /**
      * {@inheritDoc}
      */
-    public Set search(String searchValue) {
+    public Set<Subject> search(String searchValue) {
         Set result = new HashSet();
         Search search = getSearch("search");
         if (search == null) {
@@ -143,8 +149,10 @@ public class JDBCSourceAdapter
         }
         Connection conn = null;
         PreparedStatement stmt = null;
+        JdbcConnectionBean jdbcConnectionBean = null;
         try {
-            conn = this.dataSource.getConnection();
+            jdbcConnectionBean = this.jdbcConnectionProvider.connectionBean();
+            conn = jdbcConnectionBean.connection();
             stmt = prepareStatement(search, conn);
             ResultSet rs = getSqlResults(searchValue, stmt, search);
             if (rs==null) {
@@ -154,14 +162,27 @@ public class JDBCSourceAdapter
                 Subject subject = createSubject(rs, search.getParam("sql"));
                 result.add(subject);
             }
+            jdbcConnectionBean.doneWithConnection();
         } catch (InvalidQueryRuntimeException nqe) {
+          try {
+            jdbcConnectionBean.doneWithConnectionError(nqe);
+          } catch (RuntimeException re) {
+            log.error(re);
+          }
           //shouldnt this throw???
           log.error(nqe.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), nqe);
         } catch (SQLException ex) {
-            log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
+          try {
+            jdbcConnectionBean.doneWithConnectionError(ex);
+          } catch (RuntimeException re) {
+            log.error(re);
+          }
+          log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
         } finally {
             closeStatement(stmt);
-            closeConnection(conn);
+            if (jdbcConnectionBean != null) {
+              jdbcConnectionBean.doneWithConnectionFinally();
+            }
         }
         return result;
     }
@@ -351,8 +372,7 @@ public class JDBCSourceAdapter
     throws SourceUnavailableException {
         try {
             Properties props = getInitParams();
-            String driver = props.getProperty("dbDriver");
-            loadDriver(driver);
+            //this might not exist if it is Grouper source and no driver...
             setupDataSource(props);
         } catch (Exception ex) {
             throw new SourceUnavailableException(
@@ -362,17 +382,18 @@ public class JDBCSourceAdapter
     
     /**
      * Loads the the JDBC driver.
+     * @param sourceId 
      * @param driver 
      * @throws SourceUnavailableException 
      */
-    protected void loadDriver(String driver)
+    public static void loadDriver(String sourceId, String driver)
     throws SourceUnavailableException {
         try {
             Class.forName(driver).newInstance();
             log.debug("Loading JDBC driver: " + driver);
         } catch (Exception ex) {
             throw new SourceUnavailableException(
-                    "Error loading JDBC driver: " + driver + ", source: " + this.getId(), ex);
+                    "Error loading JDBC driver: " + driver + ", source: " + sourceId, ex);
         }
         log.info("JDBC driver loaded.");
     }
@@ -382,76 +403,65 @@ public class JDBCSourceAdapter
      * @param props 
      * @throws SourceUnavailableException
      */
+    @SuppressWarnings("unchecked")
     protected void setupDataSource(Properties props)
-    throws SourceUnavailableException {
+        throws SourceUnavailableException {
         
-        GenericObjectPool objectPool = new GenericObjectPool(null);
-        int maxActive = Integer.parseInt(props.getProperty("maxActive", "2"));
-        objectPool.setMaxActive(maxActive);
-        int maxIdle = Integer.parseInt(props.getProperty("maxIdle", "2"));
-        objectPool.setMaxIdle(maxIdle);
-        int maxWait = 1000 * Integer.parseInt(props.getProperty("maxWait", "5"));
-        objectPool.setMaxWait(maxWait);
-        objectPool.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_BLOCK);
-        
-        ConnectionFactory connFactory = null;
-        String dbUrl = null;
-        try {
-            log.debug("Initializing connection factory.");
-            dbUrl = props.getProperty("dbUrl");
-            String dbUser = props.getProperty("dbUser");
-            String dbPwd = props.getProperty("dbPwd");
-            dbPwd = Morph.decryptIfFile(dbPwd);
-            connFactory = new DriverManagerConnectionFactory(dbUrl, dbUser, dbPwd);
-            log.debug("Connection factory initialized.");
-        } catch (Exception ex) {
-            throw new SourceUnavailableException(
-                    "Error initializing connection factory: " + dbUrl + ", source: " + this.getId(), ex);
-        }
-        
-        try {
-            boolean readOnly =
-                    "true".equals(props.getProperty("readOnly", "true"));
-            // StackKeyedObjectPoolFactory supports PreparedStatement pooling.
-            new PoolableConnectionFactory(
-                    connFactory,
-                    objectPool,
-                    new StackKeyedObjectPoolFactory(),
-                    null,
-                    readOnly,
-                    true);
-        } catch (Exception ex) {
-            throw new SourceUnavailableException(
-                    "Error initializing poolable connection factory, source: " + this.getId(), ex);
-        }
-        this.dataSource = new PoolingDataSource(objectPool);
-        log.info("Data Source initialized.");
-        nameAttributeName = props.getProperty("Name_AttributeType");
-        if (nameAttributeName==null) {
-            throw new SourceUnavailableException("Name_AttributeType not defined, source: " + this.getId());
-        }
-        subjectIDAttributeName = props.getProperty("SubjectID_AttributeType");
-        if (subjectIDAttributeName==null) {
-          throw new SourceUnavailableException("SubjectID_AttributeType not defined, source: " + this.getId());
-        }
-        descriptionAttributeName = props.getProperty("Description_AttributeType");
-        if (descriptionAttributeName==null) {
-          throw new SourceUnavailableException("Description_AttributeType not defined, source: " + this.getId());
-        }
-    }
-    
-    /**
-     * 
-     * @param conn
-     */
-    protected void closeConnection(Connection conn) {
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException ex) {
-                log.info("Error while closing JDBC Connection.");
-            }
-        }
+      String driver = props.getProperty("dbDriver");
+
+      //default is 2
+      String maxActiveString = props.getProperty("maxActive");
+      Integer maxActive = StringUtils.isBlank(maxActiveString) ? null : Integer.parseInt(maxActiveString);
+
+      //default is 2
+      String maxIdleString = props.getProperty("maxIdle");
+      Integer maxIdle = StringUtils.isBlank(maxIdleString) ? null : Integer.parseInt(maxIdleString);
+
+      //default is 5
+      String maxWaitString = props.getProperty("maxWait");
+      Integer maxWaitSeconds = StringUtils.isBlank(maxWaitString) ? null : Integer.parseInt(maxWaitString);
+      
+      String dbUrl = null;
+      log.debug("Initializing connection factory.");
+      dbUrl = props.getProperty("dbUrl");
+      String dbUser = props.getProperty("dbUser");
+      String dbPwd = props.getProperty("dbPwd");
+      dbPwd = Morph.decryptIfFile(dbPwd);
+      
+      //defaults to true
+      Boolean readOnly = SubjectUtils.booleanObjectValue(props.getProperty("readOnly"));
+      
+      String jdbcConnectionProviderString = SubjectUtils.defaultIfBlank(
+          props.getProperty("jdbcConnectionProvider"), C3p0JdbcConnectionProvider.class.getName());
+      Class<JdbcConnectionProvider> jdbcConnectionProviderClass = null;
+      try {
+        jdbcConnectionProviderClass = SubjectUtils.forName(jdbcConnectionProviderString);
+      } catch (RuntimeException re) {
+        SubjectUtils.injectInException(re, "Valid built-in options are: " 
+            + C3p0JdbcConnectionProvider.class.getName() + " (default) [note: its a zero, not a capital O], " 
+            + DbcpJdbcConnectionProvider.class.getName() 
+            + ", edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider (if using Grouper).  " 
+            + "Note, these are the built-ins for the Subject API or Grouper, there might be other valid choices." );
+        throw re;
+      }
+      
+      this.jdbcConnectionProvider = SubjectUtils.newInstance(jdbcConnectionProviderClass);
+      this.jdbcConnectionProvider.init(this.getId(), driver, maxActive, 2, maxIdle, 2, maxWaitSeconds, 5, 
+          dbUrl, dbUser, dbPwd, readOnly, true);
+
+      log.info("Data Source initialized.");
+      nameAttributeName = props.getProperty("Name_AttributeType");
+      if (nameAttributeName==null) {
+          throw new SourceUnavailableException("Name_AttributeType not defined, source: " + this.getId());
+      }
+      subjectIDAttributeName = props.getProperty("SubjectID_AttributeType");
+      if (subjectIDAttributeName==null) {
+        throw new SourceUnavailableException("SubjectID_AttributeType not defined, source: " + this.getId());
+      }
+      descriptionAttributeName = props.getProperty("Description_AttributeType");
+      if (descriptionAttributeName==null) {
+        throw new SourceUnavailableException("Description_AttributeType not defined, source: " + this.getId());
+      }
     }
     
     /**
