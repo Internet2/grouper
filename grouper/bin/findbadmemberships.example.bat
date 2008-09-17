@@ -8,7 +8,7 @@ IF NOT EXIST findbadmemberships.bat exit /b 1
 
 set JAVA=java
 
-set APP=edu.internet2.middleware.grouper.FindBadMemberships
+set APP=edu.internet2.middleware.grouper.misc.FindBadMemberships
 
 set GROUPER_HOME=..
 

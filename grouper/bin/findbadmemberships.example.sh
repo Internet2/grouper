@@ -10,7 +10,7 @@
 
 JAVA=java
 
-APP=edu.internet2.middleware.grouper.FindBadMemberships
+APP=edu.internet2.middleware.grouper.misc.FindBadMemberships
 
 GROUPER_HOME=..
 
