@@ -108,7 +108,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.199 2008-09-10 05:45:59 mchyzer Exp $
+ * @version $Id: Group.java,v 1.200 2008-09-19 06:28:17 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -363,12 +363,10 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   
   // PRIVATE INSTANCE VARIABLES //
   private Map<String, String>       attributes;
-  private String    createSource;
   private long      createTime      = 0; // default to the epoch
   private String    creatorUUID;
   
   private String    modifierUUID;
-  private String    modifySource;
   private long      modifyTime      = 0; // default to the epoch
   private String    parentUUID;
 
@@ -387,9 +385,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   /** constant for field name for: attributes */
   public static final String FIELD_ATTRIBUTES = "attributes";
 
-  /** constant for field name for: createSource */
-  public static final String FIELD_CREATE_SOURCE = "createSource";
-
   /** constant for field name for: createTime */
   public static final String FIELD_CREATE_TIME = "createTime";
 
@@ -401,9 +396,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
-
-  /** constant for field name for: modifySource */
-  public static final String FIELD_MODIFY_SOURCE = "modifySource";
 
   /** constant for field name for: modifyTime */
   public static final String FIELD_MODIFY_TIME = "modifyTime";
@@ -418,16 +410,16 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
-      FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_PARENT_UUID, 
+      FIELD_ATTRIBUTES, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
+      FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_PARENT_UUID, 
       FIELD_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTES, FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
-      FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, 
+      FIELD_ATTRIBUTES, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
+      FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -1464,30 +1456,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   } // public Set getCompositeMemberships()
 
   /**
-   * Get (optional and questionable) create source for this group.
-   * <pre class="eg">
-   * // Get create source
-`  * String source = g.getCreateSource();
-   * </pre>
-   * @return  Create source for this group.
-   */
-  public String getCreateSourceDb() {
-    return this.createSource;
-  } // public String getCreateSource()
-  
-  /**
-   * Get (optional and questionable) create source for this group.
-   * <pre class="eg">
-   * // Get create source
-`  * String source = g.getCreateSource();
-   * </pre>
-   * @return  Create source for this group.
-   */
-  public String getCreateSource() {
-    return GrouperConfig.EMPTY_STRING;
-  } // public String getCreateSource()
-
-  /**
    * Get subject that created this group.
    * <pre class="eg">
    * // Get creator of this group.
@@ -1943,28 +1911,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       )
     );
   } // public Set getMemberships(f)
-
-  /**
-   * Get (optional and questionable) modify source for this group.
-   * <pre class="eg">
-`  * String source = g.getModifySource();
-   * </pre>
-   * @return  Modify source for this group.
-   */
-  public String getModifySourceDb() {
-    return this.modifySource;
-  } // public String getModifySource()
-  
-  /**
-   * Get (optional and questionable) modify source for this group.
-   * <pre class="eg">
-`  * String source = g.getModifySource();
-   * </pre>
-   * @return  Modify source for this group.
-   */
-  public String getModifySource() {
-    return GrouperConfig.EMPTY_STRING;
-  } // public String getModifySource()
 
   /**
    * Get subject that last modified this group.
@@ -3370,14 +3316,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   /**
    * @since   1.2.0
    */
-  public void setCreateSourceDb(String createSource) {
-    this.createSource = createSource;
-
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public void setCreateTimeLong(long createTime) {
     this.createTime = createTime;
 
@@ -3396,14 +3334,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public void setModifierUuid(String modifierUUID) {
     this.modifierUUID = modifierUUID;
-
-  }
-
-  /**
-   * @since   1.2.0
-   */
-  public void setModifySourceDb(String modifySource) {
-    this.modifySource = modifySource;
 
   }
 
@@ -3445,11 +3375,9 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   public String toStringDb() {
     return new ToStringBuilder(this)
       .append( "attributes",   this.getAttributesDb()   )
-      .append( "createSource", this.getCreateSource() )
       .append( "createTime",   this.getCreateTimeLong()   )
       .append( "creatorUuid",  this.getCreatorUuid()  )
       .append( "modifierUuid", this.getModifierUuid() )
-      .append( "modifySource", this.getModifySource() )
       .append( "modifyTime",   this.getModifyTime()   )
       .append( "ownerUuid",    this.getUuid()         )
       .append( "parentUuid",   this.getParentUuid()   )

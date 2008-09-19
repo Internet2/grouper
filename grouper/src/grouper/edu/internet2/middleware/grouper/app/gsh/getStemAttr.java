@@ -15,7 +15,7 @@ import  edu.internet2.middleware.subject.*;
  * Get {@link Stem} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getStemAttr.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: getStemAttr.java,v 1.2 2008-09-19 06:28:17 mchyzer Exp $
  * @since   0.0.1
  */
 public class getStemAttr {
@@ -40,10 +40,7 @@ public class getStemAttr {
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
       Stem            ns  = StemFinder.findByName(s, name);
-      if      ("createSource".equals( attr ))     {
-        return ns.getCreateSource();
-      }
-      else if (attr.equals("createSubject"))    {
+      if (attr.equals("createSubject"))    {
         return ns.getCreateSubject();
       }
       else if (attr.equals("createTime"))       {
@@ -60,9 +57,6 @@ public class getStemAttr {
       }
       else if (attr.equals("extension"))        {
         return ns.getExtension();
-      }
-      else if (attr.equals("modifySource"))     {
-        return ns.getModifySource();
       }
       else if (attr.equals("modifySubject"))    {
         return ns.getModifySubject();

@@ -35,7 +35,7 @@ import  org.apache.commons.logging.*;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.19 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: GroupHelper.java,v 1.20 2008-09-19 06:28:17 mchyzer Exp $
  */
 class GroupHelper {
 
@@ -376,10 +376,6 @@ class GroupHelper {
       Assert.assertTrue(
         attrs.size() + " attributes (exp 5)", attrs.size() == 5
       );
-      LOG.debug("testAttrs.1");
-      Assert.assertTrue(
-        "createSource", g.getCreateSource().equals("")
-      );
       LOG.debug("testAttrs.2");
       try {
         Assert.assertTrue(
@@ -431,10 +427,6 @@ class GroupHelper {
       LOG.debug("testAttrs.12");
       Assert.assertTrue(
         "[d] extension", g.getExtension().equals(exp.getExtension())
-      );
-      LOG.debug("testAttrs.13j");
-      Assert.assertTrue(
-        "modifySource", g.getModifySource().equals("")
       );
       LOG.debug("testAttrs.14");
       try {

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.18 2008-08-26 21:11:51 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.19 2008-09-19 06:28:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -37,6 +37,36 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * returns the current version
  */
 public enum GrouperDdl implements DdlVersionable {
+
+  /**
+   * delete create source and modify source cols if they exist
+   */
+  V12 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      //only drop cols if there are there, and all of them (which means the conversion probably happened, and they
+      //havent been dropped yet)
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, "CREATE_SOURCE", false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Group.TABLE_GROUPER_GROUPS, "CREATE_SOURCE", ddlVersionBean);
+      }
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, "MODIFY_SOURCE", false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Group.TABLE_GROUPER_GROUPS, "MODIFY_SOURCE", ddlVersionBean);
+      }
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, "CREATE_SOURCE", false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Stem.TABLE_GROUPER_STEMS, "CREATE_SOURCE", ddlVersionBean);
+      }
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, "MODIFY_SOURCE", false) != null) {
+        GrouperDdlUtils.ddlutilsDropColumn(database, Stem.TABLE_GROUPER_STEMS, "MODIFY_SOURCE", ddlVersionBean);
+      }
+    }
+  },
 
   /**
    * delete backup cols if configured to and if exist
@@ -708,7 +738,7 @@ public enum GrouperDdl implements DdlVersionable {
         } 
         
         //this is needed for hibernate, so always add it if the table is being created
-        if (attributesTableNew) {
+        if (attributesTableNew || attributeTable.findColumn(Attribute.COLUMN_FIELD_ID) != null) {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, Attribute.COLUMN_FIELD_ID, 
               "foreign key to field by id", Types.VARCHAR, "128", false, true);
         }
@@ -872,12 +902,6 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "modify_time", 
             "number of millis since 1970 that this group was modified", Types.BIGINT, "20", false, false);
   
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "create_source", 
-            "subject source of who created this group", Types.VARCHAR, "255", false, false);
-  
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "modify_source", 
-            "subject source of who modified this group", Types.VARCHAR, "255", false, false);
-  
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
             "group_parent_idx", false, "parent_stem");
         
@@ -1003,7 +1027,7 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         //only add the col if a new table, else it is added in a subsequent version
-        if (!membershipsTableExists) {
+        if (!membershipsTableExists || membershipsTable.findColumn(Membership.COLUMN_FIELD_ID) != null) {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_FIELD_ID, 
               "foreign key to field by id", Types.VARCHAR, "128", false, true);
         }
@@ -1147,12 +1171,6 @@ public enum GrouperDdl implements DdlVersionable {
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "description", 
             "description of stem", Types.VARCHAR, "1024", false, false);
-  
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "create_source", 
-            "subject source of who created this stem", Types.VARCHAR, "255", false, false);
-  
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "modify_source", 
-            "subject source of who modified this stem", Types.VARCHAR, "255", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_createtime_idx", false, "create_time");
@@ -1466,7 +1484,7 @@ public enum GrouperDdl implements DdlVersionable {
    * add all foreign keys
    * @param ddlVersionBean 
    */
-  public void addAllForeignKeys(DdlVersionBean ddlVersionBean) {
+  public void addAllForeignKeysViewsEtc(DdlVersionBean ddlVersionBean) {
 
     Database database = ddlVersionBean.getDatabase();
     
@@ -1542,6 +1560,455 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "grouper_types", 
         "fk_types_creator_uuid", Member.TABLE_GROUPER_MEMBERS, "creator_uuid", memberIdCol);
   
+    //now lets add views
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_ATTRIBUTES_V",
+        "Join of groups and attributes with friendly names.  Attributes are name/value pairs for groups.  " +
+        "Each group type is related to a set of 0 to many attributes, each attribute is related to one group type." +
+        "grouper_fields holds each attribute name under the field type of ^attribute^",
+        GrouperUtil.toSet("GROUP_NAME", 
+            "ATTRIBUTE_NAME", 
+            "ATTRIBUTE_VALUE", 
+            "GROUP_TYPE_NAME", 
+            "FIELD_ID", 
+            "ATTRIBUTE_ID", 
+            "GROUP_ID", 
+            "GROUPTYPE_UUID"),
+         GrouperUtil.toSet("Group name is full ip path, e.g. school:stem1:groupId",
+             "Attribute name is the name of the name/value pair",
+             "Attribute value is the value of the name/value pair",
+             "Group_type_name is the name of the group type this attribute is related to",
+             "Field_id is the uuid that uniquely identifies a the field",
+             "Attribute_id is the uuid that uniquely identifies the pairing of group and attribute",
+             "Group_id is the uuid that uniquely identifies a group",
+             "GroupType_uuid is the uuid that uniquely identifies a group type"),
+            "select  "
+            + "(select ga2.value from grouper_attributes ga2 , grouper_fields gf "
+            + "where ga2.group_id = gg.id and gf.name = 'name' and gf.id = ga2.field_id) as group_name, "
+            + "gf.NAME as attribute_name, "
+            + "ga.VALUE as attribute_value, "
+            + "gt.NAME as group_type_name, "
+            + "ga.FIELD_ID, "
+            + "ga.ID as attribute_id, "
+            + "gg.ID as group_id, "
+            + "gf.grouptype_uuid "
+            + "from grouper_attributes ga, grouper_groups gg, grouper_fields gf, grouper_types gt "
+            + "where ga.FIELD_ID = gf.ID "
+            + "and ga.GROUP_ID = gg.ID and gf.GROUPTYPE_UUID = gt.ID ");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_COMPOSITES_V", 
+        "Grouper_composites_v is a view of composite relationships with friendly names.  A composite" +
+        " is a joining of two groups with a group math operator of: union, intersection, or complement.",
+        GrouperUtil.toSet("OWNER_GROUP_NAME", 
+            "COMPOSITE_TYPE", 
+            "LEFT_FACTOR_GROUP_NAME", 
+            "RIGHT_FACTOR_GROUP_NAME", 
+            "OWNER_GROUP_DISPLAYNAME",
+            "LEFT_FACTOR_GROUP_DISPLAYNAME", 
+            "RIGHT_FACTOR_GROUP_DISPLAYNAME", 
+            "OWNER_GROUP_ID", 
+            "LEFT_FACTOR_GROUP_ID", 
+            "RIGHT_FACTOR_GROUP_ID",
+            "COMPOSITE_ID", 
+            "CREATE_TIME", 
+            "CREATOR_ID", 
+            "HIBERNATE_VERSION_NUMBER"),
+        GrouperUtil.toSet("OWNER_GROUP_NAME: Name of the group which is the result of the composite operation, e.g. school:stem1:allPeople",
+            "COMPOSITE_TYPE: union (all members), intersection (only members in both), or complement (in first, not in second)", 
+            "LEFT_FACTOR_GROUP_NAME: Name of group which is the first of two groups in the composite operation, e.g. school:stem1:part1", 
+            "RIGHT_FACTOR_GROUP_NAME: Name of group which is the second of two groups in the composite operation, e.g. school:stem1:part2", 
+            "OWNER_GROUP_DISPLAYNAME: Display name of result group of composite operation, e.g. My school:The stem1:All people",
+            "LEFT_FACTOR_GROUP_DISPLAYNAME: Display name of group which is the first of two groups in the composite operation, e.g. My school:The stem1:Part 1", 
+            "RIGHT_FACTOR_GROUP_DISPLAYNAME: Display name of group which is the second of two groups in the composite operation, e.g. My school:The stem1:Part 1", 
+            "OWNER_GROUP_ID: UUID of the result group", 
+            "LEFT_FACTOR_GROUP_ID: UUID of the first group of the composite operation", 
+            "RIGHT_FACTOR_GROUP_ID: UUID of the second group of the composite operation",
+            "COMPOSITE_ID: UUID of the composite relationship among the three groups", 
+            "CREATE_TIME: number of millis since 1970 that the composite was created", 
+            "CREATOR_ID: member id of the subject that created the composite relationship", 
+            "HIBERNATE_VERSION_NUMBER: increments with each update, starts at 0"
+        ),
+        "select "
+        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+        + "where ga.group_id = gc.owner and gf.name = 'name' and gf.id = ga.field_id) as owner_group_name, "
+        + "gc.TYPE as composite_type, "
+        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+        + "where ga.group_id = gc.left_factor and gf.name = 'name' and gf.id = ga.field_id) as left_factor_group_name, "
+        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+        + "where ga.group_id = gc.right_factor and gf.name = 'name' and gf.id = ga.field_id) as right_factor_group_name, "
+        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+        + "where ga.group_id = gc.owner and gf.name = 'displayName' and gf.id = ga.field_id) as owner_group_displayname, "
+        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+        + "where ga.group_id = gc.left_factor and gf.name = 'displayName' and gf.id = ga.field_id) as left_factor_group_displayname, "
+        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+        + "where ga.group_id = gc.right_factor and gf.name = 'displayName' and gf.id = ga.field_id) as right_factor_group_displayname, "
+        + "gc.OWNER as owner_group_id, "
+        + "gc.LEFT_FACTOR as left_factor_group_id, "
+        + "gc.RIGHT_FACTOR as right_factor_group_id, "
+        + "gc.ID as composite_id, "
+        + "gc.CREATE_TIME, "
+        + "gc.CREATOR_ID, "
+        + "gc.HIBERNATE_VERSION_NUMBER "
+        + "from grouper_composites gc ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_GROUPS_TYPES_V", 
+        "A group can have one or many types associated.  This is a view of those relationships with friendly names",
+        GrouperUtil.toSet("GROUP_NAME", 
+            "GROUP_DISPLAYNAME", 
+            "GROUP_TYPE_NAME", 
+            "GROUP_ID", 
+            "GROUP_TYPE_UUID", 
+            "GROUPER_GROUPS_TYPES_ID", 
+            "HIBERNATE_VERSION_NUMBER"),
+        GrouperUtil.toSet("GROUP_NAME: name of group which has the type, e.g. school:stem1:theGroup", 
+            "GROUP_DISPLAYNAME: display name of the group which has the type, e.g. My school, the stem 1, The group", 
+            "GROUP_TYPE_NAME: friendly name of the type, e.g. grouperLoader", 
+            "GROUP_ID: uuid unique id of the group which has the type", 
+            "GROUP_TYPE_UUID: uuid unique id of the type related to the group", 
+            "GROUPER_GROUPS_TYPES_ID: uuid unique id of the relationship between the group and type", 
+            "HIBERNATE_VERSION_NUMBER: increments by one with each update, starts at 0"),
+            "select  "
+            + "(select ga.value from grouper_attributes ga, grouper_fields gf  "
+            + "where ga.group_id = ggt.GROUP_UUID and gf.name = 'name' and ga.field_id = gf.id) as group_name, "
+            + "(select ga.value from grouper_attributes ga, grouper_fields gf  "
+            + "where ga.group_id = ggt.GROUP_UUID and gf.name = 'displayName' and ga.field_id = gf.id) as group_displayname, "
+            + "gt.NAME as group_type_name, "
+            + "ggt.GROUP_UUID as group_id, "
+            + "ggt.TYPE_UUID as group_type_uuid, "
+            + "ggt.ID as grouper_groups_types_id, "
+            + "ggt.HIBERNATE_VERSION_NUMBER "
+            + "from grouper_groups_types ggt, grouper_types gt "
+            + "where ggt.TYPE_UUID = gt.ID ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_GROUPS_V", 
+        "Contains one record for each group, with friendly names for some attributes and some more information",
+        GrouperUtil.toSet("EXTENSION", 
+            "NAME", 
+            "DISPLAY_EXTENSION", 
+            "DISPLAY_NAME", 
+            "DESCRIPTION", 
+            "PARENT_STEM_NAME", 
+            "GROUP_ID", 
+            "PARENT_STEM_ID", 
+            "MODIFIER_SOURCE", 
+            "MODIFIER_SUBJECT_ID", 
+            "CREATOR_SOURCE", 
+            "CREATOR_SUBJECT_ID", 
+            "IS_COMPOSITE_OWNER", 
+            "IS_COMPOSITE_FACTOR", 
+            "CREATOR_ID", 
+            "CREATE_TIME", 
+            "MODIFIER_ID", 
+            "MODIFY_TIME", 
+            "HIBERNATE_VERSION_NUMBER"),
+        GrouperUtil.toSet("EXTENSION: part of group name not including path information, e.g. theGroup", 
+            "NAME: name of the group, e.g. school:stem1:theGroup", 
+            "DISPLAY_EXTENSION: name for display of the group, e.g. My school:The stem 1:The group", 
+            "DISPLAY_NAME: name for display of the group without any path information, e.g. The group", 
+            "DESCRIPTION: contains user entered information about the group e.g. why it exists", 
+            "PARENT_STEM_NAME: name of the stem this group is in, e.g. school:stem1", 
+            "GROUP_ID: uuid unique id of the group", 
+            "PARENT_STEM_ID: uuid unique id of the stem this group is in", 
+            "MODIFIER_SOURCE: source name of the subject who last modified this group, e.g. schoolPersonSource", 
+            "MODIFIER_SUBJECT_ID: subject id of the subject who last modified this group, e.g. 12345", 
+            "CREATOR_SOURCE: source name of the subject who created this group, e.g. schoolPersonSource", 
+            "CREATOR_SUBJECT_ID: subject id of the subject who created this group, e.g. 12345", 
+            "IS_COMPOSITE_OWNER: T if this is a result of a composite operation (union, intersection, complement), or blank if not", 
+            "IS_COMPOSITE_FACTOR: T if this is a member of a composite operation, e.g. one of the grouper being unioned, intersected, or complemeneted", 
+            "CREATOR_ID: member id of the subject who created this group, foreign key to grouper_members", 
+            "CREATE_TIME: number of millis since 1970 since this group was created", 
+            "MODIFIER_ID: member id of the subject who last modified this group, foreign key to grouper_members", 
+            "MODIFY_TIME: number of millis since 1970 since this group was last changed", 
+            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update"),
+            "select  "
+            + "(select ga.value from grouper_attributes ga, grouper_fields gf "
+            + "where ga.group_id = gg.id and gf.name = 'extension' and gf.id = ga.field_id) as extension, "
+            + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+            + "where ga.group_id = gg.id and gf.name = 'name' and gf.id = ga.field_id) as name, "
+            + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+            + "where ga.group_id = gg.id and gf.name = 'displayExtension' and gf.id = ga.field_id) as display_extension, "
+            + "    (select ga.value from grouper_attributes ga , grouper_fields gf "
+            + "where ga.group_id = gg.id and gf.name = 'displayName' and gf.id = ga.field_id) as display_name, "
+            + "(select ga.value from grouper_attributes ga, grouper_fields gf "
+            + "where ga.group_id = gg.id and gf.name = 'description' and gf.id = ga.field_id) as description, "
+            + "gs.NAME as parent_stem_name, "
+            + "gg.id as group_id, "
+            + "gs.ID as parent_stem_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, "
+            + "(select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, "
+            + "(select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, "
+            + "gg.CREATOR_ID, "
+            + "gg.CREATE_TIME, "
+            + "gg.MODIFIER_ID, "
+            + "gg.MODIFY_TIME, "
+            + "gg.HIBERNATE_VERSION_NUMBER  "
+            + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_MEMBERSHIPS_V", 
+        "Grouper_memberships_v holds one record for each membership or privilege in the system for members to groups or stems (for privileges).  This is denormalized so there are records for the actual immediate relationships, and the cascaded effective relationships.  This has friendly names.",
+        GrouperUtil.toSet("GROUP_NAME", 
+            "GROUP_DISPLAYNAME", 
+            "STEM_NAME", 
+            "STEM_DISPLAYNAME", 
+            "SUBJECT_ID", 
+            "SUBJECT_SOURCE", 
+            "LIST_TYPE", 
+            "LIST_NAME", 
+            "MEMBERSHIP_TYPE", 
+            "COMPOSITE_PARENT_GROUP_NAME", 
+            "DEPTH", 
+            "CREATOR_SOURCE", 
+            "CREATOR_SUBJECT_ID", 
+            "MEMBERSHIP_ID", 
+            "PARENT_MEMBERSHIP_ID", 
+            "STEM_ID", 
+            "GROUP_ID", 
+            "GROUP_OR_STEM_ID", 
+            "CREATE_TIME", 
+            "CREATOR_ID", 
+            "FIELD_ID"),
+        GrouperUtil.toSet("GROUP_NAME: name of the group if this is a group membership, e.g. school:stem1:theGroup", 
+            "GROUP_DISPLAYNAME: display name of the group if this is a group membership, e.g. My school:The stem1:The group", 
+            "STEM_NAME: name of the stem if this is a stem privilege, e.g. school:stem1", 
+            "STEM_DISPLAYNAME: display name of the stems if this is a stem privilege, e.g. My school:The stem1", 
+            "SUBJECT_ID: e.g. a school id of a person in the membership e.g. 12345", 
+            "SUBJECT_SOURCE: source where the subject in the membership is from e.g. mySchoolPeople", 
+            "LIST_TYPE: list: members of a group, access: privilege of a group, naming: privilege of a stem", 
+            "LIST_NAME: subset of list type.  which list if a list membership.  which privilege if a privilege.  e.g. members", 
+            "MEMBERSHIP_TYPE: either immediate (direct membership or privilege), of effective (membership due to a composite or a group being a member of another group)", 
+            "COMPOSITE_PARENT_GROUP_NAME: name of group if this membership relates to a composite relationship, e.g. school:stem:allStudents", 
+            "DEPTH: 0 for composite, if not then it is the 0 indexed count of number of group hops between member and group", 
+            "CREATOR_SOURCE: subject source where the creator of the group is from", 
+            "CREATOR_SUBJECT_ID: subject id of the creator of the group, e.g. 12345", 
+            "MEMBERSHIP_ID: uuid unique id of this membership", 
+            "PARENT_MEMBERSHIP_ID: if this is an effective membership, then this is the membership_uuid of the cause of this membership", 
+            "STEM_ID: if this is a stem privilege, this is the stem uuid unique id", 
+            "GROUP_ID: if this is a group list or privilege, this is the group uuid unique id", 
+            "GROUP_OR_STEM_ID: stem_id if stem, group_id if group", 
+            "CREATE_TIME: number of millis since 1970 since this membership was created", 
+            "CREATOR_ID: member_id of the creator, foreign key into grouper_members", 
+            "FIELD_ID: uuid unique id of the field.  foreign key to grouper_fields.  This represents the list_type and list_name"),
+            "select "
+            + "(select ga.value from grouper_attributes ga, grouper_fields gf  "
+            + "where ga.group_id = gms.owner_id and gf.name = 'name' and ga.field_id = gf.id) as group_name, "
+            + "(select ga.value from grouper_attributes ga, grouper_fields gf  "
+            + "where ga.group_id = gms.owner_id and gf.name = 'displayName' and ga.field_id = gf.id) as group_displayname, "
+            + "(select gs.NAME from grouper_stems gs "
+            + "where gs.ID = gms.owner_id) as stem_name, "
+            + "(select gs.display_NAME from grouper_stems gs "
+            + "where gs.ID = gms.owner_id) as stem_displayname, "
+            + "gm.SUBJECT_ID, gm.subject_source, "
+            + "gf.TYPE as list_type, "
+            + "gf.NAME as list_name, "
+            + "gms.MSHIP_TYPE as membership_type, "
+            + "(select ga.value from grouper_attributes ga, grouper_composites gc, grouper_fields gf "
+            + "where gc.id = gms.VIA_ID and ga.group_id = gc.OWNER and gf.name = 'name' and ga.field_id = gf.id) as composite_parent_group_name, "
+            + "depth,  "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gms.creator_ID) as creator_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gms.creator_ID) as creator_subject_id, "
+            + "gms.id as membership_id,  "
+            + "gms.PARENT_MEMBERSHIP as parent_membership_id, "
+            + "(select gs.id from grouper_stems gs where gs.ID = gms.owner_id) as stem_id, "
+            + "(select gg.id from grouper_groups gg where gg.id = gms.owner_id) as group_id, "
+            + "gms.OWNER_ID as group_or_stem_id, "
+            + "gms.CREATE_TIME, "
+            + "gms.CREATOR_ID, "
+            + "gms.FIELD_ID "
+            + " from grouper_memberships gms, grouper_members gm, grouper_fields gf "
+            + " where gms.MEMBER_ID = gm.ID and gms.field_id = gf.id ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_STEMS_V",
+        "GROUPER_STEMS_V: holds one record for each stem (folder) in grouper, with friendly names",
+        GrouperUtil.toSet("EXTENSION", 
+            "NAME", 
+            "DISPLAY_EXTENSION", 
+            "DISPLAY_NAME", 
+            "DESCRIPTION",
+            "PARENT_STEM_NAME", 
+            "PARENT_STEM_DISPLAYNAME", 
+            "CREATOR_SOURCE", 
+            "CREATOR_SUBJECT_ID", 
+            "MODIFIER_SOURCE",
+            "MODIFIER_SUBJECT_ID", 
+            "CREATE_TIME", 
+            "CREATOR_ID", 
+            "STEM_ID", 
+            "MODIFIER_ID",
+            "MODIFY_TIME", 
+            "PARENT_STEM", 
+            "HIBERNATE_VERSION_NUMBER"),
+        GrouperUtil.toSet("EXTENSION: name of the stem without the parent stem names, e.g. stem1", 
+            "NAME: name of the stem including parent stem names, e.g. school:stem1", 
+            "DISPLAY_EXTENSION: display name of the stem without parent stem names, e.g. The stem 1", 
+            "DISPLAY_NAME: display name of the stem including parent stem names, e.g. My school: The stem 1", 
+            "DESCRIPTION: description entered in about the stem, for example including why the stem exists and who has access",
+            "PARENT_STEM_NAME: name of the stem (folder) that this stem is in.  e.g. school", 
+            "PARENT_STEM_DISPLAYNAME: display name of the stem (folder) that this stem is in.  e.g. My school", 
+            "CREATOR_SOURCE: subject source where the subject that created this stem is from, e.g. mySchoolPeople", 
+            "CREATOR_SUBJECT_ID: e.g. the school id of the subject that created this stem, e.g. 12345", 
+            "MODIFIER_SOURCE: subject source where the subject that last modified this stem is from, e.g. mySchoolPeople",
+            "MODIFIER_SUBJECT_ID: e.g. the school id of the subject who last modified this stem, e.g. 12345", 
+            "CREATE_TIME: number of millis since 1970 that this stem was created", 
+            "CREATOR_ID: member id of the subject who created this stem, foreign key to grouper_members", 
+            "STEM_ID: uuid unique id of this stem", 
+            "MODIFIER_ID: member id of the subject who last modified this stem, foreign key to grouper_members",
+            "MODIFY_TIME: number of millis since 1970 since this stem was last modified", 
+            "PARENT_STEM: stem_id uuid unique id of the stem (folder) that this stem is in", 
+            "HIBERNATE_VERSION_NUMBER: increments by one for each update from hibernate"),
+         "select gs.extension, gs.NAME, "
+            + "gs.DISPLAY_EXTENSION, gs.DISPLAY_NAME, gs.DESCRIPTION, "
+            + "(select gs_parent.NAME from grouper_stems gs_parent where gs_parent.id = gs.PARENT_STEM) as parent_stem_name, "
+            + "(select gs_parent.DISPLAY_NAME from grouper_stems gs_parent where gs_parent.id = gs.PARENT_STEM) as parent_stem_displayname, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gs.creator_ID) as creator_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gs.creator_ID) as creator_subject_id, "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gs.MODIFIER_ID) as modifier_source, "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gs.MODIFIER_ID) as modifier_subject_id, "
+            + "gs.CREATE_TIME, gs.CREATOR_ID,  "
+            + "gs.ID as stem_id, gs.MODIFIER_ID, gs.MODIFY_TIME, gs.PARENT_STEM, gs.HIBERNATE_VERSION_NUMBER "
+            + "from grouper_stems gs ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_ATTRIBUTES_V", 
+        "GROUPER_RPT_ATTRIBUTES_V: report on attributes, how many groups use each attribute",
+        GrouperUtil.toSet("ATTRIBUTE_NAME", 
+            "GROUP_COUNT", 
+            "GROUP_TYPE_NAME", 
+            "FIELD_ID", 
+            "GROUP_TYPE_ID"),
+        GrouperUtil.toSet("ATTRIBUTE_NAME: friendly name of the attribute which is actually from grouper_fields", 
+            "GROUP_COUNT: number of groups which define this attribute", 
+            "GROUP_TYPE_NAME: group type which owns this attribute", 
+            "FIELD_ID: uuid unique id of this field (attribute), foreign key from grouper_attributes to grouper_fields", 
+            "GROUP_TYPE_ID: uuid unique id of the group type.  foreign key from grouper_fields to grouper_types"),
+        "select gf.NAME as attribute_name,  "
+        + "(select count(*) from grouper_attributes ga where ga.FIELD_ID = gf.id) as group_count,   "
+        + "gt.NAME as group_type_name, "
+        + "gf.ID as field_id, "
+        + "gt.ID as group_type_id "
+        + "from grouper_fields gf, grouper_types gt "
+        + "where gf.TYPE = 'attribute' and gf.GROUPTYPE_UUID = gt.ID ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_COMPOSITES_V", 
+        "GROUPER_RPT_COMPOSITES_V: report on the three composite types: union, intersection, complement and how many of each exist",
+        GrouperUtil.toSet("COMPOSITE_TYPE", 
+            "THE_COUNT"),
+        GrouperUtil.toSet("COMPOSITE_TYPE: either union: all members from both factors, intersection: only members in both factors, complement: members in first but not second factor", 
+            "THE_COUNT: nubmer of composites of this type in the system"),
+        "select gc.TYPE as composite_type, count(*) as the_count " 
+        + "from grouper_composites gc group by gc.type ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_GROUP_FIELD_V", 
+        "GROUPER_RPT_GROUP_FIELD_V: report on how many unique members are in each group based on field (or list) name and type",
+        GrouperUtil.toSet("GROUP_NAME", 
+            "GROUP_DISPLAYNAME", 
+            "FIELD_TYPE", 
+            "FIELD_NAME", 
+            "MEMBER_COUNT"),
+        GrouperUtil.toSet("GROUP_NAME: name of the group where the list and members are, e.g. school:stem1:myGroup", 
+            "GROUP_DISPLAYNAME: display name of the group where the list and members are, e.g. My school:The stem1:My group", 
+            "FIELD_TYPE: membership field type, e.g. list or access", 
+            "FIELD_NAME: membership field name, e.g. members, admins, readers", 
+            "MEMBER_COUNT: number of unique members in the group/field"),
+        "select ga.value as group_name, ga2.value as group_displayName, "
+        + "gf.type as field_type, gf.name as field_name, count(distinct gms.member_id) as member_count "
+        + "from grouper_memberships gms, grouper_fields gf, grouper_attributes ga, grouper_fields gaf,  "
+        + "grouper_attributes ga2, grouper_fields gaf2 "
+        + "where gms.FIELD_ID = gf.ID "
+        + "and ga.FIELD_ID = gaf.id "
+        + "and gaf.name = 'name' "
+        + "and ga.group_id = gms.OWNER_ID "
+        + "and ga2.group_id = gms.owner_id "
+        + "and ga2.field_id = gaf2.id "
+        + "and gaf2.name = 'displayName' "
+        + "group by ga.value, ga2.value, gf.type, gf.name ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_GROUPS_V", 
+        "GROUPER_RPT_GROUPS_V: report with a line for each group and some counts of immediate and effective members etc",
+        GrouperUtil.toSet("GROUP_NAME", 
+            "GROUP_DISPLAYNAME", 
+            "IMMEDIATE_MEMBERSHIP_COUNT", 
+            "MEMBERSHIP_COUNT", 
+            "ATTRIBUTE_COUNT", 
+            "GROUPS_TYPES_COUNT", 
+            "ISA_COMPOSITE_FACTOR_COUNT", 
+            "ISA_MEMBER_COUNT", 
+            "GROUP_ID"),  
+        GrouperUtil.toSet("GROUP_NAME: name of group which has the stats, e.g. school:stem1:theGroup", 
+            "GROUP_DISPLAYNAME: display name of the group which has the stats, e.g. My school:The stem1:The group", 
+            "IMMEDIATE_MEMBERSHIP_COUNT: number of unique immediate members, directly assigned to this group", 
+            "MEMBERSHIP_COUNT: total number of unique members, immediate or effective", 
+            "ATTRIBUTE_COUNT: number of attributes defined for this group", 
+            "GROUPS_TYPES_COUNT: number of group types associated with this group", 
+            "ISA_COMPOSITE_FACTOR_COUNT: number of composites this group is a factor of", 
+            "ISA_MEMBER_COUNT: number of groups this group is an immediate or effective member of", 
+            "GROUP_ID: uuid unique id of this group"),  
+        "select  "
+        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
+        + "where ga.group_id = gg.id and gf.name = 'name' and gf.id = ga.field_id) as group_name, "
+        + "    (select ga.value from grouper_attributes ga , grouper_fields gf "
+        + "where ga.group_id = gg.id and gf.name = 'displayName' and gf.id = ga.field_id) as group_displayname, "
+        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_ID = gg.id and gms.MSHIP_TYPE = 'immediate') as immediate_membership_count, "
+        + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_ID = gg.id) as membership_count, "
+        + "(select count(*) from grouper_attributes ga where ga.GROUP_ID = gg.id) as attribute_count, "
+        + "(select count(*) from grouper_groups_types ggt where ggt.GROUP_UUID = gg.id) as groups_types_count, "
+        + "(select count(*) from grouper_composites gc where gc.LEFT_FACTOR = gg.id or gc.RIGHT_FACTOR = gg.id) as isa_composite_factor_count, "
+        + "(select count(distinct gms.OWNER_ID) from grouper_memberships gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
+        + "gg.ID as group_id "
+        + "from grouper_groups gg ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_MEMBERS_V", 
+        "GROUPER_RPT_MEMBERS_V: report for each member in grouper_members and some stats like how many groups they are in",
+        GrouperUtil.toSet("SUBJECT_ID", 
+            "SUBJECT_SOURCE", 
+            "MEMBERSHIP_COUNT", 
+            "MEMBER_ID"), 
+        GrouperUtil.toSet("SUBJECT_ID: e.g. the school person id of the person e.g. 12345", 
+            "SUBJECT_SOURCE: subject source where the subject is from, e.g. schoolAllPeople", 
+            "MEMBERSHIP_COUNT: number of distinct groups or stems this member has a membership with", 
+            "MEMBER_ID: uuid unique id of the member in grouper_members"), 
+            "select gm.SUBJECT_ID, gm.SUBJECT_SOURCE, "
+            + "(select count(distinct gms.owner_id) from grouper_memberships gms where gms.MEMBER_ID = gm.ID) as membership_count, "
+            + "gm.ID as member_id "
+            + "from grouper_members gm ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_STEMS_V", 
+        "GROUPER_RPT_STEMS_V: report with a row for each stem and stats on many groups or members are inside",
+        GrouperUtil.toSet("STEM_NAME", 
+            "STEM_DISPLAYNAME", 
+            "GROUP_IMMEDIATE_COUNT", 
+            "STEM_IMMEDIATE_COUNT", 
+            "GROUP_COUNT",
+            "STEM_COUNT", 
+            "THIS_STEM_MEMBERSHIP_COUNT", 
+            "CHILD_GROUP_MEMBERSHIP_COUNT", 
+            "GROUP_MEMBERSHIP_COUNT", 
+            "STEM_ID"), 
+        GrouperUtil.toSet("STEM_NAME: name of the stem in report, e.g. school:stem1", 
+            "STEM_DISPLAYNAME: display name of the stem in report, e.g. My school:The stem 1", 
+            "GROUP_IMMEDIATE_COUNT: number of groups directly inside this stem", 
+            "STEM_IMMEDIATE_COUNT: number of stems directly inside this stem", 
+            "GROUP_COUNT: number of groups inside this stem, or in a stem inside this stem etc",
+            "STEM_COUNT: number of stems inside this stem or in a stem inside this stem etc", 
+            "THIS_STEM_MEMBERSHIP_COUNT: number of access memberships related to this stem (e.g. how many people can create groups/stems inside)", 
+            "CHILD_GROUP_MEMBERSHIP_COUNT: number of memberships in groups immediately in this stem", 
+            "GROUP_MEMBERSHIP_COUNT: number of memberships in groups in this stem or in stems in this stem etc", 
+            "STEM_ID: uuid unique id of this stem"), 
+            "select gs.NAME as stem_name, gs.DISPLAY_NAME as stem_displayname, "
+            + "(select count(*) from grouper_groups gg where gg.PARENT_STEM = gs.ID) as group_immediate_count, "
+            + "(select count(*) from grouper_stems gs2 where gs.id = gs2.PARENT_STEM ) as stem_immediate_count, "
+            + "(select count(*) from grouper_attributes ga, grouper_fields gf where ga.FIELD_ID = gf.ID and gf.NAME = 'name' and ga.value like gs.NAME || '%') as group_count, "
+            + "(select count(*) from grouper_stems gs2 where gs2.name like gs.NAME || '%') as stem_count, "
+            + "(select count(distinct gm.member_id) from grouper_memberships gm where gm.OWNER_ID = gs.id) as this_stem_membership_count,  "
+            + "(select count(distinct gm.member_id) from grouper_memberships gm, grouper_groups gg where gg.parent_stem = gs.id and gm.OWNER_ID = gg.id) as child_group_membership_count,  "
+            + "(select count(distinct gm.member_id) from grouper_memberships gm, grouper_attributes ga, grouper_fields gf where gm.owner_id = ga.group_id and ga.FIELD_ID = gf.ID and gf.NAME = 'name' and ga.value like gs.NAME || '%') as group_membership_count, "
+            + "gs.ID as stem_id "
+            + "from grouper_stems gs ");
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_TYPES_V", 
+        "GROUPER_RPT_TYPES_V: report on group types and how many groups have that type",
+        GrouperUtil.toSet("GROUP_TYPE_NAME", 
+            "GROUP_COUNT", 
+            "GROUP_TYPE_ID"),
+        GrouperUtil.toSet("GROUP_TYPE_NAME: friendly name of this group type", 
+            "GROUP_COUNT: number of groups that have this group type", 
+            "GROUP_TYPE_ID: uuid unique id of this group type"),
+        "select gt.NAME as group_type_name, "
+        + "(select count(*) from grouper_groups_types ggt where ggt.TYPE_UUID = gt.ID) as group_count, "
+        + "gt.id as group_type_id "
+        + "from grouper_types gt ");
+
+
+    
   }
 
   /**

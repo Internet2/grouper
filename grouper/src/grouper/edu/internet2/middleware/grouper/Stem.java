@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.161 2008-09-13 03:16:54 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.162 2008-09-19 06:28:17 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -116,9 +116,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
-
-  /** constant for field name for: createSource */
-  public static final String FIELD_CREATE_SOURCE = "createSource";
 
   /** constant for field name for: createTime */
   public static final String FIELD_CREATE_TIME = "createTime";
@@ -144,9 +141,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
 
-  /** constant for field name for: modifySource */
-  public static final String FIELD_MODIFY_SOURCE = "modifySource";
-
   /** constant for field name for: modifyTime */
   public static final String FIELD_MODIFY_TIME = "modifyTime";
 
@@ -163,18 +157,18 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
-      FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, 
+      FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, 
       FIELD_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_SOURCE, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_SOURCE, FIELD_MODIFY_TIME, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, 
       FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -224,8 +218,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   @GrouperIgnoreClone
   private Subject modifier;
 
-  // PRIVATE INSTANCE VARIABLES //
-  private String  createSource;
   private long    createTime;
   private String  creatorUUID;
 
@@ -234,7 +226,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   private String  displayName;
   private String  extension;
   private String  modifierUUID;
-  private String  modifySource;
   private long    modifyTime;
   private String  name;
   private String  parentUUID;
@@ -481,30 +472,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
-   * Get (optional and questionable) create source for this stem.
-   * <pre class="eg">
-   * // Get create source
-`  * String source = ns.getCreateSource();
-   * </pre>
-   * @return  Create source for this stem.
-   */
-  public String getCreateSourceDb() {
-    return this.createSource;
-  } 
-  
-  /**
-   * Get (optional and questionable) create source for this stem.
-   * <pre class="eg">
-   * // Get create source
-`  * String source = ns.getCreateSource();
-   * </pre>
-   * @return  Create source for this stem.
-   */
-  public String getCreateSource() {
-    return GrouperConfig.EMPTY_STRING;
-  } 
-
-  /**
    * Get subject that created this stem.
    * <pre class="eg">
    * // Get creator of this stem.
@@ -623,30 +590,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     return val;
   }
  
-  /**
-   * Get (optional and questionable) modify source for this stem.
-   * <pre class="eg">
-   * // Get modify source
-`  * String source = ns.getModifySource();
-   * </pre>
-   * @return  Modify source for this stem.
-   */
-  public String getModifySourceDb() {
-    return this.modifySource;
-  } // public String getModifySource()
-  
-  /**
-   * Get (optional and questionable) modify source for this stem.
-   * <pre class="eg">
-   * // Get modify source
-`  * String source = ns.getModifySource();
-   * </pre>
-   * @return  Modify source for this stem.
-   */
-  public String getModifySource() {
-    return GrouperConfig.EMPTY_STRING;
-  } // public String getModifySource()
-
   /**
    * Get subject that last modified this stem.
    * <pre class="eg">
@@ -1763,14 +1706,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   /**
    * @since   1.2.0
    */
-  public void setCreateSourceDb(String createSource) {
-    this.createSource = createSource;
-  
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public void setCreateTimeLong(long createTime) {
     this.createTime = createTime;
   
@@ -1835,14 +1770,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   /**
    * @since   1.2.0
    */
-  public void setModifySourceDb(String modifySource) {
-    this.modifySource = modifySource;
-  
-  }
-
-  /**
-   * @since   1.2.0
-   */
   public void setModifyTimeLong(long modifyTime) {
     this.modifyTime = modifyTime;
   
@@ -1886,7 +1813,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public String toStringDb() {
     return new ToStringBuilder(this)
-      .append( "createSource",     this.getCreateSource()     )
       .append( "createTime",       this.getCreateTime()       )
       .append( "creatorUuid",      this.getCreatorUuid()      )
       .append( "description",      this.getDescription()      )
@@ -1894,7 +1820,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       .append( "displayName",      this.getDisplayName()      )
       .append( "extension",        this.getExtension()        )
       .append( "modifierUuid",     this.getModifierUuid()     )
-      .append( "modifySource",     this.getModifySource()     )
       .append( "modifyTime",       this.getModifyTime()       )
       .append( "name",             this.getName()             )
       .append( "ownerUuid",        this.getUuid()             )

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionable.java,v 1.5 2008-08-24 03:24:37 mchyzer Exp $
+ * $Id: DdlVersionable.java,v 1.6 2008-09-19 06:28:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
  
@@ -13,10 +13,10 @@ import org.apache.ddlutils.model.Database;
 public interface DdlVersionable {
 
   /**
-   * add all foreign keys
+   * add all foreign keys, views, table / col comments, etc
    * @param ddlVersionBean
    */
-  public void addAllForeignKeys(DdlVersionBean ddlVersionBean);
+  public void addAllForeignKeysViewsEtc(DdlVersionBean ddlVersionBean);
 
   /**
    * get the version of this enum

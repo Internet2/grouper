@@ -28,7 +28,7 @@ import  org.apache.commons.logging.*;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem6.java,v 1.8 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestStem6.java,v 1.9 2008-09-19 06:28:17 mchyzer Exp $
  */
 public class TestStem6 extends GrouperTest {
 
@@ -60,7 +60,6 @@ public class TestStem6 extends GrouperTest {
       GrouperSession  s     = SessionHelper.getRootSession();
       Stem            root  = StemHelper.findRootStem(s);
       Stem            edu   = root.addChildStem("edu", "education");
-      Assert.assertTrue("create source", edu.getCreateSource().equals(""));
       try {
         Subject creator = edu.getCreateSubject();
         Assert.assertNotNull("creator !null", creator);

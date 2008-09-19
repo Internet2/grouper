@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.14 2008-09-13 03:16:54 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.15 2008-09-19 06:28:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -540,8 +541,16 @@ public class GrouperDdlUtils {
               DdlVersionBean ddlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, 
                   sqlBuilder, oldDatabase, newDatabase, additionalScripts, true, javaVersion, result);
               
-              ddlVersionable.addAllForeignKeys(ddlVersionBean);
+              ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
   
+              //lets add table / col comments
+              for (Table table : newDatabase.getTables()) {
+                GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
+                for (Column column : table.getColumns()) {
+                  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
+                }
+              }
+
               String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
                   newDatabase);
               
@@ -806,8 +815,16 @@ public class GrouperDdlUtils {
           ddlVersionBean.setAdditionalScripts(additionalScripts);
         }
         //add back in the foreign keys
-        ddlVersionable.addAllForeignKeys(ddlVersionBean);
+        ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
           
+        //lets add table / col comments
+        for (Table table : newDatabase.getTables()) {
+          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
+          for (Column column : table.getColumns()) {
+            GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
+          }
+        }
+
       } finally {
         GrouperUtil.closeQuietly(connection);
       }
@@ -1114,6 +1131,160 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * add a view if the DB supports it
+   * @param ddlVersionBean
+   * @param viewName
+   * @param viewComment 
+   * @param aliases
+   * @param columnComments 
+   * @param sql should not have a semicolon at end
+   */
+  public static void ddlutilsCreateOrReplaceView(DdlVersionBean ddlVersionBean, String viewName, 
+      String viewComment, Set<String> aliases, Set<String> columnComments, String sql) {
+    
+    if (aliases.size() != columnComments.size()) {
+      throw new RuntimeException("Alias size " + aliases.size() 
+          + " doesnt match up with column comment size " + columnComments.size()
+          + " for db view: " + viewName);
+    }
+
+    if (GrouperConfig.getPropertyBoolean("ddlutils.disableViews", false)) {
+      return;
+    }
+    
+    //only do this if oracle, mysql, or postgres
+    if (ddlVersionBean.isPostgres() || ddlVersionBean.isOracle() || ddlVersionBean.isMysql()) {
+      
+      //if this is postgres, we need to drop first because if the number of columns change, it bombs
+      if (ddlVersionBean.isPostgres()) {
+        boolean exists = assertTablesThere(false, false, viewName);
+        if (exists) {
+          ddlVersionBean.appendAdditionalScriptUnique("\nDROP VIEW " + viewName + ";\n");
+        }
+      }
+      String aliasesString = StringUtils.join(aliases.iterator(), ", ");
+      String fullSql = "\nCREATE OR REPLACE VIEW " + viewName + " (" + aliasesString
+        + ") AS " + sql + ";\n";
+      ddlVersionBean.appendAdditionalScriptUnique(fullSql);
+      
+      ddlutilsViewComment(ddlVersionBean, viewName, viewComment);
+      
+      Iterator<String> aliasIterator = aliases.iterator();
+      Iterator<String> columnCommentsIterator = columnComments.iterator();
+      
+      while (aliasIterator.hasNext() && columnCommentsIterator.hasNext()) {
+        String alias = aliasIterator.next();
+        String columnComment = columnCommentsIterator.next();
+        ddlutilsColumnComment(ddlVersionBean, viewName, alias, columnComment);
+      }
+    }
+  }
+  
+  /**
+   * add a table comment if the DB supports it
+   * @param ddlVersionBean
+   * @param tableName 
+   * @param tableComment 
+   */
+  public static void ddlutilsTableComment(DdlVersionBean ddlVersionBean, String tableName, 
+      String tableComment) {
+    ddlutilsTableViewCommentHelper(ddlVersionBean, tableName, tableComment, true);
+  }
+
+  /**
+   * add a view comment if the DB supports it
+   * @param ddlVersionBean
+   * @param viewName 
+   * @param tableComment 
+   */
+  public static void ddlutilsViewComment(DdlVersionBean ddlVersionBean, String viewName, 
+      String tableComment) {
+    ddlutilsTableViewCommentHelper(ddlVersionBean, viewName, tableComment, false);
+  }
+
+  /**
+   * <pre>
+   * add a table or view column comment if the DB supports it
+   *   COMMENT ON COLUMN zip_code.zip_code IS '5 Digit Zip Code';
+   * </pre>
+   * @param ddlVersionBean
+   * @param objectName 
+   * @param comment 
+   * @param columnName 
+   */
+  public static void ddlutilsColumnComment(DdlVersionBean ddlVersionBean, String objectName, 
+      String columnName,
+      String comment) {
+    
+    if (GrouperConfig.getPropertyBoolean("ddlutils.disableComments", false)) {
+      return;
+    }
+
+    if (StringUtils.isBlank(comment)) {
+      LOG.warn("No comment for db column " + objectName + "." + columnName);
+      return;
+    }
+    
+    //only do this if oracle, or postgres
+    boolean isOracle = ddlVersionBean.isOracle();
+    boolean isPostgres = ddlVersionBean.isPostgres();
+    if (isPostgres || isOracle) {
+      
+      //dont let a single quote mess up the sql...
+      comment = StringUtils.replace(comment, "'", "^");
+      
+      String sql = null;
+      
+      sql = "\nCOMMENT ON COLUMN " + objectName + "." + columnName + " IS '" + comment + "';\n";
+
+      ddlVersionBean.appendAdditionalScriptUnique(sql);
+    }
+  }
+  
+  /**
+   * add a table or view comment if the DB supports it
+   * @param ddlVersionBean
+   * @param objectName 
+   * @param comment 
+   * @param tableNotView 
+   */
+  private static void ddlutilsTableViewCommentHelper(DdlVersionBean ddlVersionBean, String objectName, 
+      String comment, boolean tableNotView) {
+    
+    if (GrouperConfig.getPropertyBoolean("ddlutils.disableComments", false)) {
+      return;
+    }
+    
+    if (StringUtils.isBlank(comment)) {
+      LOG.warn("No comment for db object " + objectName);
+      return;
+    }
+    
+    //only do this if oracle, or postgres
+    boolean isOracle = ddlVersionBean.isOracle();
+    boolean isPostgres = ddlVersionBean.isPostgres();
+    if (isPostgres || isOracle) {
+      
+      //dont let a single quote mess up the sql...
+      comment = StringUtils.replace(comment, "'", "^");
+      
+      String sql = null;
+      
+      String objectString = "TABLE";
+      if (!tableNotView && isPostgres) {
+        objectString = "VIEW";
+      }
+
+      sql = "\nCOMMENT ON " + objectString + " " + objectName + " IS '" + comment + "';\n";
+
+      ddlVersionBean.appendAdditionalScriptUnique(sql);
+      
+    }
+    
+  }
+  
+  
+  /**
    * add a unique constraint if the table or col isnt there or has no rows.
    * Note, call this before you add the table to the DB so we know if the table is already in the DB
    * @param tableName
@@ -1121,7 +1292,8 @@ public class GrouperDdlUtils {
    * @param ddlVersionBean 
    * @param columnNames
    */
-  public static void ddlutilsAddUniqueConstraint(String tableName, String constraintName, DdlVersionBean ddlVersionBean, String... columnNames) {
+  public static void ddlutilsAddUniqueConstraint(String tableName, String constraintName, 
+      DdlVersionBean ddlVersionBean, String... columnNames) {
     Platform platform = retrievePlatform(); 
 
     Database database = ddlVersionBean.getDatabase();
@@ -1360,9 +1532,9 @@ public class GrouperDdlUtils {
     if (table == null) {
       table = new Table();
       table.setName(tableName);
-      table.setDescription(description);
       database.addTable(table);
     }
+    table.setDescription(description);
     return table;
   }
 
@@ -1619,7 +1791,6 @@ public class GrouperDdlUtils {
       
       //eave this stuff in here so it doesnt mess up existing columns and drop/create tables
       column.setRequired(required);
-      column.setDescription(description);
       column.setTypeCode(typeCode);
       if (!StringUtils.equals(size, column.getSize())) {
         column.setSize(size);
@@ -1629,6 +1800,7 @@ public class GrouperDdlUtils {
       }
     }
 
+    column.setDescription(description);
     column.setPrimaryKey(primaryKey);
 
     return column;
