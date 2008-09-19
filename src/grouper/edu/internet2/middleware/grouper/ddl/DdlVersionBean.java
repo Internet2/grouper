@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionBean.java,v 1.4 2008-08-14 06:35:47 mchyzer Exp $
+ * $Id: DdlVersionBean.java,v 1.5 2008-09-19 06:28:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -50,6 +50,20 @@ public class DdlVersionBean {
    */
   public boolean isPostgres() {
     return this.getPlatform().getName().toLowerCase().contains("postgres");
+  }
+
+  /**
+   * @return true if mysql
+   */
+  public boolean isMysql() {
+    return this.getPlatform().getName().toLowerCase().contains("mysql");
+  }
+  
+  /**
+   * @return true if postgres
+   */
+  public boolean isOracle() {
+    return this.getPlatform().getName().toLowerCase().contains("oracle");
   }
   
   /**

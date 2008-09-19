@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.6 2008-08-24 03:24:37 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.7 2008-09-19 06:28:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -129,7 +129,7 @@ public enum SubjectDdl implements DdlVersionable {
    * add all foreign keys
    * @param ddlVersionBean 
    */
-  public void addAllForeignKeys(DdlVersionBean ddlVersionBean) {
+  public void addAllForeignKeysViewsEtc(DdlVersionBean ddlVersionBean) {
     Database database = ddlVersionBean.getDatabase();
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "subjectattribute", 
         "fk_subjectattr_subjectid", "subject", "subjectId", "subjectId");

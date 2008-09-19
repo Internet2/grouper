@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupDataTest.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * $Id: GroupDataTest.java,v 1.4 2008-09-19 06:28:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -48,15 +48,15 @@ public class GroupDataTest extends GrouperTest {
     Group group1 = new Group();
     group1.dbVersionReset();
     assertFalse("Nothing should not be different", group1.dbVersionIsDifferent());
-    group1.setCreateSourceDb("a");
+    group1.setCreatorUuid("a");
     assertTrue(group1.dbVersionIsDifferent());
     assertEquals("Only one field changed", 1, group1.dbVersionDifferentFields().size());
-    assertEquals("Only one field changed", Group.FIELD_CREATE_SOURCE, (String)group1.dbVersionDifferentFields().toArray()[0]);
-    group1.setCreateSourceDb(null);
+    assertEquals("Only one field changed", Group.FIELD_CREATOR_UUID, (String)group1.dbVersionDifferentFields().toArray()[0]);
+    group1.setCreatorUuid(null);
     assertFalse("Nothing should not be different", group1.dbVersionIsDifferent());
     assertEquals("No fields changed", 0, group1.dbVersionDifferentFields().size());
     
-    group1.setCreateSourceDb("");
+    group1.setCreatorUuid("");
     assertEquals("No fields changed", 0, group1.dbVersionDifferentFields().size());
     assertFalse("empty is same as null", group1.dbVersionIsDifferent());
     assertEquals("No fields changed", 0, group1.dbVersionDifferentFields().size());

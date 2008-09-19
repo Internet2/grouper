@@ -16,7 +16,7 @@ import  edu.internet2.middleware.subject.*;
  * Get {@link Group} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getGroupAttr.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: getGroupAttr.java,v 1.2 2008-09-19 06:28:17 mchyzer Exp $
  * @since   0.0.1
  */
 public class getGroupAttr {
@@ -41,17 +41,11 @@ public class getGroupAttr {
     try {
       GrouperSession  s = GrouperShell.getSession(i);
       Group           g = GroupFinder.findByName(s, name);
-      if      ("createSource".equals( attr ))     {
-        return g.getCreateSource();
-      }
-      else if (attr.equals("createSubject"))    {
+      if (attr.equals("createSubject"))    {
         return g.getCreateSubject();
       }
       else if (attr.equals("createTime"))       {
         return g.getCreateTime();
-      }
-      else if (attr.equals("modifySource"))     {
-        return g.getModifySource();
       }
       else if (attr.equals("modifySubject"))    {
         return g.getModifySubject();

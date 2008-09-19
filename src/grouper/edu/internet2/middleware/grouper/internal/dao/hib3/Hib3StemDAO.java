@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.11 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.12 2008-09-19 06:28:17 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -595,10 +595,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
 
     // Reset "modify" columns.  Setting the modifierUuid property to null is important to avoid foreign key issues.
-    hibernateSession.byHql().createQuery("update Stem as ns set ns.modifierUuid = :id, ns.modifyTimeLong = :time, ns.modifySourceDb = :source")
+    hibernateSession.byHql().createQuery("update Stem as ns set ns.modifierUuid = :id, ns.modifyTimeLong = :time")
       .setString("id", null)
       .setLong("time", new Long(0))
-      .setString("source", null)
       .executeUpdate();
       ;
 

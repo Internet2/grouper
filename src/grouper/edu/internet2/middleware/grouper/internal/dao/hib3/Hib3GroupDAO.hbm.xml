@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.7 2008-07-28 20:12:27 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.8 2008-09-19 06:28:17 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="Group" table="grouper_groups">
@@ -106,22 +106,6 @@
       />
     </property>
     <!-- modifyTime -->
-
-    <!-- createSource -->
-    <property name="createSourceDb"
-              type="string"
-    >
-      <column name="create_source"/>
-    </property>
-    <!-- createSource -->
-
-    <!-- modifySource -->
-    <property name="modifySourceDb"
-              type="string"
-    >
-      <column name="modify_source"/>
-    </property>
-    <!-- modifySource -->
 
   </class>
 </hibernate-mapping>
