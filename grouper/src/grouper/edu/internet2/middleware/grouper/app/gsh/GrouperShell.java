@@ -6,28 +6,25 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.3 2008-09-14 04:54:00 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.4 2008-09-22 15:06:40 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -50,7 +47,7 @@ public class GrouperShell {
 
 
   // PRIVATE INSTANCE VARIABLES //
-  private Interpreter   i = null;
+  private Interpreter   interpreter = null;
   private CommandReader r = null;
 
 
@@ -113,7 +110,7 @@ public class GrouperShell {
   protected GrouperShell(CommandReader r) 
     throws  GrouperShellException
   {
-    this.i  = r.getInterpreter();
+    this.interpreter  = r.getInterpreter();
     this.r  = r;
   } // protected GrouperShell()
 
@@ -126,10 +123,13 @@ public class GrouperShell {
   } // protected static void error(i, e)
 
   // @since   0.0.1
-  protected static void error(Interpreter i, Exception e, String msg) {
-    i.error(msg);
-    if (isDebug(i)) {
+  protected static void error(Interpreter interpreter, Exception e, String msg) {
+    interpreter.error(msg);
+    if (isDebug(interpreter)) {
       e.printStackTrace();
+    }
+    if (ShellHelper.closeOpenTransactions(interpreter, e)) {
+      ShellHelper.exitDueToOpenTransaction(interpreter);
     }
   } // protected static void error(i, e, msg)
 
@@ -236,21 +236,21 @@ public class GrouperShell {
   {
     String cmd = new String();
     try {
-      this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper\")");
-      this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper.app.gsh\")");
-      this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper.app.misc\")");
-      this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper.privs\")");
+      this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.grouper\")");
+      this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.grouper.app.gsh\")");
+      this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.grouper.app.misc\")");
+      this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.grouper.privs\")");
       //this.i.eval(  "importCommands(\"edu.internet2.middleware.grouper.registry\")");
-      this.i.eval(  "importCommands(\"edu.internet2.middleware.subject\")");
-      this.i.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")");
-      this.i.eval(  "import edu.internet2.middleware.grouper.*;");
-      this.i.eval(  "import edu.internet2.middleware.grouper.app.gsh.*;");
-      this.i.eval(  "import edu.internet2.middleware.grouper.app.misc.*;");
-      this.i.eval(  "import edu.internet2.middleware.grouper.privs.*;");
-      this.i.eval(  "import edu.internet2.middleware.grouper.misc.*;");
-      //this.i.eval(  "import edu.internet2.middleware.grouper.registry.*;");
-      this.i.eval(  "import edu.internet2.middleware.subject.*;");
-      this.i.eval(  "import edu.internet2.middleware.subject.provider.*;");
+      this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject\")");
+      this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.gsh.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.misc.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.privs.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.misc.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.hibernate.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.subject.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.subject.provider.*;");
       
     }
     catch (bsh.EvalError eBBB) {
@@ -261,18 +261,34 @@ public class GrouperShell {
         continue;
       }
       if ( this._isTimeToExit(cmd) ) {
+        int txSize = HibernateSession._internal_staticSessions().size();
+        boolean hasTransactions = txSize>0;
+        if (hasTransactions) {
+          String error = "Exiting in the middle of " + txSize + " open transactions, they will be rolled back and closed";
+          this.interpreter.println(error);
+          LOG.error(error);
+          HibernateSession._internal_closeAllHibernateSessions(new RuntimeException());
+        }
         this._stopSession();
+        if (hasTransactions) {
+          ShellHelper.exitDueToOpenTransaction(this.interpreter);
+        }
         break;
       }
       // Now try to eval the command
-      cmd = ShellHelper.eval(i, cmd);
+      cmd = ShellHelper.eval(interpreter, cmd);
     }
-  } // protected void run()
+  } 
 
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(ShellHelper.class);
 
-  // PRIVATE CLASS METHODS //
-
-  // @since   0.0.1
+  /**
+   * 
+   * @param i
+   * @param var
+   * @return true if istrue
+   */
   private static boolean _isTrue(Interpreter i, String var) {
     boolean rv = false;
     try {
@@ -320,15 +336,15 @@ public class GrouperShell {
     try {
       // `GrouperShell.getSession()` will start the session if it doesn't exist.
       // That's just slow.  And wrong.
-      GrouperSession s = (GrouperSession) GrouperShell.get(this.i, GSH_SESSION);
+      GrouperSession s = (GrouperSession) GrouperShell.get(this.interpreter, GSH_SESSION);
       if (s != null) {
         s.stop();
-        this.i.unset(GSH_SESSION);
+        this.interpreter.unset(GSH_SESSION);
       }
     }
     catch (Exception e) {
-      if (i != null) {
-        this.i.error(e.getMessage());
+      if (interpreter != null) {
+        this.interpreter.error(e.getMessage());
       }
       throw new GrouperShellException(e);
     }

@@ -139,6 +139,14 @@ public class HibernateSession {
   private static ThreadLocal<Set<HibernateSession>> staticSessions = new ThreadLocal<Set<HibernateSession>>();
 
   /**
+   * this is for internal purposes only, dont use this unless you know what you are doing
+   * @return the set of hibernate sessions
+   */
+  public static Set<HibernateSession> _internal_staticSessions() {
+    return getHibernateSessionSet();
+  }
+  
+  /**
    * get the threadlocal set of hibernate sessions (or create)
    * 
    * @return the set
@@ -188,6 +196,14 @@ public class HibernateSession {
   }
 
   /**
+   * get the current hibernate session.  dont call this unless you know what you are doing
+   * @return the current hibernate session
+   */
+  public static HibernateSession _internal_hibernateSession() {
+    return staticHibernateSession();
+  }
+  
+  /**
    * get the threadlocal hibernate session. access this through inverse of
    * control (granted you wont get the exact same instance...)
    * 
@@ -202,6 +218,33 @@ public class HibernateSession {
     // get the second to last index
     return (HibernateSession) GrouperUtil.get(hibSet, size - 1);
   }
+
+  /**
+   * close all sessions, but dont throw errors, based on throwable
+   * @param t 
+   */
+  public static void _internal_closeAllHibernateSessions(Throwable t) {
+    //if there is an exception, close all sessions
+    try {
+      for (HibernateSession hibernateSession : HibernateSession._internal_staticSessions()) {
+        try {
+          HibernateSession._internal_hibernateSessionCatch(hibernateSession, t);
+        } catch (Exception e) {
+          //swallow I guess
+          LOG.debug("Error handling hibernate error", e);
+        } finally {
+          try {
+            HibernateSession._internal_hibernateSessionFinally(hibernateSession);
+          } catch (Throwable t3) {
+            LOG.debug("Error in finally for hibernate session", t3);
+          }
+        }
+      }
+    } catch (Throwable t2) {
+      LOG.debug("Problem closing sessions", t2);
+    }
+  }
+  
   /**
    * dont call this method unless you know what you are doing
    * @param grouperTransactionType
