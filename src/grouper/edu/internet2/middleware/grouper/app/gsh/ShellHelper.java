@@ -14,13 +14,14 @@ import org.apache.commons.logging.LogFactory;
 
 import bsh.Interpreter;
 import bsh.TargetError;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
 
 /**
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: ShellHelper.java,v 1.2 2008-09-22 15:06:40 mchyzer Exp $
  * @since   0.0.1
  */
 class ShellHelper {
@@ -28,24 +29,42 @@ class ShellHelper {
   /** logger */
   private static final Log LOG = LogFactory.getLog(ShellHelper.class);
 
-  // PROTECTED CLASS METHODS //
-
-  // @return  Evaluated command.
-  // @since   0.0.1
-  protected static String eval(Interpreter i, String cmd) 
-    throws  GrouperShellException
-  {
+  /**
+   * 
+   * @param interpreter
+   * @param cmd
+   * @return a string
+   * @throws GrouperShellException
+   */
+  protected static String eval(Interpreter interpreter, String cmd) 
+    throws  GrouperShellException {
     StopWatch sw = new StopWatch();
     sw.start();
+    boolean hasTransactionProblem = false;
     try {
-      GrouperShell.setOurCommand(i, false); // Default to false
-      Object obj = i.eval(cmd);
-      // If we aren't in devel mode, just print out the results
-      if (!GrouperShell.isDevel(i)) {
-        p.pp(i, obj);
+      GrouperShell.setOurCommand(interpreter, false); // Default to false
+      Object obj = null;
+      try {
+        obj = interpreter.eval(cmd);
+      } catch (Throwable t) {
+        hasTransactionProblem = closeOpenTransactions(interpreter, t);
+        if (!(t instanceof bsh.EvalError)) {
+          //these werent getting logged
+          LOG.error(t.getMessage(), t);
+        }
+        if (t instanceof bsh.EvalError) {
+          throw (bsh.EvalError)t;
+        }
+        if (t instanceof RuntimeException) {
+          throw (RuntimeException)t;
+        }
+        throw new RuntimeException(t);
       }
-    }
-    catch (bsh.EvalError eBEE) {
+      // If we aren't in devel mode, just print out the results
+      if (!GrouperShell.isDevel(interpreter)) {
+        p.pp(interpreter, obj);
+      }
+    } catch (bsh.EvalError eBEE) {
     	//2008-04-25: Gary Brown
     	//Invocation errors were being swallowed giving no indication of the
     	//actual problem. Now GSH prints more detailed error + causes and
@@ -62,32 +81,75 @@ class ShellHelper {
 	    		t=t.getCause();
 	    	}
     	}
-      i.error(GshErrorMessages.BSH_EVAL + err.toString());
+      interpreter.error(GshErrorMessages.BSH_EVAL + err.toString());
+            
     }
     // Now update the command history
     try {
       // Unless it involves references to `last`
       if ( !_isLastCommand(cmd) ) {
-        List history = GrouperShell.getHistory(i);
-        GrouperShell.setHistory(i, history.size(), cmd);
+        List history = GrouperShell.getHistory(interpreter);
+        GrouperShell.setHistory(interpreter, history.size(), cmd);
       }
     }
     catch (bsh.EvalError eBEE) {
-      i.error(GshErrorMessages.GSH_SETHISTORY + eBEE.getMessage());
+      interpreter.error(GshErrorMessages.GSH_SETHISTORY + eBEE.getMessage());
     }
     sw.stop();
     // If commands are timed and this was not a `last` command output
     // how long it took to evaluate.
-    if ( (GrouperShell.isTimed(i)) && (!_isLastCommand(cmd)) ) {
-      i.println( "time: " + sw.getTime() + "ms command=" + GshUtil.q(cmd) );
+    if ( (GrouperShell.isTimed(interpreter)) && (!_isLastCommand(cmd)) ) {
+      interpreter.println( "time: " + sw.getTime() + "ms command=" + GshUtil.q(cmd) );
     }
+
+    //if we were in the middle of a transaction, then end it all
+    if (hasTransactionProblem) {
+      exitDueToOpenTransaction(interpreter);
+    }
+  
     return cmd;
   } // protected static String  eval(i, cmd)
 
-  // @since 0.0.1
+  /**
+   * @param interpreter
+   */
+  public static void exitDueToOpenTransaction(Interpreter interpreter) {
+    //safest thing to do is kill java... im afraid if running a batch script that it will
+    //continue and starting not using a transaction...
+    String error = "Due to error inside of a transaction in GSH, java is shutting down";
+    interpreter.println(error);
+    LOG.error(error);
+    System.exit(1);
+  }
+
+  /**
+   * @param interpreter
+   * @param t
+   * @return true if has transaction problems
+   */
+  public static boolean closeOpenTransactions(Interpreter interpreter, Throwable t) {
+    int numberOfTransactionsOpen;
+    boolean hasTransactionProblem = false;
+    numberOfTransactionsOpen = HibernateSession._internal_staticSessions().size();
+    if (numberOfTransactionsOpen > 0) {
+      hasTransactionProblem = true;
+      HibernateSession._internal_closeAllHibernateSessions(t);
+      String error = "Due to error, rolled back and closed " 
+        + HibernateSession._internal_staticSessions().size() + " of " + numberOfTransactionsOpen 
+        + " transactions";
+      interpreter.println(error);
+    }
+    return hasTransactionProblem;
+  }
+
+  /**
+   * 
+   * @param i
+   * @param idx
+   * @throws GrouperShellException
+   */
   protected static void last(Interpreter i, int idx) 
-    throws  GrouperShellException
-  {
+    throws  GrouperShellException {
     try {
       List    history = GrouperShell.getHistory(i);
       // An ugly way of getting the last command
@@ -108,10 +170,14 @@ class ShellHelper {
     }
   } // protected static void last(i, idx)
 
-  // @since   0.0.1
+  /**
+   * 
+   * @param i
+   * @param cnt
+   * @throws GrouperShellException
+   */
   protected static void history(Interpreter i, int cnt) 
-    throws  GrouperShellException
-  {
+    throws  GrouperShellException {
     try {
       List      history = GrouperShell.getHistory(i);  
       Object[]  cmds    = history.toArray();
@@ -132,10 +198,11 @@ class ShellHelper {
     }
   } // protected static void history(i, cnt)
 
-
-  // PRIVATE CLASS METHODS //
-
-  // @since   1.1.0
+  /**
+   * 
+   * @param cmd
+   * @return true if last command
+   */
   private static boolean _isLastCommand(String cmd) {
     if (cmd.startsWith("last(")) {
       return true;

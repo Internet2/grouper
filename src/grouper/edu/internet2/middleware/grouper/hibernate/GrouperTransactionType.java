@@ -3,9 +3,8 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * enum of possible transaction types
@@ -308,21 +307,7 @@ public enum GrouperTransactionType {
    * @return the enum or null or exception if not found
    */
   public static GrouperTransactionType valueOfIgnoreCase(String string) {
-    if (StringUtils.isBlank(string)) {
-      return null;
-    }
-    for (GrouperTransactionType grouperTransactionType : GrouperTransactionType.values()) {
-      if (StringUtils.equalsIgnoreCase(string, grouperTransactionType.name())) {
-        return grouperTransactionType;
-      }
-    }
-    StringBuilder error = new StringBuilder(
-        "Cant find grouperTransactionType from string: '").append(string);
-    error.append("', expecting one of: ");
-    for (GrouperTransactionType grouperTransactionType : GrouperTransactionType.values()) {
-      error.append(grouperTransactionType.name()).append(", ");
-    }
-    throw new RuntimeException(error.toString());
+    return GrouperUtil.enumValueOfIgnoreCase(GrouperTransactionType.class,string, false );
   }
 
   /**

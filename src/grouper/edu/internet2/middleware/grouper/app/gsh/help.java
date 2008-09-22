@@ -6,19 +6,50 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
+import org.apache.commons.lang.StringUtils;
+
 import  bsh.*;
 
 /**
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.3 2008-09-14 04:54:00 mchyzer Exp $
+ * @version $Id: help.java,v 1.4 2008-09-22 15:06:40 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
 
-  // PUBLIC CLASS METHODS //
-
+  /**
+   * get help on a specific command
+   * @param interpreter
+   * @param callStack
+   * @param helpOn
+   */
+  public static void invoke(Interpreter interpreter, CallStack callStack,
+      String helpOn) {
+    if (StringUtils.equals(helpOn, "transaction") || StringUtils.equals(helpOn, "transactions")) {
+      interpreter.println("transaction help:\n"
+        + "- help(\"transaction\")       print help information\n"
+        + "\nTransactions facilitate all commands succeeding or failing together, and perhaps some level of " +
+        		"repeatable reads of the DB (depending on the DB).  If there is an open transaction and " +
+        		"an exception is thrown in a command, GSH will shut down so that subsequent commands will " +
+        		"not execute outside of a transaction.\n\n"        
+        + "- transactionStatus()         print the list of nested transactions\n"
+        + "- transactionStart(\"<GrouperTransactionType>\")         start a transaction, or make sure one is already started\n"
+        + "    Can use: \"READONLY_OR_USE_EXISTING\", \"NONE\", \"READONLY_NEW\",\n"
+        + "      \"READ_WRITE_OR_USE_EXISTING\", \"READ_WRITE_NEW\"\n"
+        + "- transactionCommit(\"<GrouperCommitType>\")         commit a transaction\n"
+        + "    Can use: \"COMMIT_NOW\", \"COMMIT_IF_NEW_TRANSACTION\n"
+        + "- transactionRollback(\"<GrouperRollbackType>\")         rollback a transaction\n"
+        + "    Can use: \"ROLLBACK_NOW\", \"ROLLBACK_IF_NEW_TRANSACTION\n"
+        + "- transactionEnd()         end a transaction.\n"
+        + "    Note if it was read/write, and not committed or rolled back, this will commit and end\n");
+      return;
+    }
+    interpreter.println("cant find help on command: " + helpOn);
+    
+  }
+  
   /**
    * Display usage information.
    * <p/>
@@ -68,6 +99,7 @@ public class help {
     i.println("* revokePriv(name, subject id, Privilege)"             );
     i.println("* setGroupAttr(stem, attr, value)"                     );
     i.println("* setStemAttr(stem, attr, value)"                      );
+    i.println("* transaction: type  help(\"transaction\")  for more info");
     i.println("* typeAdd(name)"                                       );
     i.println("* typeAddAttr(type, name, read, write, req)"           );
     i.println("* typeAddList(type, name, read, write)"                );
