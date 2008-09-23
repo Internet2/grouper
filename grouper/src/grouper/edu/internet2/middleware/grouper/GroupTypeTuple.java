@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.5 2008-07-29 20:34:24 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.6 2008-09-23 04:26:23 mchyzer Exp $
  * @since   @HEAD@
  */
 public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
@@ -92,8 +92,8 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
     }
     GroupTypeTuple that = (GroupTypeTuple) other;
     return new EqualsBuilder()
-      .append( this.getGroupUuid(), that.getGroupUuid() )
-      .append( this.getTypeUuid(),  that.getTypeUuid()  )
+      .append( this.groupUUID, that.groupUUID )
+      .append( this.typeUUID,  that.typeUUID  )
       .isEquals();
   }
   
@@ -102,8 +102,8 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getGroupUuid() )
-      .append( this.getTypeUuid()  )
+      .append( this.groupUUID )
+      .append( this.typeUUID  )
       .toHashCode();
   }
   

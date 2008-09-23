@@ -108,7 +108,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.200 2008-09-19 06:28:17 mchyzer Exp $
+ * @version $Id: Group.java,v 1.201 2008-09-23 04:26:23 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -3145,7 +3145,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       return false;
     }
     return new EqualsBuilder()
-      .append( this.getUuid(), ( (Group) other ).getUuid() )
+      .append( this.getName(), ( (Group) other ).getName() )
       .isEquals();
   } // public boolean equals(other)
 
@@ -3216,7 +3216,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getUuid() )
+      .append( this.getName() )
       .toHashCode();
   } // public int hashCode()
 
