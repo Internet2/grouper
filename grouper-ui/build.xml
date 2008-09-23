@@ -518,6 +518,7 @@
 	<target name="-doClean" if="do.clean">
 		<echo message="Removing  ${webapp.folder}"/>
 		<delete dir="${webapp.folder}"/>
+    <delete dir="${dist.home}"/>
 	</target>
 	
 	<!--
