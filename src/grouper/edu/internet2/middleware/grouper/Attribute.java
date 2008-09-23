@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.19 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.20 2008-09-23 04:26:23 mchyzer Exp $
  * @since   @HEAD@
  */
 @GrouperIgnoreDbVersion @GrouperIgnoreClone
@@ -93,9 +93,9 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
     }
     Attribute that = (Attribute) other;
     return new EqualsBuilder()
-      .append( this.getAttrName(),  that.getAttrName()  )
-      .append( this.getGroupUuid(), that.getGroupUuid() )
-      .append( this.getValue(),     that.getValue()     )
+      .append( this.fieldId,  that.fieldId  )
+      .append( this.groupUUID, that.groupUUID )
+      .append( this.value,     that.value     )
       .isEquals();
   } // public boolean equals(other)
   
@@ -104,9 +104,9 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getAttrName()  )
-      .append( this.getGroupUuid() )
-      .append( this.getValue()     )
+      .append( this.fieldId  )
+      .append( this.groupUUID )
+      .append( this.value    )
       .toHashCode();
   } // public int hashCode()
 

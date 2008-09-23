@@ -64,7 +64,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.59 2008-09-10 14:29:40 shilen Exp $
+ * @version $Id: Composite.java,v 1.60 2008-09-23 04:26:23 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
@@ -523,8 +523,12 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
     if (!(other instanceof Composite)) {
       return false;
     }
+    Composite otherComposite = (Composite) other;
     return new EqualsBuilder()
-      .append( this.getUuid(), ( (Composite) other ).getUuid() )
+      .append( this.factorOwnerUUID, otherComposite.factorOwnerUUID )
+      .append( this.leftFactorUUID, otherComposite.leftFactorUUID )
+      .append( this.rightFactorUUID, otherComposite.rightFactorUUID )
+      .append( this.type, otherComposite.type )
       .isEquals();
   } // public boolean equals(other)
 
@@ -575,7 +579,10 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getUuid() )
+      .append( this.factorOwnerUUID )
+      .append( this.leftFactorUUID )
+      .append( this.rightFactorUUID )
+      .append( this.type )
       .toHashCode();
   } // public int hashCode()
 

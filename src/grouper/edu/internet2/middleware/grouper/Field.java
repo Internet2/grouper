@@ -42,7 +42,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Schema specification for a Group attribute or list.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.33 2008-08-24 03:24:37 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.34 2008-09-23 04:26:23 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -173,7 +173,9 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
     }
     Field that = (Field) other;
     return new EqualsBuilder()
-      .append( this.getUuid(), that.getUuid() )
+      .append( this.groupTypeUUID, that.groupTypeUUID )
+      .append( this.name, that.name )
+      .append( this.type, that.type )
      .isEquals();
   } // public boolean equals(other)
 
@@ -227,11 +229,15 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @see java.lang.Object#hashCode()
    */
+  @Override
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getUuid() )
+      .append( this.groupTypeUUID )
+      .append( this.name )
+      .append( this.type )
       .toHashCode();
   } // public int hashCode()
 

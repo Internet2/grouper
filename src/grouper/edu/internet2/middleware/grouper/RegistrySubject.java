@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.13 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.14 2008-09-23 04:26:23 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -254,7 +254,6 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     }
     RegistrySubject that = (RegistrySubject) other;
     return new EqualsBuilder()
-      .append( this.getName(), that.getName() )
       .append( this.getId(),   that.getId()   )
       .append( this.getType(), that.getType() )
       .isEquals();
@@ -275,7 +274,6 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getName() )
       .append( this.getId()   )
       .append( this.getType() )
       .toHashCode();

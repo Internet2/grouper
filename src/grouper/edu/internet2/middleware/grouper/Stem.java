@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.162 2008-09-19 06:28:17 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.163 2008-09-23 04:26:23 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -1620,7 +1620,7 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       return false;
     }
     return new EqualsBuilder()
-      .append( this.getUuid(), ( (Stem) other ).getUuid() )
+      .append( this.name, ( (Stem) other ).name )
       .isEquals();
   } // public boolean equals(other)
 
@@ -1699,7 +1699,7 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getUuid() )
+      .append( this.name )
       .toHashCode();
   } // public int hashCode()
 

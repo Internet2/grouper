@@ -75,7 +75,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.104 2008-09-10 05:45:59 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.105 2008-09-23 04:26:23 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -826,13 +826,11 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     }
     Membership that = (Membership) other;
     return new EqualsBuilder()
-      .append( this.getDepth(),      that.getDepth()      )
-      .append( this.getListName(),   that.getListName()   )
-      .append( this.getListType(),   that.getListType()   )
-      .append( this.getMemberUuid(), that.getMemberUuid() )
-      .append( this.getOwnerUuid(),  that.getOwnerUuid()  )
-      .append( this.getViaUuid(),    that.getViaUuid()    )
-      .append( this.getParentUuid(),    that.getParentUuid()    )
+      .append( this.fieldId,   that.fieldId   )
+      .append( this.memberUUID, that.memberUUID )
+      .append( this.ownerUUID,  that.ownerUUID  )
+      .append( this.viaUUID,    that.viaUUID    )
+      .append( this.parentUUID,    that.parentUUID    )
       .isEquals();
   } // public boolean equals(other)
 
@@ -913,13 +911,11 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getDepth()      )
-      .append( this.getListName()   )
-      .append( this.getListType()   )
-      .append( this.getMemberUuid() )
-      .append( this.getOwnerUuid()  )
-      .append( this.getViaUuid()    )
-      .append( this.getParentUuid()    )
+      .append( this.fieldId   )
+      .append( this.memberUUID )
+      .append( this.ownerUUID  )
+      .append( this.viaUUID    )
+      .append( this.parentUUID    )
       .toHashCode();
   } // public int hashCode()
 

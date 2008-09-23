@@ -79,7 +79,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.108 2008-07-28 20:12:28 mchyzer Exp $
+ * @version $Id: Member.java,v 1.109 2008-09-23 04:26:23 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -1491,10 +1491,9 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     }
     Member that = (Member) other;
     return new EqualsBuilder()
-      .append( this.getSubjectId(),       that.getSubjectId()       )
-      .append( this.getSubjectSourceId(), that.getSubjectSourceId() )
-      .append( this.getSubjectTypeId(),   that.getSubjectTypeId()   )
-      .append( this.getUuid(),            that.getUuid()            )
+      .append( this.subjectID,       that.subjectID       )
+      .append( this.subjectSourceID, that.subjectSourceID )
+      .append( this.subjectTypeID,   that.subjectTypeID   )
       .isEquals();
   } // public boolean equals(other)
 
@@ -1517,10 +1516,9 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.getSubjectId()       )
-      .append( this.getSubjectSourceId() )
-      .append( this.getSubjectTypeId()   )
-      .append( this.getUuid()            )
+      .append( this.subjectID      )
+      .append( this.subjectSourceID)
+      .append( this.subjectTypeID   )
       .toHashCode();
   } // public int hashCode()
 

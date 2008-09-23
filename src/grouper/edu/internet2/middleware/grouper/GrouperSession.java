@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.86 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.87 2008-09-23 04:26:23 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -511,25 +511,6 @@ public class GrouperSession {
   } 
 
 
-  // PUBLIC INSTANCE METHODS //
-  /**
-   * @since   1.2.0
-   */  
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof GrouperSession)) {
-      return false;
-    }
-    GrouperSession that = (GrouperSession) other;
-    return new EqualsBuilder()
-      .append( this.getMemberUuid(), that.getMemberUuid() )
-      .append( this.getStartTime(),  that.getStartTime()  )
-      .append( this.getUuid(),       that.getUuid()       )
-      .isEquals();
-  }
-
   /**
    * @since   1.2.0
    */
@@ -550,17 +531,6 @@ public class GrouperSession {
   public String getUuid() {
     return this.uuid;
   }
-
-  /**
-   * @since   1.2.0
-   */
-  public int hashCode() {
-    return new HashCodeBuilder()
-      .append( this.getMemberUuid() )
-      .append( this.getStartTime()  )
-      .append( this.getUuid()       )
-      .toHashCode();
-  } // public int hashCode()
 
   /**
    * @since   1.2.0
