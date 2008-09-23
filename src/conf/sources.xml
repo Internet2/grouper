@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.9 2008-08-18 06:26:10 mchyzer Exp $
+$Id: sources.xml,v 1.10 2008-09-23 06:37:55 mchyzer Exp $
 -->
 
 <sources>
@@ -70,10 +70,6 @@ $Id: sources.xml,v 1.9 2008-08-18 06:26:10 mchyzer Exp $
     <search>
       <searchType>searchSubject</searchType>
       <param>
-        <param-name>numParameters</param-name>
-        <param-value>1</param-value>
-      </param>
-      <param>
         <param-name>sql</param-name>
         <param-value>select * from Subject where (subjectId=?)</param-value>
        </param>
@@ -81,20 +77,12 @@ $Id: sources.xml,v 1.9 2008-08-18 06:26:10 mchyzer Exp $
     <search>
       <searchType>searchSubjectByIdentifier</searchType>
       <param>
-        <param-name>numParameters</param-name>
-        <param-value>1</param-value>
-      </param>
-      <param>
         <param-name>sql</param-name>
         <param-value>select * from Subject where (name=?)</param-value>
       </param>
     </search>
     <search>
       <searchType>search</searchType>
-        <param>
-          <param-name>numParameters</param-name>
-          <param-value>2</param-value>
-        </param>
         <param>
           <param-name>sql</param-name>
           <param-value>
