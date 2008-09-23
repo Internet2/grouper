@@ -60,9 +60,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.log4j.Appender;
+import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
@@ -114,13 +114,20 @@ public class GrouperUtil {
   }
   
   /**
-   * print the log dir to the console so the logs are easy to find 
+   * log dir message
    */
-  public static void printLogDir() {
+  private static String logDirMessage = null;
+  
+  /**
+   * print the log dir to the console so the logs are easy to find 
+   * @return the log dir message
+   */
+  public static String printLogDir() {
     //only do this once
     if (printGrouperLogsToConsole != null) {
-      return;
+      return logDirMessage;
     }
+    StringBuilder resultMessage = new StringBuilder();
     printGrouperLogsToConsole = false;
     Log rootLogger = LogFactory.getLog("edu.internet2.middleware.grouper");
     StringBuilder rootLoggerAppender = new StringBuilder();
@@ -128,7 +135,20 @@ public class GrouperUtil {
     
     
     if (rootLogger instanceof Log4JLogger) {
-      Logger log4jLogger = ((Log4JLogger)rootLogger).getLogger();
+      Category log4jLogger = ((Log4JLogger)rootLogger).getLogger();
+      int timeToLive = 30;
+      //if level is null, then go to next.  well, honestly, I dont know
+      //how the exact algorithm works... :)
+      while (log4jLogger.getLevel() == null) {
+        Category parent = log4jLogger.getParent();
+        if (parent == null) {
+          break;
+        }
+        log4jLogger = parent;
+        if (timeToLive-- < 0) {
+          break;
+        }
+      }
       Enumeration allAppenders = log4jLogger.getAllAppenders();
       if (allAppenders!=null) {
         while (allAppenders.hasMoreElements()) {
@@ -140,11 +160,11 @@ public class GrouperUtil {
           } else if (appender instanceof FileAppender) {
             String path = ((FileAppender)appender).getFile();
             if (StringUtils.isBlank(path)) {
-              System.err.println("Grouper error, file appender path is empty, maybe dir doesnt exist");
+              resultMessage.append("Grouper error, file appender path is empty, maybe dir doesnt exist\n");
             } else {
               File logFile = new File(path);
               if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
-                System.err.println("Grouper error, parent dir of log file doesnt exist: " + logFile.getAbsolutePath());
+                resultMessage.append("Grouper error, parent dir of log file doesnt exist: " + logFile.getAbsolutePath() + "\n");
               }
               rootLoggerAppender.append(logFile.getAbsolutePath()).append(", ");
             }
@@ -154,14 +174,14 @@ public class GrouperUtil {
         }
       }
       if (!writesLogs || !rootLogger.isErrorEnabled()) {
-        System.err.println("Grouper warning, it is detected that you are not logging errors for " +
+        resultMessage.append("Grouper warning, it is detected that you are not logging errors for " +
         		"package edu.internet2.middleware.grouper, you should enable logging at " +
-        		"least at the WARN level in log4j.properties");
+        		"least at the WARN level in log4j.properties\n");
       } else {
         if (rootLogger.isErrorEnabled() && !rootLogger.isWarnEnabled()) {
-          System.err.println("Grouper warning, it is detected that you are logging " +
+          resultMessage.append("Grouper warning, it is detected that you are logging " +
           		"edu.internet2.middleware.grouper as ERROR and not WARN level.  It is " +
-          		"recommended to log at at least WARN level in log4j.properties");
+          		"recommended to log at at least WARN level in log4j.properties\n");
         }
         String logLevel = null;
         if (rootLogger.isTraceEnabled()) {
@@ -177,12 +197,14 @@ public class GrouperUtil {
         } else if (rootLogger.isFatalEnabled()) {
           logLevel = "FATAL";
         }
-        System.err.println("Grouper is logging to file:   " + rootLoggerAppender + "at min level " 
-            + logLevel + " for package: edu.internet2.middleware.grouper, based on log4j.properties"); 
+        resultMessage.append("Grouper is logging to file:   " + rootLoggerAppender + "at min level " 
+            + logLevel + " for package: edu.internet2.middleware.grouper, based on log4j.properties\n"); 
       }
     } else {
-      System.err.println("Grouper logs are not using log4j: " + (rootLogger == null ? null : rootLogger.getClass()));
+      resultMessage.append("Grouper logs are not using log4j: " + (rootLogger == null ? null : rootLogger.getClass()) + "\n");
     }
+    logDirMessage = resultMessage.toString();
+    return logDirMessage;
   }
   
   /**

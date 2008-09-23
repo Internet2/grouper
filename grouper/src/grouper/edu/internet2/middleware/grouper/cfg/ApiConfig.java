@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -31,11 +33,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.12 2008-09-14 04:54:00 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.13 2008-09-23 18:57:41 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
 
+  /**
+   * logger 
+   */
+  private static final Log LOG = LogFactory.getLog(ApiConfig.class);
 
   /**
    * Property name for <code>AccessAdapter</code> implementation.
@@ -113,36 +119,39 @@ public class ApiConfig implements Configuration {
   private static boolean printedConfigLocation = false;
   
   /**
-   * print where config is read from
+   * print where config is read from, to sys out and log warn
    */
   private static void printConfigOnce() {
     if (printedConfigLocation) {
       return;
     }
     printedConfigLocation = true;
+    StringBuilder resultString = new StringBuilder();
     File grouperPropertiesFile = GrouperUtil.fileFromResourceName("grouper.properties");
     String propertiesFileLocation = grouperPropertiesFile == null ? "not found" 
         : GrouperUtil.fileCanonicalPath(grouperPropertiesFile); 
-    System.out.println("grouper.properties read from: " + propertiesFileLocation);
-    System.out.println("Grouper current directory is: " + new File("").getAbsolutePath());
+    resultString.append("grouper.properties read from: " + propertiesFileLocation + "\n");
+    resultString.append("Grouper current directory is: " + new File("").getAbsolutePath() + "\n");
     File hibPropertiesFile = GrouperUtil.fileFromResourceName("grouper.hibernate.properties");
     String hibPropertiesFileLocation = hibPropertiesFile == null ? " [cant find grouper.hibernate.properties]" :
       GrouperUtil.fileCanonicalPath(hibPropertiesFile);
-    System.out.println("grouper.hibernate.properties: " + hibPropertiesFileLocation);
+    resultString.append("grouper.hibernate.properties: " + hibPropertiesFileLocation + "\n");
     
     //get log4j file
     File log4jFile = GrouperUtil.fileFromResourceName("log4j.properties");
     String log4jFileLocation = log4jFile == null ? " [cant find log4j.properties]" :
       GrouperUtil.fileCanonicalPath(log4jFile);
-    System.out.println("log4j.properties read from:   " + log4jFileLocation);
+    resultString.append("log4j.properties read from:   " + log4jFileLocation + "\n");
     
-    
-    GrouperUtil.printLogDir();    
+    resultString.append(GrouperUtil.printLogDir());    
     Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
     String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
     String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
-    System.out.println("grouper.hibernate.properties: " + user + "@" + url);
-
+    resultString.append("grouper.hibernate.properties: " + user + "@" + url + "\n");
+    System.out.println(resultString);
+    if (!GrouperUtil.isPrintGrouperLogsToConsole()) {
+      LOG.warn(resultString);
+    }
   }
   
   /**
