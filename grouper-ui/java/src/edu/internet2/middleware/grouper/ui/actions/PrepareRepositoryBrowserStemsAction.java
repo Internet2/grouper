@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.InitialStems;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
+import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 
 
@@ -214,7 +215,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.14 2008-04-15 13:43:21 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.14.2.1 2008-09-24 10:00:18 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -306,7 +307,11 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 			}else {
 				try{
 					curNodeStem = StemFinder.findByName(grouperSession, defaultStem);
-				}catch(StemNotFoundException e){}
+				}catch(StemNotFoundException e){
+					LOG.error("Cannot retrieve defaultStem: " + defaultStem,e);
+					throw new UnrecoverableErrorException("error.browse.bad-current-id",e,defaultStem);
+				
+				}
 			}
 			
 			if(curNodeStem!=null && !"ROOT".equals(currentNodeId)) {
