@@ -45,6 +45,8 @@ import org.apache.taglibs.standard.tag.common.fmt.BundleSupport;
 import org.apache.taglibs.standard.tag.common.fmt.SetLocaleSupport;
 import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 
+import sun.util.logging.resources.logging;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
@@ -54,7 +56,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p>
  * A handler for &lt;message&gt; that accepts attributes as Strings and
  * evaluates them as expressions at runtime. Substitutes keywords into
- * underlined tooltips.  The default bundle is "${nav}"
+ * underlined tooltips.  The default bundle is "${nav}".  If the value is
+ * provided, use that instead of looking up in a properties file, and perhaps
+ * do a tooltip lookup
  * </p>
  * 
  * @author Chris Hyzer
@@ -108,7 +112,14 @@ public class GrouperMessageTag extends MessageTag {
 		super.release();
 		this.init();
 	}
+	
+	/** if specified use this value and not lookup in resource file */
+	private String value = null;
 
+	/** if using the value, this is the key of the tooltip (could also use ref).
+	 * Actually, there is still the tooltipTargetted or tooltipTargettedRef prefix */
+	private String valueTooltipKey = null;
+	
 	/**
 	 * init vars
 	 */
@@ -120,6 +131,8 @@ public class GrouperMessageTag extends MessageTag {
 		this.escapeSingleQuotes = null;
 		this.tooltipRef = null;
 		this.ignoreTooltipStyle = null;
+		this.value = null;
+		this.valueTooltipKey = null;
 	}
 
 	/** 
@@ -171,137 +184,148 @@ public class GrouperMessageTag extends MessageTag {
 	public int doEndTag() throws JspException {
 
 		// see if we are using tooltips
-		if (this.tooltipDisable() || !GrouperConfig.getPropertyBoolean(
-				GrouperConfig.MESSAGES_USE_TOOLTIPS, true)) {
-			return super.doEndTag();
+		boolean dontDoTooltips = (this.tooltipDisable() || !GrouperConfig.getPropertyBoolean(
+				GrouperConfig.MESSAGES_USE_TOOLTIPS, true));
+
+		//maybe there is a value
+		String message = this.value;
+		String tooltipKey = StringUtils.isBlank(this.valueTooltipKey) ? null : this.valueTooltipKey;
+		if (StringUtils.isBlank(message)) { 
+  		// now duplicate the super method
+  		String keyInput = null;
+  
+  		// determine the message key by...
+  		if (this.keySpecified) {
+  			// ... reading 'key' attribute
+  			keyInput = this.key;
+  		} else {
+  			// ... retrieving and trimming our body
+  			if (this.bodyContent != null && this.bodyContent.getString() != null)
+  				keyInput = this.bodyContent.getString().trim();
+  		}
+  
+  		if ((keyInput == null) || keyInput.equals("")) {
+  			try {
+  				this.pageContext.getOut().print("??????");
+  			} catch (IOException ioe) {
+  				throw new JspTagException(ioe.getMessage());
+  			}
+  			return EVAL_PAGE;
+  		}
+  
+  		String prefix = null;
+  		if (this.locCtxt == null) {
+  			Tag t = findAncestorWithClass(this, BundleSupport.class);
+  			if (t != null) {
+  				// use resource bundle from parent <bundle> tag
+  				BundleSupport parent = (BundleSupport) t;
+  				this.locCtxt = parent.getLocalizationContext();
+  				prefix = parent.getPrefix();
+  			} else {
+  				this.locCtxt = BundleSupport.getLocalizationContext(this.pageContext);
+  			}
+  		} else {
+  			// localization context taken from 'bundle' attribute
+  			if (this.locCtxt.getLocale() != null) {
+  				GrouperUtil.callMethod(SetLocaleSupport.class,
+  						"setResponseLocale", new Class[] { PageContext.class,
+  								Locale.class }, new Object[] {
+  								this.pageContext, this.locCtxt.getLocale() });
+  				/*
+  				 * SetLocaleSupport.setResponseLocale(pageContext,
+  				 * locCtxt.getLocale());
+  				 */
+  			}
+  		}
+  
+      // Perform parametric replacement if required
+      List params = (List) GrouperUtil.fieldValue(this, "params");
+  
+      message = UNDEFINED_KEY + keyInput + UNDEFINED_KEY;
+  		if (this.locCtxt != null) {
+  			ResourceBundle bundle = this.locCtxt.getResourceBundle();
+  			if (bundle != null) {
+  				try {
+  					// prepend 'prefix' attribute from parent bundle
+  					if (prefix != null)
+  						keyInput = prefix + keyInput;
+  					message = bundle.getString(keyInput);
+  					if (!params.isEmpty()) {
+  						Object[] messageArgs = params.toArray();
+  						MessageFormat formatter = new MessageFormat("");
+  						if (this.locCtxt.getLocale() != null) {
+  							formatter.setLocale(this.locCtxt.getLocale());
+  						}
+  						formatter.applyPattern(message);
+  						message = formatter.format(messageArgs);
+  					}
+  				} catch (MissingResourceException mre) {
+  					message = UNDEFINED_KEY + keyInput + UNDEFINED_KEY;
+  				}
+  			}
+  		}
+  		//use the tooltip key as the keyInput
+  		tooltipKey = keyInput;
 		}
-
-		// now duplicate the super method
-		String keyInput = null;
-
-		// determine the message key by...
-		if (this.keySpecified) {
-			// ... reading 'key' attribute
-			keyInput = this.key;
-		} else {
-			// ... retrieving and trimming our body
-			if (this.bodyContent != null && this.bodyContent.getString() != null)
-				keyInput = this.bodyContent.getString().trim();
-		}
-
-		if ((keyInput == null) || keyInput.equals("")) {
-			try {
-				this.pageContext.getOut().print("??????");
-			} catch (IOException ioe) {
-				throw new JspTagException(ioe.getMessage());
-			}
-			return EVAL_PAGE;
-		}
-
-		String prefix = null;
-		if (this.locCtxt == null) {
-			Tag t = findAncestorWithClass(this, BundleSupport.class);
-			if (t != null) {
-				// use resource bundle from parent <bundle> tag
-				BundleSupport parent = (BundleSupport) t;
-				this.locCtxt = parent.getLocalizationContext();
-				prefix = parent.getPrefix();
-			} else {
-				this.locCtxt = BundleSupport.getLocalizationContext(this.pageContext);
-			}
-		} else {
-			// localization context taken from 'bundle' attribute
-			if (this.locCtxt.getLocale() != null) {
-				GrouperUtil.callMethod(SetLocaleSupport.class,
-						"setResponseLocale", new Class[] { PageContext.class,
-								Locale.class }, new Object[] {
-								this.pageContext, this.locCtxt.getLocale() });
-				/*
-				 * SetLocaleSupport.setResponseLocale(pageContext,
-				 * locCtxt.getLocale());
-				 */
-			}
-		}
-
-    // Perform parametric replacement if required
-    List params = (List) GrouperUtil.fieldValue(this, "params");
-
-    String message = UNDEFINED_KEY + keyInput + UNDEFINED_KEY;
-		if (this.locCtxt != null) {
-			ResourceBundle bundle = this.locCtxt.getResourceBundle();
-			if (bundle != null) {
-				try {
-					// prepend 'prefix' attribute from parent bundle
-					if (prefix != null)
-						keyInput = prefix + keyInput;
-					message = bundle.getString(keyInput);
-					if (!params.isEmpty()) {
-						Object[] messageArgs = params.toArray();
-						MessageFormat formatter = new MessageFormat("");
-						if (this.locCtxt.getLocale() != null) {
-							formatter.setLocale(this.locCtxt.getLocale());
-						}
-						formatter.applyPattern(message);
-						message = formatter.format(messageArgs);
-					}
-				} catch (MissingResourceException mre) {
-					message = UNDEFINED_KEY + keyInput + UNDEFINED_KEY;
-				}
-			}
-		}
-		String var = (String) GrouperUtil.fieldValue(this, "var");
 		
-	  String targettedTooltipKey = TOOLTIP_TARGETTED_PREFIX + keyInput;
-    String targettedTooltipRefKey = TOOLTIP_TARGETTED_REF_PREFIX + keyInput;
-	  
-    MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)((HttpServletRequest)this
-        .pageContext.getRequest()).getSession().getAttribute("navNullMap");
-    
-    String targettedTooltipRefValue = (String)mapBundleWrapper.get(targettedTooltipRefKey);
-
-    String targettedTooltipValue = StringUtils.isNotBlank(this.tooltipRef) ?
-        (String)mapBundleWrapper.get(this.tooltipRef) :(String)mapBundleWrapper.get(targettedTooltipKey);
-    
-    //if there is a ref, but it doesnt exist, that is a problem
-    if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
-      LOG.error("Missing tooltip targetted ref in nav.properties: " + targettedTooltipRefKey);
-    }
-
-    if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
-      LOG.warn("Duplicate tooltip target and ref in nav.properties: " + targettedTooltipKey 
-          + ", " + targettedTooltipRefKey);
-    }
-    if ((StringUtils.isNotBlank(targettedTooltipRefValue) 
-        || StringUtils.isNotBlank((String)mapBundleWrapper.get(targettedTooltipKey)))
-        && StringUtils.isNotBlank(this.tooltipRef)) {
-      LOG.warn("targettedTooltip and tooltipRef set at once! '" + targettedTooltipKey 
-          + "', '" + targettedTooltipRefKey + "', '" + this.tooltipRef + "'");
-    }
-    
-    //first priority is a targetted ref, next priority is a target.  not sure why both would be there
-    targettedTooltipValue = StringUtils.isBlank(targettedTooltipRefValue) ? 
-        targettedTooltipValue : (String)mapBundleWrapper.get(targettedTooltipRefValue);
-    
-        
-    boolean isIgnoreTooltipStyle = GrouperUtil.booleanValue(this.ignoreTooltipStyle, false);
-    
-    if (StringUtils.isNotBlank(targettedTooltipValue)) {
+		if (!StringUtils.isBlank(tooltipKey)) {
+  	  String targettedTooltipKey = TOOLTIP_TARGETTED_PREFIX + tooltipKey;
+      String targettedTooltipRefKey = TOOLTIP_TARGETTED_REF_PREFIX + tooltipKey;
+  	  
+      MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)((HttpServletRequest)this
+          .pageContext.getRequest()).getSession().getAttribute("navNullMap");
       
-      //replace the whole message with tooltip
-      message = convertTooltipTextToHtml(targettedTooltipValue, message, isIgnoreTooltipStyle);
+      String targettedTooltipRefValue = (String)mapBundleWrapper.get(targettedTooltipRefKey);
+  
+      String targettedTooltipValue = StringUtils.isNotBlank(this.tooltipRef) ?
+          (String)mapBundleWrapper.get(this.tooltipRef) :(String)mapBundleWrapper.get(targettedTooltipKey);
       
-    } else {
+      //if there is a ref, but it doesnt exist, that is a problem
+      if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
+        LOG.error("Missing tooltip targetted ref in nav.properties: " + targettedTooltipRefKey);
+      }
+  
+      if (StringUtils.isNotBlank(targettedTooltipRefValue) && StringUtils.isNotBlank(targettedTooltipValue)) {
+        LOG.warn("Duplicate tooltip target and ref in nav.properties: " + targettedTooltipKey 
+            + ", " + targettedTooltipRefKey);
+      }
+      if ((StringUtils.isNotBlank(targettedTooltipRefValue) 
+          || StringUtils.isNotBlank((String)mapBundleWrapper.get(targettedTooltipKey)))
+          && StringUtils.isNotBlank(this.tooltipRef)) {
+        LOG.warn("targettedTooltip and tooltipRef set at once! '" + targettedTooltipKey 
+            + "', '" + targettedTooltipRefKey + "', '" + this.tooltipRef + "'");
+      }
       
-      //CH 20080129 at this point we need to make the tooltip subsitutions
-      message = substituteTooltips(message, isIgnoreTooltipStyle);
+      //first priority is a targetted ref, next priority is a target.  not sure why both would be there
+      targettedTooltipValue = StringUtils.isBlank(targettedTooltipRefValue) ? 
+          targettedTooltipValue : (String)mapBundleWrapper.get(targettedTooltipRefValue);
       
-    }
-    
+          
+      boolean isIgnoreTooltipStyle = GrouperUtil.booleanValue(this.ignoreTooltipStyle, false);
+      boolean hasTooltip = StringUtils.isNotBlank(targettedTooltipValue);
+      
+      LOG.debug("Tooltip key: " + targettedTooltipKey + " has tooltip? " + hasTooltip);
+      
+      if (!dontDoTooltips) {
+        if (hasTooltip) {
+          
+          //replace the whole message with tooltip
+          message = convertTooltipTextToHtml(targettedTooltipValue, message, isIgnoreTooltipStyle);
+          
+        } else {
+          
+          //CH 20080129 at this point we need to make the tooltip subsitutions
+          message = substituteTooltips(message, isIgnoreTooltipStyle);
+          
+        }
+      }
+		}
+		
     //maybe this is a javascript message and should be escaped (e.g. tooltip)
     if (GrouperUtil.booleanValue(this.escapeSingleQuotes, false)) {
       message = StringUtils.replace(message, "'", "\\'");
     }
-    
+    String var = (String) GrouperUtil.fieldValue(this, "var");
 		if (var != null) {
 			int scope = (Integer) GrouperUtil.fieldValue(this, "scope");
 			this.pageContext.setAttribute(var, message, scope);
@@ -593,6 +617,14 @@ public class GrouperMessageTag extends MessageTag {
         this.ignoreTooltipStyle, this, this.pageContext)) != null) {
       setIgnoreTooltipStyle(string);
     }
+    if ((string = EvalHelper.evalString("value", 
+        this.value, this, this.pageContext)) != null) {
+      setValue(string);
+    }
+    if ((string = EvalHelper.evalString("valueTooltipKey", 
+        this.valueTooltipKey, this, this.pageContext)) != null) {
+      setValueTooltipKey(string);
+    }
     
   }
 
@@ -635,6 +667,22 @@ public class GrouperMessageTag extends MessageTag {
    */
   public void setIgnoreTooltipStyle(String ignoreTooltipStyle1) {
     this.ignoreTooltipStyle = ignoreTooltipStyle1;
+  }
+
+  /**
+   * if specified use this value and not lookup in resource file
+   * @param value1
+   */
+  public void setValue(String value1) {
+    this.value = value1;
+  }
+
+  /**
+   * set value tooltip
+   * @param valueTooltipKey1
+   */
+  public void setValueTooltipKey(String valueTooltipKey1) {
+    this.valueTooltipKey = valueTooltipKey1;
   }
 	
 }

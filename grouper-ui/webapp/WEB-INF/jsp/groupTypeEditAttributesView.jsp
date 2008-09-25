@@ -2,13 +2,14 @@
 		  Dynamic tile used to render a GroupType so fields can be edited
 --%><%--
   @author Gary Brown.
-  @version $Id: groupTypeEditAttributesView.jsp,v 1.2 2008-05-01 04:59:31 mchyzer Exp $
+  @version $Id: groupTypeEditAttributesView.jsp,v 1.3 2008-09-25 04:54:16 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <tr class="formTableRow">
 	<td class="formTableLeft">
-		<c:out value="${viewObject.name}"/>
+      <grouper:message value="${viewObject.name}" 
+      valueTooltipKey="groupTypes.${viewObject.name}" />
 	</td>
   <td>&nbsp;</td>
   <td>&nbsp;</td>

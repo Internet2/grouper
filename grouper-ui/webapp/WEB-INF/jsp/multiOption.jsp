@@ -2,7 +2,7 @@
 			Displays a set of checkboxes or radio buttons for user selection based on tiles attributes passed in
 --%><%--
   @author Gary Brown.
-  @version $Id: multiOption.jsp,v 1.1 2006-02-21 16:50:18 isgwb Exp $
+  @version $Id: multiOption.jsp,v 1.2 2008-09-25 04:54:16 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -48,7 +48,8 @@ String checkedStr=null;
 					   type="<%=inputType%>" 
 					   name="<%=name%>"
 					   value="<c:out value="${inputValue}"/>"
-					   <%=checkedStr%>/><label for="multi-<%=name%><%=count%>"><c:out value="${inputValue}"/></label> 
+					   <%=checkedStr%>/><label for="multi-<%=name%><%=count%>"><grouper:message 
+               value="${inputValue}" valueTooltipKey="${name}.${inputValue}" /></label> 
 			</span>
 		<%
 		newRow = (count % columns) == 0;
