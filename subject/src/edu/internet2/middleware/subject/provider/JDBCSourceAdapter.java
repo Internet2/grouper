@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.11 2008-09-23 06:37:58 mchyzer Exp $
-$Date: 2008-09-23 06:37:58 $
+$Id: JDBCSourceAdapter.java,v 1.12 2008-09-25 23:45:17 ddonn Exp $
+$Date: 2008-09-25 23:45:17 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -17,13 +17,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryRuntimeException;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -40,7 +36,7 @@ public class JDBCSourceAdapter
         extends BaseSourceAdapter {
     
   /** logger */
-	private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
+	protected static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
 	
   /** name attribute name */
 	protected String nameAttributeName;
@@ -55,7 +51,7 @@ public class JDBCSourceAdapter
 	protected String subjectTypeString;
 
 	/** keep a reference to the object which gets our connections for us */
-	private JdbcConnectionProvider jdbcConnectionProvider = null;
+	protected JdbcConnectionProvider jdbcConnectionProvider = null;
 	
     /**
      * Allocates new JDBCSourceAdapter;
@@ -287,14 +283,13 @@ public class JDBCSourceAdapter
         if (sql.contains("%TERM%")) {
           throw new InvalidQueryRuntimeException("%TERM%. Possibly old style SQL query, source: " + this.getId() + ", sql: " + sql);
         }
-        String numParametersString = search.getParam("numParameters");
-        //not required since it will just count the number of question marks
-        if (!StringUtils.isBlank(numParametersString)) {
-          try {
-              Integer.parseInt(numParametersString);
-          } catch (NumberFormatException e) {
-              throw new InvalidQueryRuntimeException("Non-numeric numParameters parameter specified, source: " + this.getId() + ", sql: " + sql);
-          }
+        if (search.getParam("numParameters") == null) {
+            throw new InvalidQueryRuntimeException("No numParameters parameter specified, source: " + this.getId() + ", sql: " + sql);
+        }
+        try {
+            Integer.parseInt(search.getParam("numParameters"));
+        } catch (NumberFormatException e) {
+            throw new InvalidQueryRuntimeException("Non-numeric numParameters parameter specified, source: " + this.getId() + ", sql: " + sql);
         }
         PreparedStatement stmt = conn.prepareStatement(sql);
         return stmt;
@@ -312,20 +307,12 @@ public class JDBCSourceAdapter
     protected ResultSet getSqlResults(String searchValue, PreparedStatement stmt, Search search) 
            throws SQLException {
         ResultSet rs = null;
-        String sql = search.getParam("sql");
-        String numParametersString = search.getParam("numParameters");
-        //default to the number of question marks
-        int numParameters = StringUtils.isBlank(numParametersString) ? StringUtils.countMatches(sql, "?") :
-          Integer.parseInt(numParametersString);
-        for (int i = 1; i <= numParameters; i++) {
+        for (int i = 1; i <= Integer.parseInt(search.getParam("numParameters")); i++) {
           try {
             stmt.setString(i, searchValue);
           } catch (SQLException e) {
-            SubjectUtils.injectInException(e, "Error setting param: " + i + " in source: " + this.getId() 
-                + ", in query: " + sql + ", " + e.getMessage() + ", maybe not enough question marks " +
-                		"(bind variables) are in query, or the number of question marks in the query is " +
-                		"not the same as the number of parameters (might need to set the optional param numParameters), " +
-                		"or the param 'numParameters' in sources.xml for that query is incorrect");
+            SubjectUtils.injectInException(e, "Error setting param: " + i + " in source: " + this.getId() + ", in query: " + search.getParam("sql") + ", " + e.getMessage() 
+                + ", maybe not enough question marks (bind variables) are in query, or the param 'numParameters' in sources.xml for that query is incorrect");
             throw e;
           }
         }
