@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/GrantableImplXa.java,v 1.4 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/GrantableImplXa.java,v 1.5 2008-09-26 00:49:26 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -94,7 +94,8 @@ public abstract class GrantableImplXa extends EntityImplXa
 		// in Entity. Only one id field can be used in these XML objects, so a
 		// conversion is necessary. The xml.setId here must be called after the
 		// call to super.setValues().
-		xmlGrantable.setId(signetGrantable.getId().toString());
+		Integer intId = signetGrantable.getId();
+		xmlGrantable.setId((null != intId) ? intId.toString() : null);
 	}
 
 

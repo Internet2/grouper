@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.4 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.5 2008-09-26 00:49:26 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -125,8 +125,11 @@ public class AssignmentImplXa extends GrantableImplXa
 
 //  private FunctionImpl		function;
 		FunctionImpl function = (FunctionImpl)signetAssignment.getFunction();
-		xmlAssignment.setFunction(function.getId());
-		xmlAssignment.setSubsystem(function.getSubsystem().getId());
+		if (null != function)
+		{
+			xmlAssignment.setFunction(function.getId());
+			xmlAssignment.setSubsystem(function.getSubsystem().getId());
+		}
 
 //  private Set				limitValues;
 		// get the (empty) list from the xmlAssignment

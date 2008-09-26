@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.47 2007-12-06 01:18:32 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/AssignmentImpl.java,v 1.48 2008-09-26 00:49:26 ddonn Exp $
  
 Copyright 2006 Internet2, Stanford University
 
@@ -27,7 +27,7 @@ import edu.internet2.middleware.signet.tree.TreeNode;
 
 public class AssignmentImpl extends GrantableImpl implements Assignment
 {
-  private TreeNodeImpl			scope;
+  private TreeNodeImpl		scope;
   private FunctionImpl		function;
   private Set				limitValues;
   private boolean			canGrant;
@@ -229,18 +229,21 @@ public AssignmentImpl
     this.scope = scope;
   }
   
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#getScope()
-   */
-  public TreeNodeImpl getScope()
-  {
-    scope.setSignet(getSignet());
-    return (scope);
-  }
+	/*
+	 * (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Assignment#getScope()
+	 */
+	public TreeNodeImpl getScope()
+	{
+		if (null != scope)
+			scope.setSignet(getSignet());
+		return (scope);
+	}
   
-  /* (non-Javadoc)
-   * @see edu.internet2.middleware.signet.Assignment#getFunction()
-   */
+  /*
+	 * (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.Assignment#getFunction()
+	 */
   public Function getFunction()
   {
     if (getSignet() != null)

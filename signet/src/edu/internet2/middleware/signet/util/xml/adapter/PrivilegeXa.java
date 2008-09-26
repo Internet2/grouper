@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PrivilegeXa.java,v 1.2 2008-07-16 07:34:00 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/PrivilegeXa.java,v 1.3 2008-09-26 00:49:26 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -17,13 +17,11 @@ limitations under the License.
 */
 package edu.internet2.middleware.signet.util.xml.adapter;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.LimitValue;
 import edu.internet2.middleware.signet.Signet;
-import edu.internet2.middleware.signet.SubsystemImpl;
 import edu.internet2.middleware.signet.util.xml.binder.LimitValueXb;
 import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
 import edu.internet2.middleware.signet.util.xml.binder.PrivilegeXb;
@@ -99,7 +97,7 @@ public class PrivilegeXa
 		xmlEntity.setSubsystem(signetAssignment.getFunction().getSubsystem().getId());
 
 		List<LimitValueXb> xmlLimits = xmlEntity.getLimitValue();
-		Set<LimitValue> limits = (Set<LimitValue>)signetAssignment.getLimitValues();
+		Set<LimitValue> limits = signetAssignment.getLimitValues();
 		for (LimitValue limitValue : limits)
 			xmlLimits.add(new LimitValueXa(limitValue, signet).getXmlLimitValue());
 	}

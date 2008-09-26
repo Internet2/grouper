@@ -16,9 +16,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
+import edu.internet2.middleware.subject.provider.JdbcConnectionBean;
 
 
 /**
@@ -41,14 +40,11 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 						"WHERE sa." + SUBJID_FLD + " = ?" +
 						" ORDER BY sa." + NAME_FLD + ", sa." + INSTANCE_FLD;
 
-	protected Log	log;
-
 
 	/** default constructor */
 	public SignetJDBCSourceAdapter()
 	{
 		super();
-		log	= LogFactory.getLog(SignetJDBCSourceAdapter.class);
 	}
 
 	///////////////////////////////////////
@@ -85,9 +81,13 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		String sql = null;
+
+		JdbcConnectionBean jdbcConnectionBean = null;
 		try
 		{
-			conn = dataSource.getConnection();
+			jdbcConnectionBean = jdbcConnectionProvider.connectionBean();
+			conn = jdbcConnectionBean.connection();
+
 			sql = SUBJ_ATTR_SQL;
 			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, rs.getString(getSubjectIDAttributeName()));
@@ -107,17 +107,22 @@ public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serial
 				}
 				values.add(attr_value);
 			}
+
+			jdbcConnectionBean.doneWithConnection();
 		}
 		catch (SQLException ex)
 		{
 			log.error("SignetJDBCSourceAdapter: SQLException occurred: " +
 					ex.getMessage() + "   SQL String was: \"" + sql + "\"",
 					ex);
+			try { jdbcConnectionBean.doneWithConnectionError(ex); }
+			catch (RuntimeException re) { log.error(re); }
 		}
 		finally
 		{
 			closeStatement(stmt);
-			closeConnection(conn);
+			if (null != jdbcConnectionBean)
+				jdbcConnectionBean.doneWithConnectionFinally();
 		}
 
 		return attributes;
