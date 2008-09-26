@@ -13,3 +13,6 @@ at runtime.
 3. Changed the format of the log4j messages to be consistent and more
 informative.
 
+4. Moved Xml Adapter and Binder classes out of signet-util.jar (they're
+already in their own jars).
+

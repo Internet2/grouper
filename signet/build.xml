@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.74 2008-07-21 00:13:14 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.75 2008-09-26 01:34:38 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -602,6 +602,8 @@
 			</manifest>
 			<fileset dir="${classes.dir}" >
 				<include name="${signet.jar.util.files}" />
+				<exclude name="${xml.adapter.relpath}/**" />
+				<exclude name="${xml.bindings.relpath}/**" />
 			</fileset>
 		</jar>
 	</target>
@@ -646,9 +648,6 @@
 					<attribute name="Dependencies" value="Standard Java JRE, JAXB, ${signet.jar.api}." />
 				</section>
 			</manifest>
-			<fileset dir="${classes.dir}" >
-				<include name="${signetxml.main.relpath}/*.class" />
-			</fileset>
 			<fileset dir="${classes.dir}" >
 				<include name="${xml.adapter.relpath}/*" />
 			</fileset>
