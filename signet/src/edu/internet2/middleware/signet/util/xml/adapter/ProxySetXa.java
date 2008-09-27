@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxySetXa.java,v 1.1 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/ProxySetXa.java,v 1.2 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -39,16 +39,25 @@ import edu.internet2.middleware.signet.util.xml.binder.ProxySetXb;
  */
 public class ProxySetXa
 {
-	protected Signet					signet;
-	protected Collection<ProxyImpl>		signetProxies;
-	protected ProxySetXb				xbProxies;
-	protected Log						log;
+	protected Signet				signet;
+	protected Collection<ProxyImpl>	signetProxies;
+	protected ProxySetXb			xbProxies;
+	/** logging */
+	private static Log				log = LogFactory.getLog(ProxySetXa.class);
 
+
+	/**
+	 * Constructor
+	 */
 	protected ProxySetXa()
 	{
-		log = LogFactory.getLog(ProxySetXa.class);
 	}
 
+	/**
+	 * Constructor
+	 * @param signetProxies
+	 * @param signet
+	 */
 	public ProxySetXa(Collection<ProxyImpl> signetProxies, Signet signet)
 	{
 		this();
@@ -57,6 +66,11 @@ public class ProxySetXa
 //		setSignetAssignments(signetAssignments);
 	}
 
+	/**
+	 * Constructor
+	 * @param xbProxies
+	 * @param signet
+	 */
 	public ProxySetXa(ProxySetXb xbProxies, Signet signet)
 	{
 		this();
@@ -66,11 +80,19 @@ public class ProxySetXa
 	}
 
 
+	/**
+	 * Get the set of proxies from this adapter
+	 * @return the set of proxies
+	 */
 	public Collection<ProxyImpl> getSignetProxies()
 	{
 		return (signetProxies);
 	}
 
+	/**
+	 * Replace the set of proxies
+	 * @param signetProxies
+	 */
 	public void setValues(Collection<ProxyImpl> signetProxies)
 	{
 		this.signetProxies = signetProxies;
@@ -87,11 +109,19 @@ public class ProxySetXa
 		}
 	}
 
+	/**
+	 * Get the set of XML proxies
+	 * @return The set of XML proxies
+	 */
 	public ProxySetXb getXmlProxies()
 	{
 		return (xbProxies);
 	}
 
+	/**
+	 * Replace the set of proxies for this adapter
+	 * @param xbProxies
+	 */
 	public void setValues(ProxySetXb xbProxies)
 	{
 		this.xbProxies = xbProxies;

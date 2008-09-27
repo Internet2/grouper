@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectXa.java,v 1.4 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -19,6 +19,8 @@ package edu.internet2.middleware.signet.util.xml.adapter;
 
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.SignetAuthorityException;
 import edu.internet2.middleware.signet.subjsrc.SignetSubject;
@@ -36,10 +38,22 @@ import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectXb;
  */
 public class SignetSubjectXa extends SignetSubjectRefXa
 {
+	/** logging */
+	private static Log	log = LogFactory.getLog(SignetSubjectXa.class);
+
+
+	/**
+	 * Constructor
+	 */
 	public SignetSubjectXa()
 	{
 	}
 
+	/**
+	 * Constructor
+	 * @param signetSubject
+	 * @param signet
+	 */
 	public SignetSubjectXa(SignetSubject signetSubject, Signet signet)
 	{
 		super(signet);
@@ -48,6 +62,11 @@ public class SignetSubjectXa extends SignetSubjectRefXa
 		setValues(signetSubject);
 	}
 
+	/**
+	 * Constructor
+	 * @param xmlSubject
+	 * @param signet
+	 */
 	public SignetSubjectXa(SignetSubjectXb xmlSubject, Signet signet)
 	{
 		super(signet);
@@ -59,12 +78,18 @@ public class SignetSubjectXa extends SignetSubjectRefXa
 	}
 
 
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.util.xml.adapter.SignetSubjectRefXa#getSignetSubject()
+	 */
 	public SignetSubject getSignetSubject()
 	{
 		return (signetSubject);
 	}
 
 
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.util.xml.adapter.SignetSubjectRefXa#setValues(edu.internet2.middleware.signet.subjsrc.SignetSubject)
+	 */
 	public void setValues(SignetSubject signetSubject)
 	{
 		super.setValues(signetSubject);
@@ -126,12 +151,19 @@ public class SignetSubjectXa extends SignetSubjectRefXa
 	}
 
 
+	/* (non-Javadoc)
+	 * @see edu.internet2.middleware.signet.util.xml.adapter.SignetSubjectRefXa#getXmlSubject()
+	 */
 	public SignetSubjectXb getXmlSubject()
 	{
 		return ((SignetSubjectXb)xmlSubject);
 	}
 
 
+	/**
+	 * Set the values from the given XML binder
+	 * @param xmlSubject
+	 */
 	public void setValues(SignetSubjectXb xmlSubject)
 	{
 		// super.setValues(xmlSubject) attempts to fetch the subject from the

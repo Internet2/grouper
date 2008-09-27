@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.subject.provider.JDBCSourceAdapter;
 import edu.internet2.middleware.subject.provider.JdbcConnectionBean;
 
@@ -28,17 +30,30 @@ import edu.internet2.middleware.subject.provider.JdbcConnectionBean;
  */
 public class SignetJDBCSourceAdapter extends JDBCSourceAdapter implements Serializable
 {
+	/** logging */
+	private static Log	log = LogFactory.getLog(SignetJDBCSourceAdapter.class);
+
+	/** The name field */
 	protected static final String NAME_FLD = "name";
+	/** The value field */
 	protected static final String VALUE_FLD = "value";
+	/** The subject id field */
 	protected static final String SUBJID_FLD = "subjectID";
+	/** The instance field */
 	protected static final String INSTANCE_FLD = "instance";
+	/** The subject attribute table */
 	protected static final String ATTR_TABLE = "SubjectAttribute";
+	/** SQL to select a subject's attributes by subject id */
 	protected static final String SUBJ_ATTR_SQL =
-						"SELECT sa." + NAME_FLD + ", " +
-						"sa." + VALUE_FLD + " " +
+						"SELECT " +
+							"sa." + NAME_FLD + ", " +
+							"sa." + VALUE_FLD + " " +
 						"FROM " + ATTR_TABLE + " sa " +
-						"WHERE sa." + SUBJID_FLD + " = ?" +
-						" ORDER BY sa." + NAME_FLD + ", sa." + INSTANCE_FLD;
+						"WHERE " +
+							"sa." + SUBJID_FLD + " = ?" +
+						" ORDER BY " +
+							"sa." + NAME_FLD + ", " +
+							"sa." + INSTANCE_FLD;
 
 
 	/** default constructor */

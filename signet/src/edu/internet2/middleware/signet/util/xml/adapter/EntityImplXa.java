@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/EntityImplXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/EntityImplXa.java,v 1.4 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -36,23 +36,17 @@ public abstract class EntityImplXa
 	protected Signet		signet;
 	protected EntityImpl	signetEntity;
 	protected EntityImplXb	xmlEntity;
-	protected Log			log;
+	/** logging */
+	private static Log		log = LogFactory.getLog(EntityImplXa.class);
 
 
 	protected EntityImplXa()
 	{
-		initLog();
 	}
 
 	protected EntityImplXa(Signet signet)
 	{
-		initLog();
 		this.signet = signet;
-	}
-
-	protected void initLog()
-	{
-		log = LogFactory.getLog(this.getClass());
 	}
 
 	public void setValues(EntityImpl signetEntity)

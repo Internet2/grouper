@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.6 2008-06-23 22:27:44 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SignetXml.java,v 1.7 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -51,8 +51,6 @@ public class SignetXml extends XmlUtil
 	 */
 	public SignetXml(String command, Vector<CommandArg> commandArgs, String xmlFilename)
 	{
-		log = LogFactory.getLog(SignetXml.class);
-
 		Signet signet = new Signet();
 		signetXmlAdapter = new SignetXa(signet);
 
@@ -99,7 +97,7 @@ public class SignetXml extends XmlUtil
 	{
 		InputStream inFile = setupInfile(xmlFilename);
 
-		XmlImporter importer = new XmlImporter(signet, log, inFile);
+		XmlImporter importer = new XmlImporter(signet, inFile);
 		for (CommandArg arg : commandArgs)
 			importer.importXml(arg);
 
@@ -221,8 +219,10 @@ public class SignetXml extends XmlUtil
 	protected static String				command;
 	protected static Vector<CommandArg>	commandArgs;
 	protected static String				xmlFile;
-	protected static String				version = "$Revision: 1.6 $";
-	protected static Log				mainLog;
+	protected static String				version = "$Revision: 1.7 $";
+	/** logging */
+	private static Log					log = LogFactory.getLog(SignetXml.class);
+
 
 
 	/////////////////////////////////////
@@ -235,7 +235,7 @@ public class SignetXml extends XmlUtil
 	 */
 	public static void main(String[] args)
 	{
-		mainLog = LogFactory.getLog(SignetXml.class);
+		log = LogFactory.getLog(SignetXml.class);
 		if (parseArgs(args))
 			new SignetXml(command, commandArgs, options.getXmlFilename());
 	}
@@ -346,7 +346,7 @@ public class SignetXml extends XmlUtil
 					retval.add(tmpCmd);
 			}
 			else
-				mainLog.error("Unknown or invalid CommandArg: " + args[i]);
+				log.error("Unknown or invalid CommandArg: " + args[i]);
 
 			done = true;
 		}
@@ -375,7 +375,7 @@ public class SignetXml extends XmlUtil
 		}
 		catch (FileNotFoundException e)
 		{
-			mainLog.error("CommandArg file \"" + cmdFilename + "\" not found.");
+			log.error("CommandArg file \"" + cmdFilename + "\" not found.");
 		}
 		catch (IOException e) { e.printStackTrace(); }
 
@@ -410,7 +410,7 @@ public class SignetXml extends XmlUtil
 			}
 			else
 			{
-				mainLog.error("SignetXml.parseExportCmd: Invalid argument found for Export command: \"" + arg + "\".");
+				log.error("SignetXml.parseExportCmd: Invalid argument found for Export command: \"" + arg + "\".");
 				done = true;
 			}
 		}
@@ -435,7 +435,7 @@ public class SignetXml extends XmlUtil
 				if (args.length > (i + 1))
 					cmd.getParams().put(arg, args[++i]);
 				else
-					mainLog.error("Missing value for command filter \"" + arg + "\". Filter ignored.");
+					log.error("Missing value for command filter \"" + arg + "\". Filter ignored.");
 				i++;
 			}
 		}

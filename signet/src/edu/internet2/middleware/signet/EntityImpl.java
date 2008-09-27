@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.21 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/EntityImpl.java,v 1.22 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -32,7 +32,8 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class EntityImpl implements Entity, Name
 {
-	protected Log				log;
+	/** logging */
+	private static Log			log = LogFactory.getLog(EntityImpl.class);
 
   protected Signet				signet;
   private String 				id; // see GrantableImpl, has an Integer id defined
@@ -78,7 +79,6 @@ public abstract class EntityImpl implements Entity, Name
 	 */
 	protected EntityImpl()
 	{
-		log = LogFactory.getLog(this.getClass());
 		this.id = null;
 //		setCreateDatetime(Calendar.getInstance().getTime());
 	}

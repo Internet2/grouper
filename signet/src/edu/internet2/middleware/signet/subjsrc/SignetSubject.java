@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.25 2008-05-17 20:54:09 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubject.java,v 1.26 2008-09-27 01:02:09 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -116,7 +116,7 @@ public class SignetSubject implements Subject, Comparable
 	protected Set<ProxyImpl>		proxiesReceived;
 
 	/** Logging */
-	protected Log			log;
+	private static Log			log = LogFactory.getLog(SignetSubject.class);
 
 
 	/**
@@ -124,8 +124,6 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public SignetSubject()
 	{
-		log = initLog();
-
 		subject_PK = null;
 		subjectId = null;
 		sourceId = null;
@@ -148,8 +146,6 @@ public class SignetSubject implements Subject, Comparable
 	 */
 	public SignetSubject(SignetSource source, Subject subject)
 	{
-		log = initLog();
-
 		signetSubjectAttrs = new HashSet<SignetSubjectAttr>();
 
 		signetSource = source;
@@ -170,13 +166,6 @@ public class SignetSubject implements Subject, Comparable
 		assignmentsReceived = new HashSet<AssignmentImpl>();
 		proxiesGranted = new HashSet<ProxyImpl>();
 		proxiesReceived = new HashSet<ProxyImpl>();
-	}
-
-
-	/** initialize the logger */
-	protected Log initLog()
-	{
-		return (LogFactory.getLog(SignetSubject.class));
 	}
 
 

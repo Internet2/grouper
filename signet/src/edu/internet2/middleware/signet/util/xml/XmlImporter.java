@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlImporter.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlImporter.java,v 1.4 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.ProxyImpl;
@@ -52,16 +53,17 @@ import edu.internet2.middleware.signet.util.xml.binder.SubsystemSetXb;
 
 /**
  * XmlImporter - Imports XML data into Signet. <p/>
- * Use the constructor XmlImporter(Signet, Log, InputStream, CommandArg)
+ * Use the constructor {@link #XmlImporter(Signet, InputStream, CommandArg)}
  * to process a single input stream and command. Use the constructor
- * XmlImporter(Signet, Log) in combination with the importXml(CommandArg) method
- * to process multiple input streams and commands.
+ * {@link #XmlImporter(Signet)} in combination with the {@link #importXml(CommandArg)}
+ *  method to process multiple input streams and commands.
  * 
  */
 public class XmlImporter
 {
 	/** logging */
-	protected Log			log;
+	private static Log			log = LogFactory.getLog(XmlImporter.class);
+
 	/** An instance of Signet */
 	protected Signet		signet;
 	/** The current InputStream to process */
@@ -78,24 +80,21 @@ public class XmlImporter
 	 * intend to process multiple input streams and commands in counjunction 
 	 * with the importXml(CommandArg) method.
 	 * @param signet An instance of Signet
-	 * @param log A log to use
 	 */
-	public XmlImporter(Signet signet, Log log)
+	public XmlImporter(Signet signet)
 	{
 		this();
-		this.log = log;
 		this.signet = signet;
 	}
 
 	/**
 	 * Constructor - Initialize the XmlImporter
 	 * @param signet An instance of Signet
-	 * @param log A log to use
 	 * @param inFile The input file stream
 	 */
-	public XmlImporter(Signet signet, Log log, InputStream inFile)
+	public XmlImporter(Signet signet, InputStream inFile)
 	{
-		this(signet, log);
+		this(signet);
 		this.inFile = inFile;
 	}
 
@@ -103,13 +102,12 @@ public class XmlImporter
 	 * Constructor - Initialize the XmlImporter and import the xml based on
 	 * the CommandArg
 	 * @param signet An instance of Signet
-	 * @param log A log to use
 	 * @param inFile The input file stream
 	 * @param cmd The command to execute (e.g. add | update | deactivate | delete)
 	 */
-	public XmlImporter(Signet signet, Log log, InputStream inFile, CommandArg cmd)
+	public XmlImporter(Signet signet, InputStream inFile, CommandArg cmd)
 	{
-		this(signet, log, inFile);
+		this(signet, inFile);
 		importXml(cmd);
 	}
 

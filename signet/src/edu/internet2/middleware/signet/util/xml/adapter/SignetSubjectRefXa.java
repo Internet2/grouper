@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectRefXa.java,v 1.5 2008-07-05 01:22:17 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/SignetSubjectRefXa.java,v 1.6 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -38,14 +38,14 @@ public class SignetSubjectRefXa
 	protected Signet				signet;
 	protected SignetSubject			signetSubject;
 	protected SignetSubjectRefXb	xmlSubject;
-	protected Log					log;
+	/** logging */
+	private static Log				log = LogFactory.getLog(SignetSubjectRefXa.class);
 
 	/**
 	 * default constructor
 	 */
 	public SignetSubjectRefXa()
 	{
-		log = LogFactory.getLog(SignetSubjectRefXa.class);
 	}
 
 	/**

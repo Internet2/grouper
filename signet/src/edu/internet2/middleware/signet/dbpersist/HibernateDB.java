@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.20 2008-07-05 23:48:30 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/dbpersist/HibernateDB.java,v 1.21 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -68,13 +68,13 @@ import edu.internet2.middleware.signet.tree.TreeNode;
  * own, always-open, Session, which gets re-used each time the beginTransaction-
  * "some action"-commit cycle occurs. Nested transactions are prevented using the
  * "push counter" called transactDepth.
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  * @author $Author: ddonn $
  */
 public class HibernateDB implements Serializable
 {
 	/** logging */
-	protected Log				log;
+	private static Log			log = LogFactory.getLog(HibernateDB.class);
 	/** Reference to the Signet instance. */
 	protected Signet			signet;
 	/** The Hibernate Configuration */
@@ -99,8 +99,6 @@ public class HibernateDB implements Serializable
 	 */
 	public HibernateDB(Signet signetInstance)
 	{
-		log = LogFactory.getLog(HibernateDB.class);
-
 		try
 		{
 			// Read the "hibernate.cfg.xml" file. It is expected to be in a root directory of the classpath

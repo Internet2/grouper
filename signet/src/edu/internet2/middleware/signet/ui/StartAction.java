@@ -1,6 +1,6 @@
 /*--
-$Id: StartAction.java,v 1.21 2007-08-13 23:17:20 ddonn Exp $
-$Date: 2007-08-13 23:17:20 $
+$Id: StartAction.java,v 1.22 2008-09-27 01:02:09 ddonn Exp $
+$Date: 2008-09-27 01:02:09 $
   
 Copyright 2006 Internet2, Stanford University
 
@@ -78,7 +78,7 @@ public final class StartAction extends BaseAction
     if (signet == null)
     {
       signet = new Signet();
-      signet.setLogger(log);
+//      signet.setLogger(log);
       session.setAttribute(Constants.SIGNET_ATTRNAME, signet);
     }
 

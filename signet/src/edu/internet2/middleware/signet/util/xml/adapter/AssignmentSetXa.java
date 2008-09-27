@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentSetXa.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentSetXa.java,v 1.4 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -42,13 +42,22 @@ public class AssignmentSetXa
 	protected Signet						signet;
 	protected Collection<AssignmentImpl>	signetAssignments;
 	protected AssignmentSetXb				xbAssignments;
-	protected Log							log;
+	/** logging */
+	private static Log						log = LogFactory.getLog(AssignmentSetXa.class);
 
+
+	/**
+	 * Constructor
+	 */
 	protected AssignmentSetXa()
 	{
-		log = LogFactory.getLog(AssignmentSetXa.class);
 	}
 
+	/**
+	 * Constructor
+	 * @param signetAssignments
+	 * @param signet
+	 */
 	public AssignmentSetXa(Collection<AssignmentImpl> signetAssignments, Signet signet)
 	{
 		this();
@@ -57,6 +66,11 @@ public class AssignmentSetXa
 //		setSignetAssignments(signetAssignments);
 	}
 
+	/**
+	 * Constructor
+	 * @param xbAssignments
+	 * @param signet
+	 */
 	public AssignmentSetXa(AssignmentSetXb xbAssignments, Signet signet)
 	{
 		this();
@@ -66,11 +80,19 @@ public class AssignmentSetXa
 	}
 
 
+	/**
+	 * Get the assignments from this XML adapter
+	 * @return The assignments from this XML adapter
+	 */
 	public Collection<AssignmentImpl> getSignetAssignments()
 	{
 		return (signetAssignments);
 	}
 
+	/**
+	 * Replaces the set of assignments
+	 * @param signetAssignments
+	 */
 	public void setValues(Collection<AssignmentImpl> signetAssignments)
 	{
 		this.signetAssignments = signetAssignments;
@@ -87,11 +109,19 @@ public class AssignmentSetXa
 		}
 	}
 
+	/**
+	 * Get the set of XML assignments
+	 * @return The set of XML assignments
+	 */
 	public AssignmentSetXb getXmlAssignments()
 	{
 		return (xbAssignments);
 	}
 
+	/**
+	 * Replaces the set of assignments
+	 * @param xbAssignments
+	 */
 	public void setValues(AssignmentSetXb xbAssignments)
 	{
 		this.xbAssignments = xbAssignments;

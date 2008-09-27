@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubjectXml.java,v 1.4 2008-07-05 01:22:17 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/SubjectXml.java,v 1.5 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2008 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet.util.xml;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.dbpersist.HibernateDB;
@@ -36,26 +37,29 @@ import edu.internet2.middleware.signet.util.xml.binder.SignetSubjectXb;
  */
 public class SubjectXml extends XmlUtil
 {
+	/** logging */
+	private static Log	log = LogFactory.getLog(SubjectXml.class);
+
+
 	/** private default constructor */
 	private SubjectXml()
 	{
 	}
 
 	/**
-	 * Constructor - Initialize Log and Signet instance variables
+	 * Constructor - Initialize Signet instance variables
 	 * @param signetXmlAdapter A SignetXa instance
 	 * @see Signet
 	 */
 	public SubjectXml(SignetXa signetXmlAdapter)
 	{
 		this();
-		log = LogFactory.getLog(SubjectXml.class);
 		this.signetXmlAdapter = signetXmlAdapter;
 		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
-	 * Constructor - Initialize Log and Signet instance variables, then
+	 * Constructor - Initialize Signet instance variables, then
 	 * export Subject(s) based on parameters in CommandArg
 	 * @param signetXmlAdapter A SignetXa instance
 	 * @param cmd A CommandArg object containing export parameters

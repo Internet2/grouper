@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitImplRefXa.java,v 1.3 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/LimitImplRefXa.java,v 1.4 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -37,20 +37,32 @@ public class LimitImplRefXa
 	protected Signet			signet;
 	protected LimitImpl			signetLimitImpl;
 	protected LimitImplRefXb	xmlLimitImplRef;
-	protected Log				log;
+	/** logging */
+	private static Log			log = LogFactory.getLog(LimitImplRefXa.class);
 
 
+	/**
+	 * Constructor
+	 */
 	public LimitImplRefXa()
 	{
-		log = LogFactory.getLog(LimitImplRefXa.class);
 	}
 
+	/**
+	 * Constructor
+	 * @param signet
+	 */
 	public LimitImplRefXa(Signet signet)
 	{
 		this();
 		this.signet = signet;
 	}
 
+	/**
+	 * Constructor
+	 * @param signetLimitImpl
+	 * @param signet
+	 */
 	public LimitImplRefXa(LimitImpl signetLimitImpl, Signet signet)
 	{
 		this(signet);
@@ -59,6 +71,11 @@ public class LimitImplRefXa
 		setValues(signetLimitImpl);
 	}
 
+	/**
+	 * Constructor
+	 * @param xmlLimitImpl
+	 * @param signet
+	 */
 	public LimitImplRefXa(LimitImplRefXb xmlLimitImpl, Signet signet)
 	{
 		this(signet);
@@ -67,11 +84,19 @@ public class LimitImplRefXa
 		setValues(xmlLimitImpl);
 	}
 
+	/**
+	 * Get the limit from this adapter
+	 * @return the limit
+	 */
 	public LimitImpl getSignetLimitImpl()
 	{
 		return (signetLimitImpl);
 	}
 
+	/**
+	 * Set the limit
+	 * @param signetLimitImpl
+	 */
 	public void setValues(LimitImpl signetLimitImpl)
 	{
 //	protected Integer			key;
@@ -85,11 +110,19 @@ public class LimitImplRefXa
 
 	}
 
+	/**
+	 * Get the XML limit from this adapter
+	 * @return
+	 */
 	public LimitImplRefXb getXmlLimitImplRef()
 	{
 		return (xmlLimitImplRef);
 	}
 
+	/**
+	 * Set the limit
+	 * @param xmlLimitImpl
+	 */
 	public void setValues(LimitImplRefXb xmlLimitImpl)
 	{
 		signetLimitImpl = null;

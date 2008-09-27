@@ -1,5 +1,5 @@
 /*
- * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.10 2008-05-17 20:54:09 ddonn Exp $
+ * $Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSubjectAttr.java,v 1.11 2008-09-27 01:02:09 ddonn Exp $
  * 
  * Copyright (c) 2007 Internet2, Stanford University
  * 
@@ -40,7 +40,8 @@ public class SignetSubjectAttr
 	public static final String ATTR_TYPE_DATE = "date";
 	public static final String ATTR_TYPE_DEFAULT = ATTR_TYPE_STRING;
 
-	protected Log log;
+	/** logging */
+	private static Log	log = LogFactory.getLog(SignetSubjectAttr.class);
 
 	/** DB primary key */
 	protected Long		subjectAttr_PK;
@@ -74,7 +75,6 @@ public class SignetSubjectAttr
 	/** default constructor */
 	public SignetSubjectAttr()
 	{
-		log = LogFactory.getLog(SignetSubjectAttr.class);
 		mappedName = null;
 		attrValue = null;
 		attrType = ATTR_TYPE_DEFAULT;

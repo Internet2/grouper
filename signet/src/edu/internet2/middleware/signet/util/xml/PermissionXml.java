@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/PermissionXml.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/PermissionXml.java,v 1.4 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -21,6 +21,7 @@ import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.PermissionImpl;
@@ -50,26 +51,29 @@ import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
  */
 public class PermissionXml extends XmlUtil
 {
+	/** logging */
+	private static Log	log = LogFactory.getLog(PermissionXml.class);
+
+
 	/** private default constructor */
 	private PermissionXml()
 	{
 	}
 
 	/**
-	 * Constructor - Initialize Log and Signet instance variables
+	 * Constructor - Initialize Signet instance variables
 	 * @param signetXmlAdapter A SignetXa instance
 	 * @see SignetXa
 	 */
 	public PermissionXml(SignetXa signetXmlAdapter)
 	{
 		this();
-		log = LogFactory.getLog(PermissionXml.class);
 		this.signetXmlAdapter = signetXmlAdapter;
 		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
-	 * Constructor - Initialize Log and Signet instance variables, then
+	 * Constructor - Initialize Signet instance variables, then
 	 * export Permission based on parameters in CommandArg
 	 * @param signetXmlAdapter A SignetXa instance
 	 * @param cmd A CommandArg object containing export parameters

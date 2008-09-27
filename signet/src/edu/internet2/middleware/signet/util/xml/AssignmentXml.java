@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/AssignmentXml.java,v 1.3 2008-06-23 22:27:44 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/AssignmentXml.java,v 1.4 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -19,6 +19,7 @@ package edu.internet2.middleware.signet.util.xml;
 
 import java.util.Hashtable;
 import java.util.Set;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.ProxyImpl;
@@ -46,6 +47,10 @@ import edu.internet2.middleware.signet.util.xml.binder.SignetXb;
  */
 public class AssignmentXml extends XmlUtil
 {
+	/** logging */
+	private static Log	log = LogFactory.getLog(AssignmentXml.class);
+
+
 	/** private default constructor */
 	private AssignmentXml()
 	{
@@ -64,20 +69,19 @@ public class AssignmentXml extends XmlUtil
 //	}
 //
 	/**
-	 * Constructor - Initialize Log and SignetXmlAdapter instance variables
+	 * Constructor - Initialize SignetXmlAdapter instance variables
 	 * @param signetXmlAdapter A SignetXa instance
 	 * @see SignetXa
 	 */
 	public AssignmentXml(SignetXa signetXmlAdapter)
 	{
 		this();
-		log = LogFactory.getLog(AssignmentXml.class);
 		this.signetXmlAdapter = signetXmlAdapter;
 		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
-	 * Constructor - Initialize Log and SignetXmlAdapter instance variables,
+	 * Constructor - Initialize SignetXmlAdapter instance variables,
 	 * then add Assignment export data to signetXmlAdapter, based on parameters
 	 * in CommandArg
 	 * @param signetXmlAdapter A SignetXa instance
@@ -93,7 +97,7 @@ public class AssignmentXml extends XmlUtil
 	}
 
 //	/**
-//	 * Constructor - Initialize Log and Signet instance variables, then
+//	 * Constructor - Initialize Signet instance variables, then
 //	 * export Assignment based on parameters in CommandArg
 //	 * @param signet A Signet instance
 //	 * @param cmd A CommandArg object containing export parameters

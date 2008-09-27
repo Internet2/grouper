@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlUtil.java,v 1.3 2008-06-18 01:21:39 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/XmlUtil.java,v 1.4 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.Signet;
 import edu.internet2.middleware.signet.resource.ResLoaderApp;
 import edu.internet2.middleware.signet.util.xml.adapter.SignetXa;
@@ -55,7 +56,7 @@ public abstract class XmlUtil
 	//////////////////////////
 
 	/** logging */
-	protected Log		log;
+	private static  Log		log = LogFactory.getLog(XmlUtil.class);
 	/** An instance of Signet */
 	protected Signet	signet;
 	/** An instance of SignetXa */

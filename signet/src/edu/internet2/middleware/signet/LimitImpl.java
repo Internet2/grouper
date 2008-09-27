@@ -1,6 +1,6 @@
 /*--
-$Id: LimitImpl.java,v 1.22 2008-07-05 01:22:17 ddonn Exp $
-$Date: 2008-07-05 01:22:17 $
+$Id: LimitImpl.java,v 1.23 2008-09-27 01:02:09 ddonn Exp $
+$Date: 2008-09-27 01:02:09 $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -22,6 +22,7 @@ import java.util.Date;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.signet.choice.ChoiceSet;
 
 /**
@@ -30,7 +31,8 @@ import edu.internet2.middleware.signet.choice.ChoiceSet;
  */
 public final class LimitImpl implements Limit
 {
-	protected Log		log;
+	/** logging */
+	private static Log		log = LogFactory.getLog(LimitImpl.class);
 
   // This field is a simple synthetic key for this record in the database.
   private Integer     key;

@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.10 2007-08-07 23:26:19 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSources.java,v 1.11 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -86,8 +86,8 @@ public class SignetSources implements Serializable
 	/** A common Usage value for a SignetSource */
 	public static final String		SIGNET_USAGE_ALL		= "all";
 
-	// logging
-	protected Log				log;
+	/** logging */
+	private static Log				log = LogFactory.getLog(SignetSources.class);
 
 	/** List of "standard" Subject Sources as defined in SubjectSources.xml.
 	 * sourceList is a Vector, as opposed to a Hashtable, because it will be
@@ -120,8 +120,6 @@ public class SignetSources implements Serializable
 	/** default constructor */
 	private SignetSources()
 	{
-		log = LogFactory.getLog(SignetSources.class);
-
 		persistedSource = null;
 		sourceList = new Vector();
 

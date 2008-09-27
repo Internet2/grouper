@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/ScopeTreeXml.java,v 1.4 2008-06-23 22:27:44 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/ScopeTreeXml.java,v 1.5 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -20,6 +20,7 @@ package edu.internet2.middleware.signet.util.xml;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import edu.internet2.middleware.signet.TreeImpl;
@@ -42,26 +43,29 @@ import edu.internet2.middleware.signet.util.xml.binder.ScopeTreeXb;
  */
 public class ScopeTreeXml extends XmlUtil
 {
+	/** logging */
+	private static Log	log = LogFactory.getLog(ScopeTreeXml.class);
+
+
 	/** private default constructor */
 	private ScopeTreeXml()
 	{
 	}
 
 	/**
-	 * Constructor - Initialize Log and Signet instance variables
+	 * Constructor - Initialize Signet instance variables
 	 * @param signetXmlAdapter A SignetXa instance
 	 * @see SignetXa
 	 */
 	public ScopeTreeXml(SignetXa signetXmlAdapter)
 	{
 		this();
-		log = LogFactory.getLog(ScopeTreeXml.class);
 		this.signetXmlAdapter = signetXmlAdapter;
 		this.signet = signetXmlAdapter.getSignet();
 	}
 
 	/**
-	 * Constructor - Initialize Log and Signet instance variables, then
+	 * Constructor - Initialize Signet instance variables, then
 	 * add ScopeTree to SignetXa based on parameters in CommandArg
 	 * @param signetXmlAdapter An instance of SignetXa
 	 * @param cmd A CommandArg object containing export parameters

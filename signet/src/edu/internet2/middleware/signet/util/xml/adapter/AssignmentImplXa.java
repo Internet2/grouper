@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.5 2008-09-26 00:49:26 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/util/xml/adapter/AssignmentImplXa.java,v 1.6 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -20,6 +20,8 @@ package edu.internet2.middleware.signet.util.xml.adapter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import edu.internet2.middleware.signet.AssignmentImpl;
 import edu.internet2.middleware.signet.Function;
@@ -44,6 +46,10 @@ import edu.internet2.middleware.signet.util.xml.binder.ObjectFactory;
  */
 public class AssignmentImplXa extends GrantableImplXa
 {
+	/** logging */
+	private static Log	log = LogFactory.getLog(AssignmentImplXa.class);
+
+
 	/**
 	 * Default constructor
 	 */

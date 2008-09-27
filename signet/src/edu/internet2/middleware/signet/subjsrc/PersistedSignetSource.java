@@ -1,5 +1,5 @@
 /*
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.13 2008-07-05 01:22:17 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/PersistedSignetSource.java,v 1.14 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2007 Internet2, Stanford University
 
@@ -22,6 +22,8 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import edu.internet2.middleware.signet.ObjectNotFoundException;
@@ -45,6 +47,9 @@ public class PersistedSignetSource extends SignetSource
 
 	// conversion factor for minutes to/from milliseconds
 	protected static final long minutesToMillis = (60 * 1000);
+
+	/** logging */
+	private static Log			log = LogFactory.getLog(PersistedSignetSource.class);
 
 	/** The Persisted Store Manager */
 	protected HibernateDB		persistMgr;

@@ -1,5 +1,5 @@
 /*--
-	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.69 2008-05-17 20:54:09 ddonn Exp $
+	$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/Signet.java,v 1.70 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright 2006 Internet2, Stanford University
 
@@ -88,7 +88,7 @@ public final class Signet implements Serializable
  //   3) This avoids (so far, at least) the necessity for a Signet-specific
  //      configuration file, by fobbing that responsibility off onto the
  //      enclosing application.
-	protected Log		log;
+	private static Log		log = LogFactory.getLog(Signet.class);
 
 	/** @return The version of this Signet runtime. */
 	public static String getVersion() { return (version); }
@@ -97,25 +97,25 @@ public final class Signet implements Serializable
 	public static String getAppName() { return (appName); }
 
 
- /**
-  * Sets the Log associated with this Signet instance.
-  * 
-  * @param logger
-  */
- public final void setLogger(Log logger)
- {
-   log = logger;
- }
-
- /**
-  * Gets the Log associated with this Signet instance.
-  * 
-  * @return the Log.
-  */
- public final Log getLogger()
- {
-   return (log);
- }
+// /**
+//  * Sets the Log associated with this Signet instance.
+//  * 
+//  * @param logger
+//  */
+// public final void setLogger(Log logger)
+// {
+//   log = logger;
+// }
+//
+// /**
+//  * Gets the Log associated with this Signet instance.
+//  * 
+//  * @return the Log.
+//  */
+// public final Log getLogger()
+// {
+//   return (log);
+// }
 
 	/**
 	 * Formats a scope-tree for display. This method should probably be moved to some new, display-oriented class.
@@ -302,8 +302,6 @@ public final class Signet implements Serializable
 	{
 		String subjSrcFile = ResLoaderApp.getString("signet.subject.sources");
 		signetSources = new SignetSources(subjSrcFile, this);
-
-		log = LogFactory.getLog(Signet.class);
 	}
 
 

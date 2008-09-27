@@ -1,5 +1,5 @@
 /*
-$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.9 2007-06-16 00:51:51 ddonn Exp $
+$Header: /home/hagleyj/i2mi/signet/src/edu/internet2/middleware/signet/subjsrc/SignetSource.java,v 1.10 2008-09-27 01:02:09 ddonn Exp $
 
 Copyright (c) 2006 Internet2, Stanford University
 
@@ -44,15 +44,15 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class SignetSource implements Source, Serializable
 {
 	/** Status of this Source */
-	public static final String		STATUS_ACTIVE			= "active";
+	public static final String		STATUS_ACTIVE		= "active";
 	/** Status of this Source */
-	public static final String		STATUS_INACTIVE			= "inactive";
-//	public static final String		TYPE_DEFAULT			= "any";
+	public static final String		STATUS_INACTIVE		= "inactive";
+//	public static final String		TYPE_DEFAULT		= "any";
 	/** Default Usage value */
-	public static final String		USAGE_DEFAULT			= SignetSources.SIGNET_USAGE_ALL;
+	public static final String		USAGE_DEFAULT		= SignetSources.SIGNET_USAGE_ALL;
 
-	// logging
-	protected Log			log;
+	/** logging */
+	private static Log		log = LogFactory.getLog(SignetSource.class);
 
 	/** Application and SubjectAPI Source 'id' */
 	protected String		id;
@@ -81,7 +81,6 @@ public class SignetSource implements Source, Serializable
 	/** default constructor */
 	public SignetSource()
 	{
-		log = LogFactory.getLog(this.getClass());
 		id = null;
 		name = null;
 		type = null;
