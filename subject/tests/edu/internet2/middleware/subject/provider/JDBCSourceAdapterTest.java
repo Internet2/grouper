@@ -81,9 +81,7 @@ public class JDBCSourceAdapterTest
 
         search = new Search();
         search.setSearchType("searchSubject");
-        search.addParam("numParameters", "1");
-        search
-                .addParam(
+        search.addParam(
                         "sql",
                         "select subject.subjectid as id, subject.name as name, lfnamet.lfname as "
                                 + "lfname, loginidt.loginid as loginid, desct.description as description from subject "
@@ -112,7 +110,6 @@ public class JDBCSourceAdapterTest
 
         search = new Search();
         search.setSearchType("search");
-        search.addParam("numParameters", "4");
         search
                 .addParam(
                         "sql",
