@@ -135,7 +135,7 @@ function eventCancelBubble(event) {
 }
 
 /** hide or show an element by id, return false to not navigate to link */
-function grouperHideShow(event, elementIdToHideShow) {
+function grouperHideShow(event, elementIdToHideShow, forceShow) {
 
   eventCancelBubble(event);
 
@@ -143,8 +143,11 @@ function grouperHideShow(event, elementIdToHideShow) {
   
   //see if shown or hidden
   var isHidden = isEmpty(theElement) ? true : theElement.style.display == 'none'
+
+  if (!forceShow || isHidden) {
   
-  hideShow(isHidden, elementIdToHideShow, true);
+    hideShow(isHidden, elementIdToHideShow, true);
+  }
   
   return false;
 }
