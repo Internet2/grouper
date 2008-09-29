@@ -1,11 +1,11 @@
-<!-- $Id: build.xml,v 1.195 2008-09-29 03:38:30 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.196 2008-09-29 04:34:45 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
   <!-- ant contrib allows conditionals in ant scripts -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
     <classpath>
-      <pathelement location="${basedir}/libAnt/ant-contrib-1.0b3.jar" />
+      <pathelement location="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
     </classpath>
   </taskdef>
   
